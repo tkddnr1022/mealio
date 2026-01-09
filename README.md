@@ -1,98 +1,103 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        RN[React Native App<br/>WebView]
+        WEB[Web Browser]
+    end
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+    subgraph "CDN & Edge"
+        CF[CloudFlare CDN]
+        VERCEL[Vercel<br/>Next.js Frontend]
+    end
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+    subgraph "AWS Cloud"
+        subgraph "Route 53"
+            R53[DNS Routing]
+        end
 
-## Description
+        subgraph "EC2 Instance"
+            subgraph "Producer Runtime"
+                API[NestJS API<br/>REST/GraphQL]
+            end
+            subgraph "Consumer Runtime"
+                CONSUMER[Kafka Consumer<br/>Event Processor]
+            end
+        end
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+        subgraph "Message Broker"
+            MSK[AWS MSK<br/>Apache Kafka]
+            TOPICS["Topics:<br/>- recipe-generation<br/>- search-logs<br/>- user-events<br/>- cache-invalidation<br/>- chatbot-requests"]
+        end
 
-## Project setup
+        subgraph "Cache Layer"
+            REDIS[AWS ElastiCache<br/>Redis]
+        end
 
-```bash
-$ npm install
+        subgraph "Database Layer"
+            RDS[(AWS RDS<br/>MySQL)]
+            MONGO[(MongoDB Atlas)]
+        end
+
+        subgraph "Storage"
+            S3[AWS S3<br/>Recipe Images]
+        end
+    end
+
+    subgraph "External Services"
+        OPENAI[OpenAI API<br/>GPT-4]
+        SENTRY[Sentry<br/>Error Tracking]
+        GA[Google Analytics<br/>User Metrics]
+    end
+
+    subgraph "Data Models"
+        subgraph "MySQL Schema"
+            SQL_DATA["- Users<br/>- Ingredients<br/>- Recipes<br/>- Recipe-Ingredients<br/>- User Preferences"]
+        end
+        subgraph "MongoDB Collections"
+            NOSQL_DATA["- User Ingredients<br/>- User Interests<br/>- Chatbot Logs<br/>- Event Logs<br/>- Search History"]
+        end
+    end
+
+    %% Client Connections
+    RN --> CF
+    WEB --> CF
+    CF --> VERCEL
+    VERCEL --> R53
+    R53 --> API
+
+    %% API Connections
+    API --> REDIS
+    API --> RDS
+    API --> MONGO
+    API --> MSK
+    API --> S3
+    API --> OPENAI
+    API --> SENTRY
+    API --> GA
+
+    %% Kafka Flow
+    MSK --> TOPICS
+    TOPICS --> CONSUMER
+
+    %% Consumer Connections
+    CONSUMER --> REDIS
+    CONSUMER --> RDS
+    CONSUMER --> MONGO
+    CONSUMER --> OPENAI
+    CONSUMER --> S3
+
+    %% Data Model References
+    RDS -.-> SQL_DATA
+    MONGO -.-> NOSQL_DATA
+
+    style RN fill:#61dafb
+    style VERCEL fill:#000000,color:#fff
+    style API fill:#e0234e,color:#fff
+    style CONSUMER fill:#e0234e,color:#fff
+    style MSK fill:#231f20,color:#fff
+    style REDIS fill:#dc382d,color:#fff
+    style RDS fill:#527fff,color:#fff
+    style MONGO fill:#13aa52,color:#fff
+    style OPENAI fill:#10a37f,color:#fff
+    style CF fill:#f38020,color:#fff
 ```
-
-## Compile and run the project
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
