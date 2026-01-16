@@ -1,0 +1,1030 @@
+openapi: 3.0.3
+info:
+  title: Recipe Service API
+  description: |
+    레시피 추천 및 재료 관리 서비스 API
+    
+    ## 인증 방식
+    - Cookie 기반 JWT 인증
+    - HttpOnly, Secure, SameSite=Strict 설정
+    
+    ## 주요 기능
+    - 소셜 로그인 (카카오, 구글, 네이버)
+    - 레시피 조회 및 검색
+    - 사용자 재료 관리
+    - AI 챗봇 레시피 추천
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.example.com
+    description: Production server
+  - url: https://staging-api.example.com
+    description: Staging server
+  - url: http://localhost:8080
+    description: Local development server
+
+tags:
+  - name: Authentication
+    description: 인증 관련 API
+  - name: User
+    description: 사용자 관련 API
+  - name: Recipe
+    description: 레시피 관련 API
+  - name: Ingredient
+    description: 재료 관련 API
+  - name: UserIngredient
+    description: 사용자 재료함 관련 API
+  - name: Chatbot
+    description: AI 챗봇 관련 API
+  - name: Internal
+    description: 내부 API
+
+security:
+  - cookieAuth: []
+
+paths:
+  /api/v1/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: 소셜 로그인
+      description: 소셜 플랫폼(카카오, 구글, 네이버)을 통한 로그인
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - platform
+                - accessToken
+              properties:
+                platform:
+                  type: string
+                  enum: [kakao, google, naver]
+                  description: 소셜 로그인 플랫폼
+                accessToken:
+                  type: string
+                  description: 소셜 플랫폼에서 발급받은 액세스 토큰
+            example:
+              platform: kakao
+              accessToken: "ya29.a0AfH6SMBx..."
+      responses:
+        '200':
+          description: 로그인 성공
+          headers:
+            Set-Cookie:
+              description: JWT 토큰이 포함된 쿠키
+              schema:
+                type: string
+                example: "accessToken=eyJhbGc...; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=3600"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: 토큰 갱신
+      description: Refresh Token을 사용하여 Access Token 갱신
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: 토큰 갱신 성공
+          headers:
+            Set-Cookie:
+              description: 갱신된 JWT 토큰
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: 로그아웃
+      description: 로그아웃 및 쿠키 삭제
+      responses:
+        '204':
+          description: 로그아웃 성공
+          headers:
+            Set-Cookie:
+              description: 쿠키 삭제
+              schema:
+                type: string
+                example: "accessToken=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/users/me:
+    get:
+      tags:
+        - User
+      summary: 내 프로필 조회
+      description: 현재 로그인한 사용자의 프로필 정보 조회
+      responses:
+        '200':
+          description: 프로필 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/users/me/nickname:
+    patch:
+      tags:
+        - User
+      summary: 닉네임 수정
+      description: 사용자 닉네임 수정
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nickname
+              properties:
+                nickname:
+                  type: string
+                  minLength: 2
+                  maxLength: 20
+                  description: 새로운 닉네임
+            example:
+              nickname: "요리왕"
+      responses:
+        '200':
+          description: 닉네임 수정 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  nickname:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/recipes:
+    get:
+      tags:
+        - Recipe
+      summary: 레시피 목록 조회
+      description: 페이지네이션을 지원하는 레시피 목록 조회
+      security:
+        - cookieAuth: []
+        - {}
+      parameters:
+        - name: page
+          in: query
+          description: 페이지 번호
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: size
+          in: query
+          description: 페이지 크기
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: difficulty
+          in: query
+          description: 난이도 필터 (1=쉬움, 2=보통, 3=어려움)
+          schema:
+            type: array
+            items:
+              type: integer
+              enum: [1, 2, 3]
+          style: form
+          explode: false
+        - name: cookTime
+          in: query
+          description: 최대 조리시간 (분)
+          schema:
+            type: integer
+            minimum: 1
+        - name: sort
+          in: query
+          description: 정렬 기준
+          schema:
+            type: string
+            enum: [latest, cookTime, difficulty]
+            default: latest
+      responses:
+        '200':
+          description: 레시피 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RecipeSummary'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/recipes/{recipeId}:
+    get:
+      tags:
+        - Recipe
+      summary: 레시피 상세 조회
+      description: 특정 레시피의 상세 정보 조회
+      security:
+        - cookieAuth: []
+        - {}
+      parameters:
+        - name: recipeId
+          in: path
+          required: true
+          description: 레시피 ID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 레시피 상세 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/recipes/search:
+    get:
+      tags:
+        - Recipe
+      summary: 레시피 검색
+      description: 키워드로 레시피 검색
+      security:
+        - cookieAuth: []
+        - {}
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: 검색 키워드
+          schema:
+            type: string
+            minLength: 1
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: 검색 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RecipeSummary'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/ingredients:
+    get:
+      tags:
+        - Ingredient
+      summary: 재료 목록 조회
+      description: 카테고리별 재료 목록 조회
+      parameters:
+        - name: category
+          in: query
+          description: 재료 카테고리 ID
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+      responses:
+        '200':
+          description: 재료 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Ingredient'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/ingredients/search:
+    get:
+      tags:
+        - Ingredient
+      summary: 재료 검색
+      description: 키워드로 재료 검색
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: 검색 키워드
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        '200':
+          description: 검색 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Ingredient'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/users/me/ingredients:
+    get:
+      tags:
+        - UserIngredient
+      summary: 내 재료함 조회
+      description: 사용자의 재료함 정보 조회
+      responses:
+        '200':
+          description: 재료함 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserIngredientList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      tags:
+        - UserIngredient
+      summary: 내 재료함 업데이트
+      description: 재료함 전체 교체 (bulk update)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - ingredients
+              properties:
+                ingredients:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/UserIngredientInput'
+      responses:
+        '200':
+          description: 업데이트 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - UserIngredient
+      summary: 재료 추가/수정
+      description: 재료함에 재료 추가 또는 수정
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserIngredientInput'
+      responses:
+        '201':
+          description: 재료 추가 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/users/me/ingredients/{ingredientId}:
+    delete:
+      tags:
+        - UserIngredient
+      summary: 재료 삭제
+      description: 재료함에서 특정 재료 삭제
+      parameters:
+        - name: ingredientId
+          in: path
+          required: true
+          description: 재료 ID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: 삭제 성공
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/users/me/ingredients/favorites:
+    put:
+      tags:
+        - UserIngredient
+      summary: 즐겨찾는 재료 설정
+      description: 즐겨찾는 재료 목록 업데이트
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - ingredientIds
+              properties:
+                ingredientIds:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
+            example:
+              ingredientIds: [1, 5, 12, 23]
+      responses:
+        '200':
+          description: 업데이트 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/chatbot/messages:
+    post:
+      tags:
+        - Chatbot
+      summary: 챗봇 대화
+      description: AI 챗봇과 대화하여 레시피 추천 받기
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  description: 사용자 메시지
+                conversationId:
+                  type: string
+                  description: 기존 대화 ID (선택사항)
+            example:
+              message: "오늘 저녁으로 뭘 해먹을까요?"
+              conversationId: "conv_abc123"
+      responses:
+        '200':
+          description: 대화 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatbotResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/chatbot/conversations/{conversationId}:
+    get:
+      tags:
+        - Chatbot
+      summary: 대화 히스토리 조회
+      description: 특정 대화의 전체 히스토리 조회
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          description: 대화 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationHistory'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /internal/v1/events:
+    post:
+      tags:
+        - Internal
+      summary: 이벤트 로그 기록
+      description: 내부 시스템용 이벤트 로깅 API
+      security:
+        - internalApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventLog'
+      responses:
+        '202':
+          description: 이벤트 수신 완료 (비동기 처리)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accepted:
+                    type: boolean
+                    example: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: accessToken
+      description: JWT 토큰이 포함된 HttpOnly 쿠키
+    internalApiKey:
+      type: apiKey
+      in: header
+      name: X-Internal-API-Key
+      description: 내부 API 인증 키
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 사용자 ID
+        email:
+          type: string
+          format: email
+          description: 이메일
+        nickname:
+          type: string
+          description: 닉네임
+      example:
+        id: 123
+        email: user@example.com
+        nickname: 요리왕
+
+    UserProfile:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            createdAt:
+              type: string
+              format: date-time
+              description: 가입일시
+
+    RecipeSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        difficulty:
+          type: integer
+          minimum: 1
+          maximum: 3
+          description: 난이도 (1=쉬움, 2=보통, 3=어려움)
+        cookTime:
+          type: integer
+          description: 조리시간 (분)
+        imageUrl:
+          type: string
+          format: uri
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      example:
+        id: 456
+        title: 김치볶음밥
+        description: 간단하고 맛있는 김치볶음밥
+        difficulty: 1
+        cookTime: 15
+        imageUrl: https://example.com/images/recipe456.jpg
+        createdAt: "2025-01-10T10:30:00Z"
+
+    RecipeDetail:
+      allOf:
+        - $ref: '#/components/schemas/RecipeSummary'
+        - type: object
+          properties:
+            instructions:
+              type: array
+              items:
+                type: object
+                properties:
+                  step:
+                    type: integer
+                  content:
+                    type: string
+                  imageUrl:
+                    type: string
+                    format: uri
+                    nullable: true
+            ingredients:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  name:
+                    type: string
+                  amount:
+                    type: number
+                    format: float
+                  unit:
+                    type: string
+                  isOptional:
+                    type: boolean
+
+    Ingredient:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          maxLength: 100
+        category:
+          type: integer
+          description: 재료 카테고리 ID
+      example:
+        id: 789
+        name: 양파
+        category: 1
+
+    UserIngredientInput:
+      type: object
+      required:
+        - ingredientId
+        - quantity
+        - unit
+      properties:
+        ingredientId:
+          type: integer
+          format: int64
+        quantity:
+          type: number
+          format: float
+          minimum: 0
+        unit:
+          type: string
+          maxLength: 10
+        expiryDate:
+          type: string
+          format: date
+          nullable: true
+      example:
+        ingredientId: 789
+        quantity: 2
+        unit: 개
+        expiryDate: "2025-01-20"
+
+    UserIngredient:
+      allOf:
+        - $ref: '#/components/schemas/UserIngredientInput'
+        - type: object
+          properties:
+            name:
+              type: string
+
+    UserIngredientList:
+      type: object
+      properties:
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserIngredient'
+        favoriteIngredientIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+
+    ChatbotResponse:
+      type: object
+      properties:
+        conversationId:
+          type: string
+        message:
+          type: string
+        suggestedRecipes:
+          type: array
+          nullable: true
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                format: int64
+              title:
+                type: string
+              matchScore:
+                type: integer
+                minimum: 0
+                maximum: 100
+      example:
+        conversationId: conv_abc123
+        message: 김치볶음밥은 어떠세요? 집에 있는 재료로 15분이면 완성할 수 있습니다.
+        suggestedRecipes:
+          - id: 456
+            title: 김치볶음밥
+            matchScore: 95
+
+    ConversationHistory:
+      type: object
+      properties:
+        conversationId:
+          type: string
+        messages:
+          type: array
+          items:
+            type: object
+            properties:
+              role:
+                type: string
+                enum: [user, assistant]
+              message:
+                type: string
+              createdAt:
+                type: string
+                format: date-time
+
+    EventLog:
+      type: object
+      required:
+        - type
+        - actor
+      properties:
+        type:
+          type: integer
+          description: 이벤트 타입
+        actor:
+          type: object
+          properties:
+            userId:
+              type: integer
+              format: int64
+            userAgent:
+              type: string
+        entity:
+          type: object
+          nullable: true
+          properties:
+            type:
+              type: string
+            id:
+              type: string
+        payload:
+          type: object
+          nullable: true
+        metadata:
+          type: object
+          nullable: true
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          minimum: 1
+        size:
+          type: integer
+          minimum: 1
+        total:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+      example:
+        page: 1
+        size: 20
+        total: 150
+        totalPages: 8
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+              nullable: true
+      example:
+        error:
+          code: VALIDATION_ERROR
+          message: Invalid request parameters
+          details:
+            field: nickname
+            issue: Length must be between 2 and 20 characters
+
+  responses:
+    BadRequest:
+      description: 잘못된 요청
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: BAD_REQUEST
+              message: Invalid request parameters
+
+    Unauthorized:
+      description: 인증 실패
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: UNAUTHORIZED
+              message: Authentication required
+
+    NotFound:
+      description: 리소스를 찾을 수 없음
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: NOT_FOUND
+              message: Resource not found
+
+    TooManyRequests:
+      description: 요청 횟수 제한 초과
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: RATE_LIMIT_EXCEEDED
+              message: Too many requests. Please try again later.
+
+    InternalServerError:
+      description: 서버 내부 오류
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: INTERNAL_SERVER_ERROR
+              message: An unexpected error occurred
