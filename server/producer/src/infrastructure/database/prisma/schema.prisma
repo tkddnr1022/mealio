@@ -1,0 +1,75 @@
+// PostgreSQL 데이터소스
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider     = "prisma-client"
+  output       = "generated"
+  moduleFormat = "cjs"
+}
+
+model User {
+  id           Int   @id @default(autoincrement())
+  email        String   @unique @db.VarChar(100)
+  nickname     String   @db.VarChar(50)
+  platformName String   @map("platform_name") @db.VarChar(20)
+  platformId   String   @map("platform_id") @db.VarChar(100)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([platformName, platformId])
+  @@index([email])
+  @@index([createdAt])
+  @@map("User")
+}
+
+model Recipe {
+  id           Int   @id @default(autoincrement())
+  title        String   @db.VarChar(100)
+  description  String?  @db.Text
+  instructions Json
+  difficulty   Int      @db.SmallInt
+  cookTime     Int      @map("cook_time")
+  imageUrl     String?  @map("image_url") @db.VarChar(512)
+  servings     Int      @default(2)
+  viewCount    Int      @default(0) @map("view_count")
+  isPublished  Boolean  @default(true) @map("is_published")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  recipeIngredients RecipeIngredient[]
+
+  @@index([difficulty, cookTime, createdAt])
+  @@index([createdAt(sort: Desc)])
+  @@map("Recipe")
+}
+
+model Ingredient {
+  id        Int   @id @default(autoincrement())
+  name      String   @db.VarChar(100)
+  category  Int
+  createdAt DateTime @default(now()) @map("created_at")
+
+  recipeIngredients RecipeIngredient[]
+
+  @@index([category, name])
+  @@map("Ingredient")
+}
+
+model RecipeIngredient {
+  id           Int   @id @default(autoincrement())
+  recipeId     Int   @map("recipe_id")
+  ingredientId Int   @map("ingredient_id")
+  amount       Decimal? @db.Decimal(10, 2)
+  unit         String?  @db.VarChar(20)
+  isOptional   Boolean  @default(false) @map("is_optional")
+
+  recipe     Recipe     @relation(fields: [recipeId], references: [id])
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id])
+
+  @@unique([recipeId, ingredientId])
+  @@index([recipeId])
+  @@index([ingredientId])
+  @@map("RecipeIngredient")
+}
