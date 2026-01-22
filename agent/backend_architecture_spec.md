@@ -277,7 +277,7 @@ generator client {
 
 // MySQL 모델
 model User {
-  id           BigInt   @id @default(autoincrement())
+  id           Int   @id @default(autoincrement())
   email        String   @unique @db.VarChar(100)
   nickname     String   @db.VarChar(20)
   platformName String   @map("platform_name") @db.VarChar(10)
@@ -290,7 +290,7 @@ model User {
 }
 
 model Recipe {
-  id           BigInt   @id @default(autoincrement())
+  id           Int   @id @default(autoincrement())
   title        String   @db.VarChar(100)
   description  String?  @db.Text
   instructions Json
@@ -307,7 +307,7 @@ model Recipe {
 }
 
 model Ingredient {
-  id        BigInt   @id @default(autoincrement())
+  id        Int   @id @default(autoincrement())
   name      String   @db.VarChar(100)
   category  Int
   createdAt DateTime @default(now()) @map("created_at")
@@ -320,9 +320,9 @@ model Ingredient {
 }
 
 model RecipeIngredient {
-  id           BigInt   @id @default(autoincrement())
-  recipeId     BigInt   @map("recipe_id")
-  ingredientId BigInt   @map("ingredient_id")
+  id           Int   @id @default(autoincrement())
+  recipeId     Int   @map("recipe_id")
+  ingredientId Int   @map("ingredient_id")
   amount       Float?
   unit         String?  @db.VarChar(10)
   isOptional   Boolean  @default(false) @map("is_optional")
@@ -353,7 +353,7 @@ model EventLog {
 
 model ChatbotLog {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    BigInt
+  userId    Int
   role      Int
   message   String?
   context   Json?
@@ -370,7 +370,7 @@ model ChatbotLog {
 
 model UserIngredient {
   id                    String @id @default(auto()) @map("_id") @db.ObjectId
-  userId                BigInt @unique
+  userId                Int @unique
   ingredients           Json?
   favoriteIngredientIds Json?
 
@@ -447,7 +447,7 @@ import { Prisma, Recipe } from '@prisma/client';
 export class RecipeRepository {
   constructor(private prisma: PrismaService) {}
 
-  async findById(id: bigint, useReplica = true): Promise<Recipe | null> {
+  async findById(id: number, useReplica = true): Promise<Recipe | null> {
     const client = useReplica 
       ? await this.prisma.getReadReplica() 
       : this.prisma.postgresql;
@@ -472,7 +472,7 @@ export class RecipeRepository {
 
   async createWithIngredients(
     recipeData: Prisma.RecipeCreateInput,
-    ingredients: Array<{ ingredientId: bigint; amount?: number; unit?: string }>
+    ingredients: Array<{ ingredientId: number; amount?: number; unit?: string }>
   ): Promise<Recipe> {
     return this.prisma.postgresql.$transaction(async (tx) => {
       const recipe = await tx.recipe.create({
@@ -495,7 +495,7 @@ export class RecipeRepository {
   async searchRecipes(params: {
     difficulty?: number;
     maxCookTime?: number;
-    ingredientIds?: bigint[];
+    ingredientIds?: number[];
     skip?: number;
     take?: number;
   }): Promise<Recipe[]> {
