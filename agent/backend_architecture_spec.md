@@ -57,12 +57,12 @@ infrastructure/
 ├── database/
 │   ├── prisma/
 │   │   ├── prisma.service.ts           # Prisma Client 싱글톤
-│   │   ├── prisma-mysql.service.ts     # MySQL 전용 클라이언트
+│   │   ├── prisma-postgresql.service.ts     # MySQL 전용 클라이언트
 │   │   ├── prisma-mongo.service.ts     # MongoDB 전용 클라이언트
 │   │   ├── schema.prisma               # 통합 스키마 정의
 │   │   └── migrations/                 # MySQL 마이그레이션 파일
 │   └── repositories/
-│       ├── mysql/
+│       ├── postgresql/
 │       │   ├── user.repository.ts
 │       │   ├── recipe.repository.ts
 │       │   ├── ingredient.repository.ts
@@ -202,7 +202,7 @@ processing/
 ```
 persistence/
 ├── repositories/
-│   ├── mysql/
+│   ├── postgresql/
 │   │   ├── recipe.repository.ts       # Recipe 쓰기 작업
 │   │   ├── user.repository.ts         # User 업데이트
 │   │   └── recipe-ingredient.repository.ts
@@ -258,8 +258,8 @@ prisma/
 ### 3.2 Schema.prisma 예시
 ```prisma
 // MySQL 데이터소스
-datasource mysql {
-  provider = "mysql"
+datasource postgresql {
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -286,7 +286,7 @@ model User {
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@map("User")
-  @@schema("mysql")
+  @@schema("postgresql")
 }
 
 model Recipe {
@@ -303,7 +303,7 @@ model Recipe {
 
   @@map("Recipe")
   @@index([difficulty, cookTime])
-  @@schema("mysql")
+  @@schema("postgresql")
 }
 
 model Ingredient {
@@ -316,7 +316,7 @@ model Ingredient {
 
   @@map("Ingredient")
   @@index([category, name])
-  @@schema("mysql")
+  @@schema("postgresql")
 }
 
 model RecipeIngredient {
@@ -333,7 +333,7 @@ model RecipeIngredient {
   @@map("RecipeIngredient")
   @@index([recipeId])
   @@index([ingredientId])
-  @@schema("mysql")
+  @@schema("postgresql")
 }
 
 // MongoDB 모델
@@ -383,20 +383,20 @@ model UserIngredient {
 ```typescript
 // prisma/prisma.service.ts
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient as PrismaMySQLClient } from '@prisma/client/mysql';
+import { PrismaClient as PrismaMySQLClient } from '@prisma/client/postgresql';
 import { PrismaClient as PrismaMongoClient } from '@prisma/client/mongodb';
 
 @Injectable()
 export class PrismaService implements OnModuleInit, OnModuleDestroy {
-  mysql: PrismaMySQLClient;
+  postgresql: PrismaMySQLClient;
   mongo: PrismaMongoClient;
 
   constructor() {
     // MySQL 클라이언트
-    this.mysql = new PrismaMySQLClient({
+    this.postgresql = new PrismaMySQLClient({
       log: ['query', 'error', 'warn'],
       datasources: {
-        mysql: {
+        postgresql: {
           url: process.env.DATABASE_URL,
         },
       },
@@ -414,12 +414,12 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   }
 
   async onModuleInit() {
-    await this.mysql.$connect();
+    await this.postgresql.$connect();
     await this.mongo.$connect();
   }
 
   async onModuleDestroy() {
-    await this.mysql.$disconnect();
+    await this.postgresql.$disconnect();
     await this.mongo.$disconnect();
   }
 
@@ -427,7 +427,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   async getReadReplica() {
     return new PrismaMySQLClient({
       datasources: {
-        mysql: {
+        postgresql: {
           url: process.env.DATABASE_READ_REPLICA_URL,
         },
       },
@@ -438,7 +438,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
 
 ### 3.4 Repository 패턴 구현
 ```typescript
-// repositories/mysql/recipe.repository.ts
+// repositories/postgresql/recipe.repository.ts
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/infrastructure/database/prisma/prisma.service';
 import { Prisma, Recipe } from '@prisma/client';
@@ -450,7 +450,7 @@ export class RecipeRepository {
   async findById(id: bigint, useReplica = true): Promise<Recipe | null> {
     const client = useReplica 
       ? await this.prisma.getReadReplica() 
-      : this.prisma.mysql;
+      : this.prisma.postgresql;
 
     return client.recipe.findUnique({
       where: { id },
@@ -465,7 +465,7 @@ export class RecipeRepository {
   }
 
   async create(data: Prisma.RecipeCreateInput): Promise<Recipe> {
-    return this.prisma.mysql.recipe.create({
+    return this.prisma.postgresql.recipe.create({
       data,
     });
   }
@@ -474,7 +474,7 @@ export class RecipeRepository {
     recipeData: Prisma.RecipeCreateInput,
     ingredients: Array<{ ingredientId: bigint; amount?: number; unit?: string }>
   ): Promise<Recipe> {
-    return this.prisma.mysql.$transaction(async (tx) => {
+    return this.prisma.postgresql.$transaction(async (tx) => {
       const recipe = await tx.recipe.create({
         data: recipeData,
       });
@@ -621,7 +621,7 @@ shared/
 
 ### 7.1 Multi-Schema 지원
 - Prisma는 하나의 스키마 파일에서 여러 데이터소스를 지원
-- `@@schema("mysql")`, `@@schema("mongodb")` 디렉티브로 구분
+- `@@schema("postgresql")`, `@@schema("mongodb")` 디렉티브로 구분
 - 각 모델에 명시적으로 스키마 지정 필요
 
 ### 7.2 타입 안정성
@@ -637,7 +637,7 @@ shared/
 ### 7.4 성능 모니터링
 ```typescript
 // Prisma 쿼리 로깅 및 메트릭
-this.mysql.$use(async (params, next) => {
+this.postgresql.$use(async (params, next) => {
   const before = Date.now();
   const result = await next(params);
   const after = Date.now();
