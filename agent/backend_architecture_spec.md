@@ -29,23 +29,38 @@ modules/
 ```
 modules/
 ├── users/
-│   ├── controllers/     # GET /users/:id, PATCH /users/:id
+│   ├── controllers/ 
+│   │   ├── GET /api/v1/users/me
+│   │   └── PATCH /api/v1/users/me/nickname
 │   ├── services/        # 캐시 조회 우선, RDS 폴백
 │   └── dto/             # 요청/응답 DTO
 ├── recipes/
 │   ├── controllers/     
-│   │   ├── GET /recipes (검색, 필터링)
-│   │   ├── GET /recipes/:id
-│   │   └── POST /recipes/generate (이벤트 발행만)
+│   │   ├── GET /api/v1/recipes (페이지네이션, 필터링, 정렬)
+│   │   ├── GET /api/v1/recipes/:recipeId
+│   │   └── GET /api/v1/recipes/search (키워드 검색)
 │   ├── services/
-│   │   ├── RecipeQueryService    # 읽기 전용, 캐시 활용
-│   │   └── RecipeEventService    # Kafka 이벤트 발행
-│   └── queries/         # GraphQL 쿼리 리졸버
+│   │   └── RecipeQueryService    # 읽기 전용, 캐시 활용
+│   └── dto/             # 요청/응답 DTO
 ├── ingredients/
-│   ├── controllers/     # GET /ingredients (자동완성)
+│   ├── controllers/
+│   │   ├── GET /api/v1/ingredients (카테고리별 조회, 페이지네이션)
+│   │   └── GET /api/v1/ingredients/search (키워드 검색)
 │   └── services/        # 캐시 우선 조회
+├── user-ingredients/
+│   ├── controllers/
+│   │   ├── GET /api/v1/users/me/ingredients
+│   │   ├── PUT /api/v1/users/me/ingredients (bulk update)
+│   │   ├── POST /api/v1/users/me/ingredients (재료 추가/수정)
+│   │   ├── DELETE /api/v1/users/me/ingredients/:ingredientId
+│   │   └── PUT /api/v1/users/me/ingredients/favorites
+│   ├── services/
+│   │   └── UserIngredientService  # MongoDB 저장, 캐시 관리
+│   └── dto/             # 요청/응답 DTO
 └── chatbot/
-    ├── controllers/     # POST /chatbot/message
+    ├── controllers/
+    │   ├── POST /api/v1/chatbot/messages
+    │   └── GET /api/v1/chatbot/conversations/:conversationId
     ├── services/        
     │   └── ChatbotEventService   # Kafka로 요청 전달
     └── dto/             # 메시지 DTO
