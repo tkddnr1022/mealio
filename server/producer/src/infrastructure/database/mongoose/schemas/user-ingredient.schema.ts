@@ -4,27 +4,6 @@ import { HydratedDocument, Document } from 'mongoose';
 
 export type UserIngredientDocument = HydratedDocument<UserIngredient>;
 
-// 재료 아이템 서브스키마
-class IngredientItem {
-  @Prop({ required: true, type: Number })
-  ingredientId: number;
-
-  @Prop({ type: Number })
-  quantity?: number;
-
-  @Prop({ type: String, maxlength: 20 })
-  unit?: string;
-
-  @Prop({ type: Date })
-  expiryDate?: Date;  // 유통기한
-
-  @Prop({ type: Date, default: Date.now })
-  addedAt: Date;
-
-  @Prop({ type: Date, default: Date.now })
-  updatedAt: Date;
-}
-
 @Schema({
   collection: 'user_ingredients',
   timestamps: true
@@ -32,9 +11,10 @@ class IngredientItem {
 export class UserIngredient extends Document {
   @Prop({ required: true, unique: true, type: Number, index: true })
   userId: number;
+  
 
-  @Prop({ type: [IngredientItem], default: [] })
-  ingredients: IngredientItem[];
+  @Prop({ type: [Number], default: [] })
+  ingredientsIds: number[];
 
   @Prop({ type: [Number], default: [] })
   favoriteIngredientIds: number[];
