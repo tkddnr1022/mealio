@@ -4,29 +4,31 @@
 
 시스템은 다음 두 가지 데이터 저장 방식을 혼합하여 사용한다.
 
-* **RDB (정형 데이터)**: 사용자, 레시피, 재료, 레시피-재료 관계
-* **NoSQL (비정형/이벤트 데이터)**: 유저 재료 상태, 챗봇 대화 로그, 이벤트 로그
+* **RDB (정형 데이터, PostgreSQL + Prisma)**: 사용자, 레시피, 재료, 레시피-재료 관계
+* **NoSQL (MongoDB + Mongoose)**: 유저 재료 상태, 챗봇 대화 로그, 이벤트 로그
+
+> **정합성**: 이 문서는 `server/producer` 의 Prisma `schema.prisma` 및 Mongoose `schemas/` 와 일치하도록 유지한다.
 
 ---
 
 ## 1. 전체 도메인 개요
 
-### 핵심 도메인 엔티티
+### 핵심 도메인 엔티티 (RDB / Prisma)
 
 * **User**: 서비스를 이용하는 사용자
 * **Recipe**: 요리 레시피
 * **Ingredient**: 재료 마스터 데이터
 * **RecipeIngredient**: 레시피와 재료 간의 다대다 관계
 
-### 행동/상태/로그 도메인 (NoSQL)
+### 행동/상태/로그 도메인 (NoSQL / Mongoose)
 
-* **UserIngredient**: 사용자가 현재 보유하거나 선호하는 재료 상태
-* **ChatbotLog**: LLM 기반 챗봇과의 대화 기록
-* **EventLog**: 시스템 전반의 이벤트 스트림 (CQRS / Event Sourcing 친화)
+* **UserIngredient**: 사용자가 보유·선호하는 재료 ID 목록 (`user_ingredients` 컬렉션)
+* **ChatbotLog**: LLM 챗봇 대화 기록 (`chatbot_logs` 컬렉션, 30일 TTL)
+* **EventLog**: 도메인 이벤트 스트림 (`event_logs` 컬렉션, 90일 TTL)
 
 ---
 
-## 2. RDB 스키마 (정형 데이터)
+## 2. RDB 스키마 (PostgreSQL, Prisma)
 
 ### 2.1 User
 
@@ -35,17 +37,19 @@
 * 서비스 사용자 계정 정보
 * 소셜 로그인 기반 사용자를 고려한 구조
 
-**필드 설명**
+**필드 설명** (Prisma `User` ↔ DB 컬럼)
 
-| 필드            | 타입           | 의미                           |
-| ------------- | ------------ | ---------------------------- |
-| id            | BIGINT       | 사용자 고유 ID (PK)               |
-| email         | VARCHAR(100) | 사용자 이메일                      |
-| nickname      | VARCHAR(20)  | 사용자 닉네임                      |
-| platform_name | VARCHAR(10)  | 로그인 플랫폼 (e.g. google, apple) |
-| platform_id   | VARCHAR(100) | 플랫폼 내 사용자 ID                 |
-| created_at    | TIMESTAMP    | 계정 생성 시각                     |
-| updated_at    | TIMESTAMP    | 계정 수정 시각                     |
+| 필드 (Prisma)   | DB 컬럼       | 타입           | 의미                           |
+| --------------- | ------------- | -------------- | ------------------------------ |
+| id              | id            | INT / SERIAL   | 사용자 고유 ID (PK)            |
+| email           | email         | VARCHAR(100)   | 사용자 이메일 (UNIQUE)         |
+| nickname        | nickname      | VARCHAR(50)    | 사용자 닉네임                  |
+| platformName    | platform_name | VARCHAR(20)    | 로그인 플랫폼 (e.g. google, kakao) |
+| platformId      | platform_id   | VARCHAR(100)   | 플랫폼 내 사용자 ID            |
+| createdAt       | created_at    | TIMESTAMP      | 계정 생성 시각                 |
+| updatedAt       | updated_at    | TIMESTAMP      | 계정 수정 시각                 |
+
+**인덱스**: `(platform_name, platform_id)`, `(email)`, `(created_at)`
 
 ---
 
@@ -57,20 +61,26 @@
 
 **특징**
 
-* `instructions` 는 JSON 구조로 저장 → 단계별 조리 설명
+* `instructions`: JSON 구조 → 단계별 조리 설명
 
-**필드 설명**
+**필드 설명** (Prisma `Recipe` ↔ DB 컬럼)
 
-| 필드           | 타입           | 의미                   |
-| ------------ | ------------ | -------------------- |
-| id           | BIGINT       | 레시피 ID (PK)          |
-| title        | VARCHAR(100) | 레시피 제목               |
-| description  | TEXT         | 레시피 요약 설명            |
-| instructions | JSON         | 조리 단계 (순서/텍스트/타이머 등) |
-| difficulty   | TINYINT      | 난이도 (1~5 등)          |
-| cook_time    | INT          | 예상 조리 시간 (분)         |
-| image_url    | TEXT         | 레시피 이미지 URL          |
-| created_at   | TIMESTAMP    | 생성 시각                |
+| 필드 (Prisma)   | DB 컬럼      | 타입            | 의미                             |
+| --------------- | ------------ | --------------- | -------------------------------- |
+| id              | id           | INT / SERIAL    | 레시피 ID (PK)                   |
+| title           | title        | VARCHAR(100)    | 레시피 제목                      |
+| description     | description  | TEXT            | 레시피 요약 설명 (nullable)      |
+| instructions    | instructions | JSON            | 조리 단계 (순서/텍스트/타이머 등) |
+| difficulty      | difficulty   | SMALLINT        | 난이도 (1~5 등)                  |
+| cookTime        | cook_time    | INT             | 예상 조리 시간 (분)              |
+| imageUrl        | image_url    | VARCHAR(512)    | 레시피 이미지 URL (nullable)     |
+| servings        | servings     | INT             | 인분 (기본값 2)                  |
+| viewCount       | view_count   | INT             | 조회수 (기본값 0)                |
+| isPublished     | is_published | BOOLEAN         | 공개 여부 (기본값 true)          |
+| createdAt       | created_at   | TIMESTAMP       | 생성 시각                        |
+| updatedAt       | updated_at   | TIMESTAMP       | 수정 시각                        |
+
+**인덱스**: `(difficulty, cook_time, created_at)`, `(created_at DESC)`
 
 ---
 
@@ -80,14 +90,16 @@
 
 * 재료 마스터 데이터
 
-**필드 설명**
+**필드 설명** (Prisma `Ingredient` ↔ DB 컬럼)
 
-| 필드         | 타입           | 의미                   |
-| ---------- | ------------ | -------------------- |
-| id         | BIGINT       | 재료 ID (PK)           |
-| name       | VARCHAR(100) | 재료명                  |
-| category   | INT          | 재료 카테고리 (채소/육류/양념 등) |
-| created_at | TIMESTAMP    | 생성 시각                |
+| 필드 (Prisma) | DB 컬럼    | 타입         | 의미                             |
+| ------------- | ---------- | ------------ | -------------------------------- |
+| id            | id         | INT / SERIAL | 재료 ID (PK)                     |
+| name          | name       | VARCHAR(100) | 재료명                           |
+| category      | category   | INT          | 재료 카테고리 (채소/육류/양념 등) |
+| createdAt     | created_at | TIMESTAMP    | 생성 시각                        |
+
+**인덱스**: `(category, name)`
 
 ---
 
@@ -96,54 +108,68 @@
 **의미**
 
 * 레시피와 재료 간의 다대다 관계
-* 특정 레시피에서 재료가 어떻게 사용되는지 정의
+* 특정 레시피에서 재료 사용량·단위·선택 여부 정의
 
-**필드 설명**
+**필드 설명** (Prisma `RecipeIngredient` ↔ DB 컬럼)
 
-| 필드            | 타입          | 의미              |
-| ------------- | ----------- | --------------- |
-| id            | BIGINT      | 관계 ID (PK)      |
-| recipe_id     | BIGINT      | 레시피 ID (FK)     |
-| ingredient_id | BIGINT      | 재료 ID (FK)      |
-| amount        | FLOAT       | 필요 수량           |
-| unit          | VARCHAR(10) | 단위 (g, ml, 개 등) |
-| is_optional   | BOOLEAN     | 선택 재료 여부        |
+| 필드 (Prisma) | DB 컬럼      | 타입              | 의미                     |
+| ------------- | ------------ | ----------------- | ------------------------ |
+| id            | id           | INT / SERIAL      | 관계 ID (PK)             |
+| recipeId      | recipe_id    | INT               | 레시피 ID (FK)           |
+| ingredientId  | ingredient_id| INT               | 재료 ID (FK)             |
+| amount        | amount       | DECIMAL(10,2)     | 필요 수량 (nullable)     |
+| unit          | unit         | VARCHAR(20)       | 단위 g, ml, 개 등 (nullable) |
+| isOptional    | is_optional  | BOOLEAN           | 선택 재료 여부 (기본 false) |
+
+**제약**: `UNIQUE(recipe_id, ingredient_id)`  
+**인덱스**: `(recipe_id)`, `(ingredient_id)`
 
 ---
 
-## 3. NoSQL 스키마 (비정형 데이터)
+## 3. NoSQL 스키마 (MongoDB, Mongoose)
 
-> 아래 스키마들은 **문서 기반 저장소 (MongoDB 등)** 를 전제로 하며,
-> 구조는 유연하고 이벤트/상태 추적에 초점을 둔다.
+> 아래 스키마는 `server/producer/.../mongoose/schemas/` 의 Mongoose 스키마와 일치한다.  
+> 컬렉션·필드명·타입·enum·서브스키마를 구현 기준으로 기술한다.
 
 ---
 
 ### 3.1 UserIngredient
 
+**컬렉션**: `user_ingredients`  
 **의미**
 
-* 사용자가 현재 보유한 재료 상태
-* 즐겨찾는 재료 목록
+* 사용자별 보유 재료 ID·즐겨찾기 재료 ID 목록
+* `Ingredient` 마스터와 JOIN하여 상세 정보 조회
 
 **LLM 활용 포인트**
 
-* "사용자 보유 재료 및 관심 재료 기반 레시피 추천"
-* "없는 재료 알려주기"
+* 사용자 보유·관심 재료 기반 레시피 추천
+* 부족 재료 안내
+
+**필드 설명** (Mongoose `UserIngredient`)
+
+| 필드                  | 타입     | 의미                             |
+| --------------------- | -------- | -------------------------------- |
+| userId                | Number   | 사용자 ID (required, unique, index) |
+| ingredientsIds        | [Number] | 보유 재료 ID 배열 (기본 [])      |
+| favoriteIngredientIds | [Number] | 즐겨찾기 재료 ID 배열 (기본 [])  |
+| lastSyncedAt          | Date     | 마지막 동기화 시각 (optional)    |
+| createdAt             | Date     | 생성 시각 (timestamps)           |
+| updatedAt             | Date     | 수정 시각 (timestamps)           |
+
+**인덱스**: `favoriteIngredientIds`
 
 **문서 구조 예시**
 
 ```json
 {
-  "_id": "ui_123",
+  "_id": "...",
   "userId": 1,
-  "ingredients": {
-    "1": { "name": "양파", "quantity": 2 },
-    "5": { "name": "계란", "quantity": 6 }
-  },
-  "favoriteIngredients": {
-    "3": { "name": "감자" },
-    "5": { "name": "계란" }
-  }
+  "ingredientsIds": [1, 5, 12],
+  "favoriteIngredientIds": [3, 5],
+  "lastSyncedAt": "2025-01-25T00:00:00.000Z",
+  "createdAt": "2025-01-20T00:00:00.000Z",
+  "updatedAt": "2025-01-25T00:00:00.000Z"
 }
 ```
 
@@ -151,30 +177,83 @@
 
 ### 3.2 ChatbotLog
 
+**컬렉션**: `chatbot_logs`  
+**TTL**: 30일 (`expireAfterSeconds: 2592000`)  
 **의미**
 
-* 사용자와 LLM 간의 모든 대화 기록
-* 추론 맥락(Context), 모델 정보, 성능 측정 포함
+* 사용자–LLM 대화 메시지 단위 로그
+* 역할(role), 메시지, 컨텍스트, LLM 메타(토큰·모델), 지연·성공·에러 포함
 
 **LLM 활용 포인트**
 
 * 이전 대화 맥락 복원
-* 실패 케이스 학습
-* 응답 품질 평가
+* 실패 케이스·응답 품질 분석
+
+**필드 설명** (Mongoose `ChatbotLog`)
+
+| 필드    | 타입               | 의미                                      |
+| ------- | ------------------ | ----------------------------------------- |
+| userId  | Number             | 사용자 ID (required, index)               |
+| role    | String             | `'user'` \| `'assistant'` \| `'system'` (required, index) |
+| message | String             | 메시지 본문 (required, max 10000)         |
+| context | ConversationContext| 대화 컨텍스트 (optional)                  |
+| llm     | LLMMetadata        | LLM 호출 메타 (optional)                  |
+| latency | Number             | 응답 지연 ms, 0~60000 (optional)          |
+| success | Boolean            | 성공 여부 (required, default true)        |
+| error   | String             | 에러 메시지 (optional, max 1000)          |
+| sessionId | String           | 세션 ID (optional, index)                 |
+| createdAt | Date             | 생성 시각 (timestamps)                    |
+| updatedAt | Date             | 수정 시각 (timestamps)                    |
+
+**ConversationContext**
+
+| 필드                 | 타입           | 의미                 |
+| -------------------- | -------------- | -------------------- |
+| sessionId            | String         | 세션 ID              |
+| conversationId       | String         | 대화 ID              |
+| previousMessageIds   | [String]       | 이전 메시지 ID 목록  |
+| userPreferences      | Mixed          | 사용자 선호          |
+| mentionedIngredientIds | [Number]    | 언급된 재료 ID       |
+| suggestedRecipeIds   | [Number]       | 추천된 레시피 ID     |
+
+**LLMMetadata**
+
+| 필드             | 타입    | 의미          |
+| ---------------- | ------- | ------------- |
+| model            | String  | 모델명 (required) |
+| promptTokens     | Number  | (required)    |
+| completionTokens | Number  | (required)    |
+| totalTokens      | Number  | (required)    |
+| temperature      | Number  | (optional)    |
+| maxTokens        | Number  | (optional)    |
+
+**인덱스**: `(userId, createdAt DESC)`, `(sessionId, createdAt)`, `(success, createdAt DESC)`, `(llm.model, createdAt DESC)`, TTL `(createdAt, 30일)`
 
 **문서 구조 예시**
 
 ```json
 {
-  "_id": "cb_456",
+  "_id": "...",
   "userId": 1,
   "role": "assistant",
   "message": "이 재료로 만들 수 있는 요리를 추천해드릴게요",
-  "context": { "ingredients": ["양파", "계란"] },
-  "llm": { "model": "gpt-4.1", "temperature": 0.7 },
+  "context": {
+    "sessionId": "sess_abc",
+    "conversationId": "conv_xyz",
+    "mentionedIngredientIds": [1, 5]
+  },
+  "llm": {
+    "model": "gpt-4-turbo",
+    "promptTokens": 100,
+    "completionTokens": 50,
+    "totalTokens": 150,
+    "temperature": 0.7
+  },
   "latency": 820,
   "success": true,
-  "createdAt": 1737000000
+  "sessionId": "sess_abc",
+  "createdAt": "2025-01-25T00:00:00.000Z",
+  "updatedAt": "2025-01-25T00:00:00.000Z"
 }
 ```
 
@@ -182,29 +261,93 @@
 
 ### 3.3 EventLog
 
+**컬렉션**: `event_logs`  
+**TTL**: 90일 (`expireAfterSeconds: 7776000`)  
+**타임스탬프**: `createdAt` → `occurredAt`, `updatedAt` → `processedAt`  
 **의미**
 
-* 시스템에서 발생하는 모든 도메인 이벤트 기록
-* CQRS / 이벤트 소싱 / 감사 로그 용도
+* 도메인 이벤트 스트림 (CQRS / 감사 로그)
+* 주체(actor), 대상(entity), payload, metadata 포함
 
 **LLM 활용 포인트**
 
-* 사용자 행동 분석
-* 이벤트 기반 요약 생성
-* 시나리오 재현
+* 사용자 행동·플로우 분석
+* 이벤트 기반 요약·시나리오 재현
+
+**type (enum)**
+
+* `recipe.view`, `recipe.like`, `recipe.share`
+* `search.query`, `search.click`
+* `user.signup`, `user.login`
+* `ingredient.add`, `ingredient.remove`
+* `chatbot.start`, `chatbot.message`
+
+**필드 설명** (Mongoose `EventLog`)
+
+| 필드       | 타입          | 의미                                    |
+| ---------- | ------------- | --------------------------------------- |
+| type       | String        | 이벤트 타입 (enum, required, index)     |
+| actor      | EventActor    | 이벤트 주체 (required)                  |
+| entity     | EventEntity   | 이벤트 대상 (optional)                  |
+| payload    | Mixed         | 이벤트별 추가 데이터 (optional)         |
+| metadata   | EventMetadata | 플랫폼·버전·출처 등 (optional)          |
+| occurredAt | Date          | 발생 시각 (timestamps createdAt)        |
+| processedAt| Date          | 처리 시각 (timestamps updatedAt)        |
+
+**EventActor**
+
+| 필드      | 타입   | 의미                          |
+| --------- | ------ | ----------------------------- |
+| type      | String | `'user'` \| `'system'` \| `'admin'` (required) |
+| userId    | Number | 사용자 ID (user일 때)         |
+| ipAddress | String | IP 주소                       |
+| userAgent | String | User-Agent                    |
+
+**EventEntity**
+
+| 필드 | 타입   | 의미 (예: `recipe`, `ingredient`, `user`) |
+| ---- | ------ | ----------------------------------------- |
+| type | String | 엔티티 타입 (required)                    |
+| id   | Number | 엔티티 ID (required)                      |
+| name | String | 표시명 (optional)                         |
+
+**EventMetadata**
+
+| 필드    | 타입   | 의미          |
+| ------- | ------ | ------------- |
+| platform| String | web, ios, android |
+| version | String | 앱 버전       |
+| source  | String | search, recommendation, direct |
+| referrer| String | 리퍼러        |
+| extra   | Mixed  | 기타          |
+
+**인덱스**: `(actor.userId, occurredAt DESC)`, `(type, occurredAt DESC)`, `(entity.type, entity.id, occurredAt DESC)`, `(occurredAt DESC)`, `(metadata.platform, type)`, TTL `(occurredAt, 90일)`
 
 **문서 구조 예시**
 
 ```json
 {
-  "_id": "ev_789",
-  "type": "RECIPE_VIEW",
-  "actor": { "userId": 1 },
-  "entity": { "recipeId": 10 },
+  "_id": "...",
+  "type": "recipe.view",
+  "actor": {
+    "type": "user",
+    "userId": 1,
+    "ipAddress": "127.0.0.1",
+    "userAgent": "Mozilla/5.0..."
+  },
+  "entity": {
+    "type": "recipe",
+    "id": 10,
+    "name": "김치찌개"
+  },
   "payload": { "source": "recommendation" },
-  "metadata": { "ip": "127.0.0.1" },
-  "occurredAt": 1737000100,
-  "processedAt": null
+  "metadata": {
+    "platform": "web",
+    "version": "1.0.0",
+    "source": "recommendation"
+  },
+  "occurredAt": "2025-01-25T00:00:00.000Z",
+  "processedAt": "2025-01-25T00:00:01.000Z"
 }
 ```
 
