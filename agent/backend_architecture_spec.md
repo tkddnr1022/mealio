@@ -665,4 +665,355 @@ this.postgresql.$use(async (params, next) => {
 
 ---
 
-이 명세서를 기반으로 Prisma를 활용한 타입 안전하고 성능 최적화된 백엔드를 구현하세요. 테스트 커버리지 80% 이상을 유지하고, 모든 외부 의존성에 대해 서킷 브레이커를 적용하세요.
+## 8. 모듈 단위 TDD 지침
+
+모듈을 작성할 때 **Controller**와 **Service**에 대한 테스트 코드는 **해당 모듈 내 `__tests__` 폴더**에 **역할별 하위 폴더**로 분리하여 작성한다. 테스트는 소스 파일과 같은 디렉터리에 두지 않고, `__tests__/controllers`, `__tests__/services` 등으로 세분화한다.
+
+### 8.1 공통 원칙
+
+- **테스트 폴더 구조**: 각 모듈 루트에 `__tests__`를 두고, `controllers/`, `services/`(또는 consumer의 경우 `handlers/`, `consumers/`)로 구분한다.
+- **파일 명명**: `{대상}.spec.ts` (예: `users.controller.spec.ts`, `users.service.spec.ts`).
+- **의존성**: Controller/Service/Handler는 Repository, 외부 클라이언트 등을 전부 Mock하여 단위 테스트로 실행한다.
+- **TDD 순서**: **Red-Green-Refactor** 사이클을 따른다. 새 API/핸들러 추가 시 해당 spec을 먼저 확장한 뒤, 실패(Red) → 통과(Green) → 개선(Refactor) 순으로 진행한다.
+
+#### Red-Green-Refactor 사이클
+
+모든 테스트·구현은 다음 세 단계를 **한 번에 한 동작(예: 하나의 API, 하나의 핸들러 메서드)** 단위로 반복한다.
+
+| 단계 | 목표 | 수행 내용 |
+|------|------|-----------|
+| **Red** | 실패하는 테스트를 먼저 만든다 | `it('...', ...)`를 작성하고, 아직 구현되지 않은 메서드·엔드포인트를 호출한다. `npm run test` 시 해당 spec이 **실패**하는 것을 확인한다. |
+| **Green** | 최소한의 코드로 테스트를 통과시킨다 | Controller/Service/Handler에 **통과에 필요한 최소 구현**만 추가한다. 중복·예쁜 코드는 신경 쓰지 않는다. `npm run test`로 **전부 통과**할 때까지 수정한다. |
+| **Refactor** | 구현을 정리한다 | 중복 제거, 네이밍·구조 개선, 상수/유틸 분리 등 **동작은 그대로 두고** 코드 품질만 높인다. 매 수정 후 `npm run test`로 회귀 여부를 확인한다. |
+
+**흐름 예시** (Producer `PATCH /api/v1/users/me/nickname` 추가 시):
+
+1. **Red**: `users.controller.spec.ts`에 `it('닉네임을 수정하고 { id, nickname }을 반환한다', ...)`와 `users.service.spec.ts`에 `it('닉네임을 갱신하고 { id, nickname }을 반환한다', ...)`를 작성 후 `npm run test` → **실패** (아직 `updateNickname` 미구현).
+2. **Green**: `UsersController.updateNickname`, `UsersService.updateNickname`, `UserRepository.update`를 **통과할 만큼만** 구현 → `npm run test` → **전부 통과**.
+3. **Refactor**: `UsersService` 내부에 중복된 `findById` 호출을 private 메서드로 뽑거나, DTO 검증 로직을 정리한 뒤, `npm run test`로 **계속 통과**하는지 확인.
+
+**주의**: Green 단계에서 “일단 통과”만 목표로 하고, Refactor 단계까지 가기 전에 다른 기능을 추가하지 않는다. 사이클이 작을수록 버그와 복잡도 증가를 줄일 수 있다.
+
+### 8.2 Producer: 디렉토리 구조 및 예제
+
+Producer는 **HTTP 요청 처리**가 중심이므로, **Controller**(라우팅·인증·DTO 변환)와 **Service**(캐시·비즈니스 로직·이벤트 발행)를 각각 테스트한다.
+
+#### 디렉토리 구조
+
+```
+modules/
+└── users/
+    ├── __tests__/
+    │   ├── controllers/
+    │   │   └── users.controller.spec.ts
+    │   └── services/
+    │       └── users.service.spec.ts
+    ├── dto/
+    │   ├── update-nickname.dto.ts
+    │   └── user-profile.dto.ts
+    ├── users.controller.ts
+    ├── users.service.ts
+    └── users.module.ts
+```
+
+#### Controller 테스트 예제 (Producer)
+
+- **초점**: HTTP 메서드·경로·인증 가드·Service 호출·예외→HTTP 상태 매핑.
+- **Mock**: `UsersService` 전체를 Mock. `@CurrentUser()` 등 커스텀 데코레이터는 `jest.spyOn` 또는 테스트용 오버라이드로 처리.
+
+```typescript
+// modules/users/__tests__/controllers/users.controller.spec.ts
+import { Test, TestingModule } from '@nestjs/testing';
+import { NotFoundException } from '@nestjs/common';
+import { UsersController } from '../../users.controller';
+import { UsersService } from '../../users.service';
+import { UserProfileDto } from '../../dto/user-profile.dto';
+import type { AuthUser } from '../../../auth/types/request.types';
+
+describe('UsersController', () => {
+  let controller: UsersController;
+  let usersService: jest.Mocked<UsersService>;
+
+  const mockAuthUser: AuthUser = { id: 1, email: 'test@example.com', platformName: 'local' };
+  const mockProfile: UserProfileDto = {
+    id: 1,
+    email: 'test@example.com',
+    nickname: 'TestUser',
+    createdAt: new Date(),
+  };
+
+  beforeEach(async () => {
+    const mockService = {
+      getProfile: jest.fn().mockResolvedValue(mockProfile),
+      updateNickname: jest.fn().mockResolvedValue({ id: 1, nickname: 'NewNick' }),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [UsersController],
+      providers: [{ provide: UsersService, useValue: mockService }],
+    }).compile();
+
+    controller = module.get(UsersController);
+    usersService = module.get(UsersService);
+  });
+
+  describe('getProfile', () => {
+    it('인증 사용자일 때 프로필을 반환한다', async () => {
+      const result = await controller.getProfile(mockAuthUser);
+      expect(usersService.getProfile).toHaveBeenCalledWith(1);
+      expect(result).toEqual(mockProfile);
+    });
+
+    it('사용자가 없으면 NotFoundException을 던진다', async () => {
+      usersService.getProfile.mockRejectedValue(new NotFoundException('User not found'));
+      await expect(controller.getProfile(mockAuthUser)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('updateNickname', () => {
+    it('닉네임을 수정하고 { id, nickname }을 반환한다', async () => {
+      const dto = { nickname: 'NewNick' };
+      const result = await controller.updateNickname(mockAuthUser, dto);
+      expect(usersService.updateNickname).toHaveBeenCalledWith(1, dto);
+      expect(result).toEqual({ id: 1, nickname: 'NewNick' });
+    });
+  });
+});
+```
+
+#### Service 테스트 예제 (Producer)
+
+- **초점**: 비즈니스 로직, 캐시 조회/갱신, Repository·Kafka·Redis 등 외부 의존성 호출 여부 및 예외 처리.
+- **Mock**: `UserRepository`, `CacheService`, `KafkaProducerService` 등 해당 모듈이 사용하는 모든 의존성.
+
+```typescript
+// modules/users/__tests__/services/users.service.spec.ts
+import { Test, TestingModule } from '@nestjs/testing';
+import { NotFoundException } from '@nestjs/common';
+import { UsersService } from '../../users.service';
+import { UserRepository } from '../../../../infrastructure/database/repositories/postgresql/user.repository';
+import { UpdateNicknameDto } from '../../dto/update-nickname.dto';
+
+describe('UsersService', () => {
+  let service: UsersService;
+  let userRepository: jest.Mocked<UserRepository>;
+
+  const mockUser = {
+    id: 1,
+    email: 'test@example.com',
+    nickname: 'TestUser',
+    platformName: 'local',
+    platformId: 'id',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  beforeEach(async () => {
+    const mockRepo = {
+      findById: jest.fn().mockResolvedValue(mockUser),
+      update: jest.fn().mockResolvedValue({ ...mockUser, nickname: 'NewNick' }),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        UsersService,
+        { provide: UserRepository, useValue: mockRepo },
+      ],
+    }).compile();
+
+    service = module.get(UsersService);
+    userRepository = module.get(UserRepository);
+  });
+
+  describe('getProfile', () => {
+    it('userId로 조회하여 UserProfileDto를 반환한다', async () => {
+      const result = await service.getProfile(1);
+      expect(userRepository.findById).toHaveBeenCalledWith(1);
+      expect(result.id).toBe(1);
+      expect(result.nickname).toBe('TestUser');
+    });
+
+    it('사용자가 없으면 NotFoundException을 던진다', async () => {
+      userRepository.findById.mockResolvedValue(null);
+      await expect(service.getProfile(999)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('updateNickname', () => {
+    it('닉네임을 갱신하고 { id, nickname }을 반환한다', async () => {
+      const dto: UpdateNicknameDto = { nickname: 'NewNick' };
+      const result = await service.updateNickname(1, dto);
+      expect(userRepository.findById).toHaveBeenCalledWith(1);
+      expect(userRepository.update).toHaveBeenCalledWith(1, { nickname: 'NewNick' });
+      expect(result).toEqual({ id: 1, nickname: 'NewNick' });
+    });
+  });
+});
+```
+
+### 8.3 Consumer: 디렉토리 구조 및 예제
+
+Consumer는 **이벤트(메시지) 수신·라우팅**과 **핸들러(비즈니스 로직·DB·외부 API)**가 분리된다.  
+- **Consumer** ≈ Producer의 Controller: 토픽 구독, 역직렬화, 파티션/오프셋, 핸들러 호출, 재시도/DLQ 위임.  
+- **Handler** ≈ Producer의 Service: 이벤트 페이로드 기반 비즈니스 로직, DB 쓰기, OpenAI·S3 등 외부 호출.
+
+#### 디렉토리 구조
+
+```
+consumers/
+└── recipe-generation/
+    ├── __tests__/
+    │   ├── consumers/
+    │   │   └── recipe-generation.consumer.spec.ts
+    │   └── handlers/
+    │       ├── GenerateRecipeHandler.spec.ts
+    │       ├── SaveRecipeHandler.spec.ts
+    │       └── UploadImageHandler.spec.ts
+    ├── recipe-generation.consumer.ts
+    ├── handlers/
+    │   ├── GenerateRecipeHandler.ts
+    │   ├── SaveRecipeHandler.ts
+    │   └── UploadImageHandler.ts
+    └── validators/
+        └── recipe-data.validator.ts
+```
+
+#### Consumer 테스트 예제 (라우팅·재시도·DLQ)
+
+- **초점**: 메시지 수신 시 적절한 핸들러 호출, 에러 시 재시도/DLQ 위임, 역직렬화 예외 처리.
+- **Mock**: `GenerateRecipeHandler`, `SaveRecipeHandler`, `UploadImageHandler`, Kafka Consumer 인스턴스, `RetryStrategy`, `DeadLetterHandler`.
+
+```typescript
+// consumers/recipe-generation/__tests__/consumers/recipe-generation.consumer.spec.ts
+import { Test, TestingModule } from '@nestjs/testing';
+import { RecipeGenerationConsumer } from '../../recipe-generation.consumer';
+import { GenerateRecipeHandler } from '../../handlers/GenerateRecipeHandler';
+import { SaveRecipeHandler } from '../../handlers/SaveRecipeHandler';
+
+describe('RecipeGenerationConsumer', () => {
+  let consumer: RecipeGenerationConsumer;
+  let generateHandler: jest.Mocked<GenerateRecipeHandler>;
+  let saveHandler: jest.Mocked<SaveRecipeHandler>;
+
+  const mockMessage = {
+    key: Buffer.from('req-1'),
+    value: Buffer.from(JSON.stringify({ userId: 1, ingredientIds: [1, 2] })),
+    partition: 0,
+    offset: '0',
+  };
+
+  beforeEach(async () => {
+    const mockGen = { execute: jest.fn().mockResolvedValue({ recipe: { id: 1, title: 'A' } }) };
+    const mockSave = { execute: jest.fn().mockResolvedValue(undefined) };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        RecipeGenerationConsumer,
+        { provide: GenerateRecipeHandler, useValue: mockGen },
+        { provide: SaveRecipeHandler, useValue: mockSave },
+        // RetryStrategy, DeadLetterHandler, Kafka Consumer 등 Mock
+      ],
+    }).compile();
+
+    consumer = module.get(RecipeGenerationConsumer);
+    generateHandler = module.get(GenerateRecipeHandler);
+    saveHandler = module.get(SaveRecipeHandler);
+  });
+
+  it('유효한 메시지 수신 시 GenerateRecipeHandler → SaveRecipeHandler 순으로 실행한다', async () => {
+    await consumer.handleMessage(mockMessage);
+    expect(generateHandler.execute).toHaveBeenCalledWith(expect.objectContaining({ userId: 1 }));
+    expect(saveHandler.execute).toHaveBeenCalledWith(expect.any(Object));
+  });
+
+  it('Handler에서 예외 발생 시 재시도 후 DLQ로 전달한다', async () => {
+    generateHandler.execute.mockRejectedValue(new Error('OpenAI timeout'));
+    await expect(consumer.handleMessage(mockMessage)).rejects.toThrow();
+    // RetryStrategy.increment, DeadLetterHandler.send 호출 검증
+  });
+});
+```
+
+#### Handler 테스트 예제 (Consumer)
+
+- **초점**: 이벤트 페이로드 기반 로직, Repository·OpenAI·S3 등 호출 및 반환값/예외.
+- **Mock**: `OpenAIService`, `RecipeRepository`, `S3UploaderService` 등 해당 핸들러가 사용하는 모든 의존성.
+
+```typescript
+// consumers/recipe-generation/__tests__/handlers/GenerateRecipeHandler.spec.ts
+import { Test, TestingModule } from '@nestjs/testing';
+import { GenerateRecipeHandler } from '../../handlers/GenerateRecipeHandler';
+import { OpenAIService } from '@/integrations/openai/openai.service';
+
+describe('GenerateRecipeHandler', () => {
+  let handler: GenerateRecipeHandler;
+  let openAI: jest.Mocked<OpenAIService>;
+
+  const payload = { userId: 1, ingredientIds: [1, 2], difficulty: 1 };
+
+  beforeEach(async () => {
+    const mockOpenAI = {
+      generateRecipe: jest.fn().mockResolvedValue({
+        title: 'Generated Recipe',
+        instructions: [],
+        cookTime: 30,
+      }),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        GenerateRecipeHandler,
+        { provide: OpenAIService, useValue: mockOpenAI },
+      ],
+    }).compile();
+
+    handler = module.get(GenerateRecipeHandler);
+    openAI = module.get(OpenAIService);
+  });
+
+  it('payload를 받아 OpenAIService.generateRecipe를 호출하고 레시피 객체를 반환한다', async () => {
+    const result = await handler.execute(payload);
+    expect(openAI.generateRecipe).toHaveBeenCalledWith(
+      expect.objectContaining({ ingredientIds: [1, 2] }),
+    );
+    expect(result.recipe.title).toBe('Generated Recipe');
+  });
+
+  it('OpenAI API 실패 시 예외를 그대로 전파한다', async () => {
+    openAI.generateRecipe.mockRejectedValue(new Error('Rate limit'));
+    await expect(handler.execute(payload)).rejects.toThrow('Rate limit');
+  });
+});
+```
+
+### 8.4 Producer / Consumer 테스트 세분화 요약
+
+| 구분       | Producer                          | Consumer                                      |
+|-----------|------------------------------------|-----------------------------------------------|
+| **진입점** | Controller (HTTP)                 | Consumer (Kafka 메시지)                        |
+| **비즈니스** | Service                           | Handler                                       |
+| **테스트 폴더** | `__tests__/controllers/`, `__tests__/services/` | `__tests__/consumers/`, `__tests__/handlers/` |
+| **Controller/Consumer 테스트** | 라우팅, 인증, DTO, Service 호출, HTTP 상태 | 메시지 파싱, 핸들러 순서, 재시도, DLQ          |
+| **Service/Handler 테스트** | 캐시, Repository, 이벤트 발행, 도메인 로직 | Repository, OpenAI, S3 등 외부 연동, 도메인 로직 |
+| **공통**   | 외부 의존성 Mock, `Test.createTestingModule` | 동일                                          |
+
+### 8.5 Jest 설정
+
+`__tests__` 폴더를 인식하려면 `testRegex`에 `__tests__` 내 `*.spec.ts`를 포함한다. 이미 `.*\\.spec\\.ts$`를 사용 중이면 `src` 이하의 `__tests__`도 기본으로 매칭된다. `rootDir`이 `src`인 경우, `modules/users/__tests__/controllers/users.controller.spec.ts` 같은 경로가 그대로 포함된다.
+
+```json
+// package.json (jest 설정)
+{
+  "jest": {
+    "rootDir": "src",
+    "testRegex": ".*\\.spec\\.ts$",
+    "moduleNameMapper": {
+      "@/(.*)": "<rootDir>/$1"
+    }
+  }
+}
+```
+
+---
+
+이 명세서를 기반으로 대용량 트래픽 처리에 최적화된 백엔드를 구현하세요. 테스트 커버리지 80% 이상을 유지하고, 모든 외부 의존성에 대해 서킷 브레이커를 적용하세요.
