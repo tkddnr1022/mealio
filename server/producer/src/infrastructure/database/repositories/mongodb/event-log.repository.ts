@@ -13,10 +13,12 @@ export class EventLogRepository {
     private readonly eventLogModel: Model<EventLogDocument>,
   ) {}
 
-  async create(data: Partial<EventLog>): Promise<EventLog> {
-    const createdLog = new this.eventLogModel(data);
-    return createdLog.save();
-  }
+  // Command 메서드들은 producer 서버에서 제거
+  // Command 작업은 이벤트를 통해 consumer 서버에서 처리됨
+  // async create(data: Partial<EventLog>): Promise<EventLog> {
+  //   const createdLog = new this.eventLogModel(data);
+  //   return createdLog.save();
+  // }
 
   async findById(id: string): Promise<EventLog | null> {
     return this.eventLogModel.findById(id).exec();

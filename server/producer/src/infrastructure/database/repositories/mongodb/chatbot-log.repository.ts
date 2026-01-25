@@ -13,10 +13,12 @@ export class ChatbotLogRepository {
     private readonly chatbotLogModel: Model<ChatbotLogDocument>,
   ) {}
 
-  async create(data: Partial<ChatbotLog>): Promise<ChatbotLog> {
-    const createdLog = new this.chatbotLogModel(data);
-    return createdLog.save();
-  }
+  // Command 메서드들은 producer 서버에서 제거
+  // Command 작업은 이벤트를 통해 consumer 서버에서 처리됨
+  // async create(data: Partial<ChatbotLog>): Promise<ChatbotLog> {
+  //   const createdLog = new this.chatbotLogModel(data);
+  //   return createdLog.save();
+  // }
 
   async findById(id: string): Promise<ChatbotLog | null> {
     return this.chatbotLogModel.findById(id).exec();

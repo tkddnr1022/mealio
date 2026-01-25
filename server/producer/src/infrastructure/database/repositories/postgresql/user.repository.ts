@@ -19,18 +19,20 @@ export class UserRepository {
     return this.prisma.user.findFirst({ where: { platformName, platformId } });
   }
 
-  async create(data: Prisma.UserCreateInput): Promise<User> {
-    return this.prisma.user.create({ data });
-  }
+  // Command 메서드들은 producer 서버에서 제거
+  // Command 작업은 이벤트를 통해 consumer 서버에서 처리됨
+  // async create(data: Prisma.UserCreateInput): Promise<User> {
+  //   return this.prisma.user.create({ data });
+  // }
 
-  async update(id: number, data: Prisma.UserUpdateInput): Promise<User> {
-    return this.prisma.user.update({
-      where: { id },
-      data,
-    });
-  }
+  // async update(id: number, data: Prisma.UserUpdateInput): Promise<User> {
+  //   return this.prisma.user.update({
+  //     where: { id },
+  //     data,
+  //   });
+  // }
 
-  async delete(id: number): Promise<User> {
-    return this.prisma.user.delete({ where: { id } });
-  }
+  // async delete(id: number): Promise<User> {
+  //   return this.prisma.user.delete({ where: { id } });
+  // }
 }
