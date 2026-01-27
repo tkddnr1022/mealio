@@ -7,6 +7,7 @@ import { PrismaModule } from './infrastructure/database/prisma/prisma.module';
 import { MongooseSchemasModule } from './infrastructure/database/mongoose/mongoose.module';
 import { UsersModule } from './modules/users/users.module';
 import { KafkaModule } from './infrastructure/kafka/kafka.module';
+import { CacheModule } from './infrastructure/cache/cache.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { KafkaModule } from './infrastructure/kafka/kafka.module';
     PrismaModule,
     MongooseSchemasModule,
     KafkaModule,
+    CacheModule,
     UsersModule,
   ],
   controllers: [AppController],

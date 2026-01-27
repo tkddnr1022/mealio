@@ -39,6 +39,12 @@ export const envValidationSchema = Joi.object({
     .messages({
       'string.empty': 'KAFKA_CLIENT_ID must not be empty when provided',
     }),
+
+  REDIS_URL: Joi.string()
+    .default('redis://localhost:6379')
+    .messages({
+      'string.empty': 'REDIS_URL must not be empty when provided',
+    }),
 });
 
 export const envValidationOptions = {
