@@ -33,7 +33,7 @@ graph TB
         end
 
         subgraph "Database Layer"
-            RDS[(AWS RDS<br/>MySQL)]
+            RDS[(AWS RDS<br/>PostgreSQL)]
             MONGO[(MongoDB Atlas)]
         end
 
@@ -49,7 +49,7 @@ graph TB
     end
 
     subgraph "Data Models"
-        subgraph "MySQL Schema"
+        subgraph "PostgreSQL Schema"
             SQL_DATA["- Users<br/>- Ingredients<br/>- Recipes<br/>- Recipe-Ingredients<br/>- User Preferences"]
         end
         subgraph "MongoDB Collections"

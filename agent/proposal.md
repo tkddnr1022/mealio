@@ -17,7 +17,7 @@ AI 기반 맞춤형 레시피 추천 서비스
 - Frontend: Next.js, React Native
  	- Next.js로 페이지를 구성하고 React Native에서 웹뷰 구성
 - Backend: Nest.js, Mongoose, Prisma
-- Database: MySQL, MongoDB
+- Database: PostgreSQL, MongoDB
  	- 데이터 **정의와 상태**, 구조, 쿼리 패턴에 따라 구분한다.
  	- SQL: 유저, 재료, 레시피, 레시피-재료 등
  	- NoSQL: 유저 보유 재료, 유저 관심 재료, 챗봇 로그, 이벤트 로그 등

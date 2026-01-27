@@ -233,12 +233,13 @@ paths:
             default: 20
         - name: difficulty
           in: query
-          description: 난이도 필터 (1=쉬움, 2=보통, 3=어려움)
+          description: 난이도 필터 (1~5)
           schema:
             type: array
             items:
               type: integer
-              enum: [1, 2, 3]
+              minimum: 1
+              maximum: 5
           style: form
           explode: false
         - name: cookTime
@@ -458,12 +459,13 @@ paths:
             schema:
               type: object
               required:
-                - ingredients
+                - ingredientIds
               properties:
-                ingredients:
+                ingredientIds:
                   type: array
                   items:
-                    $ref: '#/components/schemas/UserIngredientInput'
+                    type: integer
+                    format: int64
       responses:
         '200':
           description: 업데이트 성공
@@ -491,7 +493,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserIngredientInput'
+              type: object
+              required:
+                - ingredientIds
+              properties:
+                ingredientIds:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
       responses:
         '201':
           description: 재료 추가 성공
@@ -728,8 +738,8 @@ components:
         difficulty:
           type: integer
           minimum: 1
-          maximum: 3
-          description: 난이도 (1=쉬움, 2=보통, 3=어려움)
+          maximum: 5
+          description: 난이도 (1~5)
         cookTime:
           type: integer
           description: 조리시간 (분)
@@ -737,6 +747,15 @@ components:
           type: string
           format: uri
           nullable: true
+        servings:
+          type: integer
+          description: 인분 수
+        viewCount:
+          type: integer
+          description: 조회수
+        isPublished:
+          type: boolean
+          description: 공개 여부
         createdAt:
           type: string
           format: date-time
@@ -802,48 +821,14 @@ components:
         name: 양파
         category: 1
 
-    UserIngredientInput:
-      type: object
-      required:
-        - ingredientId
-        - quantity
-        - unit
-      properties:
-        ingredientId:
-          type: integer
-          format: int64
-        quantity:
-          type: number
-          format: float
-          minimum: 0
-        unit:
-          type: string
-          maxLength: 10
-        expiryDate:
-          type: string
-          format: date
-          nullable: true
-      example:
-        ingredientId: 789
-        quantity: 2
-        unit: 개
-        expiryDate: "2025-01-20"
-
-    UserIngredient:
-      allOf:
-        - $ref: '#/components/schemas/UserIngredientInput'
-        - type: object
-          properties:
-            name:
-              type: string
-
     UserIngredientList:
       type: object
       properties:
-        ingredients:
+        ingredientIds:
           type: array
           items:
-            $ref: '#/components/schemas/UserIngredient'
+            type: integer
+            format: int64
         favoriteIngredientIds:
           type: array
           items:
@@ -892,7 +877,7 @@ components:
             properties:
               role:
                 type: string
-                enum: [user, assistant]
+                enum: [user, assistant, system]
               message:
                 type: string
               createdAt:
@@ -906,14 +891,20 @@ components:
         - actor
       properties:
         type:
-          type: integer
-          description: 이벤트 타입
+          type: string
+          description: |
+            이벤트 타입 (예: recipe.view, recipe.like, search.query, user.signup, ingredient.add, chatbot.message)
         actor:
           type: object
           properties:
+            type:
+              type: string
+              description: 이벤트 주체 타입 (user, system, admin)
             userId:
               type: integer
               format: int64
+            ipAddress:
+              type: string
             userAgent:
               type: string
         entity:
@@ -923,6 +914,9 @@ components:
             type:
               type: string
             id:
+              type: integer
+              format: int64
+            name:
               type: string
         payload:
           type: object
@@ -930,6 +924,18 @@ components:
         metadata:
           type: object
           nullable: true
+          properties:
+            platform:
+              type: string
+            version:
+              type: string
+            source:
+              type: string
+            referrer:
+              type: string
+            extra:
+              type: object
+              additionalProperties: true
 
     Pagination:
       type: object

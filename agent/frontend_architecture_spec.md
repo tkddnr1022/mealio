@@ -141,7 +141,7 @@ export async function generateMetadata({ params }): Promise<Metadata> {
 | 경로 | 렌더링 | 설명 | 데이터 소스 |
 |------|--------|------|------------|
 | `/ingredients` | CSR | 내 재료 관리 | MongoDB (UserIngredient), 실시간 업데이트 |
-| `/ingredients/search` | CSR | 재료 검색 | MySQL (Ingredient), ElasticSearch 추천 |
+| `/ingredients/search` | CSR | 재료 검색 | PostgreSQL (Ingredient), ElasticSearch 추천 |
 
 #### AI 챗봇
 
@@ -162,7 +162,7 @@ export async function generateMetadata({ params }): Promise<Metadata> {
 |------|--------|------|----------|
 | `/favorites` | SSR | 즐겨찾기 | Middleware 인증 체크 |
 | `/history` | SSR | 조리 히스토리 | MongoDB EventLog 조회 |
-| `/profile` | SSR | 프로필 | MySQL User 테이블 |
+| `/profile` | SSR | 프로필 | PostgreSQL User 테이블 |
 | `/profile/edit` | CSR | 프로필 수정 | Optimistic UI 업데이트 |
 
 ## 4. 대용량 트래픽 대응 전략

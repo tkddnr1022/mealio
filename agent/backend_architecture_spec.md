@@ -72,10 +72,10 @@ infrastructure/
 ├── database/
 │   ├── prisma/
 │   │   ├── prisma.service.ts           # Prisma Client 싱글톤
-│   │   ├── prisma-postgresql.service.ts     # MySQL 전용 클라이언트
+│   │   ├── prisma-postgresql.service.ts     # PostgreSQL 전용 클라이언트
 │   │   ├── prisma-mongo.service.ts     # MongoDB 전용 클라이언트
 │   │   ├── schema.prisma               # 통합 스키마 정의
-│   │   └── migrations/                 # MySQL 마이그레이션 파일
+│   │   └── migrations/                 # PostgreSQL 마이그레이션 파일
 │   └── repositories/
 │       ├── postgresql/
 │       │   ├── user.repository.ts
@@ -261,7 +261,7 @@ reliability/
 ```
 prisma/
 ├── schema.prisma                  # 메인 스키마 파일
-├── migrations/                    # MySQL 마이그레이션
+├── migrations/                    # PostgreSQL 마이그레이션
 │   └── YYYYMMDDHHMMSS_init/
 └── seed/
     ├── seed.ts                    # 시드 데이터 스크립트
@@ -272,7 +272,7 @@ prisma/
 
 ### 3.2 Schema.prisma 예시
 ```prisma
-// MySQL 데이터소스
+// PostgreSQL 데이터소스
 datasource postgresql {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -290,7 +290,7 @@ generator client {
   previewFeatures = ["multiSchema", "mongodb"]
 }
 
-// MySQL 모델
+// PostgreSQL 모델
 model User {
   id           Int   @id @default(autoincrement())
   email        String   @unique @db.VarChar(100)
@@ -305,13 +305,13 @@ model User {
 }
 
 model Recipe {
-  id           Int   @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   title        String   @db.VarChar(100)
   description  String?  @db.Text
   instructions Json
-  difficulty   Int      @db.TinyInt
+  difficulty   Int      @db.SmallInt
   cookTime     Int      @map("cook_time")
-  imageUrl     String?  @map("image_url") @db.Text
+  imageUrl     String?  @map("image_url") @db.VarChar(512)
   createdAt    DateTime @default(now()) @map("created_at")
 
   recipeIngredients RecipeIngredient[]
@@ -335,11 +335,11 @@ model Ingredient {
 }
 
 model RecipeIngredient {
-  id           Int   @id @default(autoincrement())
-  recipeId     Int   @map("recipe_id")
-  ingredientId Int   @map("ingredient_id")
-  amount       Float?
-  unit         String?  @db.VarChar(10)
+  id           Int      @id @default(autoincrement())
+  recipeId     Int      @map("recipe_id")
+  ingredientId Int      @map("ingredient_id")
+  amount       Decimal? @db.Decimal(10, 2)
+  unit         String?  @db.VarChar(20)
   isOptional   Boolean  @default(false) @map("is_optional")
 
   recipe     Recipe     @relation(fields: [recipeId], references: [id])
@@ -354,7 +354,7 @@ model RecipeIngredient {
 // MongoDB 모델
 model EventLog {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  type        Int
+  type        String
   actor       Json
   entity      Json?
   payload     Json?
@@ -369,7 +369,7 @@ model EventLog {
 model ChatbotLog {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   userId    Int
-  role      Int
+  role      String
   message   String?
   context   Json?
   llm       Json?
@@ -384,10 +384,11 @@ model ChatbotLog {
 }
 
 model UserIngredient {
-  id                    String @id @default(auto()) @map("_id") @db.ObjectId
-  userId                Int @unique
-  ingredients           Json?
-  favoriteIngredientIds Json?
+  id                    String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId                Int     @unique
+  ingredientsIds        Int[]
+  favoriteIngredientIds Int[]
+  lastSyncedAt          DateTime?
 
   @@map("UserIngredient")
   @@schema("mongodb")
@@ -398,17 +399,17 @@ model UserIngredient {
 ```typescript
 // prisma/prisma.service.ts
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient as PrismaMySQLClient } from '@prisma/client/postgresql';
+import { PrismaClient as PrismaPostgreSQLClient } from '@prisma/client/postgresql';
 import { PrismaClient as PrismaMongoClient } from '@prisma/client/mongodb';
 
 @Injectable()
 export class PrismaService implements OnModuleInit, OnModuleDestroy {
-  postgresql: PrismaMySQLClient;
+  postgresql: PrismaPostgreSQLClient;
   mongo: PrismaMongoClient;
 
   constructor() {
-    // MySQL 클라이언트
-    this.postgresql = new PrismaMySQLClient({
+    // PostgreSQL 클라이언트
+    this.postgresql = new PrismaPostgreSQLClient({
       log: ['query', 'error', 'warn'],
       datasources: {
         postgresql: {
@@ -440,7 +441,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
 
   // 읽기 전용 복제본 연결 (선택적)
   async getReadReplica() {
-    return new PrismaMySQLClient({
+    return new PrismaPostgreSQLClient({
       datasources: {
         postgresql: {
           url: process.env.DATABASE_READ_REPLICA_URL,
@@ -595,7 +596,7 @@ shared/
 5. **Index 활용**: `@@index`, `@@unique` 적극 활용
 
 ### 5.4 데이터베이스 분리 전략
-- **MySQL (via Prisma)**: 정규화된 관계형 데이터, ACID 보장 필요 데이터
+- **PostgreSQL (via Prisma)**: 정규화된 관계형 데이터, ACID 보장 필요 데이터
 - **MongoDB (via Prisma)**: 비정규화된 로그성 데이터, 스키마 유연성 필요 데이터
 
 ### 5.5 확장성 전략
@@ -611,7 +612,7 @@ shared/
 
 ### Phase 1: MVP (핵심 기능)
 1. **Prisma 설정**
-   - MySQL, MongoDB 스키마 정의
+   - PostgreSQL, MongoDB 스키마 정의
    - 마이그레이션 생성 및 적용
    - Seed 데이터 준비
 2. **Producer**: Auth, Users, Recipes (조회), Kafka 발행
@@ -646,7 +647,7 @@ shared/
 
 ### 7.3 마이그레이션
 - MongoDB는 마이그레이션 미지원 (스키마리스)
-- MySQL만 `prisma migrate` 사용
+- PostgreSQL에 `prisma migrate` 사용
 - Production에서는 `prisma migrate deploy` 사용
 
 ### 7.4 성능 모니터링
