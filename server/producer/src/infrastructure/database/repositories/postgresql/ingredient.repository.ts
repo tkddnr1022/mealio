@@ -16,12 +16,12 @@ export class IngredientRepository {
 
   async search(query: string, take: number): Promise<Ingredient[]> {
     return this.prisma.ingredient.findMany({
-        where: {
-            name: {
-                contains: query,
-            },
+      where: {
+        name: {
+          contains: query,
         },
-        take,
+      },
+      take,
     });
   }
 

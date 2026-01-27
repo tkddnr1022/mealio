@@ -49,30 +49,39 @@ describe('UserRepository', () => {
   describe('findById', () => {
     it('should find a user by id', async () => {
       const result = await repository.findById(1n);
-      expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: 1n } });
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+        where: { id: 1n },
+      });
       expect(result).toEqual(mockUser);
     });
   });
-  
+
   describe('findByEmail', () => {
     it('should find a user by email', async () => {
-        const result = await repository.findByEmail('test@example.com');
-        expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { email: 'test@example.com' } });
-        expect(result).toEqual(mockUser);
+      const result = await repository.findByEmail('test@example.com');
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+        where: { email: 'test@example.com' },
+      });
+      expect(result).toEqual(mockUser);
     });
   });
 
   describe('findByPlatform', () => {
     it('should find a user by platform', async () => {
-        const result = await repository.findByPlatform('local', 'test1234');
-        expect(prisma.user.findFirst).toHaveBeenCalledWith({ where: { platformName: 'local', platformId: 'test1234' } });
-        expect(result).toEqual(mockUser);
+      const result = await repository.findByPlatform('local', 'test1234');
+      expect(prisma.user.findFirst).toHaveBeenCalledWith({
+        where: { platformName: 'local', platformId: 'test1234' },
+      });
+      expect(result).toEqual(mockUser);
     });
   });
 
   describe('create', () => {
     it('should create a user', async () => {
-      const createInput: any = { email: 'test@example.com', nickname: 'TestUser' };
+      const createInput: any = {
+        email: 'test@example.com',
+        nickname: 'TestUser',
+      };
       const result = await repository.create(createInput);
       expect(prisma.user.create).toHaveBeenCalledWith({ data: createInput });
       expect(result).toEqual(mockUser);
@@ -81,18 +90,21 @@ describe('UserRepository', () => {
 
   describe('update', () => {
     it('should update a user', async () => {
-        const updateInput: any = { nickname: 'UpdatedUser' };
-        const result = await repository.update(1n, updateInput);
-        expect(prisma.user.update).toHaveBeenCalledWith({ where: { id: 1n }, data: updateInput });
-        expect(result).toEqual(mockUser);
+      const updateInput: any = { nickname: 'UpdatedUser' };
+      const result = await repository.update(1n, updateInput);
+      expect(prisma.user.update).toHaveBeenCalledWith({
+        where: { id: 1n },
+        data: updateInput,
+      });
+      expect(result).toEqual(mockUser);
     });
   });
-    
-    describe('delete', () => {
+
+  describe('delete', () => {
     it('should delete a user', async () => {
-        const result = await repository.delete(1n);
-        expect(prisma.user.delete).toHaveBeenCalledWith({ where: { id: 1n } });
-        expect(result).toEqual(mockUser);
+      const result = await repository.delete(1n);
+      expect(prisma.user.delete).toHaveBeenCalledWith({ where: { id: 1n } });
+      expect(result).toEqual(mockUser);
     });
-    });
+  });
 });

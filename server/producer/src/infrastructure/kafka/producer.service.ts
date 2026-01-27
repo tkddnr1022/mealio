@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Kafka, Producer } from 'kafkajs';
 import { createKafkaConfig } from 'src/shared/configs/kafka.config';
@@ -41,7 +46,10 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
       await this.producer.disconnect();
       this.logger.log('Kafka producer disconnected');
     } catch (error) {
-      this.logger.error('Error while disconnecting Kafka producer', error as Error);
+      this.logger.error(
+        'Error while disconnecting Kafka producer',
+        error as Error,
+      );
     }
   }
 
@@ -51,7 +59,9 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
    */
   async emit<T>(topic: string, payload: T, key?: string): Promise<void> {
     if (!this.producer || !this.isConnected) {
-      this.logger.warn(`Kafka producer is not connected. Skipping publish to topic=${topic}`);
+      this.logger.warn(
+        `Kafka producer is not connected. Skipping publish to topic=${topic}`,
+      );
       return;
     }
 
@@ -66,8 +76,10 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
         ],
       });
     } catch (error) {
-      this.logger.error(`Failed to publish message to topic=${topic}`, error as Error);
+      this.logger.error(
+        `Failed to publish message to topic=${topic}`,
+        error as Error,
+      );
     }
   }
 }
-

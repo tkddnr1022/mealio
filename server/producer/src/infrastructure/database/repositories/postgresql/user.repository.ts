@@ -14,7 +14,10 @@ export class UserRepository {
     return this.prisma.user.findUnique({ where: { email } });
   }
 
-  async findByPlatform(platformName: string, platformId: string): Promise<User | null> {
+  async findByPlatform(
+    platformName: string,
+    platformId: string,
+  ): Promise<User | null> {
     // Prisma does not support unique constraints on multiple columns, so we use findFirst
     return this.prisma.user.findFirst({ where: { platformName, platformId } });
   }

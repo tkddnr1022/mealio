@@ -45,7 +45,9 @@ describe('IngredientRepository', () => {
   describe('findById', () => {
     it('should find an ingredient by id', async () => {
       const result = await repository.findById(1n);
-      expect(prisma.ingredient.findUnique).toHaveBeenCalledWith({ where: { id: 1n } });
+      expect(prisma.ingredient.findUnique).toHaveBeenCalledWith({
+        where: { id: 1n },
+      });
       expect(result).toEqual(mockIngredient);
     });
   });
@@ -53,7 +55,9 @@ describe('IngredientRepository', () => {
   describe('findByName', () => {
     it('should find an ingredient by name', async () => {
       const result = await repository.findByName('Salt');
-      expect(prisma.ingredient.findFirst).toHaveBeenCalledWith({ where: { name: 'Salt' } });
+      expect(prisma.ingredient.findFirst).toHaveBeenCalledWith({
+        where: { name: 'Salt' },
+      });
       expect(result).toEqual(mockIngredient);
     });
   });
@@ -68,13 +72,15 @@ describe('IngredientRepository', () => {
       expect(result).toEqual([mockIngredient]);
     });
   });
-  
+
   describe('create', () => {
     it('should create an ingredient', async () => {
-        const createInput: any = { name: 'Salt' };
-        const result = await repository.create(createInput);
-        expect(prisma.ingredient.create).toHaveBeenCalledWith({ data: createInput });
-        expect(result).toEqual(mockIngredient);
+      const createInput: any = { name: 'Salt' };
+      const result = await repository.create(createInput);
+      expect(prisma.ingredient.create).toHaveBeenCalledWith({
+        data: createInput,
+      });
+      expect(result).toEqual(mockIngredient);
     });
   });
 });

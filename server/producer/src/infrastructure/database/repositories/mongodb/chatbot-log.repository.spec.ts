@@ -16,13 +16,12 @@ const mockQuery = {
 
 // A class-like function for the mock
 const mockModel = jest.fn().mockImplementation((doc) => ({
-    ...doc,
-    save: jest.fn().mockResolvedValue(doc),
+  ...doc,
+  save: jest.fn().mockResolvedValue(doc),
 }));
 // Assign static methods to the function object
 mockModel.find = jest.fn().mockReturnValue(mockQuery);
 mockModel.findById = jest.fn().mockReturnValue(mockQuery);
-
 
 describe('ChatbotLogRepository', () => {
   let repository: ChatbotLogRepository;
@@ -70,7 +69,7 @@ describe('ChatbotLogRepository', () => {
     it('should find and return a log by id', async () => {
       const id = 'some-id';
       mockQuery.exec.mockResolvedValue(mockChatbotLog);
-      
+
       const result = await repository.findById(id);
 
       expect(model.findById).toHaveBeenCalledWith(id);
@@ -83,11 +82,14 @@ describe('ChatbotLogRepository', () => {
       const userId = 1;
       mockQuery.exec.mockResolvedValue([mockChatbotLog]);
 
-      const result = await repository.findByUserId(userId, { take: 10, orderBy: {createdAt: 'desc'} });
-      
+      const result = await repository.findByUserId(userId, {
+        take: 10,
+        orderBy: { createdAt: 'desc' },
+      });
+
       expect(model.find).toHaveBeenCalledWith({ userId });
       expect(mockQuery.limit).toHaveBeenCalledWith(10);
-      expect(mockQuery.sort).toHaveBeenCalledWith({createdAt: 'desc'});
+      expect(mockQuery.sort).toHaveBeenCalledWith({ createdAt: 'desc' });
       expect(result).toEqual([mockChatbotLog]);
     });
   });

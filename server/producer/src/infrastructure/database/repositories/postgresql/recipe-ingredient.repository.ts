@@ -8,8 +8,8 @@ export class RecipeIngredientRepository {
 
   async findByRecipeId(recipeId: number): Promise<RecipeIngredient[]> {
     return this.prisma.recipeIngredient.findMany({
-        where: { recipeId },
-        include: { ingredient: true },
+      where: { recipeId },
+      include: { ingredient: true },
     });
   }
 

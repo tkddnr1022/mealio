@@ -7,4 +7,3 @@ import { KafkaAdminService } from './kafka-admin.service';
   exports: [KafkaProducerService],
 })
 export class KafkaModule {}
-

@@ -1,4 +1,3 @@
-
 import { MongooseModuleOptions } from '@nestjs/mongoose';
 import * as dotenv from 'dotenv';
 
@@ -19,11 +18,11 @@ export const mongooseConfig: MongooseModuleOptions = {
   retryReads: true,
 
   // 읽기 선호도 (Read Preference)
-  readPreference: 'secondaryPreferred',  // Secondary 우선 읽기
+  readPreference: 'secondaryPreferred', // Secondary 우선 읽기
 
   // Write Concern (쓰기 안정성)
-  w: 1,  // 단일 노드 확인 (로그성 데이터)
-  journal: true,  // 저널링 활성화
+  w: 1, // 단일 노드 확인 (로그성 데이터)
+  journal: true, // 저널링 활성화
 
   // TODO: 압축
   // compressors: ['snappy', 'zlib'],

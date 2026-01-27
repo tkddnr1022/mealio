@@ -22,7 +22,9 @@ describe('UsersController', () => {
   beforeEach(async () => {
     const mockService = {
       getProfile: jest.fn().mockResolvedValue(mockProfile),
-      updateNickname: jest.fn().mockResolvedValue({ id: 1, nickname: 'NewNick' }),
+      updateNickname: jest
+        .fn()
+        .mockResolvedValue({ id: 1, nickname: 'NewNick' }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -34,7 +36,9 @@ describe('UsersController', () => {
       .compile();
 
     controller = module.get<UsersController>(UsersController);
-    usersService = module.get<UsersService>(UsersService) as jest.Mocked<UsersService>;
+    usersService = module.get<UsersService>(
+      UsersService,
+    ) as jest.Mocked<UsersService>;
   });
 
   it('should be defined', () => {
@@ -49,8 +53,12 @@ describe('UsersController', () => {
     });
 
     it('사용자가 없으면 NotFoundException을 던진다', async () => {
-      usersService.getProfile.mockRejectedValue(new NotFoundException('User not found'));
-      await expect(controller.getProfile(mockAuthUser)).rejects.toThrow(NotFoundException);
+      usersService.getProfile.mockRejectedValue(
+        new NotFoundException('User not found'),
+      );
+      await expect(controller.getProfile(mockAuthUser)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 

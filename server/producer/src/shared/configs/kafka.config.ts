@@ -9,9 +9,14 @@ import { KafkaConfig, logLevel } from 'kafkajs';
  */
 export function createKafkaConfig(clientIdSuffix?: string): KafkaConfig {
   const baseClientId = process.env.KAFKA_CLIENT_ID || 'cook-producer';
-  const clientId = clientIdSuffix ? `${baseClientId}-${clientIdSuffix}` : baseClientId;
+  const clientId = clientIdSuffix
+    ? `${baseClientId}-${clientIdSuffix}`
+    : baseClientId;
   const brokersEnv = process.env.KAFKA_BROKERS || 'localhost:9092';
-  const brokers = brokersEnv.split(',').map((b) => b.trim()).filter(Boolean);
+  const brokers = brokersEnv
+    .split(',')
+    .map((b) => b.trim())
+    .filter(Boolean);
 
   return {
     clientId,

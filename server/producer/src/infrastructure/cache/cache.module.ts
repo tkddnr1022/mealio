@@ -19,6 +19,12 @@ import { UserCacheStrategy } from './strategies/user-cache-strategy';
     IngredientCacheStrategy,
     UserCacheStrategy,
   ],
-  exports: [RedisService, CacheService, RecipeCacheStrategy, IngredientCacheStrategy, UserCacheStrategy],
+  exports: [
+    RedisService,
+    CacheService,
+    RecipeCacheStrategy,
+    IngredientCacheStrategy,
+    UserCacheStrategy,
+  ],
 })
 export class CacheModule {}

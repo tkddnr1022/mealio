@@ -34,7 +34,10 @@ export class CacheService {
       this.logger.debug(`Cache miss: ${key}`);
       return null;
     } catch (error) {
-      this.logger.error(`Error getting cache for key: ${strategy.generateKey(...keyArgs)}`, error);
+      this.logger.error(
+        `Error getting cache for key: ${strategy.generateKey(...keyArgs)}`,
+        error,
+      );
       return null; // 캐시 실패 시 null 반환하여 DB 조회로 폴백
     }
   }
@@ -58,7 +61,10 @@ export class CacheService {
       await this.redisService.set(key, serialized, ttl);
       this.logger.debug(`Cache set: ${key} (TTL: ${ttl}s)`);
     } catch (error) {
-      this.logger.error(`Error setting cache for key: ${strategy.generateKey(...keyArgs)}`, error);
+      this.logger.error(
+        `Error setting cache for key: ${strategy.generateKey(...keyArgs)}`,
+        error,
+      );
       // 캐시 저장 실패는 로깅만 하고 예외를 던지지 않음 (비즈니스 로직에 영향 없음)
     }
   }

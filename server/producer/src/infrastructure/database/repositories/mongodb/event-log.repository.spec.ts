@@ -1,4 +1,3 @@
-
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -17,12 +16,11 @@ const mockQuery = {
 };
 
 const mockModel = jest.fn().mockImplementation((doc) => ({
-    ...doc,
-    save: jest.fn().mockResolvedValue(doc),
+  ...doc,
+  save: jest.fn().mockResolvedValue(doc),
 }));
 mockModel.find = jest.fn().mockReturnValue(mockQuery);
 mockModel.findById = jest.fn().mockReturnValue(mockQuery);
-
 
 describe('EventLogRepository', () => {
   let repository: EventLogRepository;
@@ -65,7 +63,7 @@ describe('EventLogRepository', () => {
     it('should find and return a log by id', async () => {
       const id = 'some-id';
       mockQuery.exec.mockResolvedValue(mockEventLog);
-      
+
       const result = await repository.findById(id);
 
       expect(model.findById).toHaveBeenCalledWith(id);

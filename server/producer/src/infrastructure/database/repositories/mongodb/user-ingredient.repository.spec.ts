@@ -1,4 +1,3 @@
-
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -58,7 +57,9 @@ describe('UserIngredientRepository', () => {
     it('should upsert user ingredients', async () => {
       const userId = 1;
       const data = { ingredients: { '2': 'pepper' } };
-      const exec = jest.fn().mockResolvedValue({ ...mockUserIngredient, ...data });
+      const exec = jest
+        .fn()
+        .mockResolvedValue({ ...mockUserIngredient, ...data });
       jest.spyOn(model, 'findOneAndUpdate').mockReturnValue({ exec } as any);
 
       const result = await repository.upsert(userId, data);

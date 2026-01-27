@@ -8,14 +8,14 @@ export class RecipeRepository {
 
   async findById(id: number): Promise<Recipe | null> {
     return this.prisma.recipe.findUnique({
-        where: { id },
-        include: {
-            recipeIngredients: {
-                include: {
-                    ingredient: true,
-                },
-            },
+      where: { id },
+      include: {
+        recipeIngredients: {
+          include: {
+            ingredient: true,
+          },
         },
+      },
     });
   }
 
@@ -59,24 +59,24 @@ export class RecipeRepository {
     take?: number;
   }): Promise<Recipe[]> {
     return this.prisma.recipe.findMany({
-        where: {
-            difficulty: params.difficulty,
-            cookTime: params.maxCookTime ? { lte: params.maxCookTime } : undefined,
-            recipeIngredients: params.ingredientIds?.length
-            ? {
-                some: {
-                    ingredientId: {
-                    in: params.ingredientIds,
-                    },
+      where: {
+        difficulty: params.difficulty,
+        cookTime: params.maxCookTime ? { lte: params.maxCookTime } : undefined,
+        recipeIngredients: params.ingredientIds?.length
+          ? {
+              some: {
+                ingredientId: {
+                  in: params.ingredientIds,
                 },
-                }
-            : undefined,
-        },
-        skip: params.skip,
-        take: params.take,
-        orderBy: {
-            createdAt: 'desc',
-        },
+              },
+            }
+          : undefined,
+      },
+      skip: params.skip,
+      take: params.take,
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
   }
 }

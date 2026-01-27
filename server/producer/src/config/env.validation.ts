@@ -9,9 +9,7 @@ export const envValidationSchema = Joi.object({
     .valid('development', 'production', 'test')
     .default('development'),
 
-  PORT: Joi.string()
-    .pattern(/^\d+$/)
-    .default('3000'),
+  PORT: Joi.string().pattern(/^\d+$/).default('3000'),
 
   JWT_SECRET: Joi.string().min(1).required().messages({
     'string.empty': 'JWT_SECRET must not be empty',
@@ -28,23 +26,17 @@ export const envValidationSchema = Joi.object({
     'any.required': 'POSTGRESQL_URL is required',
   }),
 
-  KAFKA_BROKERS: Joi.string()
-    .default('localhost:9092')
-    .messages({
-      'string.empty': 'KAFKA_BROKERS must not be empty when provided',
-    }),
+  KAFKA_BROKERS: Joi.string().default('localhost:9092').messages({
+    'string.empty': 'KAFKA_BROKERS must not be empty when provided',
+  }),
 
-  KAFKA_CLIENT_ID: Joi.string()
-    .default('cook-producer')
-    .messages({
-      'string.empty': 'KAFKA_CLIENT_ID must not be empty when provided',
-    }),
+  KAFKA_CLIENT_ID: Joi.string().default('cook-producer').messages({
+    'string.empty': 'KAFKA_CLIENT_ID must not be empty when provided',
+  }),
 
-  REDIS_URL: Joi.string()
-    .default('redis://localhost:6379')
-    .messages({
-      'string.empty': 'REDIS_URL must not be empty when provided',
-    }),
+  REDIS_URL: Joi.string().default('redis://localhost:6379').messages({
+    'string.empty': 'REDIS_URL must not be empty when provided',
+  }),
 });
 
 export const envValidationOptions = {

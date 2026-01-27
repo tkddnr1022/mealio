@@ -19,10 +19,10 @@ describe('RecipeRepository', () => {
 
   const mockTx = {
     recipe: {
-        create: jest.fn().mockResolvedValue(mockRecipe),
+      create: jest.fn().mockResolvedValue(mockRecipe),
     },
     recipeIngredient: {
-        createMany: jest.fn().mockResolvedValue({ count: 1 }),
+      createMany: jest.fn().mockResolvedValue({ count: 1 }),
     },
   };
 
@@ -32,7 +32,7 @@ describe('RecipeRepository', () => {
       create: jest.fn().mockResolvedValue(mockRecipe),
       findMany: jest.fn().mockResolvedValue([mockRecipe]),
     },
-    $transaction: jest.fn().mockImplementation(callback => callback(mockTx)),
+    $transaction: jest.fn().mockImplementation((callback) => callback(mockTx)),
   };
 
   beforeEach(async () => {
@@ -73,29 +73,40 @@ describe('RecipeRepository', () => {
 
   describe('create', () => {
     it('should create a recipe', async () => {
-        const createInput: any = { title: 'Test Recipe', author: { connect: { id: 1n } } };
-        const result = await repository.create(createInput);
-        expect(prisma.recipe.create).toHaveBeenCalledWith({ data: createInput });
-        expect(result).toEqual(mockRecipe);
+      const createInput: any = {
+        title: 'Test Recipe',
+        author: { connect: { id: 1n } },
+      };
+      const result = await repository.create(createInput);
+      expect(prisma.recipe.create).toHaveBeenCalledWith({ data: createInput });
+      expect(result).toEqual(mockRecipe);
     });
   });
 
   describe('createWithIngredients', () => {
     it('should create a recipe with ingredients in a transaction', async () => {
-      const recipeData: any = { title: 'New Recipe', author: { connect: { id: 1n } } };
+      const recipeData: any = {
+        title: 'New Recipe',
+        author: { connect: { id: 1n } },
+      };
       const ingredients = [{ ingredientId: 1n, amount: 1, unit: 'cup' }];
-      
-      const result = await repository.createWithIngredients(recipeData, ingredients);
-      
+
+      const result = await repository.createWithIngredients(
+        recipeData,
+        ingredients,
+      );
+
       expect(prisma.$transaction).toHaveBeenCalled();
       expect(mockTx.recipe.create).toHaveBeenCalledWith({ data: recipeData });
       expect(mockTx.recipeIngredient.createMany).toHaveBeenCalledWith({
-        data: [{
+        data: [
+          {
             recipeId: mockRecipe.id,
             ingredientId: 1n,
             amount: 1,
             unit: 'cup',
-        }],
+          },
+        ],
       });
       expect(result).toEqual(mockRecipe);
     });
@@ -103,11 +114,10 @@ describe('RecipeRepository', () => {
 
   describe('searchRecipes', () => {
     it('should search recipes', async () => {
-        const params = { difficulty: 3, take: 10 };
-        const result = await repository.searchRecipes(params as any);
-        expect(prisma.recipe.findMany).toHaveBeenCalled();
-        expect(result).toEqual([mockRecipe]);
+      const params = { difficulty: 3, take: 10 };
+      const result = await repository.searchRecipes(params as any);
+      expect(prisma.recipe.findMany).toHaveBeenCalled();
+      expect(result).toEqual([mockRecipe]);
     });
   });
-
 });

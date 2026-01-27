@@ -8,7 +8,9 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   constructor() {
-    const adapter = new PrismaPg({ connectionString: process.env.POSTGRESQL_URL });
+    const adapter = new PrismaPg({
+      connectionString: process.env.POSTGRESQL_URL,
+    });
     super({ adapter });
   }
 
