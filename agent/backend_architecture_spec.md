@@ -71,11 +71,17 @@ modules/
 infrastructure/
 ├── database/
 │   ├── prisma/
-│   │   ├── prisma.service.ts           # Prisma Client 싱글톤
-│   │   ├── prisma-postgresql.service.ts     # PostgreSQL 전용 클라이언트
-│   │   ├── prisma-mongo.service.ts     # MongoDB 전용 클라이언트
-│   │   ├── schema.prisma               # 통합 스키마 정의
+│   │   ├── prisma.module.ts            # Prisma 모듈 (PostgreSQL 전용)
+│   │   ├── prisma.service.ts           # PrismaClient(PostgreSQL, adapter-pg)
+│   │   ├── schema.prisma               # PostgreSQL 스키마 정의
 │   │   └── migrations/                 # PostgreSQL 마이그레이션 파일
+│   ├── mongoose/
+│   │   ├── mongoose.config.ts          # Mongoose 연결 설정 (MongoDB URL 등)
+│   │   ├── mongoose.module.ts          # Mongoose 모듈 및 스키마 등록
+│   │   └── schemas/                    # MongoDB 컬렉션별 스키마
+│   │       ├── chatbot-log.schema.ts
+│   │       ├── event-log.schema.ts
+│   │       └── user-ingredient.schema.ts
 │   └── repositories/
 │       ├── postgresql/
 │       │   ├── user.repository.ts
@@ -151,7 +157,7 @@ consumers/
 │   ├── chatbot-request.consumer.ts
 │   ├── handlers/
 │   │   ├── ProcessChatHandler         # GPT-4 호출
-│   │   ├── SaveChatLogHandler         # Prisma로 MongoDB 로깅
+│   │   ├── SaveChatLogHandler         # Mongoose로 MongoDB 로깅
 │   │   └── UpdateContextHandler       # 대화 컨텍스트 갱신
 │   └── context/
 │       └── conversation.manager.ts    # 대화 히스토리 관리
@@ -259,65 +265,58 @@ reliability/
 ### 3.1 Prisma Schema 구조
 ```
 prisma/
-├── schema.prisma                  # 메인 스키마 파일
-├── migrations/                    # PostgreSQL 마이그레이션
-│   └── YYYYMMDDHHMMSS_init/
-└── seed/
-    ├── seed.ts                    # 시드 데이터 스크립트
-    └── data/
-        ├── ingredients.json       # 기본 재료 데이터
-        └── sample-recipes.json    # 샘플 레시피
+├── schema.prisma                  # PostgreSQL 전용 메인 스키마 파일
+└── migrations/                    # PostgreSQL 마이그레이션
+    └── YYYYMMDDHHMMSS_init/
 ```
 
 ### 3.2 Schema.prisma 예시
 ```prisma
-// PostgreSQL 데이터소스
-datasource postgresql {
+// PostgreSQL 데이터소스 (단일 데이터소스)
+datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-// MongoDB 데이터소스
-datasource mongodb {
-  provider = "mongodb"
-  url      = env("MONGODB_URL")
 }
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
-  previewFeatures = ["multiSchema", "mongodb"]
+  provider     = "prisma-client"
+  output       = "generated"
+  moduleFormat = "cjs"
 }
 
-// PostgreSQL 모델
 model User {
   id           Int   @id @default(autoincrement())
   email        String   @unique @db.VarChar(100)
-  nickname     String   @db.VarChar(20)
-  platformName String   @map("platform_name") @db.VarChar(10)
+  nickname     String   @db.VarChar(50)
+  platformName String   @map("platform_name") @db.VarChar(20)
   platformId   String   @map("platform_id") @db.VarChar(100)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
+  @@index([platformName, platformId])
+  @@index([email])
+  @@index([createdAt])
   @@map("User")
-  @@schema("postgresql")
 }
 
 model Recipe {
-  id           Int      @id @default(autoincrement())
+  id           Int   @id @default(autoincrement())
   title        String   @db.VarChar(100)
   description  String?  @db.Text
   instructions Json
   difficulty   Int      @db.SmallInt
   cookTime     Int      @map("cook_time")
   imageUrl     String?  @map("image_url") @db.VarChar(512)
+  servings     Int      @default(2)
+  viewCount    Int      @default(0) @map("view_count")
+  isPublished  Boolean  @default(true) @map("is_published")
   createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   recipeIngredients RecipeIngredient[]
 
+  @@index([difficulty, cookTime, createdAt])
+  @@index([createdAt(sort: Desc)])
   @@map("Recipe")
-  @@index([difficulty, cookTime])
-  @@schema("postgresql")
 }
 
 model Ingredient {
@@ -328,15 +327,14 @@ model Ingredient {
 
   recipeIngredients RecipeIngredient[]
 
-  @@map("Ingredient")
   @@index([category, name])
-  @@schema("postgresql")
+  @@map("Ingredient")
 }
 
 model RecipeIngredient {
-  id           Int      @id @default(autoincrement())
-  recipeId     Int      @map("recipe_id")
-  ingredientId Int      @map("ingredient_id")
+  id           Int   @id @default(autoincrement())
+  recipeId     Int   @map("recipe_id")
+  ingredientId Int   @map("ingredient_id")
   amount       Decimal? @db.Decimal(10, 2)
   unit         String?  @db.VarChar(20)
   isOptional   Boolean  @default(false) @map("is_optional")
@@ -344,109 +342,36 @@ model RecipeIngredient {
   recipe     Recipe     @relation(fields: [recipeId], references: [id])
   ingredient Ingredient @relation(fields: [ingredientId], references: [id])
 
-  @@map("RecipeIngredient")
+  @@unique([recipeId, ingredientId])
   @@index([recipeId])
   @@index([ingredientId])
-  @@schema("postgresql")
-}
-
-// MongoDB 모델
-model EventLog {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  type        String
-  actor       Json
-  entity      Json?
-  payload     Json?
-  metadata    Json?
-  occurredAt  DateTime @default(now())
-  processedAt DateTime?
-
-  @@map("EventLog")
-  @@schema("mongodb")
-}
-
-model ChatbotLog {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    Int
-  role      String
-  message   String?
-  context   Json?
-  llm       Json?
-  latency   Int?
-  success   Boolean
-  error     String?
-  createdAt DateTime @default(now())
-
-  @@map("ChatbotLog")
-  @@index([userId, createdAt])
-  @@schema("mongodb")
-}
-
-model UserIngredient {
-  id                    String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId                Int     @unique
-  ingredientsIds        Int[]
-  favoriteIngredientIds Int[]
-  lastSyncedAt          DateTime?
-
-  @@map("UserIngredient")
-  @@schema("mongodb")
+  @@map("RecipeIngredient")
 }
 ```
 
 ### 3.3 Prisma Service 구현
 ```typescript
 // prisma/prisma.service.ts
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient as PrismaPostgreSQLClient } from '@prisma/client/postgresql';
-import { PrismaClient as PrismaMongoClient } from '@prisma/client/mongodb';
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { PrismaClient } from './generated/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 @Injectable()
-export class PrismaService implements OnModuleInit, OnModuleDestroy {
-  postgresql: PrismaPostgreSQLClient;
-  mongo: PrismaMongoClient;
-
+export class PrismaService
+  extends PrismaClient
+  implements OnModuleInit, OnModuleDestroy
+{
   constructor() {
-    // PostgreSQL 클라이언트
-    this.postgresql = new PrismaPostgreSQLClient({
-      log: ['query', 'error', 'warn'],
-      datasources: {
-        postgresql: {
-          url: process.env.DATABASE_URL,
-        },
-      },
-    });
-
-    // MongoDB 클라이언트
-    this.mongo = new PrismaMongoClient({
-      log: ['query', 'error', 'warn'],
-      datasources: {
-        mongodb: {
-          url: process.env.MONGODB_URL,
-        },
-      },
-    });
+    const adapter = new PrismaPg({ connectionString: process.env.POSTGRESQL_URL });
+    super({ adapter });
   }
 
   async onModuleInit() {
-    await this.postgresql.$connect();
-    await this.mongo.$connect();
+    await this.$connect();
   }
 
   async onModuleDestroy() {
-    await this.postgresql.$disconnect();
-    await this.mongo.$disconnect();
-  }
-
-  // 읽기 전용 복제본 연결 (선택적)
-  async getReadReplica() {
-    return new PrismaPostgreSQLClient({
-      datasources: {
-        postgresql: {
-          url: process.env.DATABASE_READ_REPLICA_URL,
-        },
-      },
-    });
+    await this.$disconnect();
   }
 }
 ```
@@ -456,18 +381,14 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
 // repositories/postgresql/recipe.repository.ts
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/infrastructure/database/prisma/prisma.service';
-import { Prisma, Recipe } from '@prisma/client';
+import { Prisma, Recipe } from './generated/client';
 
 @Injectable()
 export class RecipeRepository {
   constructor(private prisma: PrismaService) {}
 
-  async findById(id: number, useReplica = true): Promise<Recipe | null> {
-    const client = useReplica 
-      ? await this.prisma.getReadReplica() 
-      : this.prisma.postgresql;
-
-    return client.recipe.findUnique({
+  async findById(id: number): Promise<Recipe | null> {
+    return this.prisma.recipe.findUnique({
       where: { id },
       include: {
         recipeIngredients: {
@@ -596,7 +517,7 @@ shared/
 
 ### 5.4 데이터베이스 분리 전략
 - **PostgreSQL (via Prisma)**: 정규화된 관계형 데이터, ACID 보장 필요 데이터
-- **MongoDB (via Prisma)**: 비정규화된 로그성 데이터, 스키마 유연성 필요 데이터
+- **MongoDB (via Mongoose)**: 비정규화된 로그성 데이터, 스키마 유연성 필요 데이터
 
 ### 5.5 확장성 전략
 1. **Horizontal Scaling**: Producer/Consumer 모두 인스턴스 증설 가능
@@ -611,12 +532,13 @@ shared/
 
 ### Phase 1: MVP (핵심 기능)
 1. **Prisma 설정**
-   - PostgreSQL, MongoDB 스키마 정의
-   - 마이그레이션 생성 및 적용
-   - Seed 데이터 준비
-2. **Producer**: Auth, Users, Recipes (조회), Kafka 발행
-3. **Consumer**: Recipe Generation, ChatbotLog 저장
-4. **Infrastructure**: Prisma Client, Kafka, Redis 연결
+   - PostgreSQL 스키마 정의 및 마이그레이션 생성/적용
+2. **Mongoose 설정**
+   - MongoDB 스키마 정의 (`user_ingredients`, `chatbot_logs`, `event_logs` 등)
+   - 인덱스 및 TTL 정책 설정
+3. **Producer**: Auth, Users, Recipes (조회), Kafka 발행
+4. **Consumer**: Recipe Generation, ChatbotLog 저장
+5. **Infrastructure**: Prisma(PostgreSQL), Mongoose(MongoDB), Kafka, Redis 연결
 
 ### Phase 2: 최적화
 1. Cache-Aside 패턴 구현
@@ -634,10 +556,9 @@ shared/
 
 ## 7. Prisma 관련 주의사항
 
-### 7.1 Multi-Schema 지원
-- Prisma는 하나의 스키마 파일에서 여러 데이터소스를 지원
-- `@@schema("postgresql")`, `@@schema("mongodb")` 디렉티브로 구분
-- 각 모델에 명시적으로 스키마 지정 필요
+### 7.1 데이터소스 구성
+- 현재 구현은 **PostgreSQL 단일 데이터소스(`datasource db`)**만 사용한다.
+- MongoDB는 Prisma가 아닌 **Mongoose 스키마(`mongoose/schemas/*.schema.ts`)**로 관리한다.
 
 ### 7.2 타입 안정성
 - Prisma Client는 TypeScript 타입을 자동 생성
@@ -652,7 +573,7 @@ shared/
 ### 7.4 성능 모니터링
 ```typescript
 // Prisma 쿼리 로깅 및 메트릭
-this.postgresql.$use(async (params, next) => {
+this.$use(async (params, next) => {
   const before = Date.now();
   const result = await next(params);
   const after = Date.now();
