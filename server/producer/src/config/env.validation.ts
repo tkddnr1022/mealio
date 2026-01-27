@@ -27,6 +27,18 @@ export const envValidationSchema = Joi.object({
     'string.empty': 'POSTGRESQL_URL must not be empty',
     'any.required': 'POSTGRESQL_URL is required',
   }),
+
+  KAFKA_BROKERS: Joi.string()
+    .default('localhost:9092')
+    .messages({
+      'string.empty': 'KAFKA_BROKERS must not be empty when provided',
+    }),
+
+  KAFKA_CLIENT_ID: Joi.string()
+    .default('cook-producer')
+    .messages({
+      'string.empty': 'KAFKA_CLIENT_ID must not be empty when provided',
+    }),
 });
 
 export const envValidationOptions = {

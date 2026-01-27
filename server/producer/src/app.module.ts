@@ -6,6 +6,7 @@ import { envValidationOptions, envValidationSchema } from './config/env.validati
 import { PrismaModule } from './infrastructure/database/prisma/prisma.module';
 import { MongooseSchemasModule } from './infrastructure/database/mongoose/mongoose.module';
 import { UsersModule } from './modules/users/users.module';
+import { KafkaModule } from './infrastructure/kafka/kafka.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UsersModule } from './modules/users/users.module';
     }),
     PrismaModule,
     MongooseSchemasModule,
+    KafkaModule,
     UsersModule,
   ],
   controllers: [AppController],
