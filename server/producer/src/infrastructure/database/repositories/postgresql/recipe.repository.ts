@@ -19,35 +19,37 @@ export class RecipeRepository {
     });
   }
 
-  async create(data: Prisma.RecipeCreateInput): Promise<Recipe> {
-    return this.prisma.recipe.create({
-      data,
-    });
-  }
+  // Command 메서드들은 producer 서버에서 제거
+  // Command 작업은 이벤트를 통해 consumer 서버에서 처리됨
+  // async create(data: Prisma.RecipeCreateInput): Promise<Recipe> {
+  //   return this.prisma.recipe.create({
+  //     data,
+  //   });
+  // }
 
-  async createWithIngredients(
-    recipeData: Prisma.RecipeCreateInput,
-    ingredients: Array<{ ingredientId: number; amount?: number; unit?: string }>
-  ): Promise<Recipe> {
-    return this.prisma.$transaction(async (tx) => {
-      const recipe = await tx.recipe.create({
-        data: recipeData,
-      });
+  // async createWithIngredients(
+  //   recipeData: Prisma.RecipeCreateInput,
+  //   ingredients: Array<{ ingredientId: number; amount?: number; unit?: string }>
+  // ): Promise<Recipe> {
+  //   return this.prisma.$transaction(async (tx) => {
+  //     const recipe = await tx.recipe.create({
+  //       data: recipeData,
+  //     });
 
-      if (ingredients && ingredients.length > 0) {
-        await tx.recipeIngredient.createMany({
-          data: ingredients.map((ing) => ({
-            recipeId: recipe.id,
-            ingredientId: ing.ingredientId,
-            amount: ing.amount,
-            unit: ing.unit,
-          })),
-        });
-      }
+  //     if (ingredients && ingredients.length > 0) {
+  //       await tx.recipeIngredient.createMany({
+  //         data: ingredients.map((ing) => ({
+  //           recipeId: recipe.id,
+  //           ingredientId: ing.ingredientId,
+  //           amount: ing.amount,
+  //           unit: ing.unit,
+  //         })),
+  //       });
+  //     }
 
-      return recipe;
-    });
-  }
+  //     return recipe;
+  //   });
+  // }
 
   async searchRecipes(params: {
     difficulty?: number;

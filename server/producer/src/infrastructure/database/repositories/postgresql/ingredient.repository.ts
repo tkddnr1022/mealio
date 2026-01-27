@@ -25,7 +25,9 @@ export class IngredientRepository {
     });
   }
 
-  async create(data: Prisma.IngredientCreateInput): Promise<Ingredient> {
-    return this.prisma.ingredient.create({ data });
-  }
+  // Command 메서드들은 producer 서버에서 제거
+  // Command 작업은 이벤트를 통해 consumer 서버에서 처리됨
+  // async create(data: Prisma.IngredientCreateInput): Promise<Ingredient> {
+  //   return this.prisma.ingredient.create({ data });
+  // }
 }

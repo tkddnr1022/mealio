@@ -17,12 +17,14 @@ export class UserIngredientRepository {
     return this.userIngredientModel.findOne({ userId }).exec();
   }
 
-  async upsert(
-    userId: number,
-    data: Partial<UserIngredient>,
-  ): Promise<UserIngredient> {
-    return this.userIngredientModel
-      .findOneAndUpdate({ userId }, data, { upsert: true, new: true })
-      .exec();
-  }
+  // Command 메서드들은 producer 서버에서 제거
+  // Command 작업은 이벤트를 통해 consumer 서버에서 처리됨
+  // async upsert(
+  //   userId: number,
+  //   data: Partial<UserIngredient>,
+  // ): Promise<UserIngredient> {
+  //   return this.userIngredientModel
+  //     .findOneAndUpdate({ userId }, data, { upsert: true, new: true })
+  //     .exec();
+  // }
 }
