@@ -29,6 +29,5 @@ export class UserIngredient extends Document {
 export const UserIngredientSchema = SchemaFactory.createForClass(UserIngredient);
 
 // 인덱스 설정
-UserIngredientSchema.index({ 'ingredients.ingredientId': 1 });  // 재료별 보유 사용자 조회
-UserIngredientSchema.index({ 'ingredients.expiryDate': 1 });  // 유통기한 임박 알림
+UserIngredientSchema.index({ ingredientsIds: 1 });  // 재료별 보유 사용자 조회
 UserIngredientSchema.index({ favoriteIngredientIds: 1 });  // 즐겨찾기 재료
