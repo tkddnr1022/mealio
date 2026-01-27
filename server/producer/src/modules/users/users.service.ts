@@ -8,33 +8,47 @@ import {
   UserEventType,
   UserNicknameUpdateEvent,
 } from '../../shared/types/events';
+import { CacheService } from '../../infrastructure/cache/cache.service';
+import { UserCacheStrategy } from '../../infrastructure/cache/strategies/user-cache-strategy';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly kafkaProducerService: KafkaProducerService,
+    private readonly cacheService: CacheService,
+    private readonly userCacheStrategy: UserCacheStrategy,
   ) {}
 
   async getProfile(userId: number): Promise<UserProfileDto> {
-    const user = await this.userRepository.findById(userId);
+    // Cache-Aside 패턴: 캐시 조회 → DB 폴백 → 캐시 저장
+    const profile = await this.cacheService.getOrSet<UserProfileDto>(
+      this.userCacheStrategy,
+      async () => {
+        const user = await this.userRepository.findById(userId);
 
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+        if (!user) {
+          throw new NotFoundException('User not found');
+        }
 
-    return {
-      id: user.id,
-      email: user.email,
-      nickname: user.nickname,
-      createdAt: user.createdAt,
-    };
+        return {
+          id: user.id,
+          email: user.email,
+          nickname: user.nickname,
+          createdAt: user.createdAt,
+        };
+      },
+      userId,
+    );
+
+    return profile;
   }
 
   async updateNickname(
     userId: number,
     updateNicknameDto: UpdateNicknameDto,
   ): Promise<{ id: number; nickname: string }> {
+    // DB에서 사용자 조회 (캐시는 읽기 전용이므로 쓰기 작업에서는 항상 DB 조회)
     const user = await this.userRepository.findById(userId);
 
     if (!user) {
@@ -42,7 +56,7 @@ export class UsersService {
     }
 
     // Command 작업은 이벤트를 통해 consumer 서버에서 처리됨
-    // DB 업데이트 대신 이벤트 발급
+    // Consumer에서 DB 업데이트 후 cache-invalidation 컨슈머가 캐시 무효화를 처리함
     const event: UserNicknameUpdateEvent = {
       type: UserEventType.NICKNAME_UPDATE,
       userId,
