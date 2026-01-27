@@ -94,9 +94,8 @@ infrastructure/
 │       ├── IngredientCacheStrategy  # TTL: 24시간
 │       └── UserCacheStrategy        # TTL: 30분
 ├── kafka/
-│   ├── producer.service.ts   # Kafka 메시지 발행
-│   ├── topics/               # 토픽 상수 정의
-│   └── serializers/          # Avro/JSON 직렬화
+│   ├── producer.service.ts   # Kafka 메시지 발행 (KafkaJS 기반)
+│   └── serializers/          # Avro/JSON 직렬화 (선택, 필요 시 추가)
 └── storage/
     ├── s3.service.ts         # 이미지 업로드용 Presigned URL 생성
     └── cdn.service.ts        # CloudFlare 캐시 무효화 트리거
@@ -549,7 +548,7 @@ export class RecipeRepository {
 ```
 shared/
 ├── constants/
-│   ├── kafka-topics.ts            # 토픽 이름 상수
+│   ├── kafka-topics.ts            # 토픽 이름 상수 (Producer/Consumer 공용)
 │   ├── cache-keys.ts              # 캐시 키 패턴
 │   └── error-codes.ts             # 에러 코드 정의
 ├── types/
