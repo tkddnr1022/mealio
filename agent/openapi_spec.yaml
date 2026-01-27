@@ -107,6 +107,14 @@ paths:
       description: Refresh Token을 사용하여 Access Token 갱신
       security:
         - cookieAuth: []
+      parameters:
+        - name: accessToken
+          in: cookie
+          required: true
+          description: JWT 액세스 토큰
+          schema:
+            type: string
+          example: "{{apiKey}}"
       responses:
         '200':
           description: 토큰 갱신 성공
@@ -134,6 +142,14 @@ paths:
         - Authentication
       summary: 로그아웃
       description: 로그아웃 및 쿠키 삭제
+      parameters:
+        - name: accessToken
+          in: cookie
+          required: true
+          description: JWT 액세스 토큰
+          schema:
+            type: string
+          example: "{{apiKey}}"
       responses:
         '204':
           description: 로그아웃 성공
@@ -152,6 +168,14 @@ paths:
         - User
       summary: 내 프로필 조회
       description: 현재 로그인한 사용자의 프로필 정보 조회
+      parameters:
+        - name: accessToken
+          in: cookie
+          required: true
+          description: JWT 액세스 토큰
+          schema:
+            type: string
+          example: "{{apiKey}}"
       responses:
         '200':
           description: 프로필 조회 성공
@@ -170,6 +194,14 @@ paths:
         - User
       summary: 닉네임 수정
       description: 사용자 닉네임 수정
+      parameters:
+        - name: accessToken
+          in: cookie
+          required: true
+          description: JWT 액세스 토큰
+          schema:
+            type: string
+          example: "{{apiKey}}"
       requestBody:
         required: true
         content:
@@ -216,6 +248,13 @@ paths:
         - cookieAuth: []
         - {}
       parameters:
+        - name: accessToken
+          in: cookie
+          required: false
+          description: JWT 액세스 토큰 (선택사항)
+          schema:
+            type: string
+          example: "{{apiKey}}"
         - name: page
           in: query
           description: 페이지 번호
@@ -284,6 +323,13 @@ paths:
         - cookieAuth: []
         - {}
       parameters:
+        - name: accessToken
+          in: cookie
+          required: false
+          description: JWT 액세스 토큰 (선택사항)
+          schema:
+            type: string
+          example: "{{apiKey}}"
         - name: recipeId
           in: path
           required: true
@@ -313,6 +359,13 @@ paths:
         - cookieAuth: []
         - {}
       parameters:
+        - name: accessToken
+          in: cookie
+          required: false
+          description: JWT 액세스 토큰 (선택사항)
+          schema:
+            type: string
+          example: "{{apiKey}}"
         - name: q
           in: query
           required: true
@@ -359,6 +412,13 @@ paths:
       summary: 재료 목록 조회
       description: 카테고리별 재료 목록 조회
       parameters:
+        - name: accessToken
+          in: cookie
+          required: true
+          description: JWT 액세스 토큰
+          schema:
+            type: string
+          example: "{{apiKey}}"
         - name: category
           in: query
           description: 재료 카테고리 ID
@@ -403,6 +463,13 @@ paths:
       summary: 재료 검색
       description: 키워드로 재료 검색
       parameters:
+        - name: accessToken
+          in: cookie
+          required: true
+          description: JWT 액세스 토큰
+          schema:
+            type: string
+          example: "{{apiKey}}"
         - name: q
           in: query
           required: true
@@ -435,6 +502,14 @@ paths:
         - UserIngredient
       summary: 내 재료함 조회
       description: 사용자의 재료함 정보 조회
+      parameters:
+        - name: accessToken
+          in: cookie
+          required: true
+          description: JWT 액세스 토큰
+          schema:
+            type: string
+          example: "{{apiKey}}"
       responses:
         '200':
           description: 재료함 조회 성공
@@ -452,6 +527,14 @@ paths:
         - UserIngredient
       summary: 내 재료함 업데이트
       description: 재료함 전체 교체 (bulk update)
+      parameters:
+        - name: accessToken
+          in: cookie
+          required: true
+          description: JWT 액세스 토큰
+          schema:
+            type: string
+          example: "{{apiKey}}"
       requestBody:
         required: true
         content:
@@ -488,6 +571,14 @@ paths:
         - UserIngredient
       summary: 재료 추가/수정
       description: 재료함에 재료 추가 또는 수정
+      parameters:
+        - name: accessToken
+          in: cookie
+          required: true
+          description: JWT 액세스 토큰
+          schema:
+            type: string
+          example: "{{apiKey}}"
       requestBody:
         required: true
         content:
@@ -526,6 +617,13 @@ paths:
       summary: 재료 삭제
       description: 재료함에서 특정 재료 삭제
       parameters:
+        - name: accessToken
+          in: cookie
+          required: true
+          description: JWT 액세스 토큰
+          schema:
+            type: string
+          example: "{{apiKey}}"
         - name: ingredientId
           in: path
           required: true
@@ -549,6 +647,14 @@ paths:
         - UserIngredient
       summary: 즐겨찾는 재료 설정
       description: 즐겨찾는 재료 목록 업데이트
+      parameters:
+        - name: accessToken
+          in: cookie
+          required: true
+          description: JWT 액세스 토큰
+          schema:
+            type: string
+          example: "{{apiKey}}"
       requestBody:
         required: true
         content:
@@ -588,6 +694,14 @@ paths:
         - Chatbot
       summary: 챗봇 대화
       description: AI 챗봇과 대화하여 레시피 추천 받기
+      parameters:
+        - name: accessToken
+          in: cookie
+          required: true
+          description: JWT 액세스 토큰
+          schema:
+            type: string
+          example: "{{apiKey}}"
       requestBody:
         required: true
         content:
@@ -629,6 +743,13 @@ paths:
       summary: 대화 히스토리 조회
       description: 특정 대화의 전체 히스토리 조회
       parameters:
+        - name: accessToken
+          in: cookie
+          required: true
+          description: JWT 액세스 토큰
+          schema:
+            type: string
+          example: "{{apiKey}}"
         - name: conversationId
           in: path
           required: true
