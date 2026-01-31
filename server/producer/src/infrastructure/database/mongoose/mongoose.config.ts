@@ -1,3 +1,8 @@
+/**
+ * Mongoose(MongoDB) 연결 설정
+ * [미구현 - Phase 2·3] optimization/database/mongodb/connection-pool.config.ts 에서
+ * 환경별 maxPoolSize/minPoolSize 등 분리 관리 시 이 설정을 참고할 수 있음.
+ */
 import { MongooseModuleOptions } from '@nestjs/mongoose';
 import * as dotenv from 'dotenv';
 

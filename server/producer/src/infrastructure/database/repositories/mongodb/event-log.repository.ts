@@ -20,10 +20,16 @@ export class EventLogRepository {
   //   return createdLog.save();
   // }
 
+  /**
+   * ID로 이벤트 로그 조회 (읽기 전용: lean, 설계 5.3.2)
+   */
   async findById(id: string): Promise<EventLog | null> {
-    return this.eventLogModel.findById(id).exec();
+    return this.eventLogModel.findById(id).lean().exec();
   }
 
+  /**
+   * 이벤트 로그 목록 조회 (읽기 전용: lean + select, 설계 5.3.2)
+   */
   async findMany(params: {
     skip?: number;
     take?: number;
@@ -38,7 +44,10 @@ export class EventLogRepository {
       queryConditions['_id'] = { $gt: cursor.id };
     }
 
-    const query = this.eventLogModel.find(queryConditions);
+    const query = this.eventLogModel
+      .find(queryConditions)
+      .select('type actor entity payload metadata occurredAt processedAt')
+      .lean();
 
     if (skip) {
       query.skip(skip);
@@ -46,7 +55,7 @@ export class EventLogRepository {
     if (take) {
       query.limit(take);
     }
-    if (orderBy) {
+    if (orderBy && Object.keys(orderBy).length > 0) {
       query.sort(orderBy);
     }
 

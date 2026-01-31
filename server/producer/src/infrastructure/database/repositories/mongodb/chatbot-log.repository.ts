@@ -20,10 +20,16 @@ export class ChatbotLogRepository {
   //   return createdLog.save();
   // }
 
+  /**
+   * ID로 대화 로그 조회 (읽기 전용: lean, 설계 5.3.2)
+   */
   async findById(id: string): Promise<ChatbotLog | null> {
-    return this.chatbotLogModel.findById(id).exec();
+    return this.chatbotLogModel.findById(id).lean().exec();
   }
 
+  /**
+   * 사용자별 대화 로그 조회 (읽기 전용: lean + select, 설계 5.3.2)
+   */
   async findByUserId(
     userId: number,
     params: {
@@ -32,10 +38,16 @@ export class ChatbotLogRepository {
     },
   ): Promise<ChatbotLog[]> {
     const { take, orderBy } = params;
-    const query = this.chatbotLogModel.find({ userId });
+    const query = this.chatbotLogModel
+      .find({ userId })
+      .select('userId role message context llm latency success sessionId createdAt')
+      .lean();
     if (take) {
       query.limit(take);
     }
-    return query.sort(orderBy).exec();
+    if (orderBy && Object.keys(orderBy).length > 0) {
+      query.sort(orderBy);
+    }
+    return query.exec();
   }
 }

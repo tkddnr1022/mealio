@@ -41,34 +41,23 @@ describe('UserIngredientRepository', () => {
   });
 
   describe('findByUserId', () => {
-    it('should find and return user ingredients by user id', async () => {
+    it('should find and return user ingredients by user id (lean + select)', async () => {
       const userId = 1;
       const exec = jest.fn().mockResolvedValue(mockUserIngredient);
-      jest.spyOn(model, 'findOne').mockReturnValue({ exec } as any);
+      const lean = jest.fn().mockReturnValue({ exec });
+      const select = jest.fn().mockReturnValue({ lean });
+      jest.spyOn(model, 'findOne').mockReturnValue({ select } as any);
 
       const result = await repository.findByUserId(userId);
 
       expect(model.findOne).toHaveBeenCalledWith({ userId });
+      expect(select).toHaveBeenCalledWith(
+        'userId ingredientsIds favoriteIngredientIds lastSyncedAt',
+      );
+      expect(lean).toHaveBeenCalled();
       expect(result).toEqual(mockUserIngredient);
     });
   });
 
-  describe('upsert', () => {
-    it('should upsert user ingredients', async () => {
-      const userId = 1;
-      const data = { ingredients: { '2': 'pepper' } };
-      const exec = jest
-        .fn()
-        .mockResolvedValue({ ...mockUserIngredient, ...data });
-      jest.spyOn(model, 'findOneAndUpdate').mockReturnValue({ exec } as any);
-
-      const result = await repository.upsert(userId, data);
-
-      expect(model.findOneAndUpdate).toHaveBeenCalledWith({ userId }, data, {
-        upsert: true,
-        new: true,
-      });
-      expect(result).toEqual({ ...mockUserIngredient, ...data });
-    });
-  });
+  // upsert: Producer에서는 Command를 이벤트 발행으로 대체하므로 리포지토리에 upsert 미노출 (Consumer에서 처리)
 });

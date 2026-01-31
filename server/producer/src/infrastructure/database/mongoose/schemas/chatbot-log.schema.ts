@@ -46,8 +46,7 @@ class ConversationContext {
 @Schema({
   collection: 'chatbot_logs',
   timestamps: true, // createdAt, updatedAt 자동 생성
-  // 30일 후 자동 삭제 (로그 데이터 보관 정책)
-  expireAfterSeconds: 2592000, // 30일 = 30 * 24 * 60 * 60
+  // TTL은 아래 인덱스에서만 설정 (MongoDB TTL 인덱스 규칙)
 })
 export class ChatbotLog extends Document {
   @Prop({ required: true, index: true, type: Number })

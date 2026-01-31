@@ -13,8 +13,15 @@ export class UserIngredientRepository {
     private readonly userIngredientModel: Model<UserIngredientDocument>,
   ) {}
 
+  /**
+   * 사용자별 재료함 조회 (읽기 전용: lean + select로 메모리·속도 최적화, 설계 5.3.2)
+   */
   async findByUserId(userId: number): Promise<UserIngredient | null> {
-    return this.userIngredientModel.findOne({ userId }).exec();
+    return this.userIngredientModel
+      .findOne({ userId })
+      .select('userId ingredientsIds favoriteIngredientIds lastSyncedAt')
+      .lean()
+      .exec();
   }
 
   // Command 메서드들은 producer 서버에서 제거
