@@ -60,9 +60,10 @@ modules/
 └── chatbot/
     ├── controllers/
     │   ├── POST /api/v1/chatbot/messages
+    │   ├── GET /api/v1/chatbot/conversations           # 해당 유저의 대화 목록 (conversationId 목록, 커서)
     │   └── GET /api/v1/chatbot/conversations/:conversationId
     ├── services/        
-    │   └── ChatbotEventService   # Kafka로 요청 전달
+    │   └── ChatbotService   # Kafka로 요청 전달
     └── dto/             # 메시지 DTO
 ```
 
