@@ -94,7 +94,8 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "moduleNameMapper": {
-      "(.+)\\.js": "$1"
+      "(.+)\\.js": "$1",
+      "^src/(.*)$": "<rootDir>/$1"
     }
   }
 }
