@@ -1,6 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { Recipe, Prisma } from '../../prisma/generated/client';
+import { Recipe } from '../../prisma/generated/client';
 import { PrismaService } from '../../prisma/prisma.service';
+
+export type RecipeListOrder = 'latest' | 'cookTime' | 'difficulty';
+
+export interface RecipeListParams {
+  page: number;
+  size: number;
+  difficulty?: number[];
+  maxCookTime?: number;
+  sort?: RecipeListOrder;
+}
+
+export interface RecipeSearchParams {
+  keyword: string;
+  page: number;
+  size: number;
+}
 
 @Injectable()
 export class RecipeRepository {
@@ -8,7 +24,7 @@ export class RecipeRepository {
 
   async findById(id: number): Promise<Recipe | null> {
     return this.prisma.recipe.findUnique({
-      where: { id },
+      where: { id, isPublished: true },
       include: {
         recipeIngredients: {
           include: {
@@ -19,37 +35,68 @@ export class RecipeRepository {
     });
   }
 
-  // Command 메서드들은 producer 서버에서 제거
-  // Command 작업은 이벤트를 통해 consumer 서버에서 처리됨
-  // async create(data: Prisma.RecipeCreateInput): Promise<Recipe> {
-  //   return this.prisma.recipe.create({
-  //     data,
-  //   });
-  // }
+  async findManyPaginated(params: RecipeListParams): Promise<{
+    data: Recipe[];
+    total: number;
+  }> {
+    const { page, size, difficulty, maxCookTime, sort = 'latest' } = params;
+    const skip = (page - 1) * size;
 
-  // async createWithIngredients(
-  //   recipeData: Prisma.RecipeCreateInput,
-  //   ingredients: Array<{ ingredientId: number; amount?: number; unit?: string }>
-  // ): Promise<Recipe> {
-  //   return this.prisma.$transaction(async (tx) => {
-  //     const recipe = await tx.recipe.create({
-  //       data: recipeData,
-  //     });
+    const where = {
+      isPublished: true,
+      ...(difficulty?.length
+        ? { difficulty: { in: difficulty } }
+        : undefined),
+      ...(maxCookTime != null ? { cookTime: { lte: maxCookTime } } : undefined),
+    };
 
-  //     if (ingredients && ingredients.length > 0) {
-  //       await tx.recipeIngredient.createMany({
-  //         data: ingredients.map((ing) => ({
-  //           recipeId: recipe.id,
-  //           ingredientId: ing.ingredientId,
-  //           amount: ing.amount,
-  //           unit: ing.unit,
-  //         })),
-  //       });
-  //     }
+    const orderBy =
+      sort === 'cookTime'
+        ? { cookTime: 'asc' as const }
+        : sort === 'difficulty'
+          ? { difficulty: 'asc' as const }
+          : { createdAt: 'desc' as const };
 
-  //     return recipe;
-  //   });
-  // }
+    const [data, total] = await Promise.all([
+      this.prisma.recipe.findMany({
+        where,
+        skip,
+        take: size,
+        orderBy,
+      }),
+      this.prisma.recipe.count({ where }),
+    ]);
+
+    return { data, total };
+  }
+
+  async searchByKeyword(params: RecipeSearchParams): Promise<{
+    data: Recipe[];
+    total: number;
+  }> {
+    const { keyword, page, size } = params;
+    const skip = (page - 1) * size;
+
+    const where = {
+      isPublished: true,
+      OR: [
+        { title: { contains: keyword, mode: 'insensitive' as const } },
+        { description: { contains: keyword, mode: 'insensitive' as const } },
+      ],
+    };
+
+    const [data, total] = await Promise.all([
+      this.prisma.recipe.findMany({
+        where,
+        skip,
+        take: size,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.recipe.count({ where }),
+    ]);
+
+    return { data, total };
+  }
 
   async searchRecipes(params: {
     difficulty?: number;
@@ -60,6 +107,7 @@ export class RecipeRepository {
   }): Promise<Recipe[]> {
     return this.prisma.recipe.findMany({
       where: {
+        isPublished: true,
         difficulty: params.difficulty,
         cookTime: params.maxCookTime ? { lte: params.maxCookTime } : undefined,
         recipeIngredients: params.ingredientIds?.length

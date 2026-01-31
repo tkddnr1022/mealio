@@ -9,6 +9,7 @@ import {
 import { PrismaModule } from './infrastructure/database/prisma/prisma.module';
 import { MongooseSchemasModule } from './infrastructure/database/mongoose/mongoose.module';
 import { UsersModule } from './modules/users/users.module';
+import { RecipesModule } from './modules/recipes/recipes.module';
 import { KafkaModule } from './infrastructure/kafka/kafka.module';
 import { CacheModule } from './infrastructure/cache/cache.module';
 
@@ -24,6 +25,7 @@ import { CacheModule } from './infrastructure/cache/cache.module';
     KafkaModule,
     CacheModule,
     UsersModule,
+    RecipesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,0 +1,96 @@
+import {
+  Controller,
+  Get,
+  Query,
+  Param,
+  ParseIntPipe,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { RecipeQueryService } from './recipes.service';
+import { RecipeSummaryDto } from './dto/recipe-summary.dto';
+import { RecipeDetailDto } from './dto/recipe-detail.dto';
+import { PaginationDto } from './dto/pagination.dto';
+import { RecipeListQueryDto } from './dto/recipe-list-query.dto';
+import { RecipeSearchQueryDto } from './dto/recipe-search-query.dto';
+
+@ApiTags('Recipe')
+@Controller('api/v1/recipes')
+@UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+export class RecipesController {
+  constructor(private readonly recipeQueryService: RecipeQueryService) {}
+
+  @Get()
+  @ApiOperation({ summary: '레시피 목록 조회' })
+  @ApiResponse({
+    status: 200,
+    description: '레시피 목록 조회 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        data: { type: 'array', items: { $ref: '#/components/schemas/RecipeSummaryDto' } },
+        pagination: { $ref: '#/components/schemas/PaginationDto' },
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: '잘못된 요청' })
+  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  async getList(
+    @Query() query: RecipeListQueryDto,
+  ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
+    const page = query.page ?? 1;
+    const size = query.size ?? 20;
+    const sort = query.sort ?? 'latest';
+    return this.recipeQueryService.getList({
+      page,
+      size,
+      difficulty: query.difficulty,
+      cookTime: query.cookTime,
+      sort,
+    });
+  }
+
+  @Get('search')
+  @ApiOperation({ summary: '레시피 검색' })
+  @ApiResponse({
+    status: 200,
+    description: '검색 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        data: { type: 'array', items: { $ref: '#/components/schemas/RecipeSummaryDto' } },
+        pagination: { $ref: '#/components/schemas/PaginationDto' },
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: '잘못된 요청' })
+  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  async search(
+    @Query() query: RecipeSearchQueryDto,
+  ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
+    const page = query.page ?? 1;
+    const size = query.size ?? 20;
+    return this.recipeQueryService.search({
+      q: query.q,
+      page,
+      size,
+    });
+  }
+
+  @Get(':recipeId')
+  @ApiOperation({ summary: '레시피 상세 조회' })
+  @ApiParam({ name: 'recipeId', description: '레시피 ID' })
+  @ApiResponse({
+    status: 200,
+    description: '레시피 상세 조회 성공',
+    type: RecipeDetailDto,
+  })
+  @ApiResponse({ status: 404, description: '레시피를 찾을 수 없음' })
+  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  async getById(
+    @Param('recipeId', ParseIntPipe) recipeId: number,
+  ): Promise<RecipeDetailDto> {
+    return this.recipeQueryService.getById(recipeId);
+  }
+}
