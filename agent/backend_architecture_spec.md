@@ -96,9 +96,10 @@ infrastructure/
 │   ├── redis.service.ts      # Redis 커넥션 관리
 │   ├── cache.decorator.ts    # @Cacheable 데코레이터
 │   └── strategies/
-│       ├── RecipeCacheStrategy      # TTL: 1시간
-│       ├── IngredientCacheStrategy  # TTL: 24시간
-│       └── UserCacheStrategy        # TTL: 30분
+│       ├── RecipeCacheStrategy        # TTL: 1시간
+│       ├── IngredientCacheStrategy    # TTL: 24시간
+│       ├── UserCacheStrategy          # TTL: 30분
+│       └── UserIngredientCacheStrategy # TTL: 30분 (사용자별 재료함)
 ├── kafka/
 │   ├── producer.service.ts   # Kafka 메시지 발행 (KafkaJS 기반)
 │   └── serializers/          # Avro/JSON 직렬화 (선택, 필요 시 추가)

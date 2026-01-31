@@ -4,6 +4,7 @@ import { CacheService } from './cache.service';
 import { RecipeCacheStrategy } from './strategies/recipe-cache-strategy';
 import { IngredientCacheStrategy } from './strategies/ingredient-cache-strategy';
 import { UserCacheStrategy } from './strategies/user-cache-strategy';
+import { UserIngredientCacheStrategy } from './strategies/user-ingredient-cache-strategy';
 
 /**
  * 캐시 모듈
@@ -18,6 +19,7 @@ import { UserCacheStrategy } from './strategies/user-cache-strategy';
     RecipeCacheStrategy,
     IngredientCacheStrategy,
     UserCacheStrategy,
+    UserIngredientCacheStrategy,
   ],
   exports: [
     RedisService,
@@ -25,6 +27,7 @@ import { UserCacheStrategy } from './strategies/user-cache-strategy';
     RecipeCacheStrategy,
     IngredientCacheStrategy,
     UserCacheStrategy,
+    UserIngredientCacheStrategy,
   ],
 })
 export class CacheModule {}

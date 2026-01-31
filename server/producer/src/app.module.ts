@@ -11,6 +11,7 @@ import { MongooseSchemasModule } from './infrastructure/database/mongoose/mongoo
 import { UsersModule } from './modules/users/users.module';
 import { RecipesModule } from './modules/recipes/recipes.module';
 import { IngredientsModule } from './modules/ingredients/ingredients.module';
+import { UserIngredientsModule } from './modules/user-ingredients/user-ingredients.module';
 import { KafkaModule } from './infrastructure/kafka/kafka.module';
 import { CacheModule } from './infrastructure/cache/cache.module';
 
@@ -28,6 +29,7 @@ import { CacheModule } from './infrastructure/cache/cache.module';
     UsersModule,
     RecipesModule,
     IngredientsModule,
+    UserIngredientsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
