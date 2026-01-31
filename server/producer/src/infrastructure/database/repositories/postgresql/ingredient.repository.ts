@@ -1,6 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { Ingredient, Prisma } from '../../prisma/generated/client';
+import { Ingredient } from '../../prisma/generated/client';
 import { PrismaService } from '../../prisma/prisma.service';
+
+export interface IngredientListParams {
+  category?: number;
+  page: number;
+  size: number;
+}
+
+export interface IngredientSearchParams {
+  keyword: string;
+  take: number;
+}
 
 @Injectable()
 export class IngredientRepository {
@@ -14,20 +25,42 @@ export class IngredientRepository {
     return this.prisma.ingredient.findFirst({ where: { name } });
   }
 
-  async search(query: string, take: number): Promise<Ingredient[]> {
+  async findManyPaginated(params: IngredientListParams): Promise<{
+    data: Ingredient[];
+    total: number;
+  }> {
+    const { category, page, size } = params;
+    const skip = (page - 1) * size;
+
+    const where = category != null ? { category } : undefined;
+
+    const [data, total] = await Promise.all([
+      this.prisma.ingredient.findMany({
+        where,
+        skip,
+        take: size,
+        orderBy: [{ category: 'asc' }, { name: 'asc' }],
+      }),
+      this.prisma.ingredient.count({ where }),
+    ]);
+
+    return { data, total };
+  }
+
+  async searchByKeyword(params: IngredientSearchParams): Promise<Ingredient[]> {
+    const { keyword, take } = params;
     return this.prisma.ingredient.findMany({
       where: {
         name: {
-          contains: query,
+          contains: keyword,
+          mode: 'insensitive',
         },
       },
       take,
+      orderBy: [{ category: 'asc' }, { name: 'asc' }],
     });
   }
 
   // Command 메서드들은 producer 서버에서 제거
   // Command 작업은 이벤트를 통해 consumer 서버에서 처리됨
-  // async create(data: Prisma.IngredientCreateInput): Promise<Ingredient> {
-  //   return this.prisma.ingredient.create({ data });
-  // }
 }
