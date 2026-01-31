@@ -112,19 +112,26 @@ infrastructure/
 ```
 optimization/
 ├── caching/
-│   ├── query-result.cache.ts      # Prisma 쿼리 결과 캐싱
+│   ├── query-result.cache.ts      # Prisma 쿼리 결과 캐싱 (RDB)
+│   ├── mongoose-query.cache.ts    # Mongoose 쿼리 결과 캐싱 (MongoDB, lean 결과 등)
 │   ├── http-response.cache.ts     # HTTP 응답 캐싱
 │   └── cache-warming.service.ts   # 인기 레시피 사전 캐싱
 ├── database/
-│   ├── connection-pool.config.ts  # Prisma 커넥션 풀 설정
-│   ├── read-replica.config.ts     # 읽기 복제본 URL 관리
-│   └── query-optimizer/
-│       ├── select-optimizer.ts    # Prisma select 최적화
-│       └── include-optimizer.ts   # 불필요한 include 제거
+│   ├── postgresql/
+│   │   ├── connection-pool.config.ts  # Prisma 커넥션 풀 설정
+│   │   ├── read-replica.config.ts     # 읽기 복제본 URL 관리
+│   │   └── query-optimizer/
+│   │       ├── select-optimizer.ts    # Prisma select 최적화
+│   │       └── include-optimizer.ts   # 불필요한 include 제거
+│   └── mongodb/
+│       ├── connection-pool.config.ts  # Mongoose 커넥션 풀/옵션 (maxPoolSize 등)
+│       └── query-optimizer/
+│           └── lean-project.helper.ts  # lean() + select() 조합 가이드
 └── monitoring/
     ├── metrics.service.ts         # Prometheus 메트릭 수집
-    ├── slow-query.interceptor.ts  # 느린 쿼리 자동 로깅
-    └── prisma-metrics.ts          # Prisma 쿼리 메트릭
+    ├── slow-query.interceptor.ts  # 느린 쿼리 자동 로깅 (Prisma + Mongoose)
+    ├── prisma-metrics.ts          # Prisma 쿼리 메트릭
+    └── mongoose-metrics.ts        # Mongoose 쿼리/연결 메트릭
 ```
 
 ---
@@ -134,8 +141,8 @@ optimization/
 ### 2.1 핵심 책임
 - 비동기 작업의 백그라운드 처리
 - 무거운 연산 및 외부 API 호출 (OpenAI)
-- 데이터 쓰기 작업 (Prisma를 통한 INSERT/UPDATE)
-- 이벤트 로깅 및 분석 데이터 축적
+- 데이터 쓰기 작업: **PostgreSQL**은 Prisma(INSERT/UPDATE), **MongoDB**는 Mongoose(insertMany/bulkWrite/updateOne 등)로 이원화
+- 이벤트 로깅 및 분석 데이터 축적 (EventLog, ChatbotLog 등은 Mongoose로 저장)
 
 ### 2.2 구현 모듈
 
@@ -224,21 +231,27 @@ processing/
 persistence/
 ├── repositories/
 │   ├── postgresql/
-│   │   ├── recipe.repository.ts       # Recipe 쓰기 작업
-│   │   ├── user.repository.ts         # User 업데이트
+│   │   ├── recipe.repository.ts       # Recipe 쓰기 작업 (Prisma)
+│   │   ├── user.repository.ts         # User 업데이트 (Prisma)
 │   │   └── recipe-ingredient.repository.ts
 │   └── mongodb/
-│       ├── event-log.repository.ts    # EventLog 저장
-│       ├── chatbot-log.repository.ts  # ChatbotLog 저장
-│       └── user-ingredient.repository.ts
+│       ├── event-log.repository.ts    # EventLog 저장 (Mongoose)
+│       ├── chatbot-log.repository.ts  # ChatbotLog 저장 (Mongoose)
+│       └── user-ingredient.repository.ts  # UserIngredient 저장 (Mongoose)
 ├── transactions/
-│   ├── recipe-creation.transaction.ts  # Prisma 트랜잭션
+│   ├── recipe-creation.transaction.ts  # Prisma 트랜잭션 (PostgreSQL)
 │   │   # prisma.$transaction([...])으로 원자성 보장
-│   └── saga.coordinator.ts        # 분산 트랜잭션 관리
+│   ├── mongodb-session.transaction.ts  # Mongoose session.startTransaction() (필요 시 단일 컬렉션 원자성)
+│   └── saga.coordinator.ts        # 분산 트랜잭션 관리 (RDB ↔ NoSQL)
 └── bulk-operations/
-    ├── batch-create.service.ts    # createMany() 활용
-    ├── batch-update.service.ts    # updateMany() 활용
-    └── upsert.service.ts          # upsert() 활용
+    ├── postgresql/
+    │   ├── batch-create.service.ts    # Prisma createMany() 활용
+    │   ├── batch-update.service.ts    # Prisma updateMany() 활용
+    │   └── upsert.service.ts          # Prisma upsert() 활용
+    └── mongodb/
+        ├── bulk-write.service.ts      # Mongoose bulkWrite() / insertMany()
+        ├── update-many.service.ts     # Mongoose updateMany() / updateOne()
+        └── findOneAndUpdate.service.ts # Mongoose findOneAndUpdate (upsert 옵션)
 ```
 
 #### E. 신뢰성 보장 모듈
@@ -261,7 +274,9 @@ reliability/
 
 ---
 
-## 3. Prisma 설정 및 구조
+## 3. Prisma 설정 및 구조 (PostgreSQL)
+
+> MongoDB/Mongoose 설정 및 스키마 구조는 **1.2 C Infrastructure** (database/mongoose, repositories/mongodb) 및 **7. 데이터베이스별 주의사항**을 참고한다.
 
 ### 3.1 Prisma Schema 구조
 ```
@@ -482,10 +497,12 @@ shared/
 ├── utils/
 │   ├── logger.ts                  # 구조화된 로깅
 │   ├── error-handler.ts           # 전역 에러 핸들러
-│   ├── prisma-helpers.ts          # Prisma 유틸리티 함수
+│   ├── prisma-helpers.ts          # Prisma 유틸리티 함수 (RDB)
+│   ├── mongoose-helpers.ts        # Mongoose 유틸리티 (lean 변환, ObjectId 검증 등)
 │   └── validator.ts               # 공통 검증 로직
 └── configs/
-    ├── prisma.config.ts           # Prisma 설정
+    ├── prisma.config.ts           # Prisma(PostgreSQL) 설정
+    ├── mongoose.config.ts         # Mongoose(MongoDB) 연결·풀 설정
     ├── kafka.config.ts
     ├── redis.config.ts
     └── observability.config.ts
@@ -497,35 +514,44 @@ shared/
 
 ### 5.1 Producer 설계 원칙
 1. **Fast Response First**: 모든 API는 200ms 이내 응답 목표
-2. **Cache-Aside Pattern**: Redis 조회 → Prisma 폴백 → Redis 캐시 갱신
+2. **Cache-Aside Pattern**: Redis 조회 → **RDB는 Prisma**, **MongoDB는 Mongoose** 폴백 → Redis 캐시 갱신 (도메인별 저장소 구분)
 3. **Event Sourcing**: 쓰기 작업은 이벤트 발행으로 대체
-4. **Read Replica 활용**: 읽기 작업은 복제본으로 라우팅
-5. **Prisma Connection Pool**: `pool_timeout`, `connection_limit` 최적화
+4. **Read Replica 활용**: PostgreSQL 읽기 작업은 복제본으로 라우팅 (Prisma); MongoDB는 단일/복제셋 구성에 따름
+5. **Connection Pool**: Prisma(`pool_timeout`, `connection_limit`) 및 Mongoose(`maxPoolSize`, `minPoolSize`) 각각 최적화
 
 ### 5.2 Consumer 설계 원칙
 1. **At-Least-Once Delivery**: 멱등성 보장으로 중복 처리 방지
 2. **Graceful Degradation**: OpenAI API 장애 시 재시도 후 DLQ 전송
-3. **Batch Processing**: Prisma `createMany()`, `updateMany()` 활용
+3. **Batch Processing**: **PostgreSQL**은 Prisma `createMany()`, `updateMany()`; **MongoDB**는 Mongoose `insertMany()`, `bulkWrite()`, `updateMany()` 활용
 4. **Partitioned Processing**: Kafka 파티션별 병렬 처리
-5. **Observability**: Prisma 쿼리 메트릭 수집 및 추적
+5. **Observability**: Prisma 및 Mongoose 쿼리/연결 메트릭 수집 및 추적
 
-### 5.3 Prisma 최적화 전략
+### 5.3 데이터베이스별 최적화 전략
+
+#### 5.3.1 Prisma (PostgreSQL) 최적화
 1. **Select 최적화**: 필요한 필드만 조회 (`select: { id: true, title: true }`)
 2. **Include 제한**: N+1 방지를 위해 필요한 관계만 포함
 3. **Batch Operations**: `createMany()`, `updateMany()` 사용
 4. **Transaction 최소화**: 트랜잭션 범위를 최소화하여 락 경합 감소
 5. **Index 활용**: `@@index`, `@@unique` 적극 활용
 
+#### 5.3.2 Mongoose (MongoDB) 최적화
+1. **lean() 사용**: 읽기 전용 조회 시 `lean()`으로 plain object 반환하여 메모리·속도 개선
+2. **select() 제한**: 필요한 필드만 `select('userId ingredientsIds favoriteIngredientIds')` 등으로 조회
+3. **인덱스**: 스키마 `index: true`, 복합 인덱스, TTL 인덱스(ChatbotLog, EventLog) 활용
+4. **Bulk 연산**: 대량 쓰기 시 `insertMany()`, `bulkWrite()` 사용으로 라운드트립 감소
+5. **Connection Pool**: `maxPoolSize` 등 옵션으로 동시 연결 수 조절
+
 ### 5.4 데이터베이스 분리 전략
-- **PostgreSQL (via Prisma)**: 정규화된 관계형 데이터, ACID 보장 필요 데이터
-- **MongoDB (via Mongoose)**: 비정규화된 로그성 데이터, 스키마 유연성 필요 데이터
+- **PostgreSQL (via Prisma)**: 정규화된 관계형 데이터, ACID 보장 필요 데이터 (User, Recipe, Ingredient, RecipeIngredient)
+- **MongoDB (via Mongoose)**: 비정규화된 로그·상태 데이터, 스키마 유연성 필요 데이터 (UserIngredient, ChatbotLog, EventLog)
 
 ### 5.5 확장성 전략
 1. **Horizontal Scaling**: Producer/Consumer 모두 인스턴스 증설 가능
 2. **Kafka Partitioning**: 토픽당 파티션 수 = Consumer 인스턴스 수
 3. **Redis Cluster**: 캐시 데이터 샤딩
-4. **Database Sharding**: User ID 기반 샤딩 준비 (향후)
-5. **Prisma Connection Pooling**: 인스턴스당 최적 커넥션 수 설정
+4. **Database Sharding**: User ID 기반 샤딩 준비 (향후); MongoDB는 샤드 키 설계 시 동일 원칙 적용
+5. **Connection Pooling**: Prisma(인스턴스당 최적 커넥션 수), Mongoose(`maxPoolSize` 등) 각각 설정
 
 ---
 
@@ -542,47 +568,55 @@ shared/
 5. **Infrastructure**: Prisma(PostgreSQL), Mongoose(MongoDB), Kafka, Redis 연결
 
 ### Phase 2: 최적화
-1. Cache-Aside 패턴 구현
-2. Read Replica 라우팅 (Prisma)
-3. Prisma Select/Include 최적화
+1. Cache-Aside 패턴 구현 (Prisma·Mongoose 도메인별 캐시 키/전략)
+2. Read Replica 라우팅 (Prisma, PostgreSQL)
+3. Prisma Select/Include 최적화; Mongoose lean()·select()·인덱스 검토
 4. 재시도 및 DLQ 처리
+5. Mongoose 커넥션 풀 및 bulkWrite/insertMany 활용 검토
 
 ### Phase 3: 관찰성
-1. Prisma 쿼리 메트릭 수집
+1. Prisma 쿼리 메트릭 수집; Mongoose 쿼리·연결 메트릭 수집
 2. 분산 추적 (Correlation ID)
 3. 에러 모니터링 (Sentry)
-4. 슬로우 쿼리 알림
+4. 슬로우 쿼리 알림 (Prisma + Mongoose)
 
 ---
 
-## 7. Prisma 관련 주의사항
+## 7. 데이터베이스별 주의사항 (Prisma + Mongoose)
 
 ### 7.1 데이터소스 구성
-- 현재 구현은 **PostgreSQL 단일 데이터소스(`datasource db`)**만 사용한다.
-- MongoDB는 Prisma가 아닌 **Mongoose 스키마(`mongoose/schemas/*.schema.ts`)**로 관리한다.
+- **PostgreSQL**: 단일 데이터소스(`datasource db`)만 사용하며, **Prisma**로 접근한다.
+- **MongoDB**: Prisma가 아닌 **Mongoose**로 접근하며, 스키마는 `infrastructure/database/mongoose/schemas/*.schema.ts`에서 관리한다.
+- 서버 기동 시 Prisma `$connect()`와 Mongoose `mongoose.connect()`를 각각 수행한다.
 
-### 7.2 타입 안정성
-- Prisma Client는 TypeScript 타입을 자동 생성
-- `Prisma.RecipeCreateInput` 등의 타입을 DTO에 재사용 가능
-- 컴파일 타임에 스키마 변경 감지
+### 7.2 Prisma 관련
+- **타입 안정성**: Prisma Client가 TypeScript 타입을 자동 생성; `Prisma.RecipeCreateInput` 등을 DTO에 재사용 가능; 컴파일 타임에 스키마 변경 감지.
+- **마이그레이션**: PostgreSQL에 `prisma migrate` 사용; Production에서는 `prisma migrate deploy` 사용.
 
-### 7.3 마이그레이션
-- MongoDB는 마이그레이션 미지원 (스키마리스)
-- PostgreSQL에 `prisma migrate` 사용
-- Production에서는 `prisma migrate deploy` 사용
+### 7.3 Mongoose 관련
+- **스키마 버전 관리**: MongoDB는 마이그레이션 툴이 없으므로, 스키마 변경 시 하위 호환을 유지하고 인덱스/필드는 코드와 `schema.md`에 명시하여 동기화한다.
+- **인덱스**: 복합 인덱스·TTL 인덱스(ChatbotLog 30일, EventLog 90일)는 스키마 정의 또는 `Model.createIndexes()`로 적용하고, 배포/시드 시 누락되지 않도록 한다.
+- **Connection 옵션**: `maxPoolSize`, `minPoolSize`, `serverSelectionTimeoutMS` 등은 환경별로 설정하여 연결 풀과 타임아웃을 조절한다.
 
-### 7.4 성능 모니터링
+### 7.4 성능 모니터링 (이원화)
+- **Prisma**: 미들웨어로 쿼리 로깅·메트릭 수집.
 ```typescript
 // Prisma 쿼리 로깅 및 메트릭
 this.$use(async (params, next) => {
   const before = Date.now();
   const result = await next(params);
   const after = Date.now();
-  
   console.log(`Query ${params.model}.${params.action} took ${after - before}ms`);
-  
   return result;
 });
+```
+- **Mongoose**: `mongoose.plugin()` 또는 쿼리 미들웨어로 느린 쿼리·실행 시간 로깅; 연결 이벤트(`connected`, `disconnected`) 모니터링.
+```typescript
+// Mongoose 쿼리 로깅 예시
+schema.pre(/^find/, function () {
+  this.setOptions({ maxTimeMS: 5000 }); // 느린 쿼리 감지
+});
+mongoose.connection.on('connected', () => { /* 메트릭 */ });
 ```
 
 ---
