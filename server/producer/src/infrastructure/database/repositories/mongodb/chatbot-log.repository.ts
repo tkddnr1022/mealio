@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, PipelineStage } from 'mongoose';
 import {
   ChatbotLog,
   ChatbotLogDocument,
@@ -49,5 +49,96 @@ export class ChatbotLogRepository {
       query.sort(orderBy);
     }
     return query.exec();
+  }
+
+  /**
+   * conversationId(또는 sessionId)로 대화 히스토리 조회 (GET /chatbot/conversations/:id)
+   * @param conversationId 대화 ID
+   * @param userId 선택: 지정 시 해당 사용자의 대화만 반환 (권한 검증용)
+   */
+  async findByConversationId(
+    conversationId: string,
+    userId?: number,
+  ): Promise<ChatbotLog[]> {
+    const filter: Record<string, unknown> = {
+      $or: [
+        { sessionId: conversationId },
+        { 'context.conversationId': conversationId },
+      ],
+    };
+    if (userId !== undefined) {
+      filter.userId = userId;
+    }
+    return this.chatbotLogModel
+      .find(filter)
+      .select('role message context createdAt')
+      .sort({ createdAt: 1 })
+      .lean()
+      .exec();
+  }
+
+  /**
+   * 해당 유저의 대화 목록 조회 (GET /chatbot/conversations)
+   * conversationId별 마지막 메시지 시각 기준 최신 순, 커서 기반 페이지네이션
+   */
+  async findConversationListByUserId(
+    userId: number,
+    params: { limit: number; cursor?: string },
+  ): Promise<{
+    items: Array<{ conversationId: string; lastMessageAt: Date }>;
+    nextCursor: string | null;
+  }> {
+    const { limit, cursor } = params;
+    const take = Math.min(limit + 1, 101);
+
+    const pipeline: PipelineStage[] = [
+      { $match: { userId } },
+      {
+        $addFields: {
+          conversationId: {
+            $ifNull: ['$sessionId', '$context.conversationId'],
+          },
+        },
+      },
+      { $match: { conversationId: { $nin: [null, ''] } } },
+      {
+        $group: {
+          _id: '$conversationId',
+          lastMessageAt: { $max: '$createdAt' },
+        },
+      },
+      { $sort: { lastMessageAt: -1 } },
+      { $limit: take },
+    ];
+
+    if (cursor) {
+      try {
+        const cursorDate = new Date(cursor);
+        if (!Number.isNaN(cursorDate.getTime())) {
+          pipeline.splice(4, 0, {
+            $match: { lastMessageAt: { $lt: cursorDate } },
+          } as PipelineStage);
+        }
+      } catch {
+        // invalid cursor: ignore, return first page
+      }
+    }
+
+    const raw = await this.chatbotLogModel
+      .aggregate<{ _id: string; lastMessageAt: Date }>(pipeline)
+      .exec();
+
+    const hasMore = raw.length > limit;
+    const items = (hasMore ? raw.slice(0, limit) : raw).map((doc) => ({
+      conversationId: doc._id,
+      lastMessageAt: doc.lastMessageAt,
+    }));
+
+    const nextCursor =
+      hasMore && items.length > 0
+        ? new Date(items[items.length - 1].lastMessageAt).toISOString()
+        : null;
+
+    return { items, nextCursor };
   }
 }

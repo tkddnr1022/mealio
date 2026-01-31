@@ -313,6 +313,44 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /api/v1/recipes/summaries:
+    post:
+      tags:
+        - Recipe
+      summary: 레시피 요약 정보 벌크 조회
+      description: ID 목록으로 레시피 요약 정보(RecipeSummary)를 한 번에 조회. 챗봇 대화 히스토리의 suggestedRecipeIds 상세 표시 등에 사용.
+      security:
+        - cookieAuth: []
+        - {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids]
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
+                  maxItems: 100
+                  example: [1, 2, 3]
+      responses:
+        '200':
+          description: 조회 성공 (요청한 ID 중 존재·공개된 레시피만 반환)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipeSummary'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /api/v1/recipes/{recipeId}:
     get:
       tags:
@@ -1029,6 +1067,7 @@ components:
 
     ConversationHistory:
       type: object
+      description: 대화 히스토리 (추천 레시피는 ID 배열만 반환, 상세는 POST /api/v1/recipes/summaries 벌크 조회)
       properties:
         conversationId:
           type: string
@@ -1042,6 +1081,13 @@ components:
                 enum: [user, assistant, system]
               message:
                 type: string
+              suggestedRecipeIds:
+                type: array
+                nullable: true
+                description: 추천 레시피 ID 목록 (assistant 메시지). 상세는 POST /api/v1/recipes/summaries 벌크 조회
+                items:
+                  type: integer
+                  format: int64
               createdAt:
                 type: string
                 format: date-time

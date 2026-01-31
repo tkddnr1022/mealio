@@ -94,6 +94,15 @@ export class RecipeQueryService {
     };
   }
 
+  /**
+   * ID 목록으로 레시피 요약 정보 벌크 조회 (챗봇 추천 레시피 상세 표시 등)
+   */
+  async getSummariesByIds(ids: number[]): Promise<RecipeSummaryDto[]> {
+    if (ids.length === 0) return [];
+    const data = await this.recipeRepository.findSummariesByIds(ids);
+    return data.map((r) => this.toSummaryDto(r as Recipe));
+  }
+
   private toSummaryDto(recipe: Recipe): RecipeSummaryDto {
     return {
       id: recipe.id,

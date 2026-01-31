@@ -38,7 +38,8 @@ modules/
 │   ├── controllers/     
 │   │   ├── GET /api/v1/recipes (페이지네이션, 필터링, 정렬)
 │   │   ├── GET /api/v1/recipes/:recipeId
-│   │   └── GET /api/v1/recipes/search (키워드 검색)
+│   │   ├── GET /api/v1/recipes/search (키워드 검색)
+│   │   └── POST /api/v1/recipes/summaries (레시피 요약 정보 벌크 조회, body: ids[])
 │   ├── services/
 │   │   └── RecipeQueryService    # 읽기 전용, 캐시 활용
 │   └── dto/             # 요청/응답 DTO
@@ -61,7 +62,7 @@ modules/
     ├── controllers/
     │   ├── POST /api/v1/chatbot/messages
     │   ├── GET /api/v1/chatbot/conversations           # 해당 유저의 대화 목록 (conversationId 목록, 커서)
-    │   └── GET /api/v1/chatbot/conversations/:conversationId
+    │   └── GET /api/v1/chatbot/conversations/:conversationId  # 추천 레시피는 ID 배열만, 상세는 POST /recipes/summaries 벌크 조회
     ├── services/        
     │   └── ChatbotService   # Kafka로 요청 전달
     └── dto/             # 메시지 DTO

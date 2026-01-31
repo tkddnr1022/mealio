@@ -3,31 +3,31 @@ import { HydratedDocument, Schema as MongooseSchema, Document } from 'mongoose';
 
 // LLM 응답 메타데이터 서브스키마
 class LLMMetadata {
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   model: string; // 'gpt-4-turbo', 'gpt-3.5-turbo'
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: Number })
   promptTokens: number;
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: Number })
   completionTokens: number;
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: Number })
   totalTokens: number;
 
-  @Prop()
+  @Prop({ type: Number })
   temperature?: number;
 
-  @Prop()
+  @Prop({ type: Number })
   maxTokens?: number;
 }
 
 // 대화 컨텍스트 서브스키마
 class ConversationContext {
-  @Prop()
+  @Prop({ type: String })
   sessionId?: string;
 
-  @Prop()
+  @Prop({ type: String })
   conversationId?: string;
 
   @Prop({ type: [String] })

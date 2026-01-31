@@ -35,6 +35,28 @@ export class RecipeRepository {
     });
   }
 
+  /**
+   * ID 목록으로 레시피 요약 정보 벌크 조회 (RecipeSummaryDto 필드만)
+   */
+  async findSummariesByIds(ids: number[]): Promise<Recipe[]> {
+    if (ids.length === 0) return [];
+    return this.prisma.recipe.findMany({
+      where: { id: { in: ids }, isPublished: true },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        difficulty: true,
+        cookTime: true,
+        imageUrl: true,
+        servings: true,
+        viewCount: true,
+        isPublished: true,
+        createdAt: true,
+      },
+    }) as Promise<Recipe[]>;
+  }
+
   async findManyPaginated(params: RecipeListParams): Promise<{
     data: Recipe[];
     total: number;

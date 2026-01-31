@@ -12,6 +12,7 @@ import { UsersModule } from './modules/users/users.module';
 import { RecipesModule } from './modules/recipes/recipes.module';
 import { IngredientsModule } from './modules/ingredients/ingredients.module';
 import { UserIngredientsModule } from './modules/user-ingredients/user-ingredients.module';
+import { ChatbotModule } from './modules/chatbot/chatbot.module';
 import { KafkaModule } from './infrastructure/kafka/kafka.module';
 import { CacheModule } from './infrastructure/cache/cache.module';
 
@@ -30,6 +31,7 @@ import { CacheModule } from './infrastructure/cache/cache.module';
     RecipesModule,
     IngredientsModule,
     UserIngredientsModule,
+    ChatbotModule,
   ],
   controllers: [AppController],
   providers: [AppService],

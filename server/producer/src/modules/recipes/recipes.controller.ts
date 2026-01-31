@@ -1,6 +1,8 @@
 import {
   Controller,
   Get,
+  Post,
+  Body,
   Query,
   Param,
   ParseIntPipe,
@@ -14,6 +16,7 @@ import { RecipeDetailDto } from './dto/recipe-detail.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { RecipeListQueryDto } from './dto/recipe-list-query.dto';
 import { RecipeSearchQueryDto } from './dto/recipe-search-query.dto';
+import { RecipeIdsDto } from './dto/recipe-ids.dto';
 
 @ApiTags('Recipe')
 @Controller('api/v1/recipes')
@@ -49,6 +52,22 @@ export class RecipesController {
       cookTime: query.cookTime,
       sort,
     });
+  }
+
+  @Post('summaries')
+  @ApiOperation({ summary: '레시피 요약 정보 벌크 조회' })
+  @ApiResponse({
+    status: 200,
+    description: '조회 성공 (요청한 ID 중 존재·공개된 레시피만 반환)',
+    schema: {
+      type: 'array',
+      items: { $ref: '#/components/schemas/RecipeSummaryDto' },
+    },
+  })
+  @ApiResponse({ status: 400, description: '잘못된 요청' })
+  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  async getSummaries(@Body() dto: RecipeIdsDto): Promise<RecipeSummaryDto[]> {
+    return this.recipeQueryService.getSummariesByIds(dto.ids);
   }
 
   @Get('search')
