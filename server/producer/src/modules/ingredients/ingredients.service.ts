@@ -4,7 +4,7 @@ import { CacheService } from '../../infrastructure/cache/cache.service';
 import { IngredientCacheStrategy } from '../../infrastructure/cache/strategies/ingredient-cache-strategy';
 import { IngredientDto } from './dto/ingredient.dto';
 import { PaginationDto } from './dto/pagination.dto';
-import { Ingredient } from '../../infrastructure/database/prisma/generated/client';
+import { Ingredient } from '@cook/shared/prisma-client';
 
 @Injectable()
 export class IngredientQueryService {

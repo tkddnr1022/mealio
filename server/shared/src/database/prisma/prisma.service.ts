@@ -2,6 +2,9 @@ import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from './generated/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 
+/**
+ * Prisma 서비스 (Producer/Consumer 공용)
+ */
 @Injectable()
 export class PrismaService
   extends PrismaClient

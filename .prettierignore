@@ -1,0 +1,38 @@
+# Dependencies
+node_modules
+**/node_modules
+
+# Build output
+dist
+build
+.next
+out
+**/dist
+**/build
+**/.next
+**/out
+
+# Lockfiles
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lockb
+
+# Generated
+**/generated
+**/*.min.js
+**/*.min.css
+
+# Misc
+*.md
+*.mdx
+*.mermaid
+*.yaml
+*.yml
+!*.config.yaml
+!*.config.yml
+
+# Coverage / cache
+coverage
+.cache
+.turbo

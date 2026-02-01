@@ -1,0 +1,54 @@
+{
+  "name": "@cook/shared",
+  "version": "0.0.1",
+  "description": "Shared configs, constants, database (Prisma/Mongoose), Redis, types for Producer/Consumer",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./prisma-client": {
+      "types": "./dist/database/prisma/generated/client.d.ts",
+      "default": "./dist/database/prisma/generated/client.js"
+    }
+  },
+  "scripts": {
+    "build": "npm run prisma:generate && tsc -p tsconfig.build.json",
+    "prisma:generate": "prisma generate --schema src/database/prisma/schema.prisma",
+    "clean": "rimraf dist src/database/prisma/generated"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/mongoose": "^11.0.4",
+    "@prisma/adapter-pg": "^7.2.0",
+    "@prisma/client": "^7.2.0",
+    "ioredis": "^5.9.2",
+    "kafkajs": "^2.2.4",
+    "mongoose": "^9.1.4",
+    "pg": "^8.17.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "dotenv": "^17.2.3",
+    "prisma": "^7.2.0",
+    "rimraf": "^6.0.0",
+    "typescript": "^5.7.3"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^10.0.0 || ^11.0.0",
+    "@nestjs/mongoose": "^10.0.0 || ^11.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@nestjs/common": { "optional": false },
+    "@nestjs/mongoose": { "optional": true }
+  },
+  "files": [
+    "dist",
+    "src/database/prisma/schema.prisma",
+    "src/database/prisma/migrations"
+  ]
+}

@@ -1,9 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ChatbotService } from '../../chatbot.service';
 import { KafkaProducerService } from '../../../../infrastructure/kafka/producer.service';
-import { RedisService } from '../../../../infrastructure/cache/redis.service';
+import { RedisService, KAFKA_TOPICS } from '@cook/shared';
 import { ChatbotLogRepository } from '../../../../infrastructure/database/repositories/mongodb/chatbot-log.repository';
-import { KAFKA_TOPICS } from '../../../../shared/constants/kafka-topics';
 import type { SendMessageDto } from '../../dto/send-message.dto';
 
 describe('ChatbotService', () => {

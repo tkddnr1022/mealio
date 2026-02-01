@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Kafka, Producer } from 'kafkajs';
-import { createKafkaConfig } from 'src/shared/configs/kafka.config';
+import { createKafkaConfig } from '@cook/shared';
 
 @Injectable()
 export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {

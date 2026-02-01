@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Ingredient } from '../../prisma/generated/client';
-import { PrismaService } from '../../prisma/prisma.service';
+import { Ingredient } from '@cook/shared/prisma-client';
+import { PrismaService } from '@cook/shared';
 
 export interface IngredientListParams {
   category?: number;

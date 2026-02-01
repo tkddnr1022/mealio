@@ -1,10 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { KafkaProducerService } from '../../infrastructure/kafka/producer.service';
-import { RedisService } from '../../infrastructure/cache/redis.service';
-import { KAFKA_TOPICS } from '../../shared/constants/kafka-topics';
-import { getChatbotStreamChannel } from '../../shared/constants/redis-channels';
-import type { ChatbotRequestEvent } from '../../shared/types/events';
+import {
+  RedisService,
+  KAFKA_TOPICS,
+  getChatbotStreamChannel,
+  type ChatbotRequestEvent,
+} from '@cook/shared';
 import type { SendMessageDto } from './dto/send-message.dto';
 import type { ChatbotResponseDto } from './dto/chatbot-response.dto';
 import { ChatbotLogRepository } from '../../infrastructure/database/repositories/mongodb/chatbot-log.repository';

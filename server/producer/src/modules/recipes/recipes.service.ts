@@ -5,7 +5,7 @@ import { RecipeCacheStrategy } from '../../infrastructure/cache/strategies/recip
 import { RecipeSummaryDto } from './dto/recipe-summary.dto';
 import { RecipeDetailDto, RecipeIngredientItemDto, RecipeInstructionStepDto } from './dto/recipe-detail.dto';
 import { PaginationDto } from './dto/pagination.dto';
-import { Recipe } from '../../infrastructure/database/prisma/generated/client';
+import { Recipe } from '@cook/shared/prisma-client';
 
 type RecipeWithIngredients = Recipe & {
   recipeIngredients: Array<{

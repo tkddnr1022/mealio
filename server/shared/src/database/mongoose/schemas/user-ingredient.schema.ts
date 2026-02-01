@@ -18,7 +18,7 @@ export class UserIngredient extends Document {
   favoriteIngredientIds: number[];
 
   @Prop({ type: Date })
-  lastSyncedAt?: Date; // 마지막 동기화 시간
+  lastSyncedAt?: Date;
 
   createdAt?: Date;
   updatedAt?: Date;
@@ -27,6 +27,5 @@ export class UserIngredient extends Document {
 export const UserIngredientSchema =
   SchemaFactory.createForClass(UserIngredient);
 
-// 인덱스 설정
-UserIngredientSchema.index({ ingredientsIds: 1 }); // 재료별 보유 사용자 조회
-UserIngredientSchema.index({ favoriteIngredientIds: 1 }); // 즐겨찾기 재료
+UserIngredientSchema.index({ ingredientsIds: 1 });
+UserIngredientSchema.index({ favoriteIngredientIds: 1 });

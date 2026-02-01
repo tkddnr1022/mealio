@@ -5,7 +5,7 @@ import { EventLogRepository } from './event-log.repository';
 import {
   EventLog,
   EventLogDocument,
-} from '../../mongoose/schemas/event-log.schema';
+} from '@cook/shared';
 
 // Mock chainable query
 const mockQuery = {

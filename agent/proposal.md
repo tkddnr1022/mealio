@@ -16,7 +16,7 @@ AI 기반 맞춤형 레시피 추천 서비스
 
 - Frontend: Next.js, React Native
  	- Next.js로 페이지를 구성하고 React Native에서 웹뷰 구성
-- Backend: Nest.js, Mongoose, Prisma
+- Backend: Nest.js, Mongoose, Prisma (공용: @cook/shared 패키지에 Prisma/Mongoose 스키마·Redis·설정·타입)
 - Database: PostgreSQL, MongoDB
  	- 데이터 **정의와 상태**, 구조, 쿼리 패턴에 따라 구분한다.
  	- SQL: 유저, 재료, 레시피, 레시피-재료 등
@@ -42,7 +42,9 @@ AI 기반 맞춤형 레시피 추천 서비스
 ## Tool
 
 - Git, GitHub Actions
- 	- 모노레포 구조
+ 	- 모노레포 구조 (pnpm 워크스페이스: client, server/shared, server/producer, server/consumer)
+ 	- 공용 코드는 `server/shared` 패키지(`@cook/shared`)로 분리, Producer/Consumer에서 import
+- 패키지 매니저: pnpm (모노레포 의존성 해석 이슈 방지)
 - Docker or k8s
 - Apidog
 

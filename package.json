@@ -1,0 +1,25 @@
+{
+  "name": "cook-monorepo",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Cook monorepo (client, server/shared, server/producer, server/consumer)",
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "build:server": "npm run build -w server/shared && npm run build -w server/producer",
+    "install:all": "npm install",
+    "start:producer": "npm run start:dev -w server/producer",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2"
+  },
+  "workspaces": [
+    "client",
+    "server/shared",
+    "server/producer"
+  ],
+  "engines": {
+    "node": ">=20"
+  }
+}

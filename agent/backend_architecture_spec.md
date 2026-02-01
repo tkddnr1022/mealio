@@ -69,45 +69,39 @@ modules/
 ```
 
 #### C. Infrastructure 레이어
+- **Prisma·Mongoose 스키마·Redis·공용 설정**은 `@cook/shared` 패키지(`server/shared`)에서 제공. Producer는 해당 패키지를 import하여 사용.
 ```
 infrastructure/
 ├── database/
-│   ├── prisma/
-│   │   ├── prisma.module.ts            # Prisma 모듈 (PostgreSQL 전용)
-│   │   ├── prisma.service.ts           # PrismaClient(PostgreSQL, adapter-pg)
-│   │   ├── schema.prisma               # PostgreSQL 스키마 정의
-│   │   └── migrations/                 # PostgreSQL 마이그레이션 파일
+│   ├── prisma/                # PrismaModule·PrismaService·schema·migrations → @cook/shared 에서 import
+│   │   └── (seed.ts 등 앱 전용 스크립트만 유지)
 │   ├── mongoose/
-│   │   ├── mongoose.config.ts          # Mongoose 연결 설정 (MongoDB URL 등)
-│   │   ├── mongoose.module.ts          # Mongoose 모듈 및 스키마 등록
-│   │   └── schemas/                    # MongoDB 컬렉션별 스키마
-│   │       ├── chatbot-log.schema.ts
-│   │       ├── event-log.schema.ts
-│   │       └── user-ingredient.schema.ts
+│   │   ├── mongoose.module.ts # mongooseConfig·스키마 → @cook/shared 에서 import
+│   │   └── (seed.ts 등 앱 전용만 유지)
 │   └── repositories/
-│       ├── postgresql/
+│       ├── postgresql/        # PrismaService·타입 → @cook/shared, @cook/shared/prisma-client
 │       │   ├── user.repository.ts
 │       │   ├── recipe.repository.ts
 │       │   ├── ingredient.repository.ts
 │       │   └── recipe-ingredient.repository.ts
-│       └── mongodb/
+│       └── mongodb/            # 스키마·타입 → @cook/shared
 │           ├── event-log.repository.ts
 │           ├── chatbot-log.repository.ts
 │           └── user-ingredient.repository.ts
 ├── cache/
-│   ├── redis.service.ts      # Redis 커넥션 관리, Pub/Sub 구독용 별도 클라이언트(subscribe) 제공
-│   ├── cache.decorator.ts    # @Cacheable 데코레이터
+│   ├── redis.service.ts       # → @cook/shared (RedisModule/RedisService)
+│   ├── cache.decorator.ts     # @Cacheable 데코레이터
 │   └── strategies/
 │       ├── RecipeCacheStrategy        # TTL: 1시간
 │       ├── IngredientCacheStrategy    # TTL: 24시간
 │       ├── UserCacheStrategy          # TTL: 30분
 │       └── UserIngredientCacheStrategy # TTL: 30분 (사용자별 재료함)
 ├── kafka/
-│   ├── producer.service.ts   # Kafka 메시지 발행 (KafkaJS 기반)
-│   └── serializers/          # Avro/JSON 직렬화 (선택, 필요 시 추가)
+│   ├── producer.service.ts    # createKafkaConfig 등 → @cook/shared
+│   └── serializers/            # Avro/JSON 직렬화 (선택, 필요 시 추가)
 └── storage/
-    ├── s3.service.ts         # 이미지 업로드용 Presigned URL 생성
-    └── cdn.service.ts        # CloudFlare 캐시 무효화 트리거
+    ├── s3.service.ts          # 이미지 업로드용 Presigned URL 생성
+    └── cdn.service.ts         # CloudFlare 캐시 무효화 트리거
 ```
 
 #### D. 성능 최적화 모듈
@@ -398,8 +392,8 @@ export class PrismaService
 ```typescript
 // repositories/postgresql/recipe.repository.ts
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@/infrastructure/database/prisma/prisma.service';
-import { Prisma, Recipe } from './generated/client';
+import { PrismaService } from '@cook/shared';
+import { Prisma, Recipe } from '@cook/shared/prisma-client';
 
 @Injectable()
 export class RecipeRepository {
@@ -481,35 +475,62 @@ export class RecipeRepository {
 
 ---
 
-## 4. 공통 모듈 (Shared)
+## 4. 공통 모듈 (Shared) — 독립 패키지 @cook/shared
 
-### 4.1 공유 라이브러리
+### 4.1 개요
+- **패키지명**: `@cook/shared`
+- **위치**: `server/shared` (모노레포 워크스페이스)
+- **역할**: Producer/Consumer에서 공통으로 import하는 설정·상수·DB(Prisma/Mongoose)·Redis·타입을 단일 패키지로 제공
+- **의존성**: Producer·Consumer는 `"@cook/shared": "workspace:*"`(pnpm) 또는 `"file:../shared"`(npm)로 참조
+
+### 4.2 패키지 구조
 ```
-shared/
-├── constants/
-│   ├── kafka-topics.ts            # 토픽 이름 상수 (Producer/Consumer 공용)
-│   ├── redis-channels.ts          # Redis Pub/Sub 채널 (챗봇 SSE: chatbot:stream:{streamChannelId})
-│   ├── cache-keys.ts              # 캐시 키 패턴
-│   └── error-codes.ts             # 에러 코드 정의
-├── types/
-│   ├── events/                    # 이벤트 타입 정의
-│   │   ├── recipe-generation.event.ts
-│   │   ├── chatbot-request.event.ts
-│   │   └── user-event.event.ts
-│   └── dtos/                      # 공통 DTO
-├── utils/
-│   ├── logger.ts                  # 구조화된 로깅
-│   ├── error-handler.ts           # 전역 에러 핸들러
-│   ├── prisma-helpers.ts          # Prisma 유틸리티 함수 (RDB)
-│   ├── mongoose-helpers.ts        # Mongoose 유틸리티 (lean 변환, ObjectId 검증 등)
-│   └── validator.ts               # 공통 검증 로직
-└── configs/
-    ├── prisma.config.ts           # Prisma(PostgreSQL) 설정
-    ├── mongoose.config.ts         # Mongoose(MongoDB) 연결·풀 설정
-    ├── kafka.config.ts
-    ├── redis.config.ts
-    └── observability.config.ts
+server/shared/
+├── package.json                   # name: "@cook/shared", exports: ".", "./prisma-client"
+├── src/
+│   ├── index.ts                   # 공개 API re-export
+│   ├── configs/
+│   │   ├── kafka.config.ts        # createKafkaConfig, LOCAL_TOPIC_CONFIG
+│   │   ├── mongoose.config.ts     # mongooseConfig (MongoDB 연결)
+│   │   └── redis.config.ts        # createRedisConfig
+│   ├── constants/
+│   │   ├── kafka-topics.ts        # KAFKA_TOPICS, KafkaTopic
+│   │   └── redis-channels.ts     # getChatbotStreamChannel, CHATBOT_STREAM_CHANNEL_PREFIX
+│   ├── database/
+│   │   ├── mongoose/
+│   │   │   └── schemas/           # ChatbotLog, EventLog, UserIngredient 스키마
+│   │   └── prisma/
+│   │       ├── schema.prisma      # PostgreSQL 스키마 (User, Recipe, Ingredient, RecipeIngredient)
+│   │       ├── prisma.service.ts  # PrismaService (NestJS)
+│   │       ├── prisma.module.ts  # PrismaModule
+│   │       ├── generated/        # prisma generate 결과 (커밋 제외)
+│   │       └── migrations/       # 마이그레이션 (단일 소스)
+│   ├── redis/
+│   │   ├── redis.service.ts      # RedisService (NestJS)
+│   │   └── redis.module.ts      # RedisModule
+│   └── types/
+│       └── events/                # ChatbotRequestEvent, UserEvent, UserIngredientEvent 등
+└── dist/                          # 빌드 결과 (main, types)
 ```
+
+### 4.3 사용 방식
+- **Producer/Consumer**: `import { PrismaModule, RedisService, KAFKA_TOPICS, ... } from '@cook/shared'`
+- **Prisma 타입/클라이언트**: `import { Recipe, Prisma } from '@cook/shared/prisma-client'`
+- **빌드 순서**: shared 빌드(`prisma generate` + `tsc`) → Producer/Consumer 빌드
+
+### 4.4 (향후) 공유 라이브러리 확장
+```
+shared/ (추가 예정)
+├── utils/           # logger, error-handler, prisma-helpers, mongoose-helpers, validator
+├── constants/       # cache-keys.ts, error-codes.ts
+└── configs/         # observability.config.ts
+```
+
+### 4.5 모노레포 구조 및 패키지 매니저
+- **패키지 매니저**: **pnpm** 사용. npm workspaces + 중첩 경로(`server/producer`)에서 의존성 해석 이슈(선택 패키지 미탐지) 방지를 위해 pnpm으로 통일.
+- **워크스페이스**: 루트 `pnpm-workspace.yaml`에 `client`, `server/shared`, `server/producer`(및 향후 `server/consumer`) 정의.
+- **빌드·실행 순서**: 루트에서 `pnpm install` → `pnpm run build:server`(shared 빌드 후 producer 빌드) → `pnpm run start:producer`.
+- **CI**: GitHub Actions에서 pnpm 사용(`pnpm/action-setup`, `pnpm install --frozen-lockfile`, `pnpm --filter @cook/shared build`, `pnpm --filter @cook/producer build`). 상세 원인 분석은 저장소 `docs/monorepo-package-manager.md` 참고.
 
 ---
 

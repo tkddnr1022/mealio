@@ -3,7 +3,7 @@
  * 실행: npm run prisma:seed
  */
 import 'dotenv/config';
-import { PrismaClient } from './generated/client';
+import { PrismaClient } from '@cook/shared/prisma-client';
 import { PrismaPg } from '@prisma/adapter-pg';
 
 const connectionString =

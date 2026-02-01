@@ -20,7 +20,7 @@ alwaysApply: true
 | **proposal.md** | 기획서 | 서비스 개요, 기능, 스택(Next.js, Nest.js, PostgreSQL, MongoDB, Kafka, Redis 등), 배포(Vercel, AWS), 데이터·메시지 브로커 전략을 파악할 때 |
 | **schema.md** | 통합 데이터 스키마 (RDB + NoSQL) | User, Recipe, Ingredient, RecipeIngredient, UserIngredient, ChatbotLog, EventLog 등 엔티티/필드·의미, RDB vs NoSQL 구분, LLM 활용 포인트를 이해할 때 |
 | **architecture.mermaid** | 시스템 아키텍처 다이어그램 (Mermaid) | Client, CDN(Vercel), EC2(Producer/Consumer), Kafka, Redis, RDS, MongoDB, S3, OpenAI 등 구성요소와 연결 관계를 시각적으로 파악할 때 |
-| **backend_architecture_spec.md** | 백엔드 아키텍처 모듈 명세 | Producer(NestJS) 모듈 구조, API 경로, Domain/Infrastructure 레이어, Consumer·Kafka 토픽, 캐시 전략, 저장소·리포지토리 구조를 구현·수정할 때 |
+| **backend_architecture_spec.md** | 백엔드 아키텍처 모듈 명세 | Producer(NestJS) 모듈 구조, API 경로, Domain/Infrastructure 레이어, **@cook/shared 패키지(server/shared)**, 모노레포·pnpm, Consumer·Kafka 토픽, 캐시 전략, 저장소·리포지토리 구조를 구현·수정할 때 |
 | **frontend_architecture_spec.md** | 프론트엔드 아키텍처 명세 | Next.js App Router 라우팅, SSG/ISR/SSR/CSR 전략, 페이지 목록·라우팅 맵, 레이아웃 그룹을 구현·수정할 때 |
 | **openapi_spec.yaml** | OpenAPI 3.0 API 명세 | 인증, 엔드포인트(path, method), 요청/응답 스키마, DTO·Swagger 연동을 구현·검증할 때 |
 

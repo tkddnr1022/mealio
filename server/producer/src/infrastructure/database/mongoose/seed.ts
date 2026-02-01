@@ -5,8 +5,7 @@
  */
 import 'dotenv/config';
 import mongoose from 'mongoose';
-import { UserIngredientSchema } from './schemas/user-ingredient.schema';
-import { ChatbotLogSchema } from './schemas/chatbot-log.schema';
+import { UserIngredientSchema, ChatbotLogSchema } from '@cook/shared';
 
 const UserIngredientModel = mongoose.model(
   'UserIngredient',

@@ -6,7 +6,7 @@ import {
   envValidationOptions,
   envValidationSchema,
 } from './config/env.validation';
-import { PrismaModule } from './infrastructure/database/prisma/prisma.module';
+import { PrismaModule } from '@cook/shared';
 import { MongooseSchemasModule } from './infrastructure/database/mongoose/mongoose.module';
 import { UsersModule } from './modules/users/users.module';
 import { RecipesModule } from './modules/recipes/recipes.module';

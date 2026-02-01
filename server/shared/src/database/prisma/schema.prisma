@@ -1,4 +1,4 @@
-// PostgreSQL 데이터소스
+// PostgreSQL 데이터소스 (Producer/Consumer 공용)
 datasource db {
   provider = "postgresql"
 }

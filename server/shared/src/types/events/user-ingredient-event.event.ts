@@ -1,8 +1,6 @@
 /**
  * UserIngredient 이벤트 타입 정의
- * Kafka USER_EVENTS 토픽에서 사용되는 이벤트 페이로드 (Producer는 발행만, Consumer에서 MongoDB 저장)
  */
-
 export enum UserIngredientEventType {
   BULK_UPDATE = 'user.ingredient.bulk_update',
   ADD = 'user.ingredient.add',

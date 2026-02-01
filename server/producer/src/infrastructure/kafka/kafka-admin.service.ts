@@ -1,11 +1,11 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Kafka } from 'kafkajs';
-import { KAFKA_TOPICS } from 'src/shared/constants/kafka-topics';
 import {
+  KAFKA_TOPICS,
   createKafkaConfig,
   LOCAL_TOPIC_CONFIG,
-} from 'src/shared/configs/kafka.config';
+} from '@cook/shared';
 
 /**
  * Kafka Admin 서비스

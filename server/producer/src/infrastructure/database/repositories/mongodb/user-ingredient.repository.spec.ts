@@ -5,7 +5,7 @@ import { UserIngredientRepository } from './user-ingredient.repository';
 import {
   UserIngredient,
   UserIngredientDocument,
-} from '../../mongoose/schemas/user-ingredient.schema';
+} from '@cook/shared';
 
 describe('UserIngredientRepository', () => {
   let repository: UserIngredientRepository;

@@ -6,8 +6,7 @@ import { UserRepository } from '../../../../infrastructure/database/repositories
 import { KafkaProducerService } from '../../../../infrastructure/kafka/producer.service';
 import { CacheService } from '../../../../infrastructure/cache/cache.service';
 import { UserIngredientCacheStrategy } from '../../../../infrastructure/cache/strategies/user-ingredient-cache-strategy';
-import { KAFKA_TOPICS } from '../../../../shared/constants/kafka-topics';
-import { UserIngredientEventType } from '../../../../shared/types/events';
+import { KAFKA_TOPICS, UserIngredientEventType } from '@cook/shared';
 import { IngredientIdsDto } from '../../dto/ingredient-ids.dto';
 
 describe('UserIngredientsService', () => {

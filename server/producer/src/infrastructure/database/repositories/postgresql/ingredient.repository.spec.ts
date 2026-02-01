@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { IngredientRepository } from './ingredient.repository';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '@cook/shared';
 
 describe('IngredientRepository', () => {
   let repository: IngredientRepository;

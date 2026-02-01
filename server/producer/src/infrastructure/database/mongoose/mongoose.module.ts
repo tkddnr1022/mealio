@@ -1,6 +1,6 @@
 /**
  * Mongoose(MongoDB) 모듈
- * - 스키마: UserIngredient, ChatbotLog, EventLog (infrastructure/database/mongoose/schemas/)
+ * - 스키마: shared/database/mongoose/schemas/ (Producer/Consumer 공용)
  * - 리포지토리: repositories/mongodb/ (user-ingredient, chatbot-log, event-log)
  *
  * [미구현 - 명세 backend_architecture_spec.md Phase 2·3]
@@ -11,13 +11,15 @@
  */
 import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { mongooseConfig } from './mongoose.config';
-import { EventLog, EventLogSchema } from './schemas/event-log.schema';
-import { ChatbotLog, ChatbotLogSchema } from './schemas/chatbot-log.schema';
 import {
+  mongooseConfig,
+  EventLog,
+  EventLogSchema,
+  ChatbotLog,
+  ChatbotLogSchema,
   UserIngredient,
   UserIngredientSchema,
-} from './schemas/user-ingredient.schema';
+} from '@cook/shared';
 
 const MONGOOSE_FEATURES = MongooseModule.forFeature([
   { name: EventLog.name, schema: EventLogSchema },

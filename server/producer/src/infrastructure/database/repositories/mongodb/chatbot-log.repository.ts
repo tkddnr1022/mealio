@@ -1,10 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage } from 'mongoose';
-import {
-  ChatbotLog,
-  ChatbotLogDocument,
-} from '../../mongoose/schemas/chatbot-log.schema';
+import { ChatbotLog, ChatbotLogDocument } from '@cook/shared';
 
 @Injectable()
 export class ChatbotLogRepository {

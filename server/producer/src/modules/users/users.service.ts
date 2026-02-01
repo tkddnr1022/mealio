@@ -3,11 +3,11 @@ import { UserRepository } from '../../infrastructure/database/repositories/postg
 import { UserProfileDto } from './dto/user-profile.dto';
 import { UpdateNicknameDto } from './dto/update-nickname.dto';
 import { KafkaProducerService } from '../../infrastructure/kafka/producer.service';
-import { KAFKA_TOPICS } from '../../shared/constants/kafka-topics';
+import { KAFKA_TOPICS } from '@cook/shared';
 import {
   UserEventType,
   UserNicknameUpdateEvent,
-} from '../../shared/types/events';
+} from '@cook/shared';
 import { CacheService } from '../../infrastructure/cache/cache.service';
 import { UserCacheStrategy } from '../../infrastructure/cache/strategies/user-cache-strategy';
 

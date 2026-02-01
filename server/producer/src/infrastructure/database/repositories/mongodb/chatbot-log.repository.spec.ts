@@ -5,7 +5,7 @@ import { ChatbotLogRepository } from './chatbot-log.repository';
 import {
   ChatbotLog,
   ChatbotLogDocument,
-} from '../../mongoose/schemas/chatbot-log.schema';
+} from '@cook/shared';
 
 // Mock chainable query (find/findById 공통: select, lean, sort, limit, exec)
 const mockQuery = {

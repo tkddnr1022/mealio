@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Recipe } from '../../prisma/generated/client';
-import { PrismaService } from '../../prisma/prisma.service';
+import { Recipe } from '@cook/shared/prisma-client';
+import { PrismaService } from '@cook/shared';
 
 export type RecipeListOrder = 'latest' | 'cookTime' | 'difficulty';
 
