@@ -32,7 +32,10 @@ export class RecipesController {
     schema: {
       type: 'object',
       properties: {
-        data: { type: 'array', items: { $ref: '#/components/schemas/RecipeSummaryDto' } },
+        data: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/RecipeSummaryDto' },
+        },
         pagination: { $ref: '#/components/schemas/PaginationDto' },
       },
     },
@@ -78,7 +81,10 @@ export class RecipesController {
     schema: {
       type: 'object',
       properties: {
-        data: { type: 'array', items: { $ref: '#/components/schemas/RecipeSummaryDto' } },
+        data: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/RecipeSummaryDto' },
+        },
         pagination: { $ref: '#/components/schemas/PaginationDto' },
       },
     },

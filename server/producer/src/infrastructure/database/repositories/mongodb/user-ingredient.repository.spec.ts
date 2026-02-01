@@ -2,10 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UserIngredientRepository } from './user-ingredient.repository';
-import {
-  UserIngredient,
-  UserIngredientDocument,
-} from '@cook/shared';
+import { UserIngredient, UserIngredientDocument } from '@cook/shared';
 
 describe('UserIngredientRepository', () => {
   let repository: UserIngredientRepository;

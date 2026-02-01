@@ -29,11 +29,9 @@ describe('IngredientQueryService', () => {
     const mockCacheService = {
       get: jest.fn().mockResolvedValue(null),
       set: jest.fn().mockResolvedValue(undefined),
-      getOrSet: jest
-        .fn()
-        .mockImplementation(async (_strategy, fallback) => {
-          return fallback();
-        }),
+      getOrSet: jest.fn().mockImplementation(async (_strategy, fallback) => {
+        return fallback();
+      }),
     };
 
     const mockCacheStrategy = {

@@ -10,13 +10,21 @@ export class RecipeSummaryDto {
   @ApiProperty({ example: '간단하고 맛있는 김치볶음밥', nullable: true })
   description: string | null;
 
-  @ApiProperty({ example: 1, minimum: 1, maximum: 5, description: '난이도 (1~5)' })
+  @ApiProperty({
+    example: 1,
+    minimum: 1,
+    maximum: 5,
+    description: '난이도 (1~5)',
+  })
   difficulty: number;
 
   @ApiProperty({ example: 15, description: '조리시간 (분)' })
   cookTime: number;
 
-  @ApiProperty({ example: 'https://example.com/images/recipe456.jpg', nullable: true })
+  @ApiProperty({
+    example: 'https://example.com/images/recipe456.jpg',
+    nullable: true,
+  })
   imageUrl: string | null;
 
   @ApiProperty({ example: 2, description: '인분 수' })

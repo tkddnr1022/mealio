@@ -19,7 +19,9 @@ import { IngredientSearchQueryDto } from './dto/ingredient-search-query.dto';
 @UseGuards(JwtAuthGuard)
 @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
 export class IngredientsController {
-  constructor(private readonly ingredientQueryService: IngredientQueryService) {}
+  constructor(
+    private readonly ingredientQueryService: IngredientQueryService,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: '재료 목록 조회' })
@@ -29,7 +31,10 @@ export class IngredientsController {
     schema: {
       type: 'object',
       properties: {
-        data: { type: 'array', items: { $ref: '#/components/schemas/IngredientDto' } },
+        data: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/IngredientDto' },
+        },
         pagination: { $ref: '#/components/schemas/PaginationDto' },
       },
     },
@@ -56,7 +61,10 @@ export class IngredientsController {
     schema: {
       type: 'object',
       properties: {
-        data: { type: 'array', items: { $ref: '#/components/schemas/IngredientDto' } },
+        data: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/IngredientDto' },
+        },
       },
     },
   })

@@ -4,10 +4,7 @@ import { UserProfileDto } from './dto/user-profile.dto';
 import { UpdateNicknameDto } from './dto/update-nickname.dto';
 import { KafkaProducerService } from '../../infrastructure/kafka/producer.service';
 import { KAFKA_TOPICS } from '@cook/shared';
-import {
-  UserEventType,
-  UserNicknameUpdateEvent,
-} from '@cook/shared';
+import { UserEventType, UserNicknameUpdateEvent } from '@cook/shared';
 import { CacheService } from '../../infrastructure/cache/cache.service';
 import { UserCacheStrategy } from '../../infrastructure/cache/strategies/user-cache-strategy';
 

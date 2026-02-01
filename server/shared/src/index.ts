@@ -5,7 +5,10 @@
 
 // Configs
 export { createRedisConfig } from './configs/redis.config.js';
-export { createKafkaConfig, LOCAL_TOPIC_CONFIG } from './configs/kafka.config.js';
+export {
+  createKafkaConfig,
+  LOCAL_TOPIC_CONFIG,
+} from './configs/kafka.config.js';
 export { mongooseConfig } from './configs/mongoose.config.js';
 
 // Constants

@@ -55,11 +55,10 @@ export class IngredientQueryService {
     const data = await this.cacheService.getOrSet(
       this.ingredientCacheStrategy,
       async () => {
-        const ingredients =
-          await this.ingredientRepository.searchByKeyword({
-            keyword,
-            take: SEARCH_LIMIT,
-          });
+        const ingredients = await this.ingredientRepository.searchByKeyword({
+          keyword,
+          take: SEARCH_LIMIT,
+        });
         return ingredients.map((i) => this.toDto(i));
       },
       'search',

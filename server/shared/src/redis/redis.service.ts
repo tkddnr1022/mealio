@@ -58,10 +58,13 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         enableOfflineQueue: true,
       };
       this.subscriberClient = new Redis(config);
-      this.subscriberClient.on('message', (channel: string, message: string) => {
-        const cb = this.subscriberCallbacks.get(channel);
-        if (cb) cb(message);
-      });
+      this.subscriberClient.on(
+        'message',
+        (channel: string, message: string) => {
+          const cb = this.subscriberCallbacks.get(channel);
+          if (cb) cb(message);
+        },
+      );
       this.subscriberClient.on('error', (err) => {
         this.logger.error('Redis subscriber error', err);
       });

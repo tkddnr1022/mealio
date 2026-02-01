@@ -72,7 +72,9 @@ export class ChatbotController {
     await this.chatbotService.streamMessage(user.id, dto, {
       write: (data: string) => {
         res.write(formatSSE(data));
-        if (typeof (res as unknown as { flush?: () => void }).flush === 'function') {
+        if (
+          typeof (res as unknown as { flush?: () => void }).flush === 'function'
+        ) {
           (res as unknown as { flush: () => void }).flush();
         }
       },
@@ -81,7 +83,9 @@ export class ChatbotController {
       },
       error: (err: Error) => {
         res.write(
-          formatSSE(JSON.stringify({ type: 'error', data: { message: err.message } })),
+          formatSSE(
+            JSON.stringify({ type: 'error', data: { message: err.message } }),
+          ),
         );
         res.end();
       },

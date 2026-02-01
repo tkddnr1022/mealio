@@ -47,13 +47,22 @@ describe('ChatbotController', () => {
 
   beforeEach(async () => {
     const mockService = {
-      streamMessage: jest.fn().mockImplementation((_userId, _dto, callbacks) => {
-        callbacks.write(JSON.stringify({ type: 'done', data: { conversationId: 'conv_abc123' } }));
-        callbacks.end();
-        return Promise.resolve();
-      }),
+      streamMessage: jest
+        .fn()
+        .mockImplementation((_userId, _dto, callbacks) => {
+          callbacks.write(
+            JSON.stringify({
+              type: 'done',
+              data: { conversationId: 'conv_abc123' },
+            }),
+          );
+          callbacks.end();
+          return Promise.resolve();
+        }),
       getConversationList: jest.fn().mockResolvedValue(mockConversationList),
-      getConversationHistory: jest.fn().mockResolvedValue(mockConversationHistory),
+      getConversationHistory: jest
+        .fn()
+        .mockResolvedValue(mockConversationHistory),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -86,7 +95,10 @@ describe('ChatbotController', () => {
 
       await controller.sendMessage(mockAuthUser, dto, mockRes as any);
 
-      expect(mockRes.setHeader).toHaveBeenCalledWith('Content-Type', 'text/event-stream');
+      expect(mockRes.setHeader).toHaveBeenCalledWith(
+        'Content-Type',
+        'text/event-stream',
+      );
       expect(chatbotService.streamMessage).toHaveBeenCalledWith(
         1,
         dto,
@@ -113,7 +125,11 @@ describe('ChatbotController', () => {
 
       await controller.sendMessage(mockAuthUser, dto, mockRes as any);
 
-      expect(chatbotService.streamMessage).toHaveBeenCalledWith(1, dto, expect.any(Object));
+      expect(chatbotService.streamMessage).toHaveBeenCalledWith(
+        1,
+        dto,
+        expect.any(Object),
+      );
     });
   });
 

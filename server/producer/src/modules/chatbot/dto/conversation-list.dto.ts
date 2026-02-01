@@ -12,7 +12,8 @@ export class ConversationListDto {
   items: ConversationListItemDto[];
 
   @ApiPropertyOptional({
-    description: '다음 페이지가 있으면 값이 있으며, 다음 요청의 cursor 파라미터로 사용',
+    description:
+      '다음 페이지가 있으면 값이 있으며, 다음 요청의 cursor 파라미터로 사용',
     nullable: true,
   })
   nextCursor: string | null;

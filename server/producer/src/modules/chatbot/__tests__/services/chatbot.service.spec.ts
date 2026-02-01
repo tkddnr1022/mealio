@@ -18,7 +18,12 @@ describe('ChatbotService', () => {
 
     const mockRedisService = {
       subscribe: jest.fn().mockImplementation((_channel, onMessage) => {
-        onMessage(JSON.stringify({ type: 'done', data: { conversationId: 'conv_abc' } }));
+        onMessage(
+          JSON.stringify({
+            type: 'done',
+            data: { conversationId: 'conv_abc' },
+          }),
+        );
         return Promise.resolve(() => Promise.resolve());
       }),
     };
@@ -44,7 +49,9 @@ describe('ChatbotService', () => {
     }).compile();
 
     service = module.get<ChatbotService>(ChatbotService);
-    kafkaProducer = module.get(KafkaProducerService) as jest.Mocked<KafkaProducerService>;
+    kafkaProducer = module.get(
+      KafkaProducerService,
+    ) as jest.Mocked<KafkaProducerService>;
     redisService = module.get(RedisService) as jest.Mocked<RedisService>;
     chatbotLogRepository = module.get(
       ChatbotLogRepository,
@@ -131,7 +138,9 @@ describe('ChatbotService', () => {
 
     it('Redis에서 error 이벤트를 받으면 error 콜백을 호출한다', async () => {
       redisService.subscribe.mockImplementation((_ch, onMessage) => {
-        onMessage(JSON.stringify({ type: 'error', data: { message: 'GPT 오류' } }));
+        onMessage(
+          JSON.stringify({ type: 'error', data: { message: 'GPT 오류' } }),
+        );
         return Promise.resolve(() => Promise.resolve());
       });
       const write = jest.fn();
@@ -166,9 +175,7 @@ describe('ChatbotService', () => {
       ).toHaveBeenCalledWith(userId, { limit: 20, cursor: undefined });
       expect(result.items).toHaveLength(1);
       expect(result.items[0].conversationId).toBe('conv_a');
-      expect(result.items[0].lastMessageAt).toBe(
-        '2025-01-25T12:00:00.000Z',
-      );
+      expect(result.items[0].lastMessageAt).toBe('2025-01-25T12:00:00.000Z');
       expect(result.nextCursor).toBeNull();
     });
 
@@ -183,7 +190,11 @@ describe('ChatbotService', () => {
         nextCursor: '2025-01-24T00:00:00.000Z',
       });
 
-      const result = await service.getConversationList(1, 1, '2025-01-25T00:00:00.000Z');
+      const result = await service.getConversationList(
+        1,
+        1,
+        '2025-01-25T00:00:00.000Z',
+      );
 
       expect(
         chatbotLogRepository.findConversationListByUserId,
@@ -214,7 +225,9 @@ describe('ChatbotService', () => {
           createdAt: new Date('2025-01-25T00:00:01.000Z'),
         },
       ];
-      chatbotLogRepository.findByConversationId.mockResolvedValue(logs as never);
+      chatbotLogRepository.findByConversationId.mockResolvedValue(
+        logs as never,
+      );
 
       const result = await service.getConversationHistory(
         userId,

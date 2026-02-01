@@ -43,8 +43,12 @@
     "@nestjs/mongoose": "^10.0.0 || ^11.0.0"
   },
   "peerDependenciesMeta": {
-    "@nestjs/common": { "optional": false },
-    "@nestjs/mongoose": { "optional": true }
+    "@nestjs/common": {
+      "optional": false
+    },
+    "@nestjs/mongoose": {
+      "optional": true
+    }
   },
   "files": [
     "dist",

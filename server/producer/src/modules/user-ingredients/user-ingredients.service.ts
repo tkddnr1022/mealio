@@ -32,8 +32,7 @@ export class UserIngredientsService {
     return this.cacheService.getOrSet<UserIngredientListDto>(
       this.userIngredientCacheStrategy,
       async () => {
-        const doc =
-          await this.userIngredientRepository.findByUserId(userId);
+        const doc = await this.userIngredientRepository.findByUserId(userId);
 
         if (!doc) {
           return {

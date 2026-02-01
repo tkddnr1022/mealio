@@ -2,10 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventLogRepository } from './event-log.repository';
-import {
-  EventLog,
-  EventLogDocument,
-} from '@cook/shared';
+import { EventLog, EventLogDocument } from '@cook/shared';
 
 // Mock chainable query
 const mockQuery = {

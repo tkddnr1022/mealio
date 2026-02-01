@@ -6,8 +6,7 @@ import 'dotenv/config';
 import { PrismaClient } from '@cook/shared/prisma-client';
 import { PrismaPg } from '@prisma/adapter-pg';
 
-const connectionString =
-  process.env.POSTGRESQL_URL;
+const connectionString = process.env.POSTGRESQL_URL;
 
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
@@ -25,10 +24,30 @@ async function main() {
 
   // 0. 유저 생성 (개발/테스트용)
   const users = [
-    { email: 'dev1@example.com', nickname: '요리사김', platformName: 'google', platformId: 'google_dev_001' },
-    { email: 'dev2@example.com', nickname: '맛탐험가', platformName: 'google', platformId: 'google_dev_002' },
-    { email: 'test@kakao.example.com', nickname: '레시피러버', platformName: 'kakao', platformId: 'kakao_test_001' },
-    { email: 'e2e@example.com', nickname: 'E2E테스터', platformName: 'google', platformId: 'google_e2e_001' },
+    {
+      email: 'dev1@example.com',
+      nickname: '요리사김',
+      platformName: 'google',
+      platformId: 'google_dev_001',
+    },
+    {
+      email: 'dev2@example.com',
+      nickname: '맛탐험가',
+      platformName: 'google',
+      platformId: 'google_dev_002',
+    },
+    {
+      email: 'test@kakao.example.com',
+      nickname: '레시피러버',
+      platformName: 'kakao',
+      platformId: 'kakao_test_001',
+    },
+    {
+      email: 'e2e@example.com',
+      nickname: 'E2E테스터',
+      platformName: 'google',
+      platformId: 'google_e2e_001',
+    },
   ];
   for (const u of users) {
     await prisma.user.upsert({
@@ -102,8 +121,14 @@ async function main() {
       servings: 1,
       instructions: [
         { step: 1, content: '김치는 적당히 잘라 준비한다.' },
-        { step: 2, content: '팬에 기름을 두르고 김치를 넣어 중불로 2분 볶는다.' },
-        { step: 3, content: '밥을 넣고 간장, 참기름으로 간한 뒤 잘 섞어 볶는다.' },
+        {
+          step: 2,
+          content: '팬에 기름을 두르고 김치를 넣어 중불로 2분 볶는다.',
+        },
+        {
+          step: 3,
+          content: '밥을 넣고 간장, 참기름으로 간한 뒤 잘 섞어 볶는다.',
+        },
         { step: 4, content: '달걀을 프라이해 올리거나 그대로 섞어 완성한다.' },
       ],
       ingredients: [
@@ -121,9 +146,18 @@ async function main() {
       cookTime: 30,
       servings: 2,
       instructions: [
-        { step: 1, content: '김치는 먹기 좋게 썰고, 두부는 한입 크기로 자른다.' },
-        { step: 2, content: '냄비에 김치, 돼지고기, 고춧가루, 마늘을 넣고 볶는다.' },
-        { step: 3, content: '물을 붓고 끓인 뒤 두부, 대파를 넣고 간장으로 간한다.' },
+        {
+          step: 1,
+          content: '김치는 먹기 좋게 썰고, 두부는 한입 크기로 자른다.',
+        },
+        {
+          step: 2,
+          content: '냄비에 김치, 돼지고기, 고춧가루, 마늘을 넣고 볶는다.',
+        },
+        {
+          step: 3,
+          content: '물을 붓고 끓인 뒤 두부, 대파를 넣고 간장으로 간한다.',
+        },
       ],
       ingredients: [
         ri('김치', 200, 'g', false),
@@ -144,7 +178,11 @@ async function main() {
       servings: 1,
       instructions: [
         { step: 1, content: '달걀에 소금, 물 한 스푼을 넣고 풀어둔다.' },
-        { step: 2, content: '달군 팬에 기름을 두르고 달걀물을 얇게 부어 굳기 전에 말아 올린다.' },
+        {
+          step: 2,
+          content:
+            '달군 팬에 기름을 두르고 달걀물을 얇게 부어 굳기 전에 말아 올린다.',
+        },
         { step: 3, content: '남은 달걀물을 붓고 반복해 말아 완성한다.' },
       ],
       ingredients: [
@@ -162,7 +200,11 @@ async function main() {
       instructions: [
         { step: 1, content: '감자는 껍질을 벗기고 채썬다. 물에 한 번 헹군다.' },
         { step: 2, content: '팬에 기름을 두르고 감자를 넣어 중불로 볶는다.' },
-        { step: 3, content: '간장, 설탕, 물을 넣고 뚜껑을 덮어 익힌 뒤 참기름으로 마무리한다.' },
+        {
+          step: 3,
+          content:
+            '간장, 설탕, 물을 넣고 뚜껑을 덮어 익힌 뒤 참기름으로 마무리한다.',
+        },
       ],
       ingredients: [
         ri('감자', 2, '개', false),
@@ -180,7 +222,11 @@ async function main() {
       servings: 1,
       instructions: [
         { step: 1, content: '달걀에 소금, 후추, 우유 1큰술을 넣고 풀어둔다.' },
-        { step: 2, content: '팬에 버터를 녹이고 달걀을 넣어 약한 불에서 저어가며 익힌다.' },
+        {
+          step: 2,
+          content:
+            '팬에 버터를 녹이고 달걀을 넣어 약한 불에서 저어가며 익힌다.',
+        },
       ],
       ingredients: [
         ri('달걀', 2, '개', false),
@@ -197,9 +243,15 @@ async function main() {
       cookTime: 15,
       servings: 1,
       instructions: [
-        { step: 1, content: '베이컨을 먹기 좋은 크기로 잘라 팬에 노릇하게 굽는다.' },
+        {
+          step: 1,
+          content: '베이컨을 먹기 좋은 크기로 잘라 팬에 노릇하게 굽는다.',
+        },
         { step: 2, content: '달걀을 프라이하거나 스크램블한다.' },
-        { step: 3, content: '밥 위에 베이컨, 달걀을 올리고 간장, 참기름을 뿌린다.' },
+        {
+          step: 3,
+          content: '밥 위에 베이컨, 달걀을 올리고 간장, 참기름을 뿌린다.',
+        },
       ],
       ingredients: [
         ri('밥', 1, '공기', false),
@@ -216,8 +268,15 @@ async function main() {
       cookTime: 25,
       servings: 2,
       instructions: [
-        { step: 1, content: '끓는 물에 소금을 넣고 스파게티면을 8~10분 삶는다.' },
-        { step: 2, content: '팬에 마늘, 양파를 넣어 볶다가 토마토소스를 넣고 5분 끓인다.' },
+        {
+          step: 1,
+          content: '끓는 물에 소금을 넣고 스파게티면을 8~10분 삶는다.',
+        },
+        {
+          step: 2,
+          content:
+            '팬에 마늘, 양파를 넣어 볶다가 토마토소스를 넣고 5분 끓인다.',
+        },
         { step: 3, content: '삶은 면을 넣고 소스와 잘 섞어 완성한다.' },
       ],
       ingredients: [
@@ -236,7 +295,10 @@ async function main() {
       cookTime: 15,
       servings: 1,
       instructions: [
-        { step: 1, content: '두부는 0.5cm 두께로 썰어 키친타올로 물기를 제거한다.' },
+        {
+          step: 1,
+          content: '두부는 0.5cm 두께로 썰어 키친타올로 물기를 제거한다.',
+        },
         { step: 2, content: '팬에 기름을 두르고 두부를 노릇하게 굽는다.' },
         { step: 3, content: '김치와 함께 담고 참기름을 뿌린다.' },
       ],
@@ -254,8 +316,15 @@ async function main() {
       servings: 2,
       instructions: [
         { step: 1, content: '새우는 등쪽 내장을 제거하고 마늘은 다진다.' },
-        { step: 2, content: '팬에 버터를 녹이고 마늘을 넣어 향이 나면 새우를 넣어 볶는다.' },
-        { step: 3, content: '소금, 후추로 간하고 파슬리나 대파를 뿌려 완성한다.' },
+        {
+          step: 2,
+          content:
+            '팬에 버터를 녹이고 마늘을 넣어 향이 나면 새우를 넣어 볶는다.',
+        },
+        {
+          step: 3,
+          content: '소금, 후추로 간하고 파슬리나 대파를 뿌려 완성한다.',
+        },
       ],
       ingredients: [
         ri('새우', 200, 'g', false),
@@ -273,8 +342,15 @@ async function main() {
       servings: 2,
       instructions: [
         { step: 1, content: '브로콜리는 작은 송이로 나누고 당근은 작게 썬다.' },
-        { step: 2, content: '냄비에 버터를 녹이고 브로콜리, 당근을 넣어 살짝 볶는다.' },
-        { step: 3, content: '물, 우유를 넣고 끓인 뒤 믹서로 갈아 치즈를 넣어 녹인다. 소금, 후추로 간한다.' },
+        {
+          step: 2,
+          content: '냄비에 버터를 녹이고 브로콜리, 당근을 넣어 살짝 볶는다.',
+        },
+        {
+          step: 3,
+          content:
+            '물, 우유를 넣고 끓인 뒤 믹서로 갈아 치즈를 넣어 녹인다. 소금, 후추로 간한다.',
+        },
       ],
       ingredients: [
         ri('브로콜리', 1, '줄기', false),

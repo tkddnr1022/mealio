@@ -64,10 +64,7 @@ async function simulateStreamAndPublish(
   const CHUNK_DELAY_MS = 250;
 
   for (const chunk of chunks) {
-    redis.publish(
-      channel,
-      JSON.stringify({ type: 'chunk', data: chunk }),
-    );
+    redis.publish(channel, JSON.stringify({ type: 'chunk', data: chunk }));
     await new Promise((r) => setTimeout(r, CHUNK_DELAY_MS));
   }
 
@@ -94,7 +91,9 @@ async function main(): Promise<void> {
   await consumer.connect();
   await consumer.subscribe({ topic: TOPIC, fromBeginning: false });
 
-  console.log(`[chatbot-consumer-mock] Subscribed to ${TOPIC}. Waiting for messages...`);
+  console.log(
+    `[chatbot-consumer-mock] Subscribed to ${TOPIC}. Waiting for messages...`,
+  );
 
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
@@ -109,11 +108,20 @@ async function main(): Promise<void> {
         return;
       }
 
-      const { streamChannelId, conversationId, userId, message: userMessage } = event;
-      console.log(`[chatbot-consumer-mock] Received userId=${userId} message="${userMessage?.slice(0, 30)}..." streamChannelId=${streamChannelId ?? 'none'}`);
+      const {
+        streamChannelId,
+        conversationId,
+        userId,
+        message: userMessage,
+      } = event;
+      console.log(
+        `[chatbot-consumer-mock] Received userId=${userId} message="${userMessage?.slice(0, 30)}..." streamChannelId=${streamChannelId ?? 'none'}`,
+      );
 
       if (!streamChannelId) {
-        console.log('[chatbot-consumer-mock] No streamChannelId, skip (non-SSE request)');
+        console.log(
+          '[chatbot-consumer-mock] No streamChannelId, skip (non-SSE request)',
+        );
         return;
       }
 
@@ -122,12 +130,17 @@ async function main(): Promise<void> {
 
       try {
         await simulateStreamAndPublish(redis, channel, convId);
-        console.log(`[chatbot-consumer-mock] Published chunk+done to ${channel}`);
+        console.log(
+          `[chatbot-consumer-mock] Published chunk+done to ${channel}`,
+        );
       } catch (err) {
         console.error('[chatbot-consumer-mock] Publish error', err);
         redis.publish(
           channel,
-          JSON.stringify({ type: 'error', data: { message: (err as Error).message } }),
+          JSON.stringify({
+            type: 'error',
+            data: { message: (err as Error).message },
+          }),
         );
       }
     },

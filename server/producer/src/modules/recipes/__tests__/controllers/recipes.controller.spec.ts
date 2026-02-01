@@ -124,7 +124,9 @@ describe('RecipesController', () => {
       const dto = { ids: [1, 2, 3] };
       const result = await controller.getSummaries(dto);
 
-      expect(recipeQueryService.getSummariesByIds).toHaveBeenCalledWith([1, 2, 3]);
+      expect(recipeQueryService.getSummariesByIds).toHaveBeenCalledWith([
+        1, 2, 3,
+      ]);
       expect(result).toHaveLength(1);
       expect(result[0].title).toBe('김치볶음밥');
     });

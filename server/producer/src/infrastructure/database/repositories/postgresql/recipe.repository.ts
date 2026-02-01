@@ -66,9 +66,7 @@ export class RecipeRepository {
 
     const where = {
       isPublished: true,
-      ...(difficulty?.length
-        ? { difficulty: { in: difficulty } }
-        : undefined),
+      ...(difficulty?.length ? { difficulty: { in: difficulty } } : undefined),
       ...(maxCookTime != null ? { cookTime: { lte: maxCookTime } } : undefined),
     };
 

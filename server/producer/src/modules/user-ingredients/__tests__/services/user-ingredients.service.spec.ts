@@ -188,9 +188,9 @@ describe('UserIngredientsService', () => {
     it('사용자가 없으면 NotFoundException을 던진다', async () => {
       userRepository.findById.mockResolvedValue(null);
 
-      await expect(
-        service.add(999, { ingredientIds: [1] }),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.add(999, { ingredientIds: [1] })).rejects.toThrow(
+        NotFoundException,
+      );
       expect(kafkaProducerService.emit).not.toHaveBeenCalled();
     });
   });

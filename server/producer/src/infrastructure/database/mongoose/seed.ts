@@ -263,9 +263,8 @@ async function main() {
   const inserted = await ChatbotLogModel.insertMany(
     SEED_CHATBOT_LOGS.map((doc) => ({ ...doc })),
   );
-  const conversationCount = new Set(
-    SEED_CHATBOT_LOGS.map((d) => d.sessionId),
-  ).size;
+  const conversationCount = new Set(SEED_CHATBOT_LOGS.map((d) => d.sessionId))
+    .size;
   console.log(
     `  ✓ ${inserted.length}개 메시지, ${conversationCount}개 대화 (userId 1,2,3)`,
   );

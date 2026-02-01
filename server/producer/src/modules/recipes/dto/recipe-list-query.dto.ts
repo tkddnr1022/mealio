@@ -5,7 +5,9 @@ import { Type, Transform } from 'class-transformer';
 function toNumberArray(value: unknown): number[] | undefined {
   if (value == null) return undefined;
   const arr = Array.isArray(value) ? value : [value];
-  return arr.map((v) => (typeof v === 'string' ? parseInt(v, 10) : Number(v))).filter((n) => !Number.isNaN(n));
+  return arr
+    .map((v) => (typeof v === 'string' ? parseInt(v, 10) : Number(v)))
+    .filter((n) => !Number.isNaN(n));
 }
 
 export class RecipeListQueryDto {

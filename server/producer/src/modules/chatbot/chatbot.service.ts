@@ -47,9 +47,13 @@ export class ChatbotService {
    * 사용자 메시지를 Kafka(chatbot-requests)로 발행하고, 접수 응답을 반환한다.
    * 실제 AI 응답은 Consumer가 처리 후 MongoDB에 저장되며, GET /conversations/:id로 조회 가능.
    */
-  async sendMessage(userId: number, dto: SendMessageDto): Promise<ChatbotResponseDto> {
+  async sendMessage(
+    userId: number,
+    dto: SendMessageDto,
+  ): Promise<ChatbotResponseDto> {
     const conversationId =
-      dto.conversationId ?? `conv_${randomUUID().replace(/-/g, '').slice(0, 16)}`;
+      dto.conversationId ??
+      `conv_${randomUUID().replace(/-/g, '').slice(0, 16)}`;
     const sessionId = conversationId;
 
     const event: ChatbotRequestEvent = {
@@ -68,8 +72,7 @@ export class ChatbotService {
 
     return {
       conversationId,
-      message:
-        '요청을 접수했습니다. 잠시 후 대화 내역을 조회해 주세요.',
+      message: '요청을 접수했습니다. 잠시 후 대화 내역을 조회해 주세요.',
       suggestedRecipes: null,
     };
   }
@@ -85,7 +88,8 @@ export class ChatbotService {
   ): Promise<void> {
     const streamChannelId = `stream_${randomUUID().replace(/-/g, '').slice(0, 16)}`;
     const conversationId =
-      dto.conversationId ?? `conv_${randomUUID().replace(/-/g, '').slice(0, 16)}`;
+      dto.conversationId ??
+      `conv_${randomUUID().replace(/-/g, '').slice(0, 16)}`;
     const sessionId = conversationId;
     const channel = getChatbotStreamChannel(streamChannelId);
 
@@ -112,7 +116,9 @@ export class ChatbotService {
       if (ended) return;
       ended = true;
       if (timeoutId) clearTimeout(timeoutId);
-      unsubscribe?.().catch((err) => this.logger.warn('Unsubscribe error', err));
+      unsubscribe?.().catch((err) =>
+        this.logger.warn('Unsubscribe error', err),
+      );
       fn();
     };
 
@@ -138,9 +144,7 @@ export class ChatbotService {
         }
       } catch (err) {
         finish(() =>
-          callbacks.error(
-            err instanceof Error ? err : new Error(String(err)),
-          ),
+          callbacks.error(err instanceof Error ? err : new Error(String(err))),
         );
       }
     });
@@ -197,9 +201,7 @@ export class ChatbotService {
         message: raw.message,
         suggestedRecipeIds:
           suggestedRecipeIds.length > 0 ? suggestedRecipeIds : null,
-        createdAt: raw.createdAt
-          ? new Date(raw.createdAt).toISOString()
-          : '',
+        createdAt: raw.createdAt ? new Date(raw.createdAt).toISOString() : '',
       };
     });
 

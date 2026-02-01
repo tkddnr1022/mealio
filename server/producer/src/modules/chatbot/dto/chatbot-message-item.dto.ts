@@ -15,7 +15,8 @@ export class ChatbotMessageItemDto {
   message: string;
 
   @ApiPropertyOptional({
-    description: '추천 레시피 ID 목록 (assistant 메시지에서만 사용). 상세는 GET /api/v1/recipes/summaries 로 벌크 조회',
+    description:
+      '추천 레시피 ID 목록 (assistant 메시지에서만 사용). 상세는 GET /api/v1/recipes/summaries 로 벌크 조회',
     type: [Number],
     nullable: true,
     example: [1, 2],

@@ -2,10 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ChatbotLogRepository } from './chatbot-log.repository';
-import {
-  ChatbotLog,
-  ChatbotLogDocument,
-} from '@cook/shared';
+import { ChatbotLog, ChatbotLogDocument } from '@cook/shared';
 
 // Mock chainable query (find/findById 공통: select, lean, sort, limit, exec)
 const mockQuery = {
@@ -94,7 +91,12 @@ describe('ChatbotLogRepository', () => {
     it('should find logs by conversationId and return sorted by createdAt', async () => {
       const conversationId = 'conv_abc123';
       const logs = [
-        { ...mockChatbotLog, role: 'user', message: 'Hi', createdAt: new Date() },
+        {
+          ...mockChatbotLog,
+          role: 'user',
+          message: 'Hi',
+          createdAt: new Date(),
+        },
         {
           ...mockChatbotLog,
           role: 'assistant',
@@ -169,7 +171,9 @@ describe('ChatbotLogRepository', () => {
           s.$match && (s.$match as Record<string, unknown>).lastMessageAt,
       );
       expect(cursorMatch).toBeDefined();
-      expect((cursorMatch.$match as Record<string, unknown>).lastMessageAt).toEqual({
+      expect(
+        (cursorMatch.$match as Record<string, unknown>).lastMessageAt,
+      ).toEqual({
         $lt: new Date('2025-01-25T00:00:00.000Z'),
       });
     });
