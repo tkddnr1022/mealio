@@ -10,11 +10,18 @@ import { createRedisConfig } from 'src/shared/configs/redis.config';
 /**
  * Redis 커넥션 관리 서비스
  * 싱글톤으로 Redis 클라이언트를 관리하고, 모듈 생명주기에 따라 연결/해제를 처리한다.
+ * Pub/Sub 구독용 별도 클라이언트(subscriber)를 제공한다.
  */
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(RedisService.name);
   private client: Redis;
+  /** 구독 전용 클라이언트 (subscribe 시 일반 명령 불가이므로 별도 연결) */
+  private subscriberClient: Redis | null = null;
+  private readonly subscriberCallbacks = new Map<
+    string,
+    (message: string) => void
+  >();
 
   constructor() {
     const config = createRedisConfig();
@@ -40,11 +47,56 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
    */
   async onModuleDestroy(): Promise<void> {
     try {
+      if (this.subscriberClient) {
+        await this.subscriberClient.quit();
+        this.subscriberClient = null;
+        this.subscriberCallbacks.clear();
+        this.logger.log('Redis subscriber connection closed');
+      }
       await this.client.quit();
       this.logger.log('Redis connection closed');
     } catch (error) {
       this.logger.error('Error closing Redis connection', error);
     }
+  }
+
+  /**
+   * Pub/Sub 구독 전용 클라이언트 반환 (subscribe 모드에서 일반 명령 불가이므로 별도 연결)
+   * 연결 전 subscribe() 호출을 허용하기 위해 enableOfflineQueue: true 로 생성한다.
+   */
+  getSubscriberClient(): Redis {
+    if (!this.subscriberClient) {
+      const config = {
+        ...createRedisConfig(),
+        enableOfflineQueue: true,
+      };
+      this.subscriberClient = new Redis(config);
+      this.subscriberClient.on('message', (channel: string, message: string) => {
+        const cb = this.subscriberCallbacks.get(channel);
+        if (cb) cb(message);
+      });
+      this.subscriberClient.on('error', (err) => {
+        this.logger.error('Redis subscriber error', err);
+      });
+    }
+    return this.subscriberClient;
+  }
+
+  /**
+   * 채널 구독. 메시지 수신 시 onMessage 호출.
+   * @returns 구독 해제 함수
+   */
+  async subscribe(
+    channel: string,
+    onMessage: (message: string) => void,
+  ): Promise<() => Promise<void>> {
+    this.subscriberCallbacks.set(channel, onMessage);
+    const sub = this.getSubscriberClient();
+    await sub.subscribe(channel);
+    return async () => {
+      await sub.unsubscribe(channel);
+      this.subscriberCallbacks.delete(channel);
+    };
   }
 
   /**

@@ -5,11 +5,13 @@ import {
   Body,
   Param,
   Query,
+  Res,
   UseGuards,
   HttpCode,
   HttpStatus,
   NotFoundException,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ChatbotService } from './chatbot.service';
 import { SendMessageDto } from './dto/send-message.dto';
@@ -21,6 +23,11 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthUser } from '../auth/types/request.types';
 
+/** SSE 이벤트 형식: data: {JSON}\n\n */
+function formatSSE(data: string): string {
+  return `data: ${data}\n\n`;
+}
+
 @ApiTags('Chatbot')
 @Controller('api/v1/chatbot')
 @UseGuards(JwtAuthGuard)
@@ -29,11 +36,23 @@ export class ChatbotController {
 
   @Post('messages')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '챗봇 대화' })
+  @ApiOperation({
+    summary: '챗봇 대화 (SSE 스트리밍)',
+    description:
+      'AI 챗봇과 대화하여 레시피 추천을 받습니다. 응답은 text/event-stream으로 스트리밍됩니다.',
+  })
   @ApiResponse({
     status: 200,
-    description: '대화 접수 성공',
-    type: ChatbotResponseDto,
+    description: 'SSE 스트림 (Content-Type: text/event-stream)',
+    content: {
+      'text/event-stream': {
+        schema: {
+          type: 'string',
+          description:
+            'data: { type: "chunk"|"done"|"error", data: ... } 형식의 이벤트 스트림',
+        },
+      },
+    },
   })
   @ApiResponse({ status: 400, description: '잘못된 요청' })
   @ApiResponse({ status: 401, description: '인증 실패' })
@@ -42,8 +61,31 @@ export class ChatbotController {
   async sendMessage(
     @CurrentUser() user: AuthUser,
     @Body() dto: SendMessageDto,
-  ): Promise<ChatbotResponseDto> {
-    return this.chatbotService.sendMessage(user.id, dto);
+    @Res({ passthrough: false }) res: Response,
+  ): Promise<void> {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.flushHeaders();
+
+    await this.chatbotService.streamMessage(user.id, dto, {
+      write: (data: string) => {
+        res.write(formatSSE(data));
+        if (typeof (res as unknown as { flush?: () => void }).flush === 'function') {
+          (res as unknown as { flush: () => void }).flush();
+        }
+      },
+      end: () => {
+        res.end();
+      },
+      error: (err: Error) => {
+        res.write(
+          formatSSE(JSON.stringify({ type: 'error', data: { message: err.message } })),
+        );
+        res.end();
+      },
+    });
   }
 
   @Get('conversations')

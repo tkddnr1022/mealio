@@ -47,7 +47,11 @@ describe('ChatbotController', () => {
 
   beforeEach(async () => {
     const mockService = {
-      sendMessage: jest.fn().mockResolvedValue(mockChatbotResponse),
+      streamMessage: jest.fn().mockImplementation((_userId, _dto, callbacks) => {
+        callbacks.write(JSON.stringify({ type: 'done', data: { conversationId: 'conv_abc123' } }));
+        callbacks.end();
+        return Promise.resolve();
+      }),
       getConversationList: jest.fn().mockResolvedValue(mockConversationList),
       getConversationHistory: jest.fn().mockResolvedValue(mockConversationHistory),
     };
@@ -71,22 +75,45 @@ describe('ChatbotController', () => {
   });
 
   describe('sendMessage', () => {
-    it('메시지를 전송하고 접수 응답을 반환한다', async () => {
+    it('SSE 스트림으로 응답하고 streamMessage를 호출한다', async () => {
       const dto = { message: '오늘 저녁 뭐 해먹을까요?' };
-      const result = await controller.sendMessage(mockAuthUser, dto);
+      const mockRes = {
+        setHeader: jest.fn(),
+        flushHeaders: jest.fn(),
+        write: jest.fn(),
+        end: jest.fn(),
+      };
 
-      expect(chatbotService.sendMessage).toHaveBeenCalledWith(1, dto);
-      expect(result).toEqual(mockChatbotResponse);
+      await controller.sendMessage(mockAuthUser, dto, mockRes as any);
+
+      expect(mockRes.setHeader).toHaveBeenCalledWith('Content-Type', 'text/event-stream');
+      expect(chatbotService.streamMessage).toHaveBeenCalledWith(
+        1,
+        dto,
+        expect.objectContaining({
+          write: expect.any(Function),
+          end: expect.any(Function),
+          error: expect.any(Function),
+        }),
+      );
+      expect(mockRes.end).toHaveBeenCalled();
     });
 
-    it('conversationId가 있으면 함께 전달한다', async () => {
+    it('conversationId가 있으면 dto에 포함해 streamMessage에 전달한다', async () => {
       const dto = {
         message: '추가 질문',
         conversationId: 'conv_xyz',
       };
-      await controller.sendMessage(mockAuthUser, dto);
+      const mockRes = {
+        setHeader: jest.fn(),
+        flushHeaders: jest.fn(),
+        write: jest.fn(),
+        end: jest.fn(),
+      };
 
-      expect(chatbotService.sendMessage).toHaveBeenCalledWith(1, dto);
+      await controller.sendMessage(mockAuthUser, dto, mockRes as any);
+
+      expect(chatbotService.streamMessage).toHaveBeenCalledWith(1, dto, expect.any(Object));
     });
   });
 

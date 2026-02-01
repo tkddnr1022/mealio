@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ChatbotService } from '../../chatbot.service';
 import { KafkaProducerService } from '../../../../infrastructure/kafka/producer.service';
+import { RedisService } from '../../../../infrastructure/cache/redis.service';
 import { ChatbotLogRepository } from '../../../../infrastructure/database/repositories/mongodb/chatbot-log.repository';
 import { KAFKA_TOPICS } from '../../../../shared/constants/kafka-topics';
 import type { SendMessageDto } from '../../dto/send-message.dto';
@@ -8,11 +9,19 @@ import type { SendMessageDto } from '../../dto/send-message.dto';
 describe('ChatbotService', () => {
   let service: ChatbotService;
   let kafkaProducer: jest.Mocked<KafkaProducerService>;
+  let redisService: jest.Mocked<RedisService>;
   let chatbotLogRepository: jest.Mocked<ChatbotLogRepository>;
 
   beforeEach(async () => {
     const mockKafkaProducer = {
       emit: jest.fn().mockResolvedValue(undefined),
+    };
+
+    const mockRedisService = {
+      subscribe: jest.fn().mockImplementation((_channel, onMessage) => {
+        onMessage(JSON.stringify({ type: 'done', data: { conversationId: 'conv_abc' } }));
+        return Promise.resolve(() => Promise.resolve());
+      }),
     };
 
     const mockChatbotLogRepository = {
@@ -27,6 +36,7 @@ describe('ChatbotService', () => {
       providers: [
         ChatbotService,
         { provide: KafkaProducerService, useValue: mockKafkaProducer },
+        { provide: RedisService, useValue: mockRedisService },
         {
           provide: ChatbotLogRepository,
           useValue: mockChatbotLogRepository,
@@ -36,6 +46,7 @@ describe('ChatbotService', () => {
 
     service = module.get<ChatbotService>(ChatbotService);
     kafkaProducer = module.get(KafkaProducerService) as jest.Mocked<KafkaProducerService>;
+    redisService = module.get(RedisService) as jest.Mocked<RedisService>;
     chatbotLogRepository = module.get(
       ChatbotLogRepository,
     ) as jest.Mocked<ChatbotLogRepository>;
@@ -86,6 +97,52 @@ describe('ChatbotService', () => {
         expect.any(String),
       );
       expect(result.conversationId).toBe('conv_existing123');
+    });
+  });
+
+  describe('streamMessage', () => {
+    it('Kafka에 streamChannelId를 포함해 발행하고 Redis 채널을 구독한다', async () => {
+      const userId = 1;
+      const dto: SendMessageDto = { message: '오늘 저녁 뭘 해먹을까요?' };
+      const write = jest.fn();
+      const end = jest.fn();
+      const error = jest.fn();
+
+      await service.streamMessage(userId, dto, { write, end, error });
+
+      expect(kafkaProducer.emit).toHaveBeenCalledWith(
+        KAFKA_TOPICS.CHATBOT_REQUESTS,
+        expect.objectContaining({
+          userId: 1,
+          message: dto.message,
+          streamChannelId: expect.stringMatching(/^stream_[a-z0-9]{16}$/),
+          conversationId: expect.stringMatching(/^conv_[a-z0-9]{16}$/),
+          timestamp: expect.any(String),
+        }),
+        'user_1',
+      );
+      expect(redisService.subscribe).toHaveBeenCalledWith(
+        expect.stringMatching(/^chatbot:stream:stream_[a-z0-9]{16}$/),
+        expect.any(Function),
+      );
+      expect(write).toHaveBeenCalled();
+      expect(end).toHaveBeenCalled();
+      expect(error).not.toHaveBeenCalled();
+    });
+
+    it('Redis에서 error 이벤트를 받으면 error 콜백을 호출한다', async () => {
+      redisService.subscribe.mockImplementation((_ch, onMessage) => {
+        onMessage(JSON.stringify({ type: 'error', data: { message: 'GPT 오류' } }));
+        return Promise.resolve(() => Promise.resolve());
+      });
+      const write = jest.fn();
+      const end = jest.fn();
+      const error = jest.fn();
+
+      await service.streamMessage(1, { message: 'hi' }, { write, end, error });
+
+      expect(error).toHaveBeenCalledWith(expect.any(Error));
+      expect(end).not.toHaveBeenCalled();
     });
   });
 

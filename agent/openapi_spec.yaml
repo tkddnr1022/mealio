@@ -730,8 +730,23 @@ paths:
     post:
       tags:
         - Chatbot
-      summary: 챗봇 대화
-      description: AI 챗봇과 대화하여 레시피 추천 받기
+      summary: 챗봇 대화 (SSE 스트리밍)
+      description: |
+        AI 챗봇과 대화하여 레시피 추천을 받습니다.
+        응답은 Server-Sent Events(SSE) 스트리밍으로 전달됩니다.
+
+        **동작 흐름**
+        1. 클라이언트가 POST로 메시지 전송
+        2. Producer가 Kafka에 챗봇 요청 이벤트 발행 (streamChannelId 포함)
+        3. Producer가 Redis 채널(chatbot:stream:{streamChannelId}) 구독
+        4. Consumer가 Kafka 메시지 처리 후 GPT 스트리밍 결과를 Redis에 발행
+        5. Producer가 Redis 수신 데이터를 SSE로 클라이언트에 전달
+        6. done/error 이벤트 수신 시 스트림 종료
+
+        **SSE 이벤트 형식** (Content-Type: text/event-stream)
+        - data: { "type": "chunk", "data": "텍스트 조각" }
+        - data: { "type": "done", "data": { "conversationId", "message?", "suggestedRecipes?" } }
+        - data: { "type": "error", "data": { "message": "오류 메시지" } }
       parameters:
         - name: accessToken
           in: cookie
@@ -760,11 +775,27 @@ paths:
               conversationId: "conv_abc123"
       responses:
         '200':
-          description: 대화 성공
-          content:
-            application/json:
+          description: SSE 스트림 (대화 응답이 스트리밍됨)
+          headers:
+            Content-Type:
               schema:
-                $ref: '#/components/schemas/ChatbotResponse'
+                type: string
+                example: "text/event-stream"
+            Cache-Control:
+              schema:
+                type: string
+                example: "no-cache"
+            Connection:
+              schema:
+                type: string
+                example: "keep-alive"
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: |
+                  각 줄은 "data: {JSON}\n\n" 형식.
+                  type=chunk(텍스트 조각), type=done(최종 결과), type=error(오류) 중 하나.
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':

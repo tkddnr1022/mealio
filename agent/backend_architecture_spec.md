@@ -60,11 +60,11 @@ modules/
 │   └── dto/             # 요청/응답 DTO
 └── chatbot/
     ├── controllers/
-    │   ├── POST /api/v1/chatbot/messages
+    │   ├── POST /api/v1/chatbot/messages   # SSE 스트리밍 (Kafka 발행 → Redis 구독 → 클라이언트로 스트림 전달)
     │   ├── GET /api/v1/chatbot/conversations           # 해당 유저의 대화 목록 (conversationId 목록, 커서)
     │   └── GET /api/v1/chatbot/conversations/:conversationId  # 추천 레시피는 ID 배열만, 상세는 POST /recipes/summaries 벌크 조회
     ├── services/        
-    │   └── ChatbotService   # Kafka로 요청 전달
+    │   └── ChatbotService   # Kafka로 요청 전달, SSE 시 Redis 구독(Consumer가 발행) 후 스트림 종료 처리
     └── dto/             # 메시지 DTO
 ```
 
@@ -95,7 +95,7 @@ infrastructure/
 │           ├── chatbot-log.repository.ts
 │           └── user-ingredient.repository.ts
 ├── cache/
-│   ├── redis.service.ts      # Redis 커넥션 관리
+│   ├── redis.service.ts      # Redis 커넥션 관리, Pub/Sub 구독용 별도 클라이언트(subscribe) 제공
 │   ├── cache.decorator.ts    # @Cacheable 데코레이터
 │   └── strategies/
 │       ├── RecipeCacheStrategy        # TTL: 1시간
@@ -488,6 +488,7 @@ export class RecipeRepository {
 shared/
 ├── constants/
 │   ├── kafka-topics.ts            # 토픽 이름 상수 (Producer/Consumer 공용)
+│   ├── redis-channels.ts          # Redis Pub/Sub 채널 (챗봇 SSE: chatbot:stream:{streamChannelId})
 │   ├── cache-keys.ts              # 캐시 키 패턴
 │   └── error-codes.ts             # 에러 코드 정의
 ├── types/
@@ -513,6 +514,14 @@ shared/
 ---
 
 ## 5. 아키텍처 설계 원칙
+
+### 5.0 챗봇 대화 API SSE 스트리밍 흐름
+1. **클라이언트 → Producer**: POST /api/v1/chatbot/messages (SSE 연결 유지)
+2. **Producer**: 요청별 `streamChannelId` 생성, Kafka(CHATBOT_REQUESTS)에 이벤트 발행 (streamChannelId 포함)
+3. **Producer**: Redis 채널 `chatbot:stream:{streamChannelId}` 구독
+4. **Consumer**: Kafka 메시지 수신 → GPT 스트리밍 호출 → 청크/최종 결과를 Redis 동일 채널에 발행
+5. **Producer**: Redis 수신 메시지를 SSE 형식(`data: {JSON}\n\n`)으로 클라이언트에 전송
+6. **종료**: Consumer가 `type: done` 또는 `type: error` 발행 시 Producer가 스트림 종료 및 구독 해제. 타임아웃(120s) 시에도 종료.
 
 ### 5.1 Producer 설계 원칙
 1. **Fast Response First**: 모든 API는 200ms 이내 응답 목표
