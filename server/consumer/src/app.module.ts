@@ -7,12 +7,15 @@ import {
   ChatbotLog,
   ChatbotLogSchema,
 } from '@cook/shared';
+import { envValidationOptions, envValidationSchema } from './config/env.validation';
 import { ChatbotRequestsConsumerModule } from './consumers/chatbot-requests/chatbot-requests.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      validationSchema: envValidationSchema,
+      validationOptions: envValidationOptions,
     }),
     // MongoDB (ChatbotLog) 연결
     MongooseModule.forRootAsync({

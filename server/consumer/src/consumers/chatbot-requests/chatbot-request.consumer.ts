@@ -18,6 +18,7 @@ import { SaveChatLogHandler } from './handlers/save-chat-log.handler';
 import { UpdateContextHandler } from './handlers/update-context.handler';
 import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from '../../reliability/dead-letter/dlq.handler';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
@@ -33,13 +34,14 @@ export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
     private readonly updateContextHandler: UpdateContextHandler,
     private readonly retryStrategy: RetryStrategy,
     private readonly deadLetterHandler: DeadLetterHandler,
+    private readonly configService: ConfigService,
   ) {}
 
   async onModuleInit(): Promise<void> {
     const kafkaConfig = createKafkaConfig('consumer');
     this.kafka = new Kafka(kafkaConfig);
     this.consumer = this.kafka.consumer({
-      groupId: process.env.KAFKA_CONSUMER_GROUP_ID!,
+      groupId: this.configService.getOrThrow<string>('KAFKA_CONSUMER_GROUP_ID'),
     });
 
     try {

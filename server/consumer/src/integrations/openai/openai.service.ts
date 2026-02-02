@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 
 interface GenerateChatbotResponseParams {
@@ -24,13 +25,10 @@ export class OpenAIService {
   private readonly client: OpenAI;
   private readonly model: string;
 
-  constructor() {
-    // TODO: 환경변수 검증 스크립트 추가(producer 구조 참고)
-    //? 프로퍼티를 직접 할당하지 않고 constructor에서 할당하는 이유?
-    this.client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY!,
-    });
-    this.model = process.env.OPENAI_CHAT_MODEL!;
+  constructor(private readonly configService: ConfigService) {
+    const apiKey = this.configService.getOrThrow<string>('OPENAI_API_KEY');
+    this.client = new OpenAI({ apiKey });
+    this.model = this.configService.get<string>('OPENAI_CHAT_MODEL') ?? 'gpt-4.1-mini';
   }
 
   async generateChatbotResponse(
