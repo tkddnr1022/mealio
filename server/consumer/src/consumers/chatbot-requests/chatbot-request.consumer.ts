@@ -8,11 +8,20 @@ import { Kafka, Consumer, EachMessagePayload } from 'kafkajs';
 import {
   ChatbotRequestEvent,
   KAFKA_TOPICS,
+  KAFKA_DLQ_TOPICS,
   createKafkaConfig,
   getChatbotStreamChannel,
   RedisService,
   type ChatbotStreamEvent,
 } from '@cook/shared';
+
+/** OpenAI insufficient_quota 등 재시도해도 해결되지 않는 오류는 재시도하지 않음 */
+function isRetryableOpenAIError(error: unknown): boolean {
+  const code =
+    (error as { code?: string; error?: { code?: string } })?.code ??
+    (error as { error?: { code?: string } })?.error?.code;
+  return code !== 'insufficient_quota';
+}
 import { ProcessChatHandler } from './handlers/process-chat.handler';
 import { SaveChatLogHandler } from './handlers/save-chat-log.handler';
 import { UpdateContextHandler } from './handlers/update-context.handler';
@@ -84,7 +93,8 @@ export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  private async handleMessage({ message }: EachMessagePayload): Promise<void> {
+  private async handleMessage(payload: EachMessagePayload): Promise<void> {
+    const { message, partition } = payload;
     if (!message.value) {
       this.logger.warn('Received message without value, skipping');
       return;
@@ -95,6 +105,29 @@ export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
       event = JSON.parse(message.value.toString()) as ChatbotRequestEvent;
     } catch (error) {
       this.logger.error('Failed to parse ChatbotRequestEvent', error as Error);
+      return;
+    }
+
+    if (
+      typeof event?.userId !== 'number' ||
+      typeof event?.message !== 'string'
+    ) {
+      this.logger.warn(
+        'Invalid ChatbotRequestEvent shape (missing userId/message); sending to DLQ and committing',
+      );
+      try {
+        await this.deadLetterHandler.send({
+          topic: KAFKA_DLQ_TOPICS.CHATBOT_REQUESTS_DLQ,
+          partition,
+          offset: message.offset,
+          key: message.key?.toString() ?? null,
+          value: message.value.toString(),
+          reason: 'invalid payload (not ChatbotRequestEvent)',
+          timestamp: new Date().toISOString(),
+        });
+      } catch (e) {
+        this.logger.warn('DLQ send failed for invalid payload', e as Error);
+      }
       return;
     }
 
@@ -121,6 +154,7 @@ export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
         async () => this.processChatHandler.execute(event),
         {
           operationName: 'chatbot-request#process',
+          isRetryable: isRetryableOpenAIError,
         },
       );
 
@@ -134,13 +168,13 @@ export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
           processed.suggestedRecipes,
         );
       }
+
     } catch (error) {
       this.logger.error('Error while handling chatbot request', error as Error);
 
-      // DLQ로 전송
       await this.deadLetterHandler.send({
-        topic: KAFKA_TOPICS.CHATBOT_REQUESTS,
-        partition: undefined,
+        topic: KAFKA_DLQ_TOPICS.CHATBOT_REQUESTS_DLQ,
+        partition,
         offset: message.offset,
         key: message.key?.toString() ?? null,
         value: message.value.toString(),

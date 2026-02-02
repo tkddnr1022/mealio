@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 
@@ -21,7 +21,6 @@ export interface GenerateChatbotResponseResult {
  */
 @Injectable()
 export class OpenAIService {
-  private readonly logger = new Logger(OpenAIService.name);
   private readonly client: OpenAI;
   private readonly model: string;
 
@@ -36,7 +35,6 @@ export class OpenAIService {
   ): Promise<GenerateChatbotResponseResult> {
     const { userId, message, conversationId } = params;
 
-    try {
       const completion = await this.client.chat.completions.create({
         model: this.model,
         messages: [
@@ -68,12 +66,5 @@ export class OpenAIService {
         // Phase 2 범위에서는 추천 레시피 ID/스코어 파싱은 생략하고, 추후 JSON 응답 파서로 확장
         suggestedRecipes: null,
       };
-    } catch (error) {
-      this.logger.error(
-        `OpenAI generateChatbotResponse failed (userId=${userId}, conversationId=${conversationId})`,
-        error as Error,
-      );
-      throw error;
-    }
   }
 }

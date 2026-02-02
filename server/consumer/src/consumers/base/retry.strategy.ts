@@ -3,6 +3,8 @@ import { BackoffOptions, withExponentialBackoff } from 'src/reliability/retry/ex
 
 export interface RetryContext extends Partial<BackoffOptions> {
   operationName?: string;
+  /** 재시도하지 않을 오류 판별. false이면 즉시 throw. */
+  isRetryable?: (error: unknown) => boolean;
 }
 
 /**
@@ -26,6 +28,7 @@ export class RetryStrategy {
           }`,
         );
       },
+      isRetryable: context.isRetryable,
     };
 
     return withExponentialBackoff(fn, options);
