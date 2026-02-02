@@ -6,6 +6,7 @@ import { ChatbotRequestConsumer } from './chatbot-request.consumer';
 import { ProcessChatHandler } from './handlers/process-chat.handler';
 import { SaveChatLogHandler } from './handlers/save-chat-log.handler';
 import { UpdateContextHandler } from './handlers/update-context.handler';
+import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from '../../reliability/dead-letter/dlq.handler';
 
 @Module({
@@ -19,6 +20,7 @@ import { DeadLetterHandler } from '../../reliability/dead-letter/dlq.handler';
     ProcessChatHandler,
     SaveChatLogHandler,
     UpdateContextHandler,
+    RetryStrategy,
     DeadLetterHandler,
   ],
 })
