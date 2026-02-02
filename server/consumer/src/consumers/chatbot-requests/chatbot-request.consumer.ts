@@ -13,9 +13,11 @@ import {
   RedisService,
   type ChatbotStreamEvent,
 } from '@cook/shared';
-import { ProcessChatHandler } from './handlers/process-chat.handler.js';
-import { SaveChatLogHandler } from './handlers/save-chat-log.handler.js';
-import { UpdateContextHandler } from './handlers/update-context.handler.js';
+import { ProcessChatHandler } from './handlers/process-chat.handler';
+import { SaveChatLogHandler } from './handlers/save-chat-log.handler';
+import { UpdateContextHandler } from './handlers/update-context.handler';
+import { RetryStrategy } from '../base/retry.strategy';
+import { DeadLetterHandler } from '../../reliability/dead-letter/dlq.handler';
 
 @Injectable()
 export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
@@ -29,6 +31,8 @@ export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
     private readonly processChatHandler: ProcessChatHandler,
     private readonly saveChatLogHandler: SaveChatLogHandler,
     private readonly updateContextHandler: UpdateContextHandler,
+    private readonly retryStrategy: RetryStrategy,
+    private readonly deadLetterHandler: DeadLetterHandler,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -40,6 +44,7 @@ export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
 
     try {
       await this.consumer.connect();
+      await this.deadLetterHandler.connect();
       await this.consumer.subscribe({
         topic: KAFKA_TOPICS.CHATBOT_REQUESTS,
         fromBeginning: false,
@@ -67,6 +72,7 @@ export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
 
     try {
       await this.consumer.disconnect();
+      await this.deadLetterHandler.disconnect();
       this.logger.log('ChatbotRequestConsumer disconnected');
     } catch (error) {
       this.logger.error(
@@ -90,18 +96,61 @@ export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
+    // 멱등성 보장: 동일한 이벤트가 중복 전달되면 처리하지 않음
+    const idempotencyKey = `chatbot:req:${event.userId}:${event.timestamp}`;
+    const redisClient = this.redisService.getClient();
+    // ioredis set with NX / EX 옵션 (타입 단언 사용)
+    const setResult = (await (redisClient as any).set(
+      idempotencyKey,
+      '1',
+      'NX',
+      'EX',
+      60 * 60, // 1시간 동안 중복 방지
+    )) as string | null;
+    if (setResult === null) {
+      this.logger.warn(
+        `Duplicate chatbot request detected. Skipping. key=${idempotencyKey}`,
+      );
+      return;
+    }
+
     try {
-      const processed = await this.processChatHandler.execute(event);
+      const processed = await this.retryStrategy.execute(
+        async () => this.processChatHandler.execute(event),
+        {
+          operationName: 'chatbot-request#process',
+        },
+      );
+
       await this.saveChatLogHandler.execute(event, processed);
       await this.updateContextHandler.execute(event, processed);
 
       if (event.streamChannelId) {
-        await this.publishStreamEvents(event, processed.reply, processed.suggestedRecipes);
+        await this.publishStreamEvents(
+          event,
+          processed.reply,
+          processed.suggestedRecipes,
+        );
       }
     } catch (error) {
       this.logger.error('Error while handling chatbot request', error as Error);
+
+      // DLQ로 전송
+      await this.deadLetterHandler.send({
+        topic: KAFKA_TOPICS.CHATBOT_REQUESTS,
+        partition: undefined,
+        offset: message.offset,
+        key: message.key?.toString() ?? null,
+        value: message.value.toString(),
+        reason: (error as Error).message,
+        timestamp: new Date().toISOString(),
+      });
+
       if (event.streamChannelId) {
-        await this.publishStreamError(event.streamChannelId, '챗봇 응답 처리 중 오류가 발생했습니다.');
+        await this.publishStreamError(
+          event.streamChannelId,
+          '챗봇 응답 처리 중 오류가 발생했습니다.',
+        );
       }
     }
   }
@@ -114,11 +163,16 @@ export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
     const channel = getChatbotStreamChannel(event.streamChannelId!);
     const client = this.redisService.getClient();
 
-    // 1페이즈에서는 단일 청크 + done 조합으로 구현
-    const chunkPayload: ChatbotStreamEvent = {
-      type: 'chunk',
-      data: reply,
-    };
+    // 단일 응답을 여러 chunk로 나누어 스트리밍
+    const chunks = this.splitReplyIntoChunks(reply);
+    for (const chunk of chunks) {
+      const chunkPayload: ChatbotStreamEvent = {
+        type: 'chunk',
+        data: chunk,
+      };
+      await client.publish(channel, JSON.stringify(chunkPayload));
+    }
+
     const donePayload: ChatbotStreamEvent = {
       type: 'done',
       data: {
@@ -128,8 +182,40 @@ export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
       },
     };
 
-    await client.publish(channel, JSON.stringify(chunkPayload));
     await client.publish(channel, JSON.stringify(donePayload));
+  }
+
+  /**
+   * 응답 문자열을 여러 chunk로 나누어 SSE 스트리밍에 사용한다.
+   * - 너무 작은 chunk를 방지하기 위해 최소 길이를 유지한다.
+   */
+  private splitReplyIntoChunks(reply: string, minChunkSize = 80): string[] {
+    if (reply.length <= minChunkSize) {
+      return [reply];
+    }
+
+    const sentences = reply.split(/(?<=[.!?？！。])\s+/);
+    const chunks: string[] = [];
+    let buffer = '';
+
+    for (const sentence of sentences) {
+      if ((buffer + ' ' + sentence).trim().length >= minChunkSize) {
+        if (buffer) {
+          chunks.push(buffer.trim());
+          buffer = sentence;
+        } else {
+          chunks.push(sentence);
+        }
+      } else {
+        buffer = `${buffer} ${sentence}`.trim();
+      }
+    }
+
+    if (buffer) {
+      chunks.push(buffer.trim());
+    }
+
+    return chunks;
   }
 
   private async publishStreamError(

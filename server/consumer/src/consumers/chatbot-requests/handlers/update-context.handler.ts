@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { ChatbotRequestEvent } from '@cook/shared';
-import type { ProcessChatResult } from './process-chat.handler.js';
+import type { ProcessChatResult } from './process-chat.handler';
 
 /**
  * 대화 컨텍스트 갱신용 핸들러

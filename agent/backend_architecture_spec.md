@@ -146,9 +146,8 @@ optimization/
 ```
 consumers/
 ├── base/
-│   ├── base.consumer.ts           # 공통 컨슈머 로직
-│   ├── retry.strategy.ts          # 재시도 전략 (지수 백오프)
-│   └── dead-letter.handler.ts     # DLQ 처리
+│   ├── base.consumer.ts           # 공통 컨슈머 로직 (재시도·DLQ 래핑)
+│   ├── retry.strategy.ts          # 재시도 전략 (지수 백오프) - reliability/retry 모듈 사용
 ├── recipe-generation/
 │   ├── recipe-generation.consumer.ts
 │   ├── handlers/

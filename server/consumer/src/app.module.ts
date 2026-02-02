@@ -7,7 +7,7 @@ import {
   ChatbotLog,
   ChatbotLogSchema,
 } from '@cook/shared';
-import { ChatbotRequestsConsumerModule } from './consumers/chatbot-requests/chatbot-requests.module.js';
+import { ChatbotRequestsConsumerModule } from './consumers/chatbot-requests/chatbot-requests.module';
 
 @Module({
   imports: [

@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ChatbotLog, ChatbotLogSchema } from '@cook/shared';
-import { OpenAIService } from '../../integrations/openai/openai.service.js';
-import { ChatbotRequestConsumer } from './chatbot-request.consumer.js';
-import { ProcessChatHandler } from './handlers/process-chat.handler.js';
-import { SaveChatLogHandler } from './handlers/save-chat-log.handler.js';
-import { UpdateContextHandler } from './handlers/update-context.handler.js';
+import { OpenAIService } from '../../integrations/openai/openai.service';
+import { ChatbotRequestConsumer } from './chatbot-request.consumer';
+import { ProcessChatHandler } from './handlers/process-chat.handler';
+import { SaveChatLogHandler } from './handlers/save-chat-log.handler';
+import { UpdateContextHandler } from './handlers/update-context.handler';
+import { DeadLetterHandler } from '../../reliability/dead-letter/dlq.handler';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { UpdateContextHandler } from './handlers/update-context.handler.js';
     ProcessChatHandler,
     SaveChatLogHandler,
     UpdateContextHandler,
+    DeadLetterHandler,
   ],
 })
 export class ChatbotRequestsConsumerModule {}

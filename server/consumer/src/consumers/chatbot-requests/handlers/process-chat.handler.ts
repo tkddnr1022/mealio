@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { ChatbotRequestEvent } from '@cook/shared';
-import { OpenAIService, type GenerateChatbotResponseResult } from '../../../integrations/openai/openai.service.js';
+import { GenerateChatbotResponseResult, OpenAIService } from 'src/integrations/openai/openai.service';
 
 export type ProcessChatResult = GenerateChatbotResponseResult;
 
