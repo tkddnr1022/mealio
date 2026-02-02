@@ -6,9 +6,9 @@
   "packageManager": "pnpm@9.15.0",
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "build:server": "npm run build -w server/shared && npm run build -w server/producer",
-    "install:all": "npm install",
+    "build:server": "npm run build -w server/shared && npm run build -w server/producer && npm run build -w server/consumer",
     "start:producer": "npm run start:dev -w server/producer",
+    "start:consumer": "npm run start:dev -w server/consumer",
     "format": "prettier --write ."
   },
   "devDependencies": {
@@ -17,7 +17,8 @@
   "workspaces": [
     "client",
     "server/shared",
-    "server/producer"
+    "server/producer",
+    "server/consumer"
   ],
   "engines": {
     "node": ">=20"
