@@ -8,7 +8,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 export const mongooseConfig: MongooseModuleOptions = {
-  uri: process.env.MONGODB_URL,
+  uri: process.env.MONGODB_URL!,
   maxPoolSize: 100,
   minPoolSize: 10,
   serverSelectionTimeoutMS: 5000,

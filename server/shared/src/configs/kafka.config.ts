@@ -8,11 +8,11 @@ import { KafkaConfig, logLevel } from 'kafkajs';
  * @returns KafkaConfig 객체
  */
 export function createKafkaConfig(clientIdSuffix?: string): KafkaConfig {
-  const baseClientId = process.env.KAFKA_CLIENT_ID || 'cook-producer';
+  const baseClientId = process.env.KAFKA_CLIENT_ID!;
   const clientId = clientIdSuffix
     ? `${baseClientId}-${clientIdSuffix}`
     : baseClientId;
-  const brokersEnv = process.env.KAFKA_BROKERS || 'localhost:9092';
+  const brokersEnv = process.env.KAFKA_BROKERS!;
   const brokers = brokersEnv
     .split(',')
     .map((b) => b.trim())

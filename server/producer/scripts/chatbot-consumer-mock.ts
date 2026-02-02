@@ -28,17 +28,17 @@ interface ChatbotRequestEvent {
 }
 
 function getRedisClient(): Redis {
-  const url = process.env.REDIS_URL || 'redis://localhost:6379';
+  const url = process.env.REDIS_URL!;
   return new Redis(url, { maxRetriesPerRequest: null });
 }
 
 function getKafkaConsumer() {
-  const brokers = (process.env.KAFKA_BROKERS || 'localhost:9092')
+  const brokers = process.env.KAFKA_BROKERS!
     .split(',')
     .map((b) => b.trim())
     .filter(Boolean);
   const kafka = new Kafka({
-    clientId: process.env.KAFKA_CLIENT_ID || 'cook-consumer-mock',
+    clientId: process.env.KAFKA_CLIENT_ID!,
     brokers,
   });
   return kafka.consumer({ groupId: 'chatbot-consumer-mock' });

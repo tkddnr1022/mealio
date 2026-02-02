@@ -39,7 +39,7 @@ export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
     const kafkaConfig = createKafkaConfig('consumer');
     this.kafka = new Kafka(kafkaConfig);
     this.consumer = this.kafka.consumer({
-      groupId: process.env.KAFKA_CONSUMER_GROUP_ID || 'cook-chatbot-consumers',
+      groupId: process.env.KAFKA_CONSUMER_GROUP_ID!,
     });
 
     try {

@@ -224,10 +224,7 @@ const SEED_CHATBOT_LOGS = [
 ];
 
 async function main() {
-  const uri = process.env.MONGODB_URL;
-  if (!uri) {
-    throw new Error('MONGODB_URL 환경 변수가 필요합니다.');
-  }
+  const uri = process.env.MONGODB_URL!;
   await mongoose.connect(uri);
   console.log('🌱 user_ingredients 시드 데이터 삽입 시작...');
 

@@ -12,7 +12,7 @@ export class PrismaService
 {
   constructor() {
     const adapter = new PrismaPg({
-      connectionString: process.env.POSTGRESQL_URL,
+      connectionString: process.env.POSTGRESQL_URL!,
     });
     super({ adapter });
   }
