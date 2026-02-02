@@ -1,7 +1,7 @@
 import type { EachMessagePayload } from 'kafkajs';
 import { Logger } from '@nestjs/common';
 import type { RetryStrategy, RetryContext } from 'src/consumers/base/retry.strategy';
-import type { DeadLetterHandler } from 'src/consumers/base/dead-letter.handler';
+import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
 
 /**
  * Kafka Consumer 공통 로직 베이스 클래스
