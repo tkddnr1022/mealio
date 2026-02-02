@@ -53,8 +53,8 @@ export class OpenAIService {
           content: message,
         },
       ],
-      temperature: 0.7,
-    } as any);
+      temperature: 1, // gpt-5-mini 에서는 1.0만 사용 가능
+    });
 
     const content = completion.choices?.[0]?.message?.content;
     const reply =

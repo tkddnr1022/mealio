@@ -51,6 +51,8 @@ export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
     this.kafka = new Kafka(kafkaConfig);
     this.consumer = this.kafka.consumer({
       groupId: this.configService.getOrThrow<string>('KAFKA_CONSUMER_GROUP_ID'),
+      sessionTimeout: 60_000,
+      heartbeatInterval: 10_000,
     });
 
     try {
