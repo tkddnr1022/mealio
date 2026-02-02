@@ -12,7 +12,9 @@ import { DeadLetterHandler } from '../../reliability/dead-letter/dlq.handler';
 @Module({
   imports: [
     // ChatbotLog 전용 스키마 등록 (AppModule 전역 등록과 중복되더라도 문제 없음)
-    MongooseModule.forFeature([{ name: ChatbotLog.name, schema: ChatbotLogSchema }]),
+    MongooseModule.forFeature([
+      { name: ChatbotLog.name, schema: ChatbotLogSchema },
+    ]),
   ],
   providers: [
     OpenAIService,
@@ -25,4 +27,3 @@ import { DeadLetterHandler } from '../../reliability/dead-letter/dlq.handler';
   ],
 })
 export class ChatbotRequestsConsumerModule {}
-

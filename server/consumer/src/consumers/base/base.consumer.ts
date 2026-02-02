@@ -1,6 +1,9 @@
 import type { EachMessagePayload } from 'kafkajs';
 import { Logger } from '@nestjs/common';
-import type { RetryStrategy, RetryContext } from 'src/consumers/base/retry.strategy';
+import type {
+  RetryStrategy,
+  RetryContext,
+} from 'src/consumers/base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
 
 /**
@@ -78,4 +81,3 @@ export abstract class BaseConsumer<TEvent> {
     }
   }
 }
-

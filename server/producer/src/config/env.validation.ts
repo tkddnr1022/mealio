@@ -12,12 +12,9 @@ export const envValidationSchema = Joi.object({
       'any.required': 'NODE_ENV is required',
     }),
 
-  PORT: Joi.string()
-    .pattern(/^\d+$/)
-    .required()
-    .messages({
-      'any.required': 'PORT is required',
-    }),
+  PORT: Joi.string().pattern(/^\d+$/).required().messages({
+    'any.required': 'PORT is required',
+  }),
 
   JWT_SECRET: Joi.string().min(1).required().messages({
     'string.empty': 'JWT_SECRET must not be empty',

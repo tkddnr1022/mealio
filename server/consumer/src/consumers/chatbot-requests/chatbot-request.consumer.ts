@@ -72,7 +72,10 @@ export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
         `ChatbotRequestConsumer is running (topic=${KAFKA_TOPICS.CHATBOT_REQUESTS})`,
       );
     } catch (error) {
-      this.logger.error('Failed to start ChatbotRequestConsumer', error as Error);
+      this.logger.error(
+        'Failed to start ChatbotRequestConsumer',
+        error as Error,
+      );
     }
   }
 
@@ -168,7 +171,6 @@ export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
           processed.suggestedRecipes,
         );
       }
-
     } catch (error) {
       this.logger.error('Error while handling chatbot request', error as Error);
 
@@ -194,7 +196,11 @@ export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
   private async publishStreamEvents(
     event: ChatbotRequestEvent,
     reply: string,
-    suggestedRecipes: Array<{ id: number; title: string; matchScore: number }> | null,
+    suggestedRecipes: Array<{
+      id: number;
+      title: string;
+      matchScore: number;
+    }> | null,
   ): Promise<void> {
     const channel = getChatbotStreamChannel(event.streamChannelId!);
     const client = this.redisService.getClient();
@@ -267,4 +273,3 @@ export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
     await client.publish(channel, JSON.stringify(errorPayload));
   }
 }
-

@@ -24,12 +24,10 @@ describe('IngredientsController', () => {
 
   beforeEach(async () => {
     const mockService = {
-      getList: jest
-        .fn()
-        .mockResolvedValue({
-          data: [mockIngredient],
-          pagination: mockPagination,
-        }),
+      getList: jest.fn().mockResolvedValue({
+        data: [mockIngredient],
+        pagination: mockPagination,
+      }),
       search: jest.fn().mockResolvedValue({ data: [mockIngredient] }),
     };
 

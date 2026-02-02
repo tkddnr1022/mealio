@@ -18,4 +18,3 @@ export class UpdateContextHandler {
     // No-Op (향후 구현)
   }
 }
-

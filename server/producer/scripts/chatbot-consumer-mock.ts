@@ -33,8 +33,8 @@ function getRedisClient(): Redis {
 }
 
 function getKafkaConsumer() {
-  const brokers = process.env.KAFKA_BROKERS!
-    .split(',')
+  const brokers = process.env
+    .KAFKA_BROKERS!.split(',')
     .map((b) => b.trim())
     .filter(Boolean);
   const kafka = new Kafka({

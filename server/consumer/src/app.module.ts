@@ -7,7 +7,10 @@ import {
   ChatbotLog,
   ChatbotLogSchema,
 } from '@cook/shared';
-import { envValidationOptions, envValidationSchema } from './config/env.validation';
+import {
+  envValidationOptions,
+  envValidationSchema,
+} from './config/env.validation';
 import { ChatbotRequestsConsumerModule } from './consumers/chatbot-requests/chatbot-requests.module';
 
 @Module({
@@ -21,7 +24,9 @@ import { ChatbotRequestsConsumerModule } from './consumers/chatbot-requests/chat
     MongooseModule.forRootAsync({
       useFactory: () => mongooseConfig,
     }),
-    MongooseModule.forFeature([{ name: ChatbotLog.name, schema: ChatbotLogSchema }]),
+    MongooseModule.forFeature([
+      { name: ChatbotLog.name, schema: ChatbotLogSchema },
+    ]),
     // Redis (SSE 스트림 채널 발행용)
     RedisModule,
     // Kafka chatbot-requests consumer 모듈
@@ -29,4 +34,3 @@ import { ChatbotRequestsConsumerModule } from './consumers/chatbot-requests/chat
   ],
 })
 export class AppModule {}
-

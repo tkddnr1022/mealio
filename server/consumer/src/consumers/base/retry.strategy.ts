@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { BackoffOptions, withExponentialBackoff } from 'src/reliability/retry/exponential-backoff';
+import {
+  BackoffOptions,
+  withExponentialBackoff,
+} from 'src/reliability/retry/exponential-backoff';
 
 export interface RetryContext extends Partial<BackoffOptions> {
   operationName?: string;
@@ -34,4 +37,3 @@ export class RetryStrategy {
     return withExponentialBackoff(fn, options);
   }
 }
-

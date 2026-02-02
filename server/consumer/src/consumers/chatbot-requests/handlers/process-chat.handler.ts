@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import type { ChatbotRequestEvent } from '@cook/shared';
-import { GenerateChatbotResponseResult, OpenAIService } from 'src/integrations/openai/openai.service';
+import {
+  GenerateChatbotResponseResult,
+  OpenAIService,
+} from 'src/integrations/openai/openai.service';
 
 export type ProcessChatResult = GenerateChatbotResponseResult;
 
@@ -18,4 +21,3 @@ export class ProcessChatHandler {
     });
   }
 }
-
