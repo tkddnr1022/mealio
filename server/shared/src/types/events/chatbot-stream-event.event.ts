@@ -26,3 +26,4 @@ export type ChatbotStreamEvent =
   | ChatbotStreamChunkEvent
   | ChatbotStreamDoneEvent
   | ChatbotStreamErrorEvent;
+

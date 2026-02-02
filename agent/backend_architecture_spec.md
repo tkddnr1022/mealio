@@ -509,7 +509,7 @@ server/shared/
 │   │   ├── redis.service.ts      # RedisService (NestJS)
 │   │   └── redis.module.ts      # RedisModule
 │   └── types/
-│       └── events/                # ChatbotRequestEvent, UserEvent, UserIngredientEvent 등
+│       └── events/                # ChatbotRequestEvent, ChatbotStreamEvent, UserEvent, UserIngredientEvent 등
 └── dist/                          # 빌드 결과 (main, types)
 ```
 
@@ -540,8 +540,8 @@ shared/ (추가 예정)
 1. **클라이언트 → Producer**: POST /api/v1/chatbot/messages (SSE 연결 유지)
 2. **Producer**: 요청별 `streamChannelId` 생성, Kafka(CHATBOT_REQUESTS)에 이벤트 발행 (streamChannelId 포함)
 3. **Producer**: Redis 채널 `chatbot:stream:{streamChannelId}` 구독
-4. **Consumer**: Kafka 메시지 수신 → GPT 스트리밍 호출 → 청크/최종 결과를 Redis 동일 채널에 발행
-5. **Producer**: Redis 수신 메시지를 SSE 형식(`data: {JSON}\n\n`)으로 클라이언트에 전송
+4. **Consumer**: Kafka 메시지 수신 → GPT 스트리밍 호출 → **`ChatbotStreamEvent` 타입**(`chunk`/`done`/`error`)으로 청크/최종 결과를 Redis 동일 채널에 발행
+5. **Producer**: Redis 수신 메시지(`ChatbotStreamEvent`)를 SSE 형식(`data: {JSON}\n\n`)으로 클라이언트에 전송
 6. **종료**: Consumer가 `type: done` 또는 `type: error` 발행 시 Producer가 스트림 종료 및 구독 해제. 타임아웃(120s) 시에도 종료.
 
 ### 5.1 Producer 설계 원칙

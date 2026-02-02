@@ -6,13 +6,13 @@ import {
   KAFKA_TOPICS,
   getChatbotStreamChannel,
   type ChatbotRequestEvent,
+  type ChatbotStreamEvent,
 } from '@cook/shared';
 import type { SendMessageDto } from './dto/send-message.dto';
 import type { ChatbotResponseDto } from './dto/chatbot-response.dto';
 import { ChatbotLogRepository } from '../../infrastructure/database/repositories/mongodb/chatbot-log.repository';
 import type { ConversationHistoryDto } from './dto/conversation-history.dto';
 import type { ConversationListDto } from './dto/conversation-list.dto';
-import type { ChatbotStreamEvent } from './types/stream-event.types';
 
 /** SSE 스트림 대기 최대 시간 (ms). 이 시간 내에 done/error가 오지 않으면 연결 종료 */
 const STREAM_TIMEOUT_MS = 120_000;
