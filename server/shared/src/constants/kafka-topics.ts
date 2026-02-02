@@ -7,3 +7,10 @@ export const KAFKA_TOPICS = {
 } as const;
 
 export type KafkaTopic = (typeof KAFKA_TOPICS)[keyof typeof KAFKA_TOPICS];
+
+export const KAFKA_DLQ_TOPICS = {
+  CHATBOT_REQUESTS_DLQ: 'chatbot-requests-dlq',
+} as const;
+
+export type KafkaDlqTopic =
+  (typeof KAFKA_DLQ_TOPICS)[keyof typeof KAFKA_DLQ_TOPICS];

@@ -4,27 +4,29 @@
  */
 
 // Configs
-export { createRedisConfig } from './configs/redis.config.js';
-export {
-  createKafkaConfig,
-  LOCAL_TOPIC_CONFIG,
-} from './configs/kafka.config.js';
-export { mongooseConfig } from './configs/mongoose.config.js';
+export { createRedisConfig } from './configs/redis.config';
+export { createKafkaConfig, LOCAL_TOPIC_CONFIG } from './configs/kafka.config';
+export { mongooseConfig } from './configs/mongoose.config';
 
 // Constants
-export { KAFKA_TOPICS, type KafkaTopic } from './constants/kafka-topics.js';
+export {
+  KAFKA_TOPICS,
+  type KafkaTopic,
+  KAFKA_DLQ_TOPICS,
+  type KafkaDlqTopic,
+} from './constants/kafka-topics';
 export {
   CHATBOT_STREAM_CHANNEL_PREFIX,
   getChatbotStreamChannel,
-} from './constants/redis-channels.js';
+} from './constants/redis-channels';
 
 // Redis
-export { RedisModule } from './redis/redis.module.js';
-export { RedisService } from './redis/redis.service.js';
+export { RedisModule } from './redis/redis.module';
+export { RedisService } from './redis/redis.service';
 
 // Prisma
-export { PrismaModule } from './database/prisma/prisma.module.js';
-export { PrismaService } from './database/prisma/prisma.service.js';
+export { PrismaModule } from './database/prisma/prisma.module';
+export { PrismaService } from './database/prisma/prisma.service';
 
 // Mongoose schemas
 export {
@@ -34,12 +36,12 @@ export {
   EventLogSchema,
   UserIngredient,
   UserIngredientSchema,
-} from './database/mongoose/schemas/index.js';
+} from './database/mongoose/schemas';
 export type {
   ChatbotLogDocument,
   EventLogDocument,
   UserIngredientDocument,
-} from './database/mongoose/schemas/index.js';
+} from './database/mongoose/schemas';
 
 // Types / Events
-export * from './types/events/index.js';
+export * from './types/events';
