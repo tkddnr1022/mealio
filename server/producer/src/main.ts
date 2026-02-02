@@ -10,7 +10,7 @@ async function bootstrap() {
   app.use(cookieParser());
 
   const config = app.get(ConfigService);
-  const port = parseInt(config.get<string>('PORT') ?? '3000', 10);
+  const port = parseInt(config.getOrThrow<string>('PORT'), 10);
 
   const swaggerConfig = createSwaggerConfig();
   const document = SwaggerModule.createDocument(app, swaggerConfig);

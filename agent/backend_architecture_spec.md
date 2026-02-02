@@ -531,6 +531,46 @@ shared/ (추가 예정)
 - **빌드·실행 순서**: 루트에서 `pnpm install` → `pnpm run build:server`(shared 빌드 후 producer 빌드) → `pnpm run start:producer`.
 - **CI**: GitHub Actions에서 pnpm 사용(`pnpm/action-setup`, `pnpm install --frozen-lockfile`, `pnpm --filter @cook/shared build`, `pnpm --filter @cook/producer build`). 상세 원인 분석은 저장소 `docs/monorepo-package-manager.md` 참고.
 
+### 4.6 환경 변수 관리
+
+#### 원칙
+- **모든 환경 변수는 필수로 간주**하며, **env validation**이 그 책임을 진다. 검증 스키마에서 누락·형식 오류 시 앱 구동을 중단한다.
+- **코드에서는 환경 변수에 대해 `??` 또는 `||` 연산자를 사용하지 않는다.** 값이 없으면 검증 단계에서 이미 실패하므로, 조회 시에는 **`ConfigService.getOrThrow()`** 또는 **`process.env.VAR_NAME!`** 로 단언하여 사용한다.
+
+#### 관리 방식
+- **Producer·Consumer** 모두 **NestJS ConfigModule** + **Joi** 로 앱 기동 시 환경 변수를 검증한다.
+- 검증 스키마는 각 앱의 `config/env.validation.ts` 에 정의하며, `ConfigModule.forRoot({ validationSchema, validationOptions })` 로 적용한다.
+- 검증 실패 시 앱 구동을 중단하고 오류 메시지를 출력한다.
+- 서비스 코드에서는 **`ConfigService.getOrThrow()`** 로 값을 조회하거나, shared 설정 등에서 **`process.env.VAR!`** 로 단언한다. **`get('VAR') ?? default` / `process.env.VAR \|\| default` 는 사용하지 않는다.**
+- 각 패키지 루트의 `.env.example` 에 필요한 변수 목록과 예시 값을 둔다.
+
+#### Producer 필요 환경 변수 (모두 필수)
+| 변수 | 설명 |
+|------|------|
+| NODE_ENV | development / production / test |
+| PORT | HTTP 서버 포트 |
+| JWT_SECRET | JWT 서명용 시크릿 |
+| MONGODB_URL | MongoDB 연결 URI |
+| POSTGRESQL_URL | PostgreSQL 연결 URI |
+| REDIS_URL | Redis 연결 URI |
+| KAFKA_BROKERS | Kafka 브로커 목록 |
+| KAFKA_CLIENT_ID | Kafka 클라이언트 ID |
+
+#### Consumer 필요 환경 변수 (모두 필수)
+| 변수 | 설명 |
+|------|------|
+| NODE_ENV | development / production / test |
+| MONGODB_URL | MongoDB 연결 URI (ChatbotLog 등) |
+| REDIS_URL | Redis 연결 URI (SSE 스트림 채널 발행) |
+| KAFKA_BROKERS | Kafka 브로커 목록 |
+| KAFKA_CLIENT_ID | Kafka 클라이언트 ID |
+| KAFKA_CONSUMER_GROUP_ID | 챗봇 Consumer 그룹 ID |
+| OPENAI_API_KEY | OpenAI API 키 (챗봇 응답 생성) |
+| OPENAI_CHAT_MODEL | 채팅 완성용 모델명 |
+
+#### Shared 패키지와 환경 변수
+- **@cook/shared** 는 환경 변수를 직접 검증하지 않는다. `createKafkaConfig`, `createRedisConfig`, `mongooseConfig` 등은 **`process.env.VAR!`** 로 읽어 설정 객체를 반환하며, 실제 검증은 이를 사용하는 Producer/Consumer의 `config/env.validation.ts` 에서 앱 기동 시 수행한다.
+
 ---
 
 ## 5. 아키텍처 설계 원칙

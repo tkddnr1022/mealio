@@ -28,7 +28,7 @@ export class OpenAIService {
   constructor(private readonly configService: ConfigService) {
     const apiKey = this.configService.getOrThrow<string>('OPENAI_API_KEY');
     this.client = new OpenAI({ apiKey });
-    this.model = this.configService.get<string>('OPENAI_CHAT_MODEL') ?? 'gpt-4.1-mini';
+    this.model = this.configService.getOrThrow<string>('OPENAI_CHAT_MODEL');
   }
 
   async generateChatbotResponse(

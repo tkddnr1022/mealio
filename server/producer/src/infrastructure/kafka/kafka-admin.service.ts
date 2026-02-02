@@ -19,7 +19,7 @@ export class KafkaAdminService implements OnModuleInit {
   constructor(private readonly configService: ConfigService) {}
 
   async onModuleInit(): Promise<void> {
-    const nodeEnv = this.configService.get<string>('NODE_ENV', 'development');
+    const nodeEnv = this.configService.getOrThrow<string>('NODE_ENV');
 
     // 프로덕션 환경에서는 토픽 생성을 수행하지 않는다.
     if (nodeEnv === 'production') {

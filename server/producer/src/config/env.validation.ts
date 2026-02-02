@@ -2,14 +2,22 @@ import Joi from 'joi';
 
 /**
  * 앱 시작 시 환경 변수 검증 스키마
- * 검증 실패 시 구동을 중단하고 오류 메시지를 출력한다.
+ * 모든 환경 변수는 필수. 검증 실패 시 구동을 중단하고 오류 메시지를 출력한다.
  */
 export const envValidationSchema = Joi.object({
   NODE_ENV: Joi.string()
     .valid('development', 'production', 'test')
-    .default('development'),
+    .required()
+    .messages({
+      'any.required': 'NODE_ENV is required',
+    }),
 
-  PORT: Joi.string().pattern(/^\d+$/).default('3000'),
+  PORT: Joi.string()
+    .pattern(/^\d+$/)
+    .required()
+    .messages({
+      'any.required': 'PORT is required',
+    }),
 
   JWT_SECRET: Joi.string().min(1).required().messages({
     'string.empty': 'JWT_SECRET must not be empty',
@@ -26,16 +34,19 @@ export const envValidationSchema = Joi.object({
     'any.required': 'POSTGRESQL_URL is required',
   }),
 
-  KAFKA_BROKERS: Joi.string().default('localhost:9092').messages({
-    'string.empty': 'KAFKA_BROKERS must not be empty when provided',
+  KAFKA_BROKERS: Joi.string().min(1).required().messages({
+    'string.empty': 'KAFKA_BROKERS must not be empty',
+    'any.required': 'KAFKA_BROKERS is required',
   }),
 
-  KAFKA_CLIENT_ID: Joi.string().default('cook-producer').messages({
-    'string.empty': 'KAFKA_CLIENT_ID must not be empty when provided',
+  KAFKA_CLIENT_ID: Joi.string().min(1).required().messages({
+    'string.empty': 'KAFKA_CLIENT_ID must not be empty',
+    'any.required': 'KAFKA_CLIENT_ID is required',
   }),
 
-  REDIS_URL: Joi.string().default('redis://localhost:6379').messages({
-    'string.empty': 'REDIS_URL must not be empty when provided',
+  REDIS_URL: Joi.string().min(1).required().messages({
+    'string.empty': 'REDIS_URL must not be empty',
+    'any.required': 'REDIS_URL is required',
   }),
 });
 
