@@ -62,25 +62,22 @@ describe('IngredientRepository', () => {
     });
   });
 
-  describe('search', () => {
-    it('should search ingredients', async () => {
-      const result = await repository.search('Sa', 10);
-      expect(prisma.ingredient.findMany).toHaveBeenCalledWith({
-        where: { name: { contains: 'Sa' } },
+  describe('searchByKeyword', () => {
+    it('should search ingredients by keyword', async () => {
+      const result = await repository.searchByKeyword({
+        keyword: 'Sa',
         take: 10,
+      });
+      expect(prisma.ingredient.findMany).toHaveBeenCalledWith({
+        where: {
+          name: { contains: 'Sa', mode: 'insensitive' },
+        },
+        take: 10,
+        orderBy: [{ category: 'asc' }, { name: 'asc' }],
       });
       expect(result).toEqual([mockIngredient]);
     });
   });
 
-  describe('create', () => {
-    it('should create an ingredient', async () => {
-      const createInput: any = { name: 'Salt' };
-      const result = await repository.create(createInput);
-      expect(prisma.ingredient.create).toHaveBeenCalledWith({
-        data: createInput,
-      });
-      expect(result).toEqual(mockIngredient);
-    });
-  });
+  // create는 producer에서 제거됨 (Command는 consumer에서 이벤트로 처리)
 });

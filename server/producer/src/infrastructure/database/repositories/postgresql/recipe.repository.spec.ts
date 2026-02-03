@@ -17,22 +17,11 @@ describe('RecipeRepository', () => {
     updatedAt: new Date(),
   };
 
-  const mockTx = {
-    recipe: {
-      create: jest.fn().mockResolvedValue(mockRecipe),
-    },
-    recipeIngredient: {
-      createMany: jest.fn().mockResolvedValue({ count: 1 }),
-    },
-  };
-
   const mockPrismaService = {
     recipe: {
       findUnique: jest.fn().mockResolvedValue(mockRecipe),
-      create: jest.fn().mockResolvedValue(mockRecipe),
       findMany: jest.fn().mockResolvedValue([mockRecipe]),
     },
-    $transaction: jest.fn().mockImplementation((callback) => callback(mockTx)),
   };
 
   beforeEach(async () => {
@@ -55,10 +44,10 @@ describe('RecipeRepository', () => {
   });
 
   describe('findById', () => {
-    it('should find a recipe by id', async () => {
+    it('should find a recipe by id (published only)', async () => {
       const result = await repository.findById(1n);
       expect(prisma.recipe.findUnique).toHaveBeenCalledWith({
-        where: { id: 1n },
+        where: { id: 1n, isPublished: true },
         include: {
           recipeIngredients: {
             include: {
@@ -71,46 +60,7 @@ describe('RecipeRepository', () => {
     });
   });
 
-  describe('create', () => {
-    it('should create a recipe', async () => {
-      const createInput: any = {
-        title: 'Test Recipe',
-        author: { connect: { id: 1n } },
-      };
-      const result = await repository.create(createInput);
-      expect(prisma.recipe.create).toHaveBeenCalledWith({ data: createInput });
-      expect(result).toEqual(mockRecipe);
-    });
-  });
-
-  describe('createWithIngredients', () => {
-    it('should create a recipe with ingredients in a transaction', async () => {
-      const recipeData: any = {
-        title: 'New Recipe',
-        author: { connect: { id: 1n } },
-      };
-      const ingredients = [{ ingredientId: 1n, amount: 1, unit: 'cup' }];
-
-      const result = await repository.createWithIngredients(
-        recipeData,
-        ingredients,
-      );
-
-      expect(prisma.$transaction).toHaveBeenCalled();
-      expect(mockTx.recipe.create).toHaveBeenCalledWith({ data: recipeData });
-      expect(mockTx.recipeIngredient.createMany).toHaveBeenCalledWith({
-        data: [
-          {
-            recipeId: mockRecipe.id,
-            ingredientId: 1n,
-            amount: 1,
-            unit: 'cup',
-          },
-        ],
-      });
-      expect(result).toEqual(mockRecipe);
-    });
-  });
+  // create, createWithIngredients는 producer에서 제거됨 (Command는 consumer에서 이벤트로 처리)
 
   describe('searchRecipes', () => {
     it('should search recipes', async () => {

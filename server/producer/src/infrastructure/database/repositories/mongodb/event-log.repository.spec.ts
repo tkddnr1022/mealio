@@ -4,11 +4,13 @@ import { Model } from 'mongoose';
 import { EventLogRepository } from './event-log.repository';
 import { EventLog, EventLogDocument } from '@cook/shared';
 
-// Mock chainable query
+// Mock chainable query (findById → lean → exec, find → select → lean → skip/limit/sort → exec)
 const mockQuery = {
   skip: jest.fn().mockReturnThis(),
   limit: jest.fn().mockReturnThis(),
   sort: jest.fn().mockReturnThis(),
+  select: jest.fn().mockReturnThis(),
+  lean: jest.fn().mockReturnThis(),
   exec: jest.fn(),
 };
 
@@ -48,13 +50,7 @@ describe('EventLogRepository', () => {
     expect(repository).toBeDefined();
   });
 
-  describe('create', () => {
-    it('should create and return an event log', async () => {
-      const createdLog = await repository.create(mockEventLog);
-      expect(mockModel).toHaveBeenCalledWith(mockEventLog);
-      expect(createdLog).toEqual(mockEventLog);
-    });
-  });
+  // create는 producer에서 제거됨 (Command는 consumer에서 이벤트로 처리)
 
   describe('findById', () => {
     it('should find and return a log by id', async () => {

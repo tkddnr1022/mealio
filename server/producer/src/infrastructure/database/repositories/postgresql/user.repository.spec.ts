@@ -76,35 +76,5 @@ describe('UserRepository', () => {
     });
   });
 
-  describe('create', () => {
-    it('should create a user', async () => {
-      const createInput: any = {
-        email: 'test@example.com',
-        nickname: 'TestUser',
-      };
-      const result = await repository.create(createInput);
-      expect(prisma.user.create).toHaveBeenCalledWith({ data: createInput });
-      expect(result).toEqual(mockUser);
-    });
-  });
-
-  describe('update', () => {
-    it('should update a user', async () => {
-      const updateInput: any = { nickname: 'UpdatedUser' };
-      const result = await repository.update(1n, updateInput);
-      expect(prisma.user.update).toHaveBeenCalledWith({
-        where: { id: 1n },
-        data: updateInput,
-      });
-      expect(result).toEqual(mockUser);
-    });
-  });
-
-  describe('delete', () => {
-    it('should delete a user', async () => {
-      const result = await repository.delete(1n);
-      expect(prisma.user.delete).toHaveBeenCalledWith({ where: { id: 1n } });
-      expect(result).toEqual(mockUser);
-    });
-  });
+  // create, update, delete는 producer에서 제거됨 (Command는 consumer에서 이벤트로 처리)
 });

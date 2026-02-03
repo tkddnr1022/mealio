@@ -57,36 +57,5 @@ describe('RecipeIngredientRepository', () => {
     });
   });
 
-  describe('createMany', () => {
-    it('should create many recipe ingredients', async () => {
-      const createInput: any[] = [{ recipeId: 1n, ingredientId: 1n }];
-      const result = await repository.createMany(createInput);
-      expect(prisma.recipeIngredient.createMany).toHaveBeenCalledWith({
-        data: createInput,
-      });
-      expect(result).toEqual({ count: 1 });
-    });
-  });
-
-  describe('update', () => {
-    it('should update a recipe ingredient', async () => {
-      const updateInput: any = { amount: 2 };
-      const result = await repository.update(1n, updateInput);
-      expect(prisma.recipeIngredient.update).toHaveBeenCalledWith({
-        where: { id: 1n },
-        data: updateInput,
-      });
-      expect(result).toEqual(mockRecipeIngredient);
-    });
-  });
-
-  describe('deleteByRecipeId', () => {
-    it('should delete recipe ingredients by recipe id', async () => {
-      const result = await repository.deleteByRecipeId(1n);
-      expect(prisma.recipeIngredient.deleteMany).toHaveBeenCalledWith({
-        where: { recipeId: 1n },
-      });
-      expect(result).toEqual({ count: 1 });
-    });
-  });
+  // createMany, update, deleteByRecipeId는 producer에서 제거됨 (Command는 consumer에서 이벤트로 처리)
 });
