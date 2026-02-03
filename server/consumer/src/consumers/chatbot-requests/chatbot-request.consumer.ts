@@ -221,7 +221,6 @@ export class ChatbotRequestConsumer implements OnModuleInit, OnModuleDestroy {
       type: 'done',
       data: {
         conversationId: event.conversationId ?? event.sessionId ?? 'unknown',
-        message: reply,
         suggestedRecipes: suggestedRecipes ?? undefined,
       },
     };
