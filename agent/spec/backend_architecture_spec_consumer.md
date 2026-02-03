@@ -23,15 +23,12 @@
 | server/consumer/src/consumers/recipe-generation/validators/recipe-data.validator.ts | 생성 레시피 검증 |
 | **server/consumer/src/consumers/chatbot-requests/** | |
 | server/consumer/src/consumers/chatbot-requests/chatbot-request.consumer.ts | CHATBOT_REQUESTS 구독 |
-| server/consumer/src/consumers/chatbot-requests/handlers/ProcessChatHandler.ts | 의도 분류(LLM 프롬프트 기반)·GPT 스트리밍·Redis에 ChatbotStreamEvent 발행 |
-| server/consumer/src/consumers/chatbot-requests/handlers/SaveChatLogHandler.ts | Mongoose ChatbotLog 저장 |
-| server/consumer/src/consumers/chatbot-requests/handlers/UpdateContextHandler.ts | ChatbotLog, EventLog 갱신 |
-| server/consumer/src/consumers/chatbot-requests/context/conversation.manager.ts | 대화 히스토리 관리 |
-| server/consumer/src/consumers/chatbot-requests/context/rag-context.builder.ts | RAG 컨텍스트 조합 (도메인별 source 호출) |
-| server/consumer/src/consumers/chatbot-requests/context/sources/user-context.source.ts | User, UserIngredient 조회 |
-| server/consumer/src/consumers/chatbot-requests/context/sources/recipe-context.source.ts | Recipe, RecipeIngredient, Ingredient 조회 |
-| server/consumer/src/consumers/chatbot-requests/context/sources/event-context.source.ts | EventLog 조회 |
-| server/consumer/src/consumers/chatbot-requests/context/sources/chatbot-log-context.source.ts | ChatbotLog 조회 |
+| server/consumer/src/consumers/chatbot-requests/handlers/ProcessChatHandler.ts | GPT Function Calling·스트리밍 호출, tool_calls 디스패치, Redis에 ChatbotStreamEvent 발행 |
+| server/consumer/src/consumers/chatbot-requests/handlers/SearchRecipesHandler.ts | search_recipes 함수 실행 — Prisma 레시피 검색·매칭 점수 계산, RecipeSummary[] 반환 |
+| server/consumer/src/consumers/chatbot-requests/handlers/SaveChatLogHandler.ts | 스트림 종료 후 Mongoose ChatbotLog 저장 |
+| server/consumer/src/consumers/chatbot-requests/tools/chatbot-tools.definition.ts | OpenAI tools 배열 (search_recipes 등 함수 이름·설명·parameters 스키마) |
+| server/consumer/src/consumers/chatbot-requests/tools/tool-dispatcher.ts | function name → Handler 매핑·실행, tool result를 GPT에 반환 |
+| server/consumer/src/consumers/chatbot-requests/context/conversation.manager.ts | 대화 히스토리 관리 (GPT 메시지 배열 구성) |
 | **server/consumer/src/consumers/search-logs/** | |
 | server/consumer/src/consumers/search-logs/search-log.consumer.ts | 검색 로그 토픽 구독 |
 | server/consumer/src/consumers/search-logs/handlers/IndexSearchHandler.ts | 검색어 인덱싱 |
@@ -47,8 +44,6 @@
 | server/consumer/src/consumers/cache-invalidation/handlers/CDNInvalidationHandler.ts | CloudFlare 퍼지 |
 | **server/consumer/src/integrations/openai/** | |
 | server/consumer/src/integrations/openai/openai.service.ts | GPT API 래퍼 |
-| server/consumer/src/integrations/openai/prompt-templates/recipe-generation.ts | 레시피 생성 프롬프트 |
-| server/consumer/src/integrations/openai/prompt-templates/chatbot-response.ts | 챗봇 응답 프롬프트 |
 | server/consumer/src/integrations/openai/response-parser.ts | JSON 파싱·검증 |
 | server/consumer/src/integrations/openai/rate-limiter.ts | API 호출 제한 |
 | **server/consumer/src/integrations/storage/** | |
@@ -104,4 +99,6 @@
 | server/consumer/src/reliability/dead-letter/dlq.handler.ts | DLQ 처리 |
 | server/consumer/src/reliability/dead-letter/manual-replay.service.ts | 수동 재처리 |
 
-RAG 목표·흐름·도메인 확장 원칙은 `../guidelines/backend_development_guidelines.md` 참고.
+---
+
+Function Calling 기반 챗봇 흐름·설계 원칙은 `../guidelines/backend_development_guidelines.md` §5 참고.
