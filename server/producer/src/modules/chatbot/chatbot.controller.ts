@@ -15,7 +15,6 @@ import type { Response } from 'express';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ChatbotService } from './chatbot.service';
 import { SendMessageDto } from './dto/send-message.dto';
-import { ChatbotResponseDto } from './dto/chatbot-response.dto';
 import { ConversationHistoryDto } from './dto/conversation-history.dto';
 import { ConversationListDto } from './dto/conversation-list.dto';
 import { ConversationListQueryDto } from './dto/conversation-list-query.dto';

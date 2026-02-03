@@ -7,5 +7,9 @@ export interface ChatbotRequestEvent {
   conversationId?: string;
   sessionId?: string;
   streamChannelId?: string;
+  /** 사용자 재료함(보유 재료) ID 목록 */
+  userIngredientIds?: number[];
+  /** 즐겨찾기 재료 ID 목록 */
+  favoriteIngredientIds?: number[];
   timestamp: string;
 }

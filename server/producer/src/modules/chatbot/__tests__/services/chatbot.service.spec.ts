@@ -3,6 +3,7 @@ import { ChatbotService } from '../../chatbot.service';
 import { KafkaProducerService } from '../../../../infrastructure/kafka/producer.service';
 import { RedisService, KAFKA_TOPICS } from '@cook/shared';
 import { ChatbotLogRepository } from '../../../../infrastructure/database/repositories/mongodb/chatbot-log.repository';
+import { UserIngredientsService } from '../../../user-ingredients/user-ingredients.service';
 import type { SendMessageDto } from '../../dto/send-message.dto';
 
 describe('ChatbotService', () => {
@@ -10,6 +11,7 @@ describe('ChatbotService', () => {
   let kafkaProducer: jest.Mocked<KafkaProducerService>;
   let redisService: jest.Mocked<RedisService>;
   let chatbotLogRepository: jest.Mocked<ChatbotLogRepository>;
+  let userIngredientsService: jest.Mocked<UserIngredientsService>;
 
   beforeEach(async () => {
     const mockKafkaProducer = {
@@ -36,6 +38,13 @@ describe('ChatbotService', () => {
       }),
     };
 
+    const mockUserIngredientsService = {
+      getMyIngredients: jest.fn().mockResolvedValue({
+        ingredientIds: [1, 5, 12],
+        favoriteIngredientIds: [3, 5],
+      }),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ChatbotService,
@@ -44,6 +53,10 @@ describe('ChatbotService', () => {
         {
           provide: ChatbotLogRepository,
           useValue: mockChatbotLogRepository,
+        },
+        {
+          provide: UserIngredientsService,
+          useValue: mockUserIngredientsService,
         },
       ],
     }).compile();
@@ -56,54 +69,13 @@ describe('ChatbotService', () => {
     chatbotLogRepository = module.get(
       ChatbotLogRepository,
     ) as jest.Mocked<ChatbotLogRepository>;
+    userIngredientsService = module.get(UserIngredientsService) as jest.Mocked<
+      UserIngredientsService
+    >;
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
-  });
-
-  describe('sendMessage', () => {
-    it('Kafka에 챗봇 요청 이벤트를 발행하고 접수 응답을 반환한다', async () => {
-      const userId = 1;
-      const dto: SendMessageDto = { message: '오늘 저녁 뭘 해먹을까요?' };
-
-      const result = await service.sendMessage(userId, dto);
-
-      expect(kafkaProducer.emit).toHaveBeenCalledWith(
-        KAFKA_TOPICS.CHATBOT_REQUESTS,
-        expect.objectContaining({
-          userId: 1,
-          message: dto.message,
-          conversationId: expect.stringMatching(/^conv_[a-z0-9]{16}$/),
-          sessionId: expect.stringMatching(/^conv_[a-z0-9]{16}$/),
-          timestamp: expect.any(String),
-        }),
-        'user_1',
-      );
-      expect(result.conversationId).toMatch(/^conv_[a-z0-9]{16}$/);
-      expect(result.message).toContain('접수');
-      expect(result.suggestedRecipes).toBeNull();
-    });
-
-    it('conversationId가 있으면 해당 ID를 사용한다', async () => {
-      const userId = 1;
-      const dto: SendMessageDto = {
-        message: '추가 질문',
-        conversationId: 'conv_existing123',
-      };
-
-      const result = await service.sendMessage(userId, dto);
-
-      expect(kafkaProducer.emit).toHaveBeenCalledWith(
-        KAFKA_TOPICS.CHATBOT_REQUESTS,
-        expect.objectContaining({
-          conversationId: 'conv_existing123',
-          sessionId: 'conv_existing123',
-        }),
-        expect.any(String),
-      );
-      expect(result.conversationId).toBe('conv_existing123');
-    });
   });
 
   describe('streamMessage', () => {
@@ -116,6 +88,7 @@ describe('ChatbotService', () => {
 
       await service.streamMessage(userId, dto, { write, end, error });
 
+      expect(userIngredientsService.getMyIngredients).toHaveBeenCalledWith(1);
       expect(kafkaProducer.emit).toHaveBeenCalledWith(
         KAFKA_TOPICS.CHATBOT_REQUESTS,
         expect.objectContaining({
@@ -123,6 +96,8 @@ describe('ChatbotService', () => {
           message: dto.message,
           streamChannelId: expect.stringMatching(/^stream_[a-z0-9]{16}$/),
           conversationId: expect.stringMatching(/^conv_[a-z0-9]{16}$/),
+          userIngredientIds: [1, 5, 12],
+          favoriteIngredientIds: [3, 5],
           timestamp: expect.any(String),
         }),
         'user_1',

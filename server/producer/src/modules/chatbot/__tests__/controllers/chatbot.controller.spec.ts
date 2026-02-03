@@ -11,12 +11,6 @@ describe('ChatbotController', () => {
 
   const mockAuthUser: AuthUser = { id: 1 };
 
-  const mockChatbotResponse = {
-    conversationId: 'conv_abc123',
-    message: '요청을 접수했습니다. 잠시 후 대화 내역을 조회해 주세요.',
-    suggestedRecipes: null,
-  };
-
   const mockConversationHistory = {
     conversationId: 'conv_abc123',
     messages: [

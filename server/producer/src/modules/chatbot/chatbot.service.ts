@@ -9,8 +9,8 @@ import {
   type ChatbotStreamEvent,
 } from '@cook/shared';
 import type { SendMessageDto } from './dto/send-message.dto';
-import type { ChatbotResponseDto } from './dto/chatbot-response.dto';
 import { ChatbotLogRepository } from '../../infrastructure/database/repositories/mongodb/chatbot-log.repository';
+import { UserIngredientsService } from '../user-ingredients/user-ingredients.service';
 import type { ConversationHistoryDto } from './dto/conversation-history.dto';
 import type { ConversationListDto } from './dto/conversation-list.dto';
 
@@ -41,41 +41,8 @@ export class ChatbotService {
     private readonly kafkaProducer: KafkaProducerService,
     private readonly redisService: RedisService,
     private readonly chatbotLogRepository: ChatbotLogRepository,
+    private readonly userIngredientsService: UserIngredientsService,
   ) {}
-
-  /**
-   * 사용자 메시지를 Kafka(chatbot-requests)로 발행하고, 접수 응답을 반환한다.
-   * 실제 AI 응답은 Consumer가 처리 후 MongoDB에 저장되며, GET /conversations/:id로 조회 가능.
-   */
-  async sendMessage(
-    userId: number,
-    dto: SendMessageDto,
-  ): Promise<ChatbotResponseDto> {
-    const conversationId =
-      dto.conversationId ??
-      `conv_${randomUUID().replace(/-/g, '').slice(0, 16)}`;
-    const sessionId = conversationId;
-
-    const event: ChatbotRequestEvent = {
-      userId,
-      message: dto.message,
-      conversationId,
-      sessionId,
-      timestamp: new Date().toISOString(),
-    };
-
-    await this.kafkaProducer.emit(
-      KAFKA_TOPICS.CHATBOT_REQUESTS,
-      event,
-      `user_${userId}`,
-    );
-
-    return {
-      conversationId,
-      message: '요청을 접수했습니다. 잠시 후 대화 내역을 조회해 주세요.',
-      suggestedRecipes: null,
-    };
-  }
 
   /**
    * SSE 스트리밍: Kafka에 이벤트 발행 후 Redis 채널 구독하여 Consumer가 보낸 청크/종료를
@@ -93,12 +60,17 @@ export class ChatbotService {
     const sessionId = conversationId;
     const channel = getChatbotStreamChannel(streamChannelId);
 
+    const { ingredientIds: userIngredientIds, favoriteIngredientIds } =
+      await this.userIngredientsService.getMyIngredients(userId);
+
     const event: ChatbotRequestEvent = {
       userId,
       message: dto.message,
       conversationId,
       sessionId,
       streamChannelId,
+      userIngredientIds,
+      favoriteIngredientIds,
       timestamp: new Date().toISOString(),
     };
 
