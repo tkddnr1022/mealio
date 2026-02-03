@@ -7,7 +7,7 @@
 * **RDB (정형 데이터, PostgreSQL + Prisma)**: 사용자, 레시피, 재료, 레시피-재료 관계
 * **NoSQL (MongoDB + Mongoose)**: 유저 재료 상태, 챗봇 대화 로그, 이벤트 로그
 
-> **정합성**: 이 문서는 `server/producer` 의 Prisma `schema.prisma` 및 Mongoose `schemas/` 와 일치하도록 유지한다.
+> **정합성**: 이 문서는 `server/shared/src/database/` 의 Prisma `schema.prisma` 및 Mongoose `schemas/` 와 일치하도록 유지한다.
 
 ---
 
@@ -128,7 +128,7 @@
 
 ## 3. NoSQL 스키마 (MongoDB, Mongoose)
 
-> 아래 스키마는 `server/producer/.../mongoose/schemas/` 의 Mongoose 스키마와 일치한다.  
+> 아래 스키마는 `server/shared/src/database/mongoose/schemas/` 의 Mongoose 스키마와 일치한다.  
 > 컬렉션·필드명·타입·enum·서브스키마를 구현 기준으로 기술한다.
 
 ---
@@ -157,7 +157,7 @@
 | createdAt             | Date     | 생성 시각 (timestamps)           |
 | updatedAt             | Date     | 수정 시각 (timestamps)           |
 
-**인덱스**: `favoriteIngredientIds`
+**인덱스**: `ingredientsIds`, `favoriteIngredientIds`
 
 **문서 구조 예시**
 
@@ -377,3 +377,107 @@
 * **정형 데이터**: 무결성, 조인, 검색 최적화
 * **비정형 데이터**: 유연성, 로그, LLM 친화적 컨텍스트
 * **LLM 중심 설계**: 상태 + 맥락 + 이벤트를 모두 설명 가능
+
+---
+
+## 6. RAG 관점 데이터 활용 설계
+
+본 섹션은 LLM 기반 챗봇이 **유저, 재료, 레시피, 유저 보유 재료, 유저 관심 재료, 챗봇 로그, 이벤트 로그**를 RAG 형태로 어떻게 조회·조합하는지에 대한 **설계 가이드를 LLM이 이해할 수 있도록** 정리한다.
+
+### 6.1 대표 RAG 시나리오: “내가 가진 재료로 만들 수 있는 요리 추천”
+
+1. **유저 컨텍스트 조회**
+   - RDB `User`:
+     - `id`, `email`, `nickname`, `createdAt` 등 기본 프로필
+   - NoSQL `UserIngredient`:
+     - `ingredientsIds` = 사용자가 현재 보유한 재료 ID 목록
+     - `favoriteIngredientIds` = 사용자가 선호하는 재료 ID 목록
+2. **레시피 후보군 조회 (RDB)**
+   - `RecipeIngredient` 를 이용해 **보유 재료와 많이 겹치는 레시피**를 우선 조회:
+     - `RecipeIngredient.ingredientId IN UserIngredient.ingredientsIds`
+     - 겹치는 재료 수, 부족 재료 수 등을 계산할 수 있는 쿼리/로직 설계
+   - `Recipe` 에서 다음 정보를 함께 가져온다.
+     - `title`, `description`, `difficulty`, `cookTime`, `imageUrl`, `servings`
+3. **재료 메타 정보 조회 (RDB)**
+   - `Ingredient`:
+     - `name`, `category` 를 통해 LLM이 **“채소/육류/양념” 등 자연어 설명**을 만들 수 있도록 지원
+4. **대화/행동 이력 조회 (NoSQL)**
+   - `ChatbotLog`:
+     - `userId`, `sessionId`, `conversationId` 기준으로 최근 N개 메시지를 조회
+     - 이전에 언급된 재료/레시피, 사용자가 이미 거절한 제안 등을 파악
+   - `EventLog`:
+     - 최근 `recipe.view`, `search.query`, `search.click` 등을 조회
+     - 사용자가 실제로 관심을 보인 레시피/검색어를 LLM에게 전달
+5. **LLM 입력용 RAG 컨텍스트 예시 구조 (개념)**
+   - LLM에 전달할 때는 아래와 같은 JSON 구조로 요약/축약해서 전달하는 것을 권장:
+   - (실제 필드명/구조는 `spec/backend_architecture_spec.md` 의 RAG 컨텍스트 레이어 구현을 따른다.)
+
+```json
+{
+  "userProfile": {
+    "id": 1,
+    "nickname": "홍길동",
+    "createdAt": "2025-01-01T00:00:00.000Z"
+  },
+  "inventory": {
+    "haveIngredientIds": [1, 5, 12],
+    "favoriteIngredientIds": [3, 5]
+  },
+  "candidateRecipes": [
+    {
+      "id": 10,
+      "title": "김치찌개",
+      "mainIngredients": ["김치", "돼지고기", "두부"],
+      "difficulty": 2,
+      "cookTime": 30,
+      "missingIngredientNames": ["파"]
+    }
+  ],
+  "recentDialogSummary": "...자연어 요약...",
+  "recentEvents": [
+    { "type": "recipe.view", "recipeId": 10, "occurredAt": "..." }
+  ]
+}
+```
+
+### 6.2 도메인 확장을 고려한 RAG 설계 원칙
+
+1. **도메인별로 독립된 “컨텍스트 소스” 개념 유지**
+   - 현재 도메인:
+     - `User` + `UserIngredient` → 사용자 상태
+     - `Recipe` + `RecipeIngredient` + `Ingredient` → 레시피/재료 지식
+     - `ChatbotLog` + `EventLog` → 대화/행동 이력
+   - 향후 도메인(예: 건강 정보, 쇼핑, 식단 플랜 등)을 추가할 때도,  
+     “특정 도메인 데이터베이스를 조회하여 **LLM이 이해하기 쉬운 JSON 조각**으로 변환하는 컨텍스트 소스”를 하나씩 추가하는 패턴을 그대로 유지한다.
+   - 어떤 컨텍스트 소스를 사용할지 결정하는 **의도 분류/도메인 태깅은 LLM 프롬프트 기반으로 수행**되며,  
+     사용자의 자연어 입력을 LLM에 전달해 `"domain"`, `"task"` 등의 필드를 가진 JSON을 응답받는 형태로 구현된다.
+2. **스키마 문서에서 LLM 관점 필드 의미를 명시적으로 유지**
+   - 새 엔티티/필드를 추가할 때,
+     - “이 필드는 LLM이 어떤 추론/추천을 할 때 어떻게 사용될 수 있는지”를 본 문서에 함께 기술한다.
+   - 예: “식단 플랜” 도메인이 추가되면,  
+     `MealPlan` 엔티티의 각 필들에게 “칼로리/영양소/식단 유형” 등 LLM이 활용할 의미를 설명.
+3. **RAG 쿼리는 “원시 데이터” 보다 “요약/집계 결과” 위주로 제공**
+   - LLM에게 너무 많은 원시 행(row)을 그대로 던지지 않고,
+     - 재료/레시피는 **핵심 요약 정보(이름, 카테고리, 주요 재료, 난이도, 시간)** 위주로 제공
+     - 로그/이벤트는 **최근 행동 흐름을 압축한 타임라인** 형태로 제공
+   - 이는 토큰 비용을 줄이고, LLM이 더 안정적으로 추론하도록 돕는다.
+4. **RDB/NoSQL 선택은 LLM/RAG 관점에서도 일관되게 유지**
+   - RDB:
+     - 자주 조합/검색되는 마스터 데이터(유저, 레시피, 재료, 관계)
+     - RAG에서 “정확한 기준 정보/카탈로그” 역할
+   - NoSQL:
+     - 변동이 잦은 상태/로그(보유 재료, 대화, 이벤트)
+     - RAG에서 “최근 상태/맥락/행동 이력” 역할
+
+### 6.3 LLM이 이 스키마를 사용할 때의 요약 지침
+
+- **User / UserIngredient**  
+  → “누가 어떤 재료를 갖고 있고, 무엇을 선호하는지”를 이해하는 데 사용.
+- **Recipe / RecipeIngredient / Ingredient**  
+  → “어떤 요리를 어떤 재료로, 어느 정도 난이도/시간으로 만들 수 있는지”를 이해하는 데 사용.
+- **ChatbotLog**  
+  → “이 사용자와 이전에 어떤 대화를 나눴는지, 어떤 맥락이 이어지고 있는지”를 복원하는 데 사용.
+- **EventLog**  
+  → “사용자가 실제로 무엇을 클릭/조회/검색했는지”를 행동 타임라인으로 이해하는 데 사용.
+
+이 원칙에 따라, 챗봇은 데이터베이스를 단순 조회가 아니라 **의미 있는 컨텍스트 조각들의 집합(RAG 컨텍스트)** 으로 활용할 수 있다.

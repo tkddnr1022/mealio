@@ -12,33 +12,50 @@ alwaysApply: true
 
 ---
 
-## agent 폴더 내 파일 목록 및 참고 용도
+## agent 폴더 구조 및 파일 목록
+
+### 루트 (agent/)
 
 | 파일 | 설명 | 참고 용도 |
 |------|------|-----------|
-| **README.md** | agent 폴더 소개 | 이 폴더가 에이전트용 공식 자료임을 확인할 때 |
 | **proposal.md** | 기획서 | 서비스 개요, 기능, 스택(Next.js, Nest.js, PostgreSQL, MongoDB, Kafka, Redis 등), 배포(Vercel, AWS), 데이터·메시지 브로커 전략을 파악할 때 |
 | **schema.md** | 통합 데이터 스키마 (RDB + NoSQL) | User, Recipe, Ingredient, RecipeIngredient, UserIngredient, ChatbotLog, EventLog 등 엔티티/필드·의미, RDB vs NoSQL 구분, LLM 활용 포인트를 이해할 때 |
 | **architecture.mermaid** | 시스템 아키텍처 다이어그램 (Mermaid) | Client, CDN(Vercel), EC2(Producer/Consumer), Kafka, Redis, RDS, MongoDB, S3, OpenAI 등 구성요소와 연결 관계를 시각적으로 파악할 때 |
-| **backend_architecture_spec.md** | 백엔드 아키텍처 모듈 명세 | Producer(NestJS) 모듈 구조, API 경로, Domain/Infrastructure 레이어, **@cook/shared 패키지(server/shared)**, 모노레포·pnpm, Consumer·Kafka 토픽, 캐시 전략, 저장소·리포지토리 구조를 구현·수정할 때 |
-| **frontend_architecture_spec.md** | 프론트엔드 아키텍처 명세 | Next.js App Router 라우팅, SSG/ISR/SSR/CSR 전략, 페이지 목록·라우팅 맵, 레이아웃 그룹을 구현·수정할 때 |
 | **openapi_spec.yaml** | OpenAPI 3.0 API 명세 | 인증, 엔드포인트(path, method), 요청/응답 스키마, DTO·Swagger 연동을 구현·검증할 때 |
+
+### 명세 (agent/spec/)
+
+| 파일 | 설명 | 참고 용도 |
+|------|------|-----------|
+| **backend_architecture_spec.md** | 백엔드 아키텍처 모듈 명세 (인덱스) | Producer/Consumer/Shared 패키지별 명세 링크, 공통 경로·표기 규칙을 확인할 때 |
+| **backend_architecture_spec_producer.md** | Producer 패키지 명세 | Producer(NestJS) 모듈 구조, API 경로, 파일·디렉터리 명세, 챗봇 SSE 계약을 구현·수정할 때 |
+| **backend_architecture_spec_consumer.md** | Consumer 패키지 명세 | Consumer·Kafka 토픽, 핸들러·리포지토리 구조를 구현·수정할 때 |
+| **backend_architecture_spec_shared.md** | Shared 패키지 명세 | @cook/shared(server/shared), Prisma·Mongoose·Redis·타입 제공, 스키마 위치를 구현·수정할 때 |
+| **frontend_architecture_spec.md** | 프론트엔드 아키텍처 명세 (무엇을) | Next.js App Router 라우팅·페이지·파일 단위 명세, 라우팅 맵, 성능 목표를 확인할 때 |
+
+### 지침 (agent/guidelines/)
+
+| 파일 | 설명 | 참고 용도 |
+|------|------|-----------|
+| **spec_driven_development_guidelines.md** | 스펙 주도 개발 지침 (공통) | 명세 대비 파일·페이지 생성/생략/이름 변경 금지 원칙, 명세 동기화 의무를 적용할 때 |
+| **backend_development_guidelines.md** | 백엔드 개발 지침 (어떻게) | 구현 우선순위, TDD, Producer/Consumer 설계 원칙, 캐시·Kafka·RAG·환경 변수·모노레포·DB 주의사항을 적용할 때 |
+| **frontend_development_guidelines.md** | 프론트엔드 개발 지침 (어떻게) | SSG/ISR/SSR/CSR 구현, 캐싱·이미지·상태 관리·코드 스플리팅, 성능 측정 방법을 적용할 때 |
 
 ---
 
 ## 작업별 권장 참조 순서
 
 - **백엔드 API/모듈/DB**  
-  `backend_architecture_spec.md` → `schema.md` → `openapi_spec.yaml` → `proposal.md`
+  `agent/spec/backend_architecture_spec.md` → `agent/guidelines/spec_driven_development_guidelines.md` → `agent/schema.md` → `agent/openapi_spec.yaml` → `agent/proposal.md`
 
 - **프론트엔드 페이지/라우팅**  
-  `frontend_architecture_spec.md` → `openapi_spec.yaml` → `proposal.md`
+  `agent/spec/frontend_architecture_spec.md` → `agent/guidelines/spec_driven_development_guidelines.md` → `agent/guidelines/frontend_development_guidelines.md` → `agent/openapi_spec.yaml` → `agent/proposal.md`
 
 - **데이터·엔티티·스키마**  
-  `schema.md` → `backend_architecture_spec.md` → `openapi_spec.yaml`
+  `agent/schema.md` → `agent/spec/backend_architecture_spec.md` → `agent/openapi_spec.yaml`
 
 - **전체 시스템 구조·배포**  
-  `architecture.mermaid` → `proposal.md` → `backend_architecture_spec.md` / `frontend_architecture_spec.md`
+  `agent/architecture.mermaid` → `agent/proposal.md` → `agent/spec/backend_architecture_spec.md` / `agent/spec/frontend_architecture_spec.md` (지침은 `agent/guidelines/` 내 해당 문서 참고)
 
 - **기획·스택·배포 정책**  
-  `proposal.md` → `architecture.mermaid`
+  `agent/proposal.md` → `agent/architecture.mermaid`
