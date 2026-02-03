@@ -37,6 +37,11 @@ export const envValidationSchema = Joi.object({
     'any.required': 'KAFKA_CONSUMER_GROUP_ID is required',
   }),
 
+  POSTGRESQL_URL: Joi.string().min(1).required().messages({
+    'string.empty': 'POSTGRESQL_URL must not be empty',
+    'any.required': 'POSTGRESQL_URL is required',
+  }),
+
   OPENAI_API_KEY: Joi.string().min(1).required().messages({
     'string.empty': 'OPENAI_API_KEY must not be empty',
     'any.required': 'OPENAI_API_KEY is required',

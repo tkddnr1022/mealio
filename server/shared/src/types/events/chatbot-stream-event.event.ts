@@ -21,7 +21,18 @@ export interface ChatbotStreamErrorEvent {
   data: { message: string };
 }
 
+/** Function Calling 실행 중 클라이언트 피드백용 (예: "레시피 검색 중…") */
+export interface ChatbotStreamToolCallEvent {
+  type: 'tool_call';
+  data: {
+    functionName: string;
+    status: 'start' | 'complete';
+    arguments?: string;
+  };
+}
+
 export type ChatbotStreamEvent =
   | ChatbotStreamChunkEvent
   | ChatbotStreamDoneEvent
-  | ChatbotStreamErrorEvent;
+  | ChatbotStreamErrorEvent
+  | ChatbotStreamToolCallEvent;
