@@ -1,9 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@cook/shared';
 
-export interface RecipeSummary {
+export interface SuggestedRecipe {
   id: number;
   title: string;
+  description: string | null;
+  difficulty: number | null;
+  cookTime: number | null;
+  imageUrl: string | null;
+  servings: number | null;
   matchScore: number;
 }
 
@@ -18,13 +23,13 @@ const DEFAULT_LIMIT = 5;
 const MAX_LIMIT = 20;
 
 /**
- * search_recipes 함수 실행 — Prisma 레시피 검색, ingredientIds optional(일반 검색 지원), 필요 시 매칭 점수, RecipeSummary[] 반환
+ * search_recipes 함수 실행 — Prisma 레시피 검색, ingredientIds optional(일반 검색 지원), 필요 시 매칭 점수, SuggestedRecipe[] 반환
  */
 @Injectable()
 export class SearchRecipesHandler {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(payload: SearchRecipesPayload): Promise<RecipeSummary[]> {
+  async execute(payload: SearchRecipesPayload): Promise<SuggestedRecipe[]> {
     const limit = Math.min(
       payload.limit ?? DEFAULT_LIMIT,
       MAX_LIMIT,
@@ -71,6 +76,11 @@ export class SearchRecipesHandler {
         return {
           id: r.id,
           title: r.title,
+          description: r.description,
+          difficulty: r.difficulty,
+          cookTime: r.cookTime,
+          imageUrl: r.imageUrl,
+          servings: r.servings,
           matchScore: score,
         };
       })

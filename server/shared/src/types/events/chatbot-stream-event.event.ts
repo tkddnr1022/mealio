@@ -12,7 +12,7 @@ export interface ChatbotStreamDoneEvent {
   type: 'done';
   data: {
     conversationId: string;
-    suggestedRecipes?: Array<{ id: number; title: string; matchScore: number }>;
+    suggestedRecipes?: Array<unknown>;
   };
 }
 
