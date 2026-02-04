@@ -108,9 +108,7 @@ export class ProcessChatHandler {
           }
         });
 
-      if (roundContent) {
-        fullContent += roundContent;
-      }
+      // fullContent는 이미 onChunk에서 chunk.content로 누적됨. roundContent 중복 누적 제거.
 
       if (finishReason === 'tool_calls' && toolCalls?.length) {
         const assistantMessage: ChatCompletionMessageParam = {
