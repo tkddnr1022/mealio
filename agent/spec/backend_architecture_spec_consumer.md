@@ -23,10 +23,11 @@
 | server/consumer/src/consumers/recipe-generation/validators/recipe-data.validator.ts | 생성 레시피 검증 |
 | **server/consumer/src/consumers/chatbot-requests/** | |
 | server/consumer/src/consumers/chatbot-requests/chatbot-request.consumer.ts | CHATBOT_REQUESTS 구독 |
-| server/consumer/src/consumers/chatbot-requests/handlers/ProcessChatHandler.ts | GPT Function Calling·스트리밍 호출, tool_calls 디스패치, Redis에 ChatbotStreamEvent 발행 |
-| server/consumer/src/consumers/chatbot-requests/handlers/SearchRecipesHandler.ts | search_recipes 함수 실행 — Prisma 레시피 검색·매칭 점수 계산, RecipeSummary[] 반환 |
+| server/consumer/src/consumers/chatbot-requests/handlers/ProcessChatHandler.ts | GPT Function Calling·스트리밍 호출, tool_choice auto, payload( userId/sessionId/conversationId/자연어 등 최소 메타데이터) 수신, tool_calls 디스패치, Redis에 ChatbotStreamEvent 발행 |
+| server/consumer/src/consumers/chatbot-requests/handlers/UserIngredientsHandler.ts | get_user_ingredients 함수 실행 — MongoDB UserIngredient 조회, Prisma Ingredient id→name(Redis 캐시), [{ id, name, ... }] 반환 |
+| server/consumer/src/consumers/chatbot-requests/handlers/SearchRecipesHandler.ts | search_recipes 함수 실행 — Prisma 레시피 검색, ingredientIds optional(일반 검색 지원), 필요 시 매칭 점수 계산, RecipeSummary[] 반환 |
 | server/consumer/src/consumers/chatbot-requests/handlers/SaveChatLogHandler.ts | 스트림 종료 후 Mongoose ChatbotLog 저장 |
-| server/consumer/src/consumers/chatbot-requests/tools/chatbot-tools.definition.ts | OpenAI tools 배열 (search_recipes 등 함수 이름·설명·parameters 스키마) |
+| server/consumer/src/consumers/chatbot-requests/tools/chatbot-tools.definition.ts | OpenAI tools 배열 (search_recipes, get_user_ingredients 등; search_recipes는 ingredientIds optional) |
 | server/consumer/src/consumers/chatbot-requests/tools/tool-dispatcher.ts | function name → Handler 매핑·실행, tool result를 GPT에 반환 |
 | server/consumer/src/consumers/chatbot-requests/context/conversation.manager.ts | 대화 히스토리 관리 (GPT 메시지 배열 구성) |
 | **server/consumer/src/consumers/search-logs/** | |

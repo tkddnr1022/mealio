@@ -9,15 +9,9 @@ import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
 import { ProcessChatHandler } from './handlers/ProcessChatHandler';
 import { SaveChatLogHandler } from './handlers/SaveChatLogHandler';
 
-/** Kafka 페이로드 (명세: userIngredientIds, favoriteIngredientIds 포함 가능) */
-export interface ChatbotRequestPayload extends ChatbotRequestEvent {
-  userIngredientIds?: number[];
-  favoriteIngredientIds?: number[];
-}
-
 @Injectable()
 export class ChatbotRequestConsumer
-  extends BaseConsumer<ChatbotRequestPayload>
+  extends BaseConsumer<ChatbotRequestEvent>
   implements OnModuleInit, OnModuleDestroy
 {
   private kafka: Kafka;
@@ -63,26 +57,22 @@ export class ChatbotRequestConsumer
     return KAFKA_TOPICS.CHATBOT_REQUESTS;
   }
 
-  protected parseEvent(message: EachMessagePayload): ChatbotRequestPayload | null {
+  protected parseEvent(message: EachMessagePayload): ChatbotRequestEvent | null {
     const raw = message.message.value?.toString();
     if (!raw) return null;
     try {
-      const parsed = JSON.parse(raw) as ChatbotRequestPayload;
+      const parsed = JSON.parse(raw) as ChatbotRequestEvent;
       if (typeof parsed.userId !== 'number' || typeof parsed.message !== 'string') {
         return null;
       }
-      return {
-        ...parsed,
-        userIngredientIds: parsed.userIngredientIds ?? [],
-        favoriteIngredientIds: parsed.favoriteIngredientIds ?? [],
-      };
+      return parsed;
     } catch {
       return null;
     }
   }
 
   protected async processEvent(
-    event: ChatbotRequestPayload,
+    event: ChatbotRequestEvent,
     _message: EachMessagePayload,
   ): Promise<void> {
     const result = await this.processChatHandler.execute({
@@ -91,8 +81,6 @@ export class ChatbotRequestConsumer
       conversationId: event.conversationId,
       sessionId: event.sessionId,
       streamChannelId: event.streamChannelId,
-      userIngredientIds: event.userIngredientIds,
-      favoriteIngredientIds: event.favoriteIngredientIds,
     });
 
     if ('error' in result) {

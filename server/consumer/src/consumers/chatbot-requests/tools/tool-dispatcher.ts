@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { SearchRecipesHandler } from '../handlers/SearchRecipesHandler';
-import type { SearchRecipesContext } from '../handlers/SearchRecipesHandler';
+import { UserIngredientsHandler } from '../handlers/UserIngredientsHandler';
 
 export interface ToolContext {
-  userIngredientIds: number[];
-  favoriteIngredientIds: number[];
+  userId: number;
 }
 
 /**
@@ -14,6 +13,7 @@ export interface ToolContext {
 export class ToolDispatcher {
   constructor(
     private readonly searchRecipesHandler: SearchRecipesHandler,
+    private readonly userIngredientsHandler: UserIngredientsHandler,
   ) {}
 
   async execute(
@@ -22,11 +22,23 @@ export class ToolDispatcher {
     context: ToolContext,
   ): Promise<string> {
     switch (functionName) {
+      case 'get_user_ingredients': {
+        const userId =
+          typeof args.userId === 'number'
+            ? args.userId
+            : context.userId;
+        const result =
+          await this.userIngredientsHandler.execute(userId);
+        return JSON.stringify(result);
+      }
       case 'search_recipes': {
         const payload = {
           keywords: Array.isArray(args.keywords)
             ? (args.keywords as string[])
             : [],
+          ingredientIds: Array.isArray(args.ingredientIds)
+            ? (args.ingredientIds as number[])
+            : undefined,
           maxCookTime:
             typeof args.maxCookTime === 'number'
               ? args.maxCookTime
@@ -34,12 +46,8 @@ export class ToolDispatcher {
           limit:
             typeof args.limit === 'number' ? args.limit : undefined,
         };
-        const ctx: SearchRecipesContext = {
-          userIngredientIds: context.userIngredientIds ?? [],
-          favoriteIngredientIds: context.favoriteIngredientIds ?? [],
-        };
         const result =
-          await this.searchRecipesHandler.execute(payload, ctx);
+          await this.searchRecipesHandler.execute(payload);
         return JSON.stringify(result);
       }
       default:

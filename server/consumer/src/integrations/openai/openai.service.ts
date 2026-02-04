@@ -98,7 +98,11 @@ export class OpenAIService {
       messages,
       stream: true,
       store: true,
-      ...(options?.tools && options.tools.length > 0 && { tools: options.tools }),
+      ...(options?.tools &&
+        options.tools.length > 0 && {
+          tools: options.tools,
+          tool_choice: 'auto',
+        }),
     };
 
     const stream = await this.client.chat.completions.create(body);

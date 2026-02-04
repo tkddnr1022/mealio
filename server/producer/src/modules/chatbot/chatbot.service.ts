@@ -10,7 +10,6 @@ import {
 } from '@cook/shared';
 import type { SendMessageDto } from './dto/send-message.dto';
 import { ChatbotLogRepository } from '../../infrastructure/database/repositories/mongodb/chatbot-log.repository';
-import { UserIngredientsService } from '../user-ingredients/user-ingredients.service';
 import type { ConversationHistoryDto } from './dto/conversation-history.dto';
 import type { ConversationListDto } from './dto/conversation-list.dto';
 
@@ -41,7 +40,6 @@ export class ChatbotService {
     private readonly kafkaProducer: KafkaProducerService,
     private readonly redisService: RedisService,
     private readonly chatbotLogRepository: ChatbotLogRepository,
-    private readonly userIngredientsService: UserIngredientsService,
   ) {}
 
   /**
@@ -60,17 +58,12 @@ export class ChatbotService {
     const sessionId = conversationId;
     const channel = getChatbotStreamChannel(streamChannelId);
 
-    const { ingredientIds: userIngredientIds, favoriteIngredientIds } =
-      await this.userIngredientsService.getMyIngredients(userId);
-
     const event: ChatbotRequestEvent = {
       userId,
       message: dto.message,
       conversationId,
       sessionId,
       streamChannelId,
-      userIngredientIds,
-      favoriteIngredientIds,
       timestamp: new Date().toISOString(),
     };
 

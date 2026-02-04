@@ -12,7 +12,7 @@ import { OpenAIService } from 'src/integrations/openai/openai.service';
 import { ToolDispatcher } from '../tools/tool-dispatcher';
 import { CHATBOT_TOOLS } from '../tools/chatbot-tools.definition';
 import { buildMessagesForGpt } from '../context/conversation.manager';
-import type { RecipeMatchResult } from './SearchRecipesHandler';
+import type { RecipeSummary } from './SearchRecipesHandler';
 
 export interface ProcessChatPayload {
   userId: number;
@@ -20,8 +20,6 @@ export interface ProcessChatPayload {
   conversationId?: string;
   sessionId?: string;
   streamChannelId?: string;
-  userIngredientIds?: number[];
-  favoriteIngredientIds?: number[];
 }
 
 @Injectable()
@@ -37,17 +35,12 @@ export class ProcessChatHandler {
   async execute(payload: ProcessChatPayload): Promise<
     | {
         fullContent: string;
-        suggestedRecipes: RecipeMatchResult[];
+        suggestedRecipes: RecipeSummary[];
         usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
       }
     | { error: string }
   > {
-    const {
-      streamChannelId,
-      conversationId = 'unknown',
-      userIngredientIds = [],
-      favoriteIngredientIds = [],
-    } = payload;
+    const { streamChannelId, conversationId = 'unknown' } = payload;
 
     const channel = streamChannelId
       ? getChatbotStreamChannel(streamChannelId)
@@ -76,25 +69,17 @@ export class ProcessChatHandler {
     conversationId: string,
   ): Promise<{
     fullContent: string;
-    suggestedRecipes: RecipeMatchResult[];
+    suggestedRecipes: RecipeSummary[];
     usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
   }> {
-    const {
-      userIngredientIds = [],
-      favoriteIngredientIds = [],
-    } = payload;
-
-    const toolContext = {
-      userIngredientIds,
-      favoriteIngredientIds,
-    };
+    const toolContext = { userId: payload.userId };
 
     let messages: ChatCompletionMessageParam[] = buildMessagesForGpt(
       [],
       payload.message,
     );
     let fullContent = '';
-    let lastSuggestedRecipes: RecipeMatchResult[] = [];
+    let lastSuggestedRecipes: RecipeSummary[] = [];
     let usage: { promptTokens: number; completionTokens: number; totalTokens: number } | undefined;
 
     const maxToolRounds = 5;
@@ -168,8 +153,8 @@ export class ProcessChatHandler {
 
           try {
             const parsed = JSON.parse(result) as unknown;
-            if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'object' && parsed[0] !== null && 'id' in parsed[0] && 'title' in parsed[0] && 'matchContext' in parsed[0]) {
-              lastSuggestedRecipes = parsed as RecipeMatchResult[];
+            if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'object' && parsed[0] !== null && 'id' in parsed[0] && 'title' in parsed[0] && 'matchScore' in parsed[0]) {
+              lastSuggestedRecipes = parsed as RecipeSummary[];
             }
           } catch {
             // ignore
@@ -183,7 +168,11 @@ export class ProcessChatHandler {
               conversationId,
               suggestedRecipes:
                 lastSuggestedRecipes.length > 0
-                  ? lastSuggestedRecipes
+                  ? lastSuggestedRecipes.map((r) => ({
+                      id: r.id,
+                      title: r.title,
+                      matchScore: r.matchScore,
+                    }))
                   : undefined,
             },
           });
@@ -203,7 +192,11 @@ export class ProcessChatHandler {
           conversationId,
           suggestedRecipes:
             lastSuggestedRecipes.length > 0
-              ? lastSuggestedRecipes
+              ? lastSuggestedRecipes.map((r) => ({
+                  id: r.id,
+                  title: r.title,
+                  matchScore: r.matchScore,
+                }))
               : undefined,
         },
       });

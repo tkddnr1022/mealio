@@ -1,5 +1,6 @@
 /**
- * 챗봇 요청 이벤트 타입 정의
+ * 챗봇 요청 이벤트 타입 정의.
+ * 도메인 데이터(유저 재료 등)는 Consumer에서 tool call(get_user_ingredients 등)로 조회한다.
  */
 export interface ChatbotRequestEvent {
   userId: number;
@@ -7,9 +8,5 @@ export interface ChatbotRequestEvent {
   conversationId?: string;
   sessionId?: string;
   streamChannelId?: string;
-  /** 사용자 재료함(보유 재료) ID 목록 */
-  userIngredientIds?: number[];
-  /** 즐겨찾기 재료 ID 목록 */
-  favoriteIngredientIds?: number[];
   timestamp: string;
 }

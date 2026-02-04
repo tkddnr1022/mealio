@@ -8,39 +8,11 @@ export interface ChatbotStreamChunkEvent {
   data: string;
 }
 
-/** done 이벤트의 suggestedRecipes: RecipeMatchResult[] (기본 레시피 정보 + matchContext) */
 export interface ChatbotStreamDoneEvent {
   type: 'done';
   data: {
     conversationId: string;
-    suggestedRecipes?: Array<{
-      id: number;
-      title: string;
-      description?: string;
-      difficulty?: number;
-      cookTime?: number;
-      imageUrl?: string | null;
-      servings?: number;
-      viewCount?: number;
-      isPublished?: boolean;
-      createdAt?: string;
-      matchContext?: {
-        matchScore: number;
-        ingredientMatch: {
-          matchedIngredients: unknown[];
-          missingIngredients: unknown[];
-          missingOptionalIngredients: unknown[];
-          stats: {
-            totalRequired: number;
-            matchedRequired: number;
-            totalOptional: number;
-            matchedOptional: number;
-          };
-        };
-        usesFavoriteIngredients: boolean;
-        favoriteIngredientsUsed: string[];
-      };
-    }>;
+    suggestedRecipes?: Array<{ id: number; title: string; matchScore: number }>;
   };
 }
 
