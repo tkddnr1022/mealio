@@ -336,6 +336,9 @@ importers:
         specifier: ^7.8.1
         version: 7.8.2
     devDependencies:
+      '@types/node':
+        specifier: ^22.19.7
+        version: 22.19.7
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
