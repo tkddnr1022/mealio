@@ -14,11 +14,10 @@ export interface RecentTurn {
 
 export interface FindRecentTurnsOptions {
   conversationId?: string;
-  sessionId?: string;
 }
 
 /**
- * ChatbotLog 조회: 동일 대화(sessionId 또는 conversationId) 내 최근 턴을 createdAt 순으로 반환.
+ * ChatbotLog 조회: 동일 대화(conversationId) 내 최근 턴을 createdAt 순으로 반환.
  * ProcessChatHandler에서 buildMessagesForGpt의 previousTurns 공급용.
  */
 @Injectable()
@@ -33,17 +32,15 @@ export class ChatbotLogRepository {
     options: FindRecentTurnsOptions,
     limit: number = DEFAULT_RECENT_TURNS_LIMIT,
   ): Promise<RecentTurn[]> {
-    const { conversationId, sessionId } = options;
-    if (!sessionId && !conversationId) {
+    const { conversationId } = options;
+    if (!conversationId) {
       return [];
     }
 
-    const filter: Record<string, unknown> = { userId };
-    if (sessionId) {
-      filter.sessionId = sessionId;
-    } else if (conversationId) {
-      filter['context.conversationId'] = conversationId;
-    }
+    const filter: Record<string, unknown> = {
+      userId,
+      'context.conversationId': conversationId,
+    };
 
     const docs = await this.chatbotLogModel
       .find(filter)

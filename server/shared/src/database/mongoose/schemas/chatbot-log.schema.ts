@@ -23,9 +23,6 @@ class LLMMetadata {
 
 class ConversationContext {
   @Prop({ type: String })
-  sessionId?: string;
-
-  @Prop({ type: String })
   conversationId?: string;
 
   @Prop({ type: [String] })
@@ -75,9 +72,6 @@ export class ChatbotLog extends Document {
   @Prop({ type: String, maxlength: 1000 })
   error?: string;
 
-  @Prop({ type: String, index: true })
-  sessionId?: string;
-
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -86,7 +80,6 @@ export type ChatbotLogDocument = HydratedDocument<ChatbotLog>;
 export const ChatbotLogSchema = SchemaFactory.createForClass(ChatbotLog);
 
 ChatbotLogSchema.index({ userId: 1, createdAt: -1 });
-ChatbotLogSchema.index({ sessionId: 1, createdAt: 1 });
 ChatbotLogSchema.index({ userId: 1, 'context.conversationId': 1, createdAt: 1 });
 ChatbotLogSchema.index({ success: 1, createdAt: -1 });
 ChatbotLogSchema.index({ 'llm.model': 1, createdAt: -1 });

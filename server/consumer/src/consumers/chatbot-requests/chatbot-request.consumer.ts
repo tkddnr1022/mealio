@@ -108,7 +108,6 @@ export class ChatbotRequestConsumer
       userId: event.userId,
       message: event.message,
       conversationId: event.conversationId,
-      sessionId: event.sessionId,
       streamChannelId: event.streamChannelId,
     });
 
@@ -116,7 +115,6 @@ export class ChatbotRequestConsumer
       await this.saveChatLogHandler.execute({
         userId: event.userId,
         conversationId: event.conversationId,
-        sessionId: event.sessionId,
         userMessage: event.message,
         assistantMessage: '',
         success: false,
@@ -128,7 +126,6 @@ export class ChatbotRequestConsumer
     await this.saveChatLogHandler.execute({
       userId: event.userId,
       conversationId: event.conversationId,
-      sessionId: event.sessionId,
       userMessage: event.message,
       assistantMessage: result.fullContent,
       success: true,

@@ -201,7 +201,6 @@
 | latency | Number             | 응답 지연 ms, 0~60000 (optional)          |
 | success | Boolean            | 성공 여부 (required, default true)        |
 | error   | String             | 에러 메시지 (optional, max 1000)          |
-| sessionId | String           | 세션 ID (optional, index)                 |
 | createdAt | Date             | 생성 시각 (timestamps)                    |
 | updatedAt | Date             | 수정 시각 (timestamps)                    |
 
@@ -209,7 +208,6 @@
 
 | 필드                 | 타입           | 의미                 |
 | -------------------- | -------------- | -------------------- |
-| sessionId            | String         | 세션 ID              |
 | conversationId       | String         | 대화 ID              |
 | previousMessageIds   | [String]       | 이전 메시지 ID 목록  |
 | userPreferences      | Mixed          | 사용자 선호          |
@@ -227,7 +225,7 @@
 | temperature      | Number  | (optional)    |
 | maxTokens        | Number  | (optional)    |
 
-**인덱스**: `(userId, createdAt DESC)`, `(sessionId, createdAt)`, `(success, createdAt DESC)`, `(llm.model, createdAt DESC)`, TTL `(createdAt, 30일)`
+**인덱스**: `(userId, createdAt DESC)`, `(userId, context.conversationId, createdAt)`, `(success, createdAt DESC)`, `(llm.model, createdAt DESC)`, TTL `(createdAt, 30일)`
 
 **문서 구조 예시**
 
@@ -238,7 +236,6 @@
   "role": "assistant",
   "message": "이 재료로 만들 수 있는 요리를 추천해드릴게요",
   "context": {
-    "sessionId": "sess_abc",
     "conversationId": "conv_xyz",
     "mentionedIngredientIds": [1, 5]
   },
@@ -251,7 +248,6 @@
   },
   "latency": 820,
   "success": true,
-  "sessionId": "sess_abc",
   "createdAt": "2025-01-25T00:00:00.000Z",
   "updatedAt": "2025-01-25T00:00:00.000Z"
 }
@@ -403,7 +399,7 @@
      - `name`, `category` 를 통해 LLM이 **“채소/육류/양념” 등 자연어 설명**을 만들 수 있도록 지원
 4. **대화/행동 이력 조회 (NoSQL)**
    - `ChatbotLog`:
-     - `userId`, `sessionId`, `conversationId` 기준으로 최근 N개 메시지를 조회
+     - `userId`, `conversationId`(context.conversationId) 기준으로 최근 N개 메시지를 조회
      - 이전에 언급된 재료/레시피, 사용자가 이미 거절한 제안 등을 파악
    - `EventLog`:
      - 최근 `recipe.view`, `search.query`, `search.click` 등을 조회

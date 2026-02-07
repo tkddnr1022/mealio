@@ -6,7 +6,6 @@ export interface ChatbotRequestEvent {
   userId: number;
   message: string;
   conversationId?: string;
-  sessionId?: string;
   streamChannelId?: string;
   timestamp: string;
 }

@@ -38,7 +38,7 @@ export class ChatbotLogRepository {
     const query = this.chatbotLogModel
       .find({ userId })
       .select(
-        'userId role message context llm latency success sessionId createdAt',
+        'userId role message context llm latency success createdAt',
       )
       .lean();
     if (take) {
@@ -51,7 +51,7 @@ export class ChatbotLogRepository {
   }
 
   /**
-   * conversationId(또는 sessionId)로 대화 히스토리 조회 (GET /chatbot/conversations/:id)
+   * conversationId로 대화 히스토리 조회 (GET /chatbot/conversations/:id)
    * @param conversationId 대화 ID
    * @param userId 선택: 지정 시 해당 사용자의 대화만 반환 (권한 검증용)
    */
@@ -60,10 +60,7 @@ export class ChatbotLogRepository {
     userId?: number,
   ): Promise<ChatbotLog[]> {
     const filter: Record<string, unknown> = {
-      $or: [
-        { sessionId: conversationId },
-        { 'context.conversationId': conversationId },
-      ],
+      'context.conversationId': conversationId,
     };
     if (userId !== undefined) {
       filter.userId = userId;
@@ -94,9 +91,7 @@ export class ChatbotLogRepository {
       { $match: { userId } },
       {
         $addFields: {
-          conversationId: {
-            $ifNull: ['$sessionId', '$context.conversationId'],
-          },
+          conversationId: '$context.conversationId',
         },
       },
       { $match: { conversationId: { $nin: [null, ''] } } },

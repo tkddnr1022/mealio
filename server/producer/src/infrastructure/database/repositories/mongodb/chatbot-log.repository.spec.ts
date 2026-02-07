@@ -109,10 +109,7 @@ describe('ChatbotLogRepository', () => {
       const result = await repository.findByConversationId(conversationId);
 
       expect(model.find).toHaveBeenCalledWith({
-        $or: [
-          { sessionId: conversationId },
-          { 'context.conversationId': conversationId },
-        ],
+        'context.conversationId': conversationId,
       });
       expect(mockQuery.sort).toHaveBeenCalledWith({ createdAt: 1 });
       expect(result).toEqual(logs);
@@ -126,10 +123,7 @@ describe('ChatbotLogRepository', () => {
       await repository.findByConversationId(conversationId, userId);
 
       expect(model.find).toHaveBeenCalledWith({
-        $or: [
-          { sessionId: conversationId },
-          { 'context.conversationId': conversationId },
-        ],
+        'context.conversationId': conversationId,
         userId,
       });
     });

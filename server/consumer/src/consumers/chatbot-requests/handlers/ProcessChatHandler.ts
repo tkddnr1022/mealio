@@ -22,7 +22,6 @@ export interface ProcessChatPayload {
   userId: number;
   message: string;
   conversationId?: string;
-  sessionId?: string;
   streamChannelId?: string;
 }
 
@@ -83,10 +82,7 @@ export class ProcessChatHandler {
 
     const previousTurns = await this.chatbotLogRepository.findRecentTurns(
       payload.userId,
-      {
-        conversationId: payload.conversationId,
-        sessionId: payload.sessionId,
-      },
+      { conversationId: payload.conversationId },
       DEFAULT_RECENT_TURNS_LIMIT,
     );
 

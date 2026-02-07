@@ -7,7 +7,6 @@ import type { ChatbotLogDocument } from '@cook/shared';
 export interface SaveChatLogPayload {
   userId: number;
   conversationId?: string;
-  sessionId?: string;
   userMessage: string;
   assistantMessage: string;
   success: boolean;
@@ -35,7 +34,6 @@ export class SaveChatLogHandler {
     const {
       userId,
       conversationId,
-      sessionId,
       userMessage,
       assistantMessage,
       success,
@@ -46,7 +44,6 @@ export class SaveChatLogHandler {
     } = payload;
 
     const baseContext = {
-      sessionId,
       conversationId,
       suggestedRecipeIds: suggestedRecipeIds ?? [],
     };
@@ -58,7 +55,6 @@ export class SaveChatLogHandler {
         message: userMessage.slice(0, 10000),
         context: baseContext,
         success: true,
-        sessionId,
       },
       {
         userId,
@@ -71,7 +67,6 @@ export class SaveChatLogHandler {
         },
         success,
         error: error?.slice(0, 1000),
-        sessionId,
       },
     ]);
   }

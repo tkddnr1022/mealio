@@ -55,14 +55,12 @@ export class ChatbotService {
     const conversationId =
       dto.conversationId ??
       `conv_${randomUUID().replace(/-/g, '').slice(0, 16)}`;
-    const sessionId = conversationId;
     const channel = getChatbotStreamChannel(streamChannelId);
 
     const event: ChatbotRequestEvent = {
       userId,
       message: dto.message,
       conversationId,
-      sessionId,
       streamChannelId,
       timestamp: new Date().toISOString(),
     };
