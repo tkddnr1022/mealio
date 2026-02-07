@@ -15,6 +15,7 @@ import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
 import { UpdateUserProfileHandler } from './handlers/UpdateUserProfileHandler';
 import { TrackUserActivityHandler } from './handlers/TrackUserActivityHandler';
 import { RecommendationHandler } from './handlers/RecommendationHandler';
+import { UpdateUserIngredientHandler } from './handlers/UpdateUserIngredientHandler';
 
 export type UserEventPayload = UserEvent | UserIngredientEvent;
 
@@ -34,6 +35,14 @@ function isValidUserEventPayload(obj: unknown): obj is UserEventPayload {
   return true;
 }
 
+function isUserIngredientEvent(
+  event: UserEventPayload,
+): event is UserIngredientEvent {
+  return Object.values(UserIngredientEventType).includes(
+    event.type as UserIngredientEventType,
+  );
+}
+
 /** user-events 토픽 전용 processor (파싱·비즈니스·DLQ). */
 @Injectable()
 export class UserEventProcessor extends BaseTopicProcessor<UserEventPayload> {
@@ -43,6 +52,7 @@ export class UserEventProcessor extends BaseTopicProcessor<UserEventPayload> {
     private readonly updateUserProfileHandler: UpdateUserProfileHandler,
     private readonly trackUserActivityHandler: TrackUserActivityHandler,
     private readonly recommendationHandler: RecommendationHandler,
+    private readonly updateUserIngredientHandler: UpdateUserIngredientHandler,
   ) {
     super(UserEventProcessor.name, retryStrategy, deadLetterHandler);
   }
@@ -73,6 +83,9 @@ export class UserEventProcessor extends BaseTopicProcessor<UserEventPayload> {
   ): Promise<void> {
     if (isUserNicknameUpdateEvent(event as UserEvent)) {
       await this.updateUserProfileHandler.execute(event as UserEvent);
+    }
+    if (isUserIngredientEvent(event)) {
+      await this.updateUserIngredientHandler.execute(event);
     }
     await this.trackUserActivityHandler.execute(event);
     await this.recommendationHandler.execute(event);
