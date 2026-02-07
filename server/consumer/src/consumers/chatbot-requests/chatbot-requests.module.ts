@@ -9,6 +9,7 @@ import {
 import { OpenAIModule } from 'src/integrations/openai/openai.module';
 import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
+import { ChatbotLogRepository } from 'src/persistence/repositories/mongodb/chatbot-log.repository';
 import { ChatbotRequestConsumer } from './chatbot-request.consumer';
 import { ProcessChatHandler } from './handlers/ProcessChatHandler';
 import { SaveChatLogHandler } from './handlers/SaveChatLogHandler';
@@ -27,6 +28,7 @@ import { ToolDispatcher } from './tools/tool-dispatcher';
   providers: [
     RetryStrategy,
     DeadLetterHandler,
+    ChatbotLogRepository,
     SearchRecipesHandler,
     UserIngredientsHandler,
     ToolDispatcher,

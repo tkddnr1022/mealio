@@ -9,6 +9,10 @@ import {
   type ChatbotStreamToolCallEvent,
 } from '@cook/shared';
 import { OpenAIService } from 'src/integrations/openai/openai.service';
+import {
+  ChatbotLogRepository,
+  DEFAULT_RECENT_TURNS_LIMIT,
+} from 'src/persistence/repositories/mongodb/chatbot-log.repository';
 import { ToolDispatcher } from '../tools/tool-dispatcher';
 import { CHATBOT_TOOLS } from '../tools/chatbot-tools.definition';
 import { buildMessagesForGpt } from '../context/conversation.manager';
@@ -30,6 +34,7 @@ export class ProcessChatHandler {
     private readonly openai: OpenAIService,
     private readonly redis: RedisService,
     private readonly toolDispatcher: ToolDispatcher,
+    private readonly chatbotLogRepository: ChatbotLogRepository,
   ) {}
 
   async execute(payload: ProcessChatPayload): Promise<
@@ -74,8 +79,17 @@ export class ProcessChatHandler {
   }> {
     const toolContext = { userId: payload.userId };
 
+    const previousTurns = await this.chatbotLogRepository.findRecentTurns(
+      payload.userId,
+      {
+        conversationId: payload.conversationId,
+        sessionId: payload.sessionId,
+      },
+      DEFAULT_RECENT_TURNS_LIMIT,
+    );
+
     let messages: ChatCompletionMessageParam[] = buildMessagesForGpt(
-      [],
+      previousTurns,
       payload.message,
     );
     let fullContent = '';
