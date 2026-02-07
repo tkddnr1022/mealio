@@ -10,39 +10,49 @@
 
 패키지 루트: `server/consumer/`. 아래 경로는 모두 저장소 루트 기준 절대 경로이며, 패키지 루트 경로를 포함해 표기한다.
 
+**구조 원칙**: `consumers/` 하위에 **그룹명** 폴더(예: recipe-generation, chatbot, analytics, cache-invalidation)를 두고, 각 그룹 안에 **토픽명** 폴더(예: recipe-generation, chatbot-requests, search-logs, user-events, cache-invalidation)를 둔다. 토픽 폴더에는 해당 토픽 전용 processor·핸들러·모듈을 두고, 그룹 루트에는 해당 그룹의 Kafka 구독·실행을 담당하는 `*.consumer.ts`와 `*.module.ts`를 둔다.
+
 | 경로 | 역할 |
 |------|------|
+| **server/consumer/src/consumers/consumers.module.ts** | 그룹 모듈(RecipeGeneration, Chatbot, Analytics, CacheInvalidation) 통합 |
 | **server/consumer/src/consumers/base/** | |
-| server/consumer/src/consumers/base/base.consumer.ts | 공통 컨슈머 로직 (재시도·DLQ 래핑) |
+| server/consumer/src/consumers/base/base.processor.ts | 토픽 공통 인터페이스(ITopicProcessor)·BaseTopicProcessor(파싱·재시도·DLQ 위임) |
+| server/consumer/src/consumers/base/base.consumer.ts | 단일 consumer 인스턴스 connect/subscribe/run/disconnect 공통 로직 (BaseConsumerRunner) |
 | server/consumer/src/consumers/base/retry.strategy.ts | 재시도 전략 (지수 백오프) |
-| **server/consumer/src/consumers/recipe-generation/** | |
-| server/consumer/src/consumers/recipe-generation/recipe-generation.consumer.ts | 레시피 생성 토픽 구독 |
-| server/consumer/src/consumers/recipe-generation/handlers/GenerateRecipeHandler.ts | OpenAI API 호출 |
-| server/consumer/src/consumers/recipe-generation/handlers/SaveRecipeHandler.ts | Prisma Recipe 저장 |
-| server/consumer/src/consumers/recipe-generation/handlers/UploadImageHandler.ts | S3 이미지 저장 |
-| server/consumer/src/consumers/recipe-generation/validators/recipe-data.validator.ts | 생성 레시피 검증 |
-| **server/consumer/src/consumers/chatbot-requests/** | |
-| server/consumer/src/consumers/chatbot-requests/chatbot-request.consumer.ts | CHATBOT_REQUESTS 구독 |
-| server/consumer/src/consumers/chatbot-requests/handlers/ProcessChatHandler.ts | GPT Function Calling·스트리밍 호출, tool_choice auto, payload( userId/conversationId/자연어 등 최소 메타데이터) 수신, tool_calls 디스패치, Redis에 ChatbotStreamEvent 발행 |
-| server/consumer/src/consumers/chatbot-requests/handlers/UserIngredientsHandler.ts | get_user_ingredients 함수 실행 — MongoDB UserIngredient 조회, Prisma Ingredient id→name(Redis 캐시), [{ id, name, ... }] 반환 |
-| server/consumer/src/consumers/chatbot-requests/handlers/SearchRecipesHandler.ts | search_recipes 함수 실행 — Prisma 레시피 검색, ingredientIds optional(일반 검색 지원), 필요 시 매칭 점수 계산, RecipeSummary[] 반환 |
-| server/consumer/src/consumers/chatbot-requests/handlers/SaveChatLogHandler.ts | 스트림 종료 후 Mongoose ChatbotLog 저장 |
-| server/consumer/src/consumers/chatbot-requests/tools/chatbot-tools.definition.ts | OpenAI tools 배열 (search_recipes, get_user_ingredients 등; search_recipes는 ingredientIds optional) |
-| server/consumer/src/consumers/chatbot-requests/tools/tool-dispatcher.ts | function name → Handler 매핑·실행, tool result를 GPT에 반환 |
-| server/consumer/src/consumers/chatbot-requests/context/conversation.manager.ts | 대화 히스토리 컨텍스트 관리 — buildMessagesForGpt, PreviousTurn, 시스템 프롬프트 (§2.2) |
-| **server/consumer/src/consumers/search-logs/** | |
-| server/consumer/src/consumers/search-logs/search-log.consumer.ts | 검색 로그 토픽 구독 |
-| server/consumer/src/consumers/search-logs/handlers/IndexSearchHandler.ts | 검색어 인덱싱 |
-| server/consumer/src/consumers/search-logs/handlers/AnalyticsHandler.ts | 검색 패턴 분석 |
-| **server/consumer/src/consumers/user-events/** | |
-| server/consumer/src/consumers/user-events/user-event.consumer.ts | 유저 이벤트 토픽 구독 |
-| server/consumer/src/consumers/user-events/handlers/UpdateUserProfileHandler.ts | 사용자 프로필 업데이트 |
-| server/consumer/src/consumers/user-events/handlers/TrackUserActivityHandler.ts | EventLog 저장 |
-| server/consumer/src/consumers/user-events/handlers/RecommendationHandler.ts | 추천 갱신 |
-| **server/consumer/src/consumers/cache-invalidation/** | |
-| server/consumer/src/consumers/cache-invalidation/cache-invalidation.consumer.ts | 캐시 무효화 토픽 구독 |
-| server/consumer/src/consumers/cache-invalidation/handlers/RedisInvalidationHandler.ts | Redis 캐시 무효화 |
-| server/consumer/src/consumers/cache-invalidation/handlers/CDNInvalidationHandler.ts | CloudFlare 퍼지 |
+| **server/consumer/src/consumers/recipe-generation/** (그룹) | |
+| server/consumer/src/consumers/recipe-generation/recipe-generation.consumer.ts | recipe-generation-group 구독, RecipeGenerationProcessor에 메시지 디스패치 |
+| server/consumer/src/consumers/recipe-generation/recipe-generation.module.ts | 그룹 모듈 정의 |
+| **server/consumer/src/consumers/recipe-generation/recipe-generation/** (토픽) | |
+| server/consumer/src/consumers/recipe-generation/recipe-generation/recipe-generation.processor.ts | 레시피 생성 토픽 전용 processor (파싱·비즈니스·DLQ) |
+| **server/consumer/src/consumers/chatbot/** (그룹) | |
+| server/consumer/src/consumers/chatbot/chatbot.consumer.ts | chatbot-group, CHATBOT_REQUESTS 구독 |
+| server/consumer/src/consumers/chatbot/chatbot.module.ts | 그룹 모듈 정의 |
+| **server/consumer/src/consumers/chatbot/chatbot-requests/** (토픽) | |
+| server/consumer/src/consumers/chatbot/chatbot-requests/chatbot-request.processor.ts | CHATBOT_REQUESTS 토픽 전용 processor |
+| server/consumer/src/consumers/chatbot/chatbot-requests/handlers/ProcessChatHandler.ts | GPT Function Calling·스트리밍 호출, tool_choice auto, payload( userId/conversationId/자연어 등 최소 메타데이터) 수신, tool_calls 디스패치, Redis에 ChatbotStreamEvent 발행 |
+| server/consumer/src/consumers/chatbot/chatbot-requests/handlers/UserIngredientsHandler.ts | get_user_ingredients 함수 실행 — MongoDB UserIngredient 조회, Prisma Ingredient id→name(Redis 캐시), [{ id, name, ... }] 반환 |
+| server/consumer/src/consumers/chatbot/chatbot-requests/handlers/SearchRecipesHandler.ts | search_recipes 함수 실행 — Prisma 레시피 검색, ingredientIds optional(일반 검색 지원), 필요 시 매칭 점수 계산, RecipeSummary[] 반환 |
+| server/consumer/src/consumers/chatbot/chatbot-requests/handlers/SaveChatLogHandler.ts | 스트림 종료 후 Mongoose ChatbotLog 저장 |
+| server/consumer/src/consumers/chatbot/chatbot-requests/tools/chatbot-tools.definition.ts | OpenAI tools 배열 (search_recipes, get_user_ingredients 등; search_recipes는 ingredientIds optional) |
+| server/consumer/src/consumers/chatbot/chatbot-requests/tools/tool-dispatcher.ts | function name → Handler 매핑·실행, tool result를 GPT에 반환 |
+| server/consumer/src/consumers/chatbot/chatbot-requests/context/conversation.manager.ts | 대화 히스토리 컨텍스트 관리 — buildMessagesForGpt, PreviousTurn, 시스템 프롬프트 (§2.2) |
+| **server/consumer/src/consumers/analytics/** (그룹) | |
+| server/consumer/src/consumers/analytics/analytics.consumer.ts | analytics-group, SEARCH_LOGS·USER_EVENTS 구독, SearchLogProcessor·UserEventProcessor에 디스패치 |
+| server/consumer/src/consumers/analytics/analytics.module.ts | 그룹 모듈 정의 (SearchLogsModule, UserEventsModule import) |
+| **server/consumer/src/consumers/analytics/search-logs/** (토픽) | |
+| server/consumer/src/consumers/analytics/search-logs/search-log.processor.ts | SEARCH_LOGS 토픽 전용 processor |
+| server/consumer/src/consumers/analytics/search-logs/search-logs.module.ts | 토픽 모듈 정의 |
+| **server/consumer/src/consumers/analytics/user-events/** (토픽) | |
+| server/consumer/src/consumers/analytics/user-events/user-event.processor.ts | USER_EVENTS 토픽 전용 processor |
+| server/consumer/src/consumers/analytics/user-events/user-events.module.ts | 토픽 모듈 정의 |
+| server/consumer/src/consumers/analytics/user-events/handlers/UpdateUserProfileHandler.ts | 사용자 프로필 업데이트 |
+| server/consumer/src/consumers/analytics/user-events/handlers/TrackUserActivityHandler.ts | EventLog 저장 |
+| server/consumer/src/consumers/analytics/user-events/handlers/RecommendationHandler.ts | 추천 갱신 |
+| **server/consumer/src/consumers/cache-invalidation/** (그룹) | |
+| server/consumer/src/consumers/cache-invalidation/cache-invalidation.consumer.ts | cache-invalidation-group 구독 |
+| server/consumer/src/consumers/cache-invalidation/cache-invalidation.module.ts | 그룹 모듈 정의 |
+| **server/consumer/src/consumers/cache-invalidation/cache-invalidation/** (토픽) | |
+| server/consumer/src/consumers/cache-invalidation/cache-invalidation/cache-invalidation.processor.ts | CACHE_INVALIDATION 토픽 전용 processor (파싱·비즈니스·DLQ; Redis/CDN 무효화 연동 확장) |
 | **server/consumer/src/integrations/openai/** | |
 | server/consumer/src/integrations/openai/openai.service.ts | GPT API 래퍼 |
 | server/consumer/src/integrations/openai/response-parser.ts | JSON 파싱·검증 |
@@ -104,8 +114,8 @@
 
 ## 2.2 챗봇 모듈: 대화 히스토리 컨텍스트 처리
 
-- **conversation.manager**: `buildMessagesForGpt(previousTurns, newUserMessage)`로 GPT용 메시지 배열 생성(시스템 프롬프트 + 이전 턴 + 새 사용자 메시지).
-- **ProcessChatHandler**: GPT 호출 전 위 함수를 호출해 `messages`를 얻어 OpenAI API에 전달. 이전 턴은 ChatbotLog에서 `conversationId`(context.conversationId) 기준으로 조회해 공급할 수 있음(확장 시).
+- **conversation.manager**: `consumers/chatbot/chatbot-requests/context/conversation.manager.ts` — `buildMessagesForGpt(previousTurns, newUserMessage)`로 GPT용 메시지 배열 생성(시스템 프롬프트 + 이전 턴 + 새 사용자 메시지).
+- **ProcessChatHandler**: `consumers/chatbot/chatbot-requests/handlers/ProcessChatHandler.ts` — GPT 호출 전 위 함수를 호출해 `messages`를 얻어 OpenAI API에 전달. 이전 턴은 ChatbotLog에서 `conversationId`(context.conversationId) 기준으로 조회해 공급할 수 있음(확장 시).
 - 상세 규칙·저장소·조회 설계·토큰 제한 등은 `../guidelines/backend_development_guidelines.md` §5.4 참고.
 
 ---

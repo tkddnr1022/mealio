@@ -136,8 +136,6 @@ export class ProcessChatHandler {
         model = roundModel;
       }
 
-      // fullContent는 이미 onChunk에서 chunk.content로 누적됨. roundContent 중복 누적 제거.
-
       if (finishReason === 'tool_calls' && toolCalls?.length) {
         const assistantMessage: ChatCompletionMessageParam = {
           role: 'assistant',
@@ -251,7 +249,6 @@ export class ProcessChatHandler {
     model?: string;
   }> {
     let content = '';
-    /** 스트리밍은 인덱스별로 여러 청크에 나뉘어 옴. id로만 버퍼링하면 id 없는 청크가 ''로 합쳐져 name이 빈 항목이 생김 → index 기준 버퍼링 */
     const toolCallsBuffer = new Map<
       number,
       { id: string; name: string; args: string[] }
@@ -309,7 +306,6 @@ export class ProcessChatHandler {
             }))
             .filter((t) => t.name.length > 0);
           onChunk({ toolCalls: returnToolCalls, finishReason });
-          // usage는 마지막 청크로 올 수 있으므로 루프 계속 진행
         }
       }
     }

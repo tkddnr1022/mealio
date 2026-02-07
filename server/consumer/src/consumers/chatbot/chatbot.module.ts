@@ -6,19 +6,22 @@ import {
   UserIngredient,
   UserIngredientSchema,
 } from '@cook/shared';
+import { KafkaModule } from 'src/integrations/kafka/kafka.module';
 import { OpenAIModule } from 'src/integrations/openai/openai.module';
 import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
 import { ChatbotLogRepository } from 'src/persistence/repositories/mongodb/chatbot-log.repository';
-import { ChatbotRequestConsumer } from './chatbot-request.consumer';
-import { ProcessChatHandler } from './handlers/ProcessChatHandler';
-import { SaveChatLogHandler } from './handlers/SaveChatLogHandler';
-import { SearchRecipesHandler } from './handlers/SearchRecipesHandler';
-import { UserIngredientsHandler } from './handlers/UserIngredientsHandler';
-import { ToolDispatcher } from './tools/tool-dispatcher';
+import { ChatbotRequestProcessor } from './chatbot-requests/chatbot-request.processor';
+import { ChatbotConsumer } from './chatbot.consumer';
+import { ProcessChatHandler } from './chatbot-requests/handlers/ProcessChatHandler';
+import { SaveChatLogHandler } from './chatbot-requests/handlers/SaveChatLogHandler';
+import { SearchRecipesHandler } from './chatbot-requests/handlers/SearchRecipesHandler';
+import { UserIngredientsHandler } from './chatbot-requests/handlers/UserIngredientsHandler';
+import { ToolDispatcher } from './chatbot-requests/tools/tool-dispatcher';
 
 @Module({
   imports: [
+    KafkaModule,
     OpenAIModule,
     MongooseModule.forFeature([
       { name: ChatbotLog.name, schema: ChatbotLogSchema },
@@ -34,7 +37,9 @@ import { ToolDispatcher } from './tools/tool-dispatcher';
     ToolDispatcher,
     ProcessChatHandler,
     SaveChatLogHandler,
-    ChatbotRequestConsumer,
+    ChatbotRequestProcessor,
+    ChatbotConsumer,
   ],
+  exports: [ChatbotRequestProcessor],
 })
-export class ChatbotRequestsConsumerModule {}
+export class ChatbotConsumerModule {}

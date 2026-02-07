@@ -13,7 +13,7 @@ import {
   envValidationSchema,
 } from './config/env.validation';
 import { OpenAIModule } from './integrations/openai/openai.module';
-import { ChatbotRequestsConsumerModule } from './consumers/chatbot-requests/chatbot-requests.module';
+import { ConsumersModule } from './consumers/consumers.module';
 
 @Module({
   imports: [
@@ -35,8 +35,8 @@ import { ChatbotRequestsConsumerModule } from './consumers/chatbot-requests/chat
     RedisModule,
     // OpenAI (GPT API 래퍼, 레이트 리미터)
     OpenAIModule,
-    // Kafka chatbot-requests consumer 모듈
-    ChatbotRequestsConsumerModule,
+    // 다중 Kafka consumer 인스턴스 (그룹별 분리)
+    ConsumersModule,
   ],
 })
 export class AppModule {}

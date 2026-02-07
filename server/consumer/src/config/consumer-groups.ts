@@ -1,0 +1,13 @@
+/**
+ * Kafka consumer 그룹 ID 상수.
+ * 환경 변수가 아닌 상수로 관리하여 그룹별 역할이 명확하도록 한다.
+ */
+export const CONSUMER_GROUPS = {
+  RECIPE_GENERATION: 'recipe-generation-group',
+  CHATBOT: 'chatbot-group',
+  ANALYTICS: 'analytics-group',
+  CACHE_INVALIDATION: 'cache-invalidation-group',
+} as const;
+
+export type ConsumerGroupId =
+  (typeof CONSUMER_GROUPS)[keyof typeof CONSUMER_GROUPS];

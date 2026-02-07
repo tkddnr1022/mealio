@@ -1,84 +1,89 @@
 import type { EachMessagePayload } from 'kafkajs';
-import { Logger } from '@nestjs/common';
-import type {
-  RetryStrategy,
-  RetryContext,
-} from 'src/consumers/base/retry.strategy';
-import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
+import type { Consumer } from 'kafkajs';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
+import { KafkaService } from 'src/integrations/kafka/kafka.service';
+import type { ITopicProcessor } from './base.processor';
 
 /**
- * Kafka Consumer 공통 로직 베이스 클래스
- * - 메시지 파싱
- * - 재시도 전략 적용
- * - DLQ 전송
- *
- * 각 도메인 Consumer는 이 클래스를 상속하고
- * `parseEvent` / `processEvent` / `getTopic` 을 구현한다.
+ * 단일 Kafka consumer 인스턴스의 connect / subscribe / run / disconnect 를 담당하는 베이스.
+ * 그룹 ID와 토픽 프로세서 목록을 받아 하나의 consumer로 구독·디스패치한다.
  */
-export abstract class BaseConsumer<TEvent> {
+@Injectable()
+export abstract class BaseConsumer implements OnModuleInit, OnModuleDestroy {
   protected readonly logger: Logger;
+  protected consumer: Consumer | null = null;
 
-  protected constructor(
-    loggerName: string,
-    private readonly retryStrategy: RetryStrategy,
-    private readonly deadLetterHandler: DeadLetterHandler,
+  protected static readonly HEARTBEAT_INTERVAL_MS = 10_000;
+  protected static readonly SESSION_TIMEOUT_MS = 120_000;
+
+  constructor(
+    protected readonly kafkaService: KafkaService,
+    protected readonly groupId: string,
+    protected readonly processors: ITopicProcessor[],
+    loggerName?: string,
   ) {
-    this.logger = new Logger(loggerName);
+    this.logger = new Logger(loggerName ?? this.constructor.name);
   }
 
-  protected abstract getTopic(): string;
+  async onModuleInit(): Promise<void> {
+    const topicList = this.processors.map((p) => p.getTopic());
+    const processorByTopic = new Map(
+      this.processors.map((p) => [p.getTopic(), p]),
+    );
 
-  protected abstract parseEvent(message: EachMessagePayload): TEvent | null;
+    this.consumer = this.kafkaService.getConsumer({
+      groupId: this.groupId,
+      sessionTimeout: BaseConsumer.SESSION_TIMEOUT_MS,
+    });
+    await this.consumer.connect();
+    await this.consumer.subscribe({ topics: topicList });
+    await this.consumer.run({
+      eachBatch: async ({ batch, heartbeat, isRunning, isStale }) => {
+        const processor = processorByTopic.get(batch.topic);
+        if (!processor) {
+          this.logger.warn(
+            `No processor for topic=${batch.topic}, skipping batch`,
+          );
+          return;
+        }
+        for (const message of batch.messages) {
+          if (!isRunning() || isStale()) break;
 
-  protected abstract processEvent(
-    event: TEvent,
-    message: EachMessagePayload,
-  ): Promise<void>;
+          const payload = {
+            topic: batch.topic,
+            partition: batch.partition,
+            message,
+          } as EachMessagePayload;
 
-  /**
-   * 각 Consumer에서 `eachMessage` 내에서 호출하는 공통 처리 진입점
-   */
-  protected async handleWithRetryAndDlq(
-    payload: EachMessagePayload,
-    dlqTopic: string,
-    retryContext?: RetryContext,
-  ): Promise<void> {
-    const { message } = payload;
+          const timer = setInterval(() => {
+            heartbeat().catch((err) =>
+              this.logger.warn('Heartbeat failed', err),
+            );
+          }, BaseConsumer.HEARTBEAT_INTERVAL_MS);
+          try {
+            await processor.handleMessage(payload);
+          } finally {
+            clearInterval(timer);
+          }
+        }
+      },
+      eachBatchAutoResolve: true,
+    });
 
-    if (!message.value) {
-      this.logger.warn('Received message without value, skipping');
-      return;
-    }
+    this.logger.log(
+      `Subscribed to [${topicList.join(', ')}] (groupId=${this.groupId})`,
+    );
+  }
 
-    const event = this.parseEvent(payload);
-    if (!event) {
-      this.logger.warn('Failed to parse event. Skipping message.');
-      return;
-    }
-
-    try {
-      await this.retryStrategy.execute(
-        () => this.processEvent(event, payload),
-        {
-          operationName: `${this.getTopic()}#processEvent`,
-          ...retryContext,
-        },
-      );
-    } catch (error) {
-      this.logger.error(
-        `Error while processing event for topic=${this.getTopic()}`,
-        error as Error,
-      );
-
-      await this.deadLetterHandler.send({
-        topic: dlqTopic,
-        partition: payload.partition,
-        offset: message.offset,
-        key: message.key?.toString() ?? null,
-        value: message.value.toString(),
-        reason: (error as Error).message,
-        timestamp: new Date().toISOString(),
-      });
+  async onModuleDestroy(): Promise<void> {
+    if (this.consumer) {
+      await this.consumer.disconnect();
+      this.consumer = null;
     }
   }
 }
