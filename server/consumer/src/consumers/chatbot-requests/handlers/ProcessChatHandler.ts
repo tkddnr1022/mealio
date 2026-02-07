@@ -42,6 +42,7 @@ export class ProcessChatHandler {
         fullContent: string;
         suggestedRecipes: SuggestedRecipe[];
         usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
+        model?: string;
       }
     | { error: string }
   > {
@@ -75,6 +76,7 @@ export class ProcessChatHandler {
   ): Promise<{
     fullContent: string;
     suggestedRecipes: SuggestedRecipe[];
+    model?: string;
     usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
   }> {
     const toolContext = { userId: payload.userId };
@@ -95,6 +97,7 @@ export class ProcessChatHandler {
     let fullContent = '';
     let lastSuggestedRecipes: SuggestedRecipe[] = [];
     let usage: { promptTokens: number; completionTokens: number; totalTokens: number } | undefined;
+    let model: string | undefined;
 
     const maxToolRounds = 5;
     for (let round = 0; round < maxToolRounds; round++) {
@@ -102,7 +105,7 @@ export class ProcessChatHandler {
         tools: CHATBOT_TOOLS,
       });
 
-      const { content: roundContent, toolCalls, finishReason } =
+      const { content: roundContent, toolCalls, finishReason, usage: roundUsage, model: roundModel } =
         await this.consumeStream(stream, (chunk) => {
           if (chunk.content) {
             fullContent += chunk.content;
@@ -121,6 +124,21 @@ export class ProcessChatHandler {
             }
           }
         });
+
+      if (roundUsage) {
+        if (!usage) {
+          usage = { ...roundUsage };
+        } else {
+          usage = {
+            promptTokens: usage.promptTokens + roundUsage.promptTokens,
+            completionTokens: usage.completionTokens + roundUsage.completionTokens,
+            totalTokens: usage.totalTokens + roundUsage.totalTokens,
+          };
+        }
+      }
+      if (roundModel && !model) {
+        model = roundModel;
+      }
 
       // fullContent는 이미 onChunk에서 chunk.content로 누적됨. roundContent 중복 누적 제거.
 
@@ -193,6 +211,7 @@ export class ProcessChatHandler {
           fullContent,
           suggestedRecipes: lastSuggestedRecipes,
           usage,
+          model,
         };
       }
     }
@@ -216,6 +235,7 @@ export class ProcessChatHandler {
     return {
       fullContent,
       suggestedRecipes: lastSuggestedRecipes,
+      model,
       usage,
     };
   }
@@ -231,6 +251,8 @@ export class ProcessChatHandler {
     content: string;
     toolCalls?: Array<{ id: string; name: string; arguments: string }>;
     finishReason?: string;
+    usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
+    model?: string;
   }> {
     let content = '';
     /** 스트리밍은 인덱스별로 여러 청크에 나뉘어 옴. id로만 버퍼링하면 id 없는 청크가 ''로 합쳐져 name이 빈 항목이 생김 → index 기준 버퍼링 */
@@ -239,8 +261,21 @@ export class ProcessChatHandler {
       { id: string; name: string; args: string[] }
     >();
     let finishReason: string | undefined;
+    let returnToolCalls: Array<{ id: string; name: string; arguments: string }> | undefined;
+    let streamUsage: { promptTokens: number; completionTokens: number; totalTokens: number } | undefined;
+    let streamModel: string | undefined;
 
     for await (const chunk of stream) {
+      if (chunk.model) {
+        streamModel = chunk.model;
+      }
+      if (chunk.usage && chunk.usage.prompt_tokens != null) {
+        streamUsage = {
+          promptTokens: chunk.usage.prompt_tokens,
+          completionTokens: chunk.usage.completion_tokens ?? 0,
+          totalTokens: chunk.usage.total_tokens ?? chunk.usage.prompt_tokens + (chunk.usage.completion_tokens ?? 0),
+        };
+      }
       const choice = chunk.choices[0];
       if (!choice) continue;
 
@@ -269,7 +304,7 @@ export class ProcessChatHandler {
       if (choice.finish_reason) {
         finishReason = choice.finish_reason;
         if (toolCallsBuffer.size > 0) {
-          const toolCalls = Array.from(toolCallsBuffer.entries())
+          returnToolCalls = Array.from(toolCallsBuffer.entries())
             .sort(([a], [b]) => a - b)
             .map(([, b]) => ({
               id: b.id,
@@ -277,15 +312,17 @@ export class ProcessChatHandler {
               arguments: b.args.join(''),
             }))
             .filter((t) => t.name.length > 0);
-          onChunk({ toolCalls, finishReason });
-          return {
-            content,
-            toolCalls,
-            finishReason,
-          };
+          onChunk({ toolCalls: returnToolCalls, finishReason });
+          // usage는 마지막 청크로 올 수 있으므로 루프 계속 진행
         }
       }
     }
-    return { content, finishReason };
+    return {
+      content,
+      toolCalls: returnToolCalls,
+      finishReason,
+      usage: streamUsage,
+      model: streamModel,
+    };
   }
 }

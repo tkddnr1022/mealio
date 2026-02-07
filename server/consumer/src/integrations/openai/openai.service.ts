@@ -98,6 +98,7 @@ export class OpenAIService {
       messages,
       stream: true,
       store: true,
+      stream_options: { include_usage: true },
       ...(options?.tools &&
         options.tools.length > 0 && {
           tools: options.tools,

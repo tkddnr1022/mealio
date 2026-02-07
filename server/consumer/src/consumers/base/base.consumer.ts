@@ -40,6 +40,7 @@ export abstract class BaseConsumer<TEvent> {
    */
   protected async handleWithRetryAndDlq(
     payload: EachMessagePayload,
+    dlqTopic: string,
     retryContext?: RetryContext,
   ): Promise<void> {
     const { message } = payload;
@@ -70,7 +71,7 @@ export abstract class BaseConsumer<TEvent> {
       );
 
       await this.deadLetterHandler.send({
-        topic: this.getTopic(),
+        topic: dlqTopic,
         partition: payload.partition,
         offset: message.offset,
         key: message.key?.toString() ?? null,

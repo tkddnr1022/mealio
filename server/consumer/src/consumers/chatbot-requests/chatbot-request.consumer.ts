@@ -1,7 +1,7 @@
 import type { EachMessagePayload } from 'kafkajs';
 import { Kafka } from 'kafkajs';
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { KAFKA_TOPICS, createKafkaConfig } from '@cook/shared';
+import { KAFKA_DLQ_TOPICS, KAFKA_TOPICS, createKafkaConfig } from '@cook/shared';
 import type { ChatbotRequestEvent } from '@cook/shared';
 import { BaseConsumer } from '../base/base.consumer';
 import { RetryStrategy } from '../base/retry.strategy';
@@ -62,7 +62,7 @@ export class ChatbotRequestConsumer
             );
           }, ChatbotRequestConsumer.HEARTBEAT_INTERVAL_MS);
           try {
-            await this.handleWithRetryAndDlq(payload);
+            await this.handleWithRetryAndDlq(payload, KAFKA_DLQ_TOPICS.CHATBOT_REQUESTS_DLQ);
           } finally {
             clearInterval(timer);
           }
@@ -134,7 +134,7 @@ export class ChatbotRequestConsumer
       success: true,
       suggestedRecipeIds: result.suggestedRecipes.map((r) => r.id),
       usage: result.usage,
-      model: undefined,
+      model: result.model,
     });
   }
 }

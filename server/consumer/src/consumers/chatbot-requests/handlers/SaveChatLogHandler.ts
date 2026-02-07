@@ -65,14 +65,10 @@ export class SaveChatLogHandler {
         role: 'assistant',
         message: assistantMessage.slice(0, 10000),
         context: baseContext,
-        llm: usage
-          ? {
-              model: model ?? 'gpt',
-              promptTokens: usage.promptTokens,
-              completionTokens: usage.completionTokens,
-              totalTokens: usage.totalTokens,
-            }
-          : undefined,
+        llm: {
+          model,
+          ...usage,
+        },
         success,
         error: error?.slice(0, 1000),
         sessionId,
