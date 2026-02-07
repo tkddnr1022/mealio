@@ -11,6 +11,7 @@ import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
 import { UserRepository } from 'src/persistence/repositories/postgresql/user.repository';
 import { EventLogRepository } from 'src/persistence/repositories/mongodb/event-log.repository';
 import { UserIngredientRepository } from 'src/persistence/repositories/mongodb/user-ingredient.repository';
+import { CacheInvalidationModule } from 'src/consumers/cache-invalidation/cache-invalidation.module';
 import { UserEventProcessor } from './user-event.processor';
 import { UpdateUserProfileHandler } from './handlers/UpdateUserProfileHandler';
 import { TrackUserActivityHandler } from './handlers/TrackUserActivityHandler';
@@ -19,6 +20,7 @@ import { UpdateUserIngredientHandler } from './handlers/UpdateUserIngredientHand
 
 @Module({
   imports: [
+    CacheInvalidationModule,
     MongooseModule.forFeature([
       { name: EventLog.name, schema: EventLogSchema },
       { name: UserIngredient.name, schema: UserIngredientSchema },

@@ -115,6 +115,10 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     return this.client.ttl(key);
   }
 
+  async del(key: string): Promise<number> {
+    return this.client.del(key);
+  }
+
   private setupEventHandlers(): void {
     this.client.on('connect', () => {
       this.logger.debug('Redis client connecting...');

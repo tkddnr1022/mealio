@@ -44,15 +44,21 @@
 | server/consumer/src/consumers/analytics/search-logs/search-logs.module.ts | 토픽 모듈 정의 |
 | **server/consumer/src/consumers/analytics/user-events/** (토픽) | |
 | server/consumer/src/consumers/analytics/user-events/user-event.processor.ts | USER_EVENTS 토픽 전용 processor |
-| server/consumer/src/consumers/analytics/user-events/user-events.module.ts | 토픽 모듈 정의 |
-| server/consumer/src/consumers/analytics/user-events/handlers/UpdateUserProfileHandler.ts | 사용자 프로필 업데이트 |
+| server/consumer/src/consumers/analytics/user-events/user-events.module.ts | 토픽 모듈 정의 (CacheInvalidationModule import로 CacheInvalidationRequestService 주입) |
+| server/consumer/src/consumers/analytics/user-events/handlers/UpdateUserProfileHandler.ts | 사용자 프로필 업데이트 (Prisma User.nickname). DB 반영 후 CacheInvalidationRequestService.requestUserProfileInvalidation 호출(캐시 무효화 요청만, 토픽 직접 발행 없음) |
+| server/consumer/src/consumers/analytics/user-events/handlers/UpdateUserIngredientHandler.ts | MongoDB UserIngredient 갱신 (BULK_UPDATE/ADD/REMOVE/FAVORITES_UPDATE). DB 반영 후 CacheInvalidationRequestService.requestUserIngredientInvalidation 호출(캐시 무효화 요청만, 토픽 직접 발행 없음) |
 | server/consumer/src/consumers/analytics/user-events/handlers/TrackUserActivityHandler.ts | EventLog 저장 |
 | server/consumer/src/consumers/analytics/user-events/handlers/RecommendationHandler.ts | 추천 갱신 |
 | **server/consumer/src/consumers/cache-invalidation/** (그룹) | |
 | server/consumer/src/consumers/cache-invalidation/cache-invalidation.consumer.ts | cache-invalidation-group 구독 |
-| server/consumer/src/consumers/cache-invalidation/cache-invalidation.module.ts | 그룹 모듈 정의 |
+| server/consumer/src/consumers/cache-invalidation/cache-invalidation.module.ts | 그룹 모듈 정의 (KafkaModule, RedisModule import. CacheInvalidationRequestService·RedisInvalidationHandler 제공, CacheInvalidationRequestService export) |
+| server/consumer/src/consumers/cache-invalidation/cache-invalidation-request.service.ts | 캐시 무효화 "요청" 서비스. requestUserProfileInvalidation(userId)·requestUserIngredientInvalidation(userId) — CACHE_INVALIDATION 토픽에 발행. Handler는 이 서비스만 호출하고 토픽을 직접 발행하지 않음 |
 | **server/consumer/src/consumers/cache-invalidation/cache-invalidation/** (토픽) | |
-| server/consumer/src/consumers/cache-invalidation/cache-invalidation/cache-invalidation.processor.ts | CACHE_INVALIDATION 토픽 전용 processor (파싱·비즈니스·DLQ; Redis/CDN 무효화 연동 확장) |
+| server/consumer/src/consumers/cache-invalidation/cache-invalidation/cache-invalidation.processor.ts | CACHE_INVALIDATION 토픽 전용 processor. CacheInvalidationPayload 파싱·검증 후 RedisInvalidationHandler 실행. DLQ 위임 |
+| server/consumer/src/consumers/cache-invalidation/cache-invalidation/redis-invalidation.handler.ts | CacheInvalidationPayload에 따라 Redis 키 삭제 (user:{userId}, user-ingredient:{userId}. @cook/shared CACHE_KEY_PREFIX 사용). 추후 CDN 무효화 확장 가능 |
+| **server/consumer/src/integrations/kafka/** | |
+| server/consumer/src/integrations/kafka/kafka.service.ts | Consumer 인스턴스 생성 (getConsumer) |
+| server/consumer/src/integrations/kafka/kafka-producer.service.ts | Consumer 내부 토픽 발행용 Kafka Producer (cache-invalidation 등). OnModuleInit/OnModuleDestroy로 connect/disconnect, emit(topic, payload, key?) |
 | **server/consumer/src/integrations/openai/** | |
 | server/consumer/src/integrations/openai/openai.service.ts | GPT API 래퍼 |
 | server/consumer/src/integrations/openai/response-parser.ts | JSON 파싱·검증 |
@@ -117,6 +123,14 @@
 - **conversation.manager**: `consumers/chatbot/chatbot-requests/context/conversation.manager.ts` — `buildMessagesForGpt(previousTurns, newUserMessage)`로 GPT용 메시지 배열 생성(시스템 프롬프트 + 이전 턴 + 새 사용자 메시지).
 - **ProcessChatHandler**: `consumers/chatbot/chatbot-requests/handlers/ProcessChatHandler.ts` — GPT 호출 전 위 함수를 호출해 `messages`를 얻어 OpenAI API에 전달. 이전 턴은 ChatbotLog에서 `conversationId`(context.conversationId) 기준으로 조회해 공급할 수 있음(확장 시).
 - 상세 규칙·저장소·조회 설계·토큰 제한 등은 `../guidelines/backend_development_guidelines.md` §5.4 참고.
+
+---
+
+## 2.3 캐시 무효화 흐름 (user-events → cache-invalidation)
+
+- **발행 주체**: Handler는 Kafka 토픽을 직접 발행하지 않는다. DB 반영 후 **CacheInvalidationRequestService**에 무효화 요청만 한다 (requestUserProfileInvalidation / requestUserIngredientInvalidation). 해당 서비스가 CACHE_INVALIDATION 토픽에 이벤트를 발행한다.
+- **수신·실행**: CacheInvalidationProcessor가 CACHE_INVALIDATION 토픽을 구독하고, **RedisInvalidationHandler**가 @cook/shared의 CACHE_KEY_PREFIX에 따라 Redis 키(user:{userId}, user-ingredient:{userId})를 삭제한다. Producer의 Cache-Aside 캐시와 동일 Redis를 사용하므로 무효화 후 다음 조회 시 DB 폴백이 이루어진다.
+- **UserEventsConsumerModule**: CacheInvalidationModule을 import하여 Handler에서 CacheInvalidationRequestService를 주입받는다.
 
 ---
 

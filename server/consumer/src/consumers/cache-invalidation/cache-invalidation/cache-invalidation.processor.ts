@@ -1,16 +1,37 @@
 import type { EachMessagePayload } from 'kafkajs';
 import { Injectable } from '@nestjs/common';
-import { KAFKA_DLQ_TOPICS, KAFKA_TOPICS } from '@cook/shared';
+import {
+  KAFKA_DLQ_TOPICS,
+  KAFKA_TOPICS,
+  CacheInvalidationEventType,
+  type CacheInvalidationPayload,
+} from '@cook/shared';
 import { BaseTopicProcessor } from '../../base/base.processor';
 import { RetryStrategy } from '../../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
+import { RedisInvalidationHandler } from './redis-invalidation.handler';
 
-/** cache-invalidation 토픽 전용 processor (파싱·비즈니스·DLQ). 추후 RedisInvalidationHandler, CDNInvalidationHandler 연동. */
+function isValidCacheInvalidationPayload(
+  obj: unknown,
+): obj is CacheInvalidationPayload {
+  if (!obj || typeof obj !== 'object') return false;
+  const o = obj as Record<string, unknown>;
+  if (
+    o.type !== CacheInvalidationEventType.USER_PROFILE &&
+    o.type !== CacheInvalidationEventType.USER_INGREDIENT
+  )
+    return false;
+  if (typeof (o as { userId?: unknown }).userId !== 'number') return false;
+  return true;
+}
+
+/** cache-invalidation 토픽 전용 processor (파싱·비즈니스·DLQ). Redis 무효화 수행, 추후 CDN 무효화 확장 가능. */
 @Injectable()
-export class CacheInvalidationProcessor extends BaseTopicProcessor<Record<string, unknown>> {
+export class CacheInvalidationProcessor extends BaseTopicProcessor<CacheInvalidationPayload> {
   constructor(
     retryStrategy: RetryStrategy,
     deadLetterHandler: DeadLetterHandler,
+    private readonly redisInvalidationHandler: RedisInvalidationHandler,
   ) {
     super(
       CacheInvalidationProcessor.name,
@@ -27,21 +48,24 @@ export class CacheInvalidationProcessor extends BaseTopicProcessor<Record<string
     return KAFKA_DLQ_TOPICS.CACHE_INVALIDATION_DLQ;
   }
 
-  protected parseEvent(message: EachMessagePayload): Record<string, unknown> | null {
+  protected parseEvent(
+    message: EachMessagePayload,
+  ): CacheInvalidationPayload | null {
     const raw = message.message.value?.toString();
     if (!raw) return null;
     try {
-      return JSON.parse(raw) as Record<string, unknown>;
+      const parsed = JSON.parse(raw) as unknown;
+      if (!isValidCacheInvalidationPayload(parsed)) return null;
+      return parsed;
     } catch {
       return null;
     }
   }
 
   protected async processEvent(
-    _event: Record<string, unknown>,
+    event: CacheInvalidationPayload,
     _message: EachMessagePayload,
   ): Promise<void> {
-    // TODO: RedisInvalidationHandler, CDNInvalidationHandler 연동
-    this.logger.debug('Cache invalidation event received (stub)');
+    await this.redisInvalidationHandler.execute(event);
   }
 }

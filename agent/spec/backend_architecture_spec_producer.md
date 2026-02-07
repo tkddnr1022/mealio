@@ -65,8 +65,8 @@
 | server/producer/src/infrastructure/cache/strategies/index.ts | 전략 export |
 | server/producer/src/infrastructure/cache/strategies/recipe-cache-strategy.ts | TTL 1시간 |
 | server/producer/src/infrastructure/cache/strategies/ingredient-cache-strategy.ts | TTL 24시간 |
-| server/producer/src/infrastructure/cache/strategies/user-cache-strategy.ts | TTL 30분 |
-| server/producer/src/infrastructure/cache/strategies/user-ingredient-cache-strategy.ts | TTL 30분 |
+| server/producer/src/infrastructure/cache/strategies/user-cache-strategy.ts | TTL 30분. 캐시 키 prefix는 @cook/shared CACHE_KEY_PREFIX.USER 사용 |
+| server/producer/src/infrastructure/cache/strategies/user-ingredient-cache-strategy.ts | TTL 30분. 캐시 키 prefix는 @cook/shared CACHE_KEY_PREFIX.USER_INGREDIENT 사용 |
 | **server/producer/src/infrastructure/kafka/** | |
 | server/producer/src/infrastructure/kafka/kafka.module.ts | Kafka 모듈 |
 | server/producer/src/infrastructure/kafka/kafka-admin.service.ts | 토픽 생성·확인 등 |

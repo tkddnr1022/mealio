@@ -19,15 +19,16 @@
 | server/shared/src/configs/redis.config.ts | createRedisConfig |
 | server/shared/src/constants/kafka-topics.ts | KAFKA_TOPICS, KafkaTopic |
 | server/shared/src/constants/redis-channels.ts | getChatbotStreamChannel, CHATBOT_STREAM_CHANNEL_PREFIX |
+| server/shared/src/constants/cache-keys.ts | CACHE_KEY_PREFIX (USER, USER_INGREDIENT). Producer 캐시 전략·Consumer 캐시 무효화에서 공통 사용 |
 | server/shared/src/database/prisma/schema.prisma | PostgreSQL 스키마 (User, Recipe, Ingredient, RecipeIngredient) |
 | server/shared/src/database/prisma/prisma.service.ts | PrismaService (NestJS, OnModuleInit/OnModuleDestroy) |
 | server/shared/src/database/prisma/prisma.module.ts | PrismaModule |
 | server/shared/src/database/prisma/generated/ | prisma generate 결과 (커밋 제외) |
 | server/shared/src/database/prisma/migrations/ | PostgreSQL 마이그레이션 |
 | server/shared/src/database/mongoose/schemas/* | ChatbotLog, EventLog, UserIngredient 스키마 |
-| server/shared/src/redis/redis.service.ts | RedisService (NestJS) |
+| server/shared/src/redis/redis.service.ts | RedisService (NestJS). get/set/setex/del/exists/expire/ttl, 구독 채널 관리 |
 | server/shared/src/redis/redis.module.ts | RedisModule |
-| server/shared/src/types/events/* | ChatbotRequestEvent, ChatbotStreamEvent, UserEvent, UserIngredientEvent 등 |
+| server/shared/src/types/events/* | ChatbotRequestEvent, ChatbotStreamEvent, UserEvent, UserIngredientEvent, CacheInvalidationPayload·CacheInvalidationEventType 등 |
 
 ## 3.2 Prisma 스키마 (schema.prisma) — 모델·필드 명세
 
@@ -54,5 +55,5 @@ datasource: `postgresql`. generator: `prisma-client`, output `generated`.
 | 경로 | 역할 |
 |------|------------|
 | server/shared/src/utils/ | logger, error-handler, prisma-helpers, mongoose-helpers, validator |
-| server/shared/src/constants/ | cache-keys.ts, error-codes.ts (3.1의 kafka-topics, redis-channels 외 추가) |
+| server/shared/src/constants/ | cache-keys.ts (CACHE_KEY_PREFIX), error-codes.ts (3.1의 kafka-topics, redis-channels 외 추가) |
 | server/shared/src/configs/ | observability.config.ts (3.1의 kafka, mongoose, redis 외 추가) |
