@@ -23,12 +23,7 @@ export class ToolDispatcher {
   ): Promise<string> {
     switch (functionName) {
       case 'get_user_ingredients': {
-        const userId =
-          typeof args.userId === 'number'
-            ? args.userId
-            : context.userId;
-        const result =
-          await this.userIngredientsHandler.execute(userId);
+        const result = await this.userIngredientsHandler.execute(context.userId);
         return JSON.stringify(result);
       }
       case 'search_recipes': {

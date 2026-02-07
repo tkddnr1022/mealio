@@ -9,17 +9,7 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
     function: {
       name: 'get_user_ingredients',
       description:
-        '해당 사용자의 보유 재료·즐겨찾기 재료 목록(id, name)을 조회합니다. 사용자 재료 기반 추천이 필요할 때 먼저 호출하세요.',
-      parameters: {
-        type: 'object',
-        properties: {
-          userId: {
-            type: 'number',
-            description: '사용자 ID',
-          },
-        },
-        required: ['userId'],
-      },
+        '사용자의 보유 재료·즐겨찾기 재료 목록(id, name)을 조회합니다. 사용자 재료 기반 추천이 필요할 때 먼저 호출하세요.',
     },
   },
   {
