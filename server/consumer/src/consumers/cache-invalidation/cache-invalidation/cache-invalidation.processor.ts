@@ -33,11 +33,7 @@ export class CacheInvalidationProcessor extends BaseTopicProcessor<CacheInvalida
     deadLetterHandler: DeadLetterHandler,
     private readonly redisInvalidationHandler: RedisInvalidationHandler,
   ) {
-    super(
-      CacheInvalidationProcessor.name,
-      retryStrategy,
-      deadLetterHandler,
-    );
+    super(CacheInvalidationProcessor.name, retryStrategy, deadLetterHandler);
   }
 
   getTopic(): string {

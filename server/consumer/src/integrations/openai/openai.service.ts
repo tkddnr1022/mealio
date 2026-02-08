@@ -27,7 +27,11 @@ export type OnChunk = (chunk: ChatStreamChunk) => void;
 export interface ChatCompletionResult {
   content: string | null;
   finishReason: string;
-  usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
+  usage?: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  };
 }
 
 @Injectable()
@@ -37,7 +41,9 @@ export class OpenAIService {
 
   constructor(
     private readonly config: ConfigService,
-    @Optional() @Inject(OpenAIRateLimiter) private readonly rateLimiter?: OpenAIRateLimiter,
+    @Optional()
+    @Inject(OpenAIRateLimiter)
+    private readonly rateLimiter?: OpenAIRateLimiter,
   ) {
     const apiKey = this.config.getOrThrow<string>('OPENAI_API_KEY');
     this.model = this.config.getOrThrow<string>('OPENAI_CHAT_MODEL');
@@ -49,16 +55,22 @@ export class OpenAIService {
    */
   async createChatCompletion(
     messages: ChatCompletionMessageParam[],
-    options?: { temperature?: number; responseFormat?: { type: 'json_object' } },
+    options?: {
+      temperature?: number;
+      responseFormat?: { type: 'json_object' };
+    },
   ): Promise<ChatCompletionResult> {
     await this.rateLimiter?.acquire();
 
-    const body: OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming = {
-      model: this.model,
-      messages,
-      temperature: options?.temperature ?? 1,
-      ...(options?.responseFormat && { response_format: options.responseFormat }),
-    };
+    const body: OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming =
+      {
+        model: this.model,
+        messages,
+        temperature: options?.temperature ?? 1,
+        ...(options?.responseFormat && {
+          response_format: options.responseFormat,
+        }),
+      };
 
     const completion = await this.client.chat.completions.create(body);
     const choice = completion.choices[0];
@@ -139,8 +151,7 @@ export class OpenAIService {
       let finishReason: string | undefined;
 
       if (delta?.content) {
-        content =
-          typeof delta.content === 'string' ? delta.content : undefined;
+        content = typeof delta.content === 'string' ? delta.content : undefined;
       }
 
       if (delta?.tool_calls?.length) {

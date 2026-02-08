@@ -1,10 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import {
-  UserIngredient,
-  type UserIngredientDocument,
-} from '@cook/shared';
+import { UserIngredient, type UserIngredientDocument } from '@cook/shared';
 
 /**
  * Consumer 전용 UserIngredient 리포지토리 — 유저 재료 이벤트 처리 시 MongoDB user_ingredients 갱신

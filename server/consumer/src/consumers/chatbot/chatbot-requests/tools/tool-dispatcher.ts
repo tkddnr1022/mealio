@@ -23,7 +23,9 @@ export class ToolDispatcher {
   ): Promise<string> {
     switch (functionName) {
       case 'get_user_ingredients': {
-        const result = await this.userIngredientsHandler.execute(context.userId);
+        const result = await this.userIngredientsHandler.execute(
+          context.userId,
+        );
         return JSON.stringify(result);
       }
       case 'search_recipes': {
@@ -35,14 +37,10 @@ export class ToolDispatcher {
             ? (args.ingredientIds as number[])
             : undefined,
           maxCookTime:
-            typeof args.maxCookTime === 'number'
-              ? args.maxCookTime
-              : undefined,
-          limit:
-            typeof args.limit === 'number' ? args.limit : undefined,
+            typeof args.maxCookTime === 'number' ? args.maxCookTime : undefined,
+          limit: typeof args.limit === 'number' ? args.limit : undefined,
         };
-        const result =
-          await this.searchRecipesHandler.execute(payload);
+        const result = await this.searchRecipesHandler.execute(payload);
         return JSON.stringify(result);
       }
       default:

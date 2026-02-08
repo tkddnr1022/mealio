@@ -30,10 +30,7 @@ export class SearchRecipesHandler {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(payload: SearchRecipesPayload): Promise<SuggestedRecipe[]> {
-    const limit = Math.min(
-      payload.limit ?? DEFAULT_LIMIT,
-      MAX_LIMIT,
-    );
+    const limit = Math.min(payload.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
     const ingredientIds = payload.ingredientIds ?? [];
 
     const recipes = await this.prisma.recipe.findMany({
@@ -52,16 +49,13 @@ export class SearchRecipesHandler {
       orderBy: { createdAt: 'desc' },
     });
 
-    const keywordLower =
-      payload.keywords?.map((k) => k.toLowerCase()) ?? [];
+    const keywordLower = payload.keywords?.map((k) => k.toLowerCase()) ?? [];
     const scored = recipes
       .filter((r) => {
         if (keywordLower.length === 0) return true;
         const title = (r.title ?? '').toLowerCase();
         const desc = ((r.description as string) ?? '').toLowerCase();
-        return keywordLower.some(
-          (k) => title.includes(k) || desc.includes(k),
-        );
+        return keywordLower.some((k) => title.includes(k) || desc.includes(k));
       })
       .map((r) => {
         const recipeIngredientIds = r.recipeIngredients.map(

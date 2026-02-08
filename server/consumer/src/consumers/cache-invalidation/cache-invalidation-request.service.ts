@@ -14,9 +14,7 @@ import { KafkaProducerService } from 'src/integrations/kafka/kafka-producer.serv
  */
 @Injectable()
 export class CacheInvalidationRequestService {
-  constructor(
-    private readonly kafkaProducerService: KafkaProducerService,
-  ) {}
+  constructor(private readonly kafkaProducerService: KafkaProducerService) {}
 
   /**
    * Producer의 유저 프로필 캐시(user:{userId}) 무효화를 요청한다.

@@ -37,9 +37,7 @@ export class ChatbotLogRepository {
     const { take, orderBy } = params;
     const query = this.chatbotLogModel
       .find({ userId })
-      .select(
-        'userId role message context llm latency success createdAt',
-      )
+      .select('userId role message context llm latency success createdAt')
       .lean();
     if (take) {
       query.limit(take);

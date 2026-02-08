@@ -10,7 +10,9 @@ export enum UserIngredientEventType {
   FAVORITES_REMOVE = 'ingredient.favorites_remove',
 }
 
-export const USER_INGREDIENT_EVENT_TYPES: (UserIngredientEventType)[] = [...Object.values(UserIngredientEventType)];
+export const USER_INGREDIENT_EVENT_TYPES: UserIngredientEventType[] = [
+  ...Object.values(UserIngredientEventType),
+];
 
 export interface UserIngredientUpdateEvent {
   type: UserIngredientEventType.UPDATE;
@@ -62,7 +64,13 @@ export type UserIngredientEvent =
   | UserIngredientFavoritesAddEvent
   | UserIngredientFavoritesRemoveEvent;
 
-  export function isUserIngredientEvent(obj: unknown): obj is UserIngredientEvent {
-    const o = obj as Record<string, unknown>;
-    return 'type' in o && typeof o.type === 'string' && USER_INGREDIENT_EVENT_TYPES.includes(o.type as UserIngredientEventType);
-  }
+export function isUserIngredientEvent(
+  obj: unknown,
+): obj is UserIngredientEvent {
+  const o = obj as Record<string, unknown>;
+  return (
+    'type' in o &&
+    typeof o.type === 'string' &&
+    USER_INGREDIENT_EVENT_TYPES.includes(o.type as UserIngredientEventType)
+  );
+}

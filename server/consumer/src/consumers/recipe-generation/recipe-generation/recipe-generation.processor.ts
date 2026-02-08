@@ -7,16 +7,14 @@ import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
 
 /** recipe-generation 토픽 전용 processor (파싱·비즈니스·DLQ). 추후 GenerateRecipeHandler 등 연동. */
 @Injectable()
-export class RecipeGenerationProcessor extends BaseTopicProcessor<Record<string, unknown>> {
+export class RecipeGenerationProcessor extends BaseTopicProcessor<
+  Record<string, unknown>
+> {
   constructor(
     retryStrategy: RetryStrategy,
     deadLetterHandler: DeadLetterHandler,
   ) {
-    super(
-      RecipeGenerationProcessor.name,
-      retryStrategy,
-      deadLetterHandler,
-    );
+    super(RecipeGenerationProcessor.name, retryStrategy, deadLetterHandler);
   }
 
   getTopic(): string {
@@ -27,7 +25,9 @@ export class RecipeGenerationProcessor extends BaseTopicProcessor<Record<string,
     return KAFKA_DLQ_TOPICS.RECIPE_GENERATION_DLQ;
   }
 
-  protected parseEvent(message: EachMessagePayload): Record<string, unknown> | null {
+  protected parseEvent(
+    message: EachMessagePayload,
+  ): Record<string, unknown> | null {
     const raw = message.message.value?.toString();
     if (!raw) return null;
     try {

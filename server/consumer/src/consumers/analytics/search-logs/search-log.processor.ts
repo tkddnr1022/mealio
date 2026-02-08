@@ -7,7 +7,9 @@ import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
 
 /** search-logs 토픽 전용 processor (파싱·비즈니스·DLQ). 추후 IndexSearchHandler, AnalyticsHandler 연동. */
 @Injectable()
-export class SearchLogProcessor extends BaseTopicProcessor<Record<string, unknown>> {
+export class SearchLogProcessor extends BaseTopicProcessor<
+  Record<string, unknown>
+> {
   constructor(
     retryStrategy: RetryStrategy,
     deadLetterHandler: DeadLetterHandler,
@@ -23,7 +25,9 @@ export class SearchLogProcessor extends BaseTopicProcessor<Record<string, unknow
     return KAFKA_DLQ_TOPICS.SEARCH_LOGS_DLQ;
   }
 
-  protected parseEvent(message: EachMessagePayload): Record<string, unknown> | null {
+  protected parseEvent(
+    message: EachMessagePayload,
+  ): Record<string, unknown> | null {
     const raw = message.message.value?.toString();
     if (!raw) return null;
     try {

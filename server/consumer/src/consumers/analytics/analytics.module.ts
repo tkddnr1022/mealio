@@ -5,11 +5,7 @@ import { UserEventsConsumerModule } from './user-events/user-events.module';
 import { AnalyticsConsumer } from './analytics.consumer';
 
 @Module({
-  imports: [
-    KafkaModule,
-    SearchLogsModule,
-    UserEventsConsumerModule,
-  ],
+  imports: [KafkaModule, SearchLogsModule, UserEventsConsumerModule],
   providers: [AnalyticsConsumer],
 })
 export class AnalyticsModule {}

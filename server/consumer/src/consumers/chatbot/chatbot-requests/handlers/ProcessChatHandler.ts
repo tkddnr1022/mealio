@@ -40,7 +40,11 @@ export class ProcessChatHandler {
     | {
         fullContent: string;
         suggestedRecipes: SuggestedRecipe[];
-        usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
+        usage?: {
+          promptTokens: number;
+          completionTokens: number;
+          totalTokens: number;
+        };
         model?: string;
       }
     | { error: string }
@@ -76,7 +80,11 @@ export class ProcessChatHandler {
     fullContent: string;
     suggestedRecipes: SuggestedRecipe[];
     model?: string;
-    usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
+    usage?: {
+      promptTokens: number;
+      completionTokens: number;
+      totalTokens: number;
+    };
   }> {
     const toolContext = { userId: payload.userId };
 
@@ -92,7 +100,9 @@ export class ProcessChatHandler {
     );
     let fullContent = '';
     let lastSuggestedRecipes: SuggestedRecipe[] = [];
-    let usage: { promptTokens: number; completionTokens: number; totalTokens: number } | undefined;
+    let usage:
+      | { promptTokens: number; completionTokens: number; totalTokens: number }
+      | undefined;
     let model: string | undefined;
 
     const maxToolRounds = 5;
@@ -101,25 +111,30 @@ export class ProcessChatHandler {
         tools: CHATBOT_TOOLS,
       });
 
-      const { content: roundContent, toolCalls, finishReason, usage: roundUsage, model: roundModel } =
-        await this.consumeStream(stream, (chunk) => {
-          if (chunk.content) {
-            fullContent += chunk.content;
-            publish({ type: 'chunk', data: chunk.content });
+      const {
+        content: roundContent,
+        toolCalls,
+        finishReason,
+        usage: roundUsage,
+        model: roundModel,
+      } = await this.consumeStream(stream, (chunk) => {
+        if (chunk.content) {
+          fullContent += chunk.content;
+          publish({ type: 'chunk', data: chunk.content });
+        }
+        if (chunk.toolCalls?.length) {
+          for (const tc of chunk.toolCalls) {
+            publish({
+              type: 'tool_call',
+              data: {
+                functionName: tc.name,
+                status: 'start',
+                arguments: tc.arguments,
+              } as ChatbotStreamToolCallEvent['data'],
+            });
           }
-          if (chunk.toolCalls?.length) {
-            for (const tc of chunk.toolCalls) {
-              publish({
-                type: 'tool_call',
-                data: {
-                  functionName: tc.name,
-                  status: 'start',
-                  arguments: tc.arguments,
-                } as ChatbotStreamToolCallEvent['data'],
-              });
-            }
-          }
-        });
+        }
+      });
 
       if (roundUsage) {
         if (!usage) {
@@ -127,7 +142,8 @@ export class ProcessChatHandler {
         } else {
           usage = {
             promptTokens: usage.promptTokens + roundUsage.promptTokens,
-            completionTokens: usage.completionTokens + roundUsage.completionTokens,
+            completionTokens:
+              usage.completionTokens + roundUsage.completionTokens,
             totalTokens: usage.totalTokens + roundUsage.totalTokens,
           };
         }
@@ -177,7 +193,15 @@ export class ProcessChatHandler {
 
           try {
             const parsed = JSON.parse(result) as unknown;
-            if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'object' && parsed[0] !== null && 'id' in parsed[0] && 'title' in parsed[0] && 'matchScore' in parsed[0]) {
+            if (
+              Array.isArray(parsed) &&
+              parsed.length > 0 &&
+              typeof parsed[0] === 'object' &&
+              parsed[0] !== null &&
+              'id' in parsed[0] &&
+              'title' in parsed[0] &&
+              'matchScore' in parsed[0]
+            ) {
               lastSuggestedRecipes = parsed as SuggestedRecipe[];
             }
           } catch {
@@ -245,7 +269,11 @@ export class ProcessChatHandler {
     content: string;
     toolCalls?: Array<{ id: string; name: string; arguments: string }>;
     finishReason?: string;
-    usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
+    usage?: {
+      promptTokens: number;
+      completionTokens: number;
+      totalTokens: number;
+    };
     model?: string;
   }> {
     let content = '';
@@ -254,8 +282,12 @@ export class ProcessChatHandler {
       { id: string; name: string; args: string[] }
     >();
     let finishReason: string | undefined;
-    let returnToolCalls: Array<{ id: string; name: string; arguments: string }> | undefined;
-    let streamUsage: { promptTokens: number; completionTokens: number; totalTokens: number } | undefined;
+    let returnToolCalls:
+      | Array<{ id: string; name: string; arguments: string }>
+      | undefined;
+    let streamUsage:
+      | { promptTokens: number; completionTokens: number; totalTokens: number }
+      | undefined;
     let streamModel: string | undefined;
 
     for await (const chunk of stream) {
@@ -266,7 +298,9 @@ export class ProcessChatHandler {
         streamUsage = {
           promptTokens: chunk.usage.prompt_tokens,
           completionTokens: chunk.usage.completion_tokens ?? 0,
-          totalTokens: chunk.usage.total_tokens ?? chunk.usage.prompt_tokens + (chunk.usage.completion_tokens ?? 0),
+          totalTokens:
+            chunk.usage.total_tokens ??
+            chunk.usage.prompt_tokens + (chunk.usage.completion_tokens ?? 0),
         };
       }
       const choice = chunk.choices[0];

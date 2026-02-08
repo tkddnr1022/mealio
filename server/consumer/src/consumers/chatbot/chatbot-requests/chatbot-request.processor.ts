@@ -17,11 +17,7 @@ export class ChatbotRequestProcessor extends BaseTopicProcessor<ChatbotRequestEv
     private readonly processChatHandler: ProcessChatHandler,
     private readonly saveChatLogHandler: SaveChatLogHandler,
   ) {
-    super(
-      ChatbotRequestProcessor.name,
-      retryStrategy,
-      deadLetterHandler,
-    );
+    super(ChatbotRequestProcessor.name, retryStrategy, deadLetterHandler);
   }
 
   getTopic(): string {
@@ -32,7 +28,9 @@ export class ChatbotRequestProcessor extends BaseTopicProcessor<ChatbotRequestEv
     return KAFKA_DLQ_TOPICS.CHATBOT_REQUESTS_DLQ;
   }
 
-  protected parseEvent(message: EachMessagePayload): ChatbotRequestEvent | null {
+  protected parseEvent(
+    message: EachMessagePayload,
+  ): ChatbotRequestEvent | null {
     const raw = message.message.value?.toString();
     if (!raw) return null;
     try {

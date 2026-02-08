@@ -1,8 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  type UserEvent,
-  type UserIngredientEvent,
-} from '@cook/shared';
+import { type UserEvent, type UserIngredientEvent } from '@cook/shared';
 import {
   EventLogRepository,
   type CreateEventLogInput,
@@ -14,7 +11,8 @@ function toEventLogPayload(event: UserEventPayload): Record<string, unknown> {
   if ('nickname' in event) {
     return {
       nickname: event.nickname,
-      previousNickname: (event as { previousNickname?: string }).previousNickname,
+      previousNickname: (event as { previousNickname?: string })
+        .previousNickname,
     };
   }
   if ('ingredientIds' in event) {

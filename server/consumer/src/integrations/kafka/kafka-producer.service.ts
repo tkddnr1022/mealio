@@ -63,10 +63,7 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
         messages: [{ key, value: JSON.stringify(payload) }],
       });
     } catch (error) {
-      this.logger.error(
-        `Failed to publish to topic=${topic}`,
-        error as Error,
-      );
+      this.logger.error(`Failed to publish to topic=${topic}`, error as Error);
     }
   }
 }

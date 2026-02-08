@@ -41,7 +41,10 @@ export class UpdateUserIngredientHandler {
         );
         break;
       case UserIngredientEventType.REMOVE:
-        await this.userIngredientRepository.remove(event.userId, event.ingredientId);
+        await this.userIngredientRepository.remove(
+          event.userId,
+          event.ingredientId,
+        );
         break;
       case UserIngredientEventType.FAVORITES_UPDATE:
         await this.userIngredientRepository.updateFavorites(

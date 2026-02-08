@@ -157,12 +157,8 @@ describe('UserIngredientsService', () => {
       userRepository.findById.mockResolvedValue(null);
       const dto: IngredientIdsDto = { ingredientIds: [1] };
 
-      await expect(service.update(999, dto)).rejects.toThrow(
-        NotFoundException,
-      );
-      await expect(service.update(999, dto)).rejects.toThrow(
-        'User not found',
-      );
+      await expect(service.update(999, dto)).rejects.toThrow(NotFoundException);
+      await expect(service.update(999, dto)).rejects.toThrow('User not found');
       expect(kafkaProducerService.emit).not.toHaveBeenCalled();
     });
   });

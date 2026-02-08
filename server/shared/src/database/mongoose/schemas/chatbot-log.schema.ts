@@ -80,7 +80,11 @@ export type ChatbotLogDocument = HydratedDocument<ChatbotLog>;
 export const ChatbotLogSchema = SchemaFactory.createForClass(ChatbotLog);
 
 ChatbotLogSchema.index({ userId: 1, createdAt: -1 });
-ChatbotLogSchema.index({ userId: 1, 'context.conversationId': 1, createdAt: 1 });
+ChatbotLogSchema.index({
+  userId: 1,
+  'context.conversationId': 1,
+  createdAt: 1,
+});
 ChatbotLogSchema.index({ success: 1, createdAt: -1 });
 ChatbotLogSchema.index({ 'llm.model': 1, createdAt: -1 });
 ChatbotLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 2592000 });

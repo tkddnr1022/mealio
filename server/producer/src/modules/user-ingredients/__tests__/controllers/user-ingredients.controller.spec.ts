@@ -157,10 +157,7 @@ describe('UserIngredientsController', () => {
       const dto = { ingredientIds: [1, 5] };
       const result = await controller.addFavorites(mockAuthUser, dto);
 
-      expect(userIngredientsService.addFavorites).toHaveBeenCalledWith(
-        1,
-        dto,
-      );
+      expect(userIngredientsService.addFavorites).toHaveBeenCalledWith(1, dto);
       expect(result).toEqual({ success: true });
     });
 
@@ -179,10 +176,7 @@ describe('UserIngredientsController', () => {
     it('즐겨찾는 재료 삭제를 요청하고 204로 완료된다', async () => {
       await controller.removeFavorite(mockAuthUser, 5);
 
-      expect(userIngredientsService.removeFavorite).toHaveBeenCalledWith(
-        1,
-        5,
-      );
+      expect(userIngredientsService.removeFavorite).toHaveBeenCalledWith(1, 5);
     });
 
     it('사용자가 없으면 NotFoundException을 던진다', async () => {
@@ -190,9 +184,9 @@ describe('UserIngredientsController', () => {
         new NotFoundException('User not found'),
       );
 
-      await expect(
-        controller.removeFavorite(mockAuthUser, 5),
-      ).rejects.toThrow(NotFoundException);
+      await expect(controller.removeFavorite(mockAuthUser, 5)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });
