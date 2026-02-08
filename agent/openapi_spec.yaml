@@ -683,8 +683,8 @@ paths:
     put:
       tags:
         - UserIngredient
-      summary: 즐겨찾는 재료 설정
-      description: 즐겨찾는 재료 목록 업데이트
+      summary: 즐겨찾는 재료 설정 (전체 교체)
+      description: 즐겨찾는 재료 목록 전체 교체
       parameters:
         - name: accessToken
           in: cookie
@@ -723,6 +723,83 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - UserIngredient
+      summary: 즐겨찾는 재료 추가
+      description: 즐겨찾는 재료 목록에 재료 ID 추가 (기존 목록에 병합)
+      parameters:
+        - name: accessToken
+          in: cookie
+          required: true
+          description: JWT 액세스 토큰
+          schema:
+            type: string
+          example: "{{apiKey}}"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - ingredientIds
+              properties:
+                ingredientIds:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
+            example:
+              ingredientIds: [1, 5]
+      responses:
+        '201':
+          description: 추가 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/users/me/ingredients/favorites/{ingredientId}:
+    delete:
+      tags:
+        - UserIngredient
+      summary: 즐겨찾는 재료 삭제
+      description: 즐겨찾는 재료 목록에서 특정 재료 제거
+      parameters:
+        - name: accessToken
+          in: cookie
+          required: true
+          description: JWT 액세스 토큰
+          schema:
+            type: string
+          example: "{{apiKey}}"
+        - name: ingredientId
+          in: path
+          required: true
+          description: 제거할 재료 ID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: 삭제 성공
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
 

@@ -3,7 +3,7 @@ import { IsArray, IsInt, ArrayMinSize } from 'class-validator';
 import { Type } from 'class-transformer';
 
 /**
- * PUT /api/v1/users/me/ingredients (bulk), POST (add), PUT /favorites 요청 body
+ * PUT /api/v1/users/me/ingredients (bulk), POST (add), PUT/POST /favorites 요청 body
  */
 export class IngredientIdsDto {
   @ApiProperty({

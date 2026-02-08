@@ -60,7 +60,7 @@ export class UserIngredientsController {
   }
 
   @Put('favorites')
-  @ApiOperation({ summary: '즐겨찾는 재료 설정' })
+  @ApiOperation({ summary: '즐겨찾는 재료 설정 (전체 교체)' })
   @ApiResponse({
     status: 200,
     description: '업데이트 성공',
@@ -74,6 +74,37 @@ export class UserIngredientsController {
     @Body() dto: IngredientIdsDto,
   ): Promise<{ success: boolean }> {
     return this.userIngredientsService.updateFavorites(user.id, dto);
+  }
+
+  @Post('favorites')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: '즐겨찾는 재료 추가' })
+  @ApiResponse({
+    status: 201,
+    description: '추가 성공',
+    schema: { type: 'object', properties: { success: { type: 'boolean' } } },
+  })
+  @ApiResponse({ status: 400, description: '잘못된 요청' })
+  @ApiResponse({ status: 401, description: '인증 실패' })
+  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  async addFavorites(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: IngredientIdsDto,
+  ): Promise<{ success: boolean }> {
+    return this.userIngredientsService.addFavorites(user.id, dto);
+  }
+
+  @Delete('favorites/:ingredientId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: '즐겨찾는 재료 삭제' })
+  @ApiResponse({ status: 204, description: '삭제 성공' })
+  @ApiResponse({ status: 401, description: '인증 실패' })
+  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  async removeFavorite(
+    @CurrentUser() user: AuthUser,
+    @Param('ingredientId', ParseIntPipe) ingredientId: number,
+  ): Promise<void> {
+    await this.userIngredientsService.removeFavorite(user.id, ingredientId);
   }
 
   @Post()

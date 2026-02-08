@@ -101,4 +101,43 @@ export class UserIngredientRepository {
       )
       .exec() as Promise<UserIngredientDocument>;
   }
+
+  /**
+   * 즐겨찾기 재료 추가 (FAVORITES_ADD)
+   */
+  async addFavoriteIngredientIds(
+    userId: number,
+    ingredientIds: number[],
+  ): Promise<UserIngredientDocument> {
+    const uniqueToAdd = [...new Set(ingredientIds)];
+    return this.userIngredientModel
+      .findOneAndUpdate(
+        { userId },
+        {
+          $addToSet: { favoriteIngredientIds: { $each: uniqueToAdd } },
+          $set: { lastSyncedAt: new Date() },
+        },
+        { new: true, upsert: true },
+      )
+      .exec() as Promise<UserIngredientDocument>;
+  }
+
+  /**
+   * 즐겨찾기 재료 한 건 제거 (FAVORITES_REMOVE)
+   */
+  async removeFavoriteIngredientId(
+    userId: number,
+    ingredientId: number,
+  ): Promise<UserIngredientDocument | null> {
+    return this.userIngredientModel
+      .findOneAndUpdate(
+        { userId },
+        {
+          $pull: { favoriteIngredientIds: ingredientId },
+          $set: { lastSyncedAt: new Date() },
+        },
+        { new: true },
+      )
+      .exec();
+  }
 }

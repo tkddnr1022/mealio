@@ -24,6 +24,8 @@ describe('UserIngredientsController', () => {
       add: jest.fn().mockResolvedValue({ success: true }),
       remove: jest.fn().mockResolvedValue(undefined),
       updateFavorites: jest.fn().mockResolvedValue({ success: true }),
+      addFavorites: jest.fn().mockResolvedValue({ success: true }),
+      removeFavorite: jest.fn().mockResolvedValue(undefined),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -146,6 +148,50 @@ describe('UserIngredientsController', () => {
 
       await expect(
         controller.updateFavorites(mockAuthUser, { ingredientIds: [1] }),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('addFavorites', () => {
+    it('즐겨찾는 재료 추가를 요청하고 201과 { success: true }를 반환한다', async () => {
+      const dto = { ingredientIds: [1, 5] };
+      const result = await controller.addFavorites(mockAuthUser, dto);
+
+      expect(userIngredientsService.addFavorites).toHaveBeenCalledWith(
+        1,
+        dto,
+      );
+      expect(result).toEqual({ success: true });
+    });
+
+    it('사용자가 없으면 NotFoundException을 던진다', async () => {
+      userIngredientsService.addFavorites.mockRejectedValue(
+        new NotFoundException('User not found'),
+      );
+
+      await expect(
+        controller.addFavorites(mockAuthUser, { ingredientIds: [1] }),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('removeFavorite', () => {
+    it('즐겨찾는 재료 삭제를 요청하고 204로 완료된다', async () => {
+      await controller.removeFavorite(mockAuthUser, 5);
+
+      expect(userIngredientsService.removeFavorite).toHaveBeenCalledWith(
+        1,
+        5,
+      );
+    });
+
+    it('사용자가 없으면 NotFoundException을 던진다', async () => {
+      userIngredientsService.removeFavorite.mockRejectedValue(
+        new NotFoundException('User not found'),
+      );
+
+      await expect(
+        controller.removeFavorite(mockAuthUser, 5),
       ).rejects.toThrow(NotFoundException);
     });
   });

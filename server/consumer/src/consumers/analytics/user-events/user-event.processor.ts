@@ -25,6 +25,8 @@ const USER_EVENT_TYPES = new Set<string>([
   UserIngredientEventType.ADD,
   UserIngredientEventType.REMOVE,
   UserIngredientEventType.FAVORITES_UPDATE,
+  UserIngredientEventType.FAVORITES_ADD,
+  UserIngredientEventType.FAVORITES_REMOVE,
 ]);
 
 function isValidUserEventPayload(obj: unknown): obj is UserEventPayload {

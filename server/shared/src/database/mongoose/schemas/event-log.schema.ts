@@ -64,6 +64,8 @@ export class EventLog extends Document {
       'ingredient.remove',
       'user.ingredient.bulk_update',
       'user.ingredient.favorites_update',
+      'user.ingredient.favorites_add',
+      'user.ingredient.favorites_remove',
       'chatbot.start',
       'chatbot.message',
     ],

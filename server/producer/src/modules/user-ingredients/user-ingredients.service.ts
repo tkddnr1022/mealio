@@ -11,6 +11,8 @@ import {
   UserIngredientAddEvent,
   UserIngredientRemoveEvent,
   UserIngredientFavoritesUpdateEvent,
+  UserIngredientFavoritesAddEvent,
+  UserIngredientFavoritesRemoveEvent,
 } from '@cook/shared';
 import { UserIngredientListDto } from './dto/user-ingredient-list.dto';
 import { IngredientIdsDto } from './dto/ingredient-ids.dto';
@@ -106,7 +108,7 @@ export class UserIngredientsService {
   }
 
   /**
-   * 즐겨찾기 재료 설정 - Command는 이벤트만 발행
+   * 즐겨찾기 재료 설정 (전체 교체) - Command는 이벤트만 발행
    */
   async updateFavorites(
     userId: number,
@@ -123,6 +125,41 @@ export class UserIngredientsService {
     await this.kafkaProducerService.emit(KAFKA_TOPICS.USER_EVENTS, event);
 
     return { success: true };
+  }
+
+  /**
+   * 즐겨찾는 재료 추가 - Command는 이벤트만 발행
+   */
+  async addFavorites(
+    userId: number,
+    dto: IngredientIdsDto,
+  ): Promise<{ success: boolean }> {
+    await this.ensureUserExists(userId);
+
+    const event: UserIngredientFavoritesAddEvent = {
+      type: UserIngredientEventType.FAVORITES_ADD,
+      userId,
+      ingredientIds: dto.ingredientIds,
+      timestamp: new Date().toISOString(),
+    };
+    await this.kafkaProducerService.emit(KAFKA_TOPICS.USER_EVENTS, event);
+
+    return { success: true };
+  }
+
+  /**
+   * 즐겨찾는 재료 삭제 - Command는 이벤트만 발행
+   */
+  async removeFavorite(userId: number, ingredientId: number): Promise<void> {
+    await this.ensureUserExists(userId);
+
+    const event: UserIngredientFavoritesRemoveEvent = {
+      type: UserIngredientEventType.FAVORITES_REMOVE,
+      userId,
+      ingredientId,
+      timestamp: new Date().toISOString(),
+    };
+    await this.kafkaProducerService.emit(KAFKA_TOPICS.USER_EVENTS, event);
   }
 
   private async ensureUserExists(userId: number): Promise<void> {

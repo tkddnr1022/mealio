@@ -6,6 +6,8 @@ export enum UserIngredientEventType {
   ADD = 'user.ingredient.add',
   REMOVE = 'user.ingredient.remove',
   FAVORITES_UPDATE = 'user.ingredient.favorites_update',
+  FAVORITES_ADD = 'user.ingredient.favorites_add',
+  FAVORITES_REMOVE = 'user.ingredient.favorites_remove',
 }
 
 export interface UserIngredientBulkUpdateEvent {
@@ -36,8 +38,24 @@ export interface UserIngredientFavoritesUpdateEvent {
   timestamp: string;
 }
 
+export interface UserIngredientFavoritesAddEvent {
+  type: UserIngredientEventType.FAVORITES_ADD;
+  userId: number;
+  ingredientIds: number[];
+  timestamp: string;
+}
+
+export interface UserIngredientFavoritesRemoveEvent {
+  type: UserIngredientEventType.FAVORITES_REMOVE;
+  userId: number;
+  ingredientId: number;
+  timestamp: string;
+}
+
 export type UserIngredientEvent =
   | UserIngredientBulkUpdateEvent
   | UserIngredientAddEvent
   | UserIngredientRemoveEvent
-  | UserIngredientFavoritesUpdateEvent;
+  | UserIngredientFavoritesUpdateEvent
+  | UserIngredientFavoritesAddEvent
+  | UserIngredientFavoritesRemoveEvent;

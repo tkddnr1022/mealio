@@ -12,6 +12,8 @@ import { CacheInvalidationRequestService } from 'src/consumers/cache-invalidatio
  * - ADD: 보유 재료 추가
  * - REMOVE: 보유 재료 한 건 제거 (즐겨찾기에서도 제거)
  * - FAVORITES_UPDATE: 즐겨찾기 재료 목록 교체
+ * - FAVORITES_ADD: 즐겨찾기 재료 추가
+ * - FAVORITES_REMOVE: 즐겨찾기 재료 한 건 제거
  *
  * 캐시 무효화: DB 반영 후 Producer의 유저 재료 캐시를 무효화하기 위해
  * CacheInvalidationRequestService에 요청만 한다. Handler는 토픽을 직접 발행하지 않으며,
@@ -45,6 +47,18 @@ export class UpdateUserIngredientHandler {
         await this.userIngredientRepository.updateFavorites(
           event.userId,
           event.ingredientIds,
+        );
+        break;
+      case UserIngredientEventType.FAVORITES_ADD:
+        await this.userIngredientRepository.addFavoriteIngredientIds(
+          event.userId,
+          event.ingredientIds,
+        );
+        break;
+      case UserIngredientEventType.FAVORITES_REMOVE:
+        await this.userIngredientRepository.removeFavoriteIngredientId(
+          event.userId,
+          event.ingredientId,
         );
         break;
     }

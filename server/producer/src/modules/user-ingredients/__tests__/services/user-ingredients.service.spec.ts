@@ -245,4 +245,57 @@ describe('UserIngredientsService', () => {
       expect(kafkaProducerService.emit).not.toHaveBeenCalled();
     });
   });
+
+  describe('addFavorites', () => {
+    it('사용자 존재 여부 확인 후 FAVORITES_ADD 이벤트를 발행하고 { success: true }를 반환한다', async () => {
+      const dto: IngredientIdsDto = { ingredientIds: [1, 5] };
+
+      const result = await service.addFavorites(1, dto);
+
+      expect(userRepository.findById).toHaveBeenCalledWith(1);
+      expect(kafkaProducerService.emit).toHaveBeenCalledWith(
+        KAFKA_TOPICS.USER_EVENTS,
+        expect.objectContaining({
+          type: UserIngredientEventType.FAVORITES_ADD,
+          userId: 1,
+          ingredientIds: [1, 5],
+        }),
+      );
+      expect(result).toEqual({ success: true });
+    });
+
+    it('사용자가 없으면 NotFoundException을 던진다', async () => {
+      userRepository.findById.mockResolvedValue(null);
+
+      await expect(
+        service.addFavorites(999, { ingredientIds: [1] }),
+      ).rejects.toThrow(NotFoundException);
+      expect(kafkaProducerService.emit).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('removeFavorite', () => {
+    it('사용자 존재 여부 확인 후 FAVORITES_REMOVE 이벤트를 발행한다', async () => {
+      await service.removeFavorite(1, 5);
+
+      expect(userRepository.findById).toHaveBeenCalledWith(1);
+      expect(kafkaProducerService.emit).toHaveBeenCalledWith(
+        KAFKA_TOPICS.USER_EVENTS,
+        expect.objectContaining({
+          type: UserIngredientEventType.FAVORITES_REMOVE,
+          userId: 1,
+          ingredientId: 5,
+        }),
+      );
+    });
+
+    it('사용자가 없으면 NotFoundException을 던진다', async () => {
+      userRepository.findById.mockResolvedValue(null);
+
+      await expect(service.removeFavorite(999, 5)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(kafkaProducerService.emit).not.toHaveBeenCalled();
+    });
+  });
 });

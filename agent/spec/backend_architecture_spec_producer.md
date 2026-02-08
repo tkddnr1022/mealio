@@ -38,7 +38,7 @@
 | server/producer/src/modules/ingredients/services/* | 캐시 우선 조회 |
 | server/producer/src/modules/ingredients/dto/* | 요청/응답 DTO |
 | **server/producer/src/modules/user-ingredients/** | |
-| server/producer/src/modules/user-ingredients/controllers/* | GET/PUT/POST/DELETE /api/v1/users/me/ingredients, PUT /api/v1/users/me/ingredients/favorites |
+| server/producer/src/modules/user-ingredients/controllers/* | GET/PUT/POST/DELETE /api/v1/users/me/ingredients, PUT/POST/DELETE /api/v1/users/me/ingredients/favorites, DELETE /api/v1/users/me/ingredients/favorites/:ingredientId |
 | server/producer/src/modules/user-ingredients/services/* | UserIngredientService (MongoDB 저장, 캐시 관리) |
 | server/producer/src/modules/user-ingredients/dto/* | 요청/응답 DTO |
 | **server/producer/src/modules/chatbot/** | |

@@ -275,7 +275,9 @@
 * `recipe.view`, `recipe.like`, `recipe.share`
 * `search.query`, `search.click`
 * `user.signup`, `user.login`
+* `user.nickname.update`
 * `ingredient.add`, `ingredient.remove`
+* `user.ingredient.bulk_update`, `user.ingredient.favorites_update`, `user.ingredient.favorites_add`, `user.ingredient.favorites_remove`
 * `chatbot.start`, `chatbot.message`
 
 **필드 설명** (Mongoose `EventLog`)
