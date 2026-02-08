@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { isUserNicknameUpdateEvent, type UserEvent } from '@cook/shared';
+import { UserEventType, type UserEvent } from '@cook/shared';
 import { UserRepository } from 'src/persistence/repositories/postgresql/user.repository';
 import { CacheInvalidationRequestService } from 'src/consumers/cache-invalidation/cache-invalidation-request.service';
 
@@ -19,10 +19,11 @@ export class UpdateUserProfileHandler {
   ) {}
 
   async execute(event: UserEvent): Promise<void> {
-    if (!isUserNicknameUpdateEvent(event)) {
-      return;
+    switch (event.type) {
+      case UserEventType.NICKNAME_UPDATE:
+        await this.userRepository.updateNickname(event.userId, event.nickname);
+        break;
     }
-    await this.userRepository.updateNickname(event.userId, event.nickname);
 
     // Producer의 user 프로필 캐시 무효화 요청 (발행은 서비스 레이어에서 수행)
     await this.cacheInvalidationRequestService.requestUserProfileInvalidation(

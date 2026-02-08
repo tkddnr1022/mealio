@@ -2,13 +2,15 @@
  * UserIngredient 이벤트 타입 정의
  */
 export enum UserIngredientEventType {
-  BULK_UPDATE = 'user.ingredient.bulk_update',
-  ADD = 'user.ingredient.add',
-  REMOVE = 'user.ingredient.remove',
-  FAVORITES_UPDATE = 'user.ingredient.favorites_update',
-  FAVORITES_ADD = 'user.ingredient.favorites_add',
-  FAVORITES_REMOVE = 'user.ingredient.favorites_remove',
+  BULK_UPDATE = 'ingredient.bulk_update',
+  ADD = 'ingredient.add',
+  REMOVE = 'ingredient.remove',
+  FAVORITES_UPDATE = 'ingredient.favorites_update',
+  FAVORITES_ADD = 'ingredient.favorites_add',
+  FAVORITES_REMOVE = 'ingredient.favorites_remove',
 }
+
+export const USER_INGREDIENT_EVENT_TYPES: (UserIngredientEventType)[] = [...Object.values(UserIngredientEventType)];
 
 export interface UserIngredientBulkUpdateEvent {
   type: UserIngredientEventType.BULK_UPDATE;
@@ -59,3 +61,8 @@ export type UserIngredientEvent =
   | UserIngredientFavoritesUpdateEvent
   | UserIngredientFavoritesAddEvent
   | UserIngredientFavoritesRemoveEvent;
+
+  export function isUserIngredientEvent(obj: unknown): obj is UserIngredientEvent {
+    const o = obj as Record<string, unknown>;
+    return 'type' in o && typeof o.type === 'string' && USER_INGREDIENT_EVENT_TYPES.includes(o.type as UserIngredientEventType);
+  }

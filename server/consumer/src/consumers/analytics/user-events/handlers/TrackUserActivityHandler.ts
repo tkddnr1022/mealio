@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import {
-  UserIngredientEventType,
-  isUserNicknameUpdateEvent,
   type UserEvent,
   type UserIngredientEvent,
 } from '@cook/shared';
@@ -11,24 +9,6 @@ import {
 } from 'src/persistence/repositories/mongodb/event-log.repository';
 
 export type UserEventPayload = UserEvent | UserIngredientEvent;
-
-function toEventLogType(event: UserEventPayload): string {
-  if (isUserNicknameUpdateEvent(event as UserEvent)) {
-    return 'user.nickname.update';
-  }
-  switch (event.type) {
-    case UserIngredientEventType.ADD:
-      return 'ingredient.add';
-    case UserIngredientEventType.REMOVE:
-      return 'ingredient.remove';
-    case UserIngredientEventType.BULK_UPDATE:
-      return 'user.ingredient.bulk_update';
-    case UserIngredientEventType.FAVORITES_UPDATE:
-      return 'user.ingredient.favorites_update';
-    default:
-      return (event as { type: string }).type;
-  }
-}
 
 function toEventLogPayload(event: UserEventPayload): Record<string, unknown> {
   if ('nickname' in event) {
@@ -54,15 +34,13 @@ export class TrackUserActivityHandler {
   constructor(private readonly eventLogRepository: EventLogRepository) {}
 
   async execute(event: UserEventPayload): Promise<void> {
-    const userId = event.userId;
-    const type = toEventLogType(event);
     const payload = toEventLogPayload(event);
 
     const input: CreateEventLogInput = {
-      type,
+      type: event.type,
       actor: {
         type: 'user',
-        userId,
+        userId: event.userId,
       },
       entity:
         'ingredientId' in event

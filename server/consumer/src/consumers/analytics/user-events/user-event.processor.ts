@@ -4,10 +4,10 @@ import {
   KAFKA_DLQ_TOPICS,
   KAFKA_TOPICS,
   UserEventType,
-  UserIngredientEventType,
-  isUserNicknameUpdateEvent,
   type UserEvent,
   type UserIngredientEvent,
+  isUserEvent,
+  isUserIngredientEvent,
 } from '@cook/shared';
 import { BaseTopicProcessor } from '../../base/base.processor';
 import { RetryStrategy } from '../../base/retry.strategy';
@@ -19,30 +19,12 @@ import { UpdateUserIngredientHandler } from './handlers/UpdateUserIngredientHand
 
 export type UserEventPayload = UserEvent | UserIngredientEvent;
 
-const USER_EVENT_TYPES = new Set<string>([
-  UserEventType.NICKNAME_UPDATE,
-  UserIngredientEventType.BULK_UPDATE,
-  UserIngredientEventType.ADD,
-  UserIngredientEventType.REMOVE,
-  UserIngredientEventType.FAVORITES_UPDATE,
-  UserIngredientEventType.FAVORITES_ADD,
-  UserIngredientEventType.FAVORITES_REMOVE,
-]);
-
 function isValidUserEventPayload(obj: unknown): obj is UserEventPayload {
-  if (!obj || typeof obj !== 'object') return false;
   const o = obj as Record<string, unknown>;
-  if (typeof o.type !== 'string' || !USER_EVENT_TYPES.has(o.type)) return false;
-  if (typeof o.userId !== 'number') return false;
+  if (!isUserEvent(obj)) return false;
+  if (!isUserIngredientEvent(obj)) return false;
+  if ('userId' in o && typeof o.userId !== 'number') return false;
   return true;
-}
-
-function isUserIngredientEvent(
-  event: UserEventPayload,
-): event is UserIngredientEvent {
-  return Object.values(UserIngredientEventType).includes(
-    event.type as UserIngredientEventType,
-  );
 }
 
 /** user-events 토픽 전용 processor (파싱·비즈니스·DLQ). */
@@ -83,10 +65,9 @@ export class UserEventProcessor extends BaseTopicProcessor<UserEventPayload> {
     event: UserEventPayload,
     _message: EachMessagePayload,
   ): Promise<void> {
-    if (isUserNicknameUpdateEvent(event as UserEvent)) {
-      await this.updateUserProfileHandler.execute(event as UserEvent);
-    }
-    if (isUserIngredientEvent(event)) {
+    if (event.type === UserEventType.NICKNAME_UPDATE) {
+      await this.updateUserProfileHandler.execute(event);
+    } else if (isUserIngredientEvent(event)) {
       await this.updateUserIngredientHandler.execute(event);
     }
     await this.trackUserActivityHandler.execute(event);
