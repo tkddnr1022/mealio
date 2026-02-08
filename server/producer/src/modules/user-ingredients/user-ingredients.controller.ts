@@ -43,7 +43,7 @@ export class UserIngredientsController {
   }
 
   @Put()
-  @ApiOperation({ summary: '내 재료함 업데이트 (bulk)' })
+  @ApiOperation({ summary: '내 재료함 업데이트' })
   @ApiResponse({
     status: 200,
     description: '업데이트 성공',
@@ -52,11 +52,11 @@ export class UserIngredientsController {
   @ApiResponse({ status: 400, description: '잘못된 요청' })
   @ApiResponse({ status: 401, description: '인증 실패' })
   @ApiResponse({ status: 500, description: '서버 내부 오류' })
-  async bulkUpdate(
+  async update(
     @CurrentUser() user: AuthUser,
     @Body() dto: IngredientIdsDto,
   ): Promise<{ success: boolean }> {
-    return this.userIngredientsService.bulkUpdate(user.id, dto);
+    return this.userIngredientsService.update(user.id, dto);
   }
 
   @Put('favorites')

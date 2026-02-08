@@ -62,7 +62,7 @@ export class EventLog extends Document {
       'nickname.update',
       'ingredient.add',
       'ingredient.remove',
-      'ingredient.bulk_update',
+      'ingredient.update',
       'ingredient.favorites_add',
       'ingredient.favorites_remove',
       'ingredient.favorites_update',

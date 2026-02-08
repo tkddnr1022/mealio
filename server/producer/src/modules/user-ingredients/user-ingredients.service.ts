@@ -7,7 +7,7 @@ import { UserIngredientCacheStrategy } from '../../infrastructure/cache/strategi
 import { KAFKA_TOPICS } from '@cook/shared';
 import {
   UserIngredientEventType,
-  UserIngredientBulkUpdateEvent,
+  UserIngredientUpdateEvent,
   UserIngredientAddEvent,
   UserIngredientRemoveEvent,
   UserIngredientFavoritesUpdateEvent,
@@ -53,16 +53,16 @@ export class UserIngredientsService {
   }
 
   /**
-   * 재료함 전체 교체 (bulk update) - Command는 이벤트만 발행
+   * 유저 재료 업데이트 (재료함 전체 교체) - Command는 이벤트만 발행
    */
-  async bulkUpdate(
+  async update(
     userId: number,
     dto: IngredientIdsDto,
   ): Promise<{ success: boolean }> {
     await this.ensureUserExists(userId);
 
-    const event: UserIngredientBulkUpdateEvent = {
-      type: UserIngredientEventType.BULK_UPDATE,
+    const event: UserIngredientUpdateEvent = {
+      type: UserIngredientEventType.UPDATE,
       userId,
       ingredientIds: dto.ingredientIds,
       timestamp: new Date().toISOString(),

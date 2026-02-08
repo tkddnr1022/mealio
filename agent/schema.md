@@ -275,7 +275,7 @@
 * `recipe.view`, `recipe.like`, `recipe.share`
 * `search.query`, `search.click`
 * `user.signup`, `user.login`, `nickname.update`
-* `ingredient.add`, `ingredient.remove`, `ingredient.bulk_update`
+* `ingredient.add`, `ingredient.remove`, `ingredient.update`
 * `ingredient.favorites_add`, `ingredient.favorites_remove`, `ingredient.favorites_update`
 * `chatbot.start`, `chatbot.message`
 

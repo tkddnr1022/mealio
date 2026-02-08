@@ -564,7 +564,7 @@ paths:
       tags:
         - UserIngredient
       summary: 내 재료함 업데이트
-      description: 재료함 전체 교체 (bulk update)
+      description: 유저 재료 업데이트 (재료함 전체 교체)
       parameters:
         - name: accessToken
           in: cookie

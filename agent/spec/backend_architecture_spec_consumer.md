@@ -46,7 +46,7 @@
 | server/consumer/src/consumers/analytics/user-events/user-event.processor.ts | USER_EVENTS 토픽 전용 processor |
 | server/consumer/src/consumers/analytics/user-events/user-events.module.ts | 토픽 모듈 정의 (CacheInvalidationModule import로 CacheInvalidationRequestService 주입) |
 | server/consumer/src/consumers/analytics/user-events/handlers/UpdateUserProfileHandler.ts | 사용자 프로필 업데이트 (Prisma User.nickname). DB 반영 후 CacheInvalidationRequestService.requestUserProfileInvalidation 호출(캐시 무효화 요청만, 토픽 직접 발행 없음) |
-| server/consumer/src/consumers/analytics/user-events/handlers/UpdateUserIngredientHandler.ts | MongoDB UserIngredient 갱신 (BULK_UPDATE/ADD/REMOVE/FAVORITES_UPDATE). DB 반영 후 CacheInvalidationRequestService.requestUserIngredientInvalidation 호출(캐시 무효화 요청만, 토픽 직접 발행 없음) |
+| server/consumer/src/consumers/analytics/user-events/handlers/UpdateUserIngredientHandler.ts | MongoDB UserIngredient 갱신 (UPDATE/ADD/REMOVE/FAVORITES_UPDATE). DB 반영 후 CacheInvalidationRequestService.requestUserIngredientInvalidation 호출(캐시 무효화 요청만, 토픽 직접 발행 없음) |
 | server/consumer/src/consumers/analytics/user-events/handlers/TrackUserActivityHandler.ts | EventLog 저장 |
 | server/consumer/src/consumers/analytics/user-events/handlers/RecommendationHandler.ts | 추천 갱신 |
 | **server/consumer/src/consumers/cache-invalidation/** (그룹) | |

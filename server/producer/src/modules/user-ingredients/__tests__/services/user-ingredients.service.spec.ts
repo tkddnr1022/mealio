@@ -135,17 +135,17 @@ describe('UserIngredientsService', () => {
     });
   });
 
-  describe('bulkUpdate', () => {
+  describe('update', () => {
     it('사용자 존재 여부 확인 후 Kafka 이벤트를 발행하고 { success: true }를 반환한다', async () => {
       const dto: IngredientIdsDto = { ingredientIds: [1, 2, 3] };
 
-      const result = await service.bulkUpdate(1, dto);
+      const result = await service.update(1, dto);
 
       expect(userRepository.findById).toHaveBeenCalledWith(1);
       expect(kafkaProducerService.emit).toHaveBeenCalledWith(
         KAFKA_TOPICS.USER_EVENTS,
         expect.objectContaining({
-          type: UserIngredientEventType.BULK_UPDATE,
+          type: UserIngredientEventType.UPDATE,
           userId: 1,
           ingredientIds: [1, 2, 3],
         }),
@@ -157,10 +157,10 @@ describe('UserIngredientsService', () => {
       userRepository.findById.mockResolvedValue(null);
       const dto: IngredientIdsDto = { ingredientIds: [1] };
 
-      await expect(service.bulkUpdate(999, dto)).rejects.toThrow(
+      await expect(service.update(999, dto)).rejects.toThrow(
         NotFoundException,
       );
-      await expect(service.bulkUpdate(999, dto)).rejects.toThrow(
+      await expect(service.update(999, dto)).rejects.toThrow(
         'User not found',
       );
       expect(kafkaProducerService.emit).not.toHaveBeenCalled();

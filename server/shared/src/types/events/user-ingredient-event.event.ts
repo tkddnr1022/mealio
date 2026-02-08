@@ -2,7 +2,7 @@
  * UserIngredient 이벤트 타입 정의
  */
 export enum UserIngredientEventType {
-  BULK_UPDATE = 'ingredient.bulk_update',
+  UPDATE = 'ingredient.update',
   ADD = 'ingredient.add',
   REMOVE = 'ingredient.remove',
   FAVORITES_UPDATE = 'ingredient.favorites_update',
@@ -12,8 +12,8 @@ export enum UserIngredientEventType {
 
 export const USER_INGREDIENT_EVENT_TYPES: (UserIngredientEventType)[] = [...Object.values(UserIngredientEventType)];
 
-export interface UserIngredientBulkUpdateEvent {
-  type: UserIngredientEventType.BULK_UPDATE;
+export interface UserIngredientUpdateEvent {
+  type: UserIngredientEventType.UPDATE;
   userId: number;
   ingredientIds: number[];
   timestamp: string;
@@ -55,7 +55,7 @@ export interface UserIngredientFavoritesRemoveEvent {
 }
 
 export type UserIngredientEvent =
-  | UserIngredientBulkUpdateEvent
+  | UserIngredientUpdateEvent
   | UserIngredientAddEvent
   | UserIngredientRemoveEvent
   | UserIngredientFavoritesUpdateEvent

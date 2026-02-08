@@ -21,8 +21,7 @@ export type UserEventPayload = UserEvent | UserIngredientEvent;
 
 function isValidUserEventPayload(obj: unknown): obj is UserEventPayload {
   const o = obj as Record<string, unknown>;
-  if (!isUserEvent(obj)) return false;
-  if (!isUserIngredientEvent(obj)) return false;
+  if (!isUserEvent(obj) && !isUserIngredientEvent(obj)) return false;
   if ('userId' in o && typeof o.userId !== 'number') return false;
   return true;
 }

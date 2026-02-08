@@ -17,9 +17,9 @@ export class UserIngredientRepository {
   ) {}
 
   /**
-   * 보유 재료 목록 전체 교체 (BULK_UPDATE)
+   * 보유 재료 목록 전체 교체 (유저 재료 업데이트)
    */
-  async bulkUpdate(
+  async update(
     userId: number,
     ingredientIds: number[],
   ): Promise<UserIngredientDocument> {

@@ -20,7 +20,7 @@ describe('UserIngredientsController', () => {
   beforeEach(async () => {
     const mockService = {
       getMyIngredients: jest.fn().mockResolvedValue(mockIngredientList),
-      bulkUpdate: jest.fn().mockResolvedValue({ success: true }),
+      update: jest.fn().mockResolvedValue({ success: true }),
       add: jest.fn().mockResolvedValue({ success: true }),
       remove: jest.fn().mockResolvedValue(undefined),
       updateFavorites: jest.fn().mockResolvedValue({ success: true }),
@@ -71,22 +71,22 @@ describe('UserIngredientsController', () => {
     });
   });
 
-  describe('bulkUpdate', () => {
+  describe('update', () => {
     it('재료함 전체 교체를 요청하고 { success: true }를 반환한다', async () => {
       const dto = { ingredientIds: [1, 2, 3] };
-      const result = await controller.bulkUpdate(mockAuthUser, dto);
+      const result = await controller.update(mockAuthUser, dto);
 
-      expect(userIngredientsService.bulkUpdate).toHaveBeenCalledWith(1, dto);
+      expect(userIngredientsService.update).toHaveBeenCalledWith(1, dto);
       expect(result).toEqual({ success: true });
     });
 
     it('사용자가 없으면 NotFoundException을 던진다', async () => {
-      userIngredientsService.bulkUpdate.mockRejectedValue(
+      userIngredientsService.update.mockRejectedValue(
         new NotFoundException('User not found'),
       );
 
       await expect(
-        controller.bulkUpdate(mockAuthUser, { ingredientIds: [1] }),
+        controller.update(mockAuthUser, { ingredientIds: [1] }),
       ).rejects.toThrow(NotFoundException);
     });
   });
