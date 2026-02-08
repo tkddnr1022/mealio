@@ -40,6 +40,7 @@ alwaysApply: true
 | **spec_driven_development_guidelines.md** | 스펙 주도 개발 지침 (공통) | 명세 대비 파일·페이지 생성/생략/이름 변경 금지 원칙, 명세 동기화 의무를 적용할 때 |
 | **backend_development_guidelines.md** | 백엔드 개발 지침 (어떻게) | 구현 우선순위, TDD, Producer/Consumer 설계 원칙, 캐시·Kafka·RAG·환경 변수·모노레포·DB 주의사항을 적용할 때 |
 | **frontend_development_guidelines.md** | 프론트엔드 개발 지침 (어떻게) | SSG/ISR/SSR/CSR 구현, 캐싱·이미지·상태 관리·코드 스플리팅, 성능 측정 방법을 적용할 때 |
+| **oauth_implementation_guidelines.md** | OAuth 구현 전략 (백엔드 주도) | OAuth 인증 절차(GET /auth/{provider} 진입, 백엔드 콜백·JWT 쿠키), API 계약·Redirect URI·state 등 보안 요건을 구현·수정할 때 |
 
 ---
 
@@ -47,6 +48,9 @@ alwaysApply: true
 
 - **백엔드 API/모듈/DB**  
   `agent/spec/backend_architecture_spec.md` → `agent/guidelines/spec_driven_development_guidelines.md` → `agent/schema.md` → `agent/openapi_spec.yaml` → `agent/proposal.md`
+
+- **OAuth/인증 (백엔드 주도)**  
+  `agent/guidelines/oauth_implementation_guidelines.md` → `agent/spec/backend_architecture_spec_producer.md` (1.3) → `agent/openapi_spec.yaml` → `agent/spec/frontend_architecture_spec.md` (3.1)
 
 - **프론트엔드 페이지/라우팅**  
   `agent/spec/frontend_architecture_spec.md` → `agent/guidelines/spec_driven_development_guidelines.md` → `agent/guidelines/frontend_development_guidelines.md` → `agent/openapi_spec.yaml` → `agent/proposal.md`

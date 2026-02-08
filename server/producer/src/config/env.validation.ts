@@ -45,6 +45,44 @@ export const envValidationSchema = Joi.object({
     'string.empty': 'REDIS_URL must not be empty',
     'any.required': 'REDIS_URL is required',
   }),
+
+  GOOGLE_CLIENT_ID: Joi.string().min(1).required().messages({
+    'string.empty': 'GOOGLE_CLIENT_ID must not be empty',
+    'any.required': 'GOOGLE_CLIENT_ID is required',
+  }),
+
+  GOOGLE_CLIENT_SECRET: Joi.string().min(1).required().messages({
+    'string.empty': 'GOOGLE_CLIENT_SECRET must not be empty',
+    'any.required': 'GOOGLE_CLIENT_SECRET is required',
+  }),
+
+  OAUTH_CALLBACK_BASE_URL: Joi.string().uri().required().messages({
+    'any.required': 'OAUTH_CALLBACK_BASE_URL is required',
+  }),
+
+  FRONTEND_LOGIN_SUCCESS_URL: Joi.string().uri().required().messages({
+    'any.required': 'FRONTEND_LOGIN_SUCCESS_URL is required',
+  }),
+
+  KAKAO_CLIENT_ID: Joi.string().min(1).required().messages({
+    'string.empty': 'KAKAO_CLIENT_ID must not be empty',
+    'any.required': 'KAKAO_CLIENT_ID is required',
+  }),
+
+  KAKAO_CLIENT_SECRET: Joi.string().min(1).required().messages({
+    'string.empty': 'KAKAO_CLIENT_SECRET must not be empty',
+    'any.required': 'KAKAO_CLIENT_SECRET is required',
+  }),
+
+  NAVER_CLIENT_ID: Joi.string().min(1).required().messages({
+    'string.empty': 'NAVER_CLIENT_ID must not be empty',
+    'any.required': 'NAVER_CLIENT_ID is required',
+  }),
+  
+  NAVER_CLIENT_SECRET: Joi.string().min(1).required().messages({
+    'string.empty': 'NAVER_CLIENT_SECRET must not be empty',
+    'any.required': 'NAVER_CLIENT_SECRET is required',
+  }),
 });
 
 export const envValidationOptions = {

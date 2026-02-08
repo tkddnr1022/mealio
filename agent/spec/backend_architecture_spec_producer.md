@@ -15,9 +15,10 @@
 | **server/producer/src/config/** | |
 | server/producer/src/config/* | 환경 검증(env.validation), Swagger 설정 등 |
 | **server/producer/src/modules/auth/** | |
-| server/producer/src/modules/auth/guards/* | JWT, OAuth 인증 가드 |
-| server/producer/src/modules/auth/strategies/* | Passport 전략 (Google, Kakao 등) |
-| server/producer/src/modules/auth/decorators/* | @CurrentUser, @Public 등 |
+| server/producer/src/modules/auth/controllers/* | OAuth 진입·콜백: GET /api/v1/auth/{provider} (302 to Provider), GET /api/v1/auth/{provider}/callback (Code 처리, JWT Set-Cookie, 302 to 클라이언트 로그인 성공 URL) |
+| server/producer/src/modules/auth/guards/* | JWT 인증 가드, OAuth 콜백 가드 |
+| server/producer/src/modules/auth/strategies/* | Passport 전략 (Google, Kakao, Naver) |
+| server/producer/src/modules/auth/decorators/* | @CurrentUser 등 |
 | server/producer/src/modules/auth/types/* | Request 타입 등 |
 | **server/producer/src/modules/health/** | |
 | server/producer/src/modules/health/controllers/* | GET /health, /ready |
@@ -49,7 +50,7 @@
 | server/producer/src/infrastructure/database/prisma/* | seed 등 앱 전용 스크립트. PrismaModule·PrismaService·schema·migrations는 @cook/shared import |
 | server/producer/src/infrastructure/database/mongoose/* | mongoose.module.ts 등. mongooseConfig·스키마는 @cook/shared import |
 | **server/producer/src/infrastructure/database/repositories/postgresql/** | |
-| server/producer/src/infrastructure/database/repositories/postgresql/user.repository.ts | User 조회/갱신 (PrismaService, @cook/shared/prisma-client) |
+| server/producer/src/infrastructure/database/repositories/postgresql/user.repository.ts | User 조회·생성(OAuth 로그인용)·갱신 (PrismaService, @cook/shared/prisma-client) |
 | server/producer/src/infrastructure/database/repositories/postgresql/recipe.repository.ts | Recipe 조회/생성 (PrismaService, @cook/shared/prisma-client) |
 | server/producer/src/infrastructure/database/repositories/postgresql/ingredient.repository.ts | Ingredient 조회 |
 | server/producer/src/infrastructure/database/repositories/postgresql/recipe-ingredient.repository.ts | RecipeIngredient 조회/생성 |
@@ -103,3 +104,14 @@
 | Kafka 토픽 | CHATBOT_REQUESTS (@cook/shared `KAFKA_TOPICS`) |
 
 상세 흐름(6단계)은 `../guidelines/backend_development_guidelines.md` 참고.
+
+## 1.3 OAuth (백엔드 주도) 명세
+
+OAuth 인증은 백엔드 주도 흐름을 따른다. 상세 전략·API 계약은 `../guidelines/oauth_implementation_guidelines.md` 참고.
+
+| 항목 | 명세 |
+|------|------|
+| **설정** | Provider별 Client ID, Client Secret, Scope, Redirect URI(백엔드 콜백 URL)를 환경 변수 또는 설정 모듈에서 로드. Redirect URI는 Provider 개발자 콘솔에 백엔드 콜백 URL로 등록(클라이언트 도메인 아님). |
+| **진입 라우트** | GET /api/v1/auth/{provider}. path parameter `provider`로 Provider 결정(google, kakao, naver). 해당 Provider 인증 URL 생성(client_id, redirect_uri, scope, state). 응답: 302 Redirect to Provider 인증 URL. |
+| **콜백 라우트** | GET /api/v1/auth/{provider}/callback. Query에서 code(필수), state(권장) 추출. state 검증(권장, CSRF 방지). Authorization Code로 Provider Token 엔드포인트 호출 → Access Token( 및 Refresh Token) 수신. Access Token으로 Provider 사용자 정보 API 호출. 수신 사용자 정보로 DB 사용자 생성 또는 조회. 자체 JWT 발급. 응답: 302 Redirect to 클라이언트 로그인 성공 URL + Set-Cookie: JWT (HttpOnly, Secure, SameSite=Lax, Max-Age). |
+| **적용 경로** | 진입/콜백: server/producer/src/modules/auth/controllers/*. 전략: server/producer/src/modules/auth/strategies/* (Passport Google, Kakao, Naver). 가드: server/producer/src/modules/auth/guards/* (JWT, OAuth 콜백). 데코레이터: server/producer/src/modules/auth/decorators/*. OpenAPI·프론트엔드와 경로 일치: /api/v1/auth/{provider}, /api/v1/auth/{provider}/callback. |

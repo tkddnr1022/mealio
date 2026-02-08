@@ -8,6 +8,7 @@ import {
 } from './config/env.validation';
 import { PrismaModule } from '@cook/shared';
 import { MongooseSchemasModule } from './infrastructure/database/mongoose/mongoose.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { RecipesModule } from './modules/recipes/recipes.module';
 import { IngredientsModule } from './modules/ingredients/ingredients.module';
@@ -27,6 +28,7 @@ import { CacheModule } from './infrastructure/cache/cache.module';
     MongooseSchemasModule,
     KafkaModule,
     CacheModule,
+    AuthModule,
     UsersModule,
     RecipesModule,
     IngredientsModule,

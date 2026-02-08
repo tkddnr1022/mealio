@@ -28,7 +28,7 @@ app/
 │   │   └── page.tsx                 # [CSR] 회원가입
 │   └── oauth/
 │       └── callback/
-│           └── page.tsx             # [CSR] OAuth 콜백
+│           └── page.tsx             # [CSR] OAuth 로그인 성공 후 백엔드 리다이렉트 도착지 (쿠키 이미 설정됨, /home 등으로 이동 또는 성공 표시)
 │
 ├── (marketing)/                     # Marketing Layout Group
 │   ├── page.tsx                     # [SSG] 랜딩 (/)
@@ -69,9 +69,6 @@ app/
 │           └── page.tsx             # [CSR] 선호도 설정
 │
 ├── api/                             # API Routes
-│   ├── auth/
-│   │   └── [...nextauth]/
-│   │       └── route.ts             # NextAuth.js
 │   ├── revalidate/
 │   │   └── route.ts                 # ISR 재검증 웹훅
 │   └── health/
@@ -88,11 +85,13 @@ app/
 
 ### 3.1 인증 (CSR)
 
+OAuth는 **백엔드 주도** 흐름을 사용한다. 상세는 `../guidelines/oauth_implementation_guidelines.md` 및 `backend_architecture_spec_producer.md` 1.3 참고. 프론트엔드는 로그인 진입 URL로 이동만 하며, Authorization Code·토큰·Redirect URI는 백엔드에서만 처리한다.
+
 | 경로 | 렌더링 | 설명 | 주요 기능 |
 |------|--------|------|-----------|
-| `/login` | CSR | 로그인 | OAuth(구글, 카카오), 이메일 로그인 |
+| `/login` | CSR | 로그인 | OAuth: 소셜 로그인 버튼 클릭 시 백엔드 `GET /auth/{provider}`(또는 `/api/v1/auth/{provider}`)로 이동(링크 또는 `location` 할당). Provider별 설정(Client ID, Redirect URI 등)은 백엔드에만 둠. 이메일 로그인(해당 시) |
 | `/signup` | CSR | 회원가입 | 약관 동의, 초기 선호도 설정 |
-| `/oauth/callback` | CSR | OAuth 콜백 | 토큰 처리 후 리다이렉트 |
+| `/oauth/callback` | CSR | OAuth 로그인 성공 도착 페이지 | 백엔드가 Code 처리·JWT 쿠키 설정 후 302로 리다이렉트하는 URL. 프론트에서는 토큰 처리 없음(쿠키 이미 설정됨). /home 등으로 리다이렉트 또는 로그인 성공 표시 |
 
 ### 3.2 마케팅 (SSG)
 

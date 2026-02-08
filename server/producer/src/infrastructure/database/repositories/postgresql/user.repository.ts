@@ -22,11 +22,13 @@ export class UserRepository {
     return this.prisma.user.findFirst({ where: { platformName, platformId } });
   }
 
-  // Command 메서드들은 producer 서버에서 제거
-  // Command 작업은 이벤트를 통해 consumer 서버에서 처리됨
-  // async create(data: Prisma.UserCreateInput): Promise<User> {
-  //   return this.prisma.user.create({ data });
-  // }
+  /**
+   * OAuth 로그인 시 사용자 생성용. 일반 Command는 consumer에서 이벤트로 처리하되,
+   * 로그인 플로우는 producer에서 즉시 생성 후 JWT 발급이 필요해 여기서만 사용.
+   */
+  async create(data: Prisma.UserCreateInput): Promise<User> {
+    return this.prisma.user.create({ data });
+  }
 
   // async update(id: number, data: Prisma.UserUpdateInput): Promise<User> {
   //   return this.prisma.user.update({

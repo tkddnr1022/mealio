@@ -5,8 +5,8 @@ info:
     레시피 추천 및 재료 관리 서비스 API
     
     ## 인증 방식
-    - Cookie 기반 JWT 인증
-    - HttpOnly, Secure, SameSite=Strict 설정
+    - Cookie 기반 JWT 인증 (HttpOnly, Secure, SameSite=Strict)
+    - 소셜 로그인: 백엔드 주도 OAuth. 클라이언트는 GET /api/v1/auth/{provider} 진입만 하며, 이후 리다이렉트·토큰 교환·JWT 발급은 백엔드에서 처리
     
     ## 주요 기능
     - 소셜 로그인 (카카오, 구글, 네이버)
@@ -49,12 +49,105 @@ security:
   - cookieAuth: []
 
 paths:
+  /api/v1/auth/{provider}:
+    get:
+      tags:
+        - Authentication
+      summary: OAuth 로그인 진입 (소셜)
+      description: |
+        백엔드 주도 OAuth 진입. 클라이언트가 이 URL로 이동(또는 리다이렉트)하면 서버가 Provider 인증 페이지로 302 리다이렉트한다.
+        인증 완료 후 Provider가 백엔드 콜백 URL로 리다이렉트하고, 백엔드가 Code 교환·JWT 발급 후 클라이언트 로그인 성공 URL로 302 + Set-Cookie로 응답한다.
+        Client ID, Secret, Scope, Redirect URI는 백엔드에서만 관리한다.
+      operationId: getAuthProvider
+      security: []
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          description: OAuth Provider 식별자
+          schema:
+            type: string
+            enum: [google, kakao, naver]
+      responses:
+        '302':
+          description: Provider 인증 URL로 리다이렉트 (Location 헤더)
+          headers:
+            Location:
+              description: Provider 인증 페이지 URL
+              schema:
+                type: string
+                example: "https://accounts.google.com/o/oauth2/v2/auth?client_id=..."
+        '400':
+          description: 잘못된 provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/auth/{provider}/callback:
+    get:
+      tags:
+        - Authentication
+      summary: OAuth 콜백 (Provider → 백엔드)
+      description: |
+        Provider 인증 완료 후 Provider가 리다이렉트하는 백엔드 URL.
+        클라이언트가 직접 호출하지 않으며, GET /api/v1/auth/{provider} 진입 후 브라우저가 Provider를 거쳐 이 URL로 이동한다.
+        서버가 Authorization Code로 Access Token 교환 → 사용자 정보 조회 → 사용자 생성/조회 → JWT 발급 후
+        클라이언트 로그인 성공 URL로 302 리다이렉트하며 응답 헤더에 Set-Cookie로 accessToken을 담아 전달한다.
+      operationId: getAuthProviderCallback
+      security: []
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          description: OAuth Provider 식별자 (진입 시 사용한 값과 동일)
+          schema:
+            type: string
+            enum: [google, kakao, naver]
+        - name: code
+          in: query
+          required: true
+          description: Provider가 전달하는 Authorization Code
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: false
+          description: CSRF 방지용 state (진입 시 서버가 생성해 전달한 값)
+          schema:
+            type: string
+      responses:
+        '302':
+          description: 로그인 성공. 클라이언트 로그인 성공 URL로 리다이렉트 + Set-Cookie(accessToken)
+          headers:
+            Location:
+              description: 프론트엔드 로그인 성공 URL (환경 변수로 설정)
+              schema:
+                type: string
+                example: "https://app.example.com"
+            Set-Cookie:
+              description: JWT accessToken (HttpOnly, Secure, SameSite=Lax)
+              schema:
+                type: string
+                example: "accessToken=eyJhbGc...; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=3600"
+        '401':
+          description: OAuth 인증 실패 (code 무효, 사용자 거부 등)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /api/v1/auth/login:
     post:
       tags:
         - Authentication
-      summary: 소셜 로그인
-      description: 소셜 플랫폼(카카오, 구글, 네이버)을 통한 로그인
+      summary: 이메일/크레덴셜 로그인
+      description: |
+        이메일·비밀번호 등 크레덴셜 로그인용. 소셜 로그인은 GET /api/v1/auth/{provider} 를 사용한다.
       security: []
       requestBody:
         required: true
@@ -63,19 +156,17 @@ paths:
             schema:
               type: object
               required:
-                - platform
-                - accessToken
+                - email
+                - password
               properties:
-                platform:
+                email:
                   type: string
-                  enum: [kakao, google, naver]
-                  description: 소셜 로그인 플랫폼
-                accessToken:
+                  format: email
+                  description: 이메일
+                password:
                   type: string
-                  description: 소셜 플랫폼에서 발급받은 액세스 토큰
-            example:
-              platform: kakao
-              accessToken: "ya29.a0AfH6SMBx..."
+                  format: password
+                  description: 비밀번호
       responses:
         '200':
           description: 로그인 성공
