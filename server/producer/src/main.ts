@@ -12,6 +12,16 @@ async function bootstrap() {
   const config = app.get(ConfigService);
   const port = parseInt(config.getOrThrow<string>('PORT'), 10);
 
+  const frontendLoginSuccessUrl = config.getOrThrow<string>('FRONTEND_LOGIN_SUCCESS_URL');
+  const frontendOrigin = new URL(frontendLoginSuccessUrl).origin;
+
+  app.enableCors({
+    origin: frontendOrigin,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  });
+
   const swaggerConfig = createSwaggerConfig();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api-docs', app, document);
