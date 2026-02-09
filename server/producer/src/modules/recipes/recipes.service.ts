@@ -1,10 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { KAFKA_TOPICS } from '@cook/shared';
+import { Recipe } from '@cook/shared/prisma-client';
 import {
   RecipeRepository,
   RecipeListOrder,
 } from '../../infrastructure/database/repositories/postgresql/recipe.repository';
 import { CacheService } from '../../infrastructure/cache/cache.service';
 import { RecipeCacheStrategy } from '../../infrastructure/cache/strategies/recipe-cache-strategy';
+import { KafkaProducerService } from '../../infrastructure/kafka/producer.service';
 import { RecipeSummaryDto } from './dto/recipe-summary.dto';
 import {
   RecipeDetailDto,
@@ -12,7 +15,12 @@ import {
   RecipeInstructionStepDto,
 } from './dto/recipe-detail.dto';
 import { PaginationDto } from './dto/pagination.dto';
-import { Recipe } from '@cook/shared/prisma-client';
+
+export interface ActivityContext {
+  userId?: number;
+  ipAddress?: string;
+  userAgent?: string;
+}
 
 type RecipeWithIngredients = Recipe & {
   recipeIngredients: Array<{
@@ -30,6 +38,7 @@ export class RecipeQueryService {
     private readonly recipeRepository: RecipeRepository,
     private readonly cacheService: CacheService,
     private readonly recipeCacheStrategy: RecipeCacheStrategy,
+    private readonly kafkaProducerService: KafkaProducerService,
   ) {}
 
   async getList(params: {
@@ -60,8 +69,10 @@ export class RecipeQueryService {
     };
   }
 
-  async getById(recipeId: number): Promise<RecipeDetailDto> {
-    // TODO: viewcount 처리
+  async getById(
+    recipeId: number,
+    context?: ActivityContext,
+  ): Promise<RecipeDetailDto> {
     const recipe = await this.cacheService.getOrSet(
       this.recipeCacheStrategy,
       async () => {
@@ -74,23 +85,25 @@ export class RecipeQueryService {
       recipeId,
     );
 
+    this.emitRecipeView(recipeId, recipe.title ?? null, context).catch(() => {
+      /* fire-and-forget */
+    });
     return recipe;
   }
 
-  async search(params: {
-    q: string;
-    page: number;
-    size: number;
-  }): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
+  async search(
+    params: { q: string; page: number; size: number },
+    context?: ActivityContext,
+  ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
+    const keyword = params.q.trim();
     const { data, total } = await this.recipeRepository.searchByKeyword({
-      keyword: params.q.trim(),
+      keyword,
       page: params.page,
       size: params.size,
     });
 
     const totalPages = Math.ceil(total / params.size) || 1;
-
-    return {
+    const result = {
       data: data.map((r) => this.toSummaryDto(r)),
       pagination: {
         page: params.page,
@@ -99,6 +112,13 @@ export class RecipeQueryService {
         totalPages,
       },
     };
+
+    if (keyword.length > 0) {
+      this.emitSearchQuery(keyword, context).catch(() => {
+        /* fire-and-forget */
+      });
+    }
+    return result;
   }
 
   /**
@@ -158,5 +178,46 @@ export class RecipeQueryService {
         imageUrl: typeof item?.imageUrl === 'string' ? item.imageUrl : null,
       }),
     );
+  }
+
+  private async emitRecipeView(
+    recipeId: number,
+    recipeTitle: string | null,
+    context?: ActivityContext,
+  ): Promise<void> {
+    await this.kafkaProducerService.emit(
+      KAFKA_TOPICS.ACTIVITY_EVENTS,
+      {
+        type: 'recipe.view',
+        actor: {
+          type: 'user',
+          userId: context?.userId,
+          ipAddress: context?.ipAddress,
+          userAgent: context?.userAgent,
+        },
+        entity: {
+          type: 'recipe',
+          id: recipeId,
+          name: recipeTitle ?? undefined,
+        },
+      },
+      String(recipeId),
+    );
+  }
+
+  private async emitSearchQuery(
+    keyword: string,
+    context?: ActivityContext,
+  ): Promise<void> {
+    await this.kafkaProducerService.emit(KAFKA_TOPICS.ACTIVITY_EVENTS, {
+      type: 'search.query',
+      actor: {
+        type: 'user',
+        userId: context?.userId,
+        ipAddress: context?.ipAddress,
+        userAgent: context?.userAgent,
+      },
+      payload: { keywords: [keyword] },
+    });
   }
 }

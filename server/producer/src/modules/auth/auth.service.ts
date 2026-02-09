@@ -1,8 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { KAFKA_TOPICS, UserEventType } from '@cook/shared';
 import { User } from '@cook/shared/prisma-client';
 import { UserRepository } from '../../infrastructure/database/repositories/postgresql/user.repository';
+import { KafkaProducerService } from '../../infrastructure/kafka/producer.service';
 import { OAuthProfile } from './types/oauth.types';
 import {
   AuthProvider,
@@ -16,6 +18,7 @@ export class AuthService {
     private readonly config: ConfigService,
     private readonly jwt: JwtService,
     private readonly userRepository: UserRepository,
+    private readonly kafkaProducerService: KafkaProducerService,
   ) {}
 
   /**
@@ -47,6 +50,7 @@ export class AuthService {
 
   /**
    * OAuth 프로필로 사용자 조회 또는 생성 후 User 반환.
+   * 기존 사용자면 USER_EVENTS에 login, 신규면 signup 이벤트 발행.
    */
   async findOrCreateUser(profile: OAuthProfile): Promise<User> {
     const existing = await this.userRepository.findByPlatform(
@@ -54,17 +58,41 @@ export class AuthService {
       profile.providerId,
     );
     if (existing) {
+      await this.emitLoginEvent(existing.id, profile.provider);
       return existing;
     }
-    return this.userRepository.create({
+    const user = await this.userRepository.create({
       email: profile.email,
       nickname: profile.nickname.slice(0, 50),
       platformName: profile.provider,
       platformId: profile.providerId,
     });
+    await this.emitSignupEvent(user.id, profile.provider);
+    return user;
+  }
 
-    // TODO: Email Linking 구현
-    // TODO: Kafka Event 발행
+  private async emitLoginEvent(
+    userId: number,
+    provider: string,
+  ): Promise<void> {
+    await this.kafkaProducerService.emit(KAFKA_TOPICS.USER_EVENTS, {
+      type: UserEventType.LOGIN,
+      userId,
+      provider,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  private async emitSignupEvent(
+    userId: number,
+    provider: string,
+  ): Promise<void> {
+    await this.kafkaProducerService.emit(KAFKA_TOPICS.USER_EVENTS, {
+      type: UserEventType.SIGNUP,
+      userId,
+      provider,
+      timestamp: new Date().toISOString(),
+    });
   }
 
   /**

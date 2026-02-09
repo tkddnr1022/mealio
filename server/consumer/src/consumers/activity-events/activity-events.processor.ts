@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import {
   KAFKA_DLQ_TOPICS,
   KAFKA_TOPICS,
+  ActivityEventType,
   type ActivityEventPayload,
   isActivityEventType,
 } from '@cook/shared';
@@ -10,6 +11,7 @@ import { BaseTopicProcessor } from '../base/base.processor';
 import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
 import { EventLogRepository } from 'src/persistence/repositories/mongodb/event-log.repository';
+import { RecipeRepository } from 'src/persistence/repositories/postgresql/recipe.repository';
 
 function isValidActivityEventPayload(
   obj: unknown,
@@ -32,6 +34,7 @@ function isValidActivityEventPayload(
 /**
  * activity-events 토픽 전용 processor.
  * recipe.view, recipe.like, recipe.share, search.query, search.click 수신 시 EventLog에 기록.
+ * recipe.view 시 Recipe viewCount 증가.
  * 비로그인 유저 활동 포함 (actor.userId 생략 가능).
  */
 @Injectable()
@@ -40,6 +43,7 @@ export class ActivityEventsProcessor extends BaseTopicProcessor<ActivityEventPay
     retryStrategy: RetryStrategy,
     deadLetterHandler: DeadLetterHandler,
     private readonly eventLogRepository: EventLogRepository,
+    private readonly recipeRepository: RecipeRepository,
   ) {
     super(ActivityEventsProcessor.name, retryStrategy, deadLetterHandler);
   }
@@ -82,5 +86,14 @@ export class ActivityEventsProcessor extends BaseTopicProcessor<ActivityEventPay
       payload: event.payload,
       metadata: event.metadata,
     });
+
+    if (event.type === ActivityEventType.RECIPE_VIEW && event.entity?.type === 'recipe') {
+      const recipeId = Number(event.entity.id);
+      if (Number.isInteger(recipeId) && recipeId > 0) {
+        await this.recipeRepository.incrementViewCount(recipeId).catch((err) => {
+          this.logger.warn(`recipe.view viewCount increment failed recipeId=${recipeId}`, err);
+        });
+      }
+    }
   }
 }

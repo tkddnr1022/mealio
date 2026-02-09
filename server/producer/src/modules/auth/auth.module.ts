@@ -11,6 +11,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { KakaoStrategy } from './strategies/kakao.strategy';
 import { NaverStrategy } from './strategies/naver.strategy';
 import { UserRepository } from '../../infrastructure/database/repositories/postgresql/user.repository';
+import { KafkaModule } from '../../infrastructure/kafka/kafka.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { UserRepository } from '../../infrastructure/database/repositories/postg
       inject: [ConfigService],
     }),
     PrismaModule,
+    KafkaModule,
   ],
   controllers: [AuthController],
   providers: [

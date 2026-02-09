@@ -4,6 +4,7 @@ import { RecipeQueryService } from '../../recipes.service';
 import { RecipeRepository } from '../../../../infrastructure/database/repositories/postgresql/recipe.repository';
 import { CacheService } from '../../../../infrastructure/cache/cache.service';
 import { RecipeCacheStrategy } from '../../../../infrastructure/cache/strategies/recipe-cache-strategy';
+import { KafkaProducerService } from '../../../../infrastructure/kafka/producer.service';
 
 describe('RecipeQueryService', () => {
   let service: RecipeQueryService;
@@ -68,12 +69,15 @@ describe('RecipeQueryService', () => {
       getTtl: jest.fn().mockReturnValue(3600),
     };
 
+    const mockKafkaProducer = { emit: jest.fn().mockResolvedValue(undefined) };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RecipeQueryService,
         { provide: RecipeRepository, useValue: mockRepo },
         { provide: CacheService, useValue: mockCacheService },
         { provide: RecipeCacheStrategy, useValue: mockCacheStrategy },
+        { provide: KafkaProducerService, useValue: mockKafkaProducer },
       ],
     }).compile();
 
