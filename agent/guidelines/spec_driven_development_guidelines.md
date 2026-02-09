@@ -16,4 +16,4 @@
 | 백엔드 | `../spec/backend_architecture_spec.md` (및 패키지별 명세) | 파일·디렉터리 |
 | 프론트엔드 | `../spec/frontend_architecture_spec.md` | 페이지·라우팅·파일 |
 
-구체적인 파일 목록·경로·계약은 각 명세 문서를 참고하고, 구현 방법은 각 영역의 development_guidelines 문서를 참고한다.
+구체적인 파일 목록·경로·계약은 각 명세 문서에, 구현 방법은 각 영역의 development_guidelines 문서에 정의되어 있다.

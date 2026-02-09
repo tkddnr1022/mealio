@@ -1,6 +1,6 @@
 # Producer 패키지 명세 (@cook/producer)
 
-백엔드 아키텍처 명세의 일부이다. 공통 규칙·경로 표기·다른 패키지 명세는 `backend_architecture_spec.md`를 참고한다.
+백엔드 아키텍처 명세의 일부이다. 공통 규칙·경로 표기·다른 패키지 명세는 `backend_architecture_spec.md`에 정의되어 있다.
 
 ---
 
@@ -8,7 +8,7 @@
 
 ## 1.1 파일·디렉터리 명세 (server/producer/src/)
 
-패키지 루트: `server/producer/`. 아래 경로는 모두 저장소 루트 기준 절대 경로이며, 패키지 루트 경로를 포함해 표기한다.
+패키지 루트: `server/producer/`. 경로 표기 규칙은 `backend_architecture_spec.md`와 동일하다.
 
 | 경로 | 역할 |
 |------|------|
@@ -103,11 +103,11 @@
 | 이벤트 타입 | `ChatbotStreamEvent`: `type: 'intent' \| 'chunk' \| 'done' \| 'error'` (@cook/shared `types/events`) |
 | Kafka 토픽 | CHATBOT_REQUESTS (@cook/shared `KAFKA_TOPICS`) |
 
-상세 흐름(6단계)은 `../guidelines/backend_development_guidelines.md` 참고.
+챗봇 6단계 흐름·설계 원칙은 `../guidelines/backend_development_guidelines.md` §5에 정의되어 있다.
 
 ## 1.3 OAuth (백엔드 주도) 명세
 
-OAuth 인증은 백엔드 주도 흐름을 따른다. 상세 전략·API 계약은 `../guidelines/oauth_implementation_guidelines.md` 참고.
+OAuth 인증은 백엔드 주도 흐름을 따른다. 전략·API 계약·보안 요건은 `../guidelines/oauth_implementation_guidelines.md`에 정의되어 있다.
 
 | 항목 | 명세 |
 |------|------|

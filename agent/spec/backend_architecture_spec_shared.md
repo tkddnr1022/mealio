@@ -1,6 +1,6 @@
 # Shared 패키지 명세 (@cook/shared)
 
-백엔드 아키텍처 명세의 일부이다. 공통 규칙·경로 표기·다른 패키지 명세는 `backend_architecture_spec.md`를 참고한다.
+백엔드 아키텍처 명세의 일부이다. 공통 규칙·경로 표기·다른 패키지 명세는 `backend_architecture_spec.md`에 정의되어 있다.
 
 ---
 
@@ -8,7 +8,7 @@
 
 ## 3.1 파일·디렉터리 명세 (server/shared/)
 
-패키지 루트: `server/shared/`. 아래 경로는 모두 저장소 루트 기준 절대 경로이며, 패키지 루트 경로를 포함해 표기한다.
+패키지 루트: `server/shared/`. 경로 표기 규칙은 `backend_architecture_spec.md`와 동일하다.
 
 | 경로 | 역할 |
 |------|------|
@@ -48,7 +48,7 @@ datasource: `postgresql`. generator: `prisma-client`, output `generated`.
 - **Producer/Consumer import**: `import { PrismaModule, RedisService, KAFKA_TOPICS, ... } from '@cook/shared'`
 - **Prisma 타입/클라이언트**: `import { Recipe, Prisma } from '@cook/shared/prisma-client'`
 - **빌드 순서**: shared 빌드(`prisma generate` + `tsc`) → Producer/Consumer 빌드
-- **환경 변수·모노레포·빌드·데이터소스 주의사항**: `../guidelines/backend_development_guidelines.md` 7(환경 변수), 9(모노레포·빌드), 10(데이터베이스별 주의사항) 참고.
+- **환경 변수·모노레포·빌드·데이터소스 주의사항**: `../guidelines/backend_development_guidelines.md` §6(환경 변수), §8(모노레포·빌드), §9(데이터베이스별 주의사항)에 정의되어 있다.
 
 ## 3.4 공유 라이브러리 확장
 

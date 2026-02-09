@@ -1,6 +1,6 @@
 # 프론트엔드 개발 지침
 
-에이전트 주도 개발 시 **어떻게** 개발할지 원칙과 방법론을 제시하는 **비정형 문서**이다. **무엇을** 개발할지(페이지·라우팅·파일 단위 명세)는 `../spec/frontend_architecture_spec.md`를 참고한다.
+에이전트 주도 개발 시 **어떻게** 개발할지 원칙과 방법론을 제시하는 **비정형 문서**이다. **무엇을** 개발할지(페이지·라우팅·파일 단위)는 `../spec/frontend_architecture_spec.md`에 정의되어 있다.
 
 ---
 
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }): Promise<Metadata> {
 → Consumer → OpenAI API → Redis → SSE → 클라이언트
 ```
 
-클라이언트는 `EventSource` 또는 fetch + ReadableStream으로 SSE를 구독하고, `ChatbotStreamEvent` 타입(`intent` | `chunk` | `done` | `error`)에 따라 UI를 갱신한다. 상세는 백엔드 `../spec/backend_architecture_spec.md`·`backend_development_guidelines.md` 참고.
+클라이언트는 `EventSource` 또는 fetch + ReadableStream으로 SSE를 구독하고, `ChatbotStreamEvent` 타입(`intent` | `chunk` | `done` | `error`)에 따라 UI를 갱신한다. Redis 채널·이벤트 타입·6단계 흐름은 `../spec/backend_architecture_spec.md`(§1.2) 및 `backend_development_guidelines.md` §5에 정의되어 있다.
 
 ### 2.3 레시피 목록 (점진적 로딩)
 
@@ -156,5 +156,5 @@ const RecipeEditor = dynamic(
 
 ## 7. 모니터링 및 성능
 
-- **Web Vitals**: LCP, FID, CLS 목표는 `../spec/frontend_architecture_spec.md` 4장 참고. Vercel Analytics 또는 `web-vitals` 라이브러리로 수집.
+- **Web Vitals**: LCP, FID, CLS 목표는 `../spec/frontend_architecture_spec.md` §4에 정의되어 있다. Vercel Analytics 또는 `web-vitals` 라이브러리로 수집.
 - **성능 예산**: 랜딩·레시피 목록·상세·챗봇별 초기 로드·TTI·번들 사이즈 예산은 명세서에 정의. CI 또는 Lighthouse로 예산 초과 시 실패하도록 설정 권장.

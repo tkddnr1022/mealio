@@ -1,6 +1,6 @@
 # Consumer 패키지 명세 (@cook/consumer)
 
-백엔드 아키텍처 명세의 일부이다. 공통 규칙·경로 표기·다른 패키지 명세는 `backend_architecture_spec.md`를 참고한다.
+백엔드 아키텍처 명세의 일부이다. 공통 규칙·경로 표기·다른 패키지 명세는 `backend_architecture_spec.md`에 정의되어 있다.
 
 ---
 
@@ -8,7 +8,7 @@
 
 ## 2.1 파일·디렉터리 명세 (server/consumer/src/)
 
-패키지 루트: `server/consumer/`. 아래 경로는 모두 저장소 루트 기준 절대 경로이며, 패키지 루트 경로를 포함해 표기한다.
+패키지 루트: `server/consumer/`. 경로 표기 규칙은 `backend_architecture_spec.md`와 동일하다.
 
 **구조 원칙**: `consumers/` 하위에 **consumer_name** 폴더(user-events, activity-events, cache-invalidation, chatbot-request, recipe-generation)를 두고, 각 폴더에 `{consumer_name}.processor.ts`, `{consumer_name}.module.ts`, `{consumer_name}.consumer.ts`를 둔다.
 
@@ -20,41 +20,41 @@
 | server/consumer/src/consumers/base/base.consumer.ts | 단일 consumer 인스턴스 connect/subscribe/run/disconnect 공통 로직 (BaseConsumerRunner) |
 | server/consumer/src/consumers/base/retry.strategy.ts | 재시도 전략 (지수 백오프) |
 | **server/consumer/src/consumers/recipe-generation/** | |
-| server/consumer/src/consumers/recipe-generation/recipe-generation.processor.ts | 레시피 생성 processor (파싱·비즈니스·DLQ). §2.2 참고 |
+| server/consumer/src/consumers/recipe-generation/recipe-generation.processor.ts | 레시피 생성 processor (파싱·비즈니스·DLQ). 토픽 §2.2 |
 | server/consumer/src/consumers/recipe-generation/recipe-generation.module.ts | 그룹 모듈 정의 |
-| server/consumer/src/consumers/recipe-generation/recipe-generation.consumer.ts | 해당 토픽 구독·디스패치. §2.2 참고 |
-| **server/consumer/src/consumers/chatbot-request/** | §2.2 chatbot-requests 참고 |
+| server/consumer/src/consumers/recipe-generation/recipe-generation.consumer.ts | 해당 토픽 구독·디스패치. 토픽 §2.2 |
+| **server/consumer/src/consumers/chatbot-request/** | 토픽 §2.2 chatbot-requests |
 | server/consumer/src/consumers/chatbot-request/chatbot-request.processor.ts | 해당 토픽 processor |
 | server/consumer/src/consumers/chatbot-request/chatbot-request.module.ts | 그룹 모듈 정의 |
-| server/consumer/src/consumers/chatbot-request/chatbot-request.consumer.ts | 해당 토픽 구독. §2.2 참고 |
+| server/consumer/src/consumers/chatbot-request/chatbot-request.consumer.ts | 해당 토픽 구독. 토픽 §2.2 |
 | server/consumer/src/consumers/chatbot-request/handlers/ProcessChatHandler.ts | GPT Function Calling·스트리밍, tool_calls 디스패치, Redis ChatbotStreamEvent 발행 |
 | server/consumer/src/consumers/chatbot-request/handlers/UserIngredientsHandler.ts | get_user_ingredients — UserIngredient 조회, Ingredient id→name(Redis 캐시) 반환 |
 | server/consumer/src/consumers/chatbot-request/handlers/SearchRecipesHandler.ts | search_recipes — Prisma 레시피 검색, ingredientIds optional, RecipeSummary[] 반환 |
 | server/consumer/src/consumers/chatbot-request/handlers/SaveChatLogHandler.ts | 스트림 종료 후 ChatbotLog 저장 |
 | server/consumer/src/consumers/chatbot-request/tools/chatbot-tools.definition.ts | OpenAI tools 배열 (search_recipes, get_user_ingredients 등) |
 | server/consumer/src/consumers/chatbot-request/tools/tool-dispatcher.ts | function name → Handler 매핑·실행 |
-| server/consumer/src/consumers/chatbot-request/context/conversation.manager.ts | 대화 히스토리 — buildMessagesForGpt, PreviousTurn, 시스템 프롬프트 (§2.3 참고) |
-| **server/consumer/src/consumers/user-events/** | §2.2 user-events 참고 |
+| server/consumer/src/consumers/chatbot-request/context/conversation.manager.ts | 대화 히스토리 — buildMessagesForGpt, PreviousTurn, 시스템 프롬프트. 상세 §2.3 |
+| **server/consumer/src/consumers/user-events/** | 토픽 §2.2 user-events |
 | server/consumer/src/consumers/user-events/user-events.processor.ts | 해당 토픽 processor |
 | server/consumer/src/consumers/user-events/user-events.module.ts | 그룹 모듈 정의 (CacheInvalidationModule import) |
-| server/consumer/src/consumers/user-events/user-events.consumer.ts | 해당 토픽 구독. §2.2 참고 |
+| server/consumer/src/consumers/user-events/user-events.consumer.ts | 해당 토픽 구독. 토픽 §2.2 |
 | server/consumer/src/consumers/user-events/handlers/UpdateUserProfileHandler.ts | 프로필 업데이트 (User.nickname), 캐시 무효화 요청 |
 | server/consumer/src/consumers/user-events/handlers/UpdateUserIngredientHandler.ts | UserIngredient 갱신, 캐시 무효화 요청 |
 | server/consumer/src/consumers/user-events/handlers/TrackUserActivityHandler.ts | EventLog 저장 |
 | server/consumer/src/consumers/user-events/handlers/RecommendationHandler.ts | 추천 갱신 |
-| **server/consumer/src/consumers/activity-events/** | §2.2 activity-events 참고 |
+| **server/consumer/src/consumers/activity-events/** | 토픽 §2.2 activity-events |
 | server/consumer/src/consumers/activity-events/activity-events.processor.ts | 해당 토픽 processor, EventLog 저장 |
 | server/consumer/src/consumers/activity-events/activity-events.module.ts | 그룹 모듈 정의 (MongooseModule EventLog, EventLogRepository) |
-| server/consumer/src/consumers/activity-events/activity-events.consumer.ts | 해당 토픽 구독. §2.2 참고 |
-| **server/consumer/src/consumers/cache-invalidation/** | §2.2 cache-invalidation 참고 |
+| server/consumer/src/consumers/activity-events/activity-events.consumer.ts | 해당 토픽 구독. 토픽 §2.2 |
+| **server/consumer/src/consumers/cache-invalidation/** | 토픽 §2.2 cache-invalidation |
 | server/consumer/src/consumers/cache-invalidation/cache-invalidation.processor.ts | 해당 토픽 processor, RedisInvalidationHandler 실행 |
 | server/consumer/src/consumers/cache-invalidation/cache-invalidation.module.ts | 그룹 모듈 정의 (KafkaModule, RedisModule, RequestService·RedisHandler, RequestService export) |
-| server/consumer/src/consumers/cache-invalidation/cache-invalidation.consumer.ts | 해당 토픽 구독. §2.2 참고 |
+| server/consumer/src/consumers/cache-invalidation/cache-invalidation.consumer.ts | 해당 토픽 구독. 토픽 §2.2 |
 | server/consumer/src/consumers/cache-invalidation/cache-invalidation-request.service.ts | requestUserProfileInvalidation / requestUserIngredientInvalidation — 토픽 발행 |
 | server/consumer/src/consumers/cache-invalidation/redis-invalidation.handler.ts | CACHE_KEY_PREFIX 기반 Redis 키 삭제 (user:{userId}, user-ingredient:{userId}). 추후 CDN 확장 가능 |
 | **server/consumer/src/integrations/kafka/** | |
 | server/consumer/src/integrations/kafka/kafka.service.ts | Consumer 인스턴스 생성 (getConsumer) |
-| server/consumer/src/integrations/kafka/kafka-producer.service.ts | Consumer 내부 토픽 발행 (connect/disconnect, emit). §2.2 참고 |
+| server/consumer/src/integrations/kafka/kafka-producer.service.ts | Consumer 내부 토픽 발행 (connect/disconnect, emit). 토픽 §2.2 |
 | **server/consumer/src/integrations/openai/** | |
 | server/consumer/src/integrations/openai/openai.service.ts | GPT API 래퍼 |
 | server/consumer/src/integrations/openai/response-parser.ts | JSON 파싱·검증 |
@@ -137,16 +137,16 @@
 
 - **conversation.manager**: `consumers/chatbot-request/context/conversation.manager.ts` — `buildMessagesForGpt(previousTurns, newUserMessage)`로 GPT용 메시지 배열 생성(시스템 프롬프트 + 이전 턴 + 새 사용자 메시지).
 - **ProcessChatHandler**: `consumers/chatbot-request/handlers/ProcessChatHandler.ts` — GPT 호출 전 위 함수를 호출해 `messages`를 얻어 OpenAI API에 전달. 이전 턴은 ChatbotLog에서 `conversationId`(context.conversationId) 기준으로 조회해 공급할 수 있음(확장 시).
-- 상세 규칙·저장소·조회 설계·토큰 제한 등은 `../guidelines/backend_development_guidelines.md` §5.4 참고.
+- 대화 히스토리 규칙·저장소·조회 설계·토큰 제한은 `../guidelines/backend_development_guidelines.md` §5.4에 정의되어 있다.
 
 ---
 
 ## 2.4 캐시 무효화 흐름 (user-events → cache-invalidation)
 
-- 토픽·발행 주체·수신·Redis 삭제 동작은 §2.2 표의 **cache-invalidation** 행 참고.
+- 토픽·발행 주체·수신·Redis 삭제 동작은 §2.2 표의 **cache-invalidation** 행과 동일하다.
 - **모듈 의존성**: UserEventsModule이 CacheInvalidationModule을 import하여 Handler에서 CacheInvalidationRequestService를 주입받는다.
 - **일관성**: Producer의 Cache-Aside 캐시와 동일 Redis를 사용하므로, 무효화 후 다음 조회 시 DB 폴백이 이루어진다.
 
 ---
 
-Function Calling 기반 챗봇 흐름·설계 원칙은 `../guidelines/backend_development_guidelines.md` §5 참고.
+Function Calling 기반 챗봇 흐름·설계 원칙은 `../guidelines/backend_development_guidelines.md` §5에 정의되어 있다.

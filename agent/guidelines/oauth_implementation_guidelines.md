@@ -40,7 +40,7 @@
 
 ---
 
-## 3. 보안 참고
+## 3. 보안 고려사항
 
 - 리다이렉트 기반 OAuth에서는 CSRF(`state` 파라미터), Authorization Code 탈취 방지 등이 권장된다. 상세는 [OAuth 2.1](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-10) 및 각 Provider 문서를 따른다.
 - Client Secret은 서버에만 두고, Redirect URI는 백엔드 콜백 URL로 고정해 클라이언트에 노출하지 않는다.
