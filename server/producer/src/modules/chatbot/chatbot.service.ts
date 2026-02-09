@@ -5,6 +5,7 @@ import {
   RedisService,
   KAFKA_TOPICS,
   getChatbotStreamChannel,
+  ChatbotEventType,
   type ChatbotRequestEvent,
   type ChatbotStreamEvent,
 } from '@cook/shared';
@@ -57,9 +58,14 @@ export class ChatbotService {
       `conv_${randomUUID().replace(/-/g, '').slice(0, 16)}`;
     const channel = getChatbotStreamChannel(streamChannelId);
 
+    const type = dto.conversationId
+      ? ChatbotEventType.MESSAGE
+      : ChatbotEventType.START;
+
     const event: ChatbotRequestEvent = {
       userId,
       message: dto.message,
+      type,
       conversationId,
       streamChannelId,
       timestamp: new Date().toISOString(),

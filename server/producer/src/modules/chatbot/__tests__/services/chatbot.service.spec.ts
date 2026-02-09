@@ -77,6 +77,7 @@ describe('ChatbotService', () => {
         expect.objectContaining({
           userId: 1,
           message: dto.message,
+          type: 'chatbot.start',
           streamChannelId: expect.stringMatching(/^stream_[a-z0-9]{16}$/),
           conversationId: expect.stringMatching(/^conv_[a-z0-9]{16}$/),
           timestamp: expect.any(String),

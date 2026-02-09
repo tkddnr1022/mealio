@@ -1,8 +1,7 @@
 /**
  * Activity 이벤트 타입 정의.
- * activity-events 토픽 페이로드. 비로그인 유저 포함 레시피/검색 활동을 EventLog에 기록.
- * - recipe.view, recipe.like, recipe.share
- * - search.query, search.click
+ * activity-events 토픽 페이로드 (레시피/검색 활동 EventLog 기록용).
+ * - recipe.view, recipe.like, recipe.share, search.query, search.click
  */
 export enum ActivityEventType {
   RECIPE_VIEW = 'recipe.view',
