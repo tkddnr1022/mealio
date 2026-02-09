@@ -6,8 +6,8 @@ import {
   CacheInvalidationEventType,
   type CacheInvalidationPayload,
 } from '@cook/shared';
-import { BaseTopicProcessor } from '../../base/base.processor';
-import { RetryStrategy } from '../../base/retry.strategy';
+import { BaseTopicProcessor } from '../base/base.processor';
+import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
 import { RedisInvalidationHandler } from './redis-invalidation.handler';
 

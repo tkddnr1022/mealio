@@ -5,7 +5,8 @@
 export const CONSUMER_GROUPS = {
   RECIPE_GENERATION: 'recipe-generation-group',
   CHATBOT: 'chatbot-group',
-  ANALYTICS: 'analytics-group',
+  USER_EVENTS: 'user-events-group',
+  ACTIVITY_EVENTS: 'activity-events-group',
   CACHE_INVALIDATION: 'cache-invalidation-group',
 } as const;
 

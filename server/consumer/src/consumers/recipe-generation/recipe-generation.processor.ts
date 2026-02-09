@@ -1,8 +1,8 @@
 import type { EachMessagePayload } from 'kafkajs';
 import { Injectable } from '@nestjs/common';
 import { KAFKA_DLQ_TOPICS, KAFKA_TOPICS } from '@cook/shared';
-import { BaseTopicProcessor } from '../../base/base.processor';
-import { RetryStrategy } from '../../base/retry.strategy';
+import { BaseTopicProcessor } from '../base/base.processor';
+import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
 
 /** recipe-generation 토픽 전용 processor (파싱·비즈니스·DLQ). 추후 GenerateRecipeHandler 등 연동. */

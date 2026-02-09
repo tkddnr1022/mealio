@@ -37,7 +37,7 @@
 
 ### 2.1 공통 원칙
 
-- **테스트 위치**: 모듈 루트 `__tests__/` → Producer는 `controllers/`, `services/` / Consumer는 그룹·토픽별 `consumers/{그룹}/`, `consumers/{그룹}/{토픽}/handlers/` 등으로 구분.
+- **테스트 위치**: 모듈 루트 `__tests__/` → Producer는 `controllers/`, `services/` / Consumer는 consumer별 `consumers/{consumer_name}/`, `consumers/{consumer_name}/handlers/` 등으로 구분.
 - **의존성**: Controller·Service·Consumer·Handler는 Repository·외부 클라이언트 등을 전부 Mock하여 단위 테스트.
 - **TDD 순서**: **Red-Green-Refactor**. 새 API 또는 새 핸들러/컨슈머 추가 시 spec을 먼저 확장 → 실패(Red) → 최소 구현으로 통과(Green) → 리팩터(Refactor). 한 번에 한 동작 단위로 반복하며, Green 구간에서 다른 기능을 추가하지 않는다.
 
@@ -50,7 +50,7 @@
 
 - **대상**: Consumer(메시지 수신·핸들러 호출·재시도/DLQ 위임), Handler(페이로드 기반 로직·DB·OpenAI·S3 등).
 - **테스트 초점**: Consumer는 Handler들을 Mock한 뒤 메시지 파싱·핸들러 호출 순서·예외 시 재시도/DLQ 검증. Handler는 OpenAIService·Repository 등 Mock 후 `execute(payload)` 동작·반환·예외 검증.
-- **적용 범위**: recipe-generation, chatbot, analytics, cache-invalidation 등 그룹·토픽별 consumer 모듈에 대해 consumer.spec + processor/handlers spec 작성.
+- **적용 범위**: recipe-generation, chatbot-request, user-events, activity-events, cache-invalidation 등 consumer별 모듈에 대해 consumer.spec + processor/handlers spec 작성.
 
 ### 2.4 Producer / Consumer 테스트 요약
 
@@ -153,8 +153,8 @@ Consumer 챗봇 모듈은 GPT 호출 전 **대화 히스토리 컨텍스트**를
 
 | 구성 요소 | 파일 | 역할 |
 |----------|------|------|
-| **대화 메시지 구성** | `consumers/chatbot/chatbot-requests/context/conversation.manager.ts` | `buildMessagesForGpt(previousTurns, newUserMessage)`로 GPT용 메시지 배열 생성. 시스템 프롬프트 + 이전 턴(user/assistant) + 새 사용자 메시지 순서로 구성. |
-| **호출처** | `consumers/chatbot/chatbot-requests/handlers/ProcessChatHandler.ts` | GPT 스트리밍 호출 전 `buildMessagesForGpt`를 호출해 `messages`를 얻고, OpenAI API에 전달. |
+| **대화 메시지 구성** | `consumers/chatbot-request/context/conversation.manager.ts` | `buildMessagesForGpt(previousTurns, newUserMessage)`로 GPT용 메시지 배열 생성. 시스템 프롬프트 + 이전 턴(user/assistant) + 새 사용자 메시지 순서로 구성. |
+| **호출처** | `consumers/chatbot-request/handlers/ProcessChatHandler.ts` | GPT 스트리밍 호출 전 `buildMessagesForGpt`를 호출해 `messages`를 얻고, OpenAI API에 전달. |
 
 #### 메시지 배열 구성 규칙
 

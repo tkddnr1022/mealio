@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Kafka } from 'kafkajs';
 import {
   KAFKA_TOPICS,
+  KAFKA_DLQ_TOPICS,
   createKafkaConfig,
   LOCAL_TOPIC_CONFIG,
 } from '@cook/shared';
@@ -46,8 +47,11 @@ export class KafkaAdminService implements OnModuleInit {
       const existingTopics = await admin.listTopics();
       const existingTopicsSet = new Set(existingTopics);
 
-      // KAFKA_TOPICS 상수에서 필요한 토픽 목록 가져오기
-      const requiredTopics = Object.values(KAFKA_TOPICS);
+      // KAFKA_TOPICS + KAFKA_DLQ_TOPICS 상수에서 필요한 토픽 목록 가져오기
+      const requiredTopics = [
+        ...Object.values(KAFKA_TOPICS),
+        ...Object.values(KAFKA_DLQ_TOPICS),
+      ];
 
       // 존재하지 않는 토픽만 필터링
       const topicsToCreate = requiredTopics

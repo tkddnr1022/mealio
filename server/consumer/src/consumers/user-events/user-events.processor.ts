@@ -9,8 +9,8 @@ import {
   isUserEvent,
   isUserIngredientEvent,
 } from '@cook/shared';
-import { BaseTopicProcessor } from '../../base/base.processor';
-import { RetryStrategy } from '../../base/retry.strategy';
+import { BaseTopicProcessor } from '../base/base.processor';
+import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
 import { UpdateUserProfileHandler } from './handlers/UpdateUserProfileHandler';
 import { TrackUserActivityHandler } from './handlers/TrackUserActivityHandler';
@@ -28,7 +28,7 @@ function isValidUserEventPayload(obj: unknown): obj is UserEventPayload {
 
 /** user-events 토픽 전용 processor (파싱·비즈니스·DLQ). */
 @Injectable()
-export class UserEventProcessor extends BaseTopicProcessor<UserEventPayload> {
+export class UserEventsProcessor extends BaseTopicProcessor<UserEventPayload> {
   constructor(
     retryStrategy: RetryStrategy,
     deadLetterHandler: DeadLetterHandler,
@@ -37,7 +37,7 @@ export class UserEventProcessor extends BaseTopicProcessor<UserEventPayload> {
     private readonly recommendationHandler: RecommendationHandler,
     private readonly updateUserIngredientHandler: UpdateUserIngredientHandler,
   ) {
-    super(UserEventProcessor.name, retryStrategy, deadLetterHandler);
+    super(UserEventsProcessor.name, retryStrategy, deadLetterHandler);
   }
 
   getTopic(): string {

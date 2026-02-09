@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { KafkaService } from 'src/integrations/kafka/kafka.service';
 import { CONSUMER_GROUPS } from 'src/config/consumer-groups';
 import { BaseConsumer } from '../base/base.consumer';
-import { CacheInvalidationProcessor } from './cache-invalidation/cache-invalidation.processor';
+import { CacheInvalidationProcessor } from './cache-invalidation.processor';
 
 /** KafkaConsumer4: cache-invalidation-group → CacheInvalidationProcessor */
 @Injectable()
