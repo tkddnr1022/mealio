@@ -94,19 +94,22 @@ export class RecipesController {
   @ApiResponse({ status: 500, description: '서버 내부 오류' })
   async search(
     @Query() query: RecipeSearchQueryDto,
-    @Req() req: { ip?: string; headers: { [key: string]: string | string[] | undefined } },
+    @Req() req?: { ip?: string; headers: { [key: string]: string | string[] | undefined } },
   ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
     const page = query.page ?? 1;
     const size = query.size ?? 20;
-    const ua = req.headers['user-agent'];
+    const params = { q: query.q, page, size };
+
+    if (!req) {
+      return this.recipeQueryService.search(params);
+    }
+
+    const ua = req.headers?.['user-agent'];
     const context = {
       ipAddress: req.ip,
       userAgent: Array.isArray(ua) ? ua[0] : ua,
     };
-    return this.recipeQueryService.search(
-      { q: query.q, page, size },
-      context,
-    );
+    return this.recipeQueryService.search(params, context);
   }
 
   @Get(':recipeId')
@@ -121,9 +124,13 @@ export class RecipesController {
   @ApiResponse({ status: 500, description: '서버 내부 오류' })
   async getById(
     @Param('recipeId', ParseIntPipe) recipeId: number,
-    @Req() req: { ip?: string; headers: { [key: string]: string | string[] | undefined } },
+    @Req() req?: { ip?: string; headers: { [key: string]: string | string[] | undefined } },
   ): Promise<RecipeDetailDto> {
-    const ua = req.headers['user-agent'];
+    if (!req) {
+      return this.recipeQueryService.getById(recipeId);
+    }
+
+    const ua = req.headers?.['user-agent'];
     const context = {
       ipAddress: req.ip,
       userAgent: Array.isArray(ua) ? ua[0] : ua,
