@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -17,6 +17,9 @@ import { UserIngredientsModule } from './modules/user-ingredients/user-ingredien
 import { ChatbotModule } from './modules/chatbot/chatbot.module';
 import { KafkaModule } from './infrastructure/kafka/kafka.module';
 import { CacheModule } from './infrastructure/cache/cache.module';
+import { CorrelationIdMiddleware } from './modules/middleware/correlation-id.middleware';
+import { LoggingMiddleware } from './modules/middleware/logging.middleware';
+import { RateLimitMiddleware } from './modules/middleware/rate-limit.middleware';
 
 @Module({
   imports: [
@@ -40,4 +43,10 @@ import { CacheModule } from './infrastructure/cache/cache.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer
+      .apply(CorrelationIdMiddleware, LoggingMiddleware, RateLimitMiddleware)
+      .forRoutes('*');
+  }
+}
