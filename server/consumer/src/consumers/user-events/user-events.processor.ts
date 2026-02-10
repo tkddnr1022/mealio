@@ -12,6 +12,11 @@ import {
 import { BaseTopicProcessor } from '../base/base.processor';
 import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
+import {
+  BusinessRuleValidator,
+  type BusinessRule,
+} from 'src/processing/validation/business-rule.validator';
+import { SchemaValidator } from 'src/processing/validation/schema.validator';
 import { UpdateUserProfileHandler } from './handlers/UpdateUserProfileHandler';
 import { TrackUserActivityHandler } from './handlers/TrackUserActivityHandler';
 import { RecommendationHandler } from './handlers/RecommendationHandler';
@@ -26,9 +31,36 @@ function isValidUserEventPayload(obj: unknown): obj is UserEventPayload {
   return true;
 }
 
+const userEventBusinessRules: BusinessRule<UserEventPayload>[] = [
+  (event) => {
+    const anyEvent = event as unknown as Record<string, unknown>;
+    if ('userId' in anyEvent) {
+      const userId = anyEvent.userId;
+      if (typeof userId === 'number' && userId <= 0) {
+        return {
+          code: 'USER_ID_INVALID',
+          message: 'userId must be a positive integer',
+          detail: { userId },
+        };
+      }
+    }
+    return null;
+  },
+];
+
 /** user-events 토픽 전용 processor (파싱·비즈니스·DLQ). */
 @Injectable()
 export class UserEventsProcessor extends BaseTopicProcessor<UserEventPayload> {
+  private readonly schemaValidator = new SchemaValidator({
+    name: UserEventsProcessor.name,
+  });
+
+  private readonly businessRuleValidator =
+    new BusinessRuleValidator<UserEventPayload>(userEventBusinessRules, {
+      name: UserEventsProcessor.name,
+      throwOnViolation: true,
+    });
+
   constructor(
     retryStrategy: RetryStrategy,
     deadLetterHandler: DeadLetterHandler,
@@ -49,21 +81,19 @@ export class UserEventsProcessor extends BaseTopicProcessor<UserEventPayload> {
   }
 
   protected parseEvent(message: EachMessagePayload): UserEventPayload | null {
-    const raw = message.message.value?.toString();
-    if (!raw) return null;
-    try {
-      const parsed = JSON.parse(raw) as unknown;
-      if (!isValidUserEventPayload(parsed)) return null;
-      return parsed;
-    } catch {
-      return null;
-    }
+    return this.schemaValidator.validateFromKafkaMessage<UserEventPayload>(
+      message,
+      isValidUserEventPayload,
+    );
   }
 
   protected async processEvent(
     event: UserEventPayload,
     _message: EachMessagePayload,
   ): Promise<void> {
+    // 스키마 검증 이후 추가 비즈니스 규칙 검증
+    this.businessRuleValidator.validate(event);
+
     if (event.type === UserEventType.NICKNAME_UPDATE) {
       await this.updateUserProfileHandler.execute(event);
     } else if (isUserIngredientEvent(event)) {

@@ -12,6 +12,8 @@ import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
 import { EventLogRepository } from 'src/persistence/repositories/mongodb/event-log.repository';
 import { RecipeRepository } from 'src/persistence/repositories/postgresql/recipe.repository';
+import { SchemaValidator } from 'src/processing/validation/schema.validator';
+import { normalizeNumericId } from 'src/processing/transformation/data.normalizer';
 
 function isValidActivityEventPayload(
   obj: unknown,
@@ -39,6 +41,10 @@ function isValidActivityEventPayload(
  */
 @Injectable()
 export class ActivityEventsProcessor extends BaseTopicProcessor<ActivityEventPayload> {
+  private readonly schemaValidator = new SchemaValidator({
+    name: ActivityEventsProcessor.name,
+  });
+
   constructor(
     retryStrategy: RetryStrategy,
     deadLetterHandler: DeadLetterHandler,
@@ -59,15 +65,10 @@ export class ActivityEventsProcessor extends BaseTopicProcessor<ActivityEventPay
   protected parseEvent(
     message: EachMessagePayload,
   ): ActivityEventPayload | null {
-    const raw = message.message.value?.toString();
-    if (!raw) return null;
-    try {
-      const parsed = JSON.parse(raw) as unknown;
-      if (!isValidActivityEventPayload(parsed)) return null;
-      return parsed;
-    } catch {
-      return null;
-    }
+    return this.schemaValidator.validateFromKafkaMessage<ActivityEventPayload>(
+      message,
+      isValidActivityEventPayload,
+    );
   }
 
   protected async processEvent(
@@ -87,12 +88,20 @@ export class ActivityEventsProcessor extends BaseTopicProcessor<ActivityEventPay
       metadata: event.metadata,
     });
 
-    if (event.type === ActivityEventType.RECIPE_VIEW && event.entity?.type === 'recipe') {
-      const recipeId = Number(event.entity.id);
-      if (Number.isInteger(recipeId) && recipeId > 0) {
-        await this.recipeRepository.incrementViewCount(recipeId).catch((err) => {
-          this.logger.warn(`recipe.view viewCount increment failed recipeId=${recipeId}`, err);
-        });
+    if (
+      event.type === ActivityEventType.RECIPE_VIEW &&
+      event.entity?.type === 'recipe'
+    ) {
+      const recipeId = normalizeNumericId(event.entity.id, { min: 1 });
+      if (recipeId !== null) {
+        await this.recipeRepository
+          .incrementViewCount(recipeId)
+          .catch((err) => {
+            this.logger.warn(
+              `recipe.view viewCount increment failed recipeId=${recipeId}`,
+              err,
+            );
+          });
       }
     }
   }

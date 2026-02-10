@@ -4,12 +4,23 @@ import { KAFKA_DLQ_TOPICS, KAFKA_TOPICS } from '@cook/shared';
 import { BaseTopicProcessor } from '../base/base.processor';
 import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
+import { SchemaValidator } from 'src/processing/validation/schema.validator';
+
+type RecipeGenerationEvent = Record<string, unknown>;
+
+function isRecipeGenerationEvent(obj: unknown): obj is RecipeGenerationEvent {
+  return !!obj && typeof obj === 'object';
+}
 
 /** recipe-generation 토픽 전용 processor (파싱·비즈니스·DLQ). 추후 GenerateRecipeHandler 등 연동. */
 @Injectable()
 export class RecipeGenerationProcessor extends BaseTopicProcessor<
-  Record<string, unknown>
+  RecipeGenerationEvent
 > {
+  private readonly schemaValidator = new SchemaValidator({
+    name: RecipeGenerationProcessor.name,
+  });
+
   constructor(
     retryStrategy: RetryStrategy,
     deadLetterHandler: DeadLetterHandler,
@@ -27,18 +38,15 @@ export class RecipeGenerationProcessor extends BaseTopicProcessor<
 
   protected parseEvent(
     message: EachMessagePayload,
-  ): Record<string, unknown> | null {
-    const raw = message.message.value?.toString();
-    if (!raw) return null;
-    try {
-      return JSON.parse(raw) as Record<string, unknown>;
-    } catch {
-      return null;
-    }
+  ): RecipeGenerationEvent | null {
+    return this.schemaValidator.validateFromKafkaMessage<RecipeGenerationEvent>(
+      message,
+      isRecipeGenerationEvent,
+    );
   }
 
   protected async processEvent(
-    _event: Record<string, unknown>,
+    _event: RecipeGenerationEvent,
     _message: EachMessagePayload,
   ): Promise<void> {
     // TODO: GenerateRecipeHandler, SaveRecipeHandler, UploadImageHandler 연동
