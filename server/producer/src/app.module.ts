@@ -11,6 +11,7 @@ import { MongooseSchemasModule } from './infrastructure/database/mongoose/mongoo
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { RecipesModule } from './modules/recipes/recipes.module';
+import { HealthModule } from './modules/health/health.module';
 import { IngredientsModule } from './modules/ingredients/ingredients.module';
 import { UserIngredientsModule } from './modules/user-ingredients/user-ingredients.module';
 import { ChatbotModule } from './modules/chatbot/chatbot.module';
@@ -29,6 +30,7 @@ import { CacheModule } from './infrastructure/cache/cache.module';
     KafkaModule,
     CacheModule,
     AuthModule,
+    HealthModule,
     UsersModule,
     RecipesModule,
     IngredientsModule,

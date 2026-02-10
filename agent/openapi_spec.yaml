@@ -1048,6 +1048,66 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /health:
+    get:
+      tags:
+        - Internal
+      summary: 애플리케이션 liveness 체크
+      description: |
+        애플리케이션 프로세스가 살아있는지(liveness) 확인합니다.
+        Kubernetes Liveness Probe 등에서 사용합니다.
+      security: []
+      responses:
+        '200':
+          description: 애플리케이션이 기동 중(liveness ok)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [ok, degraded]
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /ready:
+    get:
+      tags:
+        - Internal
+      summary: 애플리케이션 readiness 체크
+      description: |
+        애플리케이션이 트래픽을 받을 준비가 되었는지(readiness) 확인합니다.
+        PostgreSQL, MongoDB 등 주요 의존성의 연결 상태를 종합해 상태를 반환합니다.
+      security: []
+      responses:
+        '200':
+          description: 의존성 상태에 따른 readiness 정보
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [ok, degraded]
+                  timestamp:
+                    type: string
+                    format: date-time
+                  details:
+                    type: object
+                    properties:
+                      app:
+                        type: string
+                        enum: [ok, degraded]
+                      postgres:
+                        type: string
+                        enum: [ok, degraded, unknown]
+                      mongodb:
+                        type: string
+                        enum: [ok, degraded, unknown]
+
   /internal/v1/events:
     post:
       tags:
