@@ -12,43 +12,81 @@
 
 | 경로 | 역할 |
 |------|------|
-| **server/producer/src/config/** | |
-| server/producer/src/config/* | 환경 검증(env.validation), Swagger 설정 등 |
-| **server/producer/src/modules/auth/** | |
-| server/producer/src/modules/auth/controllers/* | OAuth 진입·콜백: GET /api/v1/auth/{provider} (302 to Provider), GET /api/v1/auth/{provider}/callback (Code 처리, JWT Set-Cookie, 302 to 클라이언트 로그인 성공 URL) |
-| server/producer/src/modules/auth/guards/* | JWT 인증 가드, OAuth 콜백 가드 |
-| server/producer/src/modules/auth/strategies/* | Passport 전략 (Google, Kakao, Naver) |
-| server/producer/src/modules/auth/decorators/* | @CurrentUser 등 |
-| server/producer/src/modules/auth/types/* | Request 타입 등 |
-| **server/producer/src/modules/health/** | |
-| server/producer/src/modules/health/controllers/* | GET /health, /ready |
-| **server/producer/src/modules/middleware/** | |
-| server/producer/src/modules/middleware/rate-limit/* | API 요청 제한 (Redis) |
-| server/producer/src/modules/middleware/logging/* | 요청/응답 로깅 |
-| server/producer/src/modules/middleware/correlation-id/* | 분산 추적용 ID |
-| **server/producer/src/modules/users/** | |
-| server/producer/src/modules/users/controllers/* | GET /api/v1/users/me, PATCH /api/v1/users/me/nickname |
-| server/producer/src/modules/users/services/* | 캐시 조회 우선, RDS 폴백 |
-| server/producer/src/modules/users/dto/* | 요청/응답 DTO |
-| **server/producer/src/modules/recipes/** | |
-| server/producer/src/modules/recipes/controllers/* | GET /api/v1/recipes, GET /api/v1/recipes/:recipeId, GET /api/v1/recipes/search, POST /api/v1/recipes/summaries |
-| server/producer/src/modules/recipes/services/* | RecipeQueryService 등, 읽기 전용·캐시 활용 |
-| server/producer/src/modules/recipes/dto/* | 요청/응답 DTO |
-| **server/producer/src/modules/ingredients/** | |
-| server/producer/src/modules/ingredients/controllers/* | GET /api/v1/ingredients, GET /api/v1/ingredients/search |
-| server/producer/src/modules/ingredients/services/* | 캐시 우선 조회 |
-| server/producer/src/modules/ingredients/dto/* | 요청/응답 DTO |
-| **server/producer/src/modules/user-ingredients/** | |
-| server/producer/src/modules/user-ingredients/controllers/* | GET/PUT/POST/DELETE /api/v1/users/me/ingredients, PUT/POST/DELETE /api/v1/users/me/ingredients/favorites, DELETE /api/v1/users/me/ingredients/favorites/:ingredientId |
-| server/producer/src/modules/user-ingredients/services/* | UserIngredientService (MongoDB 저장, 캐시 관리) |
-| server/producer/src/modules/user-ingredients/dto/* | 요청/응답 DTO |
-| **server/producer/src/modules/chatbot/** | |
-| server/producer/src/modules/chatbot/controllers/* | POST /api/v1/chatbot/messages (SSE), GET /api/v1/chatbot/conversations, GET /api/v1/chatbot/conversations/:id |
-| server/producer/src/modules/chatbot/services/* | ChatbotService (Kafka 발행, Redis 구독, SSE 전달) |
-| server/producer/src/modules/chatbot/dto/* | 메시지 DTO |
+| **server/producer/src/main.ts** | Nest 애플리케이션 부트스트랩 |
+| **server/producer/src/app.module.ts** | 루트 모듈(AppModule). 각 도메인 모듈·인프라 모듈 import |
+| server/producer/src/app.controller.ts | 헬스체크·기본 엔드포인트(필요 시) |
+| server/producer/src/app.service.ts | App 수준 공용 서비스(필요 시) |
+| **server/producer/src/config/** | 설정 모듈 디렉터리 |
+| server/producer/src/config/env.validation.ts | 환경 변수 스키마 검증 |
+| server/producer/src/config/swagger.config.ts | Swagger(OpenAPI) 설정, 문서 빌더 |
+| **server/producer/src/modules/auth/** | OAuth·JWT 인증 모듈 |
+| server/producer/src/modules/auth/auth.module.ts | AuthModule 정의, 전략·가드·컨트롤러 묶음 |
+| server/producer/src/modules/auth/auth.service.ts | OAuth 로그인 처리, 사용자 생성/조회, JWT 발급 |
+| server/producer/src/modules/auth/constants/auth-providers.ts | Provider enum·설정 키 상수 |
+| server/producer/src/modules/auth/controllers/auth.controller.ts | OAuth 진입·콜백: GET /api/v1/auth/{provider}, GET /api/v1/auth/{provider}/callback |
+| server/producer/src/modules/auth/decorators/current-user.decorator.ts | `@CurrentUser()` 데코레이터, 요청 유저 정보 주입 |
+| server/producer/src/modules/auth/guards/jwt-auth.guard.ts | JWT 인증 가드 (Access Token 검증) |
+| server/producer/src/modules/auth/guards/oauth-callback.guard.ts | OAuth 콜백 보안 검증(state 등) |
+| server/producer/src/modules/auth/strategies/index.ts | Passport 전략 export |
+| server/producer/src/modules/auth/strategies/google.strategy.ts | Google OAuth 전략 |
+| server/producer/src/modules/auth/strategies/kakao.strategy.ts | Kakao OAuth 전략 |
+| server/producer/src/modules/auth/strategies/naver.strategy.ts | Naver OAuth 전략 |
+| server/producer/src/modules/auth/types/oauth.types.ts | OAuth 관련 타입 정의 |
+| server/producer/src/modules/auth/types/request.types.ts | 인증 관련 Request 확장 타입 |
+| **server/producer/src/modules/health/** | 헬스체크 모듈 |
+| server/producer/src/modules/health/health.module.ts | HealthModule 정의 (Service·Controller 묶음) |
+| server/producer/src/modules/health/health.service.ts | DB·캐시·외부 연동 상태 체크 로직 |
+| server/producer/src/modules/health/health.controller.ts | GET /health, /ready 엔드포인트 |
+| **server/producer/src/modules/middleware/** | 전역/라우트 미들웨어 |
+| server/producer/src/modules/middleware/rate-limit.middleware.ts | API 요청 제한 (Redis 기반 Rate Limiting) |
+| server/producer/src/modules/middleware/logging.middleware.ts | 요청/응답 로깅 |
+| server/producer/src/modules/middleware/correlation-id.middleware.ts | 분산 추적용 Correlation ID 부여·전파 |
+| **server/producer/src/modules/users/** | 사용자 프로필 모듈 |
+| server/producer/src/modules/users/users.module.ts | UsersModule 정의 |
+| server/producer/src/modules/users/users.service.ts | 유저 프로필 조회·수정, 캐시 우선 조회 후 RDS 폴백 |
+| server/producer/src/modules/users/users.controller.ts | GET /api/v1/users/me, PATCH /api/v1/users/me/nickname |
+| server/producer/src/modules/users/dto/update-nickname.dto.ts | 닉네임 변경 요청 DTO |
+| server/producer/src/modules/users/dto/user-profile.dto.ts | 유저 프로필 응답 DTO |
+| **server/producer/src/modules/recipes/** | 레시피 조회 모듈 |
+| server/producer/src/modules/recipes/recipes.module.ts | RecipesModule 정의 |
+| server/producer/src/modules/recipes/recipes.service.ts | RecipeQueryService 등, 읽기 전용·캐시 활용 |
+| server/producer/src/modules/recipes/recipes.controller.ts | GET /api/v1/recipes, GET /api/v1/recipes/:recipeId, GET /api/v1/recipes/search, POST /api/v1/recipes/summaries |
+| server/producer/src/modules/recipes/dto/pagination.dto.ts | 페이지네이션 공통 DTO |
+| server/producer/src/modules/recipes/dto/recipe-detail.dto.ts | 레시피 상세 응답 DTO |
+| server/producer/src/modules/recipes/dto/recipe-ids.dto.ts | 레시피 ID 리스트 DTO |
+| server/producer/src/modules/recipes/dto/recipe-list-query.dto.ts | 리스트 조회 쿼리 DTO |
+| server/producer/src/modules/recipes/dto/recipe-search-query.dto.ts | 검색 쿼리 DTO |
+| server/producer/src/modules/recipes/dto/recipe-summary.dto.ts | 레시피 요약 응답 DTO |
+| **server/producer/src/modules/ingredients/** | 재료 조회 모듈 |
+| server/producer/src/modules/ingredients/ingredients.module.ts | IngredientsModule 정의 |
+| server/producer/src/modules/ingredients/ingredients.service.ts | 재료 목록·검색, 캐시 우선 조회 |
+| server/producer/src/modules/ingredients/ingredients.controller.ts | GET /api/v1/ingredients, GET /api/v1/ingredients/search |
+| server/producer/src/modules/ingredients/dto/ingredient-list-query.dto.ts | 재료 목록 조회 쿼리 DTO |
+| server/producer/src/modules/ingredients/dto/ingredient-search-query.dto.ts | 재료 검색 쿼리 DTO |
+| server/producer/src/modules/ingredients/dto/ingredient.dto.ts | 재료 단건 응답 DTO |
+| server/producer/src/modules/ingredients/dto/pagination.dto.ts | 페이지네이션 DTO(재료 전용) |
+| **server/producer/src/modules/user-ingredients/** | 유저 보유 재료 모듈 |
+| server/producer/src/modules/user-ingredients/user-ingredients.module.ts | UserIngredientsModule 정의 |
+| server/producer/src/modules/user-ingredients/user-ingredients.service.ts | UserIngredientService (MongoDB 저장, 캐시 관리) |
+| server/producer/src/modules/user-ingredients/user-ingredients.controller.ts | GET/PUT/POST/DELETE /api/v1/users/me/ingredients, 즐겨찾기 CRUD 등 |
+| server/producer/src/modules/user-ingredients/dto/ingredient-ids.dto.ts | 재료 ID 리스트 DTO |
+| server/producer/src/modules/user-ingredients/dto/user-ingredient-list.dto.ts | 유저 보유 재료 리스트 DTO |
+| **server/producer/src/modules/chatbot/** | 챗봇 SSE·대화 모듈 |
+| server/producer/src/modules/chatbot/chatbot.module.ts | ChatbotModule 정의 |
+| server/producer/src/modules/chatbot/chatbot.service.ts | ChatbotService (Kafka 발행, Redis 구독, SSE 전달) |
+| server/producer/src/modules/chatbot/chatbot.controller.ts | POST /api/v1/chatbot/messages (SSE), GET /api/v1/chatbot/conversations, GET /api/v1/chatbot/conversations/:id |
+| server/producer/src/modules/chatbot/dto/send-message.dto.ts | 챗봇 메시지 전송 요청 DTO |
+| server/producer/src/modules/chatbot/dto/chatbot-message-item.dto.ts | 스트림 단위 메시지 아이템 DTO |
+| server/producer/src/modules/chatbot/dto/chatbot-response.dto.ts | SSE 응답 DTO |
+| server/producer/src/modules/chatbot/dto/conversation-history.dto.ts | 대화 상세 조회 DTO |
+| server/producer/src/modules/chatbot/dto/conversation-list-item.dto.ts | 대화 리스트 아이템 DTO |
+| server/producer/src/modules/chatbot/dto/conversation-list-query.dto.ts | 대화 리스트 조회 쿼리 DTO |
+| server/producer/src/modules/chatbot/dto/conversation-list.dto.ts | 대화 리스트 응답 DTO |
+| server/producer/src/modules/chatbot/dto/suggested-recipe.dto.ts | 챗봇이 제안하는 레시피 DTO |
 | **server/producer/src/infrastructure/database/** | |
-| server/producer/src/infrastructure/database/prisma/* | seed 등 앱 전용 스크립트. PrismaModule·PrismaService·schema·migrations는 @cook/shared import |
-| server/producer/src/infrastructure/database/mongoose/* | mongoose.module.ts 등. mongooseConfig·스키마는 @cook/shared import |
+| server/producer/src/infrastructure/database/prisma/seed.ts | Prisma seed 등 앱 전용 스크립트. PrismaModule·PrismaService·schema·migrations는 @cook/shared import |
+| server/producer/src/infrastructure/database/mongoose/mongoose.module.ts | MongooseModule 래퍼. mongooseConfig·스키마는 @cook/shared import |
+| server/producer/src/infrastructure/database/mongoose/seed.ts | MongoDB seed 스크립트 |
 | **server/producer/src/infrastructure/database/repositories/postgresql/** | |
 | server/producer/src/infrastructure/database/repositories/postgresql/user.repository.ts | User 조회·생성(OAuth 로그인용)·갱신 (PrismaService, @cook/shared/prisma-client) |
 | server/producer/src/infrastructure/database/repositories/postgresql/recipe.repository.ts | Recipe 조회/생성 (PrismaService, @cook/shared/prisma-client) |
