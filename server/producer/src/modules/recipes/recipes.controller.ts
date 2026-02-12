@@ -9,6 +9,7 @@ import {
   Req,
   UsePipes,
   ValidationPipe,
+  HttpCode,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { RecipeQueryService } from './recipes.service';
@@ -58,7 +59,8 @@ export class RecipesController {
     });
   }
 
-  @Post('summaries')
+  @Post('summaries') // Body 사용을 위해 POST 사용
+  @HttpCode(200)
   @ApiOperation({ summary: '레시피 요약 정보 벌크 조회' })
   @ApiResponse({
     status: 200,
