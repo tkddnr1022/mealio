@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, HttpStatus } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HealthService, LivenessResponse, ReadinessResponse } from './health.service';
 
@@ -10,7 +10,7 @@ export class HealthController {
   @Get('health')
   @ApiOperation({ summary: '애플리케이션 liveness 체크' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: '애플리케이션이 기동 중(liveness ok)',
     schema: {
       type: 'object',
@@ -27,7 +27,7 @@ export class HealthController {
   @Get('ready')
   @ApiOperation({ summary: '애플리케이션 readiness 체크' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: '주요 의존성이 준비됨(readiness ok/degraded)',
     schema: {
       type: 'object',

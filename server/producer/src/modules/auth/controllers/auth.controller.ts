@@ -6,6 +6,7 @@ import {
   Req,
   Res,
   UseGuards,
+  HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import * as express from 'express';
@@ -31,15 +32,15 @@ export class AuthController {
       '백엔드 주도 OAuth 진입. Provider 인증 페이지로 302 리다이렉트. 지원 provider: google, kakao, naver',
   })
   @ApiParam({ name: 'provider', description: 'OAuth Provider', enum: ['google', 'kakao', 'naver'] })
-  @ApiResponse({ status: 302, description: 'Provider 인증 URL로 리다이렉트' })
-  @ApiResponse({ status: 400, description: '잘못된 provider' })
+  @ApiResponse({ status: HttpStatus.FOUND, description: 'Provider 인증 URL로 리다이렉트' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 provider' })
   async login(
     @Param('provider') provider: string,
     @Res({ passthrough: false }) res: express.Response,
   ): Promise<void> {
     const state = this.authService.generateState();
     const url = this.authService.getAuthUrl(provider, state);
-    res.redirect(302, url);
+    res.redirect(HttpStatus.FOUND, url);
   }
 
   @Get(':provider/callback')
@@ -50,8 +51,8 @@ export class AuthController {
       'Provider 인증 후 호출. Code 교환·사용자 생성/조회·JWT 발급 후 클라이언트 로그인 성공 URL로 302 + Set-Cookie',
   })
   @ApiParam({ name: 'provider', enum: ['google', 'kakao', 'naver'] })
-  @ApiResponse({ status: 302, description: '로그인 성공 URL로 리다이렉트 + Set-Cookie' })
-  @ApiResponse({ status: 401, description: 'OAuth 인증 실패' })
+  @ApiResponse({ status: HttpStatus.FOUND, description: '로그인 성공 URL로 리다이렉트 + Set-Cookie' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'OAuth 인증 실패' })
   async callback(
     @Param('provider') _provider: string,
     @Query('code') _code: string,
@@ -72,6 +73,6 @@ export class AuthController {
     });
 
     const redirectUrl = this.authService.getLoginSuccessRedirectUrl();
-    res.redirect(302, redirectUrl);
+    res.redirect(HttpStatus.FOUND, redirectUrl);
   }
 }

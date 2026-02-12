@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Body, UseGuards, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { UserProfileDto } from './dto/user-profile.dto';
@@ -16,12 +16,12 @@ export class UsersController {
   @Get('me')
   @ApiOperation({ summary: '내 프로필 조회' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: '프로필 조회 성공',
     type: UserProfileDto,
   })
-  @ApiResponse({ status: 401, description: '인증 실패' })
-  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
   async getProfile(@CurrentUser() user: AuthUser): Promise<UserProfileDto> {
     return this.usersService.getProfile(user.id);
   }
@@ -29,7 +29,7 @@ export class UsersController {
   @Patch('me/nickname')
   @ApiOperation({ summary: '닉네임 수정' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: '닉네임 수정 성공',
     schema: {
       type: 'object',
@@ -39,9 +39,9 @@ export class UsersController {
       },
     },
   })
-  @ApiResponse({ status: 400, description: '잘못된 요청' })
-  @ApiResponse({ status: 401, description: '인증 실패' })
-  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
   async updateNickname(
     @CurrentUser() user: AuthUser,
     @Body() updateNicknameDto: UpdateNicknameDto,

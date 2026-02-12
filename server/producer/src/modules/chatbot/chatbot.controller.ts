@@ -41,7 +41,7 @@ export class ChatbotController {
       'AI 챗봇과 대화하여 레시피 추천을 받습니다. 응답은 text/event-stream으로 스트리밍됩니다.',
   })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'SSE 스트림 (Content-Type: text/event-stream)',
     content: {
       'text/event-stream': {
@@ -53,10 +53,10 @@ export class ChatbotController {
       },
     },
   })
-  @ApiResponse({ status: 400, description: '잘못된 요청' })
-  @ApiResponse({ status: 401, description: '인증 실패' })
-  @ApiResponse({ status: 429, description: '요청 제한 초과' })
-  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
+  @ApiResponse({ status: HttpStatus.TOO_MANY_REQUESTS, description: '요청 제한 초과' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
   async sendMessage(
     @CurrentUser() user: AuthUser,
     @Body() dto: SendMessageDto,
@@ -94,12 +94,12 @@ export class ChatbotController {
   @Get('conversations')
   @ApiOperation({ summary: '대화 목록 조회' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: '조회 성공',
     type: ConversationListDto,
   })
-  @ApiResponse({ status: 401, description: '인증 실패' })
-  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
   async getConversationList(
     @CurrentUser() user: AuthUser,
     @Query() query: ConversationListQueryDto,
@@ -115,13 +115,13 @@ export class ChatbotController {
   @Get('conversations/:conversationId')
   @ApiOperation({ summary: '대화 히스토리 조회' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: '조회 성공',
     type: ConversationHistoryDto,
   })
-  @ApiResponse({ status: 401, description: '인증 실패' })
-  @ApiResponse({ status: 404, description: '대화 없음' })
-  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '대화 없음' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
   async getConversationHistory(
     @CurrentUser() user: AuthUser,
     @Param('conversationId') conversationId: string,

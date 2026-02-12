@@ -30,12 +30,12 @@ export class UserIngredientsController {
   @Get()
   @ApiOperation({ summary: '내 재료함 조회' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: '재료함 조회 성공',
     type: UserIngredientListDto,
   })
-  @ApiResponse({ status: 401, description: '인증 실패' })
-  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
   async getMyIngredients(
     @CurrentUser() user: AuthUser,
   ): Promise<UserIngredientListDto> {
@@ -45,13 +45,13 @@ export class UserIngredientsController {
   @Put()
   @ApiOperation({ summary: '내 재료함 업데이트' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: '업데이트 성공',
     schema: { type: 'object', properties: { success: { type: 'boolean' } } },
   })
-  @ApiResponse({ status: 400, description: '잘못된 요청' })
-  @ApiResponse({ status: 401, description: '인증 실패' })
-  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
   async update(
     @CurrentUser() user: AuthUser,
     @Body() dto: IngredientIdsDto,
@@ -62,13 +62,13 @@ export class UserIngredientsController {
   @Put('favorites')
   @ApiOperation({ summary: '즐겨찾는 재료 설정 (전체 교체)' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: '업데이트 성공',
     schema: { type: 'object', properties: { success: { type: 'boolean' } } },
   })
-  @ApiResponse({ status: 400, description: '잘못된 요청' })
-  @ApiResponse({ status: 401, description: '인증 실패' })
-  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
   async updateFavorites(
     @CurrentUser() user: AuthUser,
     @Body() dto: IngredientIdsDto,
@@ -80,13 +80,13 @@ export class UserIngredientsController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: '즐겨찾는 재료 추가' })
   @ApiResponse({
-    status: 201,
+    status: HttpStatus.CREATED,
     description: '추가 성공',
     schema: { type: 'object', properties: { success: { type: 'boolean' } } },
   })
-  @ApiResponse({ status: 400, description: '잘못된 요청' })
-  @ApiResponse({ status: 401, description: '인증 실패' })
-  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
   async addFavorites(
     @CurrentUser() user: AuthUser,
     @Body() dto: IngredientIdsDto,
@@ -97,9 +97,9 @@ export class UserIngredientsController {
   @Delete('favorites/:ingredientId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: '즐겨찾는 재료 삭제' })
-  @ApiResponse({ status: 204, description: '삭제 성공' })
-  @ApiResponse({ status: 401, description: '인증 실패' })
-  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  @ApiResponse({ status: HttpStatus.NO_CONTENT, description: '삭제 성공' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
   async removeFavorite(
     @CurrentUser() user: AuthUser,
     @Param('ingredientId', ParseIntPipe) ingredientId: number,
@@ -111,13 +111,13 @@ export class UserIngredientsController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: '재료 추가' })
   @ApiResponse({
-    status: 201,
+    status: HttpStatus.CREATED,
     description: '재료 추가 성공',
     schema: { type: 'object', properties: { success: { type: 'boolean' } } },
   })
-  @ApiResponse({ status: 400, description: '잘못된 요청' })
-  @ApiResponse({ status: 401, description: '인증 실패' })
-  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
   async add(
     @CurrentUser() user: AuthUser,
     @Body() dto: IngredientIdsDto,
@@ -128,10 +128,10 @@ export class UserIngredientsController {
   @Delete(':ingredientId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: '재료 삭제' })
-  @ApiResponse({ status: 204, description: '삭제 성공' })
-  @ApiResponse({ status: 401, description: '인증 실패' })
-  @ApiResponse({ status: 404, description: '사용자 없음' })
-  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  @ApiResponse({ status: HttpStatus.NO_CONTENT, description: '삭제 성공' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '사용자 없음' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
   async remove(
     @CurrentUser() user: AuthUser,
     @Param('ingredientId', ParseIntPipe) ingredientId: number,

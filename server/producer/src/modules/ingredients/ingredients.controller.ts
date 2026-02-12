@@ -5,6 +5,7 @@ import {
   UseGuards,
   UsePipes,
   ValidationPipe,
+  HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -26,7 +27,7 @@ export class IngredientsController {
   @Get()
   @ApiOperation({ summary: '재료 목록 조회' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: '재료 목록 조회 성공',
     schema: {
       type: 'object',
@@ -39,8 +40,8 @@ export class IngredientsController {
       },
     },
   })
-  @ApiResponse({ status: 401, description: '인증 실패' })
-  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
   async getList(
     @Query() query: IngredientListQueryDto,
   ): Promise<{ data: IngredientDto[]; pagination: PaginationDto }> {
@@ -56,7 +57,7 @@ export class IngredientsController {
   @Get('search')
   @ApiOperation({ summary: '재료 검색' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: '검색 성공',
     schema: {
       type: 'object',
@@ -68,9 +69,9 @@ export class IngredientsController {
       },
     },
   })
-  @ApiResponse({ status: 400, description: '잘못된 요청' })
-  @ApiResponse({ status: 401, description: '인증 실패' })
-  @ApiResponse({ status: 500, description: '서버 내부 오류' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
   async search(
     @Query() query: IngredientSearchQueryDto,
   ): Promise<{ data: IngredientDto[] }> {
