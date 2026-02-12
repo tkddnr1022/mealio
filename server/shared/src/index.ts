@@ -6,7 +6,6 @@
 // Configs
 export { createRedisConfig } from './configs/redis.config';
 export { createKafkaConfig, LOCAL_TOPIC_CONFIG } from './configs/kafka.config';
-export { mongooseConfig } from './configs/mongoose.config';
 
 // Constants
 export {
@@ -28,8 +27,14 @@ export { RedisService } from './redis/redis.service';
 // Prisma
 export { PrismaModule } from './database/prisma/prisma.module';
 export { PrismaService } from './database/prisma/prisma.service';
+export {
+  PRISMA_POOL_CONFIG,
+  type PrismaPoolConfig,
+} from './database/prisma/prisma-pool.config';
 
-// Mongoose schemas
+// Mongoose
+export { MongooseSchemasModule } from './database/mongoose/mongoose.module';
+export type { MongoosePoolConfig } from './database/mongoose/mongoose-pool.config';
 export {
   ChatbotLog,
   ChatbotLogSchema,

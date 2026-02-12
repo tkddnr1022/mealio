@@ -1,12 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
 import {
-  mongooseConfig,
-  RedisModule,
+  MongooseSchemasModule,
   PrismaModule,
-  ChatbotLog,
-  ChatbotLogSchema,
+  RedisModule,
 } from '@cook/shared';
 import {
   envValidationOptions,
@@ -14,6 +11,8 @@ import {
 } from './config/env.validation';
 import { OpenAIModule } from './integrations/openai/openai.module';
 import { ConsumersModule } from './consumers/consumers.module';
+import { mongooseConnectionPoolConfig } from './config/mongoose-pool.config';
+import { prismaConnectionPoolConfig } from './config/prisma-pool.config';
 
 @Module({
   imports: [
@@ -22,15 +21,10 @@ import { ConsumersModule } from './consumers/consumers.module';
       validationSchema: envValidationSchema,
       validationOptions: envValidationOptions,
     }),
-    // PostgreSQL (Prisma) — SearchRecipesHandler
-    PrismaModule,
-    // MongoDB (ChatbotLog) 연결
-    MongooseModule.forRootAsync({
-      useFactory: () => mongooseConfig,
-    }),
-    MongooseModule.forFeature([
-      { name: ChatbotLog.name, schema: ChatbotLogSchema },
-    ]),
+    // PostgreSQL (Prisma) — SearchRecipesHandler (config 주입)
+    PrismaModule.forRoot(prismaConnectionPoolConfig),
+    // MongoDB (ChatbotLog 등) — 스키마·URL·공용 옵션은 shared에서 관리
+    MongooseSchemasModule.forRoot(mongooseConnectionPoolConfig),
     // Redis (SSE 스트림 채널 발행용)
     RedisModule,
     // OpenAI (GPT API 래퍼, 레이트 리미터)

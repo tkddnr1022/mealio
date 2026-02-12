@@ -14,6 +14,11 @@
 
 | 경로 | 역할 |
 |------|------|
+| **server/consumer/src/config/** | 설정 모듈 디렉터리 |
+| server/consumer/src/config/consumer-groups.ts | Kafka consumer 그룹 ID 상수 (CONSUMER_GROUPS, §2.2 그룹과 매핑) |
+| server/consumer/src/config/env.validation.ts | 앱 시작 시 환경 변수 검증 (Joi 스키마, NODE_ENV·MONGODB_URL·REDIS_URL·KAFKA_*·POSTGRESQL_URL·OPENAI_* 등) |
+| server/consumer/src/config/mongoose-pool.config.ts | Mongoose 커넥션 풀 설정 (MongooseSchemasModule.forRoot 주입용) |
+| server/consumer/src/config/prisma-pool.config.ts | Prisma 커넥션 풀 설정 (PRISMA_POOL_CONFIG 주입용) |
 | **server/consumer/src/consumers/consumers.module.ts** | 그룹 모듈(RecipeGeneration, ChatbotRequest, UserEvents, ActivityEvents, CacheInvalidation) 통합 |
 | **server/consumer/src/consumers/base/** | |
 | server/consumer/src/consumers/base/base.processor.ts | 토픽 공통 인터페이스(ITopicProcessor)·BaseTopicProcessor(파싱·재시도·DLQ 위임) |

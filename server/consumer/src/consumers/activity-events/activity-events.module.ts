@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { EventLog, EventLogSchema, PrismaModule } from '@cook/shared';
+import { EventLog, EventLogSchema } from '@cook/shared';
 import { KafkaModule } from 'src/integrations/kafka/kafka.module';
 import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
@@ -12,7 +12,6 @@ import { ActivityEventsConsumer } from './activity-events.consumer';
 @Module({
   imports: [
     KafkaModule,
-    PrismaModule,
     MongooseModule.forFeature([
       { name: EventLog.name, schema: EventLogSchema },
     ]),

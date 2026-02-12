@@ -6,8 +6,9 @@ import {
   envValidationOptions,
   envValidationSchema,
 } from './config/env.validation';
-import { PrismaModule } from '@cook/shared';
-import { MongooseSchemasModule } from './infrastructure/database/mongoose/mongoose.module';
+import { MongooseSchemasModule, PrismaModule } from '@cook/shared';
+import { mongooseConnectionPoolConfig } from './config/mongoose-pool.config';
+import { prismaConnectionPoolConfig } from './config/prisma-pool.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { RecipesModule } from './modules/recipes/recipes.module';
@@ -28,8 +29,8 @@ import { RateLimitMiddleware } from './modules/middleware/rate-limit.middleware'
       validationSchema: envValidationSchema,
       validationOptions: envValidationOptions,
     }),
-    PrismaModule,
-    MongooseSchemasModule,
+    PrismaModule.forRoot(prismaConnectionPoolConfig),
+    MongooseSchemasModule.forRoot(mongooseConnectionPoolConfig),
     KafkaModule,
     CacheModule,
     AuthModule,

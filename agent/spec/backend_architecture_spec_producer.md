@@ -18,6 +18,8 @@
 | server/producer/src/app.service.ts | App 수준 공용 서비스(필요 시) |
 | **server/producer/src/config/** | 설정 모듈 디렉터리 |
 | server/producer/src/config/env.validation.ts | 환경 변수 스키마 검증 |
+| server/producer/src/config/mongoose-pool.config.ts | Mongoose 커넥션 풀 설정 (MongooseSchemasModule.forRoot 주입용) |
+| server/producer/src/config/prisma-pool.config.ts | Prisma 커넥션 풀 설정 (PRISMA_POOL_CONFIG 주입용) |
 | server/producer/src/config/swagger.config.ts | Swagger(OpenAPI) 설정, 문서 빌더 |
 | **server/producer/src/modules/auth/** | OAuth·JWT 인증 모듈 |
 | server/producer/src/modules/auth/auth.module.ts | AuthModule 정의, 전략·가드·컨트롤러 묶음 |
@@ -84,8 +86,7 @@
 | server/producer/src/modules/chatbot/dto/conversation-list.dto.ts | 대화 리스트 응답 DTO |
 | server/producer/src/modules/chatbot/dto/suggested-recipe.dto.ts | 챗봇이 제안하는 레시피 DTO |
 | **server/producer/src/infrastructure/database/** | |
-| server/producer/src/infrastructure/database/prisma/seed.ts | Prisma seed 등 앱 전용 스크립트. PrismaModule·PrismaService·schema·migrations는 @cook/shared import |
-| server/producer/src/infrastructure/database/mongoose/mongoose.module.ts | MongooseModule 래퍼. mongooseConfig·스키마는 @cook/shared import |
+| server/producer/src/infrastructure/database/prisma/seed.ts | Prisma seed 스크립트 |
 | server/producer/src/infrastructure/database/mongoose/seed.ts | MongoDB seed 스크립트 |
 | **server/producer/src/infrastructure/database/repositories/postgresql/** | |
 | server/producer/src/infrastructure/database/repositories/postgresql/user.repository.ts | User 조회·생성(OAuth 로그인용)·갱신 (PrismaService, @cook/shared/prisma-client) |
@@ -120,12 +121,10 @@
 | server/producer/src/optimization/caching/http-response.cache.ts | HTTP 응답 캐싱 |
 | server/producer/src/optimization/caching/cache-warming.service.ts | 인기 레시피 사전 캐싱 |
 | **server/producer/src/optimization/database/postgresql/** | |
-| server/producer/src/optimization/database/postgresql/connection-pool.config.ts | Prisma 커넥션 풀 |
 | server/producer/src/optimization/database/postgresql/read-replica.config.ts | 읽기 복제본 URL |
 | server/producer/src/optimization/database/postgresql/query-optimizer/select-optimizer.ts | Prisma select 최적화 |
 | server/producer/src/optimization/database/postgresql/query-optimizer/include-optimizer.ts | include 제거 |
 | **server/producer/src/optimization/database/mongodb/** | |
-| server/producer/src/optimization/database/mongodb/connection-pool.config.ts | Mongoose 커넥션 풀 |
 | server/producer/src/optimization/database/mongodb/query-optimizer/lean-project.helper.ts | lean()+select() |
 | **server/producer/src/optimization/monitoring/** | |
 | server/producer/src/optimization/monitoring/metrics.service.ts | Prometheus 메트릭 |
