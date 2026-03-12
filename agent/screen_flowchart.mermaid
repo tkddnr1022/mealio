@@ -1,0 +1,110 @@
+%% 화면 흐름도 (Screen Flowchart)
+%% 기준: agent/spec/frontend_architecture_spec.md §2 페이지 구조 및 라우팅 맵
+
+flowchart TB
+    subgraph entry["진입"]
+        START([시작])
+    end
+
+    subgraph marketing["(marketing) 마케팅"]
+        LANDING["/ 랜딩<br/>[SSG]"]
+        ABOUT["/about 서비스 소개<br/>[SSG]"]
+        PRICING["/pricing 요금제<br/>[SSG]"]
+    end
+
+    subgraph auth["(auth) 인증"]
+        LOGIN["/login 로그인<br/>[CSR]"]
+        SIGNUP["/signup 회원가입<br/>[CSR]"]
+        OAUTH_CB["/oauth/callback<br/>OAuth 성공 도착<br/>[CSR]"]
+    end
+
+    subgraph main["(main) 앱 본체 — 하단 탭"]
+        subgraph recipe_tab["레시피 탭"]
+            R_MAIN["/recipe 레시피 메인<br/>[ISR]"]
+            R_CAT["/recipe/category 카테고리<br/>[ISR]"]
+            R_SEARCH["/recipe/search 검색 결과<br/>[ISR]"]
+            R_FILTER["/recipe/filter 필터 결과<br/>[ISR]"]
+            R_DETAIL["/recipe/[id] 레시피 상세<br/>[ISR]"]
+        end
+
+        subgraph chatbot_tab["챗봇 탭"]
+            C_LIST["/chatbot/list 대화 목록<br/>[CSR]"]
+            C_CHAT["/chatbot/[id] 대화<br/>[CSR]"]
+        end
+
+        subgraph inventory_tab["보관함 탭"]
+            INV_INTEREST["/inventory/interest 관심 재료<br/>[CSR]"]
+            INV_OWNED["/inventory/owned 보유 재료<br/>[CSR]"]
+        end
+
+        subgraph mypage_tab["마이페이지 탭"]
+            MYPAGE["/mypage 마이페이지 메인<br/>[SSR]"]
+        end
+    end
+
+    subgraph error["(error) 에러"]
+        NOT_FOUND["404 not-found"]
+        ERROR_PAGE["error"]
+    end
+
+    %% 진입 → 마케팅
+    START --> LANDING
+    LANDING --> ABOUT
+    LANDING --> PRICING
+
+    %% 마케팅 ↔ 인증
+    LANDING --> LOGIN
+    LANDING --> SIGNUP
+    LOGIN --> OAUTH_CB
+    SIGNUP --> LANDING
+
+    %% OAuth 성공 후 앱 진입
+    OAUTH_CB --> R_MAIN
+
+    %% 로그인/회원가입 성공 후 앱 진입
+    LOGIN --> R_MAIN
+    SIGNUP --> R_MAIN
+
+    %% 레시피 탭 내부 흐름
+    R_MAIN --> R_CAT
+    R_MAIN --> R_SEARCH
+    R_MAIN --> R_FILTER
+    R_CAT --> R_DETAIL
+    R_SEARCH --> R_DETAIL
+    R_FILTER --> R_DETAIL
+    R_DETAIL --> R_MAIN
+
+    %% 챗봇 탭 내부 흐름
+    C_LIST --> C_CHAT
+    C_CHAT --> C_LIST
+
+    %% 탭 간 전환 (대표 경로만 표시)
+    R_MAIN <--> C_LIST
+    R_MAIN <--> INV_INTEREST
+    R_MAIN <--> MYPAGE
+    C_LIST <--> INV_INTEREST
+    C_LIST <--> MYPAGE
+    INV_INTEREST <--> INV_OWNED
+    INV_INTEREST <--> MYPAGE
+    MYPAGE <--> R_MAIN
+
+    %% 마이페이지에서 로그아웃 등 → 랜딩/로그인
+    MYPAGE -.-> LOGIN
+    MYPAGE -.-> LANDING
+
+    %% 잘못된 경로 → 404
+    LANDING -.-> NOT_FOUND
+    R_MAIN -.-> NOT_FOUND
+    NOT_FOUND -.-> LANDING
+    ERROR_PAGE -.-> LANDING
+
+    %% 스타일
+    style LANDING fill:#e8f5e9
+    style LOGIN fill:#fff3e0
+    style OAUTH_CB fill:#fff3e0
+    style R_MAIN fill:#e3f2fd
+    style C_LIST fill:#f3e5f5
+    style INV_INTEREST fill:#fce4ec
+    style MYPAGE fill:#f5f5f5
+    style NOT_FOUND fill:#ffebee
+    style ERROR_PAGE fill:#ffebee

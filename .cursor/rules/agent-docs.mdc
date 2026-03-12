@@ -21,6 +21,7 @@ alwaysApply: true
 | **proposal.md** | 기획서 | 서비스 개요, 기능, 스택(Next.js, Nest.js, PostgreSQL, MongoDB, Kafka, Redis 등), 배포(Vercel, AWS), 데이터·메시지 브로커 전략을 파악할 때 |
 | **schema.md** | 통합 데이터 스키마 (RDB + NoSQL) | User, Recipe, Ingredient, RecipeIngredient, UserIngredient, ChatbotLog, EventLog 등 엔티티/필드·의미, RDB vs NoSQL 구분, LLM 활용 포인트를 이해할 때 |
 | **architecture.mermaid** | 시스템 아키텍처 다이어그램 (Mermaid) | Client, CDN(Vercel), EC2(Producer/Consumer), Kafka, Redis, RDS, MongoDB, S3, OpenAI 등 구성요소와 연결 관계를 시각적으로 파악할 때 |
+| **screen_flowchart.mermaid** | 화면 플로우 다이어그램 (Mermaid) | `agent/spec/frontend_architecture_spec.md` §2 라우팅 맵을 기반으로 한 화면 전환·탭 간 이동 흐름을 시각적으로 파악할 때 |
 | **openapi_spec.yaml** | OpenAPI 3.0 API 명세 | 인증, 엔드포인트(path, method), 요청/응답 스키마, DTO·Swagger 연동을 구현·검증할 때 |
 
 ### 명세 (agent/spec/)
@@ -53,7 +54,7 @@ alwaysApply: true
   `agent/guidelines/oauth_implementation_guidelines.md` → `agent/spec/backend_architecture_spec_producer.md` (1.3) → `agent/openapi_spec.yaml` → `agent/spec/frontend_architecture_spec.md` (3.1)
 
 - **프론트엔드 페이지/라우팅**  
-  `agent/spec/frontend_architecture_spec.md` → `agent/guidelines/spec_driven_development_guidelines.md` → `agent/guidelines/frontend_development_guidelines.md` → `agent/openapi_spec.yaml` → `agent/proposal.md`
+  `agent/spec/frontend_architecture_spec.md` (특히 §2 페이지 구조 및 라우팅 맵) → `agent/screen_flowchart.mermaid` (화면 전환·탭 흐름 확인) → `agent/guidelines/spec_driven_development_guidelines.md` → `agent/guidelines/frontend_development_guidelines.md` → `agent/openapi_spec.yaml` → `agent/proposal.md`
 
 - **데이터·엔티티·스키마**  
   `agent/schema.md` → `agent/spec/backend_architecture_spec.md` → `agent/openapi_spec.yaml`
