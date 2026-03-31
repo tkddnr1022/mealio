@@ -18,7 +18,16 @@ export {
   CHATBOT_STREAM_CHANNEL_PREFIX,
   getChatbotStreamChannel,
 } from './constants/redis-channels';
-export { CACHE_KEY_PREFIX } from './constants/cache-keys';
+export {
+  CACHE_KEY_PREFIX,
+  CACHE_KEY_SEGMENT,
+  type CacheKeyPrefix,
+  buildCacheKey,
+  cacheKeyUserProfile,
+  cacheKeyUserIngredient,
+  cacheKeyIngredientById,
+  cacheKeyRateLimitApi,
+} from './constants/cache-keys';
 export { ASSET_URL_PREFIX } from './constants/asset-url-prefixes';
 
 // Redis

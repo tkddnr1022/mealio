@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware, HttpStatus } from '@nestjs/common';
 import type { Request, Response, NextFunction } from 'express';
-import { RedisService } from '@cook/shared';
+import { RedisService, cacheKeyRateLimitApi } from '@cook/shared';
 
 /**
  * API 레이트 리밋 미들웨어 (Redis 기반)
@@ -18,8 +18,6 @@ export class RateLimitMiddleware implements NestMiddleware {
   private static readonly WINDOW_SECONDS = 60;
   /** 윈도우당 최대 허용 요청 수 (IP 기준) */
   private static readonly MAX_REQUESTS_PER_WINDOW = 100;
-  /** Redis 키 프리픽스 */
-  private static readonly KEY_PREFIX = 'rate_limit:api';
 
   constructor(private readonly redisService: RedisService) {}
 
@@ -34,7 +32,7 @@ export class RateLimitMiddleware implements NestMiddleware {
     const windowSize = RateLimitMiddleware.WINDOW_SECONDS;
     const windowId = Math.floor(now / windowSize);
 
-    const key = `${RateLimitMiddleware.KEY_PREFIX}:${identifier}:${windowId}`;
+    const key = cacheKeyRateLimitApi(identifier, windowId);
 
     try {
       const client = this.redisService.getClient();

@@ -1,5 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
+import {
+  CACHE_KEY_PREFIX,
+  CACHE_KEY_SEGMENT,
+  buildCacheKey,
+} from '@cook/shared';
 import { RecipeQueryService } from '../../recipes.service';
 import { RecipeRepository } from '../../../../infrastructure/database/repositories/postgresql/recipe.repository';
 import { CacheService } from '../../../../infrastructure/cache/cache.service';
@@ -80,7 +85,9 @@ describe('RecipeQueryService', () => {
     const mockCacheStrategy = {
       generateKey: jest
         .fn()
-        .mockImplementation((...args) => `recipe:${args.join(':')}`),
+        .mockImplementation((...args: (string | number)[]) =>
+          buildCacheKey(CACHE_KEY_PREFIX.RECIPE, ...args),
+        ),
       getTtl: jest.fn().mockReturnValue(3600),
     };
 
@@ -260,7 +267,7 @@ describe('RecipeQueryService', () => {
       expect(cacheService.getOrSet).toHaveBeenCalledWith(
         recipeCacheStrategy,
         expect.any(Function),
-        'categories',
+        CACHE_KEY_SEGMENT.CATEGORIES,
       );
       expect(recipeRepository.findActiveCategories).toHaveBeenCalled();
       expect(result.data).toEqual([mockCategory]);

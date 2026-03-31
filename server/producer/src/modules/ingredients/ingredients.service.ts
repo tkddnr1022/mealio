@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { CACHE_KEY_SEGMENT } from '@cook/shared';
 import { IngredientRepository } from '../../infrastructure/database/repositories/postgresql/ingredient.repository';
 import { CacheService } from '../../infrastructure/cache/cache.service';
 import { IngredientCacheStrategy } from '../../infrastructure/cache/strategies/ingredient-cache-strategy';
@@ -20,8 +21,14 @@ export class IngredientQueryService {
     page: number;
     size: number;
   }): Promise<{ data: IngredientDto[]; pagination: PaginationDto }> {
-    const cacheKeyCategory = params.category ?? 'all';
-    const cacheKey = ['list', cacheKeyCategory, params.page, params.size];
+    const cacheKeyCategory =
+      params.category ?? CACHE_KEY_SEGMENT.CATEGORY_ALL;
+    const cacheKey = [
+      CACHE_KEY_SEGMENT.LIST,
+      cacheKeyCategory,
+      params.page,
+      params.size,
+    ];
 
     const result = await this.cacheService.getOrSet(
       this.ingredientCacheStrategy,
@@ -62,7 +69,7 @@ export class IngredientQueryService {
         });
         return ingredients.map((i) => this.toDto(i));
       },
-      'search',
+      CACHE_KEY_SEGMENT.SEARCH,
       keyword,
     );
 
@@ -82,7 +89,7 @@ export class IngredientQueryService {
           isActive: category.isActive,
         }));
       },
-      'categories',
+      CACHE_KEY_SEGMENT.CATEGORIES,
     );
 
     return { data };

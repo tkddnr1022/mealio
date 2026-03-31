@@ -18,7 +18,7 @@
 | server/shared/src/configs/redis.config.ts | createRedisConfig |
 | server/shared/src/constants/kafka-topics.ts | KAFKA_TOPICS, KafkaTopic |
 | server/shared/src/constants/redis-channels.ts | getChatbotStreamChannel, CHATBOT_STREAM_CHANNEL_PREFIX |
-| server/shared/src/constants/cache-keys.ts | CACHE_KEY_PREFIX (USER, USER_INGREDIENT). Producer 캐시 전략·Consumer 캐시 무효화에서 공통 사용 |
+| server/shared/src/constants/cache-keys.ts | CACHE_KEY_PREFIX. Producer 캐시 전략·Consumer 캐시 무효화에서 공통 사용 |
 | server/shared/src/constants/asset-url-prefixes.ts | ASSET_URL_PREFIX (RECIPE_IMAGE, INGREDIENT_CATEGORY_ICON). 레시피 이미지/재료 카테고리 아이콘 URL prefix 공통 사용 |
 | server/shared/src/database/prisma/schema.prisma | PostgreSQL 스키마 (User, RecipeCategory, Recipe, IngredientCategory, Ingredient, RecipeIngredient) |
 | server/shared/src/database/prisma/prisma-pool.config.ts | PrismaPoolConfig 타입, PRISMA_POOL_CONFIG DI 토큰 (커넥션 풀 설정용). PrismaService·PrismaModule에서 참조 |

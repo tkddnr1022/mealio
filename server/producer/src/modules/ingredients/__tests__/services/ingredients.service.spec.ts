@@ -1,4 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import {
+  CACHE_KEY_PREFIX,
+  CACHE_KEY_SEGMENT,
+  buildCacheKey,
+} from '@cook/shared';
 import { IngredientQueryService } from '../../ingredients.service';
 import { IngredientRepository } from '../../../../infrastructure/database/repositories/postgresql/ingredient.repository';
 import { CacheService } from '../../../../infrastructure/cache/cache.service';
@@ -46,7 +51,9 @@ describe('IngredientQueryService', () => {
     const mockCacheStrategy = {
       generateKey: jest
         .fn()
-        .mockImplementation((...args) => `ingredient:${args.join(':')}`),
+        .mockImplementation((...args: (string | number)[]) =>
+          buildCacheKey(CACHE_KEY_PREFIX.INGREDIENT, ...args),
+        ),
       getTtl: jest.fn().mockReturnValue(86400),
     };
 
@@ -85,8 +92,8 @@ describe('IngredientQueryService', () => {
       expect(cacheService.getOrSet).toHaveBeenCalledWith(
         ingredientCacheStrategy,
         expect.any(Function),
-        'list',
-        'all',
+        CACHE_KEY_SEGMENT.LIST,
+        CACHE_KEY_SEGMENT.CATEGORY_ALL,
         1,
         50,
       );
@@ -140,7 +147,7 @@ describe('IngredientQueryService', () => {
       expect(cacheService.getOrSet).toHaveBeenCalledWith(
         ingredientCacheStrategy,
         expect.any(Function),
-        'search',
+        CACHE_KEY_SEGMENT.SEARCH,
         '양파',
       );
       expect(ingredientRepository.searchByKeyword).toHaveBeenCalledWith({
@@ -173,7 +180,7 @@ describe('IngredientQueryService', () => {
       expect(cacheService.getOrSet).toHaveBeenCalledWith(
         ingredientCacheStrategy,
         expect.any(Function),
-        'categories',
+        CACHE_KEY_SEGMENT.CATEGORIES,
       );
       expect(ingredientRepository.findActiveCategories).toHaveBeenCalled();
       expect(result.data).toEqual([mockCategory]);

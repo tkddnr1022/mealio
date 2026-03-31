@@ -17,7 +17,7 @@ export class CacheInvalidationRequestService {
   constructor(private readonly kafkaProducerService: KafkaProducerService) {}
 
   /**
-   * Producer의 유저 프로필 캐시(user:{userId}) 무효화를 요청한다.
+   * Producer의 유저 프로필 캐시(`cacheKeyUserProfile`) 무효화를 요청한다.
    * cache-invalidation 토픽에 이벤트를 발행하며, 수신 측에서 Redis 키를 삭제한다.
    */
   async requestUserProfileInvalidation(userId: number): Promise<void> {
@@ -33,7 +33,7 @@ export class CacheInvalidationRequestService {
   }
 
   /**
-   * Producer의 유저 재료 캐시(user-ingredient:{userId}) 무효화를 요청한다.
+   * Producer의 유저 재료 캐시(`cacheKeyUserIngredient`) 무효화를 요청한다.
    * cache-invalidation 토픽에 이벤트를 발행하며, 수신 측에서 Redis 키를 삭제한다.
    */
   async requestUserIngredientInvalidation(userId: number): Promise<void> {

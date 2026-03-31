@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@cook/shared/prisma-client';
 import { PrismaService } from '@cook/shared';
 
 export interface SuggestedRecipe {
@@ -9,40 +10,101 @@ export interface SuggestedRecipe {
   cookTime: number | null;
   imageUrl: string | null;
   servings: number | null;
+  /** RecipeCategory.id */
+  category: number;
+  categoryName: string;
   matchScore: number;
 }
 
 export interface SearchRecipesPayload {
-  keywords: string[];
+  keywords?: string[];
   ingredientIds?: number[];
+  recipeCategoryIds?: number[];
+  ingredientCategoryIds?: number[];
   maxCookTime?: number;
   limit?: number;
 }
 
+export interface FoodCategoriesResult {
+  recipeCategories: Array<{
+    id: number;
+    key: string;
+    name: string;
+    displayOrder: number;
+  }>;
+  ingredientCategories: Array<{
+    id: number;
+    key: string;
+    name: string;
+    displayOrder: number;
+  }>;
+}
+
 const DEFAULT_LIMIT = 5;
 const MAX_LIMIT = 20;
+const SCORE_INGREDIENT_MATCH = 10;
+const SCORE_INGREDIENT_CATEGORY_MATCH = 3;
 
 /**
- * search_recipes 함수 실행 — Prisma 레시피 검색, ingredientIds optional(일반 검색 지원), 필요 시 매칭 점수, SuggestedRecipe[] 반환
+ * search_recipes 함수 실행 — Prisma 레시피 검색, 재료·카테고리 필터 및 가산점, SuggestedRecipe[] 반환
  */
 @Injectable()
 export class SearchRecipesHandler {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * 레시피·재료 카테고리 마스터 (활성만, 정렬 순)
+   */
+  async getFoodCategories(): Promise<FoodCategoriesResult> {
+    const [recipeCategories, ingredientCategories] = await Promise.all([
+      this.prisma.recipeCategory.findMany({
+        where: { isActive: true },
+        orderBy: [{ displayOrder: 'asc' }, { id: 'asc' }],
+        select: { id: true, key: true, name: true, displayOrder: true },
+      }),
+      this.prisma.ingredientCategory.findMany({
+        where: { isActive: true },
+        orderBy: [{ displayOrder: 'asc' }, { id: 'asc' }],
+        select: { id: true, key: true, name: true, displayOrder: true },
+      }),
+    ]);
+    return { recipeCategories, ingredientCategories };
+  }
+
   async execute(payload: SearchRecipesPayload): Promise<SuggestedRecipe[]> {
     const limit = Math.min(payload.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
     const ingredientIds = payload.ingredientIds ?? [];
+    const recipeCategoryIds = payload.recipeCategoryIds ?? [];
+    const ingredientCategoryIds = payload.ingredientCategoryIds ?? [];
+
+    const where: Prisma.RecipeWhereInput = {
+      isPublished: true,
+      ...(payload.maxCookTime != null && {
+        cookTime: { lte: payload.maxCookTime },
+      }),
+      ...(recipeCategoryIds.length > 0 && {
+        category: { in: recipeCategoryIds },
+      }),
+      ...(ingredientCategoryIds.length > 0 && {
+        recipeIngredients: {
+          some: {
+            ingredient: {
+              category: { in: ingredientCategoryIds },
+            },
+          },
+        },
+      }),
+    };
 
     const recipes = await this.prisma.recipe.findMany({
-      where: {
-        isPublished: true,
-        ...(payload.maxCookTime != null && {
-          cookTime: { lte: payload.maxCookTime },
-        }),
-      },
+      where,
       include: {
+        categoryMeta: { select: { id: true, name: true } },
         recipeIngredients: {
-          select: { ingredientId: true },
+          select: {
+            ingredientId: true,
+            ingredient: { select: { category: true } },
+          },
         },
       },
       take: 50,
@@ -64,7 +126,14 @@ export class SearchRecipesHandler {
         let score = 0;
         if (ingredientIds.length > 0) {
           for (const id of recipeIngredientIds) {
-            if (ingredientIds.includes(id)) score += 10;
+            if (ingredientIds.includes(id)) score += SCORE_INGREDIENT_MATCH;
+          }
+        }
+        if (ingredientCategoryIds.length > 0) {
+          for (const ri of r.recipeIngredients) {
+            if (ingredientCategoryIds.includes(ri.ingredient.category)) {
+              score += SCORE_INGREDIENT_CATEGORY_MATCH;
+            }
           }
         }
         return {
@@ -75,6 +144,8 @@ export class SearchRecipesHandler {
           cookTime: r.cookTime,
           imageUrl: r.imageUrl,
           servings: r.servings,
+          category: r.category,
+          categoryName: r.categoryMeta.name,
           matchScore: score,
         };
       })

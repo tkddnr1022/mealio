@@ -28,13 +28,23 @@ export class ToolDispatcher {
         );
         return JSON.stringify(result);
       }
+      case 'get_food_categories': {
+        const result = await this.searchRecipesHandler.getFoodCategories();
+        return JSON.stringify(result);
+      }
       case 'search_recipes': {
         const payload = {
           keywords: Array.isArray(args.keywords)
             ? (args.keywords as string[])
-            : [],
+            : undefined,
           ingredientIds: Array.isArray(args.ingredientIds)
             ? (args.ingredientIds as number[])
+            : undefined,
+          recipeCategoryIds: Array.isArray(args.recipeCategoryIds)
+            ? (args.recipeCategoryIds as number[])
+            : undefined,
+          ingredientCategoryIds: Array.isArray(args.ingredientCategoryIds)
+            ? (args.ingredientCategoryIds as number[])
             : undefined,
           maxCookTime:
             typeof args.maxCookTime === 'number' ? args.maxCookTime : undefined,

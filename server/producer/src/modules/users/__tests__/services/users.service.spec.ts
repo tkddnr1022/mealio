@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
+import { CACHE_KEY_PREFIX, buildCacheKey } from '@cook/shared';
 import { UsersService } from '../../users.service';
 import { UserRepository } from '../../../../infrastructure/database/repositories/postgresql/user.repository';
 import { UpdateNicknameDto } from '../../dto/update-nickname.dto';
@@ -49,7 +50,9 @@ describe('UsersService', () => {
     const mockCacheStrategy = {
       generateKey: jest
         .fn()
-        .mockImplementation((...args) => `user:${args.join(':')}`),
+        .mockImplementation((...args: (string | number)[]) =>
+          buildCacheKey(CACHE_KEY_PREFIX.USER, ...args),
+        ),
       getTtl: jest.fn().mockReturnValue(1800),
     };
 

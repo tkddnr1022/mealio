@@ -6,19 +6,24 @@ import {
   RedisService,
   UserIngredient,
   UserIngredientDocument,
+  cacheKeyIngredientById,
 } from '@cook/shared';
 
-const INGREDIENT_CACHE_KEY_PREFIX = 'ingredient:by-id:';
-const INGREDIENT_CACHE_TTL_SECONDS = 3600;
+const INGREDIENT_BY_ID_CACHE_TTL_SECONDS = 3600;
 
 export interface UserIngredientItem {
   id: number;
   name: string;
   isFavorite: boolean;
+  /** IngredientCategory.id */
+  categoryId: number;
+  categoryName: string;
+  /** IngredientCategory.key (불변 키) */
+  categoryKey: string;
 }
 
 /**
- * get_user_ingredients 함수 실행 — MongoDB UserIngredient 조회, Prisma Ingredient id→name(Redis 캐시), [{ id, name, isFavorite }] 반환
+ * get_user_ingredients 함수 실행 — MongoDB UserIngredient 조회, Prisma Ingredient(+분류)(Redis 캐시), 분류 정보 포함 목록 반환
  */
 @Injectable()
 export class UserIngredientsHandler {
@@ -53,17 +58,32 @@ export class UserIngredientsHandler {
     const missingIds: number[] = [];
 
     for (const id of allIds) {
-      const cached = await this.redis.get(
-        `${INGREDIENT_CACHE_KEY_PREFIX}${id}`,
-      );
+      const cached = await this.redis.get(cacheKeyIngredientById(id));
       if (cached) {
         try {
-          const { name } = JSON.parse(cached) as { name: string };
-          items.push({
-            id,
-            name,
-            isFavorite: favoriteIds.has(id),
-          });
+          const parsed = JSON.parse(cached) as {
+            name?: string;
+            categoryId?: number;
+            categoryName?: string;
+            categoryKey?: string;
+          };
+          if (
+            typeof parsed.name === 'string' &&
+            typeof parsed.categoryId === 'number' &&
+            typeof parsed.categoryName === 'string' &&
+            typeof parsed.categoryKey === 'string'
+          ) {
+            items.push({
+              id,
+              name: parsed.name,
+              isFavorite: favoriteIds.has(id),
+              categoryId: parsed.categoryId,
+              categoryName: parsed.categoryName,
+              categoryKey: parsed.categoryKey,
+            });
+          } else {
+            missingIds.push(id);
+          }
         } catch {
           missingIds.push(id);
         }
@@ -75,19 +95,37 @@ export class UserIngredientsHandler {
     if (missingIds.length > 0) {
       const ingredients = await this.prisma.ingredient.findMany({
         where: { id: { in: missingIds } },
-        select: { id: true, name: true },
+        select: {
+          id: true,
+          name: true,
+          categoryMeta: {
+            select: { id: true, name: true, key: true },
+          },
+        },
       });
       for (const ing of ingredients) {
-        const key = `${INGREDIENT_CACHE_KEY_PREFIX}${ing.id}`;
+        const cacheKey = cacheKeyIngredientById(ing.id);
+        const categoryId = ing.categoryMeta.id;
+        const categoryName = ing.categoryMeta.name;
+        const categoryKey = ing.categoryMeta.key;
         await this.redis.set(
-          key,
-          JSON.stringify({ id: ing.id, name: ing.name }),
-          INGREDIENT_CACHE_TTL_SECONDS,
+          cacheKey,
+          JSON.stringify({
+            id: ing.id,
+            name: ing.name,
+            categoryId,
+            categoryName,
+            categoryKey,
+          }),
+          INGREDIENT_BY_ID_CACHE_TTL_SECONDS,
         );
         items.push({
           id: ing.id,
           name: ing.name,
           isFavorite: favoriteIds.has(ing.id),
+          categoryId,
+          categoryName,
+          categoryKey,
         });
       }
     }

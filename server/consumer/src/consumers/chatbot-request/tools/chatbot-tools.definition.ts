@@ -9,7 +9,15 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
     function: {
       name: 'get_user_ingredients',
       description:
-        '사용자의 보유 재료·즐겨찾기 재료 목록(id, name)을 조회합니다. 사용자 재료 기반 추천이 필요할 때 먼저 호출하세요.',
+        '사용자의 보유 재료·즐겨찾기 재료 목록을 조회합니다. 각 항목에 id, name, isFavorite, 재료 분류(categoryId, categoryName, categoryKey)가 포함됩니다. 재료 분류 기반 필터링 시 search_recipes의 ingredientCategoryIds에 categoryId를 넣을 수 있습니다.',
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_food_categories',
+      description:
+        '레시피 종류(한식·양식 등)와 재료 분류(채소·육류 등)의 id·key·name 목록을 조회합니다. 사용자가 "한식"처럼 말할 때 search_recipes의 recipeCategoryIds / ingredientCategoryIds에 쓸 수 있는 숫자 id를 확인할 때 호출하세요.',
     },
   },
   {
@@ -17,20 +25,33 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
     function: {
       name: 'search_recipes',
       description:
-        '키워드·조리시간·선택적 재료 ID로 레시피를 검색합니다. 재료 없이 키워드만으로 탐색할 수도 있고, get_user_ingredients 결과를 활용해 재료 기반 검색도 가능합니다.',
+        '키워드·조리시간·재료 ID·레시피/재료 카테고리로 레시피를 검색합니다. get_user_ingredients로 재료 id·재료 분류를, get_food_categories로 레시피/재료 분류 id를 확인한 뒤 조합해 사용할 수 있습니다.',
       parameters: {
         type: 'object',
         properties: {
           keywords: {
             type: 'array',
             items: { type: 'string' },
-            description: '검색 키워드 (예: 간단, 저녁, 김치)',
+            description:
+              '제목·설명에 매칭할 키워드 (예: 간단, 저녁, 김치). 비우면 키워드 필터 없음.',
           },
           ingredientIds: {
             type: 'array',
             items: { type: 'number' },
             description:
-              '검색에 반영할 재료 ID 목록. 선택 사항. 없으면 키워드·조리시간만으로 검색합니다.',
+              '보유 재료와 겹치는 재료가 많은 레시피에 가산점. get_user_ingredients의 id 목록.',
+          },
+          recipeCategoryIds: {
+            type: 'array',
+            items: { type: 'number' },
+            description:
+              '레시피 종류(한식 등)로 한정. get_food_categories의 recipeCategories id.',
+          },
+          ingredientCategoryIds: {
+            type: 'array',
+            items: { type: 'number' },
+            description:
+              '해당 재료 분류를 쓰는 레시피만 포함. get_food_categories 또는 get_user_ingredients의 categoryId.',
           },
           maxCookTime: {
             type: 'number',
@@ -41,7 +62,6 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
             description: '반환할 최대 레시피 수. 기본 5',
           },
         },
-        required: ['keywords'],
       },
     },
   },

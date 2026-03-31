@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CACHE_KEY_PREFIX } from '@cook/shared';
+import { CACHE_KEY_PREFIX, buildCacheKey } from '@cook/shared';
 import { CacheStrategy } from './cache-strategy.interface';
 
 /**
@@ -14,7 +14,7 @@ export class UserCacheStrategy implements CacheStrategy {
     if (args.length === 0) {
       throw new Error('User cache key requires at least one argument');
     }
-    return `${CACHE_KEY_PREFIX.USER}:${args.join(':')}`;
+    return buildCacheKey(CACHE_KEY_PREFIX.USER, ...args);
   }
 
   getTtl(): number {

@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { KAFKA_TOPICS } from '@cook/shared';
+import { CACHE_KEY_SEGMENT, KAFKA_TOPICS } from '@cook/shared';
 import { Recipe } from '@cook/shared/prisma-client';
 import {
   RecipeRepository,
@@ -145,7 +145,7 @@ export class RecipeQueryService {
           isActive: category.isActive,
         }));
       },
-      'categories',
+      CACHE_KEY_SEGMENT.CATEGORIES,
     );
 
     return { data };
