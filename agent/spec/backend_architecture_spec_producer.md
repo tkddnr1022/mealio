@@ -85,9 +85,6 @@
 | server/producer/src/modules/chatbot/dto/conversation-list-query.dto.ts | 대화 리스트 조회 쿼리 DTO |
 | server/producer/src/modules/chatbot/dto/conversation-list.dto.ts | 대화 리스트 응답 DTO |
 | server/producer/src/modules/chatbot/dto/suggested-recipe.dto.ts | 챗봇이 제안하는 레시피 DTO |
-| **server/producer/src/infrastructure/database/** | |
-| server/producer/src/infrastructure/database/prisma/seed.ts | Prisma seed 스크립트 |
-| server/producer/src/infrastructure/database/mongoose/seed.ts | MongoDB seed 스크립트 |
 | **server/producer/src/infrastructure/database/repositories/postgresql/** | |
 | server/producer/src/infrastructure/database/repositories/postgresql/user.repository.ts | User 조회·생성(OAuth 로그인용)·갱신 (PrismaService, @cook/shared/prisma-client) |
 | server/producer/src/infrastructure/database/repositories/postgresql/recipe.repository.ts | Recipe 조회/생성 (PrismaService, @cook/shared/prisma-client) |

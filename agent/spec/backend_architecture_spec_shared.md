@@ -19,7 +19,8 @@
 | server/shared/src/constants/kafka-topics.ts | KAFKA_TOPICS, KafkaTopic |
 | server/shared/src/constants/redis-channels.ts | getChatbotStreamChannel, CHATBOT_STREAM_CHANNEL_PREFIX |
 | server/shared/src/constants/cache-keys.ts | CACHE_KEY_PREFIX (USER, USER_INGREDIENT). Producer 캐시 전략·Consumer 캐시 무효화에서 공통 사용 |
-| server/shared/src/database/prisma/schema.prisma | PostgreSQL 스키마 (User, Recipe, Ingredient, RecipeIngredient) |
+| server/shared/src/constants/asset-url-prefixes.ts | ASSET_URL_PREFIX (RECIPE_IMAGE, INGREDIENT_CATEGORY_ICON). 레시피 이미지/재료 카테고리 아이콘 URL prefix 공통 사용 |
+| server/shared/src/database/prisma/schema.prisma | PostgreSQL 스키마 (User, RecipeCategory, Recipe, IngredientCategory, Ingredient, RecipeIngredient) |
 | server/shared/src/database/prisma/prisma-pool.config.ts | PrismaPoolConfig 타입, PRISMA_POOL_CONFIG DI 토큰 (커넥션 풀 설정용). PrismaService·PrismaModule에서 참조 |
 | server/shared/src/database/prisma/prisma.service.ts | PrismaService (NestJS, OnModuleInit/OnModuleDestroy, PrismaPg 어댑터. PRISMA_POOL_CONFIG 주입) |
 | server/shared/src/database/prisma/prisma.module.ts | PrismaModule. forRoot(config) / forRootAsync({ useFactory }) 로 connection pool config 주입. Producer/Consumer에서 import 시 config 전달 |
@@ -39,8 +40,10 @@
 | 모델 | 필드 | 비고 |
 |------|------|------|
 | User | id, email, nickname, platformName, platformId, createdAt, updatedAt | @@index(platformName, platformId), (email), (createdAt) |
-| Recipe | id, title, description?, instructions(Json), difficulty, cookTime, imageUrl?, servings, viewCount, isPublished, createdAt, updatedAt | recipeIngredients 관계. @@index(difficulty, cookTime, createdAt), (createdAt Desc) |
-| Ingredient | id, name, category, createdAt | recipeIngredients 관계. @@index(category, name) |
+| RecipeCategory | id, key, name, displayOrder, isActive, createdAt, updatedAt | recipes 관계. @@index(isActive, displayOrder), @unique(key) |
+| Recipe | id, category, title, description?, instructions(Json), difficulty, cookTime, imageUrl?, servings, viewCount, isPublished, createdAt, updatedAt | categoryMeta(RecipeCategory), recipeIngredients 관계. @@index(category, difficulty, cookTime, createdAt), @@index(difficulty, cookTime, createdAt), (createdAt Desc) |
+| IngredientCategory | id, key, name, displayOrder, isActive, createdAt, updatedAt | ingredients 관계. @@index(isActive, displayOrder), @unique(key) |
+| Ingredient | id, name, category, createdAt | categoryMeta(IngredientCategory), recipeIngredients 관계. @@index(category, name) |
 | RecipeIngredient | id, recipeId, ingredientId, amount?, unit?, isOptional | recipe, ingredient 관계. @@unique(recipeId, ingredientId), @@index(recipeId), (ingredientId) |
 
 datasource: `postgresql`. generator: `prisma-client`, output `generated`.
@@ -57,5 +60,5 @@ datasource: `postgresql`. generator: `prisma-client`, output `generated`.
 | 경로 | 역할 |
 |------|------------|
 | server/shared/src/utils/ | logger, error-handler, prisma-helpers, mongoose-helpers, validator |
-| server/shared/src/constants/ | cache-keys.ts (CACHE_KEY_PREFIX), error-codes.ts (3.1의 kafka-topics, redis-channels 외 추가) |
+| server/shared/src/constants/ | cache-keys.ts (CACHE_KEY_PREFIX), asset-url-prefixes.ts (ASSET_URL_PREFIX), error-codes.ts (3.1의 kafka-topics, redis-channels 외 추가) |
 | server/shared/src/configs/ | observability.config.ts (3.1의 kafka, redis 외 추가) |

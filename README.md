@@ -28,6 +28,25 @@ pnpm run build:server
 pnpm run start:producer
 ```
 
+### 데이터베이스 (Prisma / Mongoose)
+
+```bash
+# Prisma Client 생성
+pnpm run db:prisma:generate
+
+# 개발: 마이그레이션 생성·적용 (POSTGRESQL_URL)
+pnpm run db:prisma:migrate:dev
+
+# 배포: 적용 대기 마이그레이션만 실행
+pnpm run db:prisma:migrate:deploy
+
+# PostgreSQL 시드
+pnpm run db:prisma:seed
+
+# MongoDB 시드 (MONGODB_URL)
+pnpm run db:mongoose:seed
+```
+
 ### 워크스페이스
 
 | 경로 | 패키지명 | 설명 |

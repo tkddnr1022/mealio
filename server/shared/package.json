@@ -18,6 +18,10 @@
   "scripts": {
     "build": "npm run prisma:generate && tsc -p tsconfig.build.json",
     "prisma:generate": "prisma generate --schema src/database/prisma/schema.prisma",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:seed": "prisma db seed",
+    "mongoose:seed": "ts-node src/database/mongoose/seed.ts",
     "clean": "rimraf dist src/database/prisma/generated"
   },
   "dependencies": {
@@ -37,6 +41,7 @@
     "dotenv": "^17.2.3",
     "prisma": "^7.2.0",
     "rimraf": "^6.0.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   },
   "peerDependencies": {
