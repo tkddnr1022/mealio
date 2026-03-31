@@ -33,6 +33,16 @@ export class IngredientRepository {
     return this.prisma.ingredient.findFirst({ where: { name } });
   }
 
+  async findManyByIds(
+    ids: number[],
+  ): Promise<Pick<Ingredient, 'id' | 'name' | 'categoryId'>[]> {
+    if (ids.length === 0) return [];
+    return this.prisma.ingredient.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, name: true, categoryId: true },
+    });
+  }
+
   async findManyPaginated(params: IngredientListParams): Promise<{
     data: Ingredient[];
     total: number;
@@ -40,14 +50,14 @@ export class IngredientRepository {
     const { category, page, size } = params;
     const skip = (page - 1) * size;
 
-    const where = category != null ? { category } : undefined;
+    const where = category != null ? { categoryId: category } : undefined;
 
     const [data, total] = await Promise.all([
       this.prisma.ingredient.findMany({
         where,
         skip,
         take: size,
-        orderBy: [{ category: 'asc' }, { name: 'asc' }],
+        orderBy: [{ categoryId: 'asc' }, { name: 'asc' }],
       }),
       this.prisma.ingredient.count({ where }),
     ]);
@@ -65,7 +75,7 @@ export class IngredientRepository {
         },
       },
       take,
-      orderBy: [{ category: 'asc' }, { name: 'asc' }],
+      orderBy: [{ categoryId: 'asc' }, { name: 'asc' }],
     });
   }
 

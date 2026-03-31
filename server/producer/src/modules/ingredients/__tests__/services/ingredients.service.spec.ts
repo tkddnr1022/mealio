@@ -18,7 +18,7 @@ describe('IngredientQueryService', () => {
   const mockIngredient = {
     id: 1,
     name: '양파',
-    category: 1,
+    categoryId: 1,
     createdAt: new Date('2025-01-01T00:00:00.000Z'),
   };
 
@@ -106,7 +106,7 @@ describe('IngredientQueryService', () => {
       expect(result.data[0]).toEqual({
         id: 1,
         name: '양파',
-        category: 1,
+        categoryId: 1,
       });
       expect(result.pagination).toEqual({
         page: 1,
@@ -128,7 +128,7 @@ describe('IngredientQueryService', () => {
 
     it('캐시에 데이터가 있으면 Repository를 호출하지 않는다', async () => {
       const cached = {
-        data: [{ id: 2, name: '당근', category: 1 }],
+        data: [{ id: 2, name: '당근', categoryId: 1 }],
         pagination: { page: 1, size: 50, total: 1, totalPages: 1 },
       };
       cacheService.getOrSet.mockResolvedValue(cached);
@@ -158,12 +158,12 @@ describe('IngredientQueryService', () => {
       expect(result.data[0]).toEqual({
         id: 1,
         name: '양파',
-        category: 1,
+        categoryId: 1,
       });
     });
 
     it('캐시에 검색 결과가 있으면 Repository를 호출하지 않는다', async () => {
-      const cached = [{ id: 3, name: '감자', category: 1 }];
+      const cached = [{ id: 3, name: '감자', categoryId: 1 }];
       cacheService.getOrSet.mockResolvedValue(cached);
 
       const result = await service.search('감자');

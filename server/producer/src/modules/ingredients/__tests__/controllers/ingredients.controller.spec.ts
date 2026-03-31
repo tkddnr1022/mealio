@@ -12,7 +12,7 @@ describe('IngredientsController', () => {
   const mockIngredient: IngredientDto = {
     id: 1,
     name: '양파',
-    category: 1,
+    categoryId: 1,
   };
 
   const mockPagination: PaginationDto = {

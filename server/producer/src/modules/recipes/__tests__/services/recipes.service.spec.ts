@@ -19,7 +19,7 @@ describe('RecipeQueryService', () => {
 
   const mockRecipe = {
     id: 1,
-    category: 1,
+    categoryId: 1,
     categoryMeta: {
       id: 1,
       key: 'KOREAN',
@@ -44,7 +44,7 @@ describe('RecipeQueryService', () => {
         amount: 100,
         unit: 'g',
         isOptional: false,
-        ingredient: { id: 1, name: '김치', category: 1, createdAt: new Date() },
+        ingredient: { id: 1, name: '김치', categoryId: 1, createdAt: new Date() },
       },
     ],
   };
@@ -199,7 +199,7 @@ describe('RecipeQueryService', () => {
         viewCount: 0,
         isPublished: true,
         createdAt: new Date(),
-        category: 1,
+        categoryId: 1,
         categoryName: '한식',
         instructions: [],
         ingredients: [],

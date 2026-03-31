@@ -8,5 +8,5 @@ export class IngredientDto {
   name: string;
 
   @ApiProperty({ example: 1, description: '재료 카테고리 ID' })
-  category: number;
+  categoryId: number;
 }

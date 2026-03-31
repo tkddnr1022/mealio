@@ -73,7 +73,7 @@ describe('IngredientRepository', () => {
           name: { contains: 'Sa', mode: 'insensitive' },
         },
         take: 10,
-        orderBy: [{ category: 'asc' }, { name: 'asc' }],
+        orderBy: [{ categoryId: 'asc' }, { name: 'asc' }],
       });
       expect(result).toEqual([mockIngredient]);
     });

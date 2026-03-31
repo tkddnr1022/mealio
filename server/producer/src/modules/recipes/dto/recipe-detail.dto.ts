@@ -31,7 +31,7 @@ export class RecipeInstructionStepDto {
 
 export class RecipeDetailDto extends RecipeSummaryDto {
   @ApiProperty({ example: 1, description: '레시피 카테고리 ID' })
-  category: number;
+  categoryId: number;
 
   @ApiProperty({ example: '한식', description: '레시피 카테고리 표시명' })
   categoryName: string;

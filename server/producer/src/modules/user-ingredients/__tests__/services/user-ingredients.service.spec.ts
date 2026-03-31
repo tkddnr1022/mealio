@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { UserIngredientsService } from '../../user-ingredients.service';
 import { UserIngredientRepository } from '../../../../infrastructure/database/repositories/mongodb/user-ingredient.repository';
+import { IngredientRepository } from '../../../../infrastructure/database/repositories/postgresql/ingredient.repository';
 import { UserRepository } from '../../../../infrastructure/database/repositories/postgresql/user.repository';
 import { KafkaProducerService } from '../../../../infrastructure/kafka/producer.service';
 import { CacheService } from '../../../../infrastructure/cache/cache.service';
@@ -17,6 +18,7 @@ import { IngredientIdsDto } from '../../dto/ingredient-ids.dto';
 describe('UserIngredientsService', () => {
   let service: UserIngredientsService;
   let userIngredientRepository: jest.Mocked<UserIngredientRepository>;
+  let ingredientRepository: jest.Mocked<IngredientRepository>;
   let userRepository: jest.Mocked<UserRepository>;
   let kafkaProducerService: jest.Mocked<KafkaProducerService>;
   let cacheService: jest.Mocked<CacheService>;
@@ -44,6 +46,21 @@ describe('UserIngredientsService', () => {
   beforeEach(async () => {
     const mockUserIngredientRepo = {
       findByUserId: jest.fn().mockResolvedValue(mockUserIngredientDoc),
+    };
+
+    const mockIngredientRepo = {
+      findManyByIds: jest.fn().mockImplementation(async (ids: number[]) => {
+        const meta: Record<number, { id: number; name: string; categoryId: number }> =
+          {
+            1: { id: 1, name: 'A', categoryId: 10 },
+            3: { id: 3, name: 'B', categoryId: 20 },
+            5: { id: 5, name: 'C', categoryId: 10 },
+            12: { id: 12, name: 'D', categoryId: 30 },
+          };
+        return ids
+          .filter((id) => meta[id])
+          .map((id) => meta[id]);
+      }),
     };
 
     const mockUserRepo = {
@@ -82,6 +99,7 @@ describe('UserIngredientsService', () => {
           provide: UserIngredientRepository,
           useValue: mockUserIngredientRepo,
         },
+        { provide: IngredientRepository, useValue: mockIngredientRepo },
         { provide: UserRepository, useValue: mockUserRepo },
         { provide: KafkaProducerService, useValue: mockKafkaProducer },
         { provide: CacheService, useValue: mockCacheService },
@@ -96,6 +114,9 @@ describe('UserIngredientsService', () => {
     userIngredientRepository = module.get<UserIngredientRepository>(
       UserIngredientRepository,
     ) as jest.Mocked<UserIngredientRepository>;
+    ingredientRepository = module.get<IngredientRepository>(
+      IngredientRepository,
+    ) as jest.Mocked<IngredientRepository>;
     userRepository = module.get<UserRepository>(
       UserRepository,
     ) as jest.Mocked<UserRepository>;
@@ -124,8 +145,18 @@ describe('UserIngredientsService', () => {
         1,
       );
       expect(userIngredientRepository.findByUserId).toHaveBeenCalledWith(1);
-      expect(result.ingredientIds).toEqual([1, 5, 12]);
-      expect(result.favoriteIngredientIds).toEqual([3, 5]);
+      expect(ingredientRepository.findManyByIds).toHaveBeenCalledWith([
+        1, 5, 12, 3,
+      ]);
+      expect(result.ingredients).toEqual([
+        { id: 1, name: 'A', categoryId: 10 },
+        { id: 5, name: 'C', categoryId: 10 },
+        { id: 12, name: 'D', categoryId: 30 },
+      ]);
+      expect(result.favoriteIngredients).toEqual([
+        { id: 3, name: 'B', categoryId: 20 },
+        { id: 5, name: 'C', categoryId: 10 },
+      ]);
     });
 
     it('문서가 없으면 빈 배열을 반환한다', async () => {
@@ -134,8 +165,8 @@ describe('UserIngredientsService', () => {
       const result = await service.getMyIngredients(1);
 
       expect(result).toEqual({
-        ingredientIds: [],
-        favoriteIngredientIds: [],
+        ingredients: [],
+        favoriteIngredients: [],
       });
     });
   });

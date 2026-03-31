@@ -219,7 +219,7 @@ export class ProcessChatHandler {
                   ? lastSuggestedRecipes.map((r) => ({
                       id: r.id,
                       title: r.title,
-                      category: r.category,
+                      categoryId: r.categoryId,
                       categoryName: r.categoryName,
                       matchScore: r.matchScore,
                     }))
@@ -246,7 +246,7 @@ export class ProcessChatHandler {
               ? lastSuggestedRecipes.map((r) => ({
                   id: r.id,
                   title: r.title,
-                  category: r.category,
+                  categoryId: r.categoryId,
                   categoryName: r.categoryName,
                   matchScore: r.matchScore,
                 }))

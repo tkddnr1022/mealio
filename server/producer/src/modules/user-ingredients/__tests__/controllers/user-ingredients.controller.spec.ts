@@ -13,8 +13,15 @@ describe('UserIngredientsController', () => {
   const mockAuthUser: AuthUser = { id: 1 };
 
   const mockIngredientList: UserIngredientListDto = {
-    ingredientIds: [1, 5, 12],
-    favoriteIngredientIds: [3, 5],
+    ingredients: [
+      { id: 1, name: 'A', categoryId: 10 },
+      { id: 5, name: 'C', categoryId: 10 },
+      { id: 12, name: 'D', categoryId: 30 },
+    ],
+    favoriteIngredients: [
+      { id: 3, name: 'B', categoryId: 20 },
+      { id: 5, name: 'C', categoryId: 10 },
+    ],
   };
 
   beforeEach(async () => {
@@ -58,15 +65,15 @@ describe('UserIngredientsController', () => {
 
     it('재료함이 없으면 빈 배열을 반환한다', async () => {
       userIngredientsService.getMyIngredients.mockResolvedValue({
-        ingredientIds: [],
-        favoriteIngredientIds: [],
+        ingredients: [],
+        favoriteIngredients: [],
       });
 
       const result = await controller.getMyIngredients(mockAuthUser);
 
       expect(result).toEqual({
-        ingredientIds: [],
-        favoriteIngredientIds: [],
+        ingredients: [],
+        favoriteIngredients: [],
       });
     });
   });

@@ -99,7 +99,7 @@ export class IngredientQueryService {
     return {
       id: ingredient.id,
       name: ingredient.name,
-      category: ingredient.category,
+      categoryId: ingredient.categoryId,
     };
   }
 }

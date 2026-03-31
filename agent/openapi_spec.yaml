@@ -1287,7 +1287,7 @@ components:
         - $ref: '#/components/schemas/RecipeSummary'
         - type: object
           properties:
-            category:
+            categoryId:
               type: integer
               format: int64
               description: 레시피 카테고리 ID
@@ -1365,13 +1365,13 @@ components:
         name:
           type: string
           maxLength: 100
-        category:
+        categoryId:
           type: integer
           description: 재료 카테고리 ID
       example:
         id: 789
         name: 양파
-        category: 1
+        categoryId: 1
 
     IngredientCategory:
       type: object
@@ -1404,19 +1404,39 @@ components:
         displayOrder: 1
         isActive: true
 
+    UserIngredientEntry:
+      type: object
+      required:
+        - id
+        - name
+        - categoryId
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 재료 ID
+        name:
+          type: string
+          description: 재료명
+        categoryId:
+          type: integer
+          format: int64
+          nullable: true
+          description: 재료 카테고리 ID (마스터에 없는 ID는 null)
+
     UserIngredientList:
       type: object
       properties:
-        ingredientIds:
+        ingredients:
           type: array
+          description: 보유 재료 (id, name, categoryId)
           items:
-            type: integer
-            format: int64
-        favoriteIngredientIds:
+            $ref: '#/components/schemas/UserIngredientEntry'
+        favoriteIngredients:
           type: array
+          description: 즐겨찾기 재료 (id, name, categoryId)
           items:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/UserIngredientEntry'
 
     ChatbotResponse:
       type: object
@@ -1436,6 +1456,13 @@ components:
                 format: int64
               title:
                 type: string
+              categoryId:
+                type: integer
+                format: int64
+                description: 레시피 카테고리 ID
+              categoryName:
+                type: string
+                description: 레시피 카테고리 표시명
               matchScore:
                 type: integer
                 minimum: 0
@@ -1446,6 +1473,8 @@ components:
         suggestedRecipes:
           - id: 456
             title: 김치볶음밥
+            categoryId: 1
+            categoryName: 한식
             matchScore: 95
 
     ConversationHistory:

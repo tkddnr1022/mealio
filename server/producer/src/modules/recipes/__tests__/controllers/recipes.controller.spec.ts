@@ -32,7 +32,7 @@ describe('RecipesController', () => {
 
   const mockDetail: RecipeDetailDto = {
     ...mockSummary,
-    category: 1,
+    categoryId: 1,
     categoryName: '한식',
     instructions: [{ step: 1, content: '재료를 준비한다.', imageUrl: null }],
     ingredients: [

@@ -94,7 +94,7 @@
 | 필드 (Prisma)   | DB 컬럼      | 타입            | 의미                             |
 | --------------- | ------------ | --------------- | -------------------------------- |
 | id              | id           | INT / SERIAL    | 레시피 ID (PK)                   |
-| category        | category     | INT             | 레시피 카테고리 ID (`RecipeCategory.id` FK) |
+| categoryId      | category     | INT             | 레시피 카테고리 ID (`RecipeCategory.id` FK); Prisma 필드 `categoryId` → DB 컬럼 `category` |
 | title           | title        | VARCHAR(100)    | 레시피 제목                      |
 | description     | description  | TEXT            | 레시피 요약 설명 (nullable)      |
 | instructions    | instructions | JSON            | 조리 단계 (순서/텍스트/타이머 등) |
@@ -107,8 +107,8 @@
 | createdAt       | created_at   | TIMESTAMP       | 생성 시각                        |
 | updatedAt       | updated_at   | TIMESTAMP       | 수정 시각                        |
 
-**제약**: `FK(category) -> RecipeCategory(id)`  
-**인덱스**: `(difficulty, cook_time, created_at)`, `(created_at DESC)`
+**제약**: `FK(category) -> RecipeCategory(id)` (Prisma: `categoryId` → `@map("category")`)  
+**인덱스**: `(category, difficulty, cook_time, created_at)`, `(difficulty, cook_time, created_at)`, `(created_at DESC)`
 
 ---
 
@@ -148,10 +148,10 @@
 | ------------- | ---------- | ------------ | -------------------------------- |
 | id            | id         | INT / SERIAL | 재료 ID (PK)                     |
 | name          | name       | VARCHAR(100) | 재료명                           |
-| category      | category   | INT          | 재료 카테고리 ID (`IngredientCategory.id` FK) |
+| categoryId    | category   | INT          | 재료 카테고리 ID (`IngredientCategory.id` FK); Prisma 필드 `categoryId` → DB 컬럼 `category` |
 | createdAt     | created_at | TIMESTAMP    | 생성 시각                        |
 
-**제약**: `FK(category) -> IngredientCategory(id)`  
+**제약**: `FK(category) -> IngredientCategory(id)` (Prisma: `categoryId` → `@map("category")`)  
 **인덱스**: `(category, name)`
 
 ---

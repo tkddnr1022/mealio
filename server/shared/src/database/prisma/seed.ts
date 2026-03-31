@@ -19,7 +19,7 @@ type IngredientCategorySeed = {
 type IngredientSeed = {
   id: number;
   name: string;
-  category: number;
+  categoryId: number;
 };
 
 type UserSeed = {
@@ -36,7 +36,7 @@ type RecipeInstructionStep = {
 
 type RecipeSeed = {
   id: number;
-  category: number;
+  categoryId: number;
   title: string;
   description: string;
   difficulty: number;
@@ -71,32 +71,32 @@ const INGREDIENT_CATEGORIES: IngredientCategorySeed[] = [
 ];
 
 const INGREDIENTS: IngredientSeed[] = [
-  { id: 1, name: '밥', category: 4 },
-  { id: 2, name: '김치', category: 1 },
-  { id: 3, name: '양파', category: 1 },
-  { id: 4, name: '대파', category: 1 },
-  { id: 5, name: '달걀', category: 5 },
-  { id: 6, name: '간장', category: 3 },
-  { id: 7, name: '참기름', category: 3 },
-  { id: 8, name: '설탕', category: 3 },
-  { id: 9, name: '마늘', category: 1 },
-  { id: 10, name: '돼지고기', category: 2 },
-  { id: 11, name: '두부', category: 1 },
-  { id: 12, name: '고춧가루', category: 3 },
-  { id: 13, name: '물', category: 3 },
-  { id: 14, name: '소금', category: 3 },
-  { id: 15, name: '후추', category: 3 },
-  { id: 16, name: '당근', category: 1 },
-  { id: 17, name: '감자', category: 1 },
-  { id: 18, name: '버터', category: 5 },
-  { id: 19, name: '우유', category: 5 },
-  { id: 20, name: '스파게티면', category: 4 },
-  { id: 21, name: '토마토소스', category: 3 },
-  { id: 22, name: '베이컨', category: 2 },
-  { id: 23, name: '치즈', category: 5 },
-  { id: 24, name: '새우', category: 2 },
-  { id: 25, name: '브로콜리', category: 1 },
-  { id: 26, name: '올리브유', category: 3 },
+  { id: 1, name: '밥', categoryId: 4 },
+  { id: 2, name: '김치', categoryId: 1 },
+  { id: 3, name: '양파', categoryId: 1 },
+  { id: 4, name: '대파', categoryId: 1 },
+  { id: 5, name: '달걀', categoryId: 5 },
+  { id: 6, name: '간장', categoryId: 3 },
+  { id: 7, name: '참기름', categoryId: 3 },
+  { id: 8, name: '설탕', categoryId: 3 },
+  { id: 9, name: '마늘', categoryId: 1 },
+  { id: 10, name: '돼지고기', categoryId: 2 },
+  { id: 11, name: '두부', categoryId: 1 },
+  { id: 12, name: '고춧가루', categoryId: 3 },
+  { id: 13, name: '물', categoryId: 3 },
+  { id: 14, name: '소금', categoryId: 3 },
+  { id: 15, name: '후추', categoryId: 3 },
+  { id: 16, name: '당근', categoryId: 1 },
+  { id: 17, name: '감자', categoryId: 1 },
+  { id: 18, name: '버터', categoryId: 5 },
+  { id: 19, name: '우유', categoryId: 5 },
+  { id: 20, name: '스파게티면', categoryId: 4 },
+  { id: 21, name: '토마토소스', categoryId: 3 },
+  { id: 22, name: '베이컨', categoryId: 2 },
+  { id: 23, name: '치즈', categoryId: 5 },
+  { id: 24, name: '새우', categoryId: 2 },
+  { id: 25, name: '브로콜리', categoryId: 1 },
+  { id: 26, name: '올리브유', categoryId: 3 },
 ];
 
 const USERS: UserSeed[] = [
@@ -129,7 +129,7 @@ const USERS: UserSeed[] = [
 const RECIPES: RecipeSeed[] = [
   {
     id: 1,
-    category: 1,
+    categoryId: 1,
     title: '김치볶음밥',
     description: '남은 김치로 만드는 간단한 볶음밥',
     difficulty: 1,
@@ -144,7 +144,7 @@ const RECIPES: RecipeSeed[] = [
   },
   {
     id: 2,
-    category: 1,
+    categoryId: 1,
     title: '김치찌개',
     description: '든든한 한 그릇 김치찌개',
     difficulty: 2,
@@ -158,7 +158,7 @@ const RECIPES: RecipeSeed[] = [
   },
   {
     id: 3,
-    category: 1,
+    categoryId: 1,
     title: '계란말이',
     description: '부드러운 한식 계란말이',
     difficulty: 1,
@@ -176,7 +176,7 @@ const RECIPES: RecipeSeed[] = [
   },
   {
     id: 4,
-    category: 1,
+    categoryId: 1,
     title: '감자볶음',
     description: '간단한 반찬 감자볶음',
     difficulty: 1,
@@ -193,7 +193,7 @@ const RECIPES: RecipeSeed[] = [
   },
   {
     id: 5,
-    category: 2,
+    categoryId: 2,
     title: '스크램블 에그',
     description: '버터향 가득 부드러운 스크램블 에그',
     difficulty: 1,
@@ -209,7 +209,7 @@ const RECIPES: RecipeSeed[] = [
   },
   {
     id: 6,
-    category: 1,
+    categoryId: 1,
     title: '베이컨 달걀밥',
     description: '아침에 든든한 베이컨과 달걀 밥',
     difficulty: 1,
@@ -229,7 +229,7 @@ const RECIPES: RecipeSeed[] = [
   },
   {
     id: 7,
-    category: 2,
+    categoryId: 2,
     title: '토마토 스파게티',
     description: '간단한 토마토 소스 스파게티',
     difficulty: 2,
@@ -246,7 +246,7 @@ const RECIPES: RecipeSeed[] = [
   },
   {
     id: 8,
-    category: 1,
+    categoryId: 1,
     title: '두부김치',
     description: '구운 두부와 김치를 곁들인 요리',
     difficulty: 1,
@@ -263,7 +263,7 @@ const RECIPES: RecipeSeed[] = [
   },
   {
     id: 9,
-    category: 5,
+    categoryId: 5,
     title: '새우버터갈릭',
     description: '마늘향 새우 요리',
     difficulty: 2,
@@ -283,7 +283,7 @@ const RECIPES: RecipeSeed[] = [
   },
   {
     id: 10,
-    category: 2,
+    categoryId: 2,
     title: '브로콜리 치즈 수프',
     description: '크리미한 브로콜리 수프',
     difficulty: 2,
@@ -406,22 +406,22 @@ async function seed(): Promise<void> {
 
     for (const ingredient of INGREDIENTS) {
       await client.query(
-        `INSERT INTO "Ingredient" ("id","name","category")
+        `INSERT INTO "Ingredient" ("id","name","categoryId")
          VALUES ($1,$2,$3)
          ON CONFLICT ("id") DO UPDATE
-         SET "name"=EXCLUDED."name","category"=EXCLUDED."category"`,
-        [ingredient.id, ingredient.name, ingredient.category],
+         SET "name"=EXCLUDED."name","categoryId"=EXCLUDED."categoryId"`,
+        [ingredient.id, ingredient.name, ingredient.categoryId],
       );
     }
 
     for (const recipe of RECIPES) {
       await client.query(
-        `INSERT INTO "Recipe" ("id","category","title","description","difficulty","cook_time","servings","instructions")
+        `INSERT INTO "Recipe" ("id","categoryId","title","description","difficulty","cook_time","servings","instructions")
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8::jsonb)
          ON CONFLICT ("id") DO NOTHING`,
         [
           recipe.id,
-          recipe.category,
+          recipe.categoryId,
           recipe.title,
           recipe.description,
           recipe.difficulty,

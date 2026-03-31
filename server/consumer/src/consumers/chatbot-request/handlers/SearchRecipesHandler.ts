@@ -15,7 +15,7 @@ export interface SuggestedRecipe {
   imageUrl: string | null;
   servings: number | null;
   /** RecipeCategory.id */
-  category: number;
+  categoryId: number;
   categoryName: string;
   matchScore: number;
 }
@@ -117,13 +117,13 @@ export class SearchRecipesHandler {
         cookTime: { lte: payload.maxCookTime },
       }),
       ...(recipeCategoryIds.length > 0 && {
-        category: { in: recipeCategoryIds },
+        categoryId: { in: recipeCategoryIds },
       }),
       ...(ingredientCategoryIds.length > 0 && {
         recipeIngredients: {
           some: {
             ingredient: {
-              category: { in: ingredientCategoryIds },
+              categoryId: { in: ingredientCategoryIds },
             },
           },
         },
@@ -137,7 +137,7 @@ export class SearchRecipesHandler {
         recipeIngredients: {
           select: {
             ingredientId: true,
-            ingredient: { select: { category: true } },
+            ingredient: { select: { categoryId: true } },
           },
         },
       },
@@ -165,7 +165,7 @@ export class SearchRecipesHandler {
         }
         if (ingredientCategoryIds.length > 0) {
           for (const ri of r.recipeIngredients) {
-            if (ingredientCategoryIds.includes(ri.ingredient.category)) {
+            if (ingredientCategoryIds.includes(ri.ingredient.categoryId)) {
               score += SCORE_INGREDIENT_CATEGORY_MATCH;
             }
           }
@@ -178,7 +178,7 @@ export class SearchRecipesHandler {
           cookTime: r.cookTime,
           imageUrl: r.imageUrl,
           servings: r.servings,
-          category: r.category,
+          categoryId: r.categoryId,
           categoryName: r.categoryMeta.name,
           matchScore: score,
         };

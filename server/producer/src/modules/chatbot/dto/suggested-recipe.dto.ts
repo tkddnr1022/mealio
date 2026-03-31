@@ -10,6 +10,12 @@ export class SuggestedRecipeDto {
   @ApiProperty({ description: '레시피 제목', example: '김치볶음밥' })
   title: string;
 
+  @ApiProperty({ description: '레시피 카테고리 ID', example: 1 })
+  categoryId: number;
+
+  @ApiProperty({ description: '레시피 카테고리 표시명', example: '한식' })
+  categoryName: string;
+
   @ApiProperty({
     description: '매칭 점수 (0~100)',
     minimum: 0,

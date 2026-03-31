@@ -41,9 +41,9 @@
 |------|------|------|
 | User | id, email, nickname, platformName, platformId, createdAt, updatedAt | @@index(platformName, platformId), (email), (createdAt) |
 | RecipeCategory | id, key, name, displayOrder, isActive, createdAt, updatedAt | recipes 관계. @@index(isActive, displayOrder), @unique(key) |
-| Recipe | id, category, title, description?, instructions(Json), difficulty, cookTime, imageUrl?, servings, viewCount, isPublished, createdAt, updatedAt | categoryMeta(RecipeCategory), recipeIngredients 관계. @@index(category, difficulty, cookTime, createdAt), @@index(difficulty, cookTime, createdAt), (createdAt Desc) |
+| Recipe | id, categoryId(@map category), title, description?, instructions(Json), difficulty, cookTime, imageUrl?, servings, viewCount, isPublished, createdAt, updatedAt | categoryMeta(RecipeCategory), recipeIngredients 관계. @@index(categoryId, difficulty, cookTime, createdAt), @@index(difficulty, cookTime, createdAt), (createdAt Desc) |
 | IngredientCategory | id, key, name, displayOrder, isActive, createdAt, updatedAt | ingredients 관계. @@index(isActive, displayOrder), @unique(key) |
-| Ingredient | id, name, category, createdAt | categoryMeta(IngredientCategory), recipeIngredients 관계. @@index(category, name) |
+| Ingredient | id, name, categoryId(@map category), createdAt | categoryMeta(IngredientCategory), recipeIngredients 관계. @@index(categoryId, name) |
 | RecipeIngredient | id, recipeId, ingredientId, amount?, unit?, isOptional | recipe, ingredient 관계. @@unique(recipeId, ingredientId), @@index(recipeId), (ingredientId) |
 
 datasource: `postgresql`. generator: `prisma-client`, output `generated`.

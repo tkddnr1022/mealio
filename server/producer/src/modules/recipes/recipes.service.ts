@@ -180,7 +180,7 @@ export class RecipeQueryService {
 
     return {
       ...this.toSummaryDto(recipe),
-      category: recipe.category,
+      categoryId: recipe.categoryId,
       categoryName: recipe.categoryMeta.name,
       instructions,
       ingredients,

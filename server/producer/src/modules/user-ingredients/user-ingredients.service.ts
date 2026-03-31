@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserIngredientRepository } from '../../infrastructure/database/repositories/mongodb/user-ingredient.repository';
+import { IngredientRepository } from '../../infrastructure/database/repositories/postgresql/ingredient.repository';
 import { UserRepository } from '../../infrastructure/database/repositories/postgresql/user.repository';
 import { KafkaProducerService } from '../../infrastructure/kafka/producer.service';
 import { CacheService } from '../../infrastructure/cache/cache.service';
@@ -15,12 +16,15 @@ import {
   UserIngredientFavoritesRemoveEvent,
 } from '@cook/shared';
 import { UserIngredientListDto } from './dto/user-ingredient-list.dto';
+import type { UserIngredientEntryDto } from './dto/user-ingredient-entry.dto';
 import { IngredientIdsDto } from './dto/ingredient-ids.dto';
+import type { Ingredient } from '@cook/shared/prisma-client';
 
 @Injectable()
 export class UserIngredientsService {
   constructor(
     private readonly userIngredientRepository: UserIngredientRepository,
+    private readonly ingredientRepository: IngredientRepository,
     private readonly userRepository: UserRepository,
     private readonly kafkaProducerService: KafkaProducerService,
     private readonly cacheService: CacheService,
@@ -38,14 +42,21 @@ export class UserIngredientsService {
 
         if (!doc) {
           return {
-            ingredientIds: [],
-            favoriteIngredientIds: [],
+            ingredients: [],
+            favoriteIngredients: [],
           };
         }
 
+        const ownedIds = doc.ingredientsIds ?? [];
+        const favoriteIds = doc.favoriteIngredientIds ?? [];
+        const uniqueIds = [
+          ...new Set([...ownedIds, ...favoriteIds]),
+        ] as number[];
+        const rows = await this.ingredientRepository.findManyByIds(uniqueIds);
+
         return {
-          ingredientIds: doc.ingredientsIds ?? [],
-          favoriteIngredientIds: doc.favoriteIngredientIds ?? [],
+          ingredients: this.mapIdsToEntries(ownedIds, rows),
+          favoriteIngredients: this.mapIdsToEntries(favoriteIds, rows),
         };
       },
       userId,
@@ -160,6 +171,21 @@ export class UserIngredientsService {
       timestamp: new Date().toISOString(),
     };
     await this.kafkaProducerService.emit(KAFKA_TOPICS.USER_EVENTS, event);
+  }
+
+  private mapIdsToEntries(
+    orderedIds: number[],
+    rows: Pick<Ingredient, 'id' | 'name' | 'categoryId'>[],
+  ): UserIngredientEntryDto[] {
+    const map = new Map(rows.map((r) => [r.id, r]));
+    return orderedIds.map((id) => {
+      const row = map.get(id);
+      return {
+        id,
+        name: row?.name ?? '',
+        categoryId: row?.categoryId ?? null,
+      };
+    });
   }
 
   private async ensureUserExists(userId: number): Promise<void> {

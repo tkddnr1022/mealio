@@ -10,7 +10,7 @@ generator client {
 }
 
 model User {
-  id           Int   @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   email        String   @unique @db.VarChar(100)
   nickname     String   @db.VarChar(50)
   platformName String   @map("platform_name") @db.VarChar(20)
@@ -25,8 +25,8 @@ model User {
 }
 
 model Recipe {
-  id           Int   @id @default(autoincrement())
-  category     Int
+  id           Int      @id @default(autoincrement())
+  categoryId   Int
   title        String   @db.VarChar(100)
   description  String?  @db.Text
   instructions Json
@@ -39,10 +39,10 @@ model Recipe {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
 
-  categoryMeta      RecipeCategory    @relation(fields: [category], references: [id])
+  categoryMeta      RecipeCategory     @relation(fields: [categoryId], references: [id])
   recipeIngredients RecipeIngredient[]
 
-  @@index([category, difficulty, cookTime, createdAt])
+  @@index([categoryId, difficulty, cookTime, createdAt])
   @@index([difficulty, cookTime, createdAt])
   @@index([createdAt(sort: Desc)])
   @@map("Recipe")
@@ -64,13 +64,13 @@ model RecipeCategory {
 }
 
 model IngredientCategory {
-  id          Int      @id
-  key         String   @unique @db.VarChar(50)
-  name        String   @db.VarChar(100)
-  displayOrder Int     @default(0) @map("display_order")
-  isActive    Boolean  @default(true) @map("is_active")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  id           Int      @id
+  key          String   @unique @db.VarChar(50)
+  name         String   @db.VarChar(100)
+  displayOrder Int      @default(0) @map("display_order")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
 
   ingredients Ingredient[]
 
@@ -79,22 +79,22 @@ model IngredientCategory {
 }
 
 model Ingredient {
-  id        Int   @id @default(autoincrement())
-  name      String   @db.VarChar(100)
-  category  Int
-  createdAt DateTime @default(now()) @map("created_at")
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(100)
+  categoryId Int
+  createdAt  DateTime @default(now()) @map("created_at")
 
-  categoryMeta      IngredientCategory @relation(fields: [category], references: [id])
+  categoryMeta      IngredientCategory @relation(fields: [categoryId], references: [id])
   recipeIngredients RecipeIngredient[]
 
-  @@index([category, name])
+  @@index([categoryId, name])
   @@map("Ingredient")
 }
 
 model RecipeIngredient {
-  id           Int   @id @default(autoincrement())
-  recipeId     Int   @map("recipe_id")
-  ingredientId Int   @map("ingredient_id")
+  id           Int      @id @default(autoincrement())
+  recipeId     Int      @map("recipe_id")
+  ingredientId Int      @map("ingredient_id")
   amount       Decimal? @db.Decimal(10, 2)
   unit         String?  @db.VarChar(20)
   isOptional   Boolean  @default(false) @map("is_optional")
