@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@cook/shared/prisma-client';
-import { PrismaService } from '@cook/shared';
+import {
+  PrismaService,
+  RedisService,
+  cacheKeyChatbotFoodCategories,
+} from '@cook/shared';
 
 export interface SuggestedRecipe {
   id: number;
@@ -44,18 +48,39 @@ const DEFAULT_LIMIT = 5;
 const MAX_LIMIT = 20;
 const SCORE_INGREDIENT_MATCH = 10;
 const SCORE_INGREDIENT_CATEGORY_MATCH = 3;
+/** Producer RecipeCacheStrategy·레시피 카테고리 API와 동일하게 1시간 */
+const FOOD_CATEGORIES_CACHE_TTL_SECONDS = 3600;
 
 /**
  * search_recipes 함수 실행 — Prisma 레시피 검색, 재료·카테고리 필터 및 가산점, SuggestedRecipe[] 반환
  */
 @Injectable()
 export class SearchRecipesHandler {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redis: RedisService,
+  ) {}
 
   /**
-   * 레시피·재료 카테고리 마스터 (활성만, 정렬 순)
+   * 레시피·재료 카테고리 마스터 (활성만, 정렬 순). Redis 캐시 1시간.
    */
   async getFoodCategories(): Promise<FoodCategoriesResult> {
+    const key = cacheKeyChatbotFoodCategories();
+    const cached = await this.redis.get(key);
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached) as FoodCategoriesResult;
+        if (
+          Array.isArray(parsed.recipeCategories) &&
+          Array.isArray(parsed.ingredientCategories)
+        ) {
+          return parsed;
+        }
+      } catch {
+        /* 캐시 손상 시 DB 재조회 */
+      }
+    }
+
     const [recipeCategories, ingredientCategories] = await Promise.all([
       this.prisma.recipeCategory.findMany({
         where: { isActive: true },
@@ -68,7 +93,16 @@ export class SearchRecipesHandler {
         select: { id: true, key: true, name: true, displayOrder: true },
       }),
     ]);
-    return { recipeCategories, ingredientCategories };
+    const result: FoodCategoriesResult = {
+      recipeCategories,
+      ingredientCategories,
+    };
+    await this.redis.set(
+      key,
+      JSON.stringify(result),
+      FOOD_CATEGORIES_CACHE_TTL_SECONDS,
+    );
+    return result;
   }
 
   async execute(payload: SearchRecipesPayload): Promise<SuggestedRecipe[]> {

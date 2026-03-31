@@ -32,6 +32,11 @@ export const CACHE_KEY_SEGMENT = {
    * `ingredient:by-id:{id}` 형태의 두 번째 세그먼트
    */
   BY_ID: 'by-id',
+  /**
+   * Consumer 챗봇: get_food_categories 응답 (레시피·재료 활성 카테고리 JSON)
+   * `recipe:chatbot:food-categories`
+   */
+  CHATBOT_FOOD_CATEGORIES: 'chatbot:food-categories',
 } as const;
 
 /** `prefix` + 세그먼트들을 `:` 로 결합 (Producer CacheStrategy·무효화·Consumer 공통) */
@@ -64,6 +69,14 @@ export function cacheKeyIngredientById(ingredientId: number): string {
     CACHE_KEY_PREFIX.INGREDIENT,
     CACHE_KEY_SEGMENT.BY_ID,
     ingredientId,
+  );
+}
+
+/** Consumer 챗봇 SearchRecipesHandler.getFoodCategories — `recipe:chatbot:food-categories` */
+export function cacheKeyChatbotFoodCategories(): string {
+  return buildCacheKey(
+    CACHE_KEY_PREFIX.RECIPE,
+    CACHE_KEY_SEGMENT.CHATBOT_FOOD_CATEGORIES,
   );
 }
 

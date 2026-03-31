@@ -26,6 +26,7 @@ export {
   cacheKeyUserProfile,
   cacheKeyUserIngredient,
   cacheKeyIngredientById,
+  cacheKeyChatbotFoodCategories,
   cacheKeyRateLimitApi,
 } from './constants/cache-keys';
 export { ASSET_URL_PREFIX } from './constants/asset-url-prefixes';
