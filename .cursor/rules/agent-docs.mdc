@@ -23,6 +23,7 @@ alwaysApply: true
 | **architecture.mermaid** | 시스템 아키텍처 다이어그램 (Mermaid) | Client, CDN(Vercel), EC2(Producer/Consumer), Kafka, Redis, RDS, MongoDB, S3, OpenAI 등 구성요소와 연결 관계를 시각적으로 파악할 때 |
 | **screen_flowchart.mermaid** | 화면 플로우 다이어그램 (Mermaid) | `agent/spec/frontend_architecture_spec.md` §2 라우팅 맵을 기반으로 한 화면 전환·탭 간 이동 흐름을 시각적으로 파악할 때 |
 | **openapi_spec.yaml** | OpenAPI 3.0 API 명세 | 인증, 엔드포인트(path, method), 요청/응답 스키마, DTO·Swagger 연동을 구현·검증할 때 |
+| **design_principle.json** | 디자인 원칙(JSON) | product·brand·accessibility·platform·layout·interaction·contentTone·media·theme 등 구조화된 UX/UI·접근성·성능 수치. 컴포넌트·페이지 구현·Figma 연동 시 기준으로 참고. |
 
 ### 명세 (agent/spec/)
 
@@ -45,6 +46,12 @@ alwaysApply: true
 
 ---
 
+## Figma (MCP 사용 시)
+
+Figma 디자인 참조·생성·MCP 도구 사용 시 **`.cursor/rules/agent-docs-figma.mdc`** 를 참고한다.
+
+---
+
 ## 작업별 권장 참조 순서
 
 - **백엔드 API/모듈/DB**  
@@ -64,3 +71,10 @@ alwaysApply: true
 
 - **기획·스택·배포 정책**  
   `agent/proposal.md` → `agent/architecture.mermaid`
+
+- **Figma (MCP)**  
+  `agent-docs-figma.mdc` 참고.
+
+- **UI/UX·디자인 원칙 적용**  
+  `agent/design/design_principle.json`(터치 타겟 44px, WCAG 2.1 AA, 반응형 브레이크포인트, LCP/FID/CLS·번들 예산, 레이아웃·챗봇 톤 등)
+  `agent/design/design_tokens.json`(컬러/타이포/스페이싱/레이아웃 등 토큰 정의)

@@ -1,26 +1,117 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* design tokens (agent/design/design_tokens.json -> CSS variables) */
+  --background: #FAFAF9;
+  --surface: #FFFFFF;
+  --text-primary: #1C1A17;
+  --text-secondary: #575352;
+  --text-caption-color: #737373;
+  --border: #8A8480;
+
+  --primary: #C2410C;
+  --primary-hover: #9A3412;
+  --secondary: #6B7250;
+  --on-primary: #FFFFFF;
+  --on-secondary: #FFFFFF;
+
+  --success: #15803D;
+  --error: #B91C1C;
+  --warning: #92400E;
+  --info: #2B6BA3;
+  --text-link: #2B6BA3;
+  --text-link-hover: #1E4D7A;
+
+  --foreground: var(--text-primary);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-caption: var(--text-caption-color);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --font-sans: var(--font-noto-sans-kr), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-on-primary: var(--on-primary);
+  --color-on-secondary: var(--on-secondary);
+  --color-success: var(--success);
+  --color-error: var(--error);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-text-link: var(--text-link);
+  --color-text-link-hover: var(--text-link-hover);
+
+  /* radius tokens (design_tokens.json) */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  /* spacing tokens (design_tokens.json) */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-7: 28px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-11: 44px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+
+  /* typography size/line-height (design_tokens.json typography.*) */
+  --text-h1: 28px/42px;
+  --text-h2: 20px/30px;
+  --text-h3: 18px/27px;
+  --text-body: 16px/24px;
+  --text-caption: 14px/21px;
+  --text-small: 12px/18px;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #060809;
+    --surface: #111827;
+    --text-primary: #F9FAFB;
+    --text-secondary: #D1D5DB;
+    --text-caption-color: #9CA3AF;
+    --border: #64748B;
+
+    --primary: #C2410C;
+    --primary-hover: #9A3412;
+    --secondary: #84CC16;
+    --on-primary: #FFFFFF;
+    --on-secondary: #0F172A;
+
+    --success: #22C55E;
+    --error: #F97373;
+    --warning: #FBBF24;
+    --info: #60A5FA;
+    --text-link: #60A5FA;
+    --text-link-hover: #93C5FD;
+
+    --foreground: var(--text-primary);
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans, Arial, Helvetica, sans-serif);
 }

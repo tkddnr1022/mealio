@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cook Design System – Style Guide</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Capture 안정화를 위한 글꼴 의존성: 캡처 환경에서 Noto Sans KR이 올바르게 렌더링되도록 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --color-bg: #FAFAF9;
+      --color-surface: #FFFFFF;
+      --color-border: #8A8480;
+      --color-text-primary: #1C1A17;
+      --color-text-secondary: #575352;
+      --color-text-caption: #8A8A8A;
+      --color-primary: #C2410C;
+      --color-primary-hover: #9A3412;
+      --color-secondary: #6B7250;
+      --color-success: #15803D;
+      --color-error: #B91C1C;
+      --color-warning: #92400E;
+      --color-info: #2B6BA3;
+
+      --font-family-sans: "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-11: 44px;
+      --space-12: 48px;
+      --space-16: 64px;
+
+      --radius-lg: 8px;
+      --radius-xl: 12px;
+      --radius-2xl: 16px;
+      --radius-full: 9999px;
+
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 4px 8px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 10px 15px rgba(15, 23, 42, 0.12);
+
+      --content-max-width: 1200px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-family-sans);
+      background-color: #ECEFF3; /* Figma 캔버스와 유사한 회색 배경 */
+      color: var(--color-text-primary);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: auto;
+    }
+
+    .page {
+      min-height: 100vh;
+      width: 150vw; /* 넓은 프레임을 위한 고정 비율 */
+      padding: 64px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 768px) {
+      .page {
+        padding: var(--space-4);
+      }
+    }
+
+    .sheet {
+      width: 100%;
+      background: var(--color-surface);
+      border-radius: 20px;
+      padding: var(--space-8);
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      box-shadow:
+        0 18px 60px rgba(15, 23, 42, 0.12),
+        0 0 0 1px rgba(15, 23, 42, 0.02);
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-8);
+    }
+
+    @media (max-width: 1024px) {
+      .sheet {
+        display: flex;
+        flex-direction: column;
+        padding: var(--space-6);
+      }
+    }
+
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: var(--space-4);
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: var(--space-4);
+      margin-bottom: var(--space-2);
+      flex: 0 0 100%;
+    }
+
+    .sheet-title {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .sheet-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      font-size: 12px;
+      color: var(--color-text-caption);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #F3F4F6;
+      color: var(--color-text-secondary);
+      border: 1px solid #E5E7EB;
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+      min-width: 0;
+      flex: 1 1 0;
+      min-width: 260px;
+    }
+
+    .section {
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      background: #FCFCFD;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: var(--space-2);
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+    }
+
+    .section-caption {
+      font-size: 12px;
+      color: var(--color-text-caption);
+    }
+
+    .subsection-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-2);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .grid {
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .grid--colors,
+    .grid--grays,
+    .grid--brand {
+      grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    }
+
+    .color-swatch {
+      width: 132px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      min-height: 112px;
+    }
+
+    .color-swatch__chip {
+      height: 64px;
+    }
+
+    .color-swatch__body {
+      padding: 8px 10px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .color-swatch__name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+    }
+
+    .color-swatch__meta {
+      font-size: 11px;
+      color: var(--color-text-caption);
+    }
+
+    .color-swatch--outline {
+      background: #F9FAFB;
+    }
+
+    /* Typography */
+    .type-row {
+      display: flex;
+      align-items: baseline;
+      flex-direction: column;
+      gap: 4px;
+      padding: 4px 0;
+    }
+
+    .type-token {
+      font-size: 11px;
+      color: var(--color-text-caption);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    .type-display-1 {
+      font-size: 32px;
+      line-height: 42px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+
+    .type-display-2 {
+      font-size: 24px;
+      line-height: 32px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin: 0;
+    }
+
+    .type-heading-1 {
+      font-size: 20px;
+      line-height: 30px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .type-heading-2 {
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .type-body {
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 400;
+      margin: 0;
+    }
+
+    .type-caption {
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 400;
+      margin: 0;
+    }
+
+    .type-small {
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 400;
+      color: var(--color-text-secondary);
+      margin: 0;
+    }
+
+    /* Layout grid demo – screens */
+    .layout-grid {
+      display: grid;
+      /* 모바일 < 태블릿 < 데스크톱 실제 화면 비율을 대략적으로 반영 */
+      grid-template-columns: 0.7fr 1fr 1.4fr;
+      gap: var(--space-3);
+    }
+
+    .layout-screen {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .layout-screen__label {
+      font-size: 11px;
+      color: var(--color-text-caption);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .layout-screen__frame {
+      border-radius: 24px 24px 0 0;
+      background: linear-gradient(to bottom, #F9FAFB 0%, #F3F4F6 65%, rgba(243, 244, 246, 0) 100%);
+      border: 1px solid #E5E7EB;
+      border-bottom: none;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .layout-screen__header {
+      height: 10px;
+      border-radius: 999px;
+      background: #E5E7EB;
+      margin-bottom: 4px;
+    }
+
+    .layout-screen__grid {
+      display: grid;
+      gap: 4px;
+    }
+
+    .layout-screen__grid--mobile {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .layout-screen__grid--tablet {
+      grid-template-columns: repeat(8, 1fr);
+    }
+
+    .layout-screen__grid--desktop {
+      grid-template-columns: repeat(12, 1fr);
+    }
+
+    .layout-screen__col {
+      height: 40px;
+      border-radius: 8px;
+      background: rgba(148, 163, 184, 0.25);
+    }
+
+    .layout-screen__footer {
+      font-size: 11px;
+      color: var(--color-text-caption);
+      display: flex;
+      justify-content: space-between;
+      margin-top: auto;
+    }
+
+    .layout-stack {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-3);
+      align-items: flex-start;
+    }
+
+    .layout-stack__column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .layout-stack__label {
+      font-size: 11px;
+      color: var(--color-text-caption);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .layout-stack__frame {
+      border-radius: var(--radius-xl);
+      background: #FFFFFF;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid #E5E7EB;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .layout-stack__bar {
+      height: 8px;
+      border-radius: 999px;
+      background: #E5E7EB;
+    }
+
+    .layout-stack__bar--section {
+      margin-bottom: 16px;
+    }
+
+    .layout-stack__item {
+      height: 32px;
+      border-radius: 12px;
+      background: #F3F4F6;
+      border: 1px solid #E5E7EB;
+    }
+
+    .layout-stack__item + .layout-stack__item {
+      margin-top: 12px;
+    }
+
+    .layout-stack__item--tight + .layout-stack__item--tight {
+      margin-top: 6px;
+    }
+
+    @media (max-width: 768px) {
+      .layout-stack {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Elevation / shadows */
+    .shadow-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: var(--space-3);
+    }
+
+    .shadow-card {
+      border-radius: var(--radius-xl);
+      background: #FFFFFF;
+      padding: var(--space-4);
+      border: 1px solid #E5E7EB;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .shadow-chip {
+      width: 100%;
+      height: 56px;
+      border-radius: 18px;
+      background: #FFFFFF;
+    }
+
+    .shadow-chip--sm { box-shadow: var(--shadow-sm); }
+    .shadow-chip--md { box-shadow: var(--shadow-md); }
+    .shadow-chip--lg { box-shadow: var(--shadow-lg); }
+
+    .shadow-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+    }
+
+    .shadow-meta {
+      font-size: 11px;
+      color: var(--color-text-caption);
+    }
+
+    /* Spacing & radius */
+    .spacing-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .spacing-scale {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    .spacing-bar {
+      position: relative;
+      border-radius: 999px;
+      background: #E5E7EB;
+      min-width: 32px;
+    }
+
+    .spacing-bar--1 { height: 4px; width: 32px; }
+    .spacing-bar--2 { height: 8px; width: 44px; }
+    .spacing-bar--3 { height: 12px; width: 56px; }
+    .spacing-bar--4 { height: 16px; width: 72px; }
+    .spacing-bar--6 { height: 24px; width: 96px; }
+    .spacing-bar--8 { height: 32px; width: 124px; }
+    .spacing-bar--11 { height: 44px; width: 156px; }
+    .spacing-bar--12 { height: 48px; width: 176px; }
+    .spacing-bar--16 { height: 64px; width: 216px; }
+
+    .spacing-label {
+      font-size: 11px;
+      color: var(--color-text-caption);
+    }
+
+    .radius-row {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    .radius-pill {
+      width: 64px;
+      height: 40px;
+      border-radius: 999px;
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .radius-pill--lg { border-radius: var(--radius-lg); }
+    .radius-pill--xl { border-radius: var(--radius-xl); }
+    .radius-pill--2xl { border-radius: var(--radius-2xl); }
+    .radius-pill--full { border-radius: var(--radius-full); }
+
+    /* State & motion */
+    .state-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+    }
+
+    .state-chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid #E5E7EB;
+      background: #F9FAFB;
+      color: var(--color-text-secondary);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .state-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--color-primary);
+    }
+
+    .state-dot--success { background: var(--color-success); }
+    .state-dot--error { background: var(--color-error); }
+
+    .motion-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--color-text-caption);
+    }
+
+    .motion-pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px dashed #E5E7EB;
+      background: #F9FAFB;
+    }
+
+    /* Icon & breakpoints */
+    .icon-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    .icon-circle {
+      border-radius: 999px;
+      border: 1px solid #D1D5DB;
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: var(--color-text-caption);
+    }
+
+    .icon-circle--sm { width: 24px; height: 24px; }
+    .icon-circle--md { width: 32px; height: 32px; }
+    .icon-circle--lg { width: 40px; height: 40px; }
+
+    .breakpoint-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--color-text-caption);
+    }
+
+    .breakpoint-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .breakpoint-label {
+      width: 72px;
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+    }
+
+    .breakpoint-track {
+      position: relative;
+      flex: 1;
+      height: 8px;
+      border-radius: 999px;
+      background: #E5E7EB;
+      overflow: hidden;
+    }
+
+    .breakpoint-fill {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #CBD5F5, #94A3B8);
+      transform: translateX(-50%);
+    }
+
+    .breakpoint-fill--mobile {
+      width: 52%;
+    }
+
+    .breakpoint-fill--tablet {
+      width: 76%;
+    }
+
+    .breakpoint-fill--desktop {
+      width: 100%;
+    }
+
+    .breakpoint-meta {
+      width: 96px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* Chat preview */
+    .chat-preview {
+      border-radius: var(--radius-2xl);
+      background: #F3F4F6;
+      padding: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .chat-row {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .chat-row--user {
+      justify-content: flex-end;
+    }
+
+    .chat-bubble {
+      max-width: 80%;
+      padding: 8px 12px;
+      border-radius: var(--radius-2xl);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .chat-bubble--user {
+      background: var(--color-primary);
+      color: #FFFFFF;
+    }
+
+    .chat-bubble--bot {
+      background: #FFFFFF;
+      color: var(--color-text-primary);
+      border: 1px solid #E5E7EB;
+    }
+
+    .chat-card {
+      margin-top: 4px;
+      border-radius: var(--radius-xl);
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      padding: 8px 10px;
+      font-size: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Components (button, chip, field) */
+    .component-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 var(--space-4);
+      min-height: var(--space-11);
+      border-radius: var(--radius-full);
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: background-color 160ms ease, box-shadow 160ms ease, transform 120ms ease;
+    }
+
+    .btn--primary {
+      background: var(--color-primary);
+      color: #FFFFFF;
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn--primary:hover {
+      background: var(--color-primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 18px rgba(248, 113, 22, 0.35);
+    }
+
+    .btn--ghost {
+      background: #F3F4F6;
+      color: var(--color-text-secondary);
+      box-shadow: none;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px var(--space-3);
+      border-radius: var(--radius-full);
+      border: 1px solid #E5E7EB;
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      background: #F9FAFB;
+      gap: 6px;
+    }
+
+    .chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--color-primary);
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 260px;
+    }
+
+    .field-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+    }
+
+    .field-input {
+      border-radius: 999px;
+      padding: 10px 14px;
+      border: 1px solid var(--color-border);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+    }
+
+    .field-input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px rgba(232, 93, 43, 0.18);
+    }
+
+    .field-caption {
+      font-size: 12px;
+      color: var(--color-text-caption);
+    }
+
+    /* Helpers */
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--color-text-caption);
+    }
+
+    .pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #E5E7EB;
+      background: #F9FAFB;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="sheet">
+      <header class="sheet-header">
+        <div>
+          <div class="sheet-title">Cook Design System</div>
+          <div style="margin-top:4px;font-size:13px;color:var(--color-text-secondary);">
+            Tokens · Components · Layout
+          </div>
+        </div>
+        <div class="sheet-meta">
+          <span class="tag">Primary device · Mobile</span>
+          <span class="tag">WCAG 2.1 AA</span>
+          <span class="tag">Touch target ≥ 44px</span>
+        </div>
+      </header>
+
+      <!-- Left column -->
+      <div class="column">
+        <!-- Colors -->
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">Colors</h2>
+            <p class="section-caption">WCAG 2.1 AA 대비 기준 컬러</p>
+          </div>
+
+          <div>
+            <div class="subsection-title">Theme surface</div>
+            <div class="grid grid--colors">
+              <div class="color-swatch">
+                <div class="color-swatch__chip" style="background:#FAFAF9;"></div>
+                <div class="color-swatch__body">
+                  <div class="color-swatch__name">Background</div>
+                </div>
+              </div>
+              <div class="color-swatch">
+                <div class="color-swatch__chip" style="background:#FFFFFF;"></div>
+                <div class="color-swatch__body">
+                  <div class="color-swatch__name">Surface</div>
+                </div>
+              </div>
+              <div class="color-swatch color-swatch--outline">
+                <div class="color-swatch__chip" style="background:#8A8480;"></div>
+                <div class="color-swatch__body">
+                  <div class="color-swatch__name">Border</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="subsection-title">Text</div>
+            <div class="grid grid--grays">
+              <div class="color-swatch">
+                <div class="color-swatch__chip" style="background:#1C1A17;"></div>
+                <div class="color-swatch__body">
+                  <div class="color-swatch__name">Text / Primary</div>
+                </div>
+              </div>
+              <div class="color-swatch">
+                <div class="color-swatch__chip" style="background:#575352;"></div>
+                <div class="color-swatch__body">
+                  <div class="color-swatch__name">Text / Secondary</div>
+                </div>
+              </div>
+              <div class="color-swatch">
+                <div class="color-swatch__chip" style="background:#8A8A8A;"></div>
+                <div class="color-swatch__body">
+                  <div class="color-swatch__name">Text / Caption</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="subsection-title">Semantic</div>
+            <div class="grid grid--brand">
+              <div class="color-swatch">
+                <div class="color-swatch__chip" style="background:#C2410C;"></div>
+                <div class="color-swatch__body">
+                  <div class="color-swatch__name">Primary</div>
+                </div>
+              </div>
+              <div class="color-swatch">
+                <div class="color-swatch__chip" style="background:#6B7250;"></div>
+                <div class="color-swatch__body">
+                  <div class="color-swatch__name">Secondary</div>
+                </div>
+              </div>
+              <div class="color-swatch">
+                <div class="color-swatch__chip" style="background:#15803D;"></div>
+                <div class="color-swatch__body">
+                  <div class="color-swatch__name">Success</div>
+                </div>
+              </div>
+              <div class="color-swatch">
+                <div class="color-swatch__chip" style="background:#B91C1C;"></div>
+                <div class="color-swatch__body">
+                  <div class="color-swatch__name">Error</div>
+                </div>
+              </div>
+              <div class="color-swatch">
+                <div class="color-swatch__chip" style="background:#92400E;"></div>
+                <div class="color-swatch__body">
+                  <div class="color-swatch__name">Warning</div>
+                </div>
+              </div>
+              <div class="color-swatch">
+                <div class="color-swatch__chip" style="background:#2B6BA3;"></div>
+                <div class="color-swatch__body">
+                  <div class="color-swatch__name">Info</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Typography -->
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">Typography</h2>
+            <p class="section-caption">Noto Sans KR · mobile first</p>
+          </div>
+
+          <div class="type-row">
+            <div>
+              <p class="type-display-1">Heading 1</p>
+            </div>
+          </div>
+
+          <div class="type-row">
+            <div>
+              <p class="type-display-2">Heading 2</p>
+            </div>
+          </div>
+
+          <div class="type-row">
+            <div>
+              <p class="type-heading-1">Heading 3</p>
+            </div>
+          </div>
+
+          <div class="type-row">
+            <div>
+              <p class="type-body">Body</p>
+            </div>
+          </div>
+
+          <div class="type-row">
+            <div>
+              <p class="type-caption">Caption</p>
+            </div>
+          </div>
+
+          <div class="type-row">
+            <div>
+              <p class="type-small">Small</p>
+            </div>
+          </div>
+        </section>
+        
+      </div>
+
+      <!-- Middle column -->
+      <div class="column">
+        <!-- Layout -->
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">Layout</h2>
+            <p class="section-caption">Columns · spacing · patterns</p>
+          </div>
+
+          <div>
+            <div class="subsection-title">Grid columns</div>
+            <div class="layout-grid">
+              <div class="layout-screen">
+                <div class="layout-screen__label">Mobile · 4 columns</div>
+                <div class="layout-screen__frame">
+                  <div class="layout-screen__header"></div>
+                  <div class="layout-screen__grid layout-screen__grid--mobile">
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                  </div>
+                  <div class="layout-screen__footer">
+                    <span>0 – 767px</span>
+                    <span>4 cols</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="layout-screen">
+                <div class="layout-screen__label">Tablet · 8 columns</div>
+                <div class="layout-screen__frame">
+                  <div class="layout-screen__header"></div>
+                  <div class="layout-screen__grid layout-screen__grid--tablet">
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                  </div>
+                  <div class="layout-screen__footer">
+                    <span>768 – 1023px</span>
+                    <span>8 cols</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="layout-screen">
+                <div class="layout-screen__label">Desktop · 12 columns</div>
+                <div class="layout-screen__frame">
+                  <div class="layout-screen__header"></div>
+                  <div class="layout-screen__grid layout-screen__grid--desktop">
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                    <div class="layout-screen__col"></div>
+                  </div>
+                  <div class="layout-screen__footer">
+                    <span>≥ 1024px</span>
+                    <span>12 cols</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="subsection-title">Stacks & sections</div>
+            <div class="layout-stack">
+              <div class="layout-stack__column">
+                <div class="layout-stack__label">Sections</div>
+                <div class="layout-stack__frame">
+                  <div class="layout-stack__bar layout-stack__bar--section"></div>
+                  <div class="layout-stack__item"></div>
+                  <div class="layout-stack__item"></div>
+                  <div class="layout-stack__item"></div>
+                </div>
+              </div>
+              <div class="layout-stack__column">
+                <div class="layout-stack__label">Cards</div>
+                <div class="layout-stack__frame">
+                  <div class="layout-stack__item"></div>
+                  <div class="layout-stack__item"></div>
+                  <div class="layout-stack__item"></div>
+                </div>
+              </div>
+              <div class="layout-stack__column">
+                <div class="layout-stack__label">Lists</div>
+                <div class="layout-stack__frame">
+                  <div class="layout-stack__item layout-stack__item--tight"></div>
+                  <div class="layout-stack__item layout-stack__item--tight"></div>
+                  <div class="layout-stack__item layout-stack__item--tight"></div>
+                  <div class="layout-stack__item layout-stack__item--tight"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Spacing & Radius -->
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">Spacing & Radius</h2>
+            <p class="section-caption">spacing · radius tokens</p>
+          </div>
+
+          <div>
+            <div class="subsection-title">Spacing scale</div>
+            <div class="spacing-row">
+              <div class="spacing-scale">
+                <div class="spacing-bar spacing-bar--1"></div>
+                <span class="spacing-label">1</span>
+              </div>
+              <div class="spacing-scale">
+                <div class="spacing-bar spacing-bar--2"></div>
+                <span class="spacing-label">2</span>
+              </div>
+              <div class="spacing-scale">
+                <div class="spacing-bar spacing-bar--3"></div>
+                <span class="spacing-label">3</span>
+              </div>
+              <div class="spacing-scale">
+                <div class="spacing-bar spacing-bar--4"></div>
+                <span class="spacing-label">4</span>
+              </div>
+              <div class="spacing-scale">
+                <div class="spacing-bar spacing-bar--6"></div>
+                <span class="spacing-label">6</span>
+              </div>
+              <div class="spacing-scale">
+                <div class="spacing-bar spacing-bar--8"></div>
+                <span class="spacing-label">8</span>
+              </div>
+              <div class="spacing-scale">
+                <div class="spacing-bar spacing-bar--11"></div>
+                <span class="spacing-label">11</span>
+              </div>
+              <div class="spacing-scale">
+                <div class="spacing-bar spacing-bar--12"></div>
+                <span class="spacing-label">12</span>
+              </div>
+              <div class="spacing-scale">
+                <div class="spacing-bar spacing-bar--16"></div>
+                <span class="spacing-label">16</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="subsection-title">Radius</div>
+            <div class="radius-row">
+              <div class="radius-pill radius-pill--lg">lg</div>
+              <div class="radius-pill radius-pill--xl">xl</div>
+              <div class="radius-pill radius-pill--2xl">2xl</div>
+              <div class="radius-pill radius-pill--full">full</div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Right column -->
+      <div class="column">
+        <!-- Shadows -->
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">Shadows</h2>
+            <p class="section-caption">Elevation tokens</p>
+          </div>
+          <div class="shadow-row">
+            <div class="shadow-card">
+              <div class="shadow-chip shadow-chip--sm"></div>
+              <div class="shadow-label">Elevation / sm</div>
+              <div class="shadow-meta">0 1px 2px · subtle</div>
+            </div>
+            <div class="shadow-card">
+              <div class="shadow-chip shadow-chip--md"></div>
+              <div class="shadow-label">Elevation / md</div>
+              <div class="shadow-meta">0 4px 8px · cards</div>
+            </div>
+            <div class="shadow-card">
+              <div class="shadow-chip shadow-chip--lg"></div>
+              <div class="shadow-label">Elevation / lg</div>
+              <div class="shadow-meta">0 10px 15px · overlays</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- State · Motion · Icon · Breakpoints -->
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">System</h2>
+            <p class="section-caption">state · motion · icons · breakpoints</p>
+          </div>
+
+          <div>
+            <div class="subsection-title">States</div>
+            <div class="state-row">
+              <div class="state-chip">
+                <span class="state-dot"></span>
+                <span>Hover</span>
+              </div>
+              <div class="state-chip">
+                <span class="state-dot state-dot--success"></span>
+                <span>Success</span>
+              </div>
+              <div class="state-chip">
+                <span class="state-dot state-dot--error"></span>
+                <span>Error</span>
+              </div>
+              <div class="state-chip">
+                <span>Disabled · 50%</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="subsection-title">Motion</div>
+            <div class="motion-row">
+              <span class="motion-pill">fast · 150ms</span>
+              <span class="motion-pill">normal · 200ms</span>
+              <span class="motion-pill">slow · 300ms</span>
+            </div>
+          </div>
+
+          <div>
+            <div class="subsection-title">Icons</div>
+            <div class="icon-row">
+              <div class="icon-circle icon-circle--sm">16</div>
+              <div class="icon-circle icon-circle--md">20</div>
+              <div class="icon-circle icon-circle--lg">24</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="subsection-title">Breakpoints</div>
+            <div class="breakpoint-row">
+              <div class="breakpoint-bar">
+                <div class="breakpoint-label">Mobile</div>
+                <div class="breakpoint-track">
+                  <div class="breakpoint-fill breakpoint-fill--mobile"></div>
+                </div>
+                <div class="breakpoint-meta">0–767px</div>
+              </div>
+              <div class="breakpoint-bar">
+                <div class="breakpoint-label">Tablet</div>
+                <div class="breakpoint-track">
+                  <div class="breakpoint-fill breakpoint-fill--tablet"></div>
+                </div>
+                <div class="breakpoint-meta">768–1023px</div>
+              </div>
+              <div class="breakpoint-bar">
+                <div class="breakpoint-label">Desktop</div>
+                <div class="breakpoint-track">
+                  <div class="breakpoint-fill breakpoint-fill--desktop"></div>
+                </div>
+                <div class="breakpoint-meta">≥1024px</div>
+              </div>
+            </div>
+          </div>
+
+        </section>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

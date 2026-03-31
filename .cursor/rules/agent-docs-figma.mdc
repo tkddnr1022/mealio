@@ -1,0 +1,37 @@
+---
+description: Figma MCP 사용 시 기본 MCP 선택, HTML 캡처, 호출 제한 재시도 지침
+alwaysApply: false
+---
+
+# Figma Design (MCP 사용 시)
+
+## MCP 선택 기준
+
+- **기본값**: Figma 관련 작업 시 **Figma MCP**(`plugin-figma-figma`)를 기본으로 사용한다. 디자인 읽기·디자인 투 코드·Code Connect·스크린샷·HTML 캡처 등은 이 MCP의 도구를 우선 사용한다.
+- **보조 사용**: 사용자가 **`figma-console-mcp`를 언급하였을 경우**에는 **Figma Console MCP**(`user-figma-console`)에서 적절한 도구를 찾아 사용한다. 예: Figma 내에서 노드 생성·변수 배치·스크린샷·배치 작업 등 Figma MCP에 없는 생성/편집용 도구가 필요할 때.
+
+---
+
+## 에이전트가 Figma 디자인을 생성할 때 (HTML → Figma 캡처)
+
+**`generate_figma_design`** 사용.
+
+에이전트의 역할은 **캡처 자체를 실행하거나 Figma에 반영을 완료하지 않고**, **캡처에 필요한 `captureId`만 생성**한다.
+
+---
+
+## 캡처 실행(사용자 책임)
+
+캡처는 반드시 사용자가 `figma-capture-activator` 확장 프로그램으로 직접 실행한다.
+
+- 사용자는 캡처할 HTML/페이지를 브라우저에서 미리 열어둔다.
+- `figma-capture-activator` 팝업에서 `captureId`를 입력한다.
+- (필요 시) `endpoint` 및 `selector`를 설정하고, **현재 탭 캡처 활성화**를 클릭한다.
+
+에이전트는 이후 과정(완료 확인/반영 완료 대기/폴링 등)을 수행하지 않는다.
+
+---
+
+## 도구 호출 제한(tool call limit) 시
+
+**tool call limit 초과** 응답 시 **1분(60초) 대기 후 동일 호출 재시도**. 필요 시 사용자에게 “Figma API 호출 제한으로 1분 후 재시도합니다” 안내.

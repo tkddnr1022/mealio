@@ -1,0 +1,304 @@
+{
+  "version": "1.1",
+  "lastReviewed": "2026-03-29",
+  "relatedFiles": ["agent/design/design_principle.json"],
+
+  "theme": {
+    "default": "light",
+    "modes": ["light", "dark"]
+  },
+
+  "color": {
+    "light": {
+      "background": "#FAFAF9",
+      "surface": "#FFFFFF",
+      "text-primary": "#1C1A17",
+      "text-secondary": "#575352",
+      "text-caption": "#737373",
+      "text-caption-usage": "14px 부가·메타용. 필수 라벨·에러는 body(16px) 또는 대비 4.5:1 충족 색 사용.",
+      "border": "#8A8480",
+      "primary": "#C2410C",
+      "primary-hover": "#9A3412",
+      "on-primary": "#FFFFFF",
+      "secondary": "#6B7250",
+      "on-secondary": "#FFFFFF",
+      "success": "#15803D",
+      "error": "#B91C1C",
+      "warning": "#92400E",
+      "info": "#2B6BA3",
+      "text-link": "#2B6BA3",
+      "text-link-hover": "#1E4D7A"
+    },
+    "dark": {
+      "background": "#060809",
+      "surface": "#111827",
+      "text-primary": "#F9FAFB",
+      "text-secondary": "#D1D5DB",
+      "text-caption": "#9CA3AF",
+      "text-caption-usage": "다크에서도 부가 텍스트 전용. 필수 정보는 text-secondary 이상 권장.",
+      "border": "#64748B",
+      "primary": "#C2410C",
+      "primary-hover": "#9A3412",
+      "on-primary": "#FFFFFF",
+      "secondary": "#84CC16",
+      "on-secondary": "#0F172A",
+      "success": "#22C55E",
+      "error": "#F97373",
+      "warning": "#FBBF24",
+      "info": "#60A5FA",
+      "text-link": "#60A5FA",
+      "text-link-hover": "#93C5FD"
+    }
+  },
+
+  "typography": {
+    "font-family": "Noto Sans KR",
+
+    "font-weight": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    },
+
+    "h1": {
+      "font-size": 28,
+      "line-height": 42,
+      "font-weight-token": "typography.font-weight.bold"
+    },
+    "h2": {
+      "font-size": 20,
+      "line-height": 30,
+      "font-weight-token": "typography.font-weight.semibold"
+    },
+    "h3": {
+      "font-size": 18,
+      "line-height": 27,
+      "font-weight-token": "typography.font-weight.medium"
+    },
+    "body": {
+      "font-size": 16,
+      "line-height": 24,
+      "font-weight-token": "typography.font-weight.regular"
+    },
+    "caption": {
+      "font-size": 14,
+      "line-height": 21,
+      "font-weight-token": "typography.font-weight.regular"
+    },
+    "small": {
+      "font-size": 12,
+      "line-height": 18,
+      "font-weight-token": "typography.font-weight.regular",
+      "usage-note": "보조 텍스트/레이블 전용. 본문·주요 인터랙티브 텍스트에는 사용하지 않습니다."
+    }
+  },
+
+  "spacing": {
+    "1": 4,
+    "2": 8,
+    "3": 12,
+    "4": 16,
+    "5": 20,
+    "6": 24,
+    "7": 28,
+    "8": 32,
+    "10": 40,
+    "11": 44,
+    "12": 48,
+    "16": 64,
+    "touch-target-gap-token": "spacing.2",
+    "touch-target-gap-note": "design_principle platform.touchTargetSpacingMinPx(8px)와 동일."
+  },
+
+  "radius": {
+    "sm": 4,
+    "md": 6,
+    "lg": 8,
+    "xl": 12,
+    "2xl": 16,
+    "full": 9999
+  },
+
+  "layout": {
+    "content-max-width": 1200,
+    "page-padding-x": {
+      "mobile-token": "spacing.4",
+      "tablet-token": "spacing.6",
+      "desktop-token": "spacing.8"
+    },
+    "columns": {
+      "mobile": 4,
+      "tablet": 8,
+      "desktop": 12
+    },
+    "safe-area-note": "하단 탭·고정 CTA는 env(safe-area-inset-*)와 spacing 토큰을 함께 고려한다."
+  },
+
+  "component": {
+    "card": {
+      "padding-x-token": "spacing.4",
+      "padding-y-token": "spacing.4",
+      "radius-token": "radius.xl",
+      "elevation-token": "elevation.md",
+      "elevation-dark-token": "elevation.dark.md"
+    },
+    "recipe-card": {
+      "thumbnail-aspect": "16:9",
+      "gap-token": "spacing.3",
+      "title-lines-max": 2,
+      "note": "design_principle media.recipeImage.aspectRatio와 맞춤."
+    },
+    "button": {
+      "padding-x-token": "spacing.4",
+      "padding-y-token": "spacing.3",
+      "radius-token": "radius.full",
+      "min-height-token": "spacing.11",
+      "text-light-token": "color.light.on-primary",
+      "text-on-secondary-light-token": "color.light.on-secondary",
+      "text-dark-token": "color.dark.on-primary",
+      "text-on-secondary-dark-token": "color.dark.on-secondary"
+    },
+    "chip": {
+      "padding-x-token": "spacing.3",
+      "padding-y-token": "spacing.1",
+      "radius-token": "radius.full"
+    },
+    "form-field": {
+      "gap-y-token": "spacing.2",
+      "group-gap-y-token": "spacing.4",
+      "radius-token": "radius.md"
+    },
+    "stack": {
+      "section-y-token": "spacing.8",
+      "card-stack-token": "spacing.4",
+      "list-item-token": "spacing.3"
+    }
+  },
+
+  "border": {
+    "width": {
+      "default": 1,
+      "focus": 2
+    },
+    "style": {
+      "default": "solid"
+    }
+  },
+
+  "elevation": {
+    "sm": "0 1px 2px rgba(15, 23, 42, 0.06)",
+    "md": "0 4px 8px rgba(15, 23, 42, 0.08)",
+    "lg": "0 10px 15px rgba(15, 23, 42, 0.12)",
+    "dark": {
+      "sm": "0 1px 3px rgba(0, 0, 0, 0.45)",
+      "md": "0 4px 12px rgba(0, 0, 0, 0.5)",
+      "lg": "0 12px 24px rgba(0, 0, 0, 0.55)"
+    },
+    "usage-note": "라이트는 sm/md/lg 기본값. 다크 배경은 elevation.dark.* 사용 권장."
+  },
+
+  "overlay": {
+    "scrim-opacity": 0.5,
+    "scrim-color-light-token": "color.light.text-primary",
+    "scrim-color-dark-token": "color.dark.background"
+  },
+
+  "z-index": {
+    "header": 40,
+    "bottom-tab": 30,
+    "chat-input": 35,
+    "modal": 100,
+    "toast": 110
+  },
+
+  "state": {
+    "hover": {
+      "opacity": 0.9
+    },
+    "disabled": {
+      "opacity": 0.5
+    },
+    "focus": {
+      "outline-width-token": "border.width.focus",
+      "outline-offset-px": 2,
+      "outline-color-token": "color.light.primary",
+      "outline-color-light-token": "color.light.primary",
+      "outline-color-dark-token": "color.dark.primary",
+      "theme-note": "다크 UI에서는 outline-color-dark-token을 사용한다. outline-color-token은 라이트 기본값(하위 호환)."
+    },
+    "form": {
+      "error-border-color-token": "color.light.error",
+      "success-border-color-token": "color.light.success",
+      "error-border-dark-token": "color.dark.error",
+      "success-border-dark-token": "color.dark.success",
+      "theme-note": "다크에서는 *-dark-token 참조."
+    }
+  },
+
+  "motion": {
+    "duration": {
+      "reduced": 0,
+      "fast": 150,
+      "normal": 200,
+      "slow": 300
+    },
+    "reduced-motion-note": "prefers-reduced-motion 시 duration.reduced 또는 핵심 전환만 허용.",
+    "easing": {
+      "standard": "cubic-bezier(0.4, 0.0, 0.2, 1)",
+      "decelerate": "cubic-bezier(0.0, 0.0, 0.2, 1)",
+      "accelerate": "cubic-bezier(0.4, 0.0, 1, 1)"
+    }
+  },
+
+  "icon": {
+    "size": {
+      "sm": 16,
+      "md": 20,
+      "lg": 24
+    }
+  },
+
+  "empty-state": {
+    "illustration-size": 120,
+    "spacing-y-token": "spacing.6"
+  },
+
+  "breakpoint": {
+    "mobile-max": 767,
+    "tablet-min": 768,
+    "tablet-max": 1023,
+    "desktop-min": 1024
+  },
+
+  "chat": {
+    "bubble": {
+      "user": {
+        "background-color-token": "color.light.primary",
+        "text-color-token": "color.light.on-primary",
+        "background-color-dark-token": "color.dark.primary",
+        "text-color-dark-token": "color.dark.on-primary",
+        "radius-token": "radius.2xl",
+        "max-width-percent": 0.8,
+        "theme-note": "라이트: background/text-color-token. 다크: *-dark-token. (구 surface 텍스트는 on-primary로 통일)"
+      },
+      "bot": {
+        "background-color-token": "color.light.surface",
+        "text-color-token": "color.light.text-primary",
+        "background-color-dark-token": "color.dark.surface",
+        "text-color-dark-token": "color.dark.text-primary",
+        "radius-token": "radius.2xl",
+        "max-width-percent": 0.8
+      }
+    },
+    "message-gap-token": "spacing.2",
+    "section-padding-token": "spacing.4",
+    "recommendation-card": {
+      "padding-x-token": "spacing.4",
+      "padding-y-token": "spacing.3",
+      "radius-token": "radius.xl",
+      "elevation-token": "elevation.sm",
+      "elevation-dark-token": "elevation.dark.sm"
+    }
+  }
+}
