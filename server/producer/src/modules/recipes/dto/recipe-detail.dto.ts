@@ -30,6 +30,12 @@ export class RecipeInstructionStepDto {
 }
 
 export class RecipeDetailDto extends RecipeSummaryDto {
+  @ApiProperty({ example: 1, description: '레시피 카테고리 ID' })
+  category: number;
+
+  @ApiProperty({ example: '한식', description: '레시피 카테고리 표시명' })
+  categoryName: string;
+
   @ApiProperty({
     type: [RecipeInstructionStepDto],
     description: '조리 단계',

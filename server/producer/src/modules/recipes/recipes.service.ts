@@ -15,6 +15,7 @@ import {
   RecipeInstructionStepDto,
 } from './dto/recipe-detail.dto';
 import { PaginationDto } from './dto/pagination.dto';
+import { RecipeCategoryDto } from './dto/recipe-category.dto';
 
 export interface ActivityContext {
   userId?: number;
@@ -23,6 +24,7 @@ export interface ActivityContext {
 }
 
 type RecipeWithIngredients = Recipe & {
+  categoryMeta: { id: number; key: string; name: string };
   recipeIngredients: Array<{
     id: number;
     amount: unknown;
@@ -130,6 +132,25 @@ export class RecipeQueryService {
     return data.map((r) => this.toSummaryDto(r as Recipe));
   }
 
+  async getCategories(): Promise<{ data: RecipeCategoryDto[] }> {
+    const data = await this.cacheService.getOrSet(
+      this.recipeCacheStrategy,
+      async () => {
+        const categories = await this.recipeRepository.findActiveCategories();
+        return categories.map((category) => ({
+          id: category.id,
+          key: category.key,
+          name: category.name,
+          displayOrder: category.displayOrder,
+          isActive: category.isActive,
+        }));
+      },
+      'categories',
+    );
+
+    return { data };
+  }
+
   private toSummaryDto(recipe: Recipe): RecipeSummaryDto {
     return {
       id: recipe.id,
@@ -159,6 +180,8 @@ export class RecipeQueryService {
 
     return {
       ...this.toSummaryDto(recipe),
+      category: recipe.category,
+      categoryName: recipe.categoryMeta.name,
       instructions,
       ingredients,
     };

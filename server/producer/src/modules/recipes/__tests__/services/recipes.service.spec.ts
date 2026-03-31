@@ -14,6 +14,12 @@ describe('RecipeQueryService', () => {
 
   const mockRecipe = {
     id: 1,
+    category: 1,
+    categoryMeta: {
+      id: 1,
+      key: 'KOREAN',
+      name: '한식',
+    },
     title: '김치볶음밥',
     description: '간단한 김치볶음밥',
     difficulty: 1,
@@ -38,6 +44,14 @@ describe('RecipeQueryService', () => {
     ],
   };
 
+  const mockCategory = {
+    id: 1,
+    key: 'KOREAN',
+    name: '한식',
+    displayOrder: 1,
+    isActive: true,
+  };
+
   beforeEach(async () => {
     const mockRepo = {
       findById: jest.fn().mockResolvedValue(mockRecipe),
@@ -50,6 +64,7 @@ describe('RecipeQueryService', () => {
         total: 1,
       }),
       findSummariesByIds: jest.fn().mockResolvedValue([mockRecipe]),
+      findActiveCategories: jest.fn().mockResolvedValue([mockCategory]),
     };
 
     const mockCacheService = {
@@ -177,6 +192,8 @@ describe('RecipeQueryService', () => {
         viewCount: 0,
         isPublished: true,
         createdAt: new Date(),
+        category: 1,
+        categoryName: '한식',
         instructions: [],
         ingredients: [],
       };
@@ -233,6 +250,30 @@ describe('RecipeQueryService', () => {
         page: 1,
         size: 20,
       });
+    });
+  });
+
+  describe('getCategories', () => {
+    it('활성 레시피 카테고리 목록을 조회해 data를 반환한다', async () => {
+      const result = await service.getCategories();
+
+      expect(cacheService.getOrSet).toHaveBeenCalledWith(
+        recipeCacheStrategy,
+        expect.any(Function),
+        'categories',
+      );
+      expect(recipeRepository.findActiveCategories).toHaveBeenCalled();
+      expect(result.data).toEqual([mockCategory]);
+    });
+
+    it('캐시에 카테고리 목록이 있으면 Repository를 호출하지 않는다', async () => {
+      const cached = [mockCategory];
+      cacheService.getOrSet.mockResolvedValue(cached);
+
+      const result = await service.getCategories();
+
+      expect(result.data).toEqual(cached);
+      expect(recipeRepository.findActiveCategories).not.toHaveBeenCalled();
     });
   });
 });

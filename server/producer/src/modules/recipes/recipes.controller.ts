@@ -20,6 +20,7 @@ import { PaginationDto } from './dto/pagination.dto';
 import { RecipeListQueryDto } from './dto/recipe-list-query.dto';
 import { RecipeSearchQueryDto } from './dto/recipe-search-query.dto';
 import { RecipeIdsDto } from './dto/recipe-ids.dto';
+import { RecipeCategoryDto } from './dto/recipe-category.dto';
 
 @ApiTags('Recipe')
 @Controller('api/v1/recipes')
@@ -75,6 +76,26 @@ export class RecipesController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
   async getSummaries(@Body() dto: RecipeIdsDto): Promise<RecipeSummaryDto[]> {
     return this.recipeQueryService.getSummariesByIds(dto.ids);
+  }
+
+  @Get('categories')
+  @ApiOperation({ summary: '레시피 카테고리 목록 조회' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '레시피 카테고리 목록 조회 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/RecipeCategory' },
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  async getCategories(): Promise<{ data: RecipeCategoryDto[] }> {
+    return this.recipeQueryService.getCategories();
   }
 
   @Get('search')

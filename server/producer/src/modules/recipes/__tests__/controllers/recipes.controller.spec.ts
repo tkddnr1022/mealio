@@ -32,10 +32,20 @@ describe('RecipesController', () => {
 
   const mockDetail: RecipeDetailDto = {
     ...mockSummary,
+    category: 1,
+    categoryName: '한식',
     instructions: [{ step: 1, content: '재료를 준비한다.', imageUrl: null }],
     ingredients: [
       { id: 1, name: '김치', amount: 100, unit: 'g', isOptional: false },
     ],
+  };
+
+  const mockCategory = {
+    id: 1,
+    key: 'KOREAN',
+    name: '한식',
+    displayOrder: 1,
+    isActive: true,
   };
 
   beforeEach(async () => {
@@ -50,6 +60,7 @@ describe('RecipesController', () => {
         pagination: mockPagination,
       }),
       getSummariesByIds: jest.fn().mockResolvedValue([mockSummary]),
+      getCategories: jest.fn().mockResolvedValue({ data: [mockCategory] }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -149,6 +160,15 @@ describe('RecipesController', () => {
 
       await expect(controller.getById(999)).rejects.toThrow(NotFoundException);
       await expect(controller.getById(999)).rejects.toThrow('Recipe not found');
+    });
+  });
+
+  describe('getCategories', () => {
+    it('레시피 카테고리 목록을 조회하고 data 배열을 반환한다', async () => {
+      const result = await controller.getCategories();
+
+      expect(recipeQueryService.getCategories).toHaveBeenCalled();
+      expect(result.data).toEqual([mockCategory]);
     });
   });
 });

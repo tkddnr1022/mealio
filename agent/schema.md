@@ -16,6 +16,7 @@
 ### 핵심 도메인 엔티티 (RDB / Prisma)
 
 * **User**: 서비스를 이용하는 사용자
+* **RecipeCategory**: 레시피 카테고리 마스터 데이터
 * **Recipe**: 요리 레시피
 * **IngredientCategory**: 재료 카테고리 마스터 데이터
 * **Ingredient**: 재료 마스터 데이터
@@ -54,11 +55,35 @@
 
 ---
 
-### 2.2 Recipe
+### 2.2 RecipeCategory
+
+**의미**
+
+* 레시피 카테고리 마스터 데이터
+* 카테고리 ID/키/표시명/정렬/활성화 상태를 단일 소스(SSOT)로 관리
+
+**필드 설명** (Prisma `RecipeCategory` ↔ DB 컬럼)
+
+| 필드 (Prisma) | DB 컬럼      | 타입         | 의미                                |
+| ------------- | ------------ | ------------ | ----------------------------------- |
+| id            | id           | INT          | 카테고리 ID (PK, 수동 부여)         |
+| key           | key          | VARCHAR(50)  | 불변 카테고리 키 (`KOREAN`, `WESTERN` 등, UNIQUE) |
+| name          | name         | VARCHAR(100) | 사용자 표시용 카테고리 이름         |
+| displayOrder  | display_order| INT          | 카테고리 노출 정렬 순서 (기본 0)    |
+| isActive      | is_active    | BOOLEAN      | 사용 여부 (기본 true)               |
+| createdAt     | created_at   | TIMESTAMP    | 생성 시각                           |
+| updatedAt     | updated_at   | TIMESTAMP    | 수정 시각                           |
+
+**인덱스**: `(is_active, display_order)`, `UNIQUE(key)`
+
+---
+
+### 2.3 Recipe
 
 **의미**
 
 * 요리 레시피의 메타 정보와 조리 절차를 포함
+* `RecipeCategory`와 FK로 연결되어 카테고리 무결성 보장
 
 **특징**
 
@@ -69,6 +94,7 @@
 | 필드 (Prisma)   | DB 컬럼      | 타입            | 의미                             |
 | --------------- | ------------ | --------------- | -------------------------------- |
 | id              | id           | INT / SERIAL    | 레시피 ID (PK)                   |
+| category        | category     | INT             | 레시피 카테고리 ID (`RecipeCategory.id` FK) |
 | title           | title        | VARCHAR(100)    | 레시피 제목                      |
 | description     | description  | TEXT            | 레시피 요약 설명 (nullable)      |
 | instructions    | instructions | JSON            | 조리 단계 (순서/텍스트/타이머 등) |
@@ -81,11 +107,12 @@
 | createdAt       | created_at   | TIMESTAMP       | 생성 시각                        |
 | updatedAt       | updated_at   | TIMESTAMP       | 수정 시각                        |
 
+**제약**: `FK(category) -> RecipeCategory(id)`  
 **인덱스**: `(difficulty, cook_time, created_at)`, `(created_at DESC)`
 
 ---
 
-### 2.3 IngredientCategory
+### 2.4 IngredientCategory
 
 **의미**
 
@@ -108,7 +135,7 @@
 
 ---
 
-### 2.4 Ingredient
+### 2.5 Ingredient
 
 **의미**
 
@@ -129,7 +156,7 @@
 
 ---
 
-### 2.5 RecipeIngredient
+### 2.6 RecipeIngredient
 
 **의미**
 

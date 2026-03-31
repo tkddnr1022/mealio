@@ -18,6 +18,14 @@ export interface RecipeSearchParams {
   size: number;
 }
 
+export interface RecipeCategoryRow {
+  id: number;
+  key: string;
+  name: string;
+  displayOrder: number;
+  isActive: boolean;
+}
+
 @Injectable()
 export class RecipeRepository {
   constructor(private prisma: PrismaService) {}
@@ -26,6 +34,9 @@ export class RecipeRepository {
     return this.prisma.recipe.findUnique({
       where: { id, isPublished: true },
       include: {
+        categoryMeta: {
+          select: { id: true, key: true, name: true },
+        },
         recipeIngredients: {
           include: {
             ingredient: true,
@@ -146,5 +157,19 @@ export class RecipeRepository {
         createdAt: 'desc',
       },
     });
+  }
+
+  async findActiveCategories(): Promise<RecipeCategoryRow[]> {
+    return this.prisma.$queryRaw<RecipeCategoryRow[]>`
+      SELECT
+        "id",
+        "key",
+        "name",
+        "display_order" AS "displayOrder",
+        "is_active" AS "isActive"
+      FROM "RecipeCategory"
+      WHERE "is_active" = true
+      ORDER BY "display_order" ASC, "id" ASC
+    `;
   }
 }
