@@ -3,6 +3,7 @@ import { IngredientRepository } from '../../infrastructure/database/repositories
 import { CacheService } from '../../infrastructure/cache/cache.service';
 import { IngredientCacheStrategy } from '../../infrastructure/cache/strategies/ingredient-cache-strategy';
 import { IngredientDto } from './dto/ingredient.dto';
+import { IngredientCategoryDto } from './dto/ingredient-category.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { Ingredient } from '@cook/shared/prisma-client';
 
@@ -63,6 +64,25 @@ export class IngredientQueryService {
       },
       'search',
       keyword,
+    );
+
+    return { data };
+  }
+
+  async getCategories(): Promise<{ data: IngredientCategoryDto[] }> {
+    const data = await this.cacheService.getOrSet(
+      this.ingredientCacheStrategy,
+      async () => {
+        const categories = await this.ingredientRepository.findActiveCategories();
+        return categories.map((category) => ({
+          id: category.id,
+          key: category.key,
+          name: category.name,
+          displayOrder: category.displayOrder,
+          isActive: category.isActive,
+        }));
+      },
+      'categories',
     );
 
     return { data };

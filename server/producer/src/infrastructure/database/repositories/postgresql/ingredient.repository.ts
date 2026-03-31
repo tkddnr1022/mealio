@@ -13,6 +13,14 @@ export interface IngredientSearchParams {
   take: number;
 }
 
+export interface IngredientCategoryRow {
+  id: number;
+  key: string;
+  name: string;
+  displayOrder: number;
+  isActive: boolean;
+}
+
 @Injectable()
 export class IngredientRepository {
   constructor(private prisma: PrismaService) {}
@@ -59,6 +67,20 @@ export class IngredientRepository {
       take,
       orderBy: [{ category: 'asc' }, { name: 'asc' }],
     });
+  }
+
+  async findActiveCategories(): Promise<IngredientCategoryRow[]> {
+    return this.prisma.$queryRaw<IngredientCategoryRow[]>`
+      SELECT
+        "id",
+        "key",
+        "name",
+        "display_order" AS "displayOrder",
+        "is_active" AS "isActive"
+      FROM "IngredientCategory"
+      WHERE "is_active" = true
+      ORDER BY "display_order" ASC, "id" ASC
+    `;
   }
 
   // Command 메서드들은 producer 서버에서 제거

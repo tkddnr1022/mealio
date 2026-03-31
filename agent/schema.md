@@ -1,4 +1,4 @@
-﻿# 통합 데이터 스키마 설명 (Relational + NoSQL)
+# 통합 데이터 스키마 설명 (Relational + NoSQL)
 
 본 문서는 **레시피 추천/요리 보조 서비스**의 데이터 스키마를 LLM이 이해하고 활용할 수 있도록 **의미 중심(Semantic)** 으로 설명한 통합 스키마 문서이다.
 
@@ -17,6 +17,7 @@
 
 * **User**: 서비스를 이용하는 사용자
 * **Recipe**: 요리 레시피
+* **IngredientCategory**: 재료 카테고리 마스터 데이터
 * **Ingredient**: 재료 마스터 데이터
 * **RecipeIngredient**: 레시피와 재료 간의 다대다 관계
 
@@ -84,11 +85,35 @@
 
 ---
 
-### 2.3 Ingredient
+### 2.3 IngredientCategory
+
+**의미**
+
+* 재료 카테고리 마스터 데이터
+* 카테고리 ID/키/표시명/정렬/활성화 상태를 단일 소스(SSOT)로 관리
+
+**필드 설명** (Prisma `IngredientCategory` ↔ DB 컬럼)
+
+| 필드 (Prisma) | DB 컬럼      | 타입         | 의미                                |
+| ------------- | ------------ | ------------ | ----------------------------------- |
+| id            | id           | INT          | 카테고리 ID (PK, 수동 부여)         |
+| key           | key          | VARCHAR(50)  | 불변 카테고리 키 (`VEGETABLE` 등, UNIQUE) |
+| name          | name         | VARCHAR(100) | 사용자 표시용 카테고리 이름         |
+| displayOrder  | display_order| INT          | 카테고리 노출 정렬 순서 (기본 0)    |
+| isActive      | is_active    | BOOLEAN      | 사용 여부 (기본 true)               |
+| createdAt     | created_at   | TIMESTAMP    | 생성 시각                           |
+| updatedAt     | updated_at   | TIMESTAMP    | 수정 시각                           |
+
+**인덱스**: `(is_active, display_order)`, `UNIQUE(key)`
+
+---
+
+### 2.4 Ingredient
 
 **의미**
 
 * 재료 마스터 데이터
+* `IngredientCategory`와 FK로 연결되어 카테고리 무결성 보장
 
 **필드 설명** (Prisma `Ingredient` ↔ DB 컬럼)
 
@@ -96,14 +121,15 @@
 | ------------- | ---------- | ------------ | -------------------------------- |
 | id            | id         | INT / SERIAL | 재료 ID (PK)                     |
 | name          | name       | VARCHAR(100) | 재료명                           |
-| category      | category   | INT          | 재료 카테고리 (채소/육류/양념 등) |
+| category      | category   | INT          | 재료 카테고리 ID (`IngredientCategory.id` FK) |
 | createdAt     | created_at | TIMESTAMP    | 생성 시각                        |
 
+**제약**: `FK(category) -> IngredientCategory(id)`  
 **인덱스**: `(category, name)`
 
 ---
 
-### 2.4 RecipeIngredient
+### 2.5 RecipeIngredient
 
 **의미**
 

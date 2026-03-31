@@ -22,12 +22,21 @@ describe('IngredientsController', () => {
     totalPages: 2,
   };
 
+  const mockCategory = {
+    id: 1,
+    key: 'VEGETABLE',
+    name: '채소',
+    displayOrder: 1,
+    isActive: true,
+  };
+
   beforeEach(async () => {
     const mockService = {
       getList: jest.fn().mockResolvedValue({
         data: [mockIngredient],
         pagination: mockPagination,
       }),
+      getCategories: jest.fn().mockResolvedValue({ data: [mockCategory] }),
       search: jest.fn().mockResolvedValue({ data: [mockIngredient] }),
     };
 
@@ -82,6 +91,15 @@ describe('IngredientsController', () => {
 
       expect(ingredientQueryService.search).toHaveBeenCalledWith('양파');
       expect(result.data).toEqual([mockIngredient]);
+    });
+  });
+
+  describe('getCategories', () => {
+    it('재료 카테고리 목록을 조회하고 data 배열을 반환한다', async () => {
+      const result = await controller.getCategories();
+
+      expect(ingredientQueryService.getCategories).toHaveBeenCalled();
+      expect(result.data).toEqual([mockCategory]);
     });
   });
 });

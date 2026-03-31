@@ -17,6 +17,14 @@ describe('IngredientQueryService', () => {
     createdAt: new Date('2025-01-01T00:00:00.000Z'),
   };
 
+  const mockCategory = {
+    id: 1,
+    key: 'VEGETABLE',
+    name: '채소',
+    displayOrder: 1,
+    isActive: true,
+  };
+
   beforeEach(async () => {
     const mockRepo = {
       findManyPaginated: jest.fn().mockResolvedValue({
@@ -24,6 +32,7 @@ describe('IngredientQueryService', () => {
         total: 1,
       }),
       searchByKeyword: jest.fn().mockResolvedValue([mockIngredient]),
+      findActiveCategories: jest.fn().mockResolvedValue([mockCategory]),
     };
 
     const mockCacheService = {
@@ -154,6 +163,30 @@ describe('IngredientQueryService', () => {
 
       expect(result.data).toEqual(cached);
       expect(ingredientRepository.searchByKeyword).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getCategories', () => {
+    it('활성 카테고리 목록을 조회해 data를 반환한다', async () => {
+      const result = await service.getCategories();
+
+      expect(cacheService.getOrSet).toHaveBeenCalledWith(
+        ingredientCacheStrategy,
+        expect.any(Function),
+        'categories',
+      );
+      expect(ingredientRepository.findActiveCategories).toHaveBeenCalled();
+      expect(result.data).toEqual([mockCategory]);
+    });
+
+    it('캐시에 카테고리 목록이 있으면 Repository를 호출하지 않는다', async () => {
+      const cached = [mockCategory];
+      cacheService.getOrSet.mockResolvedValue(cached);
+
+      const result = await service.getCategories();
+
+      expect(result.data).toEqual(cached);
+      expect(ingredientRepository.findActiveCategories).not.toHaveBeenCalled();
     });
   });
 });

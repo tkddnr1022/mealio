@@ -10,13 +10,47 @@ const connectionString = process.env.POSTGRESQL_URL!;
 
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
+const prismaAny = prisma as any;
+
+const INGREDIENT_CATEGORIES = [
+  {
+    id: 1,
+    key: 'VEGETABLE',
+    name: '채소',
+    displayOrder: 1,
+  },
+  {
+    id: 2,
+    key: 'MEAT',
+    name: '육류',
+    displayOrder: 2,
+  },
+  {
+    id: 3,
+    key: 'SEASONING',
+    name: '양념',
+    displayOrder: 3,
+  },
+  {
+    id: 4,
+    key: 'GRAIN',
+    name: '곡류',
+    displayOrder: 4,
+  },
+  {
+    id: 5,
+    key: 'DAIRY',
+    name: '유제품',
+    displayOrder: 5,
+  },
+] as const;
 
 const INGREDIENT_CATEGORY = {
-  VEGETABLE: 1,
-  MEAT: 2,
-  SEASONING: 3,
-  GRAIN: 4,
-  DAIRY: 5,
+  VEGETABLE: INGREDIENT_CATEGORIES[0].id,
+  MEAT: INGREDIENT_CATEGORIES[1].id,
+  SEASONING: INGREDIENT_CATEGORIES[2].id,
+  GRAIN: INGREDIENT_CATEGORIES[3].id,
+  DAIRY: INGREDIENT_CATEGORIES[4].id,
 } as const;
 
 async function main() {
@@ -58,7 +92,30 @@ async function main() {
   }
   console.log(`  ✓ 유저 ${users.length}명 생성/확인`);
 
-  // 1. 재료 생성 (레시피에서 공통 사용)
+  // 1. 재료 카테고리 마스터 생성/확인
+  for (const category of INGREDIENT_CATEGORIES) {
+    await prismaAny.ingredientCategory.upsert({
+      where: { id: category.id },
+      create: {
+        id: category.id,
+        key: category.key,
+        name: category.name,
+        displayOrder: category.displayOrder,
+        isActive: true,
+      },
+      update: {
+        key: category.key,
+        name: category.name,
+        displayOrder: category.displayOrder,
+        isActive: true,
+      },
+    });
+  }
+  console.log(
+    `  ✓ 재료 카테고리 ${INGREDIENT_CATEGORIES.length}개 생성/확인`,
+  );
+
+  // 2. 재료 생성 (레시피에서 공통 사용)
   const ingredientNames: { name: string; category: number }[] = [
     { name: '밥', category: INGREDIENT_CATEGORY.GRAIN },
     { name: '김치', category: INGREDIENT_CATEGORY.VEGETABLE },
@@ -93,6 +150,11 @@ async function main() {
     let ing = await prisma.ingredient.findFirst({ where: { name } });
     if (!ing) {
       ing = await prisma.ingredient.create({ data: { name, category } });
+    } else if (ing.category !== category) {
+      ing = await prisma.ingredient.update({
+        where: { id: ing.id },
+        data: { category },
+      });
     }
     createdIngredients[name] = ing.id;
   }
@@ -111,7 +173,7 @@ async function main() {
     isOptional,
   });
 
-  // 2. 레시피 10개 생성
+  // 3. 레시피 10개 생성
   const recipes = [
     {
       title: '김치볶음밥',
