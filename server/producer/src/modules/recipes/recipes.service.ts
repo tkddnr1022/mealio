@@ -54,9 +54,9 @@ export class RecipeQueryService {
     const difficultyKey =
       params.difficulty && params.difficulty.length > 0
         ? [...params.difficulty].sort((a, b) => a - b).join(',')
-        : CACHE_KEY_SEGMENT.CATEGORY_ALL;
+        : CACHE_KEY_SEGMENT.ALL;
     const cookTimeKey =
-      params.cookTime ?? CACHE_KEY_SEGMENT.CATEGORY_ALL;
+      params.cookTime ?? CACHE_KEY_SEGMENT.ALL;
     const sortKey = params.sort ?? 'latest';
 
     return this.cacheService.getOrSet(

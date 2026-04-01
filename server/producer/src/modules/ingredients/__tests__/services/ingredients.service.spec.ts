@@ -96,7 +96,7 @@ describe('IngredientQueryService', () => {
         ingredientCacheStrategy,
         expect.any(Function),
         CACHE_KEY_SEGMENT.LIST,
-        CACHE_KEY_SEGMENT.CATEGORY_ALL,
+        CACHE_KEY_SEGMENT.ALL,
         1,
         50,
       );
@@ -164,7 +164,7 @@ describe('IngredientQueryService', () => {
         expect.any(Function),
         CACHE_KEY_SEGMENT.SEARCH,
         '양파',
-        CACHE_KEY_SEGMENT.CATEGORY_ALL,
+        CACHE_KEY_SEGMENT.ALL,
         1,
         50,
       );
@@ -198,8 +198,8 @@ describe('IngredientQueryService', () => {
         ingredientCacheStrategy,
         expect.any(Function),
         CACHE_KEY_SEGMENT.SEARCH,
-        CACHE_KEY_SEGMENT.CATEGORY_ALL,
-        CACHE_KEY_SEGMENT.CATEGORY_ALL,
+        CACHE_KEY_SEGMENT.ALL,
+        CACHE_KEY_SEGMENT.ALL,
         1,
         10,
       );

@@ -25,8 +25,8 @@ export const CACHE_KEY_SEGMENT = {
   LIST: 'list',
   SEARCH: 'search',
   CATEGORIES: 'categories',
-  /** 카테고리 미지정 목록 조회 시 목록 키에 사용 */
-  CATEGORY_ALL: 'all',
+  /** 미지정 목록 조회 시 목록 키에 사용 */
+  ALL: 'all',
   /**
    * Consumer 챗봇: 재료 단건 메타데이터 Redis 캐시
    * `ingredient:by-id:{id}` 형태의 두 번째 세그먼트
