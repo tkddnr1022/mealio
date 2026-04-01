@@ -36,7 +36,10 @@ describe('IngredientQueryService', () => {
         data: [mockIngredient],
         total: 1,
       }),
-      searchByKeyword: jest.fn().mockResolvedValue([mockIngredient]),
+      searchByKeyword: jest.fn().mockResolvedValue({
+        data: [mockIngredient],
+        total: 1,
+      }),
       findActiveCategories: jest.fn().mockResolvedValue([mockCategory]),
     };
 
@@ -141,18 +144,27 @@ describe('IngredientQueryService', () => {
   });
 
   describe('search', () => {
-    it('키워드로 searchByKeyword를 호출하고 data를 반환한다', async () => {
-      const result = await service.search('양파');
+    it('키워드로 searchByKeyword를 호출하고 data·pagination을 반환한다', async () => {
+      const result = await service.search({
+        q: '양파',
+        page: 1,
+        size: 50,
+      });
 
       expect(cacheService.getOrSet).toHaveBeenCalledWith(
         ingredientCacheStrategy,
         expect.any(Function),
         CACHE_KEY_SEGMENT.SEARCH,
         '양파',
+        CACHE_KEY_SEGMENT.CATEGORY_ALL,
+        1,
+        50,
       );
       expect(ingredientRepository.searchByKeyword).toHaveBeenCalledWith({
         keyword: '양파',
-        take: 50,
+        categoryId: undefined,
+        page: 1,
+        size: 50,
       });
       expect(result.data).toHaveLength(1);
       expect(result.data[0]).toEqual({
@@ -160,15 +172,76 @@ describe('IngredientQueryService', () => {
         name: '양파',
         categoryId: 1,
       });
+      expect(result.pagination).toEqual({
+        page: 1,
+        size: 50,
+        total: 1,
+        totalPages: 1,
+      });
+    });
+
+    it('키워드 없이 조회하면 이름 필터 없이 searchByKeyword를 호출한다', async () => {
+      await service.search({
+        page: 1,
+        size: 10,
+      });
+
+      expect(cacheService.getOrSet).toHaveBeenCalledWith(
+        ingredientCacheStrategy,
+        expect.any(Function),
+        CACHE_KEY_SEGMENT.SEARCH,
+        CACHE_KEY_SEGMENT.CATEGORY_ALL,
+        CACHE_KEY_SEGMENT.CATEGORY_ALL,
+        1,
+        10,
+      );
+      expect(ingredientRepository.searchByKeyword).toHaveBeenCalledWith({
+        keyword: undefined,
+        categoryId: undefined,
+        page: 1,
+        size: 10,
+      });
+    });
+
+    it('categoryId가 있으면 해당 카테고리로 검색한다', async () => {
+      await service.search({
+        q: '파',
+        categoryId: 2,
+        page: 2,
+        size: 20,
+      });
+
+      expect(ingredientRepository.searchByKeyword).toHaveBeenCalledWith({
+        keyword: '파',
+        categoryId: 2,
+        page: 2,
+        size: 20,
+      });
+      expect(cacheService.getOrSet).toHaveBeenCalledWith(
+        ingredientCacheStrategy,
+        expect.any(Function),
+        CACHE_KEY_SEGMENT.SEARCH,
+        '파',
+        2,
+        2,
+        20,
+      );
     });
 
     it('캐시에 검색 결과가 있으면 Repository를 호출하지 않는다', async () => {
-      const cached = [{ id: 3, name: '감자', categoryId: 1 }];
+      const cached = {
+        data: [{ id: 3, name: '감자', categoryId: 1 }],
+        pagination: { page: 1, size: 50, total: 1, totalPages: 1 },
+      };
       cacheService.getOrSet.mockResolvedValue(cached);
 
-      const result = await service.search('감자');
+      const result = await service.search({
+        q: '감자',
+        page: 1,
+        size: 50,
+      });
 
-      expect(result.data).toEqual(cached);
+      expect(result).toEqual(cached);
       expect(ingredientRepository.searchByKeyword).not.toHaveBeenCalled();
     });
   });

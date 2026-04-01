@@ -37,7 +37,10 @@ describe('IngredientsController', () => {
         pagination: mockPagination,
       }),
       getCategories: jest.fn().mockResolvedValue({ data: [mockCategory] }),
-      search: jest.fn().mockResolvedValue({ data: [mockIngredient] }),
+      search: jest.fn().mockResolvedValue({
+        data: [mockIngredient],
+        pagination: mockPagination,
+      }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -85,12 +88,42 @@ describe('IngredientsController', () => {
   });
 
   describe('search', () => {
-    it('키워드로 검색하고 data 배열을 반환한다', async () => {
+    it('키워드로 검색하고 data·pagination을 반환한다', async () => {
       const query = { q: '양파' };
       const result = await controller.search(query);
 
-      expect(ingredientQueryService.search).toHaveBeenCalledWith('양파');
+      expect(ingredientQueryService.search).toHaveBeenCalledWith({
+        q: '양파',
+        categoryId: undefined,
+        page: 1,
+        size: 50,
+      });
       expect(result.data).toEqual([mockIngredient]);
+      expect(result.pagination).toEqual(mockPagination);
+    });
+
+    it('categoryId·page·size를 서비스에 전달한다', async () => {
+      const query = { q: '파', categoryId: 2, page: 2, size: 20 };
+      await controller.search(query);
+
+      expect(ingredientQueryService.search).toHaveBeenCalledWith({
+        q: '파',
+        categoryId: 2,
+        page: 2,
+        size: 20,
+      });
+    });
+
+    it('q 없이 호출해도 page·size는 서비스로 전달된다', async () => {
+      const query = { page: 2, size: 20 };
+      await controller.search(query);
+
+      expect(ingredientQueryService.search).toHaveBeenCalledWith({
+        q: undefined,
+        categoryId: undefined,
+        page: 2,
+        size: 20,
+      });
     });
   });
 

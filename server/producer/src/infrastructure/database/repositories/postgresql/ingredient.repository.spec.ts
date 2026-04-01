@@ -19,6 +19,7 @@ describe('IngredientRepository', () => {
       findUnique: jest.fn().mockResolvedValue(mockIngredient),
       findFirst: jest.fn().mockResolvedValue(mockIngredient),
       findMany: jest.fn().mockResolvedValue([mockIngredient]),
+      count: jest.fn().mockResolvedValue(1),
       create: jest.fn().mockResolvedValue(mockIngredient),
     },
   };
@@ -63,19 +64,59 @@ describe('IngredientRepository', () => {
   });
 
   describe('searchByKeyword', () => {
-    it('should search ingredients by keyword', async () => {
+    it('should search ingredients by keyword with pagination', async () => {
       const result = await repository.searchByKeyword({
         keyword: 'Sa',
-        take: 10,
+        page: 1,
+        size: 10,
       });
       expect(prisma.ingredient.findMany).toHaveBeenCalledWith({
         where: {
           name: { contains: 'Sa', mode: 'insensitive' },
         },
+        skip: 0,
         take: 10,
         orderBy: [{ categoryId: 'asc' }, { name: 'asc' }],
       });
-      expect(result).toEqual([mockIngredient]);
+      expect(prisma.ingredient.count).toHaveBeenCalledWith({
+        where: {
+          name: { contains: 'Sa', mode: 'insensitive' },
+        },
+      });
+      expect(result).toEqual({ data: [mockIngredient], total: 1 });
+    });
+
+    it('should filter by categoryId when provided', async () => {
+      await repository.searchByKeyword({
+        keyword: 'a',
+        categoryId: 3,
+        page: 2,
+        size: 5,
+      });
+      expect(prisma.ingredient.findMany).toHaveBeenCalledWith({
+        where: {
+          name: { contains: 'a', mode: 'insensitive' },
+          categoryId: 3,
+        },
+        skip: 5,
+        take: 5,
+        orderBy: [{ categoryId: 'asc' }, { name: 'asc' }],
+      });
+    });
+
+    it('should omit name filter when keyword is absent', async () => {
+      const result = await repository.searchByKeyword({
+        page: 1,
+        size: 15,
+      });
+      expect(prisma.ingredient.findMany).toHaveBeenCalledWith({
+        where: {},
+        skip: 0,
+        take: 15,
+        orderBy: [{ categoryId: 'asc' }, { name: 'asc' }],
+      });
+      expect(prisma.ingredient.count).toHaveBeenCalledWith({ where: {} });
+      expect(result).toEqual({ data: [mockIngredient], total: 1 });
     });
   });
 

@@ -56,24 +56,47 @@ export class IngredientQueryService {
     return result;
   }
 
-  async search(q: string): Promise<{ data: IngredientDto[] }> {
-    const keyword = q.trim();
-    const SEARCH_LIMIT = 50;
+  async search(params: {
+    q?: string;
+    categoryId?: number;
+    page: number;
+    size: number;
+  }): Promise<{ data: IngredientDto[]; pagination: PaginationDto }> {
+    const raw = params.q?.trim() ?? '';
+    const keyword = raw.length > 0 ? raw : undefined;
+    const cacheKeyKeyword = keyword ?? CACHE_KEY_SEGMENT.CATEGORY_ALL;
+    const cacheKeyCategory =
+      params.categoryId ?? CACHE_KEY_SEGMENT.CATEGORY_ALL;
 
-    const data = await this.cacheService.getOrSet(
+    const result = await this.cacheService.getOrSet(
       this.ingredientCacheStrategy,
       async () => {
-        const ingredients = await this.ingredientRepository.searchByKeyword({
-          keyword,
-          take: SEARCH_LIMIT,
-        });
-        return ingredients.map((i) => this.toDto(i));
+        const { data, total } =
+          await this.ingredientRepository.searchByKeyword({
+            keyword,
+            categoryId: params.categoryId,
+            page: params.page,
+            size: params.size,
+          });
+        const totalPages = Math.ceil(total / params.size) || 1;
+        return {
+          data: data.map((i) => this.toDto(i)),
+          pagination: {
+            page: params.page,
+            size: params.size,
+            total,
+            totalPages,
+          },
+        };
       },
       CACHE_KEY_SEGMENT.SEARCH,
-      keyword,
+      cacheKeyKeyword,
+      cacheKeyCategory,
+      params.page,
+      params.size,
     );
 
-    return { data };
+    return result;
   }
 
   async getCategories(): Promise<{ data: IngredientCategoryDto[] }> {

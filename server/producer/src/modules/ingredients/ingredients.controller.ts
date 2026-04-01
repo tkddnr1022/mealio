@@ -88,6 +88,7 @@ export class IngredientsController {
           type: 'array',
           items: { $ref: '#/components/schemas/IngredientDto' },
         },
+        pagination: { $ref: '#/components/schemas/PaginationDto' },
       },
     },
   })
@@ -96,7 +97,14 @@ export class IngredientsController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
   async search(
     @Query() query: IngredientSearchQueryDto,
-  ): Promise<{ data: IngredientDto[] }> {
-    return this.ingredientQueryService.search(query.q);
+  ): Promise<{ data: IngredientDto[]; pagination: PaginationDto }> {
+    const page = query.page ?? 1;
+    const size = query.size ?? 50;
+    return this.ingredientQueryService.search({
+      q: query.q,
+      categoryId: query.categoryId,
+      page,
+      size,
+    });
   }
 }

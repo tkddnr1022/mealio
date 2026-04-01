@@ -676,7 +676,7 @@ paths:
       tags:
         - Ingredient
       summary: 재료 검색
-      description: 키워드로 재료 검색
+      description: 재료 검색 (키워드·카테고리·페이지 선택). 키워드를 생략하면 이름 필터 없이 조회합니다.
       parameters:
         - name: accessToken
           in: cookie
@@ -687,11 +687,32 @@ paths:
           example: "{{apiKey}}"
         - name: q
           in: query
-          required: true
-          description: 검색 키워드
+          required: false
+          description: 검색 키워드 (이름 부분 일치, 생략 가능)
           schema:
             type: string
             minLength: 1
+        - name: categoryId
+          in: query
+          description: 재료 카테고리 ID (GET /api/v1/ingredients/categories 응답의 id)
+          schema:
+            type: integer
+            minimum: 1
+        - name: page
+          in: query
+          description: 페이지 번호 (1부터)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: size
+          in: query
+          description: 페이지당 항목 수
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
       responses:
         '200':
           description: 검색 성공
@@ -704,6 +725,8 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Ingredient'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':

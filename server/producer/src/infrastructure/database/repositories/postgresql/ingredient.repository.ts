@@ -9,8 +9,11 @@ export interface IngredientListParams {
 }
 
 export interface IngredientSearchParams {
-  keyword: string;
-  take: number;
+  /** 비어 있거나 생략이면 이름 조건 없음 */
+  keyword?: string;
+  categoryId?: number;
+  page: number;
+  size: number;
 }
 
 export interface IngredientCategoryRow {
@@ -65,18 +68,36 @@ export class IngredientRepository {
     return { data, total };
   }
 
-  async searchByKeyword(params: IngredientSearchParams): Promise<Ingredient[]> {
-    const { keyword, take } = params;
-    return this.prisma.ingredient.findMany({
-      where: {
-        name: {
-          contains: keyword,
-          mode: 'insensitive',
-        },
-      },
-      take,
-      orderBy: [{ categoryId: 'asc' }, { name: 'asc' }],
-    });
+  async searchByKeyword(params: IngredientSearchParams): Promise<{
+    data: Ingredient[];
+    total: number;
+  }> {
+    const { keyword, categoryId, page, size } = params;
+    const skip = (page - 1) * size;
+    const hasKeyword = keyword != null && keyword.length > 0;
+    const where = {
+      ...(hasKeyword
+        ? {
+            name: {
+              contains: keyword,
+              mode: 'insensitive' as const,
+            },
+          }
+        : {}),
+      ...(categoryId != null ? { categoryId } : {}),
+    };
+
+    const [data, total] = await Promise.all([
+      this.prisma.ingredient.findMany({
+        where,
+        skip,
+        take: size,
+        orderBy: [{ categoryId: 'asc' }, { name: 'asc' }],
+      }),
+      this.prisma.ingredient.count({ where }),
+    ]);
+
+    return { data, total };
   }
 
   async findActiveCategories(): Promise<IngredientCategoryRow[]> {
