@@ -67,7 +67,7 @@ describe('IngredientsController', () => {
       const result = await controller.getList(query);
 
       expect(ingredientQueryService.getList).toHaveBeenCalledWith({
-        category: undefined,
+        categoryId: undefined,
         page: 1,
         size: 50,
       });
@@ -75,12 +75,12 @@ describe('IngredientsController', () => {
       expect(result.pagination).toEqual(mockPagination);
     });
 
-    it('category가 있으면 카테고리 필터로 조회한다', async () => {
-      const query = { category: 2, page: 1, size: 20 };
+    it('categoryId가 있으면 카테고리 필터로 조회한다', async () => {
+      const query = { categoryId: 2, page: 1, size: 20 };
       await controller.getList(query);
 
       expect(ingredientQueryService.getList).toHaveBeenCalledWith({
-        category: 2,
+        categoryId: 2,
         page: 1,
         size: 20,
       });

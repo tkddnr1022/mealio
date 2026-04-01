@@ -3,7 +3,7 @@ import { Ingredient } from '@cook/shared/prisma-client';
 import { PrismaService } from '@cook/shared';
 
 export interface IngredientListParams {
-  category?: number;
+  categoryId?: number;
   page: number;
   size: number;
 }
@@ -50,10 +50,10 @@ export class IngredientRepository {
     data: Ingredient[];
     total: number;
   }> {
-    const { category, page, size } = params;
+    const { categoryId, page, size } = params;
     const skip = (page - 1) * size;
 
-    const where = category != null ? { categoryId: category } : undefined;
+    const where = categoryId != null ? { categoryId } : undefined;
 
     const [data, total] = await Promise.all([
       this.prisma.ingredient.findMany({

@@ -101,7 +101,7 @@ describe('IngredientQueryService', () => {
         50,
       );
       expect(ingredientRepository.findManyPaginated).toHaveBeenCalledWith({
-        category: undefined,
+        categoryId: undefined,
         page: 1,
         size: 50,
       });
@@ -119,11 +119,11 @@ describe('IngredientQueryService', () => {
       });
     });
 
-    it('category가 있으면 카테고리 필터로 조회한다', async () => {
-      await service.getList({ category: 2, page: 1, size: 20 });
+    it('categoryId가 있으면 카테고리 필터로 조회한다', async () => {
+      await service.getList({ categoryId: 2, page: 1, size: 20 });
 
       expect(ingredientRepository.findManyPaginated).toHaveBeenCalledWith({
-        category: 2,
+        categoryId: 2,
         page: 1,
         size: 20,
       });

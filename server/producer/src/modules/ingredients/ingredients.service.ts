@@ -17,12 +17,12 @@ export class IngredientQueryService {
   ) {}
 
   async getList(params: {
-    category?: number;
+    categoryId?: number;
     page: number;
     size: number;
   }): Promise<{ data: IngredientDto[]; pagination: PaginationDto }> {
     const cacheKeyCategory =
-      params.category ?? CACHE_KEY_SEGMENT.CATEGORY_ALL;
+      params.categoryId ?? CACHE_KEY_SEGMENT.CATEGORY_ALL;
     const cacheKey = [
       CACHE_KEY_SEGMENT.LIST,
       cacheKeyCategory,
@@ -35,7 +35,7 @@ export class IngredientQueryService {
       async () => {
         const { data, total } =
           await this.ingredientRepository.findManyPaginated({
-            category: params.category,
+            categoryId: params.categoryId,
             page: params.page,
             size: params.size,
           });

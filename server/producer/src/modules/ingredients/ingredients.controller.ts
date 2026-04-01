@@ -49,7 +49,7 @@ export class IngredientsController {
     const page = query.page ?? 1;
     const size = query.size ?? 50;
     return this.ingredientQueryService.getList({
-      category: query.category,
+      categoryId: query.categoryId,
       page,
       size,
     });
