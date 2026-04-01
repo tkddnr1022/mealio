@@ -507,7 +507,7 @@ paths:
       tags:
         - Recipe
       summary: 레시피 검색
-      description: 키워드로 레시피 검색. 난이도·조리시간·카테고리·정렬 필터는 목록 API와 동일하게 선택 적용 가능.
+      description: 레시피 검색 (키워드·난이도·조리시간·카테고리·정렬 선택). 키워드를 생략하면 제목·설명 텍스트 검색 없이 필터·정렬만 적용합니다.
       security:
         - cookieAuth: []
         - {}
@@ -521,8 +521,8 @@ paths:
           example: "{{apiKey}}"
         - name: q
           in: query
-          required: true
-          description: 검색 키워드
+          required: false
+          description: 검색 키워드 (제목·설명 부분 일치, 생략 가능)
           schema:
             type: string
             minLength: 1

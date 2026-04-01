@@ -74,4 +74,19 @@ describe('RecipeRepository', () => {
       expect(result).toEqual([mockRecipe]);
     });
   });
+
+  describe('searchByKeyword', () => {
+    it('키워드가 없으면 제목·설명 OR·AND 없이 공개 여부만 조건으로 조회한다', async () => {
+      await repository.searchByKeyword({
+        page: 1,
+        size: 20,
+        sort: 'latest',
+      });
+      expect(prisma.recipe.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { isPublished: true },
+        }),
+      );
+    });
+  });
 });

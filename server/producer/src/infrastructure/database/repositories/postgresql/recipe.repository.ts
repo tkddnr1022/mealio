@@ -13,7 +13,8 @@ export interface RecipeListParams {
 }
 
 export interface RecipeSearchParams {
-  keyword: string;
+  /** 비어 있거나 생략이면 제목·설명 contains 조건 없음 */
+  keyword?: string;
   page: number;
   size: number;
   difficulty?: number[];
@@ -121,14 +122,16 @@ export class RecipeRepository {
     } = params;
     const skip = (page - 1) * size;
 
-    const andConditions: Prisma.RecipeWhereInput[] = [
-      {
+    const hasKeyword = keyword != null && keyword.length > 0;
+    const andConditions: Prisma.RecipeWhereInput[] = [];
+    if (hasKeyword) {
+      andConditions.push({
         OR: [
           { title: { contains: keyword, mode: 'insensitive' } },
           { description: { contains: keyword, mode: 'insensitive' } },
         ],
-      },
-    ];
+      });
+    }
     if (difficulty?.length) {
       andConditions.push({ difficulty: { in: difficulty } });
     }
@@ -144,7 +147,7 @@ export class RecipeRepository {
 
     const where: Prisma.RecipeWhereInput = {
       isPublished: true,
-      AND: andConditions,
+      ...(andConditions.length > 0 ? { AND: andConditions } : {}),
     };
 
     const orderBy =

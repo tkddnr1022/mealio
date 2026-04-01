@@ -258,13 +258,13 @@ describe('RecipeQueryService', () => {
         expect.objectContaining({
           type: 'search.query',
           payload: {
-            keywords: ['김치'],
+            keyword: '김치',
             page: 1,
             size: 20,
             sort: 'latest',
-            difficulty: null,
-            cookTime: null,
-            categoryId: null,
+            difficulty: undefined,
+            maxCookTime: undefined,
+            categoryId: undefined,
           },
         }),
       );
@@ -299,12 +299,12 @@ describe('RecipeQueryService', () => {
         expect.objectContaining({
           type: 'search.query',
           payload: {
-            keywords: ['볶음'],
+            keyword: '볶음',
             page: 2,
             size: 10,
             sort: 'cookTime',
             difficulty: [2, 3],
-            cookTime: 45,
+            maxCookTime: 45,
             categoryId: 3,
           },
         }),
@@ -331,6 +331,37 @@ describe('RecipeQueryService', () => {
         categoryId: 3,
         sort: 'cookTime',
       });
+    });
+
+    it('키워드 없이 필터만 적용해 검색한다', async () => {
+      await service.search({
+        page: 1,
+        size: 15,
+        categoryId: 2,
+        sort: 'latest',
+      });
+
+      expect(recipeRepository.searchByKeyword).toHaveBeenCalledWith({
+        keyword: undefined,
+        page: 1,
+        size: 15,
+        difficulty: undefined,
+        maxCookTime: undefined,
+        categoryId: 2,
+        sort: 'latest',
+      });
+      expect(kafkaProducer.emit).toHaveBeenCalledWith(
+        KAFKA_TOPICS.ACTIVITY_EVENTS,
+        expect.objectContaining({
+          type: 'search.query',
+          payload: expect.objectContaining({
+            keyword: undefined,
+            page: 1,
+            size: 15,
+            categoryId: 2,
+          }),
+        }),
+      );
     });
   });
 

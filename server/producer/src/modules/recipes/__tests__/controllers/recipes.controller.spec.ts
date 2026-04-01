@@ -124,9 +124,28 @@ describe('RecipesController', () => {
         q: '김치',
         page: 1,
         size: 20,
+        difficulty: undefined,
+        cookTime: undefined,
+        categoryId: undefined,
+        sort: 'latest',
       });
       expect(result.data).toHaveLength(1);
       expect(result.pagination).toEqual(mockPagination);
+    });
+
+    it('q 없이 검색할 수 있다', async () => {
+      const query = { page: 2, size: 10, sort: 'cookTime' as const };
+      await controller.search(query);
+
+      expect(recipeQueryService.search).toHaveBeenCalledWith({
+        q: undefined,
+        page: 2,
+        size: 10,
+        difficulty: undefined,
+        cookTime: undefined,
+        categoryId: undefined,
+        sort: 'cookTime',
+      });
     });
   });
 

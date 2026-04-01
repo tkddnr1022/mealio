@@ -96,7 +96,7 @@ export class RecipeQueryService {
 
   async search(
     params: {
-      q: string;
+      q?: string;
       page: number;
       size: number;
       difficulty?: number[];
@@ -106,8 +106,10 @@ export class RecipeQueryService {
     },
     context?: ActivityContext,
   ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
+    const raw = params.q?.trim() ?? '';
+    const keyword = raw.length > 0 ? raw : undefined;
     const payload: RecipeSearchParams = {
-      keyword: params.q.trim(),
+      keyword,
       page: params.page,
       size: params.size,
       difficulty: params.difficulty,

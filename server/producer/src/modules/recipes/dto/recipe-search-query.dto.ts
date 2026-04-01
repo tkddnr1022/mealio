@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsString,
   IsOptional,
@@ -20,10 +20,16 @@ function toNumberArray(value: unknown): number[] | undefined {
 }
 
 export class RecipeSearchQueryDto {
-  @ApiProperty({ description: '검색 키워드', minLength: 1 })
+  @ApiPropertyOptional({ description: '검색 키워드 (생략 시 제목·설명 텍스트 검색 없음)', minLength: 1 })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    const s = String(value).trim();
+    return s.length === 0 ? undefined : s;
+  })
   @IsString()
   @MinLength(1)
-  q: string;
+  q?: string;
 
   @ApiPropertyOptional({ default: 1, minimum: 1 })
   @IsOptional()
