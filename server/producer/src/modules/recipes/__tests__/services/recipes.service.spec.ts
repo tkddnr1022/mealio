@@ -3,6 +3,7 @@ import { NotFoundException } from '@nestjs/common';
 import {
   CACHE_KEY_PREFIX,
   CACHE_KEY_SEGMENT,
+  KAFKA_TOPICS,
   buildCacheKey,
 } from '@cook/shared';
 import { RecipeQueryService } from '../../recipes.service';
@@ -16,6 +17,7 @@ describe('RecipeQueryService', () => {
   let recipeRepository: jest.Mocked<RecipeRepository>;
   let cacheService: jest.Mocked<CacheService>;
   let recipeCacheStrategy: jest.Mocked<RecipeCacheStrategy>;
+  let kafkaProducer: { emit: jest.Mock };
 
   const mockRecipe = {
     id: 1,
@@ -113,6 +115,7 @@ describe('RecipeQueryService', () => {
     recipeCacheStrategy = module.get<RecipeCacheStrategy>(
       RecipeCacheStrategy,
     ) as jest.Mocked<RecipeCacheStrategy>;
+    kafkaProducer = module.get(KafkaProducerService);
   });
 
   it('should be defined', () => {
@@ -240,22 +243,93 @@ describe('RecipeQueryService', () => {
         size: 20,
       });
 
-      expect(recipeRepository.searchByKeyword).toHaveBeenCalledWith({
-        keyword: '김치',
-        page: 1,
-        size: 20,
-      });
+      expect(recipeRepository.searchByKeyword).toHaveBeenCalledWith(
+        expect.objectContaining({
+          keyword: '김치',
+          page: 1,
+          size: 20,
+          sort: 'latest',
+        }),
+      );
       expect(result.data).toHaveLength(1);
       expect(result.pagination.total).toBe(1);
+      expect(kafkaProducer.emit).toHaveBeenCalledWith(
+        KAFKA_TOPICS.ACTIVITY_EVENTS,
+        expect.objectContaining({
+          type: 'search.query',
+          payload: {
+            keywords: ['김치'],
+            page: 1,
+            size: 20,
+            sort: 'latest',
+            difficulty: null,
+            cookTime: null,
+            categoryId: null,
+          },
+        }),
+      );
     });
 
     it('키워드 앞뒤 공백을 trim하여 전달한다', async () => {
       await service.search({ q: '  김치  ', page: 1, size: 20 });
 
+      expect(recipeRepository.searchByKeyword).toHaveBeenCalledWith(
+        expect.objectContaining({
+          keyword: '김치',
+          page: 1,
+          size: 20,
+          sort: 'latest',
+        }),
+      );
+    });
+
+    it('search.query payload에 필터·페이지 정보를 포함한다', async () => {
+      await service.search({
+        q: '볶음',
+        page: 2,
+        size: 10,
+        difficulty: [2, 3],
+        cookTime: 45,
+        categoryId: 3,
+        sort: 'cookTime',
+      });
+
+      expect(kafkaProducer.emit).toHaveBeenCalledWith(
+        KAFKA_TOPICS.ACTIVITY_EVENTS,
+        expect.objectContaining({
+          type: 'search.query',
+          payload: {
+            keywords: ['볶음'],
+            page: 2,
+            size: 10,
+            sort: 'cookTime',
+            difficulty: [2, 3],
+            cookTime: 45,
+            categoryId: 3,
+          },
+        }),
+      );
+    });
+
+    it('난이도·조리시간·카테고리·정렬을 repository에 전달한다', async () => {
+      await service.search({
+        q: '볶음',
+        page: 2,
+        size: 10,
+        difficulty: [2, 3],
+        cookTime: 45,
+        categoryId: 3,
+        sort: 'cookTime',
+      });
+
       expect(recipeRepository.searchByKeyword).toHaveBeenCalledWith({
-        keyword: '김치',
-        page: 1,
-        size: 20,
+        keyword: '볶음',
+        page: 2,
+        size: 10,
+        difficulty: [2, 3],
+        maxCookTime: 45,
+        categoryId: 3,
+        sort: 'cookTime',
       });
     });
   });

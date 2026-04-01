@@ -507,7 +507,7 @@ paths:
       tags:
         - Recipe
       summary: 레시피 검색
-      description: 키워드로 레시피 검색
+      description: 키워드로 레시피 검색. 난이도·조리시간·카테고리·정렬 필터는 목록 API와 동일하게 선택 적용 가능.
       security:
         - cookieAuth: []
         - {}
@@ -539,6 +539,37 @@ paths:
             minimum: 1
             maximum: 100
             default: 20
+        - name: difficulty
+          in: query
+          description: 난이도 필터 (1~5)
+          schema:
+            type: array
+            items:
+              type: integer
+              minimum: 1
+              maximum: 5
+          style: form
+          explode: false
+        - name: cookTime
+          in: query
+          description: 최대 조리시간 (분)
+          schema:
+            type: integer
+            minimum: 1
+        - name: categoryId
+          in: query
+          description: 레시피 카테고리 ID (GET /api/v1/recipes/categories 응답의 id)
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: sort
+          in: query
+          description: 정렬 기준
+          schema:
+            type: string
+            enum: [latest, cookTime, difficulty]
+            default: latest
       responses:
         '200':
           description: 검색 성공

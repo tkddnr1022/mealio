@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Recipe } from '@cook/shared/prisma-client';
+import { Prisma, Recipe } from '@cook/shared/prisma-client';
 import { PrismaService } from '@cook/shared';
 
 export type RecipeListOrder = 'latest' | 'cookTime' | 'difficulty';
@@ -16,6 +16,11 @@ export interface RecipeSearchParams {
   keyword: string;
   page: number;
   size: number;
+  difficulty?: number[];
+  maxCookTime?: number;
+  /** RecipeCategory.id (활성 카테고리만 매칭) */
+  categoryId?: number;
+  sort?: RecipeListOrder;
 }
 
 export interface RecipeCategoryRow {
@@ -105,23 +110,56 @@ export class RecipeRepository {
     data: Recipe[];
     total: number;
   }> {
-    const { keyword, page, size } = params;
+    const {
+      keyword,
+      page,
+      size,
+      difficulty,
+      maxCookTime,
+      categoryId,
+      sort = 'latest',
+    } = params;
     const skip = (page - 1) * size;
 
-    const where = {
+    const andConditions: Prisma.RecipeWhereInput[] = [
+      {
+        OR: [
+          { title: { contains: keyword, mode: 'insensitive' } },
+          { description: { contains: keyword, mode: 'insensitive' } },
+        ],
+      },
+    ];
+    if (difficulty?.length) {
+      andConditions.push({ difficulty: { in: difficulty } });
+    }
+    if (maxCookTime != null) {
+      andConditions.push({ cookTime: { lte: maxCookTime } });
+    }
+    if (categoryId != null) {
+      andConditions.push({
+        categoryId,
+        categoryMeta: { isActive: true },
+      });
+    }
+
+    const where: Prisma.RecipeWhereInput = {
       isPublished: true,
-      OR: [
-        { title: { contains: keyword, mode: 'insensitive' as const } },
-        { description: { contains: keyword, mode: 'insensitive' as const } },
-      ],
+      AND: andConditions,
     };
+
+    const orderBy =
+      sort === 'cookTime'
+        ? { cookTime: 'asc' as const }
+        : sort === 'difficulty'
+          ? { difficulty: 'asc' as const }
+          : { createdAt: 'desc' as const };
 
     const [data, total] = await Promise.all([
       this.prisma.recipe.findMany({
         where,
         skip,
         take: size,
-        orderBy: { createdAt: 'desc' },
+        orderBy,
       }),
       this.prisma.recipe.count({ where }),
     ]);

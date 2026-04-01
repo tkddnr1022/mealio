@@ -4,6 +4,7 @@ import { Recipe } from '@cook/shared/prisma-client';
 import {
   RecipeRepository,
   RecipeListOrder,
+  RecipeSearchParams,
 } from '../../infrastructure/database/repositories/postgresql/recipe.repository';
 import { CacheService } from '../../infrastructure/cache/cache.service';
 import { RecipeCacheStrategy } from '../../infrastructure/cache/strategies/recipe-cache-strategy';
@@ -94,15 +95,27 @@ export class RecipeQueryService {
   }
 
   async search(
-    params: { q: string; page: number; size: number },
+    params: {
+      q: string;
+      page: number;
+      size: number;
+      difficulty?: number[];
+      cookTime?: number;
+      categoryId?: number;
+      sort?: RecipeListOrder;
+    },
     context?: ActivityContext,
   ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
-    const keyword = params.q.trim();
-    const { data, total } = await this.recipeRepository.searchByKeyword({
-      keyword,
+    const payload: RecipeSearchParams = {
+      keyword: params.q.trim(),
       page: params.page,
       size: params.size,
-    });
+      difficulty: params.difficulty,
+      maxCookTime: params.cookTime,
+      categoryId: params.categoryId,
+      sort: params.sort ?? 'latest',
+    };
+    const { data, total } = await this.recipeRepository.searchByKeyword(payload);
 
     const totalPages = Math.ceil(total / params.size) || 1;
     const result = {
@@ -115,11 +128,9 @@ export class RecipeQueryService {
       },
     };
 
-    if (keyword.length > 0) {
-      this.emitSearchQuery(keyword, context).catch(() => {
-        /* fire-and-forget */
-      });
-    }
+    this.emitSearchQuery(payload, context).catch(() => {
+      /* fire-and-forget */
+    });
     return result;
   }
 
@@ -229,7 +240,7 @@ export class RecipeQueryService {
   }
 
   private async emitSearchQuery(
-    keyword: string,
+    payload: RecipeSearchParams,
     context?: ActivityContext,
   ): Promise<void> {
     await this.kafkaProducerService.emit(KAFKA_TOPICS.ACTIVITY_EVENTS, {
@@ -240,7 +251,7 @@ export class RecipeQueryService {
         ipAddress: context?.ipAddress,
         userAgent: context?.userAgent,
       },
-      payload: { keywords: [keyword] },
+      payload,
     });
   }
 }

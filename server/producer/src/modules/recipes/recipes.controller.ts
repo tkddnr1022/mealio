@@ -122,7 +122,16 @@ export class RecipesController {
   ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
     const page = query.page ?? 1;
     const size = query.size ?? 20;
-    const params = { q: query.q, page, size };
+    const sort = query.sort ?? 'latest';
+    const params = {
+      q: query.q,
+      page,
+      size,
+      difficulty: query.difficulty,
+      cookTime: query.cookTime,
+      categoryId: query.categoryId,
+      sort,
+    };
 
     if (!req) {
       return this.recipeQueryService.search(params);

@@ -21,6 +21,7 @@ describe('RecipeRepository', () => {
     recipe: {
       findUnique: jest.fn().mockResolvedValue(mockRecipe),
       findMany: jest.fn().mockResolvedValue([mockRecipe]),
+      count: jest.fn().mockResolvedValue(1),
     },
   };
 
@@ -49,6 +50,9 @@ describe('RecipeRepository', () => {
       expect(prisma.recipe.findUnique).toHaveBeenCalledWith({
         where: { id: 1n, isPublished: true },
         include: {
+          categoryMeta: {
+            select: { id: true, key: true, name: true },
+          },
           recipeIngredients: {
             include: {
               ingredient: true,
