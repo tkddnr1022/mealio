@@ -122,6 +122,14 @@ describe('IngredientQueryService', () => {
     it('categoryId가 있으면 카테고리 필터로 조회한다', async () => {
       await service.getList({ categoryId: 2, page: 1, size: 20 });
 
+      expect(cacheService.getOrSet).toHaveBeenCalledWith(
+        ingredientCacheStrategy,
+        expect.any(Function),
+        CACHE_KEY_SEGMENT.LIST,
+        2,
+        1,
+        20,
+      );
       expect(ingredientRepository.findManyPaginated).toHaveBeenCalledWith({
         categoryId: 2,
         page: 1,

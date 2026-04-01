@@ -21,16 +21,10 @@ export class IngredientQueryService {
     page: number;
     size: number;
   }): Promise<{ data: IngredientDto[]; pagination: PaginationDto }> {
-    const cacheKeyCategory =
+    const categoryKey =
       params.categoryId ?? CACHE_KEY_SEGMENT.CATEGORY_ALL;
-    const cacheKey = [
-      CACHE_KEY_SEGMENT.LIST,
-      cacheKeyCategory,
-      params.page,
-      params.size,
-    ];
 
-    const result = await this.cacheService.getOrSet(
+    return this.cacheService.getOrSet(
       this.ingredientCacheStrategy,
       async () => {
         const { data, total } =
@@ -50,10 +44,11 @@ export class IngredientQueryService {
           },
         };
       },
-      ...cacheKey,
+      CACHE_KEY_SEGMENT.LIST,
+      categoryKey,
+      params.page,
+      params.size,
     );
-
-    return result;
   }
 
   async search(params: {

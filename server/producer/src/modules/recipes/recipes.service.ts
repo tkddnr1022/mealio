@@ -51,25 +51,44 @@ export class RecipeQueryService {
     cookTime?: number;
     sort?: RecipeListOrder;
   }): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
-    const { data, total } = await this.recipeRepository.findManyPaginated({
-      page: params.page,
-      size: params.size,
-      difficulty: params.difficulty,
-      maxCookTime: params.cookTime,
-      sort: params.sort ?? 'latest',
-    });
+    const difficultyKey =
+      params.difficulty && params.difficulty.length > 0
+        ? [...params.difficulty].sort((a, b) => a - b).join(',')
+        : CACHE_KEY_SEGMENT.CATEGORY_ALL;
+    const cookTimeKey =
+      params.cookTime ?? CACHE_KEY_SEGMENT.CATEGORY_ALL;
+    const sortKey = params.sort ?? 'latest';
 
-    const totalPages = Math.ceil(total / params.size) || 1;
+    return this.cacheService.getOrSet(
+      this.recipeCacheStrategy,
+      async () => {
+        const { data, total } = await this.recipeRepository.findManyPaginated({
+          page: params.page,
+          size: params.size,
+          difficulty: params.difficulty,
+          maxCookTime: params.cookTime,
+          sort: sortKey,
+        });
 
-    return {
-      data: data.map((r) => this.toSummaryDto(r)),
-      pagination: {
-        page: params.page,
-        size: params.size,
-        total,
-        totalPages,
+        const totalPages = Math.ceil(total / params.size) || 1;
+
+        return {
+          data: data.map((r) => this.toSummaryDto(r)),
+          pagination: {
+            page: params.page,
+            size: params.size,
+            total,
+            totalPages,
+          },
+        };
       },
-    };
+      CACHE_KEY_SEGMENT.LIST,
+      difficultyKey,
+      cookTimeKey,
+      sortKey,
+      params.page,
+      params.size,
+    );
   }
 
   async getById(

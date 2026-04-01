@@ -130,6 +130,16 @@ describe('RecipeQueryService', () => {
         sort: 'latest',
       });
 
+      expect(cacheService.getOrSet).toHaveBeenCalledWith(
+        recipeCacheStrategy,
+        expect.any(Function),
+        CACHE_KEY_SEGMENT.LIST,
+        CACHE_KEY_SEGMENT.CATEGORY_ALL,
+        CACHE_KEY_SEGMENT.CATEGORY_ALL,
+        'latest',
+        1,
+        20,
+      );
       expect(recipeRepository.findManyPaginated).toHaveBeenCalledWith({
         page: 1,
         size: 20,
@@ -155,6 +165,16 @@ describe('RecipeQueryService', () => {
         sort: 'cookTime',
       });
 
+      expect(cacheService.getOrSet).toHaveBeenCalledWith(
+        recipeCacheStrategy,
+        expect.any(Function),
+        CACHE_KEY_SEGMENT.LIST,
+        '1,2',
+        30,
+        'cookTime',
+        2,
+        10,
+      );
       expect(recipeRepository.findManyPaginated).toHaveBeenCalledWith({
         page: 2,
         size: 10,
@@ -162,6 +182,41 @@ describe('RecipeQueryService', () => {
         maxCookTime: 30,
         sort: 'cookTime',
       });
+    });
+
+    it('캐시 히트 시 repository를 호출하지 않는다', async () => {
+      const cached = {
+        data: [
+          {
+            id: 99,
+            title: '캐시된 레시피',
+            description: null,
+            difficulty: 1,
+            cookTime: 10,
+            imageUrl: null,
+            servings: 1,
+            viewCount: 0,
+            isPublished: true,
+            createdAt: new Date('2025-01-01T00:00:00.000Z'),
+          },
+        ],
+        pagination: {
+          page: 1,
+          size: 20,
+          total: 1,
+          totalPages: 1,
+        },
+      };
+      cacheService.getOrSet.mockResolvedValue(cached);
+
+      const result = await service.getList({
+        page: 1,
+        size: 20,
+        sort: 'latest',
+      });
+
+      expect(result).toEqual(cached);
+      expect(recipeRepository.findManyPaginated).not.toHaveBeenCalled();
     });
   });
 
