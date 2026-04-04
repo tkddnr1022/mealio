@@ -6,8 +6,12 @@
   --surface: #FFFFFF;
   --text-primary: #1C1A17;
   --text-secondary: #575352;
-  --text-caption-color: #737373;
-  --border: #8A8480;
+  --text-caption-color: #9ca3af;
+  --text-placeholder: #737373;
+  --border: #8a8480;
+  --border-subtle: #e5e5e5;
+  --placeholder-surface: #f5f5f4;
+  --primary-inactive: #d4d4d4;
 
   --primary: #C2410C;
   --primary-hover: #9A3412;
@@ -23,6 +27,53 @@
   --text-link-hover: #1E4D7A;
 
   --foreground: var(--text-primary);
+
+  /* typography — Figma 텍스트 스타일, design_tokens.json typography.* */
+  --typography-h1-font-size: 28px;
+  --typography-h1-line-height: 42px;
+  --typography-h1-font-weight: 700;
+  --typography-h1-letter-spacing: 0;
+
+  --typography-h2-font-size: 20px;
+  --typography-h2-line-height: 30px;
+  --typography-h2-font-weight: 700;
+  --typography-h2-letter-spacing: 0;
+
+  --typography-h3-font-size: 18px;
+  --typography-h3-line-height: 27px;
+  --typography-h3-font-weight: 700;
+  --typography-h3-letter-spacing: 0;
+
+  --typography-body-font-size: 16px;
+  --typography-body-line-height: 24px;
+  --typography-body-font-weight: 400;
+  --typography-body-letter-spacing: 0;
+
+  --typography-caption-font-size: 14px;
+  --typography-caption-line-height: 21px;
+  --typography-caption-font-weight: 400;
+  --typography-caption-letter-spacing: 0;
+
+  --typography-small-font-size: 12px;
+  --typography-small-line-height: 18px;
+  --typography-small-font-weight: 400;
+  --typography-small-letter-spacing: 0;
+
+  --typography-card-caption-font-size: 12px;
+  --typography-card-caption-line-height: 16px;
+  --typography-card-caption-font-weight: 500;
+  --typography-card-caption-letter-spacing: 0;
+
+  /* typography.tab — Figma Tab, 수치는 card-caption과 동일 */
+  --typography-tab-font-size: 12px;
+  --typography-tab-line-height: 16px;
+  --typography-tab-font-weight: 500;
+  --typography-tab-letter-spacing: 0;
+
+  /* elevation (agent/design/design_tokens.json elevation.sm|md|lg) */
+  --elevation-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --elevation-md: 0 4px 8px rgba(15, 23, 42, 0.08);
+  --elevation-lg: 0 10px 15px rgba(15, 23, 42, 0.12);
 }
 
 @theme inline {
@@ -31,8 +82,16 @@
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-caption: var(--text-caption-color);
+  --color-text-placeholder: var(--text-placeholder);
   --color-surface: var(--surface);
   --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+  /* 짧은 유틸용 별칭 (소스는 위 토큰과 동일) */
+  --color-outline-subtle: var(--border-subtle);
+  --color-muted: var(--text-secondary);
+  --color-caption: var(--text-caption-color);
+  --color-placeholder-surface: var(--placeholder-surface);
+  --color-primary-inactive: var(--primary-inactive);
   --font-sans: var(--font-noto-sans-kr), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
@@ -71,12 +130,19 @@
   --spacing-16: 64px;
 
   /* typography size/line-height (design_tokens.json typography.*) */
-  --text-h1: 28px/42px;
-  --text-h2: 20px/30px;
-  --text-h3: 18px/27px;
-  --text-body: 16px/24px;
-  --text-caption: 14px/21px;
-  --text-small: 12px/18px;
+  --text-h1: var(--typography-h1-font-size) / var(--typography-h1-line-height);
+  --text-h2: var(--typography-h2-font-size) / var(--typography-h2-line-height);
+  --text-h3: var(--typography-h3-font-size) / var(--typography-h3-line-height);
+  --text-body: var(--typography-body-font-size) / var(--typography-body-line-height);
+  --text-caption: var(--typography-caption-font-size) / var(--typography-caption-line-height);
+  --text-small: var(--typography-small-font-size) / var(--typography-small-line-height);
+  --text-card-caption: var(--typography-card-caption-font-size) / var(--typography-card-caption-line-height);
+  --text-tab: var(--typography-tab-font-size) / var(--typography-tab-line-height);
+
+  /* 표준 shadow-* 유틸 → design_tokens elevation (라이트/다크는 :root에서 전환) */
+  --shadow-sm: var(--elevation-sm);
+  --shadow-md: var(--elevation-md);
+  --shadow-lg: var(--elevation-lg);
 
   --font-weight-regular: 400;
   --font-weight-medium: 500;
@@ -90,8 +156,12 @@
     --surface: #111827;
     --text-primary: #F9FAFB;
     --text-secondary: #D1D5DB;
-    --text-caption-color: #9CA3AF;
-    --border: #64748B;
+    --text-caption-color: #9ca3af;
+    --text-placeholder: #a3a3a3;
+    --border: #64748b;
+    --border-subtle: #334155;
+    --placeholder-surface: #1f2937;
+    --primary-inactive: #52525b;
 
     --primary: #C2410C;
     --primary-hover: #9A3412;
@@ -107,6 +177,10 @@
     --text-link-hover: #93C5FD;
 
     --foreground: var(--text-primary);
+
+    --elevation-sm: 0 1px 3px rgba(0, 0, 0, 0.45);
+    --elevation-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --elevation-lg: 0 12px 24px rgba(0, 0, 0, 0.55);
   }
 }
 
@@ -114,4 +188,84 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans, Arial, Helvetica, sans-serif);
+  font-size: var(--typography-body-font-size);
+  line-height: var(--typography-body-line-height);
+  font-weight: var(--typography-body-font-weight);
+  letter-spacing: var(--typography-body-letter-spacing);
+}
+
+/**
+ * 전역 타이포그라피 — design_tokens.json typography.* (Figma 텍스트 스타일).
+ * 제목·본문은 시맨틱 태그, caption은 figcaption 또는 .typography-caption,
+ * 카드 메타는 .typography-card-caption, 하단 탭 라벨은 .typography-tab.
+ */
+h1 {
+  font-family: inherit;
+  font-size: var(--typography-h1-font-size);
+  line-height: var(--typography-h1-line-height);
+  font-weight: var(--typography-h1-font-weight);
+  letter-spacing: var(--typography-h1-letter-spacing);
+  color: var(--foreground);
+}
+
+h2 {
+  font-family: inherit;
+  font-size: var(--typography-h2-font-size);
+  line-height: var(--typography-h2-line-height);
+  font-weight: var(--typography-h2-font-weight);
+  letter-spacing: var(--typography-h2-letter-spacing);
+  color: var(--foreground);
+}
+
+h3 {
+  font-family: inherit;
+  font-size: var(--typography-h3-font-size);
+  line-height: var(--typography-h3-line-height);
+  font-weight: var(--typography-h3-font-weight);
+  letter-spacing: var(--typography-h3-letter-spacing);
+  color: var(--foreground);
+}
+
+figcaption,
+.typography-caption {
+  font-family: inherit;
+  font-size: var(--typography-caption-font-size);
+  line-height: var(--typography-caption-line-height);
+  font-weight: var(--typography-caption-font-weight);
+  letter-spacing: var(--typography-caption-letter-spacing);
+  color: inherit;
+}
+
+small {
+  font-family: inherit;
+  font-size: var(--typography-small-font-size);
+  line-height: var(--typography-small-line-height);
+  font-weight: var(--typography-small-font-weight);
+  letter-spacing: var(--typography-small-letter-spacing);
+  color: inherit;
+}
+
+.typography-card-caption {
+  font-family: inherit;
+  font-size: var(--typography-card-caption-font-size);
+  line-height: var(--typography-card-caption-line-height);
+  font-weight: var(--typography-card-caption-font-weight);
+  letter-spacing: var(--typography-card-caption-letter-spacing);
+  color: inherit;
+}
+
+.typography-tab {
+  font-family: inherit;
+  font-size: var(--typography-tab-font-size);
+  line-height: var(--typography-tab-line-height);
+  font-weight: var(--typography-tab-font-weight);
+  letter-spacing: var(--typography-tab-letter-spacing);
+  color: inherit;
+}
+
+/**
+ * 아이콘 전용 버튼 히트 영역 (design_principle platform.touchTargetMinPx 44).
+ */
+@utility touch-target-icon {
+  @apply inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-placeholder-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
 }

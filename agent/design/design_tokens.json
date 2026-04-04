@@ -1,6 +1,6 @@
 {
-  "version": "1.1",
-  "lastReviewed": "2026-03-29",
+  "version": "1.2",
+  "lastReviewed": "2026-04-05",
   "relatedFiles": ["agent/design/design_principle.json"],
 
   "theme": {
@@ -14,9 +14,17 @@
       "surface": "#FFFFFF",
       "text-primary": "#1C1A17",
       "text-secondary": "#575352",
-      "text-caption": "#737373",
+      "text-caption": "#9CA3AF",
       "text-caption-usage": "14px 부가·메타용. 필수 라벨·에러는 body(16px) 또는 대비 4.5:1 충족 색 사용.",
+      "text-placeholder": "#737373",
+      "text-placeholder-usage": "입력 플레이스홀더·비활성 탭 라벨 등. Figma Text/Placeholder·Text/Tab/Inactive.",
       "border": "#8A8480",
+      "border-subtle": "#E5E5E5",
+      "border-subtle-usage": "탭바 상단 구분선 등 얕은 구분. Figma Border/Subtle.",
+      "placeholder-surface": "#F5F5F4",
+      "placeholder-surface-usage": "썸네일·스켈레톤 배경. Figma Background/Placeholder(color/placeholder).",
+      "primary-inactive": "#D4D4D4",
+      "primary-inactive-usage": "슬라이더·인디케이터 비활성 도트. Figma color/primary-inactive.",
       "primary": "#C2410C",
       "primary-hover": "#9A3412",
       "on-primary": "#FFFFFF",
@@ -36,7 +44,11 @@
       "text-secondary": "#D1D5DB",
       "text-caption": "#9CA3AF",
       "text-caption-usage": "다크에서도 부가 텍스트 전용. 필수 정보는 text-secondary 이상 권장.",
+      "text-placeholder": "#A3A3A3",
       "border": "#64748B",
+      "border-subtle": "#334155",
+      "placeholder-surface": "#1F2937",
+      "primary-inactive": "#52525B",
       "primary": "#C2410C",
       "primary-hover": "#9A3412",
       "on-primary": "#FFFFFF",
@@ -69,12 +81,14 @@
     "h2": {
       "font-size": 20,
       "line-height": 30,
-      "font-weight-token": "typography.font-weight.semibold"
+      "font-weight-token": "typography.font-weight.bold",
+      "figma-note": "Figma H2는 Bold(700). 스크린 타이틀·섹션 제목과 정렬."
     },
     "h3": {
       "font-size": 18,
       "line-height": 27,
-      "font-weight-token": "typography.font-weight.medium"
+      "font-weight-token": "typography.font-weight.bold",
+      "figma-note": "Figma H3는 Bold(700). 카드 제목 등과 정렬."
     },
     "body": {
       "font-size": 16,
@@ -91,6 +105,22 @@
       "line-height": 18,
       "font-weight-token": "typography.font-weight.regular",
       "usage-note": "보조 텍스트/레이블 전용. 본문·주요 인터랙티브 텍스트에는 사용하지 않습니다."
+    },
+    "card-caption": {
+      "font-size": 12,
+      "line-height": 16,
+      "font-weight-token": "typography.font-weight.medium",
+      "figma-note": "Figma Card/Caption. 레시피 카드 메타 행 등 12px·line 16·Medium."
+    },
+    "tab": {
+      "font-size": 12,
+      "line-height": 16,
+      "font-weight-token": "typography.font-weight.medium",
+      "figma-note": "Figma Tab 텍스트 스타일. 수치는 card-caption과 동일·하단 탭 라벨 전용 의미.",
+      "color-active-token": "color.light.primary",
+      "color-active-dark-token": "color.dark.primary",
+      "color-inactive-token": "color.light.text-placeholder",
+      "color-inactive-dark-token": "color.dark.text-placeholder"
     }
   },
 
@@ -143,11 +173,29 @@
       "elevation-token": "elevation.md",
       "elevation-dark-token": "elevation.dark.md"
     },
-    "recipe-card": {
+    "recipe-grid-card": {
+      "thumbnail-aspect": "1:1",
+      "usage-note": "RecipeMainPage 등 그리드·슬라이더용 RecipeGridCard(Figma). 정사각 썸네일.",
+      "gap-token": "spacing.2",
+      "title-lines-max": 2,
+      "title-typography-token": "typography.h3",
+      "meta-typography-token": "typography.card-caption",
+      "meta-color-token": "color.light.text-caption",
+      "meta-color-dark-token": "color.dark.text-caption",
+      "thumbnail-radius-token": "radius.xl",
+      "thumbnail-placeholder-token": "color.light.placeholder-surface"
+    },
+    "recipe-search-card": {
       "thumbnail-aspect": "16:9",
+      "usage-note": "레시피 검색 결과 등 리스트형 카드. design_principle media.recipeImage.aspectRatio와 맞춤.",
       "gap-token": "spacing.3",
       "title-lines-max": 2,
-      "note": "design_principle media.recipeImage.aspectRatio와 맞춤."
+      "title-typography-token": "typography.h3",
+      "meta-typography-token": "typography.card-caption",
+      "meta-color-token": "color.light.text-caption",
+      "meta-color-dark-token": "color.dark.text-caption",
+      "thumbnail-radius-token": "radius.xl",
+      "thumbnail-placeholder-token": "color.light.placeholder-surface"
     },
     "button": {
       "padding-x-token": "spacing.4",
