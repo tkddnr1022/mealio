@@ -25,6 +25,15 @@ alwaysApply: true
 | **openapi_spec.yaml** | OpenAPI 3.0 API 명세 | 인증, 엔드포인트(path, method), 요청/응답 스키마, DTO·Swagger 연동을 구현·검증할 때 |
 | **design_principle.json** | 디자인 원칙(JSON) | product·brand·accessibility·platform·layout·interaction·contentTone·media·theme 등 구조화된 UX/UI·접근성·성능 수치. 컴포넌트·페이지 구현·Figma 연동 시 기준으로 참고. |
 
+### 디자인 (agent/design/)
+
+| 파일 | 설명 | 참고 용도 |
+|------|------|-----------|
+| **design_tokens.json** | 디자인 토큰(JSON) | 컬러·타이포·스페이싱 등 값 정의. `client/app/globals.css`와 동기화할 때 |
+| **design_principle.json** | 디자인 원칙(JSON) | 접근성·터치 타깃·톤 등 원칙 수치. 루트 표의 `design_principle.json` 항목과 동일 파일 |
+| **design_to_code_guidelines.md** | Design to Code 가이드 | Figma 변수·텍스트/컬러 스타일·컴포넌트·배리언트를 코드(토큰·전역 타이포·variant)로 옮기는 원칙 |
+| **style-guide.html**, **component-library.html** | 스타일·컴포넌트 참고 HTML | 시각적 참고(브라우저) |
+
 ### 명세 (agent/spec/)
 
 | 파일 | 설명 | 참고 용도 |
@@ -75,6 +84,5 @@ Figma 디자인 참조·생성·MCP 도구 사용 시 **`.cursor/rules/agent-doc
 - **Figma (MCP)**  
   `agent-docs-figma.mdc` 참고.
 
-- **UI/UX·디자인 원칙 적용**  
-  `agent/design/design_principle.json`(터치 타겟 44px, WCAG 2.1 AA, 반응형 브레이크포인트, LCP/FID/CLS·번들 예산, 레이아웃·챗봇 톤 등)
-  `agent/design/design_tokens.json`(컬러/타이포/스페이싱/레이아웃 등 토큰 정의)
+- **UI/UX·디자인 원칙·Figma→코드**  
+  `agent/design/design_to_code_guidelines.md`(변수·스타일·컴포넌트·배리언트 연동) → `agent/design/design_tokens.json` → `agent/design/design_principle.json`(터치 타겟 44px, WCAG 2.1 AA, 반응형 브레이크포인트, LCP/FID/CLS·번들 예산, 레이아웃·챗봇 톤 등) → `agent/guidelines/frontend_development_guidelines.md`
