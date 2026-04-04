@@ -154,7 +154,17 @@ const RecipeEditor = dynamic(
 
 ---
 
-## 7. 모니터링 및 성능
+## 7. Storybook
+
+- **목적**: UI 컴포넌트를 앱 라우트·데이터 없이 **격리**해 개발·리뷰하고, `../design/design_tokens.json`·`design_principle.json`과의 시각적 정합을 맞춘다.
+- **배치**: 스토리 파일은 대상 컴포넌트와 가까이 둔다(예: `ComponentName.stories.tsx`). 공용 UI는 `client/components` 등 실제 import 경로와 동일한 트리를 따른다.
+- **스토리 범위**: 기본 상태 1개 + **의미 있는 변형**(비어 있음, 로딩, 에러, 모바일 폭 등)만 유지한다. 페이지 전체 복제보다는 재사용 단위(버튼, 카드, 폼 필드)를 우선한다.
+- **데이터·API**: React Query·fetch를 쓰는 컴포넌트는 스토리에서 **목(mock) 데이터 또는 MSW**로 고정해, 백엔드 없이 재현 가능하게 한다.
+- **Next 연동**: `'use client'` 컴포넌트는 스토리에서 그대로 import; 서버 전용 훅·환경에 묶이면 래퍼나 목으로 분리한다.
+
+---
+
+## 8. 모니터링 및 성능
 
 - **Web Vitals**: LCP, FID, CLS 목표는 `../spec/frontend_architecture_spec.md` §4에 정의되어 있다. Vercel Analytics 또는 `web-vitals` 라이브러리로 수집.
 - **성능 예산**: 랜딩·레시피 목록·상세·챗봇별 초기 로드·TTI·번들 사이즈 예산은 명세서에 정의. CI 또는 Lighthouse로 예산 초과 시 실패하도록 설정 권장.
