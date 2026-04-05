@@ -157,6 +157,16 @@
       "tablet-token": "spacing.6",
       "desktop-token": "spacing.8"
     },
+    "page-padding-y": {
+      "mobile-token": "spacing.6",
+      "tablet-token": "spacing.8",
+      "desktop-token": "spacing.10"
+    },
+    "page-gap-y": {
+      "mobile-token": "spacing.8",
+      "tablet-token": "spacing.10",
+      "desktop-token": "spacing.12"
+    },
     "columns": {
       "mobile": 4,
       "tablet": 8,
