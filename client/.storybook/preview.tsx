@@ -1,8 +1,28 @@
 import type { Preview } from "@storybook/nextjs-vite";
 import { Geist_Mono, Noto_Sans_KR } from "next/font/google";
+import type { ViewportMap } from "storybook/viewport";
 
 import "../app/globals.css";
 import React from "react";
+
+/** agent/design/design_tokens.json breakpoint 기준 (mobile-max 767, tablet 768–1023, desktop ≥1024) */
+const projectViewports: ViewportMap = {
+  mobile: {
+    name: "모바일 (≤767px)",
+    styles: { width: "400px", height: "874px" },
+    type: "mobile",
+  },
+  tablet: {
+    name: "태블릿 (768–1023px)",
+    styles: { width: "834px", height: "1112px" },
+    type: "tablet",
+  },
+  desktop: {
+    name: "데스크톱 (≥1024px)",
+    styles: { width: "1280px", height: "900px" },
+    type: "desktop",
+  },
+};
 
 const notoSansKr = Noto_Sans_KR({
   variable: "--font-noto-sans-kr",
@@ -37,6 +57,12 @@ const preview: Preview = {
     a11y: {
       test: "todo",
     },
+    viewport: {
+      options: projectViewports,
+    },
+  },
+  initialGlobals: {
+    viewport: { value: "desktop", isRotated: false },
   },
 };
 

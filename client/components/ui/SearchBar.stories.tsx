@@ -12,7 +12,7 @@ const narrowWidth = (Story: () => ReactNode) => (
 );
 
 const meta = {
-  title: "Layout/SearchBar",
+  title: "UI/SearchBar",
   component: SearchBar,
   tags: ["autodocs"],
   parameters: {
