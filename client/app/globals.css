@@ -268,7 +268,6 @@ small {
   line-height: var(--typography-tab-line-height);
   font-weight: var(--typography-tab-font-weight);
   letter-spacing: var(--typography-tab-letter-spacing);
-  color: inherit;
 }
 
 /**
