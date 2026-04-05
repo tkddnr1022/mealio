@@ -6,8 +6,7 @@ import {
   type KeyboardEvent,
   type MouseEvent,
 } from "react";
-
-import { SearchBar, type SearchBarProps } from "./SearchBar";
+import { SearchBarProps, SearchBar } from "./SearchBar";
 
 export type SearchBarButtonProps = Readonly<
   Omit<

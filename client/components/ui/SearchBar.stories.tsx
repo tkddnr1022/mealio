@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { ReactNode } from "react";
 import { fn } from "storybook/test";
 
-import { Navbar } from "./Navbar";
+import { Navbar } from "../layout/Navbar";
 import { SearchBar } from "./SearchBar";
 
 const narrowWidth = (Story: () => ReactNode) => (
