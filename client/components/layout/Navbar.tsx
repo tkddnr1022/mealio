@@ -27,7 +27,7 @@ export type NavbarProps = Readonly<{
 }>;
 
 const spacer = (
-  <span className="inline-block size-11 shrink-0" aria-hidden />
+  <span className="inline-block shrink-0" aria-hidden />
 );
 
 export function Navbar({
