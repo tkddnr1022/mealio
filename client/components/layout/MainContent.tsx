@@ -1,4 +1,7 @@
+"use client";
+
 import type { ReactNode } from "react";
+import { CustomScrollbar } from "./CustomScrollbar";
 
 /**
  * Figma `MainContent` (node 166:1227): Background/Primary `#FAFAF9`, 세로 플렉스 영역.
@@ -28,9 +31,9 @@ export function MainContent({
     <main
       className={`flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-background ${className}`.trim()}
     >
-      <div
+      <CustomScrollbar
         className={[
-          "relative flex flex-col gap-8 min-h-0 w-full flex-1 overflow-y-auto",
+          "flex flex-col gap-8",
           centered && "items-center justify-center",
           paddingX && "px-4",
           paddingY && "py-6",
@@ -40,7 +43,7 @@ export function MainContent({
           .join(" ")}
       >
         {children}
-      </div>
+      </CustomScrollbar>
     </main>
   );
 }

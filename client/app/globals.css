@@ -85,6 +85,7 @@
   --color-text-placeholder: var(--text-placeholder);
   --color-surface: var(--surface);
   --color-border: var(--border);
+  --color-border-default: var(--border);
   --color-border-subtle: var(--border-subtle);
   /* 짧은 유틸용 별칭 (소스는 위 토큰과 동일) */
   --color-outline-subtle: var(--border-subtle);
@@ -200,6 +201,15 @@ body {
  */
 input {
   padding-top: 0.5px;
+}
+
+.hide-native-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-native-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /**
