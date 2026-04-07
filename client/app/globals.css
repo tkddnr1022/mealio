@@ -213,7 +213,6 @@ h1 {
   line-height: var(--typography-h1-line-height);
   font-weight: var(--typography-h1-font-weight);
   letter-spacing: var(--typography-h1-letter-spacing);
-  color: var(--foreground);
 }
 
 h2 {
@@ -222,7 +221,6 @@ h2 {
   line-height: var(--typography-h2-line-height);
   font-weight: var(--typography-h2-font-weight);
   letter-spacing: var(--typography-h2-letter-spacing);
-  color: var(--foreground);
 }
 
 h3 {
@@ -231,7 +229,6 @@ h3 {
   line-height: var(--typography-h3-line-height);
   font-weight: var(--typography-h3-font-weight);
   letter-spacing: var(--typography-h3-letter-spacing);
-  color: var(--foreground);
 }
 
 figcaption,
@@ -241,7 +238,6 @@ figcaption,
   line-height: var(--typography-caption-line-height);
   font-weight: var(--typography-caption-font-weight);
   letter-spacing: var(--typography-caption-letter-spacing);
-  color: inherit;
 }
 
 small {
@@ -250,7 +246,6 @@ small {
   line-height: var(--typography-small-line-height);
   font-weight: var(--typography-small-font-weight);
   letter-spacing: var(--typography-small-letter-spacing);
-  color: inherit;
 }
 
 .typography-card-caption {
@@ -259,7 +254,6 @@ small {
   line-height: var(--typography-card-caption-line-height);
   font-weight: var(--typography-card-caption-font-weight);
   letter-spacing: var(--typography-card-caption-letter-spacing);
-  color: inherit;
 }
 
 .typography-tab {
