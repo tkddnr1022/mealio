@@ -21,9 +21,8 @@ flowchart TB
     subgraph main["(main) 앱 본체 — 하단 탭"]
         subgraph recipe_tab["레시피 탭"]
             R_MAIN["/recipe 레시피 메인<br/>[ISR]"]
-            R_CAT["/recipe/category 카테고리<br/>[ISR]"]
             R_SEARCH["/recipe/search 검색 결과<br/>[ISR]"]
-            R_FILTER["/recipe/filter 필터 결과<br/>[ISR]"]
+            R_FILTER["/recipe/filter 검색 필터<br/>[ISR]"]
             R_DETAIL["/recipe/[id] 레시피 상세<br/>[ISR]"]
         end
 
@@ -33,7 +32,7 @@ flowchart TB
         end
 
         subgraph inventory_tab["보관함 탭"]
-            INV_INTEREST["/inventory/interest 관심 재료<br/>[CSR]"]
+            INV_FAVORITE["/inventory/favorite 관심 재료<br/>[CSR]"]
             INV_OWNED["/inventory/owned 보유 재료<br/>[CSR]"]
         end
 
@@ -80,12 +79,12 @@ flowchart TB
 
     %% 탭 간 전환 (대표 경로만 표시)
     R_MAIN <--> C_LIST
-    R_MAIN <--> INV_INTEREST
+    R_MAIN <--> INV_FAVORITE
     R_MAIN <--> MYPAGE
-    C_LIST <--> INV_INTEREST
+    C_LIST <--> INV_FAVORITE
     C_LIST <--> MYPAGE
-    INV_INTEREST <--> INV_OWNED
-    INV_INTEREST <--> MYPAGE
+    INV_FAVORITE <--> INV_OWNED
+    INV_FAVORITE <--> MYPAGE
     MYPAGE <--> R_MAIN
 
     %% 마이페이지에서 로그아웃 등 → 랜딩/로그인
@@ -104,7 +103,7 @@ flowchart TB
     style OAUTH_CB fill:#fff3e0
     style R_MAIN fill:#e3f2fd
     style C_LIST fill:#f3e5f5
-    style INV_INTEREST fill:#fce4ec
+    style INV_FAVORITE fill:#fce4ec
     style MYPAGE fill:#f5f5f5
     style NOT_FOUND fill:#ffebee
     style ERROR_PAGE fill:#ffebee

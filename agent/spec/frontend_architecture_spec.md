@@ -33,13 +33,12 @@
 | (marketing) | `/pricing` | `(marketing)/pricing/page.tsx` | SSG | 요금제 (필요시) |
 | **(main)** | — | `(main)/layout.tsx` | — | 공통 레이아웃 (하단 탭: 레시피 / 챗봇 / 보관함 / 마이페이지) |
 | (main) · 레시피 탭 | `/recipe` | `(main)/recipe/page.tsx` | ISR | RecipeMainPage — 레시피 메인 |
-| (main) · 레시피 탭 | `/recipe/category` | `(main)/recipe/category/page.tsx` | ISR | RecipeCategoryPage — 레시피 카테고리 목록 |
-| (main) · 레시피 탭 | `/recipe/search` | `(main)/recipe/search/page.tsx` | ISR | RecipeSearchListPage — 레시피 목록(검색 결과) |
-| (main) · 레시피 탭 | `/recipe/filter` | `(main)/recipe/filter/page.tsx` | ISR | RecipeFilterListPage — 레시피 목록(필터 결과) |
+| (main) · 레시피 탭 | `/recipe/filter` | `(main)/recipe/filter/page.tsx` | ISR | RecipeFilterPage — 레시피 검색 필터 |
+| (main) · 레시피 탭 | `/recipe/search` | `(main)/recipe/search/page.tsx` | ISR | RecipeSearchListPage — 레시피 검색 결과 |
 | (main) · 레시피 탭 | `/recipe/[id]` | `(main)/recipe/[id]/page.tsx` | ISR | RecipeDetailPage — 레시피 상세 |
 | (main) · 챗봇 탭 | `/chatbot/list` | `(main)/chatbot/list/page.tsx` | CSR | ChatbotConversationListPage — 대화 목록 |
 | (main) · 챗봇 탭 | `/chatbot/[id]` | `(main)/chatbot/[id]/page.tsx` | CSR | ChatbotConversationPage — 대화 |
-| (main) · 보관함 탭 | `/inventory/interest` | `(main)/inventory/interest/page.tsx` | CSR | InventoryInterestListPage — 관심 재료 목록 |
+| (main) · 보관함 탭 | `/inventory/favorite` | `(main)/inventory/favorite/page.tsx` | CSR | InventoryFavoriteListPage — 관심 재료 목록 |
 | (main) · 보관함 탭 | `/inventory/owned` | `(main)/inventory/owned/page.tsx` | CSR | InventoryOwnedListPage — 보유 재료 목록 |
 | (main) · 마이페이지 탭 | `/mypage` | `(main)/mypage/page.tsx` | SSR | MypageMainPage — 마이페이지 메인 |
 | **api** | `/api/revalidate` | `api/revalidate/route.ts` | — | ISR 재검증 웹훅 |
@@ -102,7 +101,7 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 
 | 경로 | 컴포넌트 | 렌더링 | 설명 |
 |------|----------|--------|------|
-| `/inventory/interest` | InventoryInterestListPage | CSR | 관심 재료 목록 페이지 |
+| `/inventory/favorite` | InventoryFavoriteListPage | CSR | 관심 재료 목록 페이지 |
 | `/inventory/owned` | InventoryOwnedListPage | CSR | 보유 재료 목록 페이지 |
 
 #### 마이페이지 탭 (`/mypage`)
