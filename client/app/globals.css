@@ -10,6 +10,7 @@
   --text-placeholder: #737373;
   --border: #8a8480;
   --border-subtle: #e5e5e5;
+  --scrollbar-thumb: rgb(212 212 212 / 0.8);
   --placeholder-surface: #f5f5f4;
   --primary-inactive: #d4d4d4;
 
@@ -87,6 +88,7 @@
   --color-border: var(--border);
   --color-border-default: var(--border);
   --color-border-subtle: var(--border-subtle);
+  --color-scrollbar-thumb: var(--scrollbar-thumb);
   /* 짧은 유틸용 별칭 (소스는 위 토큰과 동일) */
   --color-outline-subtle: var(--border-subtle);
   --color-muted: var(--text-secondary);
