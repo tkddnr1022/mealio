@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+﻿import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { ReactNode } from "react";
 
-import { CustomScrollbar } from "./CustomScrollbar";
+import { CustomScrollbar } from "../../../components/layout/CustomScrollbar";
 
 const figmaMobileFrame = (Story: () => ReactNode) => (
   <div className="mx-auto flex h-[640px] w-full max-w-[400px] flex-col border border-border-subtle bg-background shadow-md">
@@ -40,3 +40,4 @@ export const InMainContent: Story = {
     </div>
   ),
 };
+

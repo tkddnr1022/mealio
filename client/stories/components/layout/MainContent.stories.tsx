@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+﻿import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { ReactNode } from "react";
 
-import { MainContent } from "./MainContent";
-import { Navbar } from "./Navbar";
+import { MainContent } from "../../../components/layout/MainContent";
+import { Navbar } from "../../../components/layout/Navbar";
 
 const figmaMobileFrame = (Story: () => ReactNode) => (
   <div className="mx-auto flex h-[640px] w-full max-w-[400px] flex-col border border-border-subtle bg-background shadow-md">
@@ -120,3 +120,4 @@ export const Centered: Story = {
     </MainContent>
   ),
 };
+

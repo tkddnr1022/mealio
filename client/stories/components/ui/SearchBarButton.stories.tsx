@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+﻿import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { ReactNode } from "react";
 import { fn } from "storybook/test";
 
-import { SearchBarButton } from "./SearchBarButton";
+import { SearchBarButton } from "../../../components/ui/SearchBarButton";
 
 const narrowWidth = (Story: () => ReactNode) => (
   <div className="w-[min(100vw-2rem,25rem)]">
@@ -49,3 +49,4 @@ export const Disabled: Story = {
     disabled: true,
   },
 };
+

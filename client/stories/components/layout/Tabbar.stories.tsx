@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+﻿import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState } from "react";
 import { fn } from "storybook/test";
 
-import { Tabbar, type TabbarTabId } from "./Tabbar";
+import { Tabbar, type TabbarTabId } from "../../../components/layout/Tabbar";
 
 const meta = {
   title: "Layout/Tabbar",
@@ -59,3 +59,4 @@ export const ActivePantry: Story = {
 export const ActiveMypage: Story = {
   args: { activeId: "mypage" },
 };
+

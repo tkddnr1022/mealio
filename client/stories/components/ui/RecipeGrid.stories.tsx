@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+﻿import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { ReactNode } from "react";
 
-import type { RecipeGridItem } from "./RecipeGrid";
-import { RecipeGrid } from "./RecipeGrid";
+import type { RecipeGridItem } from "../../../components/ui/RecipeGrid";
+import { RecipeGrid } from "../../../components/ui/RecipeGrid";
 
 /** Figma 2×2 프레임에 가깝게: 카드 ~170px × 2 + 가로 갭 16px */
 const figmaWidth = (Story: () => ReactNode) => (
@@ -152,3 +152,4 @@ export const FluidContainer: Story = {
     recipes: fourSameAsFigma,
   },
 };
+

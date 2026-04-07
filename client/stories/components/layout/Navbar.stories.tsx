@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+﻿import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn } from "storybook/test";
 
-import { Navbar } from "./Navbar";
+import { Navbar } from "../../../components/layout/Navbar";
 
 const variantOrder = [
   "Empty",
@@ -71,3 +71,4 @@ export const LongTitle: Story = {
     title: "토마토와 바질로 만드는 카프레제 샐러드",
   },
 };
+

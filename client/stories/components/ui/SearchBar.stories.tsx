@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+﻿import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { ReactNode } from "react";
 import { fn } from "storybook/test";
 
-import { Navbar } from "../layout/Navbar";
-import { SearchBar } from "./SearchBar";
+import { Navbar } from "../../../components/layout/Navbar";
+import { SearchBar } from "../../../components/ui/SearchBar";
 
 const narrowWidth = (Story: () => ReactNode) => (
   <div className="w-[min(100vw-2rem,23rem)]">
@@ -77,3 +77,4 @@ export const InsideNavbar: Story = {
     ),
   ],
 };
+
