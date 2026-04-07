@@ -126,7 +126,7 @@ export function RecipeSlider({
 
   return (
     <div
-      className={`flex w-full max-w-[400px] flex-col gap-4 ${className}`.trim()}
+      className={`flex w-full flex-col gap-4 ${className}`.trim()}
       data-name="RecipeSlider"
       {...rest}
     >
