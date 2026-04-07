@@ -3,9 +3,7 @@
 import type { HTMLAttributes } from "react";
 import {
   useCallback,
-  useLayoutEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import type { Swiper as SwiperType } from "swiper";
@@ -39,21 +37,6 @@ function chunkRecipes(
   return out;
 }
 
-function computeSlideWidth(
-  containerWidth: number,
-  peekPx: number,
-): number {
-  return Math.max(
-    MIN_SLIDE_WIDTH,
-    Math.floor(
-      containerWidth -
-        SLIDES_OFFSET_BEFORE -
-        SPACE_BETWEEN -
-        peekPx,
-    ),
-  );
-}
-
 export type RecipeSliderProps = Readonly<
   Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
     /** 슬라이드에 채울 레시피(4개마다 한 페이지의 2×2 그리드) */
@@ -85,52 +68,28 @@ export function RecipeSlider({
     [recipes],
   );
   const [activeIndex, setActiveIndex] = useState(0);
-  const hostRef = useRef<HTMLDivElement>(null);
-  const swiperRef = useRef<SwiperType | null>(null);
-  const [slideWidth, setSlideWidth] = useState(MIN_SLIDE_WIDTH);
-
-  const measureAndApply = useCallback(() => {
-    const el = hostRef.current;
-    if (!el) return;
-    const w = el.getBoundingClientRect().width;
-    setSlideWidth(computeSlideWidth(w, peekPx));
-    queueMicrotask(() => {
-      swiperRef.current?.update();
-    });
-  }, [peekPx]);
-
-  useLayoutEffect(() => {
-    const el = hostRef.current;
-    if (!el) return;
-    measureAndApply();
-    const ro = new ResizeObserver(() => measureAndApply());
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [measureAndApply]);
+  const slideWidthStyle = useMemo(
+    () => ({
+      width: `max(${MIN_SLIDE_WIDTH}px, calc(100% - ${SLIDES_OFFSET_BEFORE + SPACE_BETWEEN + peekPx}px))`,
+    }),
+    [peekPx],
+  );
 
   const handleSlideChange = useCallback((swiper: SwiperType) => {
     setActiveIndex(swiper.activeIndex);
   }, []);
 
-  const handleSwiper = useCallback(
-    (swiper: SwiperType) => {
-      swiperRef.current = swiper;
-      measureAndApply();
-    },
-    [measureAndApply],
-  );
-
   if (pages.length === 0) {
     return null;
   }
-
+  // TODO: CLS 최적화를 위한 SSR placeholder 추가
   return (
     <div
       className={`flex w-full flex-col gap-4 ${className}`.trim()}
       data-name="RecipeSlider"
       {...rest}
     >
-      <div ref={hostRef} className="min-w-0 overflow-hidden">
+      <div className="min-w-0 overflow-hidden">
         <Swiper
           modules={[A11y, Keyboard]}
           slidesPerView="auto"
@@ -145,14 +104,13 @@ export function RecipeSlider({
           keyboard={{ enabled: true, onlyInViewport: true }}
           a11y={{ enabled: true }}
           className="w-full overflow-clip"
-          onSwiper={handleSwiper}
           onSlideChange={handleSlideChange}
         >
           {pages.map((pageRecipes, pageIndex) => (
             <SwiperSlide
               key={pageIndex}
               className="box-border! shrink-0"
-              style={{ width: slideWidth }}
+              style={slideWidthStyle}
             >
               <RecipeGrid recipes={pageRecipes} cardClassName={cardClassName} />
             </SwiperSlide>
