@@ -7,6 +7,8 @@ import type { ReactNode } from "react";
 export type MainContentProps = Readonly<{
   className?: string;
   innerClassName?: string;
+  /** true면 내부 스택을 가로 중앙 정렬 */
+  centered?: boolean;
   /** 기본 `px-4`. 가로 풀블리드 등에서 `false`. */
   paddingX?: boolean;
   /** 기본 `py-6`. 세로만 풀블리드할 때 `false`. */
@@ -17,6 +19,7 @@ export type MainContentProps = Readonly<{
 export function MainContent({
   className = "",
   innerClassName = "",
+  centered = false,
   paddingX = true,
   paddingY = true,
   children,
@@ -28,6 +31,7 @@ export function MainContent({
       <div
         className={[
           "relative flex flex-col gap-8 min-h-0 w-full flex-1 overflow-y-auto",
+          centered && "items-center justify-center",
           paddingX && "px-4",
           paddingY && "py-6",
           innerClassName,

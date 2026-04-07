@@ -54,12 +54,12 @@ export default function RecipeMainPage() {
   const recentRecipes = useMemo(() => buildRecipes(5), []);
 
   return (
-    <div className="flex flex-col">
+    <>
       <Navbar title="레시피" variant="Empty" />
 
       <SearchBarButton searchBarProps={{ placeholder: '레시피 검색하기' }} />
 
-      <MainContent paddingX={false} innerClassName="gap-8 py-6">
+      <MainContent paddingX={false}>
         <section className="flex flex-col gap-4">
           <div className="px-4">
             <h2>추천 레시피</h2>
@@ -81,6 +81,6 @@ export default function RecipeMainPage() {
           setActiveTab(TABBAR_TAB_IDS.includes(id) ? id : 'recipe')
         }
       />
-    </div>
+    </>
   );
 }

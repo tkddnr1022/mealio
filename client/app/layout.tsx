@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist_Mono, Noto_Sans_KR } from 'next/font/google';
+import { AppRootFrame } from '@/components/layout/AppRootFrame';
 import './globals.css';
 
 const notoSansKr = Noto_Sans_KR({
@@ -29,9 +30,7 @@ export default function RootLayout({
       <body
         className={`${notoSansKr.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="flex h-screen w-full justify-center">
-          <div className="flex w-full max-w-[400px] flex-col">{children}</div>
-        </div>
+        <AppRootFrame>{children}</AppRootFrame>
       </body>
     </html>
   );

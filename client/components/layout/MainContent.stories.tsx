@@ -104,3 +104,19 @@ export const WithNavbarShell: Story = {
     </MainContent>
   ),
 };
+
+export const Centered: Story = {
+  name: "중앙 정렬 (`centered`)",
+  decorators: [figmaMobileFrame],
+  args: { centered: true },
+  render: (args) => (
+    <MainContent {...args}>
+      <div className="w-full max-w-[280px] rounded-xl border border-border-subtle bg-surface p-4 text-center shadow-sm">
+        <p className="text-body text-text-primary">중앙 정렬된 카드</p>
+        <p className="mt-2 text-caption">
+          `centered`가 true면 내부 스택에 `justify-center items-center`가 적용됩니다.
+        </p>
+      </div>
+    </MainContent>
+  ),
+};
