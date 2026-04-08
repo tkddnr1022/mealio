@@ -94,7 +94,7 @@ export function Navbar({
   return (
     <header
       role="banner"
-      className={`z-40 border-b border-outline-subtle bg-surface shadow-sm ${className}`.trim()}
+      className={`z-40 border-b border-border-subtle bg-surface shadow-sm ${className}`.trim()}
     >
       <div className="mx-auto grid w-full max-w-[1200px] grid-cols-[minmax(2.75rem,1fr)_auto_minmax(2.75rem,1fr)] items-center gap-2 px-2 py-4">
         <div className="flex justify-start">{leading}</div>

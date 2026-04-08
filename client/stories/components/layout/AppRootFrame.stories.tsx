@@ -22,7 +22,7 @@ export const Default: Story = {
   args: {
     children: (
       <MainContent centered>
-        <div className="w-full rounded-xl border border-outline-subtle bg-surface p-4 text-center text-body text-text-primary shadow-sm">
+        <div className="w-full rounded-xl border border-border-subtle bg-surface p-4 text-center text-body text-text-primary shadow-sm">
           AppRootFrame 내부 컨텐츠
         </div>
       </MainContent>

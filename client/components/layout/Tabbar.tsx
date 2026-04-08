@@ -79,7 +79,7 @@ function TabButton({
 export function Tabbar({ className = "", activeId, onSelect }: TabbarProps) {
   return (
     <nav
-      className={`w-full border-t border-outline-subtle bg-surface ${className}`.trim()}
+      className={`w-full border-t border-border-subtle bg-surface ${className}`.trim()}
       aria-label="하단 탭"
     >
       <div className="mx-auto flex w-full max-w-[1200px] items-start gap-6 px-6 py-3">

@@ -90,7 +90,6 @@
   --color-border-subtle: var(--border-subtle);
   --color-scrollbar-thumb: var(--scrollbar-thumb);
   /* 짧은 유틸용 별칭 (소스는 위 토큰과 동일) */
-  --color-outline-subtle: var(--border-subtle);
   --color-muted: var(--text-secondary);
   --color-caption: var(--text-caption-color);
   --color-placeholder-surface: var(--placeholder-surface);
