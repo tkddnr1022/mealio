@@ -5,16 +5,6 @@ Figma 디자인을 클라이언트 코드로 옮길 때의 **공통 원칙**과 
 
 **수치·팔레트·타이포 크기·간격·컴포넌트별 필드 이름·비율 등 실제 스펙은 `design_tokens.json`과 `client/app/globals.css`가 단일 근거**이며, 본 가이드에는 넣지 않는다.
 
-## 관련 자료
-
-| 자료 | 용도 |
-|------|------|
-| `design_tokens.json` | 컬러·타이포·스페이싱·radius·컴포넌트 토큰 등 **값·구조의 정의** |
-| `design_principle.json` | 터치 타깃, 접근성, 톤 등 **원칙·수치** |
-| `client/app/globals.css` | 토큰을 **CSS 변수**로 두고, `@theme inline`으로 Tailwind와 연동 |
-| `frontend_development_guidelines.md` | Next.js·스타일링·성능 등 **프론트 구현 지침** |
-| `.cursor/rules/agent-docs-figma.mdc` | Figma **MCP 선택·캡처·재시도** |
-
 ---
 
 ## 1. 총칙
