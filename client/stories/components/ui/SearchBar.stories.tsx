@@ -20,6 +20,7 @@ const meta = {
     viewport: { defaultViewport: "mobile1" },
   },
   args: {
+    mode: "input",
     placeholder: "레시피 검색하기",
     disabled: false,
     onChange: fn(),
@@ -39,6 +40,17 @@ export const Filled: Story = {
   name: "입력됨",
   decorators: [narrowWidth],
   args: {
+    defaultValue: "비빔밥",
+  },
+};
+
+export const ButtonMode: Story = {
+  name: "mode: button (헤더·트리거)",
+  decorators: [narrowWidth],
+  args: {
+    mode: "button",
+    readOnly: true,
+    tabIndex: -1,
     defaultValue: "비빔밥",
   },
 };

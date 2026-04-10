@@ -8,24 +8,24 @@ import {
 } from "react";
 import { SearchBarProps, SearchBar } from "./SearchBar";
 
-export type SearchBarButtonProps = Readonly<
+export type SearchBarHeaderProps = Readonly<
   Omit<
     HTMLAttributes<HTMLDivElement>,
     "onClick" | "role" | "tabIndex" | "children"
   > & {
-    /** 카드(표면·패딩·그림자) 래퍼 클래스 */
+    /** 헤더(표면·패딩·그림자) 래퍼 클래스 */
     className?: string;
-    /** SearchBar 루트에 전달할 클래스 (호버 pill 스타일은 기본 포함) */
+    /** SearchBar pill에 전달할 클래스 (호버 배경은 기본 포함) */
     searchBarClassName?: string;
-    /** SearchBar에 그대로 전달 (readOnly·tabIndex는 컴포넌트가 덮어씀) */
-    searchBarProps?: Omit<SearchBarProps, "readOnly" | "tabIndex">;
+    /** SearchBar에 그대로 전달 (mode·readOnly·tabIndex는 컴포넌트가 덮어씀) */
+    searchBarProps?: Omit<SearchBarProps, "mode" | "readOnly" | "tabIndex">;
     disabled?: boolean;
     onClick?: (e: MouseEvent<HTMLDivElement>) => void;
   }
 >;
 
-export const SearchBarButton = forwardRef<HTMLDivElement, SearchBarButtonProps>(
-  function SearchBarButton(
+export const SearchBarHeader = forwardRef<HTMLDivElement, SearchBarHeaderProps>(
+  function SearchBarHeader(
     {
       className = "",
       searchBarClassName = "",
@@ -60,13 +60,14 @@ export const SearchBarButton = forwardRef<HTMLDivElement, SearchBarButtonProps>(
         tabIndex={isDisabled ? -1 : 0}
         aria-label={ariaLabel}
         aria-disabled={isDisabled || undefined}
-        className={`group bg-surface px-4 py-3 shadow-sm outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${isDisabled ? "pointer-events-none cursor-not-allowed" : "cursor-pointer"} ${className}`.trim()}
+        className={`group flex w-full flex-col items-stretch bg-surface px-4 py-3 shadow-sm outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${isDisabled ? "pointer-events-none cursor-not-allowed" : "cursor-pointer"} ${className}`.trim()}
         onClick={isDisabled ? undefined : onClick}
         onKeyDown={handleKeyDown}
         {...rest}
       >
         <SearchBar
           {...searchBarProps}
+          mode="button"
           readOnly
           tabIndex={-1}
           disabled={isDisabled}

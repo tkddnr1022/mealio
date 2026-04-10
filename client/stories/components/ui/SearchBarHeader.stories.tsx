@@ -1,8 +1,8 @@
-﻿import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { ReactNode } from "react";
 import { fn } from "storybook/test";
 
-import { SearchBarButton } from "../../../components/ui/SearchBarButton";
+import { SearchBarHeader } from "../../../components/ui/SearchBarHeader";
 
 const narrowWidth = (Story: () => ReactNode) => (
   <div className="w-[min(100vw-2rem,25rem)]">
@@ -11,8 +11,8 @@ const narrowWidth = (Story: () => ReactNode) => (
 );
 
 const meta = {
-  title: "UI/SearchBarButton",
-  component: SearchBarButton,
+  title: "UI/SearchBarHeader",
+  component: SearchBarHeader,
   tags: ["autodocs"],
   parameters: {
     layout: "centered",
@@ -21,7 +21,7 @@ const meta = {
   args: {
     onClick: fn(),
   },
-} satisfies Meta<typeof SearchBarButton>;
+} satisfies Meta<typeof SearchBarHeader>;
 
 export default meta;
 
@@ -49,4 +49,3 @@ export const Disabled: Story = {
     disabled: true,
   },
 };
-

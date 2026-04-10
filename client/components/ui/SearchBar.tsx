@@ -11,11 +11,19 @@ import {
   type InputHTMLAttributes,
 } from "react";
 
+export type SearchBarMode = "input" | "button";
+
 export type SearchBarProps = Readonly<
   Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "className"> & {
     className?: string;
     /** 외곽 pill 컨테이너에 붙는 클래스 */
     wrapperClassName?: string;
+    /**
+     * Figma variant `mode`.
+     * - `input`: 편집 가능한 필드 — 포커스 링, 입력값 시 지우기 버튼.
+     * - `button`: 트리거/헤더용 — 포커스 링 없음, 지우기 버튼 없음(상위가 포커스·클릭 처리).
+     */
+    mode?: SearchBarMode;
   }
 >;
 
@@ -24,6 +32,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
     {
       className = "",
       wrapperClassName = "",
+      mode = "input",
       disabled,
       placeholder = "레시피 검색하기",
       id: idProp,
@@ -46,6 +55,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
 
     const valueStr = isControlled ? String(valueProp ?? "") : internalValue;
     const hasText = valueStr.length > 0;
+    const isInputMode = mode === "input";
 
     const setRefs = useCallback(
       (el: HTMLInputElement | null) => {
@@ -63,7 +73,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
 
     const handleClear = (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
-      if (disabled || !hasText) return;
+      if (!isInputMode || disabled || !hasText) return;
       const input = innerRef.current;
       if (!input) return;
       input.focus();
@@ -82,15 +92,24 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
       } as unknown as ChangeEvent<HTMLInputElement>);
     };
 
+    const focusRingClasses = isInputMode
+      ? "focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background"
+      : "outline-none";
+
     return (
       <div
-        className={`flex w-full items-center gap-3 rounded-full bg-background px-4 py-3 transition-shadow focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background [&:has(input:disabled)]:opacity-50 ${wrapperClassName}`.trim()}
+        data-mode={mode}
+        className={`flex w-full items-center gap-3 rounded-full bg-background px-4 py-3 transition-shadow ${focusRingClasses} [&:has(input:disabled)]:opacity-50 ${wrapperClassName}`.trim()}
       >
-        <Search
-          className="size-5 shrink-0 text-text-placeholder"
-          strokeWidth={2}
+        <div
+          className="flex size-6 shrink-0 flex-col items-center justify-center overflow-hidden p-[3px]"
           aria-hidden
-        />
+        >
+          <Search
+            className="size-[18px] shrink-0 text-text-placeholder"
+            strokeWidth={2}
+          />
+        </div>
         <input
           ref={setRefs}
           {...inputProps}
@@ -104,17 +123,19 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
           onChange={handleChange}
           className={`min-h-0 min-w-0 flex-1 bg-transparent text-body text-text-primary outline-none placeholder:font-normal placeholder:text-text-placeholder disabled:cursor-not-allowed not-placeholder-shown:font-medium [&::-webkit-search-cancel-button]:hidden ${className}`.trim()}
         />
-        <button
-          type="button"
-          tabIndex={hasText && !disabled ? 0 : -1}
-          aria-hidden={!hasText}
-          aria-label={hasText ? "검색어 지우기" : undefined}
-          disabled={!hasText || disabled}
-          onClick={handleClear}
-          className={`inline-flex size-5 shrink-0 items-center justify-center rounded-lg text-text-placeholder transition-colors hover:bg-placeholder-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none ${!hasText ? "invisible pointer-events-none" : ""}`.trim()}
-        >
-          <X className="size-4" strokeWidth={2} aria-hidden />
-        </button>
+        {isInputMode ? (
+          <button
+            type="button"
+            tabIndex={hasText && !disabled ? 0 : -1}
+            aria-hidden={!hasText}
+            aria-label={hasText ? "검색어 지우기" : undefined}
+            disabled={!hasText || disabled}
+            onClick={handleClear}
+            className={`inline-flex size-5 shrink-0 items-center justify-center overflow-hidden p-[6px] text-text-placeholder transition-colors hover:bg-placeholder-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none ${!hasText ? "invisible pointer-events-none" : ""}`.trim()}
+          >
+            <X className="size-3" strokeWidth={2} aria-hidden />
+          </button>
+        ) : null}
       </div>
     );
   },

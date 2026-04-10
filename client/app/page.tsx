@@ -11,7 +11,7 @@ import {
 } from '@/components/layout/Tabbar';
 import type { RecipeGridItem } from '@/components/ui/RecipeGrid';
 import { RecipeSlider } from '@/components/ui/RecipeSlider';
-import { SearchBarButton } from '@/components/ui/SearchBarButton';
+import { SearchBarHeader } from '@/components/ui/SearchBarHeader';
 
 const images = [
   'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?w=640&h=640&fit=crop',
@@ -57,7 +57,7 @@ export default function RecipeMainPage() {
     <>
       <Navbar title="레시피" variant="Empty" />
 
-      <SearchBarButton searchBarProps={{ placeholder: '레시피 검색하기' }} />
+      <SearchBarHeader searchBarProps={{ placeholder: '레시피 검색하기' }} />
 
       <MainContent paddingX={false}>
         <section className="flex flex-col gap-4">
