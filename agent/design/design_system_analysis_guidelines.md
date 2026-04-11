@@ -61,10 +61,24 @@ Figma MCP **`use_figma`**는 `fileKey`와 함께 **실행할 `code`(Plugin API)*
 
 같은 `fileKey`·`nodeId`에 대해 `get_variable_defs`와 `get_design_context`를 병행하는 것을 권장한다. `search_design_system`은 `nodeId` 없이 `fileKey`만으로 호출 가능하며, **탐색·교차 확인** 단계에 쓴다.
 
+#### `get_metadata`(XML)로 샘플 노드·variant 범위 잡기 (선택)
+
+`get_metadata`가 XML 형태로 계층을 줄 때, **`get_design_context` / `get_variable_defs`에 넘길 `nodeId`를 고르기 전**에 아래처럼 읽으면 수집 범위를 정하기 쉽다.
+
+- 직계 자식이 **`<frame name="…">` 이고 그 안에 `<symbol>`이 여러 개**이면, Figma에서는 보통 **컴포넌트 세트(variant 묶음)** 로 본다. 스타일·변수가 variant마다 다를 수 있으므로 **대표 variant 하나만** 볼지, **variant별로 추가 호출**할지 결정한다.
+- 직계 자식이 **단일 `<symbol>`**이면 보통 **단일 컴포넌트**(또는 한 베리언트만 드러난 심볼)다.
+
+레이아웃·클래스·“These styles are contained…” 목록은 이후 **`get_design_context`**로 이어간다. (동일 휴리스틱은 `agent/design/figma_implementation.md` §2 서두와 맞춘다.)
+
+#### `get_design_context`의 Component descriptions
+
+응답에 **Component descriptions**(포커스 링, transition 등)가 붙어 있으면, 토큰·스타일 표 **본문과 별도**로 짧게 적어 둔다(각주·“참고” 소절 등). 변수 맵에는 없을 수 있으나 **접근성·인터랙션 검토**에 쓰인다.
+
 ### 3.2 수집 원칙
 
 - **텍스트, 색, 그림자, 보더, 반지름, 패딩 등** 종류를 가리지 않고, 변수 맵과 디자인 컨텍스트에 나온 바인딩·스타일을 모두 후보로 둔다.
 - 생성 코드에만 있고 변수 맵에 없는 값(예: raw `box-shadow`, 숫자 리터럴 `gap`)은 **별도 행 또는 “권장 수정사항”**에 적어 둔다.
+- 참고 코드에 **`gap-[12px]`·`gap-[16px]`** 처럼 **숫자만 있고 `var(--spacing/…)`**(또는 MCP가 보내는 동등한 **간격 변수 참조**)가 없으면, 오토레이아웃 **`itemSpacing` 등이 간격 토큰에 묶이지 않은 상태**로 본다. §7에 **간격 변수 미바인딩 의심**으로 기록한다. (`agent/design/figma_implementation.md` §2.7과 동일 판별 기준.)
 - 아이콘·이미지 URL은 토큰 표에서 제외하고, 참고에 “자산은 별도”라고 명시한다.
 
 ### 3.3 `search_design_system` 활용 (보조)
@@ -129,6 +143,7 @@ Figma MCP **`use_figma`**는 `fileKey`와 함께 **실행할 `code`(Plugin API)*
 
 - Figma 파일 링크, `fileKey`, 수집 시점(날짜), 사용한 MCP 도구 이름.
 - “MCP 응답 기준이며, 이후 Figma 수정 시 재수집 필요” 등 한 줄 주의.
+- 통합 문서·옛 초안·에이전트 산출물의 **컴포넌트 호칭**과 **Figma 파일의 실제 심볼·컴포넌트 세트 이름**이 다를 수 있다. **이름의 SSOT는 항상 Figma**이며, 병합·**사용처** 열 서술 시 옛 이름과 최종명이 **중복 행**으로 갈라지지 않도록 맞춘다(예: 문서상 `Tag` vs 파일 `FlatTag`).
 
 ---
 
@@ -150,6 +165,8 @@ Figma MCP **`use_figma`**는 `fileKey`와 함께 **실행할 `code`(Plugin API)*
 - [ ] `primary-inactive`처럼 **이름과 실제 의미**(브랜드 vs 중립 트랙)가 어긋나지 않는가.
 - [ ] 그림자 색이 `color/` 아래만 있어 **의미가 모호하지 않은가** — 이펙트 네임스페이스·스타일 단일화 검토.
 - [ ] `Body` 등 **일반어 스타일명**이 실제로는 플레이스홀더 등 좁은 용도만 쓰이지 않는가.
+- [ ] **Figma 심볼·컴포넌트 세트 이름**이 `figma-variables-and-styles.md`·코드·옛 문서의 호칭과 충돌하지 않는가 — **파일 SSOT**로 통일·병합했는가(리네임, 예: `FlatTag`).
+- [ ] **variant 속성 값**이 UI 로캘과 같이 **한글** 등으로만 정의되어 있지 않은가. 제품·개발 문서와 **영문 키 병기**가 필요하면 네이밍을 논의한다(예: `Chip`의 `state=기본` / `state=hover` — `figma_implementation.md` §2.8과 동일 관찰).
 
 ### 6.2 의미와 사용처
 
@@ -161,6 +178,7 @@ Figma MCP **`use_figma`**는 `fileKey`와 함께 **실행할 `code`(Plugin API)*
 
 - [ ] 동일 색이 **여러 변수 경로**로만 존재하면 alias·단일 SSOT로 줄일 수 있는가.
 - [ ] 스타일 여러 개가 같은 변수만 가리키는 것은 정상일 수 있으나, **팔레트 변경 시 수정 지점**이 한 곳인가.
+- [ ] **`get_design_context`** 참고 코드·스타일 요약에서 **시맨틱 토큰/로컬 스타일과 raw hex**가 **같은 레이어·같은 역할**에 **혼재**하지 않는가. 예: 제목에 `Text/Primary`와 별도로 `#1c1a17`만 단독 노출, 배경이 변수 없이 `#f5f5f4` 등만 MCP에 나옴. **SSOT를 변수·스타일 한쪽**으로 모을 수 있으면 §7 권장 수정사항에 적는다. (Cook 파일 예: `EmptyResultScreen` 상단 원형 영역, `SearchResultMeta`의 강조 숫자 등 — 수집 시점 노드 기준으로 확인.)
 
 ### 6.4 색상 대비
 
@@ -178,6 +196,8 @@ Figma MCP **`use_figma`**는 `fileKey`와 함께 **실행할 `code`(Plugin API)*
 ## 7. 권장 수정사항 섹션
 
 - MCP 코드와 불일치(리터럴 `gap`, raw shadow, `text-[16px]` 등)를 **짧은 번호 목록**으로 적는다.
+- **간격**: `gap-[12px]`·`gap-[16px]` 등 **픽셀 리터럴만** 있고 **`var(--spacing/…)` 등 간격 변수 참조가 없음** → 오토레이아웃 `itemSpacing`·`padding`의 **변수 바인딩** 점검(§3.2).
+- **색·타이포**: 한 컴포넌트 안에서 **토큰/스타일과 raw hex·고정 px**가 같은 용도에 **동시에** 쓰임 → §6.3 SSOT 정리 후보.
 - JSON·Figma **이름 충돌**은 반드시 한 항목으로 명시한다.
 - 선택 사항임을 제목이나 문장으로 밝힌다.
 
@@ -193,7 +213,7 @@ Figma MCP **`use_figma`**는 `fileKey`와 함께 **실행할 `code`(Plugin API)*
 
 ## 9. 요약 플로우
 
-1. URL에서 `fileKey`·`nodeId` 추출 → MCP `get_variable_defs` + `get_design_context` 호출.  
+1. URL에서 `fileKey`·`nodeId` 추출 → (선택) `get_metadata`로 컴포넌트 세트·variant 범위 확인(3.1절) → MCP `get_variable_defs` + `get_design_context` 호출(Component descriptions는 3.1절 참고).  
 2. (선택) 같은 `fileKey`로 `search_design_system`에 `query`를 여러 번 걸어 **DS 전반·누락 의심 항목**을 교차 확인한다 — **화면 사용처의 근거로만 쓰지 않는다**(3.3절).  
 3. 표(구분·이름·값·사용처)로 정리하고, raw 값·누락은 권장사항에 기록.  
 4. 여러 노드면 **이름 기준 병합**·사용처 합침.  
