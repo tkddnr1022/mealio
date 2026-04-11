@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  /* design tokens — agent/design/design_tokens.json v1.3 + figma-variable-index */
+  /* design tokens — agent/design/spec/design_tokens.json v1.3 + figma-variable-index */
   --background: #fafaf9;
   --surface: #ffffff;
   --text-primary: #1c1a17;

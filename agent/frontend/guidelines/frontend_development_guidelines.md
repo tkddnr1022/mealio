@@ -49,7 +49,7 @@ export async function generateMetadata({ params }): Promise<Metadata> {
 → Consumer → OpenAI API → Redis → SSE → 클라이언트
 ```
 
-클라이언트는 `EventSource` 또는 fetch + ReadableStream으로 SSE를 구독하고, `ChatbotStreamEvent` 타입(`intent` | `chunk` | `done` | `error`)에 따라 UI를 갱신한다. Redis 채널·이벤트 타입·6단계 흐름은 `../spec/backend_architecture_spec.md`(§1.2) 및 `backend_development_guidelines.md` §5에 정의되어 있다.
+클라이언트는 `EventSource` 또는 fetch + ReadableStream으로 SSE를 구독하고, `ChatbotStreamEvent` 타입(`intent` | `chunk` | `done` | `error`)에 따라 UI를 갱신한다. Redis 채널·이벤트 타입·6단계 흐름은 `../../backend/spec/backend_architecture_spec.md`(§1.2) 및 `../../backend/guidelines/backend_development_guidelines.md` §5에 정의되어 있다.
 
 ### 2.3 레시피 목록 (점진적 로딩)
 
@@ -156,7 +156,7 @@ const RecipeEditor = dynamic(
 
 ## 7. Storybook
 
-- **목적**: UI 컴포넌트를 앱 라우트·데이터 없이 **격리**해 개발·리뷰하고, `../design/design_tokens.json`·`design_principle.json`과의 시각적 정합을 맞춘다.
+- **목적**: UI 컴포넌트를 앱 라우트·데이터 없이 **격리**해 개발·리뷰하고, `../../design/spec/design_tokens.json`·`../../design/spec/design_principle.json`과의 시각적 정합을 맞춘다.
 - **배치**: 스토리 파일은 대상 컴포넌트와 가까이 둔다(예: `ComponentName.stories.tsx`). 공용 UI는 `client/components` 등 실제 import 경로와 동일한 트리를 따른다.
 - **스토리 범위**: 기본 상태 1개 + **의미 있는 변형**(비어 있음, 로딩, 에러, 모바일 폭 등)만 유지한다. 페이지 전체 복제보다는 재사용 단위(버튼, 카드, 폼 필드)를 우선한다.
 - **데이터·API**: React Query·fetch를 쓰는 컴포넌트는 스토리에서 **목(mock) 데이터 또는 MSW**로 고정해, 백엔드 없이 재현 가능하게 한다.

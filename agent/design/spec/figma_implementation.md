@@ -1,6 +1,6 @@
 # Figma 구현 가이드 (MCP + Plugin API)
 
-Cook 프로젝트에서 **Figma MCP**와 **`use_figma`(Plugin API)** 로 raw 노드를 디자인 시스템(변수·스타일·컴포넌트)에 맞춰 옮기거나, 재사용 가능한 컴포넌트를 파일에 직접 생성할 때의 **일반 절차**를 정리한다. 특정 화면 한 건에 묶이지 않고, 이후 유사 작업에 그대로 재사용할 수 있게 서술한다.
+본 제품에서 **Figma MCP**와 **`use_figma`(Plugin API)** 로 raw 노드를 디자인 시스템(변수·스타일·컴포넌트)에 맞춰 옮기거나, 재사용 가능한 컴포넌트를 파일에 직접 생성할 때의 **일반 절차**를 정리한다. 특정 화면 한 건에 묶이지 않고, 이후 유사 작업에 그대로 재사용할 수 있게 서술한다.
 
 ---
 
@@ -8,13 +8,13 @@ Cook 프로젝트에서 **Figma MCP**와 **`use_figma`(Plugin API)** 로 raw 노
 
 - **목적**: Figma 파일 안에 변수·로컬 스타일이 반영된 **컴포넌트(또는 구조화된 노드)** 를 만들고, raw 레이어와의 갭을 줄인다.
 - **전제**: 대상 노드가 변수/스타일/컴포넌트 체계 없이 그려진 **raw 그룹**일 수 있다. 이 경우 MCP로 구조를 읽고, 파일에 이미 있는 토큰·스타일을 조회한 뒤 **`use_figma`로 생성·바인딩**한다.
-- **범위 밖(명시적 생략)**: 아이콘·이미지 에셋 임포트, 픽셀 퍼펙트한 일러스트 복제 등은 별도 지시가 없으면 **슬롯 프레임 또는 생략**으로 둔다. (Cook 라이브러리에는 이미 **아이콘 컴포넌트**가 있으므로, 동일 파일 작업 시에는 **인스턴스 swap**으로 맞추는 것이 원칙이다.)
+- **범위 밖(명시적 생략)**: 아이콘·이미지 에셋 임포트, 픽셀 퍼펙트한 일러스트 복제 등은 별도 지시가 없으면 **슬롯 프레임 또는 생략**으로 둔다. (파일 내 라이브러리에 이미 **아이콘 컴포넌트**가 있으므로, 동일 파일 작업 시에는 **인스턴스 swap**으로 맞추는 것이 원칙이다.)
 
 ---
 
-## 2. Cook Figma 라이브러리 체계 (파일 관찰)
+## 2. Figma 라이브러리 체계 (파일 관찰)
 
-아래는 Cook 파일(`fileKey`: `r9bdZPeswvPR1ncezzt4ri`)에서 **컴포넌트 모음·아이콘 모음·조립 화면** 노드를 MCP 메타데이터·Plugin API 트리 탐색으로 정리한 **관찰 기준**이다. 토큰 값의 SSOT는 여전히 `figma-variables-and-styles.md`·파일 변수와 대조한다.
+아래는 **연동 Figma 파일**에서 **컴포넌트 모음·아이콘 모음·조립 화면** 노드를 MCP 메타데이터·Plugin API 트리 탐색으로 정리한 **관찰 기준**이다. `fileKey`·`node-id`·파일 제목은 바뀔 수 있으므로 문서에 고정하지 않는다. 토큰 값의 SSOT는 여전히 `figma-variables-and-styles.md`·파일 변수와 대조한다.
 
 **이 절 안에서의 역할(중복 방지)**  
 - **§2.2** — 컴포넌트별 MCP 관찰의 **정본**(치수·토큰·배치).  
@@ -23,18 +23,20 @@ Cook 프로젝트에서 **Figma MCP**와 **`use_figma`(Plugin API)** 로 raw 노
 - **§2.5** — 오토레이아웃 **색인 표**; 세부는 **§2.2·§2.4**.  
 - **§2.6** — **아이콘 격자·터치 셸·광학 패딩** 정본. §2.2 액션 블록은 **이름 매핑** 위주.
 
-**인벤토리·반복 파악**: `UI`(`36:333`)에 포함된 컴포넌트를 **체크리스트·노드 ID 단위**로 쌓아 두고, 사용자 지시에 따라 일부만 깊게 읽는 작업 흐름은 `agent/design/figma-ui-components-audit-todo.md`를 쓴다.
+**인벤토리·반복 파악**: 컴포넌트 스테이징 영역(예: 이름이 `UI`인 섹션)에 포함된 컴포넌트를 **체크리스트**로 쌓아 두고, 사용자 지시에 따라 일부만 깊게 읽는 작업 흐름은 `agent/design/guidelines/figma-ui-components-audit-todo.md`를 쓴다.
 
 **`get_metadata`(XML) 읽는 법**: 같은 `UI` 섹션 안에서 **직계 자식이 `<frame name="…">`이고 그 안에 여러 `<symbol>`**이 있으면 Figma상 **컴포넌트 세트(변형 묶음)** 로 보면 된다. **직계 자식이 단일 `<symbol>`**이면 보통 **단일 컴포넌트**(또는 한 베리언트만 노출된 심볼)다. 구현·역할 파악은 이후 **`get_design_context`**로 이어진다.
 
 ### 2.1 파일 내 구역(랜드마크)
 
-| 구역 | 노드 (URL `node-id`) | 역할 |
-|------|----------------------|------|
-| 컴포넌트 모음 | `36:333` (`…?node-id=36-333`) | `UI` 섹션: 대부분의 컴포넌트·컴포넌트 세트 배치 |
-| 아이콘 모음 | `174:1467` | `Icons` 섹션: Lucide 기반 심볼 일괄 배치 |
-| 조립 예시 (화면) | `166:1586` `RecipeMainPage`, `233:1638` `RecipeFilterPage`, `258:3928` `RecipeSearchResultPage` | 최상위 **화면 컴포넌트** 또는 **화면용 컴포넌트 세트**로 레이아웃 조립 |
-| 빈 검색 결과 UI | `258:3926` `EmptyResultScreen` | 조립용 컴포넌트 — **구조·토큰은 §2.2** 「태그·검색 카드·리스트·빈 상태」 블록 |
+| 구역 | 역할 |
+|------|------|
+| 컴포넌트 모음 | `UI` 등 스테이징 섹션: 대부분의 컴포넌트·컴포넌트 세트 배치 |
+| 아이콘 모음 | `Icons` 등: Lucide 기반 심볼 일괄 배치 |
+| 조립 예시 (화면) | `RecipeMainPage`, `RecipeFilterPage`, `RecipeSearchResultPage` 등 최상위 **화면 컴포넌트** 또는 **화면용 컴포넌트 세트** |
+| 빈 검색 결과 UI | `EmptyResultScreen` 등 조립용 컴포넌트 — **구조·토큰은 §2.2** 「태그·검색 카드·리스트·빈 상태」 블록 |
+
+각 구역의 **Figma URL·node-id**는 작업마다 파일에서 확인한다.
 
 **`UI` 캔버스 배치(MCP `get_metadata` 기준)**  
 - 단일 `UI` 프레임이 **가로·세로 모두 큰 스테이징 캔버스**(대략 2973×3403)로, x 오프셋이 다른 **세로 컬럼**에 컴포넌트를 나란히 둔다(예: 네비·검색·`MainContent`·`Tabbar` 열, 레시피 그리드·슬라이더·페이지네이션 열, `CardBase`·`Button`·`Toggle` 열, 검색 헤더·드롭다운·칩 열, `EmptyResultScreen` 열). 라이브러리 **탐색·캡처용 무대**로 쓰는 패턴이다.  
@@ -48,14 +50,14 @@ Cook 프로젝트에서 **Figma MCP**와 **`use_figma`(Plugin API)** 로 raw 노
 - **행·래퍼**: `ChipsRow`는 안쪽에 **`FlatGroup`**(고정 높이 영역)을 두고 칩을 가로로 쌓는 식으로, **가로 스크롤·랩** 같은 리스트 영역을 한 덩어리로 관리한다. **`FlatTagsRow`**는 태그 행용 동류 패턴.
 - **템플릿·페이지**: `RecipeMainPage`, `RecipeFilterPage`, `RecipeSearchResultPage` — 상단·본문·하단 **고정 골격** + 유기체 인스턴스만 바꿔 **화면 전체**를 재구성.
 
-**액션·아이콘 버튼** (`get_design_context`로 `162:711` `BackButton`, `162:770` `AddButton`, `166:1687` `ShareButton`, 세트 `256:2371` `LikeButton` 확인)
+**액션·아이콘 버튼** (`get_design_context`로 `BackButton`, `AddButton`, `ShareButton`, 세트 `LikeButton` 확인)
 
 - **공통 셸(Back / Add / Share / Like)**: 바깥 프레임 **44×44**, 오토레이아웃 **가로·세로 가운데 정렬**, 패딩 **`spacing/2`(8px)**. Figma에서 **추가 variant 없이** 한 심볼로 쓰는 것은 `BackButton`·`AddButton`·`ShareButton` 세 가지.
 - **LikeButton만 컴포넌트 세트**: 축 **`isFavorite`**(`false` / `true`). `false`는 **외곽선** `lucide/heart` 인스턴스, `true`는 **채움** 하트로 전환되며 MCP 응답 기준 채움은 **`Action/Primary/Default`**(주황 계열)와 연결된 표현이다. 구현·바인딩 시 **실제 페인트/스타일 id**는 파일에서 한 번 더 확인한다.
-- **내부 아이콘 매핑**: `BackButton` → `lucide/arrow-left`, `AddButton` → `lucide/plus`, `ShareButton` → **`lucide/share-2`**(이름이 `share`가 아님). 베이스 아이콘 노드는 `Icons` 섹션의 `174:1464`, `174:1463`, `174:1461` 등과 대응한다.
+- **내부 아이콘 매핑**: `BackButton` → `lucide/arrow-left`, `AddButton` → `lucide/plus`, `ShareButton` → **`lucide/share-2`**(이름이 `share`가 아님). 베이스 아이콘은 `Icons` 섹션의 **`lucide/*` 심볼**과 이름·스왑으로 대응한다.
 - **광학 패딩**: 동일 44px 셸 안에서도 **Lucide 심볼별 내부 패딩이 다름** — 수치는 **§2.6**.
 
-**내비·검색·본문 골격** (`get_design_context`: `180:1770` `Navbar`, `185:2495` `SearchBar`, `190:2861` `SearchBarHeader`, `216:2300` `CustomScrollbar`, `216:2304` `MainContent`, `167:3234` `Tabbar`)
+**내비·검색·본문 골격** (`get_design_context`: `Navbar`, `SearchBar`, `SearchBarHeader`, `CustomScrollbar`, `MainContent`, `Tabbar`)
 
 - **Navbar**: 루트는 **가로·가운데 정렬** + **`Background/Surface`**, 하단 **`Border/Subtle`**(`border/default`). 라이브러리 심볼 **폭 404**(화면 400과 다를 수 있음). 패딩 **`px spacing/2`**; 세로는 MCP 기준 **`pt`/`pb`가 `spacing/4`로 묶여 있으나 화면 값 16·17px처럼 1px 차이**가 날 수 있다. **좌측 뒤로**: `left: 8px`, **44×44**, `top: calc(50% + 1px)` + 수직 중앙 보정(absolute). **중앙 브랜딩**: `lucide/chef-hat`(브랜드 아이콘, 주황 톤) + 제목 **`H1`/`Text/Primary`**, 둘 사이 **`gap spacing/2`**, 묶음은 `shrink-0`. **우측 액션**: `right: 8px`, `top: 15px`(absolute) — 빈 변형은 **약 44px 정사각 영역**만 잡고, `engageWithBack`는 **`LikeButton`·`ShareButton`을 `gap spacing/2`로 가로 스택**.
 - **SearchBar**: 가로 오토레이아웃, **`gap spacing/3`**, **`px spacing/4`·`py spacing/3`**, **`radius/full`**, 기본 **`Background/Primary/Default`**. **focus**(`input`·empty): **`border-2` + `color/primary`**. **disabled**: **`opacity/disabled`**. **`button`·hover**: 배경 **`Background/Primary/Hover`**(변수 경로에 `…placeholder`가 함께 쓰이기도 함). 텍스트 행은 **`flex-[1_0_0]` + min 크기**로 아이콘 사이를 채움. **filled + input + default**일 때만 **`lucide/x` 클리어**(래퍼 **20×20**, 패딩 **6px**). 검색 아이콘은 **24 + 내부 3px**. 값 텍스트는 **`SearchBar/Value`(Medium) + `Text/Primary`**, 플레이스홀더는 **Body Regular + `Text/Placeholder`**. Figma **컴포넌트 설명**의 `transition-shadow`·focus `ring` 등은 **`get_design_context` Component descriptions**와 함께 읽는다.
@@ -64,7 +66,7 @@ Cook 프로젝트에서 **Figma MCP**와 **`use_figma`(Plugin API)** 로 raw 노
 - **MainContent**: 스테이징 **400×400**, **`Background/Primary/Default`**, **`Container`** 슬롯은 **`flex-1`·전폭**. **`scroll=true`** 변형은 오른쪽 **`right: 4px`·`top: 8px`** 에 위와 **동일 토큰**의 세로 막대를 absolute로 겹친다(단독 `CustomScrollbar` 심볼과 시각 스펙 일치).
 - **Tabbar**: **`Border/Subtle` 상단**, **`gap spacing/6`**, **`px spacing/6`·`py spacing/3`**. 라벨 색 **`color/tab/active` / `tab/inactive`**, 타이포 **`typography/font-size-small`·Medium**. 아이콘 예: **`lucide/cooking-pot`**, **`message-circle`**, **`package`**, **`user`** — lucide-react 등 코드 매핑 시 **이름 그대로**인지 한 번 확인한다.
 
-**레시피 노출·캐러셀** (`get_design_context`: `166:2030` `RecipeGridCard`, `167:2276` `RecipeGrid`, `198:1397` `PaginationDot`, `198:1388` `SliderPagination`, `183:2136` `RecipeSlider`, `167:2463` `RecipeSection`)
+**레시피 노출·캐러셀** (`get_design_context`: `RecipeGridCard`, `RecipeGrid`, `PaginationDot`, `SliderPagination`, `RecipeSlider`, `RecipeSection`)
 
 - **RecipeGridCard**: 세로 스택, **썸네일 영역 ↔ 텍스트 블록 `gap spacing/2`**. 라이브러리에서 카드 **폭 ~169.66px**(2열 그리드 셀에 맞춤). 썸네일 컨테이너: **`Background/Placeholder`**, **`radius/xl`**, 안 **1:1 aspect**·`object-cover`. 텍스트: 제목 **`H3`·`Text/Primary`** 와 메타( **`Card/Caption`** = small·Medium, **`Text/Caption`** ) 사이 **`gap spacing/1`**. 메타는 **가로 한 줄**이며 구분 **`·`** 를 **별도 텍스트 노드**로 반복 배치.
 - **RecipeGrid**: **2열 GRID**, **`gap-x` 16(`spacing/4`)·`gap-y` 24(`spacing/6`)**, 바깥 **폭 350**, **`RecipeGridCard` 4개**(2×2), `overflow-clip`.
@@ -73,23 +75,23 @@ Cook 프로젝트에서 **Figma MCP**와 **`use_figma`(Plugin API)** 로 raw 노
 - **RecipeSlider**: 루트 세로 **`gap spacing/4`**. **`SlideContainer`** 는 가로 **`gap spacing/4`·좌우 `px spacing/4`**, **`overflow-clip`** 안에 **2×2 그리드(폭 ~351)를 두 덩어리 나란히** 배치해 **가로 스크롤(페이지) 단위**를 표현한다(한쪽은 인라인 그리드, 다른 쪽은 **`RecipeGrid` 인스턴스**로 동일 레이아웃이 복제된 형태). 하단 **`SliderPagination`**.
 - **RecipeSection**: **폭 400**, **`Heading`(`H2`·`px spacing/4`) + `RecipeSlider`** 를 **`gap spacing/4`** 세로 스택.
 
-**카드·토글·액션 그룹(1차, `get_design_context`)** — 노드 `221:1432` `CardBase`, `233:1720` `SearchBarCard`, 세트 `228:1571` `Button`, 세트 `231:1601` `Toggle`, `224:1552` `FlatGroup`
+**카드·토글·액션 그룹(1차, `get_design_context`)** — `CardBase`, `SearchBarCard`, 세트 `Button`, 세트 `Toggle`, `FlatGroup`
 
 - **CardBase**: **폭 360**, **`Background/Surface`**, **`radius/xl`**, **`Elevation/Medium`**. 세로 스택 **`Header` → `Body`**. **`Header`는 비어 있으면 `h-0`·`shrink-0`로 접힘**; **`Body`는 MCP 기준 고정 높이 119px·`shrink-0`** 슬롯(내용은 인스턴스로 채움).
 - **SearchBarCard**: 바깥 래퍼 아래 **`CardBase` 인스턴스**를 두고, **`Body` 안에** 제목(예: 「검색어」— **`Card/Heading`** = H3·Medium·`Text/Primary`)과 **캡슐형 검색 행**을 세로로 쌓는다. 검색 행은 독립 `SearchBar` 심볼이 아니라 **동일 토큰**(`Background/Primary/Default`, **`gap spacing/3`**, **`px spacing/4`·`py spacing/3`**, **`radius/full`**, `lucide/search` + 플레이스홀더)으로 맞춘 인라인 구조이며, **`SearchBar` 컴포넌트 설명**(shadow·focus ring)이 응답에 붙을 수 있다.
 - **Button**: 캡슐(**`radius/full`**), **`px spacing/4`·`py spacing/3`**, 가로 **~178px**, 텍스트 **Bold·body**·가운데. **primary**: 기본 `color/primary`, hover `color/primary-hover`, inactive `color/indicator/inactive`(배경) + **`Text/Button/Primary`**(흰 글자). **secondary**: 기본 `color/secondary`·글자 `color/text/on-secondary`, hover `color/secondary-hover`(배경 밝아짐).
 - **Toggle**: 캡슐, **`px spacing/4`·`py spacing/2`** — 세로 패딩이 **`Button`보다 작다**. **`selected` × `state(default|hover)`** 네 조합. 선택: 배경 `color/toggle/selected/default` / hover는 `…/selected/hover`(진한 주황), 글자 **`Text/Toggle/Active`**(흰색). 비선택: `color/toggle/unselected/default`·hover `…/unselected/hover`, 글자 **`Text/Toggle/Inactive`** / `color/text/secondary`. 라벨은 **Medium·body**(Button과 달리 Bold 아님).
 - **FlatGroup**: **폭 360**, 안 **`Container` 고정 높이 85px·`shrink-0`** — 가로 스크롤 행(`ChipsRow` 등)용 **플랫 영역** 래퍼.
-- **ActionGroup** (`231:1656`): **폭 360**, **`Background/Surface`**, **상단 `Border/Subtle`**, **`px spacing/4`·`py spacing/3`**, 가로 **`gap spacing/4`**. 자식은 **`Button` 인스턴스 2개**(secondary·primary)를 **`flex-[1_0_0]`** 로 **동일 폭 분할**(세트 기본은 default 상태만 노출).
+- **ActionGroup**: **폭 360**, **`Background/Surface`**, **상단 `Border/Subtle`**, **`px spacing/4`·`py spacing/3`**, 가로 **`gap spacing/4`**. 자식은 **`Button` 인스턴스 2개**(secondary·primary)를 **`flex-[1_0_0]`** 로 **동일 폭 분할**(세트 기본은 default 상태만 노출).
 
-**드롭다운(1차, `get_design_context`)** — 세트 `256:2158` `DropdownButton`, 세트 `253:1733` `DropdownItem`, `253:1723` `DropdownList`, 세트 `256:2112` `FilterDropdown`
+**드롭다운(1차, `get_design_context`)** — 세트 `DropdownButton`, 세트 `DropdownItem`, `DropdownList`, 세트 `FilterDropdown`
 
 - **DropdownButton**: **`open=false` / `true`** 로 **라벨 + chevron** 만 전환. 배경 **`Background/Primary/Default`**, **`radius/lg`(8)**, **`gap spacing/2`**, **`px spacing/3`·`py spacing/2`**, 라이브러리 **폭 ~89**. 라벨 **`Label/Dropdown`**(caption 14·Medium·`Text/Primary`). 아이콘 **`lucide/chevron-down` / `chevron-up`**, **20×20** 래퍼 안 **`px 6`·`py 9`**(세로 광학 패딩 큼).
 - **DropdownItem**: **`selected` × `state(default|hover)`** 네 조합. **`px spacing/4`·`py spacing/3`**. 선택: 배경 `color/dropdown/selected/default`·hover `…/selected/hover`, 글자 **`color/text/accent`**. 비선택: `…/unselected/default`·hover `…/unselected/hover`, 글자 **`Text/Primary`**. 세트 셀 **폭 100**이나 리스트 안에서는 **`w-full`** 로 늘림.
 - **DropdownList**: **폭 120**, **`Background/Surface`**, **`radius/xl`**, **`Elevation/Medium`**, 안 **`Container`** 세로 스택에 **`DropdownItem`** 인스턴스 나열.
 - **FilterDropdown**: 루트 **`items-end`·폭 121** — **오른쪽 정렬** 묶음. **`open=true`** 일 때 **`DropdownList`를 `absolute`·`right-0`·`top-[40px]`** 로 겹쳐 **트리거 아래·우측 기준** 패널을 띄운다(목록 폭 120, 카드와 동일 그림자·모서리).
 
-**칩·검색 결과 헤더(1차, `get_design_context`)** — 세트 `255:1817` `Chip`, `256:2279` `ChipsRow`, `256:2088` `SearchResultTop`, `256:2105` `SearchResultMeta`, `256:2315` `SearchResultHeader`
+**칩·검색 결과 헤더(1차, `get_design_context`)** — 세트 `Chip`, `ChipsRow`, `SearchResultTop`, `SearchResultMeta`, `SearchResultHeader`
 
 - **Chip**: variant **`state=기본` / `hover`**(한글). 캡슐 **`radius/full`**, **`gap spacing/2`**, **`px spacing/4`·`py spacing/2`**. 기본 **`Background/Primary/Default`**, hover **`Background/Primary/Hover`**(MCP에 `…placeholder`로도 표기). 라벨 **caption·Regular·`Text/Primary`**. 오른쪽 **`lucide/x`** 제거 아이콘은 **20×20** 래퍼·**내부 패딩 6px**(검색 클리어와 동일).
 - **ChipsRow**: **폭 400**, **`FlatGroup`을 전체 너비(`w-full`)** 로 감싼 뒤 **`Container`(고정 85px)** 안에 **`Chip` 인스턴스**를 둔다. MCP가 펼친 예시는 **세로로 Chip 3개**가 보이나, 실제 프레임이 **가로 스크롤/랩**인지는 **`get_metadata`로 축·자식 순서**를 한 번 더 본다.
@@ -97,7 +99,7 @@ Cook 프로젝트에서 **Figma MCP**와 **`use_figma`(Plugin API)** 로 raw 노
 - **SearchResultMeta**: **폭 400**, **`justify-between`·가운데 정렬**. 좌측 **「총 N개」** — 캡션 **`Text/Secondary`**, 숫자만 **주황(`#c2410c`)·Medium**(primary 계열). 우측 **`FilterDropdown`에 `flex-[1_0_0]`·`min-w-0`** 를 주어 **남는 폭을 채우면서** 루트 `items-end`와 맞물려 **드롭다운을 행 오른쪽**에 붙인다.
 - **SearchResultHeader**: **`Background/Surface`**, **`p spacing/4`**, 세로 **`gap spacing/4`**, **`overflow-clip`**. 자식 순서 **`SearchResultTop` → `SearchResultMeta` 행 → `ChipsRow`**(각 **폭 400**). 검색바 **컴포넌트 설명**(shadow·focus ring)이 응답에 포함될 수 있다.
 
-**태그·검색 카드·리스트·빈 상태(1차, `get_design_context`)** — 세트 `256:2464` **`FlatTag`**(구 `Tag`), `256:2496` **`FlatTagsRow`**(구 `TagsRow`), `256:2514` `RecipeSearchCard`, `256:2945` `RecipeSearchList`, `258:3926` `EmptyResultScreen`, 심볼 `290:4194` **`Thumbnail`**(검색 카드 썸네일 비율용으로 분리된 경우 MCP에 노출됨)
+**태그·검색 카드·리스트·빈 상태(1차, `get_design_context`)** — 세트 **`FlatTag`**(구 `Tag`), **`FlatTagsRow`**(구 `TagsRow`), `RecipeSearchCard`, `RecipeSearchList`, `EmptyResultScreen`, 심볼 **`Thumbnail`**(검색 카드 썸네일 비율용으로 분리된 경우 MCP에 노출됨)
 
 - **`FlatTag`**: variant **`accent=false` / `accent=true`**. 캡슐 **`radius/full`**, 가로 **`gap` ~8px**(MCP `7.997px`), **`px spacing/3`·`py spacing/2`**. 기본 **`color/tag/default`** 배경 + **`Text/Secondary`** 캡션 + **아이콘 16×16** 슬롯(예: `lucide/clock`). 액센트는 **`color/tag/accent`** 배경·**`Text/Accent`** 라벨·아이콘 톤을 맞춘다. 문서·옛 노드 ID 검색 시 **`Tag`라는 이름**이 나오면 **파일 SSOT는 `FlatTag`** 로 본다.
 - **`FlatTagsRow`**: MCP가 펼친 **라이브러리 단독 프레임**은 **`FlatGroup`(폭 360) + `Container` 높이 85** 안에 **`FlatTag`를 세로로 3개** 둔 예시다. **`RecipeSearchCard`에 끼운 인스턴스**에서는 동일 **`FlatGroup`·`Container`가 `flex-wrap` + `gap spacing/3`** 로 **가로 줄바꿈 태그 행**(예: 15분·쉬움·2인분)을 만든다. 맥락별 축이 다를 수 있으니 `get_metadata`로 해당 인스턴스의 `layoutMode`를 확인한다.
@@ -107,14 +109,14 @@ Cook 프로젝트에서 **Figma MCP**와 **`use_figma`(Plugin API)** 로 raw 노
 
 **레시피 상세(Recipe Detail) 보조 컴포넌트** — `RecipeDetailPage` 등에서 본문·메타를 조립할 때 쓰는 이름·패턴(**파일 심볼명이 SSOT**; 에이전트가 한 번에 만든 임시명과 다를 수 있음).
 
-- **`CardTag`** (`279:1848`): 카드·상세 맥락의 **캡슐형 메타 칩**(흰 **`Background/Surface`** + **`Elevation/Small`**, 아이콘 + 라벨). 필터용 **`Chip`**·검색 카드 메타 **`FlatTag`**·상단 카테고리 액센트와 **시각·역할이 다르므로 이름을 분리**한다. 라이브러리 기본 라벨은 **`Label`** 등 추상 문자열을 쓴다. (과거 임시명 `RecipeMetaChip`.)
-- **`CardTagsRow`** (`282:1874`): **`CardTag`** 가로 묶음; 라이브러리 예시 라벨은 **`Time` / `Difficulty` / `Servings`** 처럼 **역할만 드러나는 영문**을 권장한다. 행 **`itemSpacing`은 `spacing/3`(12px) 등 변수**로 묶는다(MCP 코드에 `gap-[12px]`처럼 **숫자 리터럴만 보이면** §2.7·§5.6대로 토큰 바인딩 미완료로 보고 보고서에 적는다). (과거 임시명 `RecipeMetaChipsRow`.)
-- **`RecipeIngredientRow`** (`279:1845`): 재료 한 줄. 기본 카피 **`Name` / `Amount`**; 구분선·패딩은 **`Border/Subtle`**, **`spacing/3`** 등 토큰. (과거 임시명 `IngredientRow`.)
-- **`RecipeIngredientsCard`** (`290:4176`), **`RecipeStepsCard`** (`290:4186`), **`RecipeStepRow`** (`279:1852`): **`CardBase` 인스턴스**로 겉틀을 통일하고 **`Body`** 안에 섹션 제목·리스트·스텝을 넣는다. **`RecipeStepRow`** 는 **`StepBadge`**(원형, **`Background/Placeholder`**, **`Caption/Default`** + **`Text/Secondary`**) + **`StepDescription`**(본문, **`spacing/1`** 등) 패턴. 리스트가 길면 **`CardBase` 기본 Body 고정 높이(라이브러리 MCP 기준 119px)** 와 충돌할 수 있으니, 실제 파일에서는 **높이·클립·오토레이아웃**을 조정했는지 확인한다.
-- **`RecipeDetailHeader`** (`282:1866`): 세로 스택(기본 **`Title` / `Description`**). 카테고리는 **`FlatTag` `accent=true`와 동일 토큰**(`color/tag/accent`, **`Text/Accent`**, **`Caption/Default`**)을 쓴 **캡슐 프레임**으로 두며, 라이브러리 기본 문자열은 **`Category`**.
-- **`RecipeDetailContent`** (`291:1936`): **`MainContent` `Container`** 에 넣기 위한 **조립용 유기체**(폭 **400**, **`px spacing/4`·`py spacing/6`**, 세로 **`gap spacing/6`**). **`RecipeDetailHeader` → `CardTagsRow` → `RecipeIngredientsCard` → `RecipeStepsCard`** 순서가 MCP 기준 예시다. **실제 레시피 카피**(한식·비빔밥·본문 등)는 **이 조립 프레임 또는 페이지 인스턴스**에서만 넣고, 재사용 심볼 단에서는 §5.3 **추상 카피**를 유지하는 것이 목표다(기존에 카드 심볼 안에 한글 예시가 남아 있으면 정리 후보).
+- **`CardTag`**: 카드·상세 맥락의 **캡슐형 메타 칩**(흰 **`Background/Surface`** + **`Elevation/Small`**, 아이콘 + 라벨). 필터용 **`Chip`**·검색 카드 메타 **`FlatTag`**·상단 카테고리 액센트와 **시각·역할이 다르므로 이름을 분리**한다. 라이브러리 기본 라벨은 **`Label`** 등 추상 문자열을 쓴다. (과거 임시명 `RecipeMetaChip`.)
+- **`CardTagsRow`**: **`CardTag`** 가로 묶음; 라이브러리 예시 라벨은 **`Time` / `Difficulty` / `Servings`** 처럼 **역할만 드러나는 영문**을 권장한다. 행 **`itemSpacing`은 `spacing/3`(12px) 등 변수**로 묶는다(MCP 코드에 `gap-[12px]`처럼 **숫자 리터럴만 보이면** §2.7·§5.6대로 토큰 바인딩 미완료로 보고 보고서에 적는다). (과거 임시명 `RecipeMetaChipsRow`.)
+- **`RecipeIngredientRow`**: 재료 한 줄. 기본 카피 **`Name` / `Amount`**; 구분선·패딩은 **`Border/Subtle`**, **`spacing/3`** 등 토큰. (과거 임시명 `IngredientRow`.)
+- **`RecipeIngredientsCard`**, **`RecipeStepsCard`**, **`RecipeStepRow`**: **`CardBase` 인스턴스**로 겉틀을 통일하고 **`Body`** 안에 섹션 제목·리스트·스텝을 넣는다. **`RecipeStepRow`** 는 **`StepBadge`**(원형, **`Background/Placeholder`**, **`Caption/Default`** + **`Text/Secondary`**) + **`StepDescription`**(본문, **`spacing/1`** 등) 패턴. 리스트가 길면 **`CardBase` 기본 Body 고정 높이(라이브러리 MCP 기준 119px)** 와 충돌할 수 있으니, 실제 파일에서는 **높이·클립·오토레이아웃**을 조정했는지 확인한다.
+- **`RecipeDetailHeader`**: 세로 스택(기본 **`Title` / `Description`**). 카테고리는 **`FlatTag` `accent=true`와 동일 토큰**(`color/tag/accent`, **`Text/Accent`**, **`Caption/Default`**)을 쓴 **캡슐 프레임**으로 두며, 라이브러리 기본 문자열은 **`Category`**.
+- **`RecipeDetailContent`**: **`MainContent` `Container`** 에 넣기 위한 **조립용 유기체**(폭 **400**, **`px spacing/4`·`py spacing/6`**, 세로 **`gap spacing/6`**). **`RecipeDetailHeader` → `CardTagsRow` → `RecipeIngredientsCard` → `RecipeStepsCard`** 순서가 MCP 기준 예시다. **실제 레시피 카피**(한식·비빔밥·본문 등)는 **이 조립 프레임 또는 페이지 인스턴스**에서만 넣고, 재사용 심볼 단에서는 §5.3 **추상 카피**를 유지하는 것이 목표다(기존에 카드 심볼 안에 한글 예시가 남아 있으면 정리 후보).
 
-**`ToggleCard`(`233:1857`)**: 일부 환경에서 **MCP `get_design_context`가 해당 노드를 안정적으로 내려주지 않는다**. 본 절에는 **MCP 기반 상세를 두지 않으며**, Figma 클라이언트·Plugin API로 구조를 확인한다.
+**`ToggleCard`**: 일부 환경에서 **MCP `get_design_context`가 해당 노드를 안정적으로 내려주지 않는다**. 본 절에는 **MCP 기반 상세를 두지 않으며**, Figma 클라이언트·Plugin API로 구조를 확인한다.
 
 **분리 방식**
 
@@ -201,7 +203,7 @@ Cook 프로젝트에서 **Figma MCP**와 **`use_figma`(Plugin API)** 로 raw 노
 
 **오토레이아웃 크기(에이전트·수동 정리 공통)**  
 - **원자(리프에 가까운 컴포넌트)**: 가로·세로 **`HUG`(내용에 맞춤)** 이 일반적이다.  
-- **컨테이너(행·카드 래퍼·섹션)**: 부모 폭에 맞추 **`FILL`**(또는 화면 명세의 고정 폭)을 우선한다. Cook 모바일 폭(~400) 등은 §2.2·조립 화면과 맞출 것.
+- **컨테이너(행·카드 래퍼·섹션)**: 부모 폭에 맞추 **`FILL`**(또는 화면 명세의 고정 폭)을 우선한다. 모바일 명세 폭(~400) 등은 §2.2·조립 화면과 맞출 것.
 
 ### 2.6 아이콘 사이징 및 활용 방식
 
@@ -236,15 +238,15 @@ Cook 프로젝트에서 **Figma MCP**와 **`use_figma`(Plugin API)** 로 raw 노
 
 ## 3. 참고 문서 (agent)
 
-**작업 시 참조 순서(요약)**: 실행 절차는 **§5**와 **§7** → Cook 라이브러리는 **§2.2**(상세)·**§2.4**(variant)·**§2.5**(표 색인)·**§2.3**(합성 목록) → 아이콘·터치는 **§2.6** → 스타일·변수 키는 **`figma-variables-and-styles.md`**(아래 표).
+**작업 시 참조 순서(요약)**: 실행 절차는 **§5**와 **§7** → 파일 내 라이브러리 관찰은 **§2.2**(상세)·**§2.4**(variant)·**§2.5**(표 색인)·**§2.3**(합성 목록) → 아이콘·터치는 **§2.6** → 스타일·변수 키는 **`figma-variables-and-styles.md`**(아래 표).
 
 | 문서 | 용도 |
 |------|------|
-| `agent/design/figma-ui-components-audit-todo.md` | `UI`(`36:333`) **컴포넌트 인벤토리 체크리스트**·반복 파악 TODO·파악 기록 표. |
-| `agent/design/figma-variables-and-styles.md` | Cook Figma 파일 기준 **변수 경로·로컬 스타일 이름·의미·사용처** 통합 표. 구현 전 스타일/변수 후보를 빠르게 고른다. |
-| `agent/design/design_tokens.json` | 코드·토큰 SSOT와의 정합 확인(이름·값 불일치 시 Figma 쪽을 우선할지 제품 쪽을 우선할지 별도 합의). |
-| `agent/design/design_to_code_guidelines.md` | Figma → 코드 방향 작업 시 함께 참고. |
-| `agent/design/temp/` | Figma **컴포넌트 구현 작업 종료 후** 요약 보고서(§5.6). 토큰 갭·대체·이름 변경 기록. |
+| `agent/design/guidelines/figma-ui-components-audit-todo.md` | 컴포넌트 스테이징(`UI` 등) **인벤토리 체크리스트**·반복 파악 TODO·파악 기록 표. |
+| `agent/design/spec/figma-variables-and-styles.md` | 연동 Figma 파일 기준 **변수 경로·로컬 스타일 이름·의미·사용처** 통합 표. 구현 전 스타일/변수 후보를 빠르게 고른다. |
+| `agent/design/spec/design_tokens.json` | 코드·토큰 SSOT와의 정합 확인(이름·값 불일치 시 Figma 쪽을 우선할지 제품 쪽을 우선할지 별도 합의). |
+| `agent/design/guidelines/design_to_code_guidelines.md` | Figma → 코드 방향 작업 시 함께 참고. |
+| `agent/design/spec/` | Figma **컴포넌트 구현 작업 종료 후** 요약 보고서(§5.6). 토큰 갭·대체·이름 변경 기록. |
 | Cursor **figma-use** 스킬 | **`use_figma` 호출 전 필수 로드**. `return` 규칙, `setCurrentPageAsync`, `FILL`은 `appendChild` 이후, 폰트 `loadFontAsync` 등. |
 
 ---
@@ -270,7 +272,7 @@ Cook 프로젝트에서 **Figma MCP**와 **`use_figma`(Plugin API)** 로 raw 노
 2. `get_design_context`로 해당 노드를 읽는다.
 3. 화면을 **재사용 단위**로 쪼개 표로 정리한다.  
    - 열 예: **이름**, **역할**, **부모 화면 구역**, **자식 슬롯(이미지/아이콘 생략 시 표기)**.
-4. Cook 파일이면 **`36:333` UI 섹션**에 이미 있는 컴포넌트가 없는지 `get_metadata`로 먼저 훑는다.
+4. 동일 파일 작업이면 **컴포넌트 스테이징(`UI` 등) 섹션**에 이미 있는 패턴이 없는지 `get_metadata`로 먼저 훑는다.
 
 ### 5.2 스타일·변수 매핑
 
@@ -286,14 +288,14 @@ Cook 프로젝트에서 **Figma MCP**와 **`use_figma`(Plugin API)** 로 raw 노
 1. **figma-use 스킬**을 읽은 뒤 호출한다. `skillNames: "figma-use"`를 넘긴다.
 2. **작은 단계로 나눈다**: 한 번에 전체 페이지를 한 스크립트에 넣지 않는다.  
    - 예: 히어로 → 타이포 블록 → 칩 → 카드 → 리스트 행 → 스텝.
-3. **페이지**: 전용 페이지(예: `🧩 … — Components`)를 두거나, 기존 페이지에서 **우측 여백**에 배치해 `(0,0)`과 겹치지 않게 한다. (Cook의 **`UI` 섹션**처럼 한 구역에 모아 두는 방식도 가능.)
+3. **페이지**: 전용 페이지(예: `🧩 … — Components`)를 두거나, 기존 페이지에서 **우측 여백**에 배치해 `(0,0)`과 겹치지 않게 한다. (**`UI` 스테이징 섹션**처럼 한 구역에 모아 두는 방식도 가능.)
 4. **스타일 적용 우선순위**:  
    - 채우기/글자/그림자는 가능하면 **`fillStyleId` / `textStyleId` / `effectStyleId`** 로 로컬 스타일을 연결한다(이미 변수와 연결된 스타일이면 토큰 일관성이 유지된다).  
    - 패딩·모서리 등은 **`setBoundVariable`** 으로 숫자 변수를 묶을 수 있으면 묶는다.
 5. **카드류**: 새 “카드” 프레임을 그리지 말고 **`CardBase` 인스턴스**를 두고 **`Header` / `Body`** 슬롯만 채운다(§2.2 `SearchBarCard`·`RecipeIngredientsCard` 등).
 6. **리프 컴포넌트의 예시 카피**: **가장 바깥 depth에서** 내부에 다른 UI 컴포넌트 인스턴스를 포함하지 않는 **원자 심볼**을 만들 때는, 예시 텍스트를 **추상적으로** 둔다(예: 버튼 **`Label`**, 카테고리 태그 **`Category`**, 분량 **`Amount`**). 화면별 실제 문구(「비빔밥」「30분」 등)는 **조립 프레임·상위 인스턴스**에서만 넣는다.
 7. **텍스트**: `Noto Sans KR` 등 **반드시 `loadFontAsync`** 후 `characters` 설정.
-8. **오토레이아웃**: 자식에 `FILL`/`HUG`를 쓸 때는 스킬의 순서 규칙(`appendChild` 후 `layoutSizing`)을 따른다. **원자는 HUG·컨테이너는 FILL** 원칙은 §2.5 표 직후 문단을 따른다. **기존 Cook 컴포넌트**와 동일한 `HORIZONTAL`/`VERTICAL`/`GRID`·간격 리듬을 맞출 것(섹션 2.5).
+8. **오토레이아웃**: 자식에 `FILL`/`HUG`를 쓸 때는 스킬의 순서 규칙(`appendChild` 후 `layoutSizing`)을 따른다. **원자는 HUG·컨테이너는 FILL** 원칙은 §2.5 표 직후 문단을 따른다. **파일에 이미 있는 동류 컴포넌트**와 동일한 `HORIZONTAL`/`VERTICAL`/`GRID`·간격 리듬을 맞출 것(섹션 2.5).
 9. **산출물**: 생성·변경한 노드는 **`return`에 id 목록**을 넣어 다음 호출에서 참조한다.
 10. **아이콘**: 동일 파일에 있으면 **`lucide/*` 인스턴스**를 끼우고, 터치 타깃이 필요하면 **44×44 + 8 패딩** 패턴을 따른다(섹션 2.6).
 
@@ -313,7 +315,7 @@ Cook 프로젝트에서 **Figma MCP**와 **`use_figma`(Plugin API)** 로 raw 노
 
 ### 5.6 작업 종료 보고·토큰 갭 (반복 실수 방지)
 
-컴포넌트 구현(에이전트 `use_figma` 또는 수동)이 **한 덩어리 끝날 때마다**, `agent/design/temp/` 아래에 **짧은 Markdown 보고서** 1개를 둔다.
+컴포넌트 구현(에이전트 `use_figma` 또는 수동)이 **한 덩어리 끝날 때마다**, `agent/design/spec/` 아래에 **짧은 Markdown 보고서** 1개를 둔다.
 
 - **파일명 예**: `figma-components-YYYYMMDD-주제.md` (한 작업당 1파일 또는 동일 주제에 append — 팀 규칙에 맞출 것).
 - **권장 목차**
@@ -328,7 +330,7 @@ Cook 프로젝트에서 **Figma MCP**와 **`use_figma`(Plugin API)** 로 raw 노
 
 ## 6. 수행 예시 (참고)
 
-**노드 `159:1639`(레시피 상세 Main Content)** 에 위 절차를 적용한 기록은 **화면별 작업 노트**로 두는 것을 권장한다. **절차·검증은 §5**, 스타일 후보는 **`figma-variables-and-styles.md`**, 레이아웃·토큰 리듬은 **§2.2**의 유사 분자(`CardBase`, `FlatTag`, `CardTag`, `RecipeDetailContent`, `RecipeIngredientRow` 등 §2.2 「레시피 상세 보조」)를 벤치마크한다. `search_design_system`이 빈 결과일 때는 **§5.2**대로 `use_figma`에서 로컬 스타일·변수를 조회한다. 작업 종료 시 **§5.6** 보고서를 `agent/design/temp/`에 남긴다.
+**레시피 상세 Main Content** 등 화면별 루트에 위 절차를 적용한 기록은 **화면별 작업 노트**로 두는 것을 권장한다. **절차·검증은 §5**, 스타일 후보는 **`figma-variables-and-styles.md`**, 레이아웃·토큰 리듬은 **§2.2**의 유사 분자(`CardBase`, `FlatTag`, `CardTag`, `RecipeDetailContent`, `RecipeIngredientRow` 등 §2.2 「레시피 상세 보조」)를 벤치마크한다. `search_design_system`이 빈 결과일 때는 **§5.2**대로 `use_figma`에서 로컬 스타일·변수를 조회한다. 작업 종료 시 **§5.6** 보고서를 `agent/design/spec/`에 남긴다.
 
 ---
 
@@ -338,7 +340,7 @@ Cook 프로젝트에서 **Figma MCP**와 **`use_figma`(Plugin API)** 로 raw 노
 
 - [ ] figma-use 스킬 확인 후 `use_figma` 호출
 - [ ] `get_design_context`로 구조 파악(응답 내 **Component descriptions** 유무 확인)
-- [ ] Cook 파일이면 `UI`(`36:333`)·`Icons`(`174:1467`)에 동일 패턴 컴포넌트 존재 여부 확인
+- [ ] 동일 파일에서 `UI`·`Icons` 등 스테이징 섹션에 동일 패턴 컴포넌트 존재 여부 확인
 - [ ] `figma-variables-and-styles.md`와 파일 실제 변수명 대조
 - [ ] 컴포넌트 표 + 스타일/변수 열 작성
 - [ ] 전용 페이지 또는 여백 좌표 확보
@@ -349,17 +351,13 @@ Cook 프로젝트에서 **Figma MCP**와 **`use_figma`(Plugin API)** 로 raw 노
 - [ ] 카드류는 **`CardBase`** 기반; 상세 메타 칩·행은 **`CardTag` / `CardTagsRow`**; 검색 카드 메타는 **`FlatTag` / `FlatTagsRow`**(§2.2·§2.5, 옛 `Tag`/`TagsRow` 혼동 금지)
 - [ ] 리프 심볼 예시 카피는 **추상적**(Label, Category …); 실카피는 조립 단계에서만
 - [ ] 원자 **HUG**·컨테이너 **FILL** 원칙(§2.5) 준수
-- [ ] `agent/design/temp/`에 **§5.6** 요약 보고서 작성
+- [ ] `agent/design/spec/`에 **§5.6** 요약 보고서 작성
 
 ---
 
 ## 8. 관련 링크
 
-- Cook 파일: `https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook`
-- 컴포넌트 모음: `https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook?node-id=36-333`
-- 빈 검색 결과(`EmptyResultScreen`): `https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook?node-id=258-3926`
-- 아이콘 모음: `https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook?node-id=174-1467`
-- 조립 예시: `RecipeMainPage` `node-id=166-1586`, `RecipeFilterPage` `node-id=233-1638`, `RecipeSearchResultPage` `node-id=258-3928`
-- Figma MCP 서버 사용 지침: Cursor MCP `plugin-figma-figma` 설명 및 도구 스키마
+- **Figma 파일·node-id**: 저장소에 고정 링크를 두지 않는다. 작업 시 디자이너·Figma 공유 URL 또는 MCP `fileKey`·`node-id`로 연다.
+- **Figma MCP**: Cursor MCP `plugin-figma-figma` 설명 및 도구 스키마
 
 **토큰·컴포넌트 이름**은 Figma 파일과 **`figma-variables-and-styles.md`** 가 최종 기준(**§5.2**).

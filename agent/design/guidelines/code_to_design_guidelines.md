@@ -60,7 +60,7 @@ MCP 설명상 **Figma 쪽 일반적인 쓰기**와 **이미 캡처된 뷰 갱신
 ### 3.3 Plugin API 주의 (요약)
 
 - **`figma.currentPage`에 직접 대입**하는 패턴은 지원되지 않을 수 있다. **`await figma.setCurrentPageAsync(page)`** 등 공식 API를 따른다.
-- 폰트 **스타일 문자열**은 Figma에 표시되는 이름과 **정확히 일치**해야 한다(예: Inter는 `Semi Bold`처럼 공백 포함). Cook은 Noto Sans KR 위주이나, 스크립트에 다른 패밀리를 쓸 때 동일하게 확인한다.
+- 폰트 **스타일 문자열**은 Figma에 표시되는 이름과 **정확히 일치**해야 한다(예: Inter는 `Semi Bold`처럼 공백 포함). 본 제품은 Noto Sans KR 위주이나, 스크립트에 다른 패밀리를 쓸 때 동일하게 확인한다.
 
 ### 3.4 다른 문서와의 역할 나눔
 

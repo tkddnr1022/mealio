@@ -2,12 +2,11 @@
   "version": "1.3",
   "lastReviewed": "2026-04-11",
   "relatedFiles": [
-    "agent/design/design_principle.json",
-    "agent/design/figma-variables-and-styles.md"
+    "agent/design/spec/design_principle.json",
+    "agent/design/spec/figma-variables-and-styles.md"
   ],
   "figma": {
-    "fileKey": "r9bdZPeswvPR1ncezzt4ri",
-    "source-doc": "agent/design/figma-variables-and-styles.md",
+    "source-doc": "agent/design/spec/figma-variables-and-styles.md",
     "variable-index": {
       "border/default": "border.width.default",
       "color/background/default": "color.light.background",
@@ -102,7 +101,7 @@
       "Tag/Accent": "color.light.tag-accent-surface"
     },
     "notes": [
-      "Figma color/secondary는 필터 ‘초기화’ 면색(#FAFAF9). JSON의 color.*.secondary는 Cook 브랜드 2차색(라이트 #6B7250) — 의미가 다르다. UI 매핑은 action-secondary-surface·text-on-action-secondary-surface를 쓴다.",
+      "Figma color/secondary는 필터 ‘초기화’ 면색(#FAFAF9). JSON의 color.*.secondary는 제품 브랜드 2차색(라이트 #6B7250) — 의미가 다르다. UI 매핑은 action-secondary-surface·text-on-action-secondary-surface를 쓴다.",
       "Figma color/text/on-secondary는 위 면 위 짙은 글자(#575352). JSON color.*.on-secondary는 브랜드 secondary 위 전경색 — 혼동 방지를 위해 Figma 경로는 text-on-action-secondary-surface에 연결했다."
     ]
   },

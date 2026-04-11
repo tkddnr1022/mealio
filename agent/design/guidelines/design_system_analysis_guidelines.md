@@ -1,6 +1,6 @@
 # 디자인 시스템 분석 작업 가이드라인
 
-이 문서는 Figma 기반 변수·스타일을 수집하고, 통합 목록을 만들며, 구조·접근성·SSOT 관점에서 검토하는 **반복 가능한 작업 절차**를 정의한다. Cook 프로젝트에서 MCP·`agent/design` 산출물을 다룰 때의 기준으로 쓴다.
+이 문서는 Figma 기반 변수·스타일을 수집하고, 통합 목록을 만들며, 구조·접근성·SSOT 관점에서 검토하는 **반복 가능한 작업 절차**를 정의한다. 본 저장소에서 MCP·`agent/design/spec`·`agent/design/guidelines` 산출물을 다룰 때의 기준으로 쓴다.
 
 ---
 
@@ -17,9 +17,9 @@
 
 ### 2.1 참조해야 할 로컬 문서
 
-- `agent/design/design_tokens.json` — 코드·명세와 정렬할 색·타이포·용도 설명.
-- `agent/design/design_principle.json` — 접근성·브랜드 원칙(대비 검토 시 참고).
-- `agent/design/figma-variables-and-styles.md` — (선택) 기존 통합 수집 결과가 있으면 갱신·병합 대상.
+- `agent/design/spec/design_tokens.json` — 코드·명세와 정렬할 색·타이포·용도 설명.
+- `agent/design/spec/design_principle.json` — 접근성·브랜드 원칙(대비 검토 시 참고).
+- `agent/design/spec/figma-variables-and-styles.md` — (선택) 기존 통합 수집 결과가 있으면 갱신·병합 대상.
 
 ### 2.2 도구
 
@@ -29,9 +29,9 @@
 
 ### 2.3 Figma URL에서 식별자 추출
 
-- 형식: `https://www.figma.com/design/{fileKey}/...?node-id={A}-{B}`
+- 형식: Figma 디자인 파일 URL은 경로 세그먼트에 `fileKey`, 쿼리에 `node-id`를 포함하는 패턴이 일반적이다(정확한 파싱은 공식 문서·MCP 안내를 따른다).
 - **`fileKey`**: 경로의 첫 번째 ID 세그먼트.
-- **`nodeId`**: `node-id` 쿼리 값의 하이픈을 콜론으로 바꾼다. 예: `166-1586` → `166:1586`.
+- **`nodeId`**: `node-id` 쿼리 값의 하이픈을 콜론으로 바꾼다(MCP·Plugin API가 요구하는 형식에 맞출 것).
 - 브랜치 URL이면 문서화된 규칙에 따라 `fileKey`를 `branchKey`로 쓸 수 있으니 MCP 안내를 따른다.
 
 ### 2.4 `use_figma` (선택·고급)
@@ -43,7 +43,7 @@ Figma MCP **`use_figma`**는 `fileKey`와 함께 **실행할 `code`(Plugin API)*
 | **본 가이드와의 관계** | 변수·스타일 **목록을 마크다운으로 뽑는 기본 경로**는 여전히 `get_variable_defs` + `get_design_context`이다. `use_figma`는 예를 들어 특정 페이지 전체의 바인딩 덤프, 커스텀 리포트, **Figma 쪽 토큰 정리(쓰기)**까지 한 번에 돌릴 때 **선택적으로** 쓴다. |
 | **스킬** | 도구 설명에 따라, 사용 가능하면 **`figma-use` 스킬을 호출한 뒤** `use_figma`를 호출한다. |
 | **검색과의 연계** | Figma에 **컴포넌트를 새로 만들기 전**에는 `search_design_system`으로 기존 DS를 찾고, 플러그인 API에서는 **`importComponentByKeyAsync` / `importComponentSetByKeyAsync`**로 가져오는 것이 권장된다(중복 생성 방지). 분석 작업자가 파일을 **편집**할 때도 동일 원칙이 유효하다. |
-| **주의 (Plugin API)** | 예: `figma.currentPage` 직접 대입은 지원되지 않을 수 있으므로 **`await figma.setCurrentPageAsync(page)`** 등 공식 API를 따른다. 폰트 패밀리별 **스타일 문자열**(예: Inter의 `Semi Bold`)은 Figma에 표시되는 이름과 **정확히 일치**시켜야 한다. Cook은 주로 Noto Sans KR이나, 스크립트에 다른 폰트를 쓸 때 동일하게 확인한다. |
+| **주의 (Plugin API)** | 예: `figma.currentPage` 직접 대입은 지원되지 않을 수 있으므로 **`await figma.setCurrentPageAsync(page)`** 등 공식 API를 따른다. 폰트 패밀리별 **스타일 문자열**(예: Inter의 `Semi Bold`)은 Figma에 표시되는 이름과 **정확히 일치**시켜야 한다. 본 제품은 주로 Noto Sans KR이나, 스크립트에 다른 폰트를 쓸 때 동일하게 확인한다. |
 
 **`generate_figma_design`과의 선택**: 웹 앱 **페이지·뷰를 Figma에 처음 캡처**할 때는 MCP 안내에 따라 `generate_figma_design`을 쓸 수 있다. **이미 캡처된 화면을 갱신**하거나 일반적인 Figma **쓰기**는 기본적으로 `use_figma`에 가깝다. HTML 캡처 실행 주체·확장 프로그램 절차는 `code_to_design_guidelines.md`를 본다.
 
@@ -68,7 +68,7 @@ Figma MCP **`use_figma`**는 `fileKey`와 함께 **실행할 `code`(Plugin API)*
 - 직계 자식이 **`<frame name="…">` 이고 그 안에 `<symbol>`이 여러 개**이면, Figma에서는 보통 **컴포넌트 세트(variant 묶음)** 로 본다. 스타일·변수가 variant마다 다를 수 있으므로 **대표 variant 하나만** 볼지, **variant별로 추가 호출**할지 결정한다.
 - 직계 자식이 **단일 `<symbol>`**이면 보통 **단일 컴포넌트**(또는 한 베리언트만 드러난 심볼)다.
 
-레이아웃·클래스·“These styles are contained…” 목록은 이후 **`get_design_context`**로 이어간다. (동일 휴리스틱은 `agent/design/figma_implementation.md` §2 서두와 맞춘다.)
+레이아웃·클래스·“These styles are contained…” 목록은 이후 **`get_design_context`**로 이어간다. (동일 휴리스틱은 `agent/design/spec/figma_implementation.md` §2 서두와 맞춘다.)
 
 #### `get_design_context`의 Component descriptions
 
@@ -78,7 +78,7 @@ Figma MCP **`use_figma`**는 `fileKey`와 함께 **실행할 `code`(Plugin API)*
 
 - **텍스트, 색, 그림자, 보더, 반지름, 패딩 등** 종류를 가리지 않고, 변수 맵과 디자인 컨텍스트에 나온 바인딩·스타일을 모두 후보로 둔다.
 - 생성 코드에만 있고 변수 맵에 없는 값(예: raw `box-shadow`, 숫자 리터럴 `gap`)은 **별도 행 또는 “권장 수정사항”**에 적어 둔다.
-- 참고 코드에 **`gap-[12px]`·`gap-[16px]`** 처럼 **숫자만 있고 `var(--spacing/…)`**(또는 MCP가 보내는 동등한 **간격 변수 참조**)가 없으면, 오토레이아웃 **`itemSpacing` 등이 간격 토큰에 묶이지 않은 상태**로 본다. §7에 **간격 변수 미바인딩 의심**으로 기록한다. (`agent/design/figma_implementation.md` §2.7과 동일 판별 기준.)
+- 참고 코드에 **`gap-[12px]`·`gap-[16px]`** 처럼 **숫자만 있고 `var(--spacing/…)`**(또는 MCP가 보내는 동등한 **간격 변수 참조**)가 없으면, 오토레이아웃 **`itemSpacing` 등이 간격 토큰에 묶이지 않은 상태**로 본다. §7에 **간격 변수 미바인딩 의심**으로 기록한다. (`agent/design/spec/figma_implementation.md` §2.7과 동일 판별 기준.)
 - 아이콘·이미지 URL은 토큰 표에서 제외하고, 참고에 “자산은 별도”라고 명시한다.
 
 ### 3.3 `search_design_system` 활용 (보조)
@@ -90,7 +90,7 @@ Figma MCP **`use_figma`**는 `fileKey`와 함께 **실행할 `code`(Plugin API)*
 | 인자 | 필수 | 설명 |
 |------|------|------|
 | `query` | 예 | 검색 문자열(영문 토큰명, `color`, `spacing`, `elevation` 등). |
-| `fileKey` | 예 | 분석 중인 파일 키. 예: `r9bdZPeswvPR1ncezzt4ri`. |
+| `fileKey` | 예 | 분석 중인 파일 키(Figma URL 경로에서 추출). |
 | `includeComponents` | 아니오 (기본 `true`) | 컴포넌트 결과 포함 여부. |
 | `includeVariables` | 아니오 (기본 `true`) | 변수 결과 포함 여부. |
 | `includeStyles` | 아니오 (기본 `true`) | 스타일 결과 포함 여부. |
@@ -178,7 +178,7 @@ Figma MCP **`use_figma`**는 `fileKey`와 함께 **실행할 `code`(Plugin API)*
 
 - [ ] 동일 색이 **여러 변수 경로**로만 존재하면 alias·단일 SSOT로 줄일 수 있는가.
 - [ ] 스타일 여러 개가 같은 변수만 가리키는 것은 정상일 수 있으나, **팔레트 변경 시 수정 지점**이 한 곳인가.
-- [ ] **`get_design_context`** 참고 코드·스타일 요약에서 **시맨틱 토큰/로컬 스타일과 raw hex**가 **같은 레이어·같은 역할**에 **혼재**하지 않는가. 예: 제목에 `Text/Primary`와 별도로 `#1c1a17`만 단독 노출, 배경이 변수 없이 `#f5f5f4` 등만 MCP에 나옴. **SSOT를 변수·스타일 한쪽**으로 모을 수 있으면 §7 권장 수정사항에 적는다. (Cook 파일 예: `EmptyResultScreen` 상단 원형 영역, `SearchResultMeta`의 강조 숫자 등 — 수집 시점 노드 기준으로 확인.)
+- [ ] **`get_design_context`** 참고 코드·스타일 요약에서 **시맨틱 토큰/로컬 스타일과 raw hex**가 **같은 레이어·같은 역할**에 **혼재**하지 않는가. 예: 제목에 `Text/Primary`와 별도로 `#1c1a17`만 단독 노출, 배경이 변수 없이 `#f5f5f4` 등만 MCP에 나옴. **SSOT를 변수·스타일 한쪽**으로 모을 수 있으면 §7 권장 수정사항에 적는다. (빈 결과·메타 강조 등 **수집한 화면 노드** 기준으로 확인.)
 
 ### 6.4 색상 대비
 
@@ -205,9 +205,9 @@ Figma MCP **`use_figma`**는 `fileKey`와 함께 **실행할 `code`(Plugin API)*
 
 ## 8. 산출물·파일 네이밍
 
-- **화면별 스냅샷**(선택): `figma-{기능}-{node-id}-variables-and-styles.md` 등 규칙을 팀에서 정한다.
-- **저장소 통합본**: `agent/design/figma-variables-and-styles.md`처럼 **단일 진실에 가깝게** 유지하고, 화면별 파일은 병합 후 삭제할지 정책으로 정한다.
-- **분석 가이드 본 문서**: `agent/design/design_system_analysis_guidelines.md` — 절차 변경 시 여기를 갱신한다.
+- **화면별 스냅샷**(선택): `figma-{기능}-{날짜}-variables-and-styles.md` 등 파일 이름 규칙을 팀에서 정한다.
+- **저장소 통합본**: `agent/design/spec/figma-variables-and-styles.md`처럼 **단일 진실에 가깝게** 유지하고, 화면별 파일은 병합 후 삭제할지 정책으로 정한다.
+- **분석 가이드 본 문서**: `agent/design/guidelines/design_system_analysis_guidelines.md` — 절차 변경 시 여기를 갱신한다.
 
 ---
 

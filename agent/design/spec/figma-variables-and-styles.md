@@ -1,13 +1,8 @@
-# Figma Cook — 통합 변수·스타일 목록
+# Figma — 통합 변수·스타일 목록
 
-- **소스** (동일 파일, 노드 병합):
-  - [RecipeMainPage — node 166-1586](https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook?node-id=166-1586)
-  - [RecipeFilterPage — node 233-1638](https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook?node-id=233-1638)
-  - [RecipeSearchResultPage — node 258-3928](https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook?node-id=258-3928) (프레임 내 `hasResult=true` / `false` 변형; MCP는 통합 컨텍스트로 수집)
-  - [RecipeDetailPage — node 292-2129](https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook?node-id=292-2129)
-- **`fileKey`**: `r9bdZPeswvPR1ncezzt4ri`
-- **수집 방법**: Figma MCP `get_variable_defs`, `get_design_context`, `get_metadata` (2026-04-11, 노드 `166:1586`·`233:1638`·`258:3928`·`292:2129` 각각 호출 후 **이름 기준 병합**). 보조 `search_design_system`은 외부 라이브러리 잡음으로 Cook 전수 목록에 부적합하여 표 근거에서 제외.
-- **주의**: MCP 응답 시점 스냅샷. Figma 수정 후 재수집할 것. **다른 화면**은 동일 `fileKey`로 `node-id`만 바꿔 추가 수집·병합하면 된다.
+- **소스**: 연동 중인 Figma 파일에서, **메인·필터·검색 결과·상세** 등 화면별 최상위 프레임(또는 컴포넌트 세트)을 골라 MCP로 수집한 뒤 **이름 기준으로 병합**한 스냅샷이다. 실제 `fileKey`·`node-id`·파일 제목은 디자인 쪽과 맞춰 두고, URL은 문서에 고정하지 않는다.
+- **수집 방법**: Figma MCP `get_variable_defs`, `get_design_context`, `get_metadata`를 화면별 루트 노드에 대해 호출한 뒤 병합한다. 보조 `search_design_system`은 외부 라이브러리 잡음이 있을 수 있어 **이 표의 단일 근거로 쓰지 않는 것**을 권장한다.
+- **주의**: MCP 응답 시점 스냅샷이다. Figma 수정 후 재수집할 것. 추가 화면은 **같은 파일**에서 `node-id`만 바꿔 동일 절차로 수집·병합하면 된다.
 
 ---
 
@@ -180,13 +175,13 @@
 
 ### 요약
 
-- **노드 병합 결과**: 홈(`166:1586`)은 탭·슬라이더·**Small** 섀도 중심; 필터(`233:1638`)는 토글·카드·**Medium**·하단 버튼; 검색 결과(`258:3928`)는 캡션 스케일·검색 바 값·태그·칩 등; 상세(`292:2129`)는 **`color/text/accent`·`color/tag/accent`·`Text/Accent`·`Tag/Accent`·`Body/Accent`**, **CardTag(Small 섀도)**, 재료 행·조리 순서(StepBadge·Medium 카드), Navbar 좋아요·공유 등을 추가로 드러냄.
+- **노드 병합 결과(역할만 요약)**: 홈 화면 루트는 탭·슬라이더·**Small** 섀도 중심; 필터 루트는 토글·카드·**Medium**·하단 버튼; 검색 결과 루트는 캡션 스케일·검색 바 값·태그·칩 등; 상세 루트는 **`color/text/accent`·`color/tag/accent`·`Text/Accent`·`Tag/Accent`·`Body/Accent`**, **CardTag(Small 섀도)**, 재료 행·조리 순서(StepBadge·Medium 카드), Navbar 좋아요·공유 등을 추가로 드러낸다.
 - **가장 유의할 SSOT 이슈**: Figma `color/secondary`·`color/text/on-secondary`와 `design_tokens.json`의 `secondary`·`on-secondary` **의미 불일치**; 검색 건수 강조는 **raw hex vs `color/primary`** 정리가 필요할 수 있음.
 
 ---
 
 ## 참고
 
-- **Component descriptions (Figma)**: `SearchBar` — `transition-shadow`; focus 시 `outline-none`, `ring-2`, `ring-offset-2`(노드 185:2495). 필터·검색 결과 등 동일 컴포넌트 인스턴스에 적용될 수 있음.
+- **Component descriptions (Figma)**: `SearchBar` — `transition-shadow`; focus 시 `outline-none`, `ring-2`, `ring-offset-2` 등. 필터·검색 결과 등 동일 컴포넌트 인스턴스에 적용될 수 있음.
 - 아이콘·이미지는 MCP 자산 URL로만 제공되며 토큰 표와 별개이다.
 - 스타일 **이름**은 Figma 텍스트·색·이펙트 스타일명, **값** 열은 연결 변수 위주로 기술했다.

@@ -10,7 +10,7 @@
     "start:producer": "npm run start:dev -w server/producer",
     "start:consumer": "npm run start:dev -w server/consumer",
     "format": "prettier --write .",
-    "verify:design-contrast": "node scripts/verify-design-token-contrast.mjs",
+    "verify:design-contrast": "node agent/common/verify-design-token-contrast.mjs",
     "db:prisma:generate": "pnpm --filter @cook/shared run prisma:generate",
     "db:prisma:migrate:dev": "pnpm --filter @cook/shared run prisma:migrate:dev",
     "db:prisma:migrate:deploy": "pnpm --filter @cook/shared run prisma:migrate:deploy",

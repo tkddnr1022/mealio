@@ -1,6 +1,6 @@
 # 스펙 주도 개발 지침
 
-백엔드·프론트엔드 명세서(`../spec/backend_architecture_spec.md`, `../spec/frontend_architecture_spec.md`)에 정의된 **무엇을** 구현할 때 공통으로 적용하는 원칙이다.
+백엔드·프론트엔드 명세서(`../backend/spec/backend_architecture_spec.md`, `../frontend/spec/frontend_architecture_spec.md`)에 정의된 **무엇을** 구현할 때 공통으로 적용하는 원칙이다.
 
 ---
 
@@ -13,7 +13,7 @@
 
 | 영역 | 명세 문서 | 대상 단위 |
 |------|-----------|-----------|
-| 백엔드 | `../spec/backend_architecture_spec.md` (및 패키지별 명세) | 파일·디렉터리 |
-| 프론트엔드 | `../spec/frontend_architecture_spec.md` | 페이지·라우팅·파일 |
+| 백엔드 | `../backend/spec/backend_architecture_spec.md` (및 패키지별 명세) | 파일·디렉터리 |
+| 프론트엔드 | `../frontend/spec/frontend_architecture_spec.md` | 페이지·라우팅·파일 |
 
 구체적인 파일 목록·경로·계약은 각 명세 문서에, 구현 방법은 각 영역의 development_guidelines 문서에 정의되어 있다.

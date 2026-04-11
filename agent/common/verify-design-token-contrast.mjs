@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const root = join(__dirname, "..");
+const root = join(__dirname, "..", "..");
 
 function parseHex(hex) {
   const s = hex.replace(/^#/, "");
@@ -46,8 +46,8 @@ function loadJson(rel) {
   return JSON.parse(readFileSync(join(root, rel), "utf8"));
 }
 
-const principle = loadJson("agent/design/design_principle.json");
-const tokens = loadJson("agent/design/design_tokens.json");
+const principle = loadJson("agent/design/spec/design_principle.json");
+const tokens = loadJson("agent/design/spec/design_tokens.json");
 
 const NORMAL = parseFloat(String(principle.accessibility.colorContrast.bodyText).replace(":1", ""));
 const LARGE_UI = parseFloat(
