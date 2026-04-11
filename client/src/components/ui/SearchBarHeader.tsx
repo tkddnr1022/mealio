@@ -15,10 +15,10 @@ export type SearchBarHeaderProps = Readonly<
   > & {
     /** 헤더(표면·패딩·그림자) 래퍼 클래스 */
     className?: string;
-    /** SearchBar pill에 전달할 클래스 (호버 배경은 기본 포함) */
+    /** SearchBar pill에 전달할 추가 클래스 */
     searchBarClassName?: string;
-    /** SearchBar에 그대로 전달 (mode·readOnly·tabIndex는 컴포넌트가 덮어씀) */
-    searchBarProps?: Omit<SearchBarProps, "mode" | "readOnly" | "tabIndex">;
+    /** SearchBar에 그대로 전달 (readOnly·tabIndex는 헤더가 덮어씀) */
+    searchBarProps?: Omit<SearchBarProps, "readOnly" | "tabIndex">;
     disabled?: boolean;
     onClick?: (e: MouseEvent<HTMLDivElement>) => void;
   }
@@ -38,7 +38,7 @@ export const SearchBarHeader = forwardRef<HTMLDivElement, SearchBarHeaderProps>(
     ref
   ) {
     const placeholder =
-      searchBarProps?.placeholder ?? "레시피 검색하기";
+      searchBarProps?.placeholder ?? "검색어를 입력해 주세요";
     const ariaLabel = searchBarProps?.["aria-label"] ?? placeholder;
     const isDisabled = disabled || !!searchBarProps?.disabled;
 
@@ -51,7 +51,16 @@ export const SearchBarHeader = forwardRef<HTMLDivElement, SearchBarHeaderProps>(
       }
     };
 
-    const mergedWrapperClass = `bg-background transition-shadow hover:bg-placeholder-surface ${searchBarProps?.wrapperClassName ?? ""} ${searchBarClassName}`.trim();
+    /** 트리거 pill 배경·호버(Figma 헤더 검색) — SearchBar·Input과 동일 토큰 */
+    const headerSearchBarSurfaceClassName = [
+      "bg-background",
+      "transition-shadow",
+      "hover:bg-placeholder-surface",
+      searchBarProps?.wrapperClassName,
+      searchBarClassName,
+    ]
+      .filter((s): s is string => Boolean(s?.trim()))
+      .join(" ");
 
     return (
       <div
@@ -70,11 +79,10 @@ export const SearchBarHeader = forwardRef<HTMLDivElement, SearchBarHeaderProps>(
         >
           <SearchBar
             {...searchBarProps}
-            mode="button"
             readOnly
             tabIndex={-1}
             disabled={isDisabled}
-            wrapperClassName={mergedWrapperClass}
+            wrapperClassName={headerSearchBarSurfaceClassName}
           />
         </div>
       </div>

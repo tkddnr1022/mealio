@@ -57,7 +57,7 @@ export default function RecipeMainPage() {
     <>
       <Navbar title="레시피" variant="Empty" />
 
-      <SearchBarHeader searchBarProps={{ placeholder: '레시피 검색하기' }} />
+      <SearchBarHeader searchBarProps={{ placeholder: "검색어를 입력해 주세요" }} />
 
       <MainContent paddingX={false}>
         <section className="flex flex-col gap-4">

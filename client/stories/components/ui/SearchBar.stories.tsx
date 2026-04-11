@@ -20,8 +20,7 @@ const meta = {
     viewport: { defaultViewport: "mobile1" },
   },
   args: {
-    mode: "input",
-    placeholder: "레시피 검색하기",
+    placeholder: "검색어를 입력해 주세요",
     disabled: false,
     onChange: fn(),
   },
@@ -44,11 +43,10 @@ export const Filled: Story = {
   },
 };
 
-export const ButtonMode: Story = {
-  name: "mode: button (헤더·트리거)",
+export const ReadOnlyTrigger: Story = {
+  name: "readOnly + tabIndex -1 (헤더·트리거)",
   decorators: [narrowWidth],
   args: {
-    mode: "button",
     readOnly: true,
     tabIndex: -1,
     defaultValue: "비빔밥",
