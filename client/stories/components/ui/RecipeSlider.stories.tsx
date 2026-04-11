@@ -1,8 +1,8 @@
 ﻿import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { ReactNode } from "react";
 
-import type { RecipeGridItem } from "../../../components/ui/RecipeGrid";
-import { RecipeSlider } from "../../../components/ui/RecipeSlider";
+import type { RecipeGridItem } from "@/components/ui/RecipeGrid";
+import { RecipeSlider } from "@/components/ui/RecipeSlider";
 
 const centered = (Story: () => ReactNode) => (
   <div className="flex w-full justify-center py-6">

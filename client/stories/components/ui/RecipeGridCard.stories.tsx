@@ -1,7 +1,7 @@
 ﻿import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { ReactNode } from "react";
 
-import { RecipeGridCard } from "../../../components/ui/RecipeGridCard";
+import { RecipeGridCard } from "@/components/ui/RecipeGridCard";
 
 /** Figma 그리드 열 폭에 가깝게 두기 (~170px) */
 const gridColumn = (Story: () => ReactNode) => (

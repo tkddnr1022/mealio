@@ -1,7 +1,7 @@
 ﻿import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { ReactNode } from "react";
 
-import { SliderPagination } from "../../../components/ui/SliderPagination";
+import { SliderPagination } from "@/components/ui/SliderPagination";
 
 const paddedRow = (Story: () => ReactNode) => (
   <div className="w-full max-w-[400px] py-4">

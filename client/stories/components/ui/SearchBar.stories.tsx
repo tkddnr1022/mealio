@@ -2,8 +2,8 @@
 import type { ReactNode } from "react";
 import { fn } from "storybook/test";
 
-import { Navbar } from "../../../components/layout/Navbar";
-import { SearchBar } from "../../../components/ui/SearchBar";
+import { Navbar } from "@/components/layout/Navbar";
+import { SearchBar } from "@/components/ui/SearchBar";
 
 const narrowWidth = (Story: () => ReactNode) => (
   <div className="w-[min(100vw-2rem,23rem)]">

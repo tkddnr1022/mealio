@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import type { ReactNode } from 'react';
 
-import RecipeMainPage from '../../app/page';
-import { AppRootFrame } from '../../components/layout/AppRootFrame';
+import RecipeMainPage from '@/app/page';
+import { AppRootFrame } from '@/components/layout/AppRootFrame';
 
 const mobileCanvas = (Story: () => ReactNode) => (
   <AppRootFrame className="bg-background">

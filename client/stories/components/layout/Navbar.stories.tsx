@@ -1,7 +1,7 @@
 ﻿import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn } from "storybook/test";
 
-import { Navbar } from "../../../components/layout/Navbar";
+import { Navbar } from "@/components/layout/Navbar";
 
 const variantOrder = [
   "Empty",

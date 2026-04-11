@@ -1,7 +1,7 @@
 ﻿import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
-import { AppRootFrame } from '../../../components/layout/AppRootFrame';
-import { MainContent } from '../../../components/layout/MainContent';
+import { AppRootFrame } from '@/components/layout/AppRootFrame';
+import { MainContent } from '@/components/layout/MainContent';
 
 const meta = {
   title: 'Layout/AppRootFrame',

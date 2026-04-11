@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { fn } from "storybook/test";
 
-import { Tabbar, type TabbarTabId } from "../../../components/layout/Tabbar";
+import { Tabbar, type TabbarTabId } from "@/components/layout/Tabbar";
 
 const meta = {
   title: "Layout/Tabbar",

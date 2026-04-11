@@ -2,7 +2,7 @@ import type { Preview } from "@storybook/nextjs-vite";
 import { Geist_Mono, Noto_Sans_KR } from "next/font/google";
 import type { ViewportMap } from "storybook/viewport";
 
-import "../app/globals.css";
+import "../src/app/globals.css";
 import React from "react";
 
 /** agent/design/spec/design_tokens.json breakpoint 기준 (mobile-max 767, tablet 768–1023, desktop ≥1024) */

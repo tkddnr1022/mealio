@@ -1,7 +1,7 @@
 ﻿import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { ReactNode } from "react";
 
-import { PaginationDot } from "../../../components/ui/PaginationDot";
+import { PaginationDot } from "@/components/ui/PaginationDot";
 
 const row = (Story: () => ReactNode) => (
   <div className="flex items-center gap-2 py-4">
