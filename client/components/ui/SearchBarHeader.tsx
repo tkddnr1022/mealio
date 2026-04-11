@@ -51,28 +51,32 @@ export const SearchBarHeader = forwardRef<HTMLDivElement, SearchBarHeaderProps>(
       }
     };
 
-    const mergedWrapperClass = `pointer-events-none bg-background transition-shadow group-hover:bg-placeholder-surface ${searchBarProps?.wrapperClassName ?? ""} ${searchBarClassName}`.trim();
+    const mergedWrapperClass = `bg-background transition-shadow hover:bg-placeholder-surface ${searchBarProps?.wrapperClassName ?? ""} ${searchBarClassName}`.trim();
 
     return (
       <div
         ref={ref}
-        role="button"
-        tabIndex={isDisabled ? -1 : 0}
-        aria-label={ariaLabel}
-        aria-disabled={isDisabled || undefined}
-        className={`group flex w-full flex-col items-stretch bg-surface px-4 py-3 shadow-sm outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${isDisabled ? "pointer-events-none cursor-not-allowed" : "cursor-pointer"} ${className}`.trim()}
-        onClick={isDisabled ? undefined : onClick}
-        onKeyDown={handleKeyDown}
+        className={`flex w-full flex-col items-stretch bg-surface px-4 py-3 shadow-sm ${className}`.trim()}
         {...rest}
       >
-        <SearchBar
-          {...searchBarProps}
-          mode="button"
-          readOnly
-          tabIndex={-1}
-          disabled={isDisabled}
-          wrapperClassName={mergedWrapperClass}
-        />
+        <div
+          role="button"
+          tabIndex={isDisabled ? -1 : 0}
+          aria-label={ariaLabel}
+          aria-disabled={isDisabled || undefined}
+          className={`w-full rounded-full outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${isDisabled ? "pointer-events-none cursor-not-allowed" : "cursor-pointer"}`.trim()}
+          onClick={isDisabled ? undefined : onClick}
+          onKeyDown={handleKeyDown}
+        >
+          <SearchBar
+            {...searchBarProps}
+            mode="button"
+            readOnly
+            tabIndex={-1}
+            disabled={isDisabled}
+            wrapperClassName={mergedWrapperClass}
+          />
+        </div>
       </div>
     );
   },

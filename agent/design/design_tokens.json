@@ -1,7 +1,111 @@
 {
-  "version": "1.2",
-  "lastReviewed": "2026-04-05",
-  "relatedFiles": ["agent/design/design_principle.json"],
+  "version": "1.3",
+  "lastReviewed": "2026-04-11",
+  "relatedFiles": [
+    "agent/design/design_principle.json",
+    "agent/design/figma-variables-and-styles.md"
+  ],
+  "figma": {
+    "fileKey": "r9bdZPeswvPR1ncezzt4ri",
+    "source-doc": "agent/design/figma-variables-and-styles.md",
+    "variable-index": {
+      "border/default": "border.width.default",
+      "color/background/default": "color.light.background",
+      "color/background/placeholder": "color.light.placeholder-surface",
+      "color/background/surface": "color.light.surface",
+      "color/border/subtle": "color.light.border-subtle",
+      "color/indicator/inactive": "color.light.indicator-inactive",
+      "color/primary": "color.light.primary",
+      "color/scrollbar/thumb": "color.light.scrollbar-thumb",
+      "color/secondary": "color.light.action-secondary-surface",
+      "color/tab/active": "color.light.tab-active",
+      "color/tab/inactive": "color.light.tab-inactive",
+      "color/tag/accent": "color.light.tag-accent-surface",
+      "color/tag/default": "color.light.tag-default-surface",
+      "color/text/accent": "color.light.text-accent",
+      "color/text/caption": "color.light.text-caption",
+      "color/text/on-primary": "color.light.on-primary",
+      "color/text/on-secondary": "color.light.text-on-action-secondary-surface",
+      "color/text/placeholder": "color.light.text-placeholder",
+      "color/text/primary": "color.light.text-primary",
+      "color/text/secondary": "color.light.text-secondary",
+      "color/toggle/selected/default": "color.light.toggle-selected-background",
+      "color/toggle/unselected/default": "color.light.toggle-unselected-background",
+      "elevation/md/blur": "elevation.figma.md.blur",
+      "elevation/md/color": "elevation.figma.md.color",
+      "elevation/md/x": "elevation.figma.md.x",
+      "elevation/md/y": "elevation.figma.md.y",
+      "elevation/sm/blur": "elevation.figma.sm.blur",
+      "elevation/sm/color": "elevation.figma.sm.color",
+      "elevation/sm/x": "elevation.figma.sm.x",
+      "elevation/sm/y": "elevation.figma.sm.y",
+      "radius/full": "radius.full",
+      "radius/lg": "radius.lg",
+      "radius/xl": "radius.xl",
+      "size/lg": "icon.size.lg",
+      "size/md": "icon.size.md",
+      "size/sm": "icon.size.sm",
+      "spacing/1": "spacing.1",
+      "spacing/2": "spacing.2",
+      "spacing/3": "spacing.3",
+      "spacing/4": "spacing.4",
+      "spacing/6": "spacing.6",
+      "spacing/8": "spacing.8",
+      "typography/font-size-body": "typography.body.font-size",
+      "typography/font-size-caption": "typography.caption.font-size",
+      "typography/font-size-h1": "typography.h1.font-size",
+      "typography/font-size-h2": "typography.h2.font-size",
+      "typography/font-size-h3": "typography.h3.font-size",
+      "typography/font-size-small": "typography.small.font-size"
+    },
+    "style-index": {
+      "Action/Primary/Default": "color.light.primary",
+      "Action/Primary/Inactive": "color.light.indicator-inactive",
+      "Action/Secondary/Default": "color.light.action-secondary-surface",
+      "Background/Placeholder": "color.light.placeholder-surface",
+      "Background/Primary/Default": "color.light.background",
+      "Background/Surface": "color.light.surface",
+      "Body/Default": "typography.body",
+      "Body/Accent": "typography.body-accent",
+      "Caption/Default": "typography.caption",
+      "Border/Subtle": "color.light.border-subtle + border.width.default",
+      "Card/Caption": "typography.card-caption",
+      "Card/Body": "typography.card-body",
+      "Card/Heading": "typography.card-section-heading",
+      "Elevation/Medium": "elevation.md",
+      "Elevation/Small": "elevation.sm",
+      "H1": "typography.h1",
+      "H2": "typography.h2",
+      "H3": "typography.h3",
+      "Indicator/Active": "color.light.primary",
+      "Indicator/Inactive": "color.light.indicator-inactive",
+      "Label/Button": "typography.label-button",
+      "Label/Dropdown": "typography.caption-medium",
+      "Label/Tab": "typography.tab",
+      "Label/Toggle": "typography.label-toggle",
+      "Scrollbar/Thumb": "color.light.scrollbar-thumb",
+      "SearchBar/Value": "typography.search-bar-value",
+      "Text/Button/Primary": "color.light.on-primary",
+      "Text/Button/Secondary": "color.light.text-on-action-secondary-surface",
+      "Text/Caption": "color.light.text-caption",
+      "Text/Placeholder": "color.light.text-placeholder",
+      "Text/Primary": "color.light.text-primary",
+      "Text/Accent": "color.light.text-accent",
+      "Text/Secondary": "color.light.text-secondary",
+      "Text/Tab/Active": "color.light.tab-active",
+      "Text/Tab/Inactive": "color.light.tab-inactive",
+      "Text/Toggle/Active": "color.light.on-primary",
+      "Text/Toggle/Inactive": "color.light.text-secondary",
+      "Toggle/Selected/Default": "color.light.toggle-selected-background",
+      "Toggle/Unselected/Default": "color.light.toggle-unselected-background",
+      "Tag/Default": "color.light.tag-default-surface",
+      "Tag/Accent": "color.light.tag-accent-surface"
+    },
+    "notes": [
+      "Figma color/secondary는 필터 ‘초기화’ 면색(#FAFAF9). JSON의 color.*.secondary는 Cook 브랜드 2차색(라이트 #6B7250) — 의미가 다르다. UI 매핑은 action-secondary-surface·text-on-action-secondary-surface를 쓴다.",
+      "Figma color/text/on-secondary는 위 면 위 짙은 글자(#575352). JSON color.*.on-secondary는 브랜드 secondary 위 전경색 — 혼동 방지를 위해 Figma 경로는 text-on-action-secondary-surface에 연결했다."
+    ]
+  },
 
   "theme": {
     "default": "light",
@@ -14,22 +118,43 @@
       "surface": "#FFFFFF",
       "text-primary": "#1C1A17",
       "text-secondary": "#575352",
+      "text-accent": "#C2410C",
+      "text-accent-usage": "강조 숫자·카테고리 태그 글자 등. Figma color/text/accent(= primary와 동일 hex).",
       "text-caption": "#9CA3AF",
-      "text-caption-usage": "14px 부가·메타용. 필수 라벨·에러는 body(16px) 또는 대비 4.5:1 충족 색 사용.",
+      "text-caption-usage": "12px 그리드 카드 메타 등. Figma color/text/caption. 14px 부가 텍스트는 caption 타이포 + text-secondary 조합을 검색/필터 화면에서 사용.",
       "text-placeholder": "#737373",
-      "text-placeholder-usage": "입력 플레이스홀더·비활성 탭 라벨 등. Figma Text/Placeholder·Text/Tab/Inactive.",
+      "text-placeholder-usage": "입력 플레이스홀더. Figma Text/Placeholder·color/text/placeholder.",
+      "tab-active": "#C2410C",
+      "tab-inactive": "#737373",
+      "tab-color-note": "Figma color/tab/active·inactive. 비활성 값은 text-placeholder와 동일 hex이나 역할 분리 가능.",
       "border": "#8A8480",
       "border-subtle": "#E5E5E5",
-      "border-subtle-usage": "탭바 상단 구분선 등 얕은 구분. Figma Border/Subtle.",
+      "border-subtle-usage": "Navbar·Tabbar·재료 행 구분선. Figma color/border/subtle·Border/Subtle.",
       "placeholder-surface": "#F5F5F4",
-      "placeholder-surface-usage": "썸네일·스켈레톤 배경. Figma Background/Placeholder(color/placeholder).",
+      "placeholder-surface-usage": "썸네일 자리·StepBadge 배경. Figma color/background/placeholder.",
+      "indicator-inactive": "#D4D4D4",
+      "indicator-inactive-usage": "PaginationDot 비활성 등. Figma color/indicator/inactive.",
       "primary-inactive": "#D4D4D4",
-      "primary-inactive-usage": "슬라이더·인디케이터 비활성 도트. Figma color/primary-inactive.",
+      "primary-inactive-usage": "하위 호환·globals.css --primary-inactive. Figma 명칭은 color/indicator/inactive.",
       "primary": "#C2410C",
       "primary-hover": "#9A3412",
       "on-primary": "#FFFFFF",
       "secondary": "#6B7250",
       "on-secondary": "#FFFFFF",
+      "secondary-figma-conflict-note": "브랜드 2차색. Figma 변수 color/secondary는 연한 버튼 면 — action-secondary-surface 참조.",
+      "action-secondary-surface": "#FAFAF9",
+      "action-secondary-surface-usage": "필터 하단 초기화 등 연한 면 버튼. Figma color/secondary·Action/Secondary/Default.",
+      "text-on-action-secondary-surface": "#575352",
+      "text-on-action-secondary-surface-usage": "위 면 위 라벨. Figma color/text/on-secondary·Text/Button/Secondary(hex는 text-secondary와 동일).",
+      "toggle-selected-background": "#C2410C",
+      "toggle-unselected-background": "#FAFAF9",
+      "toggle-surface-note": "Figma color/toggle/selected|unselected/default. 선택은 primary와 동일 hex.",
+      "tag-accent-surface": "#FFF7ED",
+      "tag-accent-surface-usage": "레시피 상세 카테고리 태그 면. Figma color/tag/accent·Tag/Accent.",
+      "tag-default-surface": "#FAFAF9",
+      "tag-default-surface-usage": "검색 카드 FlatTag 면. Figma color/tag/default·Tag/Default(background와 동일 hex).",
+      "scrollbar-thumb": "#D4D4D4CC",
+      "scrollbar-thumb-usage": "Figma color/scrollbar/thumb.",
       "success": "#15803D",
       "error": "#B91C1C",
       "warning": "#92400E",
@@ -42,18 +167,33 @@
       "surface": "#111827",
       "text-primary": "#F9FAFB",
       "text-secondary": "#D1D5DB",
+      "text-accent": "#FB923C",
+      "text-accent-usage": "다크에서 강조 텍스트·액센트. 대비 검증 권장.",
       "text-caption": "#9CA3AF",
-      "text-caption-usage": "다크에서도 부가 텍스트 전용. 필수 정보는 text-secondary 이상 권장.",
+      "text-caption-usage": "다크에서도 부가 텍스트 전용.",
       "text-placeholder": "#A3A3A3",
+      "tab-active": "#FB923C",
+      "tab-inactive": "#A3A3A3",
       "border": "#64748B",
       "border-subtle": "#334155",
       "placeholder-surface": "#1F2937",
+      "indicator-inactive": "#52525B",
       "primary-inactive": "#52525B",
+      "primary-inactive-usage": "하위 호환. Figma 다크 인디케이터 트랙에 맞춤.",
       "primary": "#C2410C",
       "primary-hover": "#9A3412",
       "on-primary": "#FFFFFF",
       "secondary": "#84CC16",
       "on-secondary": "#0F172A",
+      "action-secondary-surface": "#1F2937",
+      "action-secondary-surface-usage": "다크 모드 연한 액션 면(대략적). 최종은 디자인 시안에 맞출 것.",
+      "text-on-action-secondary-surface": "#D1D5DB",
+      "toggle-selected-background": "#C2410C",
+      "toggle-unselected-background": "#111827",
+      "tag-accent-surface": "#422006",
+      "tag-accent-surface-usage": "다크 카테고리 태그 면(주황 틴트).",
+      "tag-default-surface": "#1F2937",
+      "scrollbar-thumb": "#52525BCC",
       "success": "#22C55E",
       "error": "#F97373",
       "warning": "#FBBF24",
@@ -76,29 +216,74 @@
     "h1": {
       "font-size": 28,
       "line-height": 42,
-      "font-weight-token": "typography.font-weight.bold"
+      "font-weight-token": "typography.font-weight.bold",
+      "figma-note": "Figma typography/font-size-h1·H1."
     },
     "h2": {
       "font-size": 20,
       "line-height": 30,
       "font-weight-token": "typography.font-weight.bold",
-      "figma-note": "Figma H2는 Bold(700). 스크린 타이틀·섹션 제목과 정렬."
+      "figma-note": "Figma typography/font-size-h2·H2. 재료·조리 순서 카드 제목."
     },
     "h3": {
       "font-size": 18,
       "line-height": 27,
       "font-weight-token": "typography.font-weight.bold",
-      "figma-note": "Figma H3는 Bold(700). 카드 제목 등과 정렬."
+      "figma-note": "Figma typography/font-size-h3·H3. 그리드 카드 제목."
     },
     "body": {
       "font-size": 16,
       "line-height": 24,
-      "font-weight-token": "typography.font-weight.regular"
+      "font-weight-token": "typography.font-weight.regular",
+      "figma-note": "Figma typography/font-size-body·Body/Default."
+    },
+    "body-accent": {
+      "font-size": 16,
+      "line-height": 24,
+      "font-weight-token": "typography.font-weight.bold",
+      "figma-note": "Figma Body/Accent. 강조 본문."
+    },
+    "search-bar-value": {
+      "font-size": 16,
+      "line-height": 24,
+      "font-weight-token": "typography.font-weight.medium",
+      "figma-note": "Figma SearchBar/Value. 채워진 검색어."
+    },
+    "label-toggle": {
+      "font-size": 16,
+      "line-height": 24,
+      "font-weight-token": "typography.font-weight.medium",
+      "figma-note": "Figma Label/Toggle."
+    },
+    "label-button": {
+      "font-size": 16,
+      "line-height": 24,
+      "font-weight-token": "typography.font-weight.bold",
+      "figma-note": "Figma Label/Button. 필터 하단 버튼 라벨."
     },
     "caption": {
       "font-size": 14,
       "line-height": 21,
-      "font-weight-token": "typography.font-weight.regular"
+      "font-weight-token": "typography.font-weight.regular",
+      "figma-note": "Figma typography/font-size-caption·Caption/Default."
+    },
+    "caption-medium": {
+      "font-size": 14,
+      "line-height": 21,
+      "font-weight-token": "typography.font-weight.medium",
+      "figma-note": "Figma Label/Dropdown. 정렬 드롭다운 등."
+    },
+    "card-body": {
+      "font-size": 14,
+      "line-height": 21,
+      "font-weight-token": "typography.font-weight.regular",
+      "figma-note": "Figma Card/Body. 검색 카드 요약 설명."
+    },
+    "card-section-heading": {
+      "font-size": 18,
+      "line-height": 27,
+      "font-weight-token": "typography.font-weight.medium",
+      "figma-note": "Figma Card/Heading. 필터 카드 섹션 제목(Medium·h3 스케일)."
     },
     "small": {
       "font-size": 12,
@@ -110,17 +295,17 @@
       "font-size": 12,
       "line-height": 16,
       "font-weight-token": "typography.font-weight.medium",
-      "figma-note": "Figma Card/Caption. 레시피 카드 메타 행 등 12px·line 16·Medium."
+      "figma-note": "Figma Card/Caption·typography/font-size-small + Medium. 레시피 카드 메타 행."
     },
     "tab": {
       "font-size": 12,
       "line-height": 16,
       "font-weight-token": "typography.font-weight.medium",
-      "figma-note": "Figma Tab 텍스트 스타일. 수치는 card-caption과 동일·하단 탭 라벨 전용 의미.",
-      "color-active-token": "color.light.primary",
-      "color-active-dark-token": "color.dark.primary",
-      "color-inactive-token": "color.light.text-placeholder",
-      "color-inactive-dark-token": "color.dark.text-placeholder"
+      "figma-note": "Figma Label/Tab·typography/font-size-small.",
+      "color-active-token": "color.light.tab-active",
+      "color-active-dark-token": "color.dark.tab-active",
+      "color-inactive-token": "color.light.tab-inactive",
+      "color-inactive-dark-token": "color.dark.tab-inactive"
     }
   },
 
@@ -138,7 +323,7 @@
     "12": 48,
     "16": 64,
     "touch-target-gap-token": "spacing.2",
-    "touch-target-gap-note": "design_principle platform.touchTargetSpacingMinPx(8px)와 동일."
+    "touch-target-gap-note": "design_principle platform.touchTargetSpacingMinPx(8px)와 동일. Figma spacing/2."
   },
 
   "radius": {
@@ -147,7 +332,8 @@
     "lg": 8,
     "xl": 12,
     "2xl": 16,
-    "full": 9999
+    "full": 9999,
+    "figma-note": "radius/lg·xl·full은 Figma와 동일 수치."
   },
 
   "layout": {
@@ -197,10 +383,15 @@
     },
     "recipe-search-card": {
       "thumbnail-aspect": "16:9",
-      "usage-note": "레시피 검색 결과 등 리스트형 카드. design_principle media.recipeImage.aspectRatio와 맞춤.",
+      "usage-note": "검색 결과 리스트 카드. FlatTag는 tag-default-surface·text-secondary. 설명은 Card/Body(caption 14).",
       "gap-token": "spacing.3",
       "title-lines-max": 2,
       "title-typography-token": "typography.h3",
+      "description-typography-token": "typography.card-body",
+      "description-color-token": "color.light.text-secondary",
+      "description-color-dark-token": "color.dark.text-secondary",
+      "flat-tag-surface-token": "color.light.tag-default-surface",
+      "flat-tag-surface-dark-token": "color.dark.tag-default-surface",
       "meta-typography-token": "typography.card-caption",
       "meta-color-token": "color.light.text-caption",
       "meta-color-dark-token": "color.dark.text-caption",
@@ -214,8 +405,13 @@
       "min-height-token": "spacing.11",
       "text-light-token": "color.light.on-primary",
       "text-on-secondary-light-token": "color.light.on-secondary",
+      "text-on-muted-surface-light-token": "color.light.text-on-action-secondary-surface",
+      "background-muted-light-token": "color.light.action-secondary-surface",
       "text-dark-token": "color.dark.on-primary",
-      "text-on-secondary-dark-token": "color.dark.on-secondary"
+      "text-on-secondary-dark-token": "color.dark.on-secondary",
+      "text-on-muted-surface-dark-token": "color.dark.text-on-action-secondary-surface",
+      "background-muted-dark-token": "color.dark.action-secondary-surface",
+      "figma-note": "브랜드 Secondary는 secondary/on-secondary. Figma 필터 초기화는 background-muted* + text-on-muted-surface*."
     },
     "chip": {
       "padding-x-token": "spacing.3",
@@ -241,19 +437,36 @@
     },
     "style": {
       "default": "solid"
-    }
+    },
+    "figma-note": "border.width.default ↔ Figma border/default (1px)."
   },
 
   "elevation": {
     "sm": "0 1px 2px rgba(15, 23, 42, 0.06)",
     "md": "0 4px 8px rgba(15, 23, 42, 0.08)",
     "lg": "0 10px 15px rgba(15, 23, 42, 0.12)",
+    "figma": {
+      "sm": {
+        "x": 0,
+        "y": 1,
+        "blur": 2,
+        "color": "#0f172a0f",
+        "usage": "Figma elevation/sm/*·Elevation/Small."
+      },
+      "md": {
+        "x": 0,
+        "y": 4,
+        "blur": 8,
+        "color": "#0f172a14",
+        "usage": "Figma elevation/md/*·Elevation/Medium."
+      }
+    },
     "dark": {
       "sm": "0 1px 3px rgba(0, 0, 0, 0.45)",
       "md": "0 4px 12px rgba(0, 0, 0, 0.5)",
       "lg": "0 12px 24px rgba(0, 0, 0, 0.55)"
     },
-    "usage-note": "라이트는 sm/md/lg 기본값. 다크 배경은 elevation.dark.* 사용 권장."
+    "usage-note": "라이트 sm/md는 Figma Elevation/Small·Medium과 동일 시각 목표. CSS는 단일 box-shadow 문자열로 사용."
   },
 
   "overlay": {
@@ -314,7 +527,8 @@
       "sm": 16,
       "md": 20,
       "lg": 24
-    }
+    },
+    "figma-note": "icon.size.* ↔ Figma size/sm|md|lg."
   },
 
   "empty-state": {

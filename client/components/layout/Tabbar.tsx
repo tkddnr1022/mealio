@@ -63,12 +63,12 @@ function TabButton({
   return (
     <span className="relative flex shrink-0 flex-col items-center justify-center gap-1">
       <Icon
-        className={`size-6 shrink-0 ${selected ? "text-primary" : "text-text-placeholder"}`}
+        className={`size-6 shrink-0 ${selected ? "text-tab-active" : "text-tab-inactive"}`}
         strokeWidth={2}
         aria-hidden
       />
       <span
-        className={`typography-tab ${selected ? "text-primary" : "text-text-placeholder"}`}
+        className={`typography-tab ${selected ? "text-tab-active" : "text-tab-inactive"}`}
       >
         {label}
       </span>

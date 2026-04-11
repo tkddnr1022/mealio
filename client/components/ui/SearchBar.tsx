@@ -102,11 +102,11 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
         className={`flex w-full items-center gap-3 rounded-full bg-background px-4 py-3 transition-shadow ${focusRingClasses} [&:has(input:disabled)]:opacity-50 ${wrapperClassName}`.trim()}
       >
         <div
-          className="flex size-6 shrink-0 flex-col items-center justify-center overflow-hidden p-[3px]"
+          className="flex size-6 shrink-0 flex-col items-center justify-center overflow-hidden"
           aria-hidden
         >
           <Search
-            className="size-[18px] shrink-0 text-text-placeholder"
+            className="size-full shrink-0 text-text-placeholder"
             strokeWidth={2}
           />
         </div>
@@ -121,7 +121,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
           value={isControlled ? valueProp : undefined}
           defaultValue={isControlled ? undefined : defaultValue}
           onChange={handleChange}
-          className={`min-h-0 min-w-0 flex-1 bg-transparent text-body text-text-primary outline-none placeholder:font-normal placeholder:text-text-placeholder disabled:cursor-not-allowed not-placeholder-shown:font-medium [&::-webkit-search-cancel-button]:hidden ${className}`.trim()}
+          className={`min-h-0 min-w-0 flex-1 bg-transparent text-body text-text-primary outline-none placeholder:font-normal placeholder:text-text-placeholder disabled:cursor-not-allowed not-placeholder-shown:font-medium [&::-webkit-search-cancel-button]:hidden ${isInputMode ? "" : "cursor-pointer"} ${className}`.trim()}
         />
         {isInputMode ? (
           <button
@@ -131,9 +131,9 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
             aria-label={hasText ? "검색어 지우기" : undefined}
             disabled={!hasText || disabled}
             onClick={handleClear}
-            className={`inline-flex size-5 shrink-0 items-center justify-center overflow-hidden p-[6px] text-text-placeholder transition-colors hover:bg-placeholder-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none ${!hasText ? "invisible pointer-events-none" : ""}`.trim()}
+            className={`inline-flex size-5 shrink-0 items-center justify-center overflow-hidden text-text-placeholder transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none cursor-pointer ${hasText ? "" : "invisible pointer-events-none"}`.trim()}
           >
-            <X className="size-3" strokeWidth={2} aria-hidden />
+            <X className="size-full" strokeWidth={2} aria-hidden />
           </button>
         ) : null}
       </div>

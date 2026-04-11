@@ -1,8 +1,13 @@
 # Figma Cook — 통합 변수·스타일 목록
 
-- **소스**: [Cook — Figma](https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook) (`fileKey`: `r9bdZPeswvPR1ncezzt4ri`). MCP로 수집한 여러 화면 노드의 변수·스타일을 **페이지 구분 없이** 한 표로 합침.
-- **수집 방법**: Figma MCP `get_design_context`, `get_variable_defs` (2026-04-09 기준 응답)
-- **표기**: **구분**은 `변수` 또는 `스타일`. **이름**은 Figma 변수 경로 또는 스타일 이름. **값**은 변수면 수치·색, 스타일이면 연결 변수(타이포는 폰트·굵기·행간 등 고정 속성 병기). **사용처**는 동일 토큰이 쓰인 컴포넌트·역할을 통합 기술.
+- **소스** (동일 파일, 노드 병합):
+  - [RecipeMainPage — node 166-1586](https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook?node-id=166-1586)
+  - [RecipeFilterPage — node 233-1638](https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook?node-id=233-1638)
+  - [RecipeSearchResultPage — node 258-3928](https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook?node-id=258-3928) (프레임 내 `hasResult=true` / `false` 변형; MCP는 통합 컨텍스트로 수집)
+  - [RecipeDetailPage — node 292-2129](https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook?node-id=292-2129)
+- **`fileKey`**: `r9bdZPeswvPR1ncezzt4ri`
+- **수집 방법**: Figma MCP `get_variable_defs`, `get_design_context`, `get_metadata` (2026-04-11, 노드 `166:1586`·`233:1638`·`258:3928`·`292:2129` 각각 호출 후 **이름 기준 병합**). 보조 `search_design_system`은 외부 라이브러리 잡음으로 Cook 전수 목록에 부적합하여 표 근거에서 제외.
+- **주의**: MCP 응답 시점 스냅샷. Figma 수정 후 재수집할 것. **다른 화면**은 동일 `fileKey`로 `node-id`만 바꿔 추가 수집·병합하면 된다.
 
 ---
 
@@ -12,87 +17,117 @@
 
 | 구분 | 이름 | 값 | 사용처 |
 |------|------|-----|--------|
-| 변수 | `border/default` | `1` (px) | Navbar, Tabbar, ActionGroup 등 구분선 두께 |
-| 변수 | `color/background` | `#fafaf9` | 페이지·MainContent·SearchBar 필드 배경, Toggle 비선택 배경과 동일 값인 구간 |
-| 변수 | `color/border-subtle` | `#e5e5e5` | Navbar, Tabbar, ActionGroup 보더 |
-| 변수 | `color/elevation-md` | `#0f172a` @ 약 8% 불투명 (`#0f172a14`) | 카드·표면 드롭 섀도 색(Elevation/Medium) |
-| 변수 | `color/placeholder` | `#f5f5f4` | RecipeGridCard 이미지 자리 배경 |
-| 변수 | `color/primary` | `#c2410c` | Tabbar 활성 라벨, SliderPagination·PaginationDot 활성, Toggle 선택, Primary 버튼·주요 액션 배경 |
-| 변수 | `color/primary-inactive` | `#d4d4d4` | PaginationDot 비활성 |
-| 변수 | `color/scrollbar-thumb` | `#d4d4d4` @ 80% 불투명 (≈ `#d4d4d4cc`) | CustomScrollbar |
-| 변수 | `color/secondary` | `#fafaf9` | Secondary 버튼(예: 초기화) 배경 |
-| 변수 | `color/surface` | `#ffffff` | Navbar, SearchBarButton, Tabbar, CardBase·ToggleCard, FlatGroup 내 흰 표면 |
-| 변수 | `color/text-caption` | `#9ca3af` | RecipeGridCard 메타 텍스트 |
-| 변수 | `color/text-on-primary` | `#ffffff` | Toggle 선택 라벨, Primary 버튼 라벨 |
-| 변수 | `color/text-on-secondary` | `#575352` | Secondary 버튼(예: 초기화) 라벨 |
-| 변수 | `color/text-placeholder` | `#737373` | SearchBar 플레이스홀더, Tabbar 비활성 라벨 |
-| 변수 | `color/text-primary` | `#1c1a17` | Navbar 제목, 그리드·섹션·카드 제목, SearchBarCard·ToggleCard 섹션 헤딩 등 |
-| 변수 | `color/text-secondary` | `#575352` | Toggle 비선택 칩 라벨 |
-| 변수 | `color/toggle/selected/default` | `#c2410c` | Toggle 선택 칩 배경 |
-| 변수 | `color/toggle/unselected/default` | `#fafaf9` | Toggle 비선택 칩 배경 |
-| 변수 | `elevation/md-blur` | `8` (px) | Elevation/Medium 블러 |
-| 변수 | `elevation/md-x` | `0` (px) | Elevation/Medium 오프셋 X |
-| 변수 | `elevation/md-y` | `4` (px) | Elevation/Medium 오프셋 Y |
-| 변수 | `radius/full` | `9999` (px) | SearchBar, PaginationDot, Toggle 칩, 버튼 캡슐형 |
+| 변수 | `border/default` | `1` (px) | Navbar·Tabbar·ActionGroup 구분선 |
+| 변수 | `color/background/default` | `#fafaf9` | 메인·필터 페이지 루트, MainContent, 검색 필드(SearchBar) 배경 |
+| 변수 | `color/background/placeholder` | `#f5f5f4` | RecipeGridCard 이미지 컨테이너 배경; **조리 순서 StepBadge** 원형 배경 |
+| 변수 | `color/background/surface` | `#ffffff` | Navbar, SearchBarHeader, Tabbar, CardBase·ToggleCard·SearchBarCard, ActionGroup 바; 레시피 상세 **CardTag**(시간·난이도·인분) 면 |
+| 변수 | `color/border/subtle` | `#e5e5e5` | Navbar·Tabbar 보더; **RecipeIngredientRow** 행 구분선 |
+| 변수 | `color/indicator/inactive` | `#d4d4d4` | PaginationDot 비활성 |
+| 변수 | `color/primary` | `#c2410c` | PaginationDot 활성, Tab 활성, Toggle 선택 칩, Primary 버튼·헤더 아이콘 강조 |
+| 변수 | `color/scrollbar/thumb` | `#d4d4d4` @ 80% 불투명 (`#d4d4d4cc`) | MainContent CustomScrollbar |
+| 변수 | `color/secondary` | `#fafaf9` | 필터 하단 **초기화** 버튼 면(ActionGroup Secondary) — 제품 JSON의 브랜드 `secondary`와 **동일 값 아님** |
+| 변수 | `color/tab/active` | `#c2410c` | Tabbar 활성 탭 라벨 |
+| 변수 | `color/tab/inactive` | `#737373` | Tabbar 비활성 탭 라벨 |
+| 변수 | `color/tag/accent` | `#fff7ed` | 레시피 상세 **카테고리** FlatTag 면(연한 오렌지 틴트) |
+| 변수 | `color/tag/default` | `#fafaf9` | RecipeSearchCard **FlatTag** 칩 면(`color/background/default`와 동일 hex) |
+| 변수 | `color/text/accent` | `#c2410c` | 레시피 상세 카테고리 FlatTag 글자색(`color/primary`·`color/tab/active`와 동일 hex) |
+| 변수 | `color/text/caption` | `#9ca3af` | RecipeGridCard 메타 행 |
+| 변수 | `color/text/on-primary` | `#ffffff` | Toggle 선택 라벨, Primary 버튼 라벨 |
+| 변수 | `color/text/on-secondary` | `#575352` | Secondary(초기화) 버튼 라벨 — 면은 `color/secondary`, 글자는 본 토큰 |
+| 변수 | `color/text/placeholder` | `#737373` | SearchBar 플레이스홀더 |
+| 변수 | `color/text/primary` | `#1c1a17` | Navbar 제목, 섹션·카드 제목, 필터 카드 섹션 제목(타이포는 Card/Heading과 조합) |
+| 변수 | `color/text/secondary` | `#575352` | Toggle 비선택 칩 라벨; FlatTag·검색 카드 설명·SearchResultMeta; **재료 행 수량**(Bold), **조리 순서 StepBadge** 숫자 |
+| 변수 | `color/toggle/selected/default` | `#c2410c` | Toggle 선택 칩 배경(`color/primary`와 동일 hex) |
+| 변수 | `color/toggle/unselected/default` | `#fafaf9` | Toggle 비선택 칩 배경(`color/background/default`와 동일 hex) |
+| 변수 | `elevation/md/blur` | `8` (px) | 카드·필터·**재료/조리 순서** 카드 그림자(Elevation/Medium) |
+| 변수 | `elevation/md/color` | `#0f172a` @ 약 8% 불투명 (`#0f172a14`) | Elevation/Medium 섀도 색 |
+| 변수 | `elevation/md/x` | `0` (px) | Elevation/Medium X |
+| 변수 | `elevation/md/y` | `4` (px) | Elevation/Medium Y |
+| 변수 | `elevation/sm/blur` | `2` (px) | SearchBarHeader 그림자(Elevation/Small) |
+| 변수 | `elevation/sm/color` | `#0f172a` @ 약 6% 불투명 (`#0f172a0f`) | SearchBarHeader 드롭 섀도 |
+| 변수 | `elevation/sm/x` | `0` (px) | Elevation/Small X |
+| 변수 | `elevation/sm/y` | `1` (px) | Elevation/Small Y |
+| 변수 | `radius/full` | `9999` (px) | SearchBar, Toggle 칩, 하단 버튼, PaginationDot |
 | 변수 | `radius/lg` | `8` (px) | CustomScrollbar 모서리 |
-| 변수 | `radius/xl` | `12` (px) | RecipeGridCard 이미지 컨테이너, CardBase·ToggleCard |
-| 변수 | `spacing/1` | `4` (px) | TabButton 내부 간격 |
-| 변수 | `spacing/2` | `8` (px) | Navbar·Tabbar·그리드·칩 그룹·스크롤바 주변 등 |
-| 변수 | `spacing/3` | `12` (px) | SearchBar, Tabbar, SearchBarButton, Card Body, ActionGroup 등 패딩·간격 |
-| 변수 | `spacing/4` | `16` (px) | Navbar, SearchBar·카드·토글·액션 바 패딩·간격, 섹션 Heading, RecipeSlider 등 |
-| 변수 | `spacing/6` | `24` (px) | Tabbar·MainContent 세로 패딩 등. MCP 생성 코드 일부에 직접 클래스가 안 보일 수 있음 |
-| 변수 | `spacing/8` | `32` (px) | MainContent 내 섹션 간 간격 등. MCP 스니펫에 직접 대응이 없을 수 있음 |
-| 변수 | `typography/font-size-body` | `16` (px) | SearchBar 본문·플레이스홀더, Toggle·버튼 라벨 |
-| 변수 | `typography/font-size-h1` | `28` (px) | Navbar 페이지 제목 |
-| 변수 | `typography/font-size-h2` | `20` (px) | 섹션 제목(예: 추천 레시피) |
-| 변수 | `typography/font-size-h3` | `18` (px) | 카드 제목, 카드 내 섹션 제목 타이포(스타일은 H3·Card/Heading 등과 조합) |
-| 변수 | `typography/font-size-small` | `12` (px) | 카드 캡션 한 줄, 탭 라벨 |
+| 변수 | `radius/xl` | `12` (px) | RecipeGridCard 이미지·CardBase·ToggleCard·SearchBarCard |
+| 변수 | `size/lg` | `24` (px) | 아이콘 24px 박스(탭·Navbar·뒤로가기·검색 아이콘 등) |
+| 변수 | `size/md` | `20` (px) | 정렬 드롭다운 chevron·Chip 닫기 아이콘 박스 등 |
+| 변수 | `size/sm` | `16` (px) | RecipeSearchCard FlatTag 내 메타 아이콘 컨테이너 |
+| 변수 | `spacing/1` | `4` (px) | TabButton 내부, 카드 제목·메타 사이 |
+| 변수 | `spacing/2` | `8` (px) | Navbar 아이콘·제목, 그리드·슬라이더, 스크롤바, Toggle 칩 세로 패딩 |
+| 변수 | `spacing/3` | `12` (px) | SearchBar·Tabbar·SearchBarHeader, 카드 Body, ActionGroup 세로 패딩, Toggle 행 `gap` |
+| 변수 | `spacing/4` | `16` (px) | Navbar·섹션 Heading·SearchBar 가로 패딩, RecipeSlider, 카드 Body 패딩, Toggle 칩 가로 패딩, ActionGroup 가로·버튼 패딩 |
+| 변수 | `spacing/6` | `24` (px) | Tabbar 가로 패딩, MainContent 세로 패딩, RecipeSearchList 카드 간 `gap`, RecipeDetailContent 세로·썸네일 아래 패딩 |
+| 변수 | `spacing/8` | `32` (px) | 메인 홈 MainContent 내 섹션 간 `gap` |
+| 변수 | `typography/font-size-body` | `16` (px) | SearchBar 플레이스홀더·**채워진 검색어**(Medium 스타일과 조합), Toggle·버튼 라벨; 상세 **요리 설명**·**CardTag** 라벨·**조리 단계** 본문·**재료** 행 이름 |
+| 변수 | `typography/font-size-caption` | `14` (px) | RecipeSearchCard 설명·FlatTag 라벨, SearchResultMeta·Chip·정렬 드롭다운; 상세 **카테고리** 태그·**StepBadge** 숫자 |
+| 변수 | `typography/font-size-h1` | `28` (px) | Navbar 페이지 제목; 레시피 상세 **요리명**(본문 헤딩) |
+| 변수 | `typography/font-size-h2` | `20` (px) | 추천 레시피 등 섹션 제목; **재료**·**조리 순서** 카드 제목 |
+| 변수 | `typography/font-size-h3` | `18` (px) | 그리드 카드 제목; 필터 카드 섹션 제목은 **동일 크기·Medium**(Card/Heading) |
+| 변수 | `typography/font-size-small` | `12` (px) | 탭 라벨, 카드 메타 |
 
 ### 스타일
 
 | 구분 | 이름 | 값 | 사용처 |
 |------|------|-----|--------|
-| 스타일 | `Action/Primary/Default` | `color/primary` | 활성 탭·인디케이터·Primary 버튼·선택 칩 등 액션 색 |
-| 스타일 | `Action/Secondary/Default` | `color/secondary` | Secondary 버튼 배경 |
-| 스타일 | `Background/Placeholder` | `color/placeholder` | 레시피 카드 이미지 자리 배경 |
-| 스타일 | `Background/Primary/Default` | `color/background` | 페이지·콘텐츠 기본 배경 |
-| 스타일 | `Background/Surface` | `color/surface` | Navbar, 바·카드 표면 |
-| 스타일 | `Body` | `typography/font-size-body` · Noto Sans KR Regular · lineHeight `24` | SearchBar 플레이스홀더 타이포 |
-| 스타일 | `Border/Subtle` | `color/border-subtle`, `border/default` | Navbar·Tabbar·하단 액션 바 구분선 |
+| 스타일 | `Action/Primary/Default` | `color/primary` | 인디케이터·탭·Primary 버튼·선택 칩 등 액션 면색 |
+| 스타일 | `Action/Primary/Inactive` | `color/indicator/inactive` (`#d4d4d4`) | MCP 변수 맵상 **비활성 Primary 트랙** 색(인디케이터 비활성과 동일 hex); 검색 결과 화면 컨텍스트에 포함 |
+| 스타일 | `Action/Secondary/Default` | `color/secondary` | 초기화(Secondary) 버튼 면 |
+| 스타일 | `Background/Placeholder` | `color/background/placeholder` | 카드 썸네일 자리 배경 |
+| 스타일 | `Background/Primary/Default` | `color/background/default` | 페이지·메인 콘텐츠 기본 배경 |
+| 스타일 | `Background/Surface` | `color/background/surface` | Navbar, 검색 헤더, Tabbar, 카드·하단 액션 바 |
+| 스타일 | `Body/Default` | `typography/font-size-body` · Noto Sans KR Regular · lineHeight `24` | SearchBar 플레이스홀더 타이포 |
+| 스타일 | `Body/Accent` | `typography/font-size-body` · Noto Sans KR Bold · lineHeight `24` | MCP 스타일 목록에 포함(강조 본문·레시피 상세 등에서 `Label/Button`과 구분해 쓸 수 있음) |
+| 스타일 | `Caption/Default` | `typography/font-size-caption` · Noto Sans KR Regular · lineHeight `21` | RecipeSearchCard 설명, SearchResultMeta·Chip 본문 톤 |
+| 스타일 | `Border/Subtle` | `color/border/subtle`, `border/default` | Navbar·Tabbar·ActionGroup 구분선 |
 | 스타일 | `Card/Caption` | `typography/font-size-small` · Noto Sans KR Medium · lineHeight `16` | 카드 메타 한 줄 |
-| 스타일 | `Card/Heading` | `typography/font-size-h3` · Noto Sans KR Medium · lineHeight `27` | 검색·필터 카드 내 섹션 제목(검색어, 난이도 등) |
-| 스타일 | `Elevation/Medium` | `color/elevation-md`, `elevation/md-x`, `elevation/md-y`, `elevation/md-blur` | CardBase·ToggleCard 등 카드 그림자 |
+| 스타일 | `Card/Body` | `typography/font-size-caption` · Noto Sans KR Regular · lineHeight `21` | RecipeSearchCard 요약 설명 본문 |
+| 스타일 | `Card/Heading` | `typography/font-size-h3` · Noto Sans KR Medium · lineHeight `27` | 필터 카드 섹션 제목; 검색 결과 카드 제목(레시피명)과 동일 스케일·굵기 조합이 쓰일 수 있음 |
+| 스타일 | `Elevation/Medium` | `elevation/md/color`, `elevation/md/x`, `elevation/md/y`, `elevation/md/blur` | CardBase·SearchBarCard·ToggleCard·**RecipeIngredientsCard**·**RecipeStepsCard** |
+| 스타일 | `Elevation/Small` | `elevation/sm/color`, `elevation/sm/x`, `elevation/sm/y`, `elevation/sm/blur` | SearchBarHeader 그림자; 레시피 상세 **CardTag**(시간·난이도·인분) |
 | 스타일 | `H1` | `typography/font-size-h1` · Noto Sans KR Bold · lineHeight `42` | Navbar 제목 |
-| 스타일 | `H2` | `typography/font-size-h2` · Noto Sans KR Bold · lineHeight `30` | 추천 레시피 등 섹션 제목 |
+| 스타일 | `H2` | `typography/font-size-h2` · Noto Sans KR Bold · lineHeight `30` | 홈 섹션 제목 |
 | 스타일 | `H3` | `typography/font-size-h3` · Noto Sans KR Bold · lineHeight `27` | 그리드 카드 제목 |
-| 스타일 | `Indicator/Dot/Active` | `color/primary` | PaginationDot 활성 |
-| 스타일 | `Indicator/Dot/Inactive` | `color/primary-inactive` | PaginationDot 비활성 |
-| 스타일 | `Scrollbar/Thumb` | `color/scrollbar-thumb` | CustomScrollbar |
-| 스타일 | `Tab` | `typography/font-size-small` · Noto Sans KR Medium · lineHeight `16` | 탭 라벨 타이포 |
-| 스타일 | `Text/Button/Primary` | `color/text-on-primary` | Primary 버튼 텍스트 |
-| 스타일 | `Text/Button/Secondary` | `color/text-on-secondary` | Secondary 버튼 텍스트 |
-| 스타일 | `Text/Caption` | `color/text-caption` | 카드 부가 메타 색 |
-| 스타일 | `Text/Placeholder` | `color/text-placeholder` | 검색 필드 힌트 |
-| 스타일 | `Text/Primary` | `color/text-primary` | 제목·강조 본문 색 |
-| 스타일 | `Text/Tab/Active` | `color/primary` | Tabbar 활성 라벨 |
-| 스타일 | `Text/Tab/Inactive` | `color/text-placeholder` | Tabbar 비활성 라벨 |
-| 스타일 | `Text/Toggle/Active` | `color/text-on-primary` | 선택 칩 라벨 색 |
-| 스타일 | `Text/Toggle/Inactive` | `color/text-secondary` | 비선택 칩 라벨 색 |
-| 스타일 | `Toggle/Label` | `typography/font-size-body` · Noto Sans KR Medium · lineHeight `24` | 칩 라벨 타이포 |
+| 스타일 | `Indicator/Active` | `color/primary` | PaginationDot 활성(막대) |
+| 스타일 | `Indicator/Inactive` | `color/indicator/inactive` | PaginationDot 비활성 |
+| 스타일 | `Label/Button` | `typography/font-size-body` · Noto Sans KR Bold · lineHeight `24` | 하단 초기화·검색 버튼 라벨 타이포 |
+| 스타일 | `Label/Dropdown` | `typography/font-size-caption` · Noto Sans KR Medium · lineHeight `21` | 검색 결과 **정렬** 드롭다운 라벨(예: 최신순) |
+| 스타일 | `Label/Tab` | `typography/font-size-small` · Noto Sans KR Medium · lineHeight `16` | 탭 라벨 타이포 |
+| 스타일 | `Label/Toggle` | `typography/font-size-body` · Noto Sans KR Medium · lineHeight `24` | Toggle 칩 라벨 타이포 |
+| 스타일 | `Scrollbar/Thumb` | `color/scrollbar/thumb` | CustomScrollbar |
+| 스타일 | `SearchBar/Value` | `typography/font-size-body` · Noto Sans KR Medium · lineHeight `24` | 검색 결과 상단 SearchBar **채워진 값**(플레이스홀더와 구분) |
+| 스타일 | `Text/Button/Primary` | `color/text/on-primary` | Primary 버튼 라벨 색 |
+| 스타일 | `Text/Button/Secondary` | `color/text/on-secondary` | Secondary(초기화) 버튼 라벨 색 |
+| 스타일 | `Text/Caption` | `color/text/caption` | 카드 메타 색 |
+| 스타일 | `Text/Placeholder` | `color/text/placeholder` | 검색 필드 힌트 색 |
+| 스타일 | `Text/Primary` | `color/text/primary` | 제목·강조 본문 색 |
+| 스타일 | `Text/Accent` | `color/text/accent` | 레시피 상세 **카테고리** FlatTag 글자색 |
+| 스타일 | `Text/Secondary` | `color/text/secondary` | 보조 본문·FlatTag 글자색(캡션 스케일과 조합) |
+| 스타일 | `Text/Tab/Active` | `color/tab/active` | Tabbar 활성 라벨 |
+| 스타일 | `Text/Tab/Inactive` | `color/tab/inactive` | Tabbar 비활성 라벨 |
+| 스타일 | `Text/Toggle/Active` | `color/text/on-primary` | 선택 칩 라벨 색 |
+| 스타일 | `Text/Toggle/Inactive` | `color/text/secondary` | 비선택 칩 라벨 색 |
 | 스타일 | `Toggle/Selected/Default` | `color/toggle/selected/default` | 선택 칩 배경 |
 | 스타일 | `Toggle/Unselected/Default` | `color/toggle/unselected/default` | 비선택 칩 배경 |
-| 스타일 | `—` | *(연결 변수 없음)* MCP 기준 `0 1px 2px 0 rgba(15,23,42,0.06)` | SearchBarButton 래퍼 등 — 레이어 그림자(토큰 미바인딩). 다른 화면은 `Elevation/Medium`으로 토큰화됨 |
+| 스타일 | `Tag/Default` | `color/tag/default` | RecipeSearchCard **FlatTag**(시간·난이도·인분) 면색 |
+| 스타일 | `Tag/Accent` | `color/tag/accent` | 레시피 상세 **카테고리** FlatTag 면색 |
 
 ---
 
 ## 권장 수정사항 (선택)
 
-1. **그림자·elevation 정렬**: 메인 흐름의 `SearchBarButton`은 raw 섀도만 있고, 필터·카드는 `Elevation/Medium`·`elevation/*`·`color/elevation-md`로 맞춰져 있습니다. 동일 토큰(또는 `elevation/sm` 등)으로 통일하면 화면 간 일관성이 좋아집니다.
-2. **간격 토큰**: 그리드·스택 `gap`이나 `spacing/6`·`spacing/8`이 MCP 코드에 숫자 리터럴로만 보이는 구간이 있습니다. 프레임에서 실제 값이 토큰과 같다면 클래스·CSS 변수도 `spacing/*`에 맞추는 것을 권장합니다.
-3. **타이포 토큰**: 필터 하단 `ActionGroup` 버튼 라벨 등이 `text-[16px]`처럼 리터럴로만 나온 경우, `typography/font-size-body` 등과 바인딩해 스타일·코드를 맞추면 좋습니다.
-4. **Navbar 수직 리듬**: 상·하 패딩이 1px 단위로 어긋날 수 있으니, 단일 spacing 토큰으로 정리할지 검토합니다.
-5. **변수 경로 vs 시맨틱 스타일**: `color/primary`와 `Action/Primary/Default`처럼 동일 의미가 이중으로 잡힐 수 있어, 구현(변수)·디자인 패널(스타일) 역할을 팀 규칙으로 정하면 혼선이 줄어듭니다.
-6. **MCP보내기 점검**: `SearchBarCard` 등에서 아이콘 상수명이 스니펫과 어긋날 수 있으니, 실제 노드·에셋 URL 기준으로 import를 확인합니다.
+1. **Elevation 계열 정리**: 메인 홈 검색 헤더는 **`Elevation/Small`**, 필터·카드는 **`Elevation/Medium`** — 의도된 단계 구분이면 문서화만, 동일 “카드 그림자”로 통일할지 팀 규칙으로 정할 것.
+2. **그리드 간격(홈)**: `RecipeGrid` 등에 `gap`이 픽셀 리터럴만 보이는 구간 → `spacing/*` 바인딩 점검.
+3. **Navbar·헤더**: `pb` 17px, `BackButton`·`AdditionalButtonContainer` **절대 좌표** → spacing 토큰·오토레이아웃 정렬 검토.
+4. **필터 MainContent**: 자식 카드 세로 스택에 **섹션 간 gap**이 MCP 코드에 토큰으로 드러나지 않으면, 프레임에서 간격 변수 적용 여부 확인.
+5. **이중·동값 변수**: `color/primary` ≡ `color/toggle/selected/default`, `color/background/default` ≡ `color/toggle/unselected/default` ≡ `color/secondary`(필터 버튼 면), `color/text/secondary` ≡ `color/text/on-secondary` — **alias·SSOT 한 축** 검토.
+6. **`design_tokens.json` vs Figma `color/secondary`**: JSON 브랜드 2차색(`#6B7250` 등)과 Figma **`color/secondary` = 연한 버튼 면**은 **이름 충돌** — 매핑 시 의미 분리 필수.
+7. **검색 결과 메타 강조 숫자**: `SearchResultMeta`에서 건수 강조가 MCP 코드에 **`text-[#c2410c]` 리터럴**로만 보일 수 있음 → `color/primary` 등 **변수·시맨틱 토큰** 바인딩 검토(SSOT).
+8. **FlatTag 내부 간격**: 아이콘·텍스트 사이 `gap-[7.997px]` 등 **픽셀 리터럴** → `spacing/*` 정렬 검토.
+9. **좋아요 버튼 래퍼**: 썸네일 위 `LikeButtonWrapper`의 `right`/`top` **절대 좌표**·`Elevation/Small` 조합은 의도 유지 시 문서화, 토큰화 가능하면 정렬 규칙으로 옮길 것.
+10. **필터 Chip vs FlatTag**: Chip 행은 면이 `color/background/default`, FlatTag는 `color/tag/default`(동일 hex) — **별도 변수 vs alias** 정리 검토.
+11. **레시피 상세 세로 간격**: `RecipeDetailHeader`·`CardTagsRow` 등에 `gap-[12px]`가 **리터럴**로만 보이는 구간 → `spacing/3` 바인딩 검토.
+12. **조리 순서 Steps**: 단계 블록 `gap-[16px]`, **StepBadge** `32px` 고정, **CardTag** 아이콘 `18px` 등 → `spacing/4`·`size/*` 토큰화 또는 의도 문서화.
 
 ---
 
@@ -104,61 +139,54 @@
 
 | 케이스 | 이유 | 해결 방향 |
 |--------|------|-----------|
-| `color/primary-inactive` | 값 `#d4d4d4`는 브랜드 primary 변형이라기보다 **중립 비활성 트랙**에 가깝다. | `color/indicator-inactive`, `color/dot-inactive` 등 **역할 기반** 이름으로 바꾸거나 `neutral/track` 계열로 묶는다. |
-| `color/elevation-md` | **그림자 색**인데 `color/`만으로는 면 색과 구분이 애매하다. | `effect/shadow-md`, `shadow/md/color` 등 **이펙트 전용 접두사**를 두거나, `Elevation/Medium` 스타일에만 묶고 변수는 내부용으로 제한한다. |
-| 스타일 `Body` | 실사용이 **검색 플레이스홀더**에 가깝고, 일반 “본문(body)”과 겹친다. | `Body/InputPlaceholder`, `Text/Field/Placeholder` 등으로 분리하거나, 진짜 본문용 `Body`와 플레이스홀더 스타일을 나눈다. |
-| `typography/font-size-h3` | **H3(볼드 카드 제목)**과 **Card/Heading(미디엄)**이 같은 숫자 토큰을 공유한다. | 크기만 `font-size/lg` 같은 **스케일 토큰**으로 두고, `H3` / `Card/Heading`은 **복합 텍스트 스타일**로만 노출하거나 `font-size/card-section-title` 등으로 위계와 분리한다. |
-| 스타일 `Category/Name` vs 변수 `slash/path` | PascalCase 스타일과 slash 변수가 혼재한다. | 스타일 → 변수 **매핑 테이블**을 문서·코드에 두고, 신규는 **한 축(변수 또는 스타일)을 SSOT**로 정한다. |
+| `Background/Placeholder` / `color/background/placeholder` | **썸네일 자리**와 입력 placeholder 용어 충돌 | 콘텐츠 역할이 드러나는 이름 검토 |
+| `typography/font-size-h3` | **H3 Bold(카드 제목)**와 **Card/Heading Medium(필터 섹션)**이 같은 크기 토큰 공유 | 스케일 토큰 + 복합 텍스트 스타일로 역할 분리 검토 |
+| `color/secondary` | **연한 버튼 채움**인데 JSON `secondary`는 브랜드 2차색 | Figma·코드에서 **이름 분리**(예: `surface/button-muted`, `color/action-secondary-surface`) |
+| `color/text/on-secondary` | “on-secondary”는 보통 **세컨더리 배경 위 전경**인데, 실제는 **연한 면 위 짙은 글자** | `text/action-secondary` 등 의미 재정의 또는 `on-*`는 짝 배경이 있을 때만 사용 |
+| PascalCase 스타일 vs `color/...` 변수 | 패널·코드 간 이중 진입점 | 스타일 → 변수 매핑 테이블 + SSOT 축 하나 정함 |
 
 ### 2. 의미와 실제 사용처가 맞지 않는 경우
 
 | 케이스 | 불일치 | 해결 방향 |
 |--------|--------|-----------|
-| `color/secondary` = `#fafaf9` | 흔한 **세컨더리 브랜드 색**이 아니라 **채워진 표면**(페이지 배경과 동일 값)에 가깝다. `design_tokens.json`의 `secondary`는 라이트에서 `#6B7250`으로 **의미가 다르다**. | Figma에서 `color/surface-muted`, `color/button-secondary-fill` 등으로 바꾸고, 코드 토큰 `secondary`와 **무조건 1:1 매핑하지 않는다**. JSON과 Figma 중 SSOT를 정한 뒤 이름·값을 정렬한다. |
-| `Text/Button/Secondary` → `color/text-on-secondary` | “on-secondary”는 보통 **세컨더리 배경 위 전경**인데, 실제는 **연한 표면 위 짙은 글자**에 가깝다. | `color/text-action-secondary` 등 **의미를 재정의**하거나, `on-*`는 **짝이 되는 배경 토큰**이 있을 때만 쓴다. |
-| `Text/Tab/Inactive` → `color/text-placeholder` | 탭 비활성과 **입력 플레이스홀더**는 역할이 다르다. | `color/text-tab-inactive`로 분리해(값은 동일해도 됨) 테마 시 독립 조정이 가능하게 한다. |
-| `Background/Placeholder` / `color/placeholder` | **이미지 자리 표면**인데 “placeholder”는 입력 힌트와 혼동된다. | `surface/thumbnail-empty`, `image/placeholder-bg` 등 **콘텐츠 역할**이 드러나는 이름을 검토한다. |
-| `color/text-secondary` | 문서상 **토글 비선택 라벨** 중심이나 이름은 **전역 2차 본문**처럼 넓다. | 토큰명은 유지하되 규칙으로 범위를 명시하거나, 칩 전용이면 `color/text-chip-inactive`로 쪼갠다. |
+| JSON `secondary` / `on-secondary` | 제품 팔레트 vs Figma 필터 버튼 | SSOT 우선순위 정한 뒤 이름·값 동기화 |
+| `color/text/placeholder` vs `color/tab/inactive` | 값 동일 시 테마 독립 조정 어려움 | alias 또는 탭 전용 토큰 분리 |
 
 ### 3. 중복·SSOT 문제가 예상되는 경우
 
 | 케이스 | 내용 | 해결 방향 |
 |--------|------|-----------|
-| `color/primary` ≡ `color/toggle/selected/default` | 동일 색 **이중 변수**면 수정 시 누락 위험. | 하나만 SSOT로 두고 다른 쪽은 **alias**만 허용하거나, 토글 선택은 `primary`만 참조한다. |
-| `color/background` ≡ `color/toggle/unselected/default` ≡ Figma `color/secondary` | 같은 hex가 **세 경로**로 존재한다. | 페이지 배경·칩·버튼 채움을 **`surface-subtle` 등 단일 시맨틱**으로 통합할지 정하고, 브랜드 `secondary`와 분리한다. |
-| `color/text-secondary` ≡ `color/text-on-secondary` | 같은 `#575352`가 두 경로면 테마 변경 시 **한쪽만 갱신**될 수 있다. | **한 토큰**만 두고 스타일은 동일 변수만 참조하거나 Figma alias로 연결한다. |
-| `Text/Tab/Active` → `color/primary` vs `Text/Toggle/Active` → `color/text-on-primary` | 둘 다 강조 상태인데 **글자색 토큰 경로가 다르다**. | `text-accent` 등 **시맨틱 토큰**으로 통일하거나, “배경 없는 강조” vs “채움 위 흰 글자”를 규칙으로 문서화한다. |
-| `design_tokens.json` vs Figma | JSON의 `secondary` / `on-secondary`와 Figma 필터 버튼용 `color/secondary`·텍스트 조합이 **서로 다른 결정**을 가리킬 수 있다. | 우선순위(SSOT)를 정하고 한쪽에 맞춰 이름·값을 동기화한다. |
+| `color/primary` · `color/toggle/selected/default` · `Text/Tab/Active` 등 | 동일 주황의 다중 경로 | 하나만 SSOT, 나머지 alias |
+| `elevation/sm/*` vs `elevation/md/*` | 화면별로 그림자 단계가 다름 | 디자인 의도 문서화 또는 단계 수 최소화 |
+| `color/text/secondary` ≡ `color/text/on-secondary` | 동일 `#575352` 이중 경로 | 한 토큰으로 통합 또는 alias |
+| `color/tag/default` ≡ `color/background/default` | 동일 `#fafaf9` 이중 경로 | 태그 전용 의미 유지 vs 배경 토큰 alias |
+| `color/text/caption` vs `color/text/secondary` | 그리드 메타는 caption, 검색 카드 설명·FlatTag는 secondary(MCP 기준) | 역할별로 둘 다 필요하면 명명·대비 정책 문서화 |
+| `color/text/accent` ≡ `color/primary` ≡ `color/tab/active` | 동일 `#c2410c` 다중 경로 | 강조 텍스트는 **한 토큰**만 SSOT, 나머지 alias |
+| `Tag/Accent` vs `Tag/Default` | 면색·의미가 다름(연한 틴트 vs 중립 회색 톤) | 용도별 유지; `color/tag/accent`만으로 시맨틱 구분 |
 
 ### 4. 색상 대비가 불안한 경우
 
 | 조합 | 우려 | 해결 방향 |
 |------|------|-----------|
-| `text-placeholder` `#737373` on `background` `#fafaf9` | 작은 플레이스홀더·탭 라벨에서 **AA 본문(4.5:1)**에 걸릴 수 있다. | 실측 후 필요 시 색을 약간 진하게 하거나, 탭·플레이스홀더 **토큰 분리** 후 탭은 더 진한 색 적용. |
-| `text-caption` `#9ca3af` on `placeholder` `#f5f5f4` 등 연한 배경 | **낮은 대비** 가능성(특히 12px 메타). | 필수 정보는 caption만 쓰지 않기(`design_tokens.json`의 caption 용도 설명과 정합). 대비 개선 시 캡션 색 또는 배경 톤 조정. |
-| `primary` `#c2410c` **글자만** on `#ffffff` | 오렌지 텍스트는 크기·굵기에 따라 AA가 빠듯할 수 있다. | 대비 검사 후 필요 시 **진한 primary 텍스트** 전용 토큰 분리. |
-| `scrollbar-thumb` 반투명 on 가변 배경 | 배경에 따라 대비가 들쭉날쭉할 수 있다. | 정책에 맞게 **불투명도·기준색** 고정 검토. |
-| `text-on-primary` on `primary` | 일반적으로 양호한 편. | 포커스·호버 상태까지 포함해 상태별로 한 번씩 검증. |
+| `color/text/placeholder` on `color/background/default` | 작은 글씨·탭에서 AA 이슈 가능 | 실측·토큰 분리 |
+| `color/text/caption` on `color/background/placeholder` | 12px 메타 | 필수 정보는 caption만 쓰지 않기; 대비 개선 |
+| `color/tab/active` / `color/primary` 텍스트 on 흰 배경 | 오렌지 단독 글자색 대비 | 검사 후 진한 primary 텍스트 토큰 검토 |
 
 ### 5. 오버 엔지니어링 가능성
 
 | 케이스 | 내용 | 해결 방향 |
 |--------|------|-----------|
-| `elevation/md-x`, `md-y`, `md-blur`, `color/elevation-md` 네 변수 | 하나의 그림자를 쪼갠 형태. 코드가 `box-shadow` 한 줄이면 **추상화가 과할 수 있다**. | `Elevation/Medium` 또는 `shadow.card` **단일 토큰**을 제품 SSOT로 두고, 세부 변수는 Figma 내부용으로만 둔다. |
-| `Text/Tab/*`, `Text/Toggle/*`, `Text/Button/*`, `Toggle/Label` 등 | 16px/12px 계열이 **겹치면 스타일 수만 늘어난다**. | `text/label-md`, `text/chip` 등 **공통 타이포 토큰**으로 묶고 컴포넌트에서 재사용한다고 명시한다. |
-| 유사한 색 스타일 다수 | 팔레트 변경 시 스타일 N개를 동시에 수정해야 할 수 있다. | 색 스타일은 **시맨틱 소수**만 두고 나머지는 **변수 alias**로만 연결한다. |
-| Raw 섀도 vs Elevation 토큰 | 같은 “살짝 떠 보임”인데 구현만 다르다. | `elevation/sm` 등 **한 계열로 통일**(권장 수정사항 1번과 연계). |
+| 그림자 변수 4개×단계 | 코드는 `box-shadow` 한 줄과 매핑 가능 | 제품 단일 shadow 토큰 + Figma 세분 변수 |
 
 ### 요약
 
-- **가장 시급한 SSOT 이슈**: Figma `color/secondary`·필터 버튼 조합과 `design_tokens.json`의 `secondary`·`on-secondary` **의미 불일치**를 이름과 값으로 정리할 것.
-- **이름·의미**: `primary-inactive`, `placeholder`, `on-secondary`, `Body` 등은 **역할에 맞게 리네이밍**하거나 토큰을 분리하는 것이 좋다.
-- **중복 색 변수**는 **alias 한 축**으로 줄이고, **대비**는 placeholder·caption·오렌지 텍스트·연한 배경 조합을 우선 검사하면 된다.
-- **그림자·타이포**는 필요한 최소 토큰으로 줄여 **코드와 Figma가 같은 이름**을 쓰게 맞추면 유지보수 부담이 줄어든다.
+- **노드 병합 결과**: 홈(`166:1586`)은 탭·슬라이더·**Small** 섀도 중심; 필터(`233:1638`)는 토글·카드·**Medium**·하단 버튼; 검색 결과(`258:3928`)는 캡션 스케일·검색 바 값·태그·칩 등; 상세(`292:2129`)는 **`color/text/accent`·`color/tag/accent`·`Text/Accent`·`Tag/Accent`·`Body/Accent`**, **CardTag(Small 섀도)**, 재료 행·조리 순서(StepBadge·Medium 카드), Navbar 좋아요·공유 등을 추가로 드러냄.
+- **가장 유의할 SSOT 이슈**: Figma `color/secondary`·`color/text/on-secondary`와 `design_tokens.json`의 `secondary`·`on-secondary` **의미 불일치**; 검색 건수 강조는 **raw hex vs `color/primary`** 정리가 필요할 수 있음.
 
 ---
 
 ## 참고
 
-- 아이콘·이미지는 MCP 자산 URL로만 제공되며 위 토큰 표와 별개입니다.
-- 스타일 **이름**에 Figma 텍스트·색·이펙트 스타일명을 두고, **값**에 연결 변수를 적었습니다. 효과만 있고 Figma 스타일명이 없는 레이어는 **이름**을 `—`로 두었습니다.
+- **Component descriptions (Figma)**: `SearchBar` — `transition-shadow`; focus 시 `outline-none`, `ring-2`, `ring-offset-2`(노드 185:2495). 필터·검색 결과 등 동일 컴포넌트 인스턴스에 적용될 수 있음.
+- 아이콘·이미지는 MCP 자산 URL로만 제공되며 토큰 표와 별개이다.
+- 스타일 **이름**은 Figma 텍스트·색·이펙트 스타일명, **값** 열은 연결 변수 위주로 기술했다.

@@ -1,31 +1,43 @@
 @import "tailwindcss";
 
 :root {
-  /* design tokens (agent/design/design_tokens.json -> CSS variables) */
-  --background: #FAFAF9;
-  --surface: #FFFFFF;
-  --text-primary: #1C1A17;
+  /* design tokens — agent/design/design_tokens.json v1.3 + figma-variable-index */
+  --background: #fafaf9;
+  --surface: #ffffff;
+  --text-primary: #1c1a17;
   --text-secondary: #575352;
+  --text-accent: #c2410c;
   --text-caption-color: #9ca3af;
   --text-placeholder: #737373;
+  --tab-active: #c2410c;
+  --tab-inactive: #737373;
   --border: #8a8480;
   --border-subtle: #e5e5e5;
-  --scrollbar-thumb: rgb(212 212 212 / 0.8);
+  --border-width-default: 1px;
+  --scrollbar-thumb: #d4d4d4cc;
   --placeholder-surface: #f5f5f4;
-  --primary-inactive: #d4d4d4;
+  --indicator-inactive: #d4d4d4;
+  --primary-inactive: var(--indicator-inactive);
 
-  --primary: #C2410C;
-  --primary-hover: #9A3412;
-  --secondary: #6B7250;
-  --on-primary: #FFFFFF;
-  --on-secondary: #FFFFFF;
+  --primary: #c2410c;
+  --primary-hover: #9a3412;
+  /* 브랜드 2차색 — Figma color/secondary(필터 초기화 면)와 다름 */
+  --secondary: #6b7250;
+  --on-primary: #ffffff;
+  --on-secondary: #ffffff;
+  --action-secondary-surface: #fafaf9;
+  --text-on-action-secondary-surface: #575352;
+  --toggle-selected-background: #c2410c;
+  --toggle-unselected-background: #fafaf9;
+  --tag-accent-surface: #fff7ed;
+  --tag-default-surface: #fafaf9;
 
-  --success: #15803D;
-  --error: #B91C1C;
-  --warning: #92400E;
-  --info: #2B6BA3;
-  --text-link: #2B6BA3;
-  --text-link-hover: #1E4D7A;
+  --success: #15803d;
+  --error: #b91c1c;
+  --warning: #92400e;
+  --info: #2b6ba3;
+  --text-link: #2b6ba3;
+  --text-link-hover: #1e4d7a;
 
   --foreground: var(--text-primary);
 
@@ -65,13 +77,53 @@
   --typography-card-caption-font-weight: 500;
   --typography-card-caption-letter-spacing: 0;
 
-  /* typography.tab — Figma Tab, 수치는 card-caption과 동일 */
+  /* typography.tab — Figma Label/Tab */
   --typography-tab-font-size: 12px;
   --typography-tab-line-height: 16px;
   --typography-tab-font-weight: 500;
   --typography-tab-letter-spacing: 0;
 
-  /* elevation (agent/design/design_tokens.json elevation.sm|md|lg) */
+  --typography-body-accent-font-size: 16px;
+  --typography-body-accent-line-height: 24px;
+  --typography-body-accent-font-weight: 700;
+  --typography-body-accent-letter-spacing: 0;
+
+  --typography-search-bar-value-font-size: 16px;
+  --typography-search-bar-value-line-height: 24px;
+  --typography-search-bar-value-font-weight: 500;
+  --typography-search-bar-value-letter-spacing: 0;
+
+  --typography-label-toggle-font-size: 16px;
+  --typography-label-toggle-line-height: 24px;
+  --typography-label-toggle-font-weight: 500;
+  --typography-label-toggle-letter-spacing: 0;
+
+  --typography-label-button-font-size: 16px;
+  --typography-label-button-line-height: 24px;
+  --typography-label-button-font-weight: 700;
+  --typography-label-button-letter-spacing: 0;
+
+  --typography-caption-medium-font-size: 14px;
+  --typography-caption-medium-line-height: 21px;
+  --typography-caption-medium-font-weight: 500;
+  --typography-caption-medium-letter-spacing: 0;
+
+  --typography-card-body-font-size: 14px;
+  --typography-card-body-line-height: 21px;
+  --typography-card-body-font-weight: 400;
+  --typography-card-body-letter-spacing: 0;
+
+  --typography-card-section-heading-font-size: 18px;
+  --typography-card-section-heading-line-height: 27px;
+  --typography-card-section-heading-font-weight: 500;
+  --typography-card-section-heading-letter-spacing: 0;
+
+  /* icon size — design_tokens.json icon.size (Figma size/sm|md|lg) */
+  --icon-size-sm: 16px;
+  --icon-size-md: 20px;
+  --icon-size-lg: 24px;
+
+  /* elevation (design_tokens.json elevation.sm|md|lg) */
   --elevation-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
   --elevation-md: 0 4px 8px rgba(15, 23, 42, 0.08);
   --elevation-lg: 0 10px 15px rgba(15, 23, 42, 0.12);
@@ -82,8 +134,11 @@
   --color-foreground: var(--foreground);
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
+  --color-text-accent: var(--text-accent);
   --color-text-caption: var(--text-caption-color);
   --color-text-placeholder: var(--text-placeholder);
+  --color-tab-active: var(--tab-active);
+  --color-tab-inactive: var(--tab-inactive);
   --color-surface: var(--surface);
   --color-border: var(--border);
   --color-border-default: var(--border);
@@ -93,7 +148,14 @@
   --color-muted: var(--text-secondary);
   --color-caption: var(--text-caption-color);
   --color-placeholder-surface: var(--placeholder-surface);
+  --color-indicator-inactive: var(--indicator-inactive);
   --color-primary-inactive: var(--primary-inactive);
+  --color-action-secondary-surface: var(--action-secondary-surface);
+  --color-on-action-secondary-surface: var(--text-on-action-secondary-surface);
+  --color-toggle-selected: var(--toggle-selected-background);
+  --color-toggle-unselected: var(--toggle-unselected-background);
+  --color-tag-accent-surface: var(--tag-accent-surface);
+  --color-tag-default-surface: var(--tag-default-surface);
   --font-sans: var(--font-noto-sans-kr), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
@@ -140,6 +202,13 @@
   --text-small: var(--typography-small-font-size) / var(--typography-small-line-height);
   --text-card-caption: var(--typography-card-caption-font-size) / var(--typography-card-caption-line-height);
   --text-tab: var(--typography-tab-font-size) / var(--typography-tab-line-height);
+  --text-body-accent: var(--typography-body-accent-font-size) / var(--typography-body-accent-line-height);
+  --text-search-bar-value: var(--typography-search-bar-value-font-size) / var(--typography-search-bar-value-line-height);
+  --text-label-toggle: var(--typography-label-toggle-font-size) / var(--typography-label-toggle-line-height);
+  --text-label-button: var(--typography-label-button-font-size) / var(--typography-label-button-line-height);
+  --text-caption-medium: var(--typography-caption-medium-font-size) / var(--typography-caption-medium-line-height);
+  --text-card-body: var(--typography-card-body-font-size) / var(--typography-card-body-line-height);
+  --text-card-section-heading: var(--typography-card-section-heading-font-size) / var(--typography-card-section-heading-line-height);
 
   /* 표준 shadow-* 유틸 → design_tokens elevation (라이트/다크는 :root에서 전환) */
   --shadow-sm: var(--elevation-sm);
@@ -156,27 +225,39 @@
   :root {
     --background: #060809;
     --surface: #111827;
-    --text-primary: #F9FAFB;
-    --text-secondary: #D1D5DB;
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+    --text-accent: #fb923c;
     --text-caption-color: #9ca3af;
     --text-placeholder: #a3a3a3;
+    --tab-active: #fb923c;
+    --tab-inactive: #a3a3a3;
     --border: #64748b;
     --border-subtle: #334155;
     --placeholder-surface: #1f2937;
-    --primary-inactive: #52525b;
+    --indicator-inactive: #52525b;
+    --primary-inactive: var(--indicator-inactive);
 
-    --primary: #C2410C;
-    --primary-hover: #9A3412;
-    --secondary: #84CC16;
-    --on-primary: #FFFFFF;
-    --on-secondary: #0F172A;
+    --primary: #c2410c;
+    --primary-hover: #9a3412;
+    --secondary: #84cc16;
+    --on-primary: #ffffff;
+    --on-secondary: #0f172a;
+    --action-secondary-surface: #1f2937;
+    --text-on-action-secondary-surface: #d1d5db;
+    --toggle-selected-background: #c2410c;
+    --toggle-unselected-background: #111827;
+    --tag-accent-surface: #422006;
+    --tag-default-surface: #1f2937;
 
-    --success: #22C55E;
-    --error: #F97373;
-    --warning: #FBBF24;
-    --info: #60A5FA;
-    --text-link: #60A5FA;
-    --text-link-hover: #93C5FD;
+    --scrollbar-thumb: #52525bcc;
+
+    --success: #22c55e;
+    --error: #f97373;
+    --warning: #fbbf24;
+    --info: #60a5fa;
+    --text-link: #60a5fa;
+    --text-link-hover: #93c5fd;
 
     --foreground: var(--text-primary);
 
@@ -216,7 +297,8 @@ input {
 /**
  * 전역 타이포그라피 — design_tokens.json typography.* (Figma 텍스트 스타일).
  * 제목·본문은 시맨틱 태그, caption은 figcaption 또는 .typography-caption,
- * 카드 메타는 .typography-card-caption, 하단 탭 라벨은 .typography-tab.
+ * 카드 메타는 .typography-card-caption, 하단 탭은 .typography-tab,
+ * 필터/검색·카드용은 .typography-card-section-heading, .typography-card-body, .typography-label-toggle 등.
  */
 h1 {
   font-family: inherit;
@@ -275,9 +357,65 @@ small {
   letter-spacing: var(--typography-tab-letter-spacing);
 }
 
+.typography-body-accent {
+  font-family: inherit;
+  font-size: var(--typography-body-accent-font-size);
+  line-height: var(--typography-body-accent-line-height);
+  font-weight: var(--typography-body-accent-font-weight);
+  letter-spacing: var(--typography-body-accent-letter-spacing);
+}
+
+.typography-search-bar-value {
+  font-family: inherit;
+  font-size: var(--typography-search-bar-value-font-size);
+  line-height: var(--typography-search-bar-value-line-height);
+  font-weight: var(--typography-search-bar-value-font-weight);
+  letter-spacing: var(--typography-search-bar-value-letter-spacing);
+}
+
+.typography-label-toggle {
+  font-family: inherit;
+  font-size: var(--typography-label-toggle-font-size);
+  line-height: var(--typography-label-toggle-line-height);
+  font-weight: var(--typography-label-toggle-font-weight);
+  letter-spacing: var(--typography-label-toggle-letter-spacing);
+}
+
+.typography-label-button {
+  font-family: inherit;
+  font-size: var(--typography-label-button-font-size);
+  line-height: var(--typography-label-button-line-height);
+  font-weight: var(--typography-label-button-font-weight);
+  letter-spacing: var(--typography-label-button-letter-spacing);
+}
+
+.typography-caption-medium {
+  font-family: inherit;
+  font-size: var(--typography-caption-medium-font-size);
+  line-height: var(--typography-caption-medium-line-height);
+  font-weight: var(--typography-caption-medium-font-weight);
+  letter-spacing: var(--typography-caption-medium-letter-spacing);
+}
+
+.typography-card-body {
+  font-family: inherit;
+  font-size: var(--typography-card-body-font-size);
+  line-height: var(--typography-card-body-line-height);
+  font-weight: var(--typography-card-body-font-weight);
+  letter-spacing: var(--typography-card-body-letter-spacing);
+}
+
+.typography-card-section-heading {
+  font-family: inherit;
+  font-size: var(--typography-card-section-heading-font-size);
+  line-height: var(--typography-card-section-heading-line-height);
+  font-weight: var(--typography-card-section-heading-font-weight);
+  letter-spacing: var(--typography-card-section-heading-letter-spacing);
+}
+
 /**
  * 아이콘 전용 버튼 히트 영역 (design_principle platform.touchTargetMinPx 44).
  */
 @utility touch-target-icon {
-  @apply inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-placeholder-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+  @apply inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-placeholder-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
 }

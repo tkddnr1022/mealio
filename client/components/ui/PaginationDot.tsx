@@ -9,7 +9,7 @@ export type PaginationDotProps = Readonly<
 
 /**
  * 캐러셀·온보딩 등 페이지 인디케이터 점 (Figma PaginationDot, node 198:1397).
- * 비활성: 8px 원 / 활성: 8×24px pill, primary 색.
+ * 비활성: 8px 원 (`indicator-inactive`) / 활성: 8×24px pill, primary 색.
  */
 export function PaginationDot({
   className = "",
@@ -21,7 +21,7 @@ export function PaginationDot({
       className={`inline-block shrink-0 rounded-full transition-[width,background-color] duration-200 ease-out ${
         active
           ? "h-2 w-6 bg-primary"
-          : "size-2 bg-primary-inactive"
+          : "size-2 bg-indicator-inactive"
       } ${className}`.trim()}
       data-name="PaginationDot"
       data-active={active ? "true" : "false"}
