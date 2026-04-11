@@ -564,7 +564,7 @@
     },
     "message-gap-token": "spacing.2",
     "section-padding-token": "spacing.4",
-    "recommendation-card": {
+    "suggested-recipe-card": {
       "padding-x-token": "spacing.4",
       "padding-y-token": "spacing.3",
       "radius-token": "radius.xl",

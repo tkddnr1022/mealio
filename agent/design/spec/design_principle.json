@@ -122,7 +122,7 @@
     },
     "chatbot": {
       "tone": "친근·정보 위주·간결",
-      "recipeRecommendation": "\"이런 레시피는 어때요?\" 수준의 짧은 문장 + 추천 카드",
+      "recipeSuggestion": "\"이런 레시피는 어때요?\" 수준의 짧은 문장 + 추천 카드",
       "personalityAlignment": "따뜻함, 신뢰, 실용적. 존댓말 기본, 대화 흐름에 따라 자연스럽게 조절."
     }
   },
