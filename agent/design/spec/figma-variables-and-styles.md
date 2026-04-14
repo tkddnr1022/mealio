@@ -13,10 +13,20 @@
 | 구분 | 이름 | 값 | 사용처 |
 |------|------|-----|--------|
 | 변수 | `border/default` | `1` (px) | Navbar·Tabbar·ActionGroup 구분선 |
+| 변수 | `border/focus` | `2` (px) | SearchBar Input 포커스 링 두께(`ring-2` 대응) |
+| 변수 | `card/elevation/blur` | `8` (px) | 필터 화면 SearchBarCard·ToggleCard 그림자 반경 (`Elevation/Card`) |
+| 변수 | `card/elevation/color` | `#0f172a` @ 약 8% 불투명 (`#0f172a14`) | 필터 카드 그림자 색 (`Elevation/Card`) |
+| 변수 | `card/elevation/x` | `0` (px) | 필터 카드 그림자 X (`Elevation/Card`) |
+| 변수 | `card/elevation/y` | `4` (px) | 필터 카드 그림자 Y (`Elevation/Card`) |
+| 변수 | `card/gap` | `12` (px) | 필터 화면 카드 내부 세로 간격(제목 ↔ 입력/토글 행) |
+| 변수 | `card/padding` | `16` (px) | 필터 화면 카드 내부 패딩 |
+| 변수 | `card/radius` | `12` (px) | 필터 화면 카드 코너 반경 |
 | 변수 | `color/background/default` | `#fafaf9` | 메인·필터 페이지 루트, MainContent, 검색 필드(SearchBar) 배경 |
 | 변수 | `color/background/placeholder` | `#f5f5f4` | RecipeGridCard 이미지 컨테이너 배경; **조리 순서 StepBadge** 원형 배경 |
 | 변수 | `color/background/surface` | `#ffffff` | Navbar, SearchBarHeader, Tabbar, CardBase·ToggleCard·SearchBarCard, ActionGroup 바; 레시피 상세 **CardTag**(시간·난이도·인분) 면 |
 | 변수 | `color/border/subtle` | `#e5e5e5` | Navbar·Tabbar 보더; **RecipeIngredientRow** 행 구분선 |
+| 변수 | `color/border/muted` | `#f5f5f4` | 마이페이지 섹션 경계선(그룹 분리선), 리스트 구분선의 저대비 보더 |
+| 변수 | `color/dropdown/selected/default` | `#fff7ed` | 챗봇 대화 목록 카드 아이콘 쉘 배경(`IconShell`) |
 | 변수 | `color/indicator/inactive` | `#d4d4d4` | PaginationDot 비활성 |
 | 변수 | `color/primary` | `#c2410c` | PaginationDot 활성, Tab 활성, Toggle 선택 칩, Primary 버튼·헤더 아이콘 강조 |
 | 변수 | `color/scrollbar/thumb` | `#d4d4d4` @ 80% 불투명 (`#d4d4d4cc`) | MainContent CustomScrollbar |
@@ -34,6 +44,7 @@
 | 변수 | `color/text/secondary` | `#575352` | Toggle 비선택 칩 라벨; FlatTag·검색 카드 설명·SearchResultMeta; **재료 행 수량**(Bold), **조리 순서 StepBadge** 숫자 |
 | 변수 | `color/toggle/selected/default` | `#c2410c` | Toggle 선택 칩 배경(`color/primary`와 동일 hex) |
 | 변수 | `color/toggle/unselected/default` | `#fafaf9` | Toggle 비선택 칩 배경(`color/background/default`와 동일 hex) |
+| 변수 | `color/toggle/unselected/hover` | `#f5f5f4` | 챗봇 입력/전송 컨텍스트의 비활성·호버 계열 면색(`Toggle/Unselected/Hover`) |
 | 변수 | `elevation/md/blur` | `8` (px) | 카드·필터·**재료/조리 순서** 카드 그림자(Elevation/Medium) |
 | 변수 | `elevation/md/color` | `#0f172a` @ 약 8% 불투명 (`#0f172a14`) | Elevation/Medium 섀도 색 |
 | 변수 | `elevation/md/x` | `0` (px) | Elevation/Medium X |
@@ -43,11 +54,13 @@
 | 변수 | `elevation/sm/x` | `0` (px) | Elevation/Small X |
 | 변수 | `elevation/sm/y` | `1` (px) | Elevation/Small Y |
 | 변수 | `radius/full` | `9999` (px) | SearchBar, Toggle 칩, 하단 버튼, PaginationDot |
+| 변수 | `radius/2xl` | `16` (px) | 챗봇 대화 버블 라운드(좌/우 꼬리 제외 기본 코너), 정보 화면 IconShell 패딩 컨테이너 |
 | 변수 | `radius/lg` | `8` (px) | CustomScrollbar 모서리 |
 | 변수 | `radius/xl` | `12` (px) | RecipeGridCard 이미지·CardBase·ToggleCard·SearchBarCard |
 | 변수 | `size/lg` | `24` (px) | 아이콘 24px 박스(탭·Navbar·뒤로가기·검색 아이콘 등) |
 | 변수 | `size/md` | `20` (px) | 정렬 드롭다운 chevron·Chip 닫기 아이콘 박스 등 |
 | 변수 | `size/sm` | `16` (px) | RecipeSearchCard FlatTag 내 메타 아이콘 컨테이너 |
+| 변수 | `size/2xl` | `32` (px) | 검색 결과 없음 상태 아이콘(`lucide/search`) 박스 크기 |
 | 변수 | `spacing/1` | `4` (px) | TabButton 내부, 카드 제목·메타 사이 |
 | 변수 | `spacing/2` | `8` (px) | Navbar 아이콘·제목, 그리드·슬라이더, 스크롤바, Toggle 칩 세로 패딩 |
 | 변수 | `spacing/3` | `12` (px) | SearchBar·Tabbar·SearchBarHeader, 카드 Body, ActionGroup 세로 패딩, Toggle 행 `gap` |
@@ -75,9 +88,12 @@
 | 스타일 | `Body/Accent` | `typography/font-size-body` · Noto Sans KR Bold · lineHeight `24` | MCP 스타일 목록에 포함(강조 본문·레시피 상세 등에서 `Label/Button`과 구분해 쓸 수 있음) |
 | 스타일 | `Caption/Default` | `typography/font-size-caption` · Noto Sans KR Regular · lineHeight `21` | RecipeSearchCard 설명, SearchResultMeta·Chip 본문 톤 |
 | 스타일 | `Border/Subtle` | `color/border/subtle`, `border/default` | Navbar·Tabbar·ActionGroup 구분선 |
+| 스타일 | `Border/Muted` | `color/border/muted`, `border/default` | 마이페이지 컨텐츠 그룹 사이의 연한 구분선 |
 | 스타일 | `Card/Caption` | `typography/font-size-small` · Noto Sans KR Medium · lineHeight `16` | 카드 메타 한 줄 |
 | 스타일 | `Card/Body` | `typography/font-size-caption` · Noto Sans KR Regular · lineHeight `21` | RecipeSearchCard 요약 설명 본문 |
 | 스타일 | `Card/Heading` | `typography/font-size-h3` · Noto Sans KR Medium · lineHeight `27` | 필터 카드 섹션 제목; 검색 결과 카드 제목(레시피명)과 동일 스케일·굵기 조합이 쓰일 수 있음 |
+| 스타일 | `Dropdown/Selected/Default` | `color/dropdown/selected/default` | 챗봇 대화 목록 `IconShell` 선택 배경(틴트) |
+| 스타일 | `Elevation/Card` | `card/elevation/color`, `card/elevation/x`, `card/elevation/y`, `card/elevation/blur` | 필터 화면 SearchBarCard·ToggleCard 그림자 (`Elevation/Medium`과 수치 동일) |
 | 스타일 | `Elevation/Medium` | `elevation/md/color`, `elevation/md/x`, `elevation/md/y`, `elevation/md/blur` | CardBase·SearchBarCard·ToggleCard·**RecipeIngredientsCard**·**RecipeStepsCard** |
 | 스타일 | `Elevation/Small` | `elevation/sm/color`, `elevation/sm/x`, `elevation/sm/y`, `elevation/sm/blur` | SearchBarHeader 그림자; 레시피 상세 **CardTag**(시간·난이도·인분) |
 | 스타일 | `H1` | `typography/font-size-h1` · Noto Sans KR Bold · lineHeight `42` | Navbar 제목 |
@@ -91,6 +107,7 @@
 | 스타일 | `Label/Toggle` | `typography/font-size-body` · Noto Sans KR Medium · lineHeight `24` | Toggle 칩 라벨 타이포 |
 | 스타일 | `Scrollbar/Thumb` | `color/scrollbar/thumb` | CustomScrollbar |
 | 스타일 | `SearchBar/Value` | `typography/font-size-body` · Noto Sans KR Medium · lineHeight `24` | 검색 결과 상단 SearchBar **채워진 값**(플레이스홀더와 구분) |
+| 스타일 | `Small` | `typography/font-size-small` · Noto Sans KR Regular · lineHeight `16` | 챗봇 대화 버블 타임스탬프(오전 10:31 등) |
 | 스타일 | `Text/Button/Primary` | `color/text/on-primary` | Primary 버튼 라벨 색 |
 | 스타일 | `Text/Button/Secondary` | `color/text/on-secondary` | Secondary(초기화) 버튼 라벨 색 |
 | 스타일 | `Text/Caption` | `color/text/caption` | 카드 메타 색 |
@@ -104,6 +121,7 @@
 | 스타일 | `Text/Toggle/Inactive` | `color/text/secondary` | 비선택 칩 라벨 색 |
 | 스타일 | `Toggle/Selected/Default` | `color/toggle/selected/default` | 선택 칩 배경 |
 | 스타일 | `Toggle/Unselected/Default` | `color/toggle/unselected/default` | 비선택 칩 배경 |
+| 스타일 | `Toggle/Unselected/Hover` | `color/toggle/unselected/hover` | 챗봇 하단 전송 버튼 비활성/호버 톤(중립 회색 면) |
 | 스타일 | `Tag/Default` | `color/tag/default` | RecipeSearchCard **FlatTag**(시간·난이도·인분) 면색 |
 | 스타일 | `Tag/Accent` | `color/tag/accent` | 레시피 상세 **카테고리** FlatTag 면색 |
 
@@ -116,13 +134,18 @@
 3. **Navbar·헤더**: `pb` 17px, `BackButton`·`AdditionalButtonContainer` **절대 좌표** → spacing 토큰·오토레이아웃 정렬 검토.
 4. **필터 MainContent**: 자식 카드 세로 스택에 **섹션 간 gap**이 MCP 코드에 토큰으로 드러나지 않으면, 프레임에서 간격 변수 적용 여부 확인.
 5. **이중·동값 변수**: `color/primary` ≡ `color/toggle/selected/default`, `color/background/default` ≡ `color/toggle/unselected/default` ≡ `color/secondary`(필터 버튼 면), `color/text/secondary` ≡ `color/text/on-secondary` — **alias·SSOT 한 축** 검토.
-6. **`design_tokens.json` vs Figma `color/secondary`**: JSON 브랜드 2차색(`#6B7250` 등)과 Figma **`color/secondary` = 연한 버튼 면**은 **이름 충돌** — 매핑 시 의미 분리 필수.
-7. **검색 결과 메타 강조 숫자**: `SearchResultMeta`에서 건수 강조가 MCP 코드에 **`text-[#c2410c]` 리터럴**로만 보일 수 있음 → `color/primary` 등 **변수·시맨틱 토큰** 바인딩 검토(SSOT).
-8. **FlatTag 내부 간격**: 아이콘·텍스트 사이 `gap-[7.997px]` 등 **픽셀 리터럴** → `spacing/*` 정렬 검토.
-9. **좋아요 버튼 래퍼**: 썸네일 위 `LikeButtonWrapper`의 `right`/`top` **절대 좌표**·`Elevation/Small` 조합은 의도 유지 시 문서화, 토큰화 가능하면 정렬 규칙으로 옮길 것.
-10. **필터 Chip vs FlatTag**: Chip 행은 면이 `color/background/default`, FlatTag는 `color/tag/default`(동일 hex) — **별도 변수 vs alias** 정리 검토.
-11. **레시피 상세 세로 간격**: `RecipeDetailHeader`·`CardTagsRow` 등에 `gap-[12px]`가 **리터럴**로만 보이는 구간 → `spacing/3` 바인딩 검토.
-12. **조리 순서 Steps**: 단계 블록 `gap-[16px]`, **StepBadge** `32px` 고정, **CardTag** 아이콘 `18px` 등 → `spacing/4`·`size/*` 토큰화 또는 의도 문서화.
+6. **검색 결과 메타 강조 숫자**: `SearchResultMeta`에서 건수 강조가 MCP 코드에 **`text-[#c2410c]` 리터럴**로만 보일 수 있음 → `color/primary` 등 **변수·시맨틱 토큰** 바인딩 검토(SSOT).
+7. **FlatTag 내부 간격**: 아이콘·텍스트 사이 `gap-[7.997px]` 등 **픽셀 리터럴** → `spacing/*` 정렬 검토.
+8. **좋아요 버튼 래퍼**: 썸네일 위 `LikeButtonWrapper`의 `right`/`top` **절대 좌표**·`Elevation/Small` 조합은 의도 유지 시 문서화, 토큰화 가능하면 정렬 규칙으로 옮길 것.
+9. **필터 Chip vs FlatTag**: Chip 행은 면이 `color/background/default`, FlatTag는 `color/tag/default`(동일 hex) — **별도 변수 vs alias** 정리 검토.
+10. **레시피 상세 세로 간격**: `RecipeDetailHeader`·`CardTagsRow` 등에 `gap-[12px]`가 **리터럴**로만 보이는 구간 → `spacing/3` 바인딩 검토.
+11. **조리 순서 Steps**: 단계 블록 `gap-[16px]`, **StepBadge** `32px` 고정, **CardTag** 아이콘 `18px` 등 → `spacing/4`·`size/*` 토큰화 또는 의도 문서화.
+12. **SearchBar 포커스 상태 토큰화**: 컴포넌트 설명에 `ring-2`, `ring-offset-2`가 명시되어 있고 변수 맵에 `border/focus=2`가 존재함 → 포커스 링 두께/오프셋이 리터럴로 남지 않도록 `border/focus`(및 필요 시 대응 offset 토큰) 기준으로 정렬 검토.
+13. **카드 토큰 네임스페이스 정합성**: 필터 노드(`233:1638`)에서 `card/gap`, `card/padding`, `card/radius`, `Elevation/Card`가 확인되며 기존 `spacing/*`, `radius/xl`, `Elevation/Medium`과 값이 겹침 → 화면 전용 토큰 유지 여부를 정하고, 공통 토큰 alias 또는 단일 SSOT로 통일 검토.
+14. **틴트 배경 토큰 중복**: `color/dropdown/selected/default`와 `color/tag/accent`가 동일 `#fff7ed`를 사용함 → 용도 분리 유지 여부를 결정하고, 공통 tint 토큰 alias로 정리할지 검토.
+15. **챗버블 최대 폭 토큰화**: 컴포넌트 설명에서 ChatBubble 최대 길이를 `design_tokens.json` 기준으로 관리하라고 명시됨. 현재 MCP 코드에 `max-w-[320px]`, `min-w-[120px]` 리터럴이 보여서, 대화 버블 폭 규칙을 사이즈 토큰으로 승격할지 검토.
+16. **보관함 그리드 레이아웃 토큰화**: `IngredientGrid`에서 `gap-x-[16px]`, `gap-y-[16px]`, 행 높이 `113px` 리터럴이 보임 → `spacing/*`·`size/*`(또는 카드 높이 전용 토큰)로 치환해 반응형/일관성 기준 정렬 검토.
+17. **보더/배경 동값 중복**: `color/border/muted`와 `color/background/placeholder`가 동일 `#f5f5f4`를 사용함 → 보더 전용 토큰 분리 유지 또는 공통 neutral alias로 단일화할지 SSOT 관점 정리 검토.
 
 ---
 
@@ -176,7 +199,7 @@
 ### 요약
 
 - **노드 병합 결과(역할만 요약)**: 홈 화면 루트는 탭·슬라이더·**Small** 섀도 중심; 필터 루트는 토글·카드·**Medium**·하단 버튼; 검색 결과 루트는 캡션 스케일·검색 바 값·태그·칩 등; 상세 루트는 **`color/text/accent`·`color/tag/accent`·`Text/Accent`·`Tag/Accent`·`Body/Accent`**, **CardTag(Small 섀도)**, 재료 행·조리 순서(StepBadge·Medium 카드), Navbar 좋아요·공유 등을 추가로 드러낸다.
-- **가장 유의할 SSOT 이슈**: Figma `color/secondary`·`color/text/on-secondary`와 `design_tokens.json`의 `secondary`·`on-secondary` **의미 불일치**; 검색 건수 강조는 **raw hex vs `color/primary`** 정리가 필요할 수 있음.
+- **가장 유의할 SSOT 이슈**: 검색 건수 강조는 **raw hex vs `color/primary`** 정리가 필요할 수 있음.
 
 ---
 

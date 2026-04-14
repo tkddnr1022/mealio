@@ -13,7 +13,9 @@
   --tab-inactive: #737373;
   --border: #8a8480;
   --border-subtle: #e5e5e5;
+  --border-muted: #f5f5f4;
   --border-width-default: 1px;
+  --border-width-focus: 2px;
   --scrollbar-thumb: #d4d4d4cc;
   --placeholder-surface: #f5f5f4;
   --indicator-inactive: #d4d4d4;
@@ -29,6 +31,8 @@
   --text-on-action-secondary-surface: #575352;
   --toggle-selected-background: #c2410c;
   --toggle-unselected-background: #fafaf9;
+  --toggle-unselected-hover: #f5f5f4;
+  --dropdown-selected-surface: #fff7ed;
   --tag-accent-surface: #fff7ed;
   --tag-default-surface: #fafaf9;
 
@@ -68,7 +72,7 @@
   --typography-caption-letter-spacing: 0;
 
   --typography-small-font-size: 12px;
-  --typography-small-line-height: 18px;
+  --typography-small-line-height: 16px;
   --typography-small-font-weight: 400;
   --typography-small-letter-spacing: 0;
 
@@ -118,10 +122,11 @@
   --typography-card-section-heading-font-weight: 500;
   --typography-card-section-heading-letter-spacing: 0;
 
-  /* icon size — design_tokens.json icon.size (Figma size/sm|md|lg) */
+  /* icon size — design_tokens.json icon.size (Figma size/sm|md|lg|2xl) */
   --icon-size-sm: 16px;
   --icon-size-md: 20px;
   --icon-size-lg: 24px;
+  --icon-size-2xl: 32px;
 
   /* elevation (design_tokens.json elevation.sm|md|lg) */
   --elevation-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
@@ -143,6 +148,7 @@
   --color-border: var(--border);
   --color-border-default: var(--border);
   --color-border-subtle: var(--border-subtle);
+  --color-border-muted: var(--border-muted);
   --color-scrollbar-thumb: var(--scrollbar-thumb);
   /* 짧은 유틸용 별칭 (소스는 위 토큰과 동일) */
   --color-muted: var(--text-secondary);
@@ -154,6 +160,8 @@
   --color-on-action-secondary-surface: var(--text-on-action-secondary-surface);
   --color-toggle-selected: var(--toggle-selected-background);
   --color-toggle-unselected: var(--toggle-unselected-background);
+  --color-toggle-unselected-hover: var(--toggle-unselected-hover);
+  --color-dropdown-selected-surface: var(--dropdown-selected-surface);
   --color-tag-accent-surface: var(--tag-accent-surface);
   --color-tag-default-surface: var(--tag-default-surface);
   --font-sans: var(--font-noto-sans-kr), ui-sans-serif, system-ui, sans-serif;
@@ -234,6 +242,7 @@
     --tab-inactive: #a3a3a3;
     --border: #64748b;
     --border-subtle: #334155;
+    --border-muted: #1f2937;
     --placeholder-surface: #1f2937;
     --indicator-inactive: #52525b;
     --primary-inactive: var(--indicator-inactive);
@@ -247,6 +256,8 @@
     --text-on-action-secondary-surface: #d1d5db;
     --toggle-selected-background: #c2410c;
     --toggle-unselected-background: #111827;
+    --toggle-unselected-hover: #1f2937;
+    --dropdown-selected-surface: #422006;
     --tag-accent-surface: #422006;
     --tag-default-surface: #1f2937;
 
@@ -417,5 +428,5 @@ small {
  * 아이콘 전용 버튼 히트 영역 (design_principle platform.touchTargetMinPx 44).
  */
 @utility touch-target-icon {
-  @apply inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-placeholder-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+  @apply inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-toggle-unselected-hover focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary;
 }

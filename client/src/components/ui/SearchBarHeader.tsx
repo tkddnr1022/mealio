@@ -55,7 +55,7 @@ export const SearchBarHeader = forwardRef<HTMLDivElement, SearchBarHeaderProps>(
     const headerSearchBarSurfaceClassName = [
       "bg-background",
       "transition-shadow",
-      "hover:bg-placeholder-surface",
+      "hover:bg-toggle-unselected-hover",
       searchBarProps?.wrapperClassName,
       searchBarClassName,
     ]
@@ -73,7 +73,7 @@ export const SearchBarHeader = forwardRef<HTMLDivElement, SearchBarHeaderProps>(
           tabIndex={isDisabled ? -1 : 0}
           aria-label={ariaLabel}
           aria-disabled={isDisabled || undefined}
-          className={`w-full rounded-full outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${isDisabled ? "pointer-events-none cursor-not-allowed" : "cursor-pointer"}`.trim()}
+          className={`w-full rounded-full outline-none transition-shadow focus-visible:ring-(length:--border-width-focus) focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${isDisabled ? "pointer-events-none cursor-not-allowed" : "cursor-pointer"}`.trim()}
           onClick={isDisabled ? undefined : onClick}
           onKeyDown={handleKeyDown}
         >

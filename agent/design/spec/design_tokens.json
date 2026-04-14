@@ -1,6 +1,6 @@
 {
-  "version": "1.3",
-  "lastReviewed": "2026-04-11",
+  "version": "1.4",
+  "lastReviewed": "2026-04-14",
   "relatedFiles": [
     "agent/design/spec/design_principle.json",
     "agent/design/spec/figma-variables-and-styles.md"
@@ -9,10 +9,20 @@
     "source-doc": "agent/design/spec/figma-variables-and-styles.md",
     "variable-index": {
       "border/default": "border.width.default",
+      "border/focus": "border.width.focus",
+      "card/elevation/blur": "elevation.figma.md.blur",
+      "card/elevation/color": "elevation.figma.md.color",
+      "card/elevation/x": "elevation.figma.md.x",
+      "card/elevation/y": "elevation.figma.md.y",
+      "card/gap": "spacing.3",
+      "card/padding": "spacing.4",
+      "card/radius": "radius.xl",
       "color/background/default": "color.light.background",
       "color/background/placeholder": "color.light.placeholder-surface",
       "color/background/surface": "color.light.surface",
+      "color/border/muted": "color.light.border-muted",
       "color/border/subtle": "color.light.border-subtle",
+      "color/dropdown/selected/default": "color.light.dropdown-selected-surface",
       "color/indicator/inactive": "color.light.indicator-inactive",
       "color/primary": "color.light.primary",
       "color/scrollbar/thumb": "color.light.scrollbar-thumb",
@@ -30,6 +40,7 @@
       "color/text/secondary": "color.light.text-secondary",
       "color/toggle/selected/default": "color.light.toggle-selected-background",
       "color/toggle/unselected/default": "color.light.toggle-unselected-background",
+      "color/toggle/unselected/hover": "color.light.toggle-unselected-hover",
       "elevation/md/blur": "elevation.figma.md.blur",
       "elevation/md/color": "elevation.figma.md.color",
       "elevation/md/x": "elevation.figma.md.x",
@@ -38,9 +49,11 @@
       "elevation/sm/color": "elevation.figma.sm.color",
       "elevation/sm/x": "elevation.figma.sm.x",
       "elevation/sm/y": "elevation.figma.sm.y",
+      "radius/2xl": "radius.2xl",
       "radius/full": "radius.full",
       "radius/lg": "radius.lg",
       "radius/xl": "radius.xl",
+      "size/2xl": "icon.size.2xl",
       "size/lg": "icon.size.lg",
       "size/md": "icon.size.md",
       "size/sm": "icon.size.sm",
@@ -67,10 +80,13 @@
       "Body/Default": "typography.body",
       "Body/Accent": "typography.body-accent",
       "Caption/Default": "typography.caption",
+      "Border/Muted": "color.light.border-muted + border.width.default",
       "Border/Subtle": "color.light.border-subtle + border.width.default",
       "Card/Caption": "typography.card-caption",
       "Card/Body": "typography.card-body",
       "Card/Heading": "typography.card-section-heading",
+      "Dropdown/Selected/Default": "color.light.dropdown-selected-surface",
+      "Elevation/Card": "elevation.md",
       "Elevation/Medium": "elevation.md",
       "Elevation/Small": "elevation.sm",
       "H1": "typography.h1",
@@ -84,6 +100,7 @@
       "Label/Toggle": "typography.label-toggle",
       "Scrollbar/Thumb": "color.light.scrollbar-thumb",
       "SearchBar/Value": "typography.search-bar-value",
+      "Small": "typography.small",
       "Text/Button/Primary": "color.light.on-primary",
       "Text/Button/Secondary": "color.light.text-on-action-secondary-surface",
       "Text/Caption": "color.light.text-caption",
@@ -96,6 +113,7 @@
       "Text/Toggle/Active": "color.light.on-primary",
       "Text/Toggle/Inactive": "color.light.text-secondary",
       "Toggle/Selected/Default": "color.light.toggle-selected-background",
+      "Toggle/Unselected/Hover": "color.light.toggle-unselected-hover",
       "Toggle/Unselected/Default": "color.light.toggle-unselected-background",
       "Tag/Default": "color.light.tag-default-surface",
       "Tag/Accent": "color.light.tag-accent-surface"
@@ -129,6 +147,8 @@
       "border": "#8A8480",
       "border-subtle": "#E5E5E5",
       "border-subtle-usage": "Navbar·Tabbar·재료 행 구분선. Figma color/border/subtle·Border/Subtle.",
+      "border-muted": "#F5F5F4",
+      "border-muted-usage": "마이페이지 섹션 구분선 등 저대비 보더. Figma color/border/muted·Border/Muted.",
       "placeholder-surface": "#F5F5F4",
       "placeholder-surface-usage": "썸네일 자리·StepBadge 배경. Figma color/background/placeholder.",
       "indicator-inactive": "#D4D4D4",
@@ -147,7 +167,10 @@
       "text-on-action-secondary-surface-usage": "위 면 위 라벨. Figma color/text/on-secondary·Text/Button/Secondary(hex는 text-secondary와 동일).",
       "toggle-selected-background": "#C2410C",
       "toggle-unselected-background": "#FAFAF9",
+      "toggle-unselected-hover": "#F5F5F4",
       "toggle-surface-note": "Figma color/toggle/selected|unselected/default. 선택은 primary와 동일 hex.",
+      "dropdown-selected-surface": "#FFF7ED",
+      "dropdown-selected-surface-usage": "드롭다운/아이콘 쉘의 선택 틴트 면. Figma color/dropdown/selected/default.",
       "tag-accent-surface": "#FFF7ED",
       "tag-accent-surface-usage": "레시피 상세 카테고리 태그 면. Figma color/tag/accent·Tag/Accent.",
       "tag-default-surface": "#FAFAF9",
@@ -286,9 +309,10 @@
     },
     "small": {
       "font-size": 12,
-      "line-height": 18,
+      "line-height": 16,
       "font-weight-token": "typography.font-weight.regular",
-      "usage-note": "보조 텍스트/레이블 전용. 본문·주요 인터랙티브 텍스트에는 사용하지 않습니다."
+      "usage-note": "보조 텍스트/레이블 전용. 본문·주요 인터랙티브 텍스트에는 사용하지 않습니다.",
+      "figma-note": "Figma Small(12/16) 및 챗봇 타임스탬프 스타일과 정렬."
     },
     "card-caption": {
       "font-size": 12,
@@ -525,9 +549,10 @@
     "size": {
       "sm": 16,
       "md": 20,
-      "lg": 24
+      "lg": 24,
+      "2xl": 32
     },
-    "figma-note": "icon.size.* ↔ Figma size/sm|md|lg."
+    "figma-note": "icon.size.* ↔ Figma size/sm|md|lg|2xl."
   },
 
   "empty-state": {
