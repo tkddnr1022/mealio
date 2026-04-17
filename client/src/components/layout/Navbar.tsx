@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ChefHat, Heart, Plus, Share2 } from "lucide-react";
+import { ArrowLeft, Heart, Plus, Share2 } from "lucide-react";
 
 /**
  * - `Empty`: 우측 없음, 뒤로 없음 (`onBack` 무시)
@@ -39,6 +39,7 @@ export function Navbar({
   onLike,
   onShare,
 }: NavbarProps) {
+  const showTitle = variant === "Empty" || variant === "AddOnly";
   const showBack =
     (variant === "BackOnly" ||
       variant === "AddWithBack" ||
@@ -94,19 +95,20 @@ export function Navbar({
   return (
     <header
       role="banner"
-      className={`z-40 border-b border-border-subtle bg-surface shadow-sm ${className}`.trim()}
+      className={`z-40 border-b border-border-subtle bg-surface ${className}`.trim()}
     >
-      <div className="mx-auto grid w-full max-w-[1200px] grid-cols-[minmax(2.75rem,1fr)_auto_minmax(2.75rem,1fr)] items-center gap-2 px-2 py-4">
+      <div className="mx-auto grid h-12 w-full max-w-[1200px] grid-cols-[minmax(2.75rem,1fr)_auto_minmax(2.75rem,1fr)] items-center gap-2 px-2">
         <div className="flex justify-start">{leading}</div>
 
-        <div className="flex min-w-0 max-w-[min(100vw-8rem,28rem)] items-center justify-center gap-2">
-          <ChefHat
-            className="size-7 shrink-0 text-primary"
-            strokeWidth={2}
-            aria-hidden
-          />
-          <h1 className="truncate text-center">{title}</h1>
-        </div>
+        {showTitle ? (
+          <div className="flex min-w-0 max-w-[min(100vw-8rem,28rem)] items-center justify-center">
+            <h1 className="font-logo! truncate text-center text-[20px] leading-[31px] font-extrabold text-text-primary">
+              {title}
+            </h1>
+          </div>
+        ) : (
+          <div aria-hidden />
+        )}
 
         <div className="flex justify-end">{right}</div>
       </div>

@@ -1,5 +1,5 @@
 import type { Preview } from "@storybook/nextjs-vite";
-import { Geist_Mono, Noto_Sans_KR } from "next/font/google";
+import { Geist_Mono, Noto_Sans_KR, Plus_Jakarta_Sans } from "next/font/google";
 import type { ViewportMap } from "storybook/viewport";
 
 import "../src/app/globals.css";
@@ -36,11 +36,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta-sans",
+  subsets: ["latin"],
+  weight: ["800"],
+  display: "swap",
+});
+
 const preview: Preview = {
   decorators: [
     (Story) => (
       <div
-        className={`${notoSansKr.variable} ${geistMono.variable} antialiased`}
+        className={`${notoSansKr.variable} ${geistMono.variable} ${plusJakartaSans.variable} antialiased`}
         style={{ minHeight: "100%" }}
       >
         <Story />

@@ -20,7 +20,7 @@ const meta = {
     viewport: { defaultViewport: "mobile1" },
   },
   args: {
-    title: "Navbar",
+    title: "Coop",
     variant: "Empty",
     onBack: fn(),
     onAdd: fn(),
@@ -65,10 +65,3 @@ export const VariantEngageWithBack: Story = {
   name: "Variant / EngageWithBack",
   args: { variant: "EngageWithBack" },
 };
-
-export const LongTitle: Story = {
-  args: {
-    title: "토마토와 바질로 만드는 카프레제 샐러드",
-  },
-};
-

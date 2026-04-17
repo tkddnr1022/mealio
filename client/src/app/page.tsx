@@ -55,7 +55,7 @@ export default function RecipeMainPage() {
 
   return (
     <>
-      <Navbar title="레시피" variant="Empty" />
+      <Navbar title="Coop" variant="Empty" />
 
       <SearchBarHeader searchBarProps={{ placeholder: "검색어를 입력해 주세요" }} />
 
