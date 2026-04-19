@@ -10,6 +10,7 @@ import {
   type TabbarTabId,
 } from '@/components/layout/Tabbar';
 import type { RecipeGridItem } from '@/components/ui/RecipeGrid';
+import { RecipeSection } from '@/components/ui/RecipeSection';
 import { RecipeSlider } from '@/components/ui/RecipeSlider';
 import { SearchBarHeader } from '@/components/ui/SearchBarHeader';
 
@@ -55,24 +56,18 @@ export default function RecipeMainPage() {
 
   return (
     <>
-      <Navbar title="Coop" variant="Empty" />
+      <Navbar variant="Empty" />
 
       <SearchBarHeader searchBarProps={{ placeholder: "검색어를 입력해 주세요" }} />
 
       <MainContent paddingX={false}>
-        <section className="flex flex-col gap-4">
-          <div className="px-4">
-            <h2>추천 레시피</h2>
-          </div>
+        <RecipeSection title="추천 레시피">
           <RecipeSlider recipes={recommendedRecipes} />
-        </section>
+        </RecipeSection>
 
-        <section className="flex flex-col gap-4">
-          <div className="px-4">
-            <h2>추천 레시피</h2>
-          </div>
+        <RecipeSection title="최근 본 레시피">
           <RecipeSlider recipes={recentRecipes} />
-        </section>
+        </RecipeSection>
       </MainContent>
 
       <Tabbar

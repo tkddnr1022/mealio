@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { CustomScrollbar } from "./CustomScrollbar";
 
 /**
- * Figma `MainContent` (node 166:1227): Background/Primary `#FAFAF9`, 세로 플렉스 영역.
+ * Figma `MainContent` (node 166:1227): Background/Primary → `bg-background`, 세로 플렉스 영역.
  * Navbar·하단 탭 사이 본문에 두면 `flex-1`·`min-h-0`로 남는 높이를 채우고 내부만 스크롤됩니다.
  */
 export type MainContentProps = Readonly<{
@@ -16,6 +16,11 @@ export type MainContentProps = Readonly<{
   paddingX?: boolean;
   /** 기본 `py-6`. 세로만 풀블리드할 때 `false`. */
   paddingY?: boolean;
+  /**
+   * Figma MainContent: `true`면 커스텀 스크롤바(`CustomScrollbar`),
+   * `false`면 네이티브 세로 스크롤만(오버레이 트랙 없음).
+   */
+  scroll?: boolean;
   children?: ReactNode;
 }>;
 
@@ -25,25 +30,30 @@ export function MainContent({
   centered = false,
   paddingX = true,
   paddingY = true,
+  scroll = true,
   children,
 }: MainContentProps) {
+  const innerClasses = [
+    "flex flex-col gap-8",
+    centered && "items-center justify-center",
+    paddingX && "px-4",
+    paddingY && "py-6",
+    innerClassName,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <main
       className={`flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-background ${className}`.trim()}
     >
-      <CustomScrollbar
-        className={[
-          "flex flex-col gap-8",
-          centered && "items-center justify-center",
-          paddingX && "px-4",
-          paddingY && "py-6",
-          innerClassName,
-        ]
-          .filter(Boolean)
-          .join(" ")}
-      >
-        {children}
-      </CustomScrollbar>
+      {scroll ? (
+        <CustomScrollbar className={innerClasses}>{children}</CustomScrollbar>
+      ) : (
+        <div className={`min-h-0 flex-1 overflow-y-auto ${innerClasses}`.trim()}>
+          {children}
+        </div>
+      )}
     </main>
   );
 }

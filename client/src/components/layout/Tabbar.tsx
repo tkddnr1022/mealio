@@ -82,14 +82,14 @@ export function Tabbar({ className = "", activeId, onSelect }: TabbarProps) {
       className={`w-full border-t border-border-subtle bg-surface ${className}`.trim()}
       aria-label="하단 탭"
     >
-      <div className="mx-auto flex w-full max-w-[1200px] items-start gap-6 px-6 py-3">
+      <div className="mx-auto flex w-full max-w-(--layout-content-max-width) items-start gap-6 px-6 py-3">
         {TABS.map(({ id, label, Icon }) => {
           const selected = activeId === id;
           return (
             <TabButtonWrapper key={id}>
               <button
                 type="button"
-                className="flex px-1 min-h-11 flex-col items-center justify-center border-0 bg-transparent p-0 text-center transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                className="flex px-1 min-h-11 flex-col items-center justify-center border-0 bg-transparent p-0 text-center transition-colors focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary"
                 aria-current={selected ? "page" : undefined}
                 onClick={() => onSelect(id)}
               >

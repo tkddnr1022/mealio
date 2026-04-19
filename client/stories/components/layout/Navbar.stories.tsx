@@ -20,7 +20,6 @@ const meta = {
     viewport: { defaultViewport: "mobile1" },
   },
   args: {
-    title: "Coop",
     variant: "Empty",
     onBack: fn(),
     onAdd: fn(),

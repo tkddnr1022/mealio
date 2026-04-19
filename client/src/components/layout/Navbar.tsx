@@ -1,6 +1,9 @@
 "use client";
 
-import { ArrowLeft, Heart, Plus, Share2 } from "lucide-react";
+import { AddButton } from "@/components/ui/AddButton";
+import { BackButton } from "@/components/ui/BackButton";
+import { LikeButton } from "@/components/ui/LikeButton";
+import { ShareButton } from "@/components/ui/ShareButton";
 
 /**
  * - `Empty`: 우측 없음, 뒤로 없음 (`onBack` 무시)
@@ -16,14 +19,18 @@ export type NavbarVariant =
   | "AddWithBack"
   | "EngageWithBack";
 
+/** 상단 워드마크 — Figma 변수 `logo`와 동일하게 코드에서 고정 */
+const NAVBAR_LOGO_TEXT = "Coop" as const;
+
 export type NavbarProps = Readonly<{
   className?: string;
-  title: string;
   variant?: NavbarVariant;
   onBack?: () => void;
   onAdd?: () => void;
   onLike?: () => void;
   onShare?: () => void;
+  /** `EngageWithBack` — 찜 여부(Figma LikeButton true/false) */
+  isFavorite?: boolean;
 }>;
 
 const spacer = (
@@ -32,12 +39,12 @@ const spacer = (
 
 export function Navbar({
   className = "",
-  title,
   variant = "Empty",
   onBack,
   onAdd,
   onLike,
   onShare,
+  isFavorite = false,
 }: NavbarProps) {
   const showTitle = variant === "Empty" || variant === "AddOnly";
   const showBack =
@@ -47,46 +54,18 @@ export function Navbar({
     onBack != null;
 
   const leading = showBack ? (
-    <button
-      type="button"
-      className="touch-target-icon"
-      aria-label="뒤로 가기"
-      onClick={onBack}
-    >
-      <ArrowLeft className="size-6" strokeWidth={2} aria-hidden />
-    </button>
+    <BackButton onClick={onBack} />
   ) : (
     spacer
   );
 
   const right =
     variant === "AddOnly" || variant === "AddWithBack" ? (
-      <button
-        type="button"
-        className="touch-target-icon"
-        aria-label="추가"
-        onClick={onAdd}
-      >
-        <Plus className="size-6" strokeWidth={2} aria-hidden />
-      </button>
+      <AddButton onClick={onAdd} />
     ) : variant === "EngageWithBack" ? (
       <div className="flex items-center gap-2">
-        <button
-          type="button"
-          className="touch-target-icon"
-          aria-label="좋아요"
-          onClick={onLike}
-        >
-          <Heart className="size-6" strokeWidth={2} aria-hidden />
-        </button>
-        <button
-          type="button"
-          className="touch-target-icon"
-          aria-label="공유"
-          onClick={onShare}
-        >
-          <Share2 className="size-6" strokeWidth={2} aria-hidden />
-        </button>
+        <LikeButton isFavorite={isFavorite} onClick={onLike} />
+        <ShareButton onClick={onShare} />
       </div>
     ) : (
       spacer
@@ -97,13 +76,13 @@ export function Navbar({
       role="banner"
       className={`z-40 border-b border-border-subtle bg-surface ${className}`.trim()}
     >
-      <div className="mx-auto grid h-12 w-full max-w-[1200px] grid-cols-[minmax(2.75rem,1fr)_auto_minmax(2.75rem,1fr)] items-center gap-2 px-2">
+      <div className="mx-auto grid h-12 w-full max-w-[var(--layout-content-max-width)] grid-cols-[minmax(var(--spacing-11),1fr)_auto_minmax(var(--spacing-11),1fr)] items-center gap-2 px-2">
         <div className="flex justify-start">{leading}</div>
 
         {showTitle ? (
           <div className="flex min-w-0 max-w-[min(100vw-8rem,28rem)] items-center justify-center">
-            <h1 className="font-logo! truncate text-center text-[20px] leading-[31px] font-extrabold text-text-primary">
-              {title}
+            <h1 className="typography-logo-small truncate text-center text-text-primary">
+              {NAVBAR_LOGO_TEXT}
             </h1>
           </div>
         ) : (

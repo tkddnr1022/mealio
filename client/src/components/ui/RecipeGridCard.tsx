@@ -75,7 +75,7 @@ export function RecipeGridCard({
         </div>
       </div>
       <div className="flex w-full min-w-0 flex-col gap-1">
-        <h3 className="min-w-0 wrap-break-word text-h3 font-bold text-text-primary">
+        <h3 className="line-clamp-2 min-w-0 wrap-break-word text-text-primary">
           {title}
         </h3>
         {metaLine ? (

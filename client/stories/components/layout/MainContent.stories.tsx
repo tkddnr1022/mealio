@@ -88,7 +88,7 @@ export const WithNavbarShell: Story = {
   decorators: [
     (Story) => (
       <div className="mx-auto flex min-h-screen w-full max-w-[400px] flex-col bg-background">
-        <Navbar title="홈" variant="Empty" />
+        <Navbar variant="Empty" />
         <Story />
       </div>
     ),

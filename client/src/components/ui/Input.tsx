@@ -24,7 +24,7 @@ export type InputProps = Readonly<
     /** 오른쪽 슬롯(클리어 등) */
     endAdornment?: ReactNode;
     /**
-     * Figma Input: `transition-shadow`, focus-within 시 `ring-2` primary.
+     * Figma Input: `transition-shadow`, focus-within 시 Border/Accent 링(`--border-width-focus`).
      * `readOnly` 트리거(예: SearchBarHeader)처럼 상위가 포커스 링을 줄 때 false.
      */
     focusWithinRing?: boolean;
@@ -32,7 +32,7 @@ export type InputProps = Readonly<
 >;
 
 const focusWithinRingClasses =
-  "focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background";
+  "focus-within:outline-none focus-within:ring-(length:--border-width-focus) focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background";
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   {

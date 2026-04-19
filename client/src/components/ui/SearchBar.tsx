@@ -117,7 +117,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
               aria-label={hasText ? "검색어 지우기" : undefined}
               disabled={!hasText || disabled}
               onClick={handleClear}
-              className={`inline-flex size-5 shrink-0 items-center justify-center overflow-hidden text-text-placeholder transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none cursor-pointer ${hasText ? "" : "invisible pointer-events-none"}`.trim()}
+              className={`inline-flex size-5 shrink-0 items-center justify-center overflow-hidden text-text-placeholder transition-colors focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none cursor-pointer ${hasText ? "" : "invisible pointer-events-none"}`.trim()}
             >
               <X className="size-full" strokeWidth={2} aria-hidden />
             </button>
