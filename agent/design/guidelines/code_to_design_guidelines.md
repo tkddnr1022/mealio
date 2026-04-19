@@ -65,7 +65,7 @@ MCP 설명상 **Figma 쪽 일반적인 쓰기**와 **이미 캡처된 뷰 갱신
 ### 3.4 다른 문서와의 역할 나눔
 
 - **`design_to_code_guidelines.md`**: Figma → 코드 시 **토큰·전역 타이포·variant 매핑**과 읽기용 **`get_metadata` / `get_design_context`** 활용. **`use_figma`·캡처·도구 선택**은 본 문서가 단일 근거다.
-- **`design_system_analysis_guidelines.md` §2.4**: 동일 MCP를 **DS 문서화·분석** 관점에서 “표준 수집은 `get_*` 우선”과 함께 정리한다.
+- **`design_system_collection_guidelines.md` §2.4**: 동일 MCP를 **DS 문서화·수집** 관점에서 “표준 수집은 `get_*` 우선”과 함께 정리한다.
 
 ---
 
