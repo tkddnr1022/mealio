@@ -72,7 +72,7 @@
 | 변수 | `elevation/sm/color` | `#0f172a` @ 약 6% 불투명 (`#0f172a0f`) | Elevation/Small 색 |
 | 변수 | `elevation/sm/x` | `0` (px) | Elevation/Small X |
 | 변수 | `elevation/sm/y` | `1` (px) | Elevation/Small Y |
-| 변수 | `logo` | `Coop` (문자열) | **Navbar** 브랜드 텍스트 기본값 |
+| 변수 | `logo` | `Coop` (문자열) | **Navbar** 브랜드 텍스트 — 클라이언트 `Navbar`에서 동일 문자열로 고정 |
 | 변수 | `opacity/disabled` | `50` (MCP 맵; UI 비활성 불투명도) | **Input** `disabled` 등 |
 | 변수 | `radius/2xl` | `16` (px) | 큰 라운드(챗 버블·일부 셸) |
 | 변수 | `radius/full` | `9999` (px) | 칩·버튼·필드 pill |

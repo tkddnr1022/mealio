@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  /* design tokens — agent/design/spec/design_tokens.json v1.3 + figma-variable-index */
+  /* design tokens — agent/design/spec/design_tokens.json v1.5 + figma variable-index */
   --background: #fafaf9;
   --surface: #ffffff;
   --text-primary: #1c1a17;
@@ -9,17 +9,21 @@
   --text-accent: #c2410c;
   --text-caption-color: #9ca3af;
   --text-placeholder: #737373;
+  --text-disabled: #a3a3a3;
   --tab-active: #c2410c;
   --tab-inactive: #737373;
   --border: #8a8480;
   --border-subtle: #e5e5e5;
   --border-muted: #f5f5f4;
+  /* Figma color/border/accent — 포커스 링 색(Border/Accent + border/focus) */
+  --border-accent: #c2410c;
   --border-width-default: 1px;
   --border-width-focus: 2px;
   --scrollbar-thumb: #d4d4d4cc;
   --placeholder-surface: #f5f5f4;
   --indicator-inactive: #d4d4d4;
-  --primary-inactive: var(--indicator-inactive);
+  /* Figma color/primary-inactive(Action/Primary/Inactive) — 라이트에선 indicator-inactive와 동일 hex */
+  --primary-inactive: #d4d4d4;
 
   --primary: #c2410c;
   --primary-hover: #9a3412;
@@ -28,13 +32,23 @@
   --on-primary: #ffffff;
   --on-secondary: #ffffff;
   --action-secondary-surface: #fafaf9;
+  --action-secondary-surface-hover: #ffffff;
   --text-on-action-secondary-surface: #575352;
   --toggle-selected-background: #c2410c;
   --toggle-unselected-background: #fafaf9;
   --toggle-unselected-hover: #f5f5f4;
   --dropdown-selected-surface: #fff7ed;
+  --dropdown-selected-surface-hover: #f8f0e6;
   --tag-accent-surface: #fff7ed;
   --tag-default-surface: #fafaf9;
+
+  /* OAuth 로그인 면·라벨 — design_tokens color.light.oauth-* */
+  --oauth-kakao-primary: #fee500;
+  --oauth-kakao-on-primary: #000000d9;
+  --oauth-naver-primary: #03a94d;
+  --oauth-naver-on-primary: #ffffff;
+  --oauth-google-primary: #f2f2f2;
+  --oauth-google-on-primary: #1f1f1f;
 
   --success: #15803d;
   --error: #b91c1c;
@@ -65,6 +79,11 @@
   --typography-body-line-height: 24px;
   --typography-body-font-weight: 400;
   --typography-body-letter-spacing: 0;
+
+  --typography-body-medium-font-size: 16px;
+  --typography-body-medium-line-height: 24px;
+  --typography-body-medium-font-weight: 500;
+  --typography-body-medium-letter-spacing: 0;
 
   --typography-caption-font-size: 14px;
   --typography-caption-line-height: 21px;
@@ -122,6 +141,16 @@
   --typography-card-section-heading-font-weight: 500;
   --typography-card-section-heading-letter-spacing: 0;
 
+  /* brand wordmark — Figma Logo/Large·Logo/Small (Plus Jakarta Sans ExtraBold) */
+  --typography-logo-large-font-size: 32px;
+  --typography-logo-large-line-height: 42px;
+  --typography-logo-large-font-weight: 800;
+  --typography-logo-large-letter-spacing: 0;
+  --typography-logo-small-font-size: 20px;
+  --typography-logo-small-line-height: 31px;
+  --typography-logo-small-font-weight: 800;
+  --typography-logo-small-letter-spacing: 0;
+
   /* icon size — design_tokens.json icon.size (Figma size/sm|md|lg|2xl) */
   --icon-size-sm: 16px;
   --icon-size-md: 20px;
@@ -132,6 +161,9 @@
   --elevation-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
   --elevation-md: 0 4px 8px rgba(15, 23, 42, 0.08);
   --elevation-lg: 0 10px 15px rgba(15, 23, 42, 0.12);
+
+  /* layout — design_tokens.json layout.content-max-width */
+  --layout-content-max-width: 1200px;
 }
 
 @theme inline {
@@ -142,6 +174,7 @@
   --color-text-accent: var(--text-accent);
   --color-text-caption: var(--text-caption-color);
   --color-text-placeholder: var(--text-placeholder);
+  --color-text-disabled: var(--text-disabled);
   --color-tab-active: var(--tab-active);
   --color-tab-inactive: var(--tab-inactive);
   --color-surface: var(--surface);
@@ -149,6 +182,7 @@
   --color-border-default: var(--border);
   --color-border-subtle: var(--border-subtle);
   --color-border-muted: var(--border-muted);
+  --color-border-accent: var(--border-accent);
   --color-scrollbar-thumb: var(--scrollbar-thumb);
   /* 짧은 유틸용 별칭 (소스는 위 토큰과 동일) */
   --color-muted: var(--text-secondary);
@@ -157,13 +191,21 @@
   --color-indicator-inactive: var(--indicator-inactive);
   --color-primary-inactive: var(--primary-inactive);
   --color-action-secondary-surface: var(--action-secondary-surface);
+  --color-action-secondary-surface-hover: var(--action-secondary-surface-hover);
   --color-on-action-secondary-surface: var(--text-on-action-secondary-surface);
   --color-toggle-selected: var(--toggle-selected-background);
   --color-toggle-unselected: var(--toggle-unselected-background);
   --color-toggle-unselected-hover: var(--toggle-unselected-hover);
   --color-dropdown-selected-surface: var(--dropdown-selected-surface);
+  --color-dropdown-selected-surface-hover: var(--dropdown-selected-surface-hover);
   --color-tag-accent-surface: var(--tag-accent-surface);
   --color-tag-default-surface: var(--tag-default-surface);
+  --color-oauth-kakao-primary: var(--oauth-kakao-primary);
+  --color-oauth-kakao-on-primary: var(--oauth-kakao-on-primary);
+  --color-oauth-naver-primary: var(--oauth-naver-primary);
+  --color-oauth-naver-on-primary: var(--oauth-naver-on-primary);
+  --color-oauth-google-primary: var(--oauth-google-primary);
+  --color-oauth-google-on-primary: var(--oauth-google-on-primary);
   --font-sans: var(--font-noto-sans-kr), ui-sans-serif, system-ui, sans-serif;
   --font-logo: var(--font-plus-jakarta-sans);
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
@@ -218,6 +260,9 @@
   --text-caption-medium: var(--typography-caption-medium-font-size) / var(--typography-caption-medium-line-height);
   --text-card-body: var(--typography-card-body-font-size) / var(--typography-card-body-line-height);
   --text-card-section-heading: var(--typography-card-section-heading-font-size) / var(--typography-card-section-heading-line-height);
+  --text-body-medium: var(--typography-body-medium-font-size) / var(--typography-body-medium-line-height);
+  --text-logo-large: var(--typography-logo-large-font-size) / var(--typography-logo-large-line-height);
+  --text-logo-small: var(--typography-logo-small-font-size) / var(--typography-logo-small-line-height);
 
   /* 표준 shadow-* 유틸 → design_tokens elevation (라이트/다크는 :root에서 전환) */
   --shadow-sm: var(--elevation-sm);
@@ -239,14 +284,16 @@
     --text-accent: #fb923c;
     --text-caption-color: #9ca3af;
     --text-placeholder: #a3a3a3;
+    --text-disabled: #6b7280;
     --tab-active: #fb923c;
     --tab-inactive: #a3a3a3;
     --border: #64748b;
     --border-subtle: #334155;
     --border-muted: #1f2937;
+    --border-accent: #fb923c;
     --placeholder-surface: #1f2937;
     --indicator-inactive: #52525b;
-    --primary-inactive: var(--indicator-inactive);
+    --primary-inactive: #52525b;
 
     --primary: #c2410c;
     --primary-hover: #9a3412;
@@ -254,15 +301,25 @@
     --on-primary: #ffffff;
     --on-secondary: #0f172a;
     --action-secondary-surface: #1f2937;
+    --action-secondary-surface-hover: #334155;
     --text-on-action-secondary-surface: #d1d5db;
     --toggle-selected-background: #c2410c;
     --toggle-unselected-background: #111827;
     --toggle-unselected-hover: #1f2937;
     --dropdown-selected-surface: #422006;
+    --dropdown-selected-surface-hover: #5c2d0e;
     --tag-accent-surface: #422006;
     --tag-default-surface: #1f2937;
 
     --scrollbar-thumb: #52525bcc;
+
+    /* 브랜드 고정 — 다크에서도 로그인 버튼 면은 동일 계열 유지 */
+    --oauth-kakao-primary: #fee500;
+    --oauth-kakao-on-primary: #000000d9;
+    --oauth-naver-primary: #03a94d;
+    --oauth-naver-on-primary: #ffffff;
+    --oauth-google-primary: #f2f2f2;
+    --oauth-google-on-primary: #1f1f1f;
 
     --success: #22c55e;
     --error: #f97373;
@@ -311,6 +368,7 @@ input {
  * 제목·본문은 시맨틱 태그, caption은 figcaption 또는 .typography-caption,
  * 카드 메타는 .typography-card-caption, 하단 탭은 .typography-tab,
  * 필터/검색·카드용은 .typography-card-section-heading, .typography-card-body, .typography-label-toggle 등.
+ * Body/Medium·브랜드 워드마크는 .typography-body-medium, .typography-logo-small / .typography-logo-large (design_tokens typography.logo-*).
  */
 h1 {
   font-family: inherit;
@@ -423,6 +481,30 @@ small {
   line-height: var(--typography-card-section-heading-line-height);
   font-weight: var(--typography-card-section-heading-font-weight);
   letter-spacing: var(--typography-card-section-heading-letter-spacing);
+}
+
+.typography-body-medium {
+  font-family: inherit;
+  font-size: var(--typography-body-medium-font-size);
+  line-height: var(--typography-body-medium-line-height);
+  font-weight: var(--typography-body-medium-font-weight);
+  letter-spacing: var(--typography-body-medium-letter-spacing);
+}
+
+.typography-logo-large {
+  font-family: var(--font-logo), ui-sans-serif, system-ui, sans-serif;
+  font-size: var(--typography-logo-large-font-size);
+  line-height: var(--typography-logo-large-line-height);
+  font-weight: var(--typography-logo-large-font-weight);
+  letter-spacing: var(--typography-logo-large-letter-spacing);
+}
+
+.typography-logo-small {
+  font-family: var(--font-logo), ui-sans-serif, system-ui, sans-serif;
+  font-size: var(--typography-logo-small-font-size);
+  line-height: var(--typography-logo-small-line-height);
+  font-weight: var(--typography-logo-small-font-weight);
+  letter-spacing: var(--typography-logo-small-letter-spacing);
 }
 
 /**
