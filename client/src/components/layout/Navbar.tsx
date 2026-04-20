@@ -4,6 +4,7 @@ import { AddButton } from "@/components/ui/AddButton";
 import { BackButton } from "@/components/ui/BackButton";
 import { LikeButton } from "@/components/ui/LikeButton";
 import { ShareButton } from "@/components/ui/ShareButton";
+import { cn } from "@/lib/utils/cn";
 
 /**
  * - `Empty`: 우측 없음, 뒤로 없음 (`onBack` 무시)
@@ -74,9 +75,9 @@ export function Navbar({
   return (
     <header
       role="banner"
-      className={`z-40 border-b border-border-subtle bg-surface ${className}`.trim()}
+      className={cn("z-40 border-b border-border-subtle bg-surface", className)}
     >
-      <div className="mx-auto grid h-12 w-full max-w-[var(--layout-content-max-width)] grid-cols-[minmax(var(--spacing-11),1fr)_auto_minmax(var(--spacing-11),1fr)] items-center gap-2 px-2">
+      <div className="mx-auto grid h-12 w-full max-w-(--layout-content-max-width) grid-cols-[minmax(var(--spacing-11),1fr)_auto_minmax(var(--spacing-11),1fr)] items-center gap-2 px-2">
         <div className="flex justify-start">{leading}</div>
 
         {showTitle ? (

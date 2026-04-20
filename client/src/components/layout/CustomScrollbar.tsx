@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { cn } from "@/lib/utils/cn";
 
 const SCROLLBAR_THUMB_HEIGHT_SCALE = 1;
 const SCROLLBAR_VISIBLE_DURATION_MS = 500;
@@ -93,16 +94,16 @@ export function CustomScrollbar({
     <div className="relative min-h-0 w-full flex-1">
       <div
         ref={scrollRef}
-        className={`hide-native-scrollbar h-full overflow-y-auto ${className}`.trim()}
+        className={cn("hide-native-scrollbar h-full overflow-y-auto", className)}
       >
         {children}
       </div>
       <div
         aria-hidden
-        className={[
+        className={cn(
           "pointer-events-none absolute inset-y-2 right-1 z-50 w-2 transition-opacity duration-300",
           isVisible && thumbHeight > 0 ? "opacity-100" : "opacity-0",
-        ].join(" ")}
+        )}
       >
         <div
           className="w-full rounded-lg bg-scrollbar-thumb transition-transform duration-50"

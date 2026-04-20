@@ -1,4 +1,5 @@
 import type { HTMLAttributes } from "react";
+import { cn } from "@/lib/utils/cn";
 
 import { PaginationDot } from "./PaginationDot";
 
@@ -32,7 +33,7 @@ export function SliderPagination({
 
   return (
     <div
-      className={`flex w-full items-center justify-center gap-2 ${className}`.trim()}
+      className={cn("flex w-full items-center justify-center gap-2", className)}
       data-name="SliderPagination"
       role="group"
       aria-label={`슬라이드 ${clampedIndex + 1} / ${safeTotal}`}

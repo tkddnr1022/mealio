@@ -1,4 +1,5 @@
 import type { HTMLAttributes } from "react";
+import { cn } from "@/lib/utils/cn";
 
 export type PaginationDotProps = Readonly<
   Omit<HTMLAttributes<HTMLSpanElement>, "children"> & {
@@ -18,11 +19,11 @@ export function PaginationDot({
 }: PaginationDotProps) {
   return (
     <span
-      className={`inline-block shrink-0 rounded-full transition-[width,background-color] duration-200 ease-out ${
-        active
-          ? "h-2 w-6 bg-primary"
-          : "size-2 bg-indicator-inactive"
-      } ${className}`.trim()}
+      className={cn(
+        "inline-block shrink-0 rounded-full transition-[width,background-color] duration-200 ease-out",
+        active ? "h-2 w-6 bg-primary" : "size-2 bg-indicator-inactive",
+        className,
+      )}
       data-name="PaginationDot"
       data-active={active ? "true" : "false"}
       {...rest}

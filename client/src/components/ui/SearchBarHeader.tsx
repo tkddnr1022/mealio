@@ -6,6 +6,7 @@ import {
   type KeyboardEvent,
   type MouseEvent,
 } from "react";
+import { cn } from "@/lib/utils/cn";
 import { SearchBarProps, SearchBar } from "./SearchBar";
 
 export type SearchBarHeaderProps = Readonly<
@@ -52,20 +53,21 @@ export const SearchBarHeader = forwardRef<HTMLDivElement, SearchBarHeaderProps>(
     };
 
     /** 트리거 pill 배경·호버(Figma 헤더 검색) — SearchBar·Input과 동일 토큰 */
-    const headerSearchBarSurfaceClassName = [
+    const headerSearchBarSurfaceClassName = cn(
       "bg-background",
       "transition-shadow",
       "hover:bg-toggle-unselected-hover",
       searchBarProps?.wrapperClassName,
       searchBarClassName,
-    ]
-      .filter((s): s is string => Boolean(s?.trim()))
-      .join(" ");
+    );
 
     return (
       <div
         ref={ref}
-        className={`flex w-full flex-col items-stretch bg-surface px-4 py-3 shadow-sm ${className}`.trim()}
+        className={cn(
+          "flex w-full flex-col items-stretch bg-surface px-4 py-3 shadow-sm",
+          className,
+        )}
         {...rest}
       >
         <div
@@ -73,7 +75,10 @@ export const SearchBarHeader = forwardRef<HTMLDivElement, SearchBarHeaderProps>(
           tabIndex={isDisabled ? -1 : 0}
           aria-label={ariaLabel}
           aria-disabled={isDisabled || undefined}
-          className={`w-full rounded-full outline-none transition-shadow focus-visible:ring-(length:--border-width-focus) focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${isDisabled ? "pointer-events-none cursor-not-allowed" : "cursor-pointer"}`.trim()}
+          className={cn(
+            "w-full rounded-full outline-none transition-shadow focus-visible:ring-(length:--border-width-focus) focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+            isDisabled ? "pointer-events-none cursor-not-allowed" : "cursor-pointer",
+          )}
           onClick={isDisabled ? undefined : onClick}
           onKeyDown={handleKeyDown}
         >

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils/cn";
 import { CustomScrollbar } from "./CustomScrollbar";
 
 /**
@@ -33,24 +34,20 @@ export function MainContent({
   scroll = true,
   children,
 }: MainContentProps) {
-  const innerClasses = [
+  const innerClasses = cn(
     "flex flex-col gap-8",
     centered && "items-center justify-center",
     paddingX && "px-4",
     paddingY && "py-6",
     innerClassName,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  );
 
   return (
-    <main
-      className={`flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-background ${className}`.trim()}
-    >
+    <main className={cn("flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-background", className)}>
       {scroll ? (
         <CustomScrollbar className={innerClasses}>{children}</CustomScrollbar>
       ) : (
-        <div className={`min-h-0 flex-1 overflow-y-auto ${innerClasses}`.trim()}>
+        <div className={cn("min-h-0 flex-1 overflow-y-auto", innerClasses)}>
           {children}
         </div>
       )}

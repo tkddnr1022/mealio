@@ -8,6 +8,7 @@ import {
   User,
   type LucideIcon,
 } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
 
 /**
  * Figma `Tabbar` (node 167:3234): Surface·상단 Border/Subtle, 가로 `gap-6`·`px-6`·`py-3`.
@@ -42,9 +43,7 @@ function TabButtonWrapper({
   children,
 }: Readonly<{ className?: string; children: ReactNode }>) {
   return (
-    <div
-      className={`relative flex min-h-px min-w-px flex-1 flex-col items-center ${className}`.trim()}
-    >
+    <div className={cn("relative flex min-h-px min-w-px flex-1 flex-col items-center", className)}>
       {children}
     </div>
   );
@@ -63,12 +62,12 @@ function TabButton({
   return (
     <span className="relative flex shrink-0 flex-col items-center justify-center gap-1">
       <Icon
-        className={`size-6 shrink-0 ${selected ? "text-tab-active" : "text-tab-inactive"}`}
+        className={cn("size-6 shrink-0", selected ? "text-tab-active" : "text-tab-inactive")}
         strokeWidth={2}
         aria-hidden
       />
       <span
-        className={`typography-tab ${selected ? "text-tab-active" : "text-tab-inactive"}`}
+        className={cn("typography-tab", selected ? "text-tab-active" : "text-tab-inactive")}
       >
         {label}
       </span>
@@ -79,7 +78,7 @@ function TabButton({
 export function Tabbar({ className = "", activeId, onSelect }: TabbarProps) {
   return (
     <nav
-      className={`w-full border-t border-border-subtle bg-surface ${className}`.trim()}
+      className={cn("w-full border-t border-border-subtle bg-surface", className)}
       aria-label="하단 탭"
     >
       <div className="mx-auto flex w-full max-w-(--layout-content-max-width) items-start gap-6 px-6 py-3">

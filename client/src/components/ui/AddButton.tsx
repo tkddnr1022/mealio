@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
 
 /** Figma AddButton — Navbar 우측 추가 등 (touch-target-icon, 아이콘 lg). */
 export type AddButtonProps = Readonly<{
@@ -15,7 +16,7 @@ export function AddButton({
   return (
     <button
       type="button"
-      className={`touch-target-icon ${className}`.trim()}
+      className={cn("touch-target-icon", className)}
       aria-label={ariaLabel}
       onClick={onClick}
     >

@@ -1,4 +1,5 @@
 import { Heart } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
 
 /** Figma LikeButton — `isFavorite`에 따라 채움/윤곽 (Navbar Engage 등). */
 export type LikeButtonProps = Readonly<{
@@ -18,13 +19,13 @@ export function LikeButton({
   return (
     <button
       type="button"
-      className={`touch-target-icon ${className}`.trim()}
+      className={cn("touch-target-icon", className)}
       aria-label={ariaLabel}
       aria-pressed={isFavorite}
       onClick={onClick}
     >
       <Heart
-        className={`size-6 ${isFavorite ? "fill-primary text-primary" : ""}`.trim()}
+        className={cn("size-6", isFavorite && "fill-primary text-primary")}
         strokeWidth={2}
         aria-hidden
       />

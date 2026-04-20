@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { HTMLAttributes } from "react";
+import { cn } from "@/lib/utils/cn";
 
 export type RecipeGridCardProps = Readonly<
   Omit<HTMLAttributes<HTMLElement>, "children"> & {
@@ -58,7 +59,7 @@ export function RecipeGridCard({
 
   return (
     <article
-      className={`flex w-full min-w-0 flex-col gap-2 items-start ${className}`.trim()}
+      className={cn("flex w-full min-w-0 flex-col items-start gap-2", className)}
       data-name="RecipeGridCard"
       {...rest}
     >

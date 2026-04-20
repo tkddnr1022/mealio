@@ -6,6 +6,7 @@ import {
   type InputHTMLAttributes,
   type ReactNode,
 } from "react";
+import { cn } from "@/lib/utils/cn";
 
 export type InputShellProps = Omit<
   HTMLAttributes<HTMLDivElement>,
@@ -50,7 +51,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   return (
     <div
       {...wrapperProps}
-      className={`flex w-full items-center gap-3 rounded-full bg-background px-4 py-3 transition-shadow [&:has(input:disabled)]:opacity-50 ${focusWithinRing ? focusWithinRingClasses : "outline-none"} ${wrapperClassName}`.trim()}
+      className={cn(
+        "flex w-full items-center gap-3 rounded-full bg-background px-4 py-3 transition-shadow [&:has(input:disabled)]:opacity-50",
+        focusWithinRing ? focusWithinRingClasses : "outline-none",
+        wrapperClassName,
+      )}
     >
       {startAdornment ? (
         <div
@@ -64,7 +69,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         ref={ref}
         {...inputProps}
         disabled={disabled}
-        className={`min-h-0 min-w-0 flex-1 bg-transparent text-body text-text-primary outline-none placeholder:font-normal placeholder:text-text-placeholder disabled:cursor-not-allowed not-placeholder-shown:font-medium [&::-webkit-search-cancel-button]:hidden ${className}`.trim()}
+        className={cn(
+          "min-h-0 min-w-0 flex-1 bg-transparent text-body text-text-primary outline-none placeholder:font-normal placeholder:text-text-placeholder disabled:cursor-not-allowed not-placeholder-shown:font-medium [&::-webkit-search-cancel-button]:hidden",
+          className,
+        )}
       />
       {endAdornment ? (
         <div className="flex shrink-0 items-center justify-center">{endAdornment}</div>

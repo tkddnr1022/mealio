@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, type ReactNode } from "react";
+import { cn } from "@/lib/utils/cn";
 
 /**
  * 홈 등 레시피 블록 (Figma RecipeSection).
@@ -26,7 +27,7 @@ export function RecipeSection({
 
   return (
     <section
-      className={`flex w-full flex-col gap-4 ${className}`.trim()}
+      className={cn("flex w-full flex-col gap-4", className)}
       aria-labelledby={titleId}
       data-name="RecipeSection"
     >

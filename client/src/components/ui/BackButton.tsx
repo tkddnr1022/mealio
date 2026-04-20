@@ -1,4 +1,5 @@
 import { ArrowLeft } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
 
 /** Figma BackButton — Navbar·상세 헤더 등 공통 뒤로가기 (touch-target-icon, 아이콘 lg). */
 export type BackButtonProps = Readonly<{
@@ -15,7 +16,7 @@ export function BackButton({
   return (
     <button
       type="button"
-      className={`touch-target-icon ${className}`.trim()}
+      className={cn("touch-target-icon", className)}
       aria-label={ariaLabel}
       onClick={onClick}
     >

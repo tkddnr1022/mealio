@@ -9,6 +9,7 @@ import {
 import type { Swiper as SwiperType } from "swiper";
 import { A11y, Keyboard } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { cn } from "@/lib/utils/cn";
 
 import "swiper/css";
 import "swiper/css/a11y";
@@ -85,7 +86,7 @@ export function RecipeSlider({
   // TODO: CLS 최적화를 위한 SSR placeholder 추가
   return (
     <div
-      className={`flex w-full flex-col gap-4 ${className}`.trim()}
+      className={cn("flex w-full flex-col gap-4", className)}
       data-name="RecipeSlider"
       {...rest}
     >

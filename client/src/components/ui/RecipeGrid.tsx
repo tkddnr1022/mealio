@@ -1,4 +1,5 @@
 import type { HTMLAttributes } from "react";
+import { cn } from "@/lib/utils/cn";
 
 import { RecipeGridCard, type RecipeGridCardProps } from "./RecipeGridCard";
 
@@ -25,13 +26,13 @@ export function RecipeGrid({
 }: RecipeGridProps) {
   return (
     <div
-      className={`grid w-full grid-cols-2 gap-x-4 gap-y-6 ${className}`.trim()}
+      className={cn("grid w-full grid-cols-2 gap-x-4 gap-y-6", className)}
       data-name="RecipeGrid"
       {...rest}
     >
       {recipes.map((recipe, index) => {
         const { className: itemClassName = "", ...cardProps } = recipe;
-        const mergedCardClass = `${cardClassName} ${itemClassName}`.trim();
+        const mergedCardClass = cn(cardClassName, itemClassName);
         return (
           <RecipeGridCard
             key={cardProps.id ?? `recipe-grid-${index}`}

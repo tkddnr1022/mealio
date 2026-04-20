@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils/cn";
 
 export type AppRootFrameProps = Readonly<{
   className?: string;
@@ -11,7 +12,7 @@ export type AppRootFrameProps = Readonly<{
  */
 export function AppRootFrame({ className = "", children }: AppRootFrameProps) {
   return (
-    <div className={`flex w-full h-screen justify-center ${className}`.trim()}>
+    <div className={cn("flex h-screen w-full justify-center", className)}>
       <div className="flex flex-col size-full max-w-[400px]">{children}</div>
     </div>
   );

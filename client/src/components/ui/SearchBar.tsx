@@ -10,6 +10,7 @@ import {
   type ChangeEvent,
   type InputHTMLAttributes,
 } from "react";
+import { cn } from "@/lib/utils/cn";
 
 import { Input } from "./Input";
 
@@ -117,13 +118,16 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
               aria-label={hasText ? "검색어 지우기" : undefined}
               disabled={!hasText || disabled}
               onClick={handleClear}
-              className={`inline-flex size-5 shrink-0 items-center justify-center overflow-hidden text-text-placeholder transition-colors focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none cursor-pointer ${hasText ? "" : "invisible pointer-events-none"}`.trim()}
+              className={cn(
+                "inline-flex size-5 shrink-0 items-center justify-center overflow-hidden text-text-placeholder transition-colors focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none cursor-pointer",
+                !hasText && "invisible pointer-events-none",
+              )}
             >
               <X className="size-full" strokeWidth={2} aria-hidden />
             </button>
           ) : null
         }
-        className={`${isEditable ? "" : "cursor-pointer"} ${className}`.trim()}
+        className={cn(!isEditable && "cursor-pointer", className)}
       />
     );
   },
