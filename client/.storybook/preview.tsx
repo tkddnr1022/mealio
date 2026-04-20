@@ -5,7 +5,7 @@ import type { ViewportMap } from "storybook/viewport";
 import "../src/app/globals.css";
 import React from "react";
 
-/** agent/design/spec/design_tokens.json breakpoint 기준 (mobile-max 767, tablet 768–1023, desktop ≥1024) */
+/** agent/design/spec/design_tokens.json system.breakpoint 기준 (mobile-max 767, tablet 768–1023, desktop ≥1024) */
 const projectViewports: ViewportMap = {
   mobile: {
     name: "모바일 (≤767px)",

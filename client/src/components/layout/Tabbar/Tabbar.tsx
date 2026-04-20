@@ -67,7 +67,7 @@ function TabButton({
         aria-hidden
       />
       <span
-        className={cn("typography-tab", selected ? "text-tab-active" : "text-tab-inactive")}
+        className={cn("typography-label-tab", selected ? "text-tab-active" : "text-tab-inactive")}
       >
         {label}
       </span>

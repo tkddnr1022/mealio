@@ -15,10 +15,11 @@
     :root {
       --color-bg: #FAFAF9;
       --color-surface: #FFFFFF;
+      --color-placeholder: #F5F5F4;
       --color-border: #8A8480;
       --color-text-primary: #1C1A17;
       --color-text-secondary: #575352;
-      --color-text-caption: #8A8A8A;
+      --color-text-caption: #9CA3AF;
       --color-primary: #C2410C;
       --color-primary-hover: #9A3412;
       --color-secondary: #6B7250;
@@ -33,8 +34,11 @@
       --space-2: 8px;
       --space-3: 12px;
       --space-4: 16px;
+      --space-5: 20px;
       --space-6: 24px;
+      --space-7: 28px;
       --space-8: 32px;
+      --space-10: 40px;
       --space-11: 44px;
       --space-12: 48px;
       --space-16: 64px;
@@ -252,7 +256,7 @@
     }
 
     .type-display-1 {
-      font-size: 32px;
+      font-size: 28px;
       line-height: 42px;
       font-weight: 700;
       letter-spacing: -0.02em;
@@ -260,22 +264,22 @@
     }
 
     .type-display-2 {
-      font-size: 24px;
-      line-height: 32px;
-      font-weight: 600;
+      font-size: 20px;
+      line-height: 30px;
+      font-weight: 700;
       letter-spacing: -0.01em;
       margin: 0;
     }
 
     .type-heading-1 {
-      font-size: 20px;
-      line-height: 30px;
-      font-weight: 600;
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 700;
       margin: 0;
     }
 
     .type-heading-2 {
-      font-size: 18px;
+      font-size: 16px;
       line-height: 27px;
       font-weight: 500;
       margin: 0;
@@ -297,7 +301,7 @@
 
     .type-small {
       font-size: 12px;
-      line-height: 18px;
+      line-height: 16px;
       font-weight: 400;
       color: var(--color-text-secondary);
       margin: 0;
@@ -499,8 +503,11 @@
     .spacing-bar--2 { height: 8px; width: 44px; }
     .spacing-bar--3 { height: 12px; width: 56px; }
     .spacing-bar--4 { height: 16px; width: 72px; }
+    .spacing-bar--5 { height: 20px; width: 84px; }
     .spacing-bar--6 { height: 24px; width: 96px; }
+    .spacing-bar--7 { height: 28px; width: 110px; }
     .spacing-bar--8 { height: 32px; width: 124px; }
+    .spacing-bar--10 { height: 40px; width: 142px; }
     .spacing-bar--11 { height: 44px; width: 156px; }
     .spacing-bar--12 { height: 48px; width: 176px; }
     .spacing-bar--16 { height: 64px; width: 216px; }
@@ -563,6 +570,8 @@
 
     .state-dot--success { background: var(--color-success); }
     .state-dot--error { background: var(--color-error); }
+    .state-dot--warning { background: var(--color-warning); }
+    .state-dot--info { background: var(--color-info); }
 
     .motion-row {
       display: flex;
@@ -816,6 +825,68 @@
       border: 1px solid #E5E7EB;
       background: #F9FAFB;
     }
+
+    .catalog-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .catalog-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .catalog-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #E5E7EB;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      font-size: 11px;
+      table-layout: fixed;
+    }
+
+    .catalog-table th,
+    .catalog-table td {
+      border-bottom: 1px solid #E5E7EB;
+      padding: 8px 10px;
+      vertical-align: top;
+      word-break: break-word;
+    }
+
+    .catalog-table th {
+      background: #F8FAFC;
+      color: var(--color-text-secondary);
+      font-weight: 600;
+      text-align: left;
+    }
+
+    .catalog-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .catalog-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #F8FAFC;
+      border: 1px solid #E5E7EB;
+      color: var(--color-text-secondary);
+      white-space: nowrap;
+    }
+
+    .catalog-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
   </style>
 </head>
 <body>
@@ -832,6 +903,7 @@
           <span class="tag">Primary device · Mobile</span>
           <span class="tag">WCAG 2.1 AA</span>
           <span class="tag">Touch target ≥ 44px</span>
+          <span class="tag">Token v2.3 · 2026-04-21</span>
         </div>
       </header>
 
@@ -863,6 +935,12 @@
                 <div class="color-swatch__chip" style="background:#8A8480;"></div>
                 <div class="color-swatch__body">
                   <div class="color-swatch__name">Border</div>
+                </div>
+              </div>
+              <div class="color-swatch">
+                <div class="color-swatch__chip" style="background:#F5F5F4;"></div>
+                <div class="color-swatch__body">
+                  <div class="color-swatch__name">Placeholder</div>
                 </div>
               </div>
             </div>
@@ -944,37 +1022,37 @@
 
           <div class="type-row">
             <div>
-              <p class="type-display-1">Heading 1</p>
+              <p class="type-display-1">H1 · 28/42 · Bold</p>
             </div>
           </div>
 
           <div class="type-row">
             <div>
-              <p class="type-display-2">Heading 2</p>
+              <p class="type-display-2">H2 · 20/30 · Bold</p>
             </div>
           </div>
 
           <div class="type-row">
             <div>
-              <p class="type-heading-1">Heading 3</p>
+              <p class="type-heading-1">H3 · 18/27 · Bold</p>
             </div>
           </div>
 
           <div class="type-row">
             <div>
-              <p class="type-body">Body</p>
+              <p class="type-body">Body · 16/24 · Regular</p>
             </div>
           </div>
 
           <div class="type-row">
             <div>
-              <p class="type-caption">Caption</p>
+              <p class="type-caption">Caption · 14/21 · Regular</p>
             </div>
           </div>
 
           <div class="type-row">
             <div>
-              <p class="type-small">Small</p>
+              <p class="type-small">Small · 12/16 · Regular</p>
             </div>
           </div>
         </section>
@@ -1118,12 +1196,24 @@
                 <span class="spacing-label">4</span>
               </div>
               <div class="spacing-scale">
+                <div class="spacing-bar spacing-bar--5"></div>
+                <span class="spacing-label">5</span>
+              </div>
+              <div class="spacing-scale">
                 <div class="spacing-bar spacing-bar--6"></div>
                 <span class="spacing-label">6</span>
               </div>
               <div class="spacing-scale">
+                <div class="spacing-bar spacing-bar--7"></div>
+                <span class="spacing-label">7</span>
+              </div>
+              <div class="spacing-scale">
                 <div class="spacing-bar spacing-bar--8"></div>
                 <span class="spacing-label">8</span>
+              </div>
+              <div class="spacing-scale">
+                <div class="spacing-bar spacing-bar--10"></div>
+                <span class="spacing-label">10</span>
               </div>
               <div class="spacing-scale">
                 <div class="spacing-bar spacing-bar--11"></div>
@@ -1203,6 +1293,14 @@
                 <span>Error</span>
               </div>
               <div class="state-chip">
+                <span class="state-dot state-dot--warning"></span>
+                <span>Warning</span>
+              </div>
+              <div class="state-chip">
+                <span class="state-dot state-dot--info"></span>
+                <span>Info</span>
+              </div>
+              <div class="state-chip">
                 <span>Disabled · 50%</span>
               </div>
             </div>
@@ -1211,6 +1309,7 @@
           <div>
             <div class="subsection-title">Motion</div>
             <div class="motion-row">
+              <span class="motion-pill">reduced · 0ms</span>
               <span class="motion-pill">fast · 150ms</span>
               <span class="motion-pill">normal · 200ms</span>
               <span class="motion-pill">slow · 300ms</span>
@@ -1253,6 +1352,127 @@
             </div>
           </div>
 
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">Style Catalog</h2>
+            <p class="section-caption">design_tokens.json · styles 전체 매핑</p>
+          </div>
+
+          <div class="catalog-group">
+            <div class="catalog-title">Color Styles</div>
+            <table class="catalog-table">
+              <thead>
+                <tr>
+                  <th>Figma Style</th>
+                  <th>Token Mapping</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Action/Primary/Default</td><td>variables.color.light.primary.default</td></tr>
+                <tr><td>Action/Primary/Hover</td><td>variables.color.light.primary.hover</td></tr>
+                <tr><td>Action/Primary/Inactive</td><td>variables.color.light.primary.inactive</td></tr>
+                <tr><td>Action/Secondary/Default</td><td>variables.color.light.secondary.default</td></tr>
+                <tr><td>Action/Secondary/Hover</td><td>variables.color.light.secondary.hover</td></tr>
+                <tr><td>Background/Placeholder</td><td>variables.color.light.background.placeholder</td></tr>
+                <tr><td>Background/Primary/Default</td><td>variables.color.light.background.primary</td></tr>
+                <tr><td>Background/Primary/Hover</td><td>variables.color.light.background.placeholder</td></tr>
+                <tr><td>Background/Surface</td><td>variables.color.light.background.surface</td></tr>
+                <tr><td>Border/Accent</td><td>color: variables.color.light.border.accent + width: variables.border.width.focus</td></tr>
+                <tr><td>Border/Muted</td><td>color: variables.color.light.border.muted + width: variables.border.width.default</td></tr>
+                <tr><td>Border/Subtle</td><td>color: variables.color.light.border.subtle + width: variables.border.width.default</td></tr>
+                <tr><td>Chip/Default</td><td>variables.color.light.chip.default</td></tr>
+                <tr><td>Chip/Hover</td><td>variables.color.light.chip.hover</td></tr>
+                <tr><td>Dropdown/Selected/Default</td><td>variables.color.light.dropdown.selected.default</td></tr>
+                <tr><td>Dropdown/Selected/Hover</td><td>variables.color.light.dropdown.selected.hover</td></tr>
+                <tr><td>Dropdown/Unselected/Default</td><td>variables.color.light.dropdown.unselected.default</td></tr>
+                <tr><td>Dropdown/Unselected/Hover</td><td>variables.color.light.dropdown.unselected.hover</td></tr>
+                <tr><td>Indicator/Active</td><td>variables.color.light.primary.default</td></tr>
+                <tr><td>Indicator/Inactive</td><td>variables.color.light.indicator.inactive</td></tr>
+                <tr><td>Login/Google/Background</td><td>variables.color.light.provider.google.primary</td></tr>
+                <tr><td>Login/Google/Label</td><td>variables.color.light.provider.google.onPrimary</td></tr>
+                <tr><td>Login/Kakao/Background</td><td>variables.color.light.provider.kakao.primary</td></tr>
+                <tr><td>Login/Kakao/Label</td><td>variables.color.light.provider.kakao.onPrimary</td></tr>
+                <tr><td>Login/Naver/Background</td><td>variables.color.light.provider.naver.primary</td></tr>
+                <tr><td>Login/Naver/Label</td><td>variables.color.light.provider.naver.onPrimary</td></tr>
+                <tr><td>Scrollbar/Thumb</td><td>variables.color.light.scrollbar.thumb</td></tr>
+                <tr><td>Tag/Accent</td><td>variables.color.light.tag.accent</td></tr>
+                <tr><td>Tag/Default</td><td>variables.color.light.tag.default</td></tr>
+                <tr><td>Text/Accent</td><td>variables.color.light.text.accent</td></tr>
+                <tr><td>Text/Button/Primary</td><td>variables.color.light.on.primary</td></tr>
+                <tr><td>Text/Button/Secondary</td><td>variables.color.light.on.secondary</td></tr>
+                <tr><td>Text/Caption</td><td>variables.color.light.text.caption</td></tr>
+                <tr><td>Text/Disabled</td><td>variables.color.light.text.disabled</td></tr>
+                <tr><td>Text/Dropdown/Active</td><td>variables.color.light.text.accent</td></tr>
+                <tr><td>Text/Dropdown/Inactive</td><td>variables.color.light.text.primary</td></tr>
+                <tr><td>Text/Placeholder</td><td>variables.color.light.text.placeholder</td></tr>
+                <tr><td>Text/Primary</td><td>variables.color.light.text.primary</td></tr>
+                <tr><td>Text/Secondary</td><td>variables.color.light.text.secondary</td></tr>
+                <tr><td>Text/Tab/Active</td><td>variables.color.light.tab.active</td></tr>
+                <tr><td>Text/Tab/Inactive</td><td>variables.color.light.tab.inactive</td></tr>
+                <tr><td>Text/Toggle/Active</td><td>variables.color.light.on.primary</td></tr>
+                <tr><td>Text/Toggle/Inactive</td><td>variables.color.light.text.secondary</td></tr>
+                <tr><td>Toggle/Selected/Default</td><td>variables.color.light.toggle.selected.default</td></tr>
+                <tr><td>Toggle/Selected/Hover</td><td>variables.color.light.toggle.selected.hover</td></tr>
+                <tr><td>Toggle/Unselected/Default</td><td>variables.color.light.toggle.unselected.default</td></tr>
+                <tr><td>Toggle/Unselected/Hover</td><td>variables.color.light.toggle.unselected.hover</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="catalog-group">
+            <div class="catalog-title">Typography Styles</div>
+            <table class="catalog-table">
+              <thead>
+                <tr>
+                  <th>Figma Style</th>
+                  <th>Token Mapping</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>H1</td><td>size: variables.typography.fontSize.h1 · line-height: 42 · weight: variables.typography.fontWeight.bold</td></tr>
+                <tr><td>H2</td><td>size: variables.typography.fontSize.h2 · line-height: 30 · weight: variables.typography.fontWeight.bold</td></tr>
+                <tr><td>H3</td><td>size: variables.typography.fontSize.h3 · line-height: 27 · weight: variables.typography.fontWeight.bold</td></tr>
+                <tr><td>Body/Regular</td><td>size: variables.typography.fontSize.body · line-height: 24 · weight: variables.typography.fontWeight.regular</td></tr>
+                <tr><td>Body/Medium</td><td>size: variables.typography.fontSize.body · line-height: 24 · weight: variables.typography.fontWeight.medium</td></tr>
+                <tr><td>Body/Bold</td><td>size: variables.typography.fontSize.body · line-height: 24 · weight: variables.typography.fontWeight.bold</td></tr>
+                <tr><td>Caption/Regular</td><td>size: variables.typography.fontSize.caption · line-height: 21 · weight: variables.typography.fontWeight.regular</td></tr>
+                <tr><td>Card/Body</td><td>size: variables.typography.fontSize.caption · line-height: 21 · weight: variables.typography.fontWeight.regular</td></tr>
+                <tr><td>Card/Caption</td><td>size: variables.typography.fontSize.small · line-height: 16 · weight: variables.typography.fontWeight.medium</td></tr>
+                <tr><td>Card/Heading</td><td>size: variables.typography.fontSize.h3 · line-height: 27 · weight: variables.typography.fontWeight.medium</td></tr>
+                <tr><td>Label/Button</td><td>size: variables.typography.fontSize.body · line-height: 24 · weight: variables.typography.fontWeight.bold</td></tr>
+                <tr><td>Label/Dropdown</td><td>size: variables.typography.fontSize.caption · line-height: 21 · weight: variables.typography.fontWeight.medium</td></tr>
+                <tr><td>Label/Tab</td><td>size: variables.typography.fontSize.small · line-height: 16 · weight: variables.typography.fontWeight.medium</td></tr>
+                <tr><td>Label/Toggle</td><td>size: variables.typography.fontSize.body · line-height: 24 · weight: variables.typography.fontWeight.medium</td></tr>
+                <tr><td>Logo/Large</td><td>font-family: variables.typography.fontFamilyLogo · size: 32 · line-height: 42 · weight: 800</td></tr>
+                <tr><td>Logo/Small</td><td>font-family: variables.typography.fontFamilyLogo · size: 20 · line-height: 31 · weight: 800 · color: variables.color.light.text.primary</td></tr>
+                <tr><td>SearchBar/Value</td><td>size: variables.typography.fontSize.body · line-height: 24 · weight: variables.typography.fontWeight.medium</td></tr>
+                <tr><td>Small</td><td>size: variables.typography.fontSize.small · line-height: 16 · weight: variables.typography.fontWeight.regular</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="catalog-group">
+            <div class="catalog-title">Elevation Styles</div>
+            <table class="catalog-table">
+              <thead>
+                <tr>
+                  <th>Figma Style</th>
+                  <th>Token Mapping</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Elevation/Small</td><td>shadow: 0 1px 2px rgba(15, 23, 42, 0.06) · atoms: variables.elevation.sm.color/x/y/blur</td></tr>
+                <tr><td>Elevation/Medium</td><td>shadow: 0 4px 8px rgba(15, 23, 42, 0.08) · atoms: variables.elevation.md.color/x/y/blur</td></tr>
+                <tr><td>(코드 전용) Large</td><td>shadow: 0 10px 15px rgba(15, 23, 42, 0.12)</td></tr>
+                <tr><td>Elevation/Card</td><td>shadow: 0 4px 8px rgba(15, 23, 42, 0.08) · atoms: variables.elevation.md.color/x/y/blur (card alias)</td></tr>
+                <tr><td>Dark/Small</td><td>shadow: 0 1px 3px rgba(0, 0, 0, 0.45)</td></tr>
+                <tr><td>Dark/Medium</td><td>shadow: 0 4px 12px rgba(0, 0, 0, 0.5)</td></tr>
+                <tr><td>Dark/Large</td><td>shadow: 0 12px 24px rgba(0, 0, 0, 0.55)</td></tr>
+              </tbody>
+            </table>
+          </div>
         </section>
       </div>
     </section>

@@ -1,703 +1,1017 @@
 {
-  "version": "1.7",
-  "lastReviewed": "2026-04-19",
+  "version": "2.3",
+  "lastReviewed": "2026-04-21",
   "relatedFiles": [
     "agent/design/spec/design_principle.json",
     "agent/design/spec/figma-variables-and-styles.md"
   ],
-  "content": {
-    "brand": {
-      "navbar-logo-default": "Coop"
-    }
-  },
-  "figma": {
-    "source-doc": "agent/design/spec/figma-variables-and-styles.md",
-    "variable-index": {
-      "border/default": "border.width.default",
-      "border/focus": "border.width.focus",
-      "card/elevation/blur": "card.elevation.figma.blur",
-      "card/elevation/color": "card.elevation.figma.color",
-      "card/elevation/x": "card.elevation.figma.x",
-      "card/elevation/y": "card.elevation.figma.y",
-      "card/gap": "card.gap",
-      "card/padding": "card.padding",
-      "card/radius": "card.radius",
-      "color/background/placeholder": "color.light.placeholder-surface",
-      "color/background/primary": "color.light.background",
-      "color/background/surface": "color.light.surface",
-      "color/border/accent": "color.light.primary",
-      "color/border/muted": "color.light.border-muted",
-      "color/border/subtle": "color.light.border-subtle",
-      "color/chip/default": "color.light.tag-default-surface",
-      "color/chip/hover": "color.light.placeholder-surface",
-      "color/dropdown/selected/default": "color.light.dropdown-selected-surface",
-      "color/dropdown/selected/hover": "color.light.dropdown-selected-surface-hover",
-      "color/dropdown/unselected/default": "color.light.surface",
-      "color/dropdown/unselected/hover": "color.light.background",
-      "color/indicator/inactive": "color.light.indicator-inactive",
-      "color/on-primary": "color.light.on-primary",
-      "color/on-secondary": "color.light.text-on-action-secondary-surface",
-      "color/primary": "color.light.primary",
-      "color/primary-hover": "color.light.primary-hover",
-      "color/primary-inactive": "color.light.primary-inactive",
-      "color/provider/google/on-primary": "color.light.oauth-google-on-primary",
-      "color/provider/google/primary": "color.light.oauth-google-primary",
-      "color/provider/kakao/on-primary": "color.light.oauth-kakao-on-primary",
-      "color/provider/kakao/primary": "color.light.oauth-kakao-primary",
-      "color/provider/naver/on-primary": "color.light.oauth-naver-on-primary",
-      "color/provider/naver/primary": "color.light.oauth-naver-primary",
-      "color/scrollbar/thumb": "color.light.scrollbar-thumb",
-      "color/secondary": "color.light.action-secondary-surface",
-      "color/secondary-hover": "color.light.action-secondary-surface-hover",
-      "color/tab/active": "color.light.tab-active",
-      "color/tab/inactive": "color.light.tab-inactive",
-      "color/tag/accent": "color.light.tag-accent-surface",
-      "color/tag/default": "color.light.tag-default-surface",
-      "color/text/accent": "color.light.text-accent",
-      "color/text/caption": "color.light.text-caption",
-      "color/text/disabled": "color.light.text-disabled",
-      "color/text/placeholder": "color.light.text-placeholder",
-      "color/text/primary": "color.light.text-primary",
-      "color/text/secondary": "color.light.text-secondary",
-      "color/toggle/selected/default": "color.light.toggle-selected-background",
-      "color/toggle/selected/hover": "color.light.primary-hover",
-      "color/toggle/unselected/default": "color.light.toggle-unselected-background",
-      "color/toggle/unselected/hover": "color.light.toggle-unselected-hover",
-      "elevation/md/blur": "elevation.figma.md.blur",
-      "elevation/md/color": "elevation.figma.md.color",
-      "elevation/md/x": "elevation.figma.md.x",
-      "elevation/md/y": "elevation.figma.md.y",
-      "elevation/sm/blur": "elevation.figma.sm.blur",
-      "elevation/sm/color": "elevation.figma.sm.color",
-      "elevation/sm/x": "elevation.figma.sm.x",
-      "elevation/sm/y": "elevation.figma.sm.y",
-      "logo": "content.brand.navbar-logo-default",
-      "opacity/disabled": "state.disabled.opacity",
-      "radius/2xl": "radius.2xl",
-      "radius/full": "radius.full",
-      "radius/lg": "radius.lg",
-      "radius/xl": "radius.xl",
-      "size/2xl": "icon.size.2xl",
-      "size/lg": "icon.size.lg",
-      "size/md": "icon.size.md",
-      "size/sm": "icon.size.sm",
-      "spacing/1": "spacing.1",
-      "spacing/10": "spacing.10",
-      "spacing/2": "spacing.2",
-      "spacing/3": "spacing.3",
-      "spacing/4": "spacing.4",
-      "spacing/6": "spacing.6",
-      "spacing/8": "spacing.8",
-      "typography/font-size-body": "typography.body.font-size",
-      "typography/font-size-caption": "typography.caption.font-size",
-      "typography/font-size-h1": "typography.h1.font-size",
-      "typography/font-size-h2": "typography.h2.font-size",
-      "typography/font-size-h3": "typography.h3.font-size",
-      "typography/font-size-small": "typography.small.font-size"
+  "structure-note": "figma-variables-and-styles.md의 **변수 표 → variables**, **스타일 표 → styles**(color·typography·elevation)로 JSON 변환한 결과. Figma에 없는 앱·컴포넌트 조합 규칙은 루트 component. 코드 전용 확장(extensions)·alias 메타는 Figma와 동기화된 variables 내부에 유지. system은 theme/layout/overlay/z-index/state/motion/breakpoint 등. SSOT: figma-variables-and-styles.md → design_tokens.json → globals.css.",
+  "variables": {
+    "figmaVariableAliases": {
+      "figma-note": "Figma 변수명(slug) 기준. 값이 다른 변수를 가리키는 alias(= 동일 토큰 체인). canonical은 오른쪽.",
+      "color/tab/active": "color/primary",
+      "color/text/accent": "color/primary",
+      "color/toggle/selected/default": "color/primary",
+      "color/toggle/selected/hover": "color/primary-hover",
+      "color/primary-inactive": "color/indicator/inactive",
+      "color/chip/default": "color/background/primary",
+      "color/chip/hover": "color/background/placeholder",
+      "color/border/muted": "color/background/placeholder",
+      "color/toggle/unselected/hover": "color/background/placeholder",
+      "color/toggle/unselected/default": "color/background/primary",
+      "color/secondary": "color/background/primary",
+      "color/tag/default": "color/background/primary",
+      "color/dropdown/unselected/hover": "color/background/primary",
+      "card/elevation/color": "elevation/md/color",
+      "card/elevation/x": "elevation/md/x",
+      "card/elevation/y": "elevation/md/y",
+      "card/elevation/blur": "elevation/md/blur"
     },
-    "style-index": {
-      "Action/Primary/Default": "color.light.primary",
-      "Action/Primary/Hover": "color.light.primary-hover",
-      "Action/Primary/Inactive": "color.light.primary-inactive",
-      "Action/Secondary/Default": "color.light.action-secondary-surface",
-      "Action/Secondary/Hover": "color.light.action-secondary-surface-hover",
-      "Background/Placeholder": "color.light.placeholder-surface",
-      "Background/Primary/Default": "color.light.background",
-      "Background/Primary/Hover": "color.light.placeholder-surface",
-      "Background/Surface": "color.light.surface",
-      "Body/Bold": "typography.body-bold",
-      "Body/Medium": "typography.body-medium",
-      "Body/Regular": "typography.body",
-      "Border/Accent": "color.light.primary + border.width.focus",
-      "Border/Muted": "color.light.border-muted + border.width.default",
-      "Border/Subtle": "color.light.border-subtle + border.width.default",
-      "Caption/Regular": "typography.caption",
-      "Card/Body": "typography.card-body",
-      "Card/Caption": "typography.card-caption",
-      "Card/Heading": "typography.card-section-heading",
-      "Chip/Default": "color.light.tag-default-surface",
-      "Chip/Hover": "color.light.placeholder-surface",
-      "Dropdown/Selected/Default": "color.light.dropdown-selected-surface",
-      "Dropdown/Selected/Hover": "color.light.dropdown-selected-surface-hover",
-      "Dropdown/Unselected/Default": "color.light.surface",
-      "Dropdown/Unselected/Hover": "color.light.background",
-      "Elevation/Card": "elevation.md",
-      "Elevation/Medium": "elevation.md",
-      "Elevation/Small": "elevation.sm",
-      "H1": "typography.h1",
-      "H2": "typography.h2",
-      "H3": "typography.h3",
-      "Indicator/Active": "color.light.primary",
-      "Indicator/Inactive": "color.light.indicator-inactive",
-      "Label/Button": "typography.label-button",
-      "Label/Dropdown": "typography.caption-medium",
-      "Label/Tab": "typography.tab",
-      "Label/Toggle": "typography.label-toggle",
-      "Login/Google/Background": "color.light.oauth-google-primary",
-      "Login/Google/Label": "color.light.oauth-google-on-primary",
-      "Login/Kakao/Background": "color.light.oauth-kakao-primary",
-      "Login/Kakao/Label": "color.light.oauth-kakao-on-primary",
-      "Login/Naver/Background": "color.light.oauth-naver-primary",
-      "Login/Naver/Label": "color.light.oauth-naver-on-primary",
-      "Logo/Large": "typography.logo-large",
-      "Logo/Small": "typography.logo-small",
-      "Scrollbar/Thumb": "color.light.scrollbar-thumb",
-      "SearchBar/Value": "typography.search-bar-value",
-      "Small": "typography.small",
-      "Tag/Accent": "color.light.tag-accent-surface",
-      "Tag/Default": "color.light.tag-default-surface",
-      "Text/Accent": "color.light.text-accent",
-      "Text/Button/Primary": "color.light.on-primary",
-      "Text/Button/Secondary": "color.light.text-on-action-secondary-surface",
-      "Text/Caption": "color.light.text-caption",
-      "Text/Disabled": "color.light.text-disabled",
-      "Text/Dropdown/Active": "color.light.text-accent",
-      "Text/Dropdown/Inactive": "color.light.text-primary",
-      "Text/Placeholder": "color.light.text-placeholder",
-      "Text/Primary": "color.light.text-primary",
-      "Text/Secondary": "color.light.text-secondary",
-      "Text/Tab/Active": "color.light.tab-active",
-      "Text/Tab/Inactive": "color.light.tab-inactive",
-      "Text/Toggle/Active": "color.light.on-primary",
-      "Text/Toggle/Inactive": "color.light.text-secondary",
-      "Toggle/Selected/Default": "color.light.toggle-selected-background",
-      "Toggle/Selected/Hover": "color.light.primary-hover",
-      "Toggle/Unselected/Default": "color.light.toggle-unselected-background",
-      "Toggle/Unselected/Hover": "color.light.toggle-unselected-hover"
+    "tokenAliasMap": {
+      "figma-note": "`variables.*` 경로 간 alias. 키(별칭) → 값(canonical). 리프가 `{ aliasOf }`일 때와 동일 의미.",
+      "variables.color.light.tab.active": "variables.color.light.primary.default",
+      "variables.color.light.text.accent": "variables.color.light.primary.default",
+      "variables.color.light.toggle.selected.default": "variables.color.light.primary.default",
+      "variables.color.light.toggle.selected.hover": "variables.color.light.primary.hover",
+      "variables.color.light.primary.inactive": "variables.color.light.indicator.inactive",
+      "variables.color.light.chip.default": "variables.color.light.background.primary",
+      "variables.color.light.chip.hover": "variables.color.light.background.placeholder",
+      "variables.color.light.border.muted": "variables.color.light.background.placeholder",
+      "variables.color.light.toggle.unselected.hover": "variables.color.light.background.placeholder",
+      "variables.color.light.secondary.default": "variables.color.light.background.primary",
+      "variables.color.light.tag.default": "variables.color.light.background.primary",
+      "variables.color.light.dropdown.unselected.hover": "variables.color.light.background.primary",
+      "variables.color.light.toggle.unselected.default": "variables.color.light.background.primary",
+      "variables.color.dark.tab.active": "variables.color.dark.text.accent",
+      "variables.color.dark.chip.default": "variables.color.dark.background.surface",
+      "variables.color.dark.tag.default": "variables.color.dark.secondary.default",
+      "variables.color.dark.dropdown.unselected.default": "variables.color.dark.background.surface",
+      "variables.color.dark.dropdown.unselected.hover": "variables.color.dark.background.placeholder",
+      "variables.card.elevation": "variables.elevation.md"
     },
-    "notes": [
-      "Figma color/secondary는 필터 ‘초기화’ 면색(#FAFAF9). JSON의 color.*.secondary는 제품 브랜드 2차색(라이트 #6B7250) — 의미가 다르다. UI 매핑은 action-secondary-surface·text-on-action-secondary-surface를 쓴다.",
-      "Figma color/on-secondary는 Secondary 면 위 라벨(#575352). JSON color.*.on-secondary는 브랜드 secondary 위 전경색 — 혼동 방지를 위해 Figma 경로는 text-on-action-secondary-surface에 연결했다.",
-      "Figma 변수명 갱신(2026-04-19): color/text/on-primary → color/on-primary. figma-variables-and-styles.md·variable-index와 동기화.",
-      "Figma opacity/disabled는 MCP에서 50(%)로 오며, 구현·JSON state.disabled.opacity(0.5)와 의미가 같다.",
-      "Figma color/background/default는 스테이징 수집에서 제거됨 — 필드·캔버스 배경은 color/background/primary → color.light.background."
-    ]
-  },
-
-  "theme": {
-    "default": "light",
-    "modes": ["light", "dark"]
-  },
-
-  "color": {
-    "light": {
-      "background": "#FAFAF9",
-      "surface": "#FFFFFF",
-      "text-primary": "#1C1A17",
-      "text-secondary": "#575352",
-      "text-accent": "#C2410C",
-      "text-accent-usage": "강조 숫자·카테고리 태그 글자 등. Figma color/text/accent(= primary와 동일 hex).",
-      "text-caption": "#9CA3AF",
-      "text-caption-usage": "12px 그리드 카드 메타 등. Figma color/text/caption. 14px 부가 텍스트는 caption 타이포 + text-secondary 조합을 검색/필터 화면에서 사용.",
-      "text-placeholder": "#737373",
-      "text-placeholder-usage": "입력 플레이스홀더. Figma Text/Placeholder·color/text/placeholder.",
-      "text-disabled": "#A3A3A3",
-      "text-disabled-usage": "비활성 라벨·트리거. Figma color/text/disabled·Text/Disabled.",
-      "tab-active": "#C2410C",
-      "tab-inactive": "#737373",
-      "tab-color-note": "Figma color/tab/active·inactive. 비활성 값은 text-placeholder와 동일 hex이나 역할 분리 가능.",
-      "border": "#8A8480",
-      "border-subtle": "#E5E5E5",
-      "border-subtle-usage": "Navbar·Tabbar·재료 행 구분선. Figma color/border/subtle·Border/Subtle.",
-      "border-muted": "#F5F5F4",
-      "border-muted-usage": "마이페이지 섹션 구분선 등 저대비 보더. Figma color/border/muted·Border/Muted.",
-      "placeholder-surface": "#F5F5F4",
-      "placeholder-surface-usage": "썸네일 자리·StepBadge 배경. Figma color/background/placeholder.",
-      "indicator-inactive": "#D4D4D4",
-      "indicator-inactive-usage": "PaginationDot 비활성 등. Figma color/indicator/inactive.",
-      "primary-inactive": "#D4D4D4",
-      "primary-inactive-usage": "Primary 트랙 비활성(Action/Primary/Inactive). Figma color/primary-inactive(hex는 indicator-inactive와 동일).",
-      "primary": "#C2410C",
-      "primary-hover": "#9A3412",
-      "on-primary": "#FFFFFF",
-      "secondary": "#6B7250",
-      "on-secondary": "#FFFFFF",
-      "secondary-figma-conflict-note": "브랜드 2차색. Figma 변수 color/secondary는 연한 버튼 면 — action-secondary-surface 참조.",
-      "action-secondary-surface": "#FAFAF9",
-      "action-secondary-surface-usage": "필터 하단 초기화 등 연한 면 버튼. Figma color/secondary·Action/Secondary/Default.",
-      "action-secondary-surface-hover": "#FFFFFF",
-      "action-secondary-surface-hover-usage": "Secondary 버튼 호버 면. Figma color/secondary-hover·Action/Secondary/Hover.",
-      "text-on-action-secondary-surface": "#575352",
-      "text-on-action-secondary-surface-usage": "위 면 위 라벨. Figma color/on-secondary·Text/Button/Secondary(hex는 text-secondary와 동일).",
-      "toggle-selected-background": "#C2410C",
-      "toggle-unselected-background": "#FAFAF9",
-      "toggle-unselected-hover": "#F5F5F4",
-      "toggle-surface-note": "Figma color/toggle/selected|unselected/default. 선택은 primary와 동일 hex.",
-      "dropdown-selected-surface": "#FFF7ED",
-      "dropdown-selected-surface-usage": "드롭다운/아이콘 쉘의 선택 틴트 면. Figma color/dropdown/selected/default.",
-      "dropdown-selected-surface-hover": "#F8F0E6",
-      "dropdown-selected-surface-hover-usage": "드롭다운 선택 항목 호버. Figma color/dropdown/selected/hover·Dropdown/Selected/Hover.",
-      "tag-accent-surface": "#FFF7ED",
-      "tag-accent-surface-usage": "레시피 상세 카테고리 태그 면. Figma color/tag/accent·Tag/Accent.",
-      "tag-default-surface": "#FAFAF9",
-      "tag-default-surface-usage": "검색 카드 FlatTag 면. Figma color/tag/default·Tag/Default(background와 동일 hex).",
-      "scrollbar-thumb": "#D4D4D4CC",
-      "scrollbar-thumb-usage": "Figma color/scrollbar/thumb.",
-      "oauth-kakao-primary": "#FEE500",
-      "oauth-kakao-on-primary": "#000000D9",
-      "oauth-naver-primary": "#03A94D",
-      "oauth-naver-on-primary": "#FFFFFF",
-      "oauth-google-primary": "#F2F2F2",
-      "oauth-google-on-primary": "#1F1F1F",
-      "oauth-provider-usage": "로그인 버튼 면·라벨. Figma color/provider/*·Login/* 스타일.",
-      "success": "#15803D",
-      "error": "#B91C1C",
-      "warning": "#92400E",
-      "info": "#2B6BA3",
-      "text-link": "#2B6BA3",
-      "text-link-hover": "#1E4D7A"
+    "content": {
+      "logo": "Coop",
+      "figma-note": "Figma 변수 `logo`(문자열). Navbar 브랜드 텍스트."
     },
-    "dark": {
-      "background": "#060809",
-      "surface": "#111827",
-      "text-primary": "#F9FAFB",
-      "text-secondary": "#D1D5DB",
-      "text-accent": "#FB923C",
-      "text-accent-usage": "다크에서 강조 텍스트·액센트. 대비 검증 권장.",
-      "text-caption": "#9CA3AF",
-      "text-caption-usage": "다크에서도 부가 텍스트 전용.",
-      "text-placeholder": "#A3A3A3",
-      "tab-active": "#FB923C",
-      "tab-inactive": "#A3A3A3",
-      "border": "#64748B",
-      "border-subtle": "#334155",
-      "placeholder-surface": "#1F2937",
-      "indicator-inactive": "#52525B",
-      "primary-inactive": "#52525B",
-      "primary-inactive-usage": "하위 호환. Figma 다크 인디케이터 트랙에 맞춤.",
-      "primary": "#C2410C",
-      "primary-hover": "#9A3412",
-      "on-primary": "#FFFFFF",
-      "secondary": "#84CC16",
-      "on-secondary": "#0F172A",
-      "action-secondary-surface": "#1F2937",
-      "action-secondary-surface-usage": "다크 모드 연한 액션 면(대략적). 최종은 디자인 시안에 맞출 것.",
-      "text-on-action-secondary-surface": "#D1D5DB",
-      "toggle-selected-background": "#C2410C",
-      "toggle-unselected-background": "#111827",
-      "tag-accent-surface": "#422006",
-      "tag-accent-surface-usage": "다크 카테고리 태그 면(주황 틴트).",
-      "tag-default-surface": "#1F2937",
-      "scrollbar-thumb": "#52525BCC",
-      "success": "#22C55E",
-      "error": "#F97373",
-      "warning": "#FBBF24",
-      "info": "#60A5FA",
-      "text-link": "#60A5FA",
-      "text-link-hover": "#93C5FD"
-    }
-  },
-
-  "typography": {
-    "font-family": "Noto Sans KR",
-
-    "font-weight": {
-      "regular": 400,
-      "medium": 500,
-      "semibold": 600,
-      "bold": 700
+    "border": {
+      "width": {
+        "default": 1,
+        "focus": 2
+      },
+      "style": {
+        "default": "solid"
+      },
+      "figma-note": "`border/default`·`border/focus` (px)."
     },
-
-    "logo-large": {
-      "font-family": "Plus Jakarta Sans",
-      "font-size": 32,
-      "line-height": 42,
-      "font-weight": 800,
-      "figma-note": "Figma Logo/Large. 로그인 브랜드 타이틀."
-    },
-    "logo-small": {
-      "font-family": "Plus Jakarta Sans",
-      "font-size": 20,
-      "line-height": 31,
-      "letter-spacing": 0,
-      "font-weight": 800,
-      "color-token": "color.light.text-primary",
-      "figma-note": "Figma Logo/Small. Navbar 워드마크(Coop)."
-    },
-    "h1": {
-      "font-size": 28,
-      "line-height": 42,
-      "font-weight-token": "typography.font-weight.bold",
-      "figma-note": "Figma typography/font-size-h1·H1."
-    },
-    "h2": {
-      "font-size": 20,
-      "line-height": 30,
-      "font-weight-token": "typography.font-weight.bold",
-      "figma-note": "Figma typography/font-size-h2·H2. 재료·조리 순서 카드 제목."
-    },
-    "h3": {
-      "font-size": 18,
-      "line-height": 27,
-      "font-weight-token": "typography.font-weight.bold",
-      "figma-note": "Figma typography/font-size-h3·H3. 그리드 카드 제목."
-    },
-    "body": {
-      "font-size": 16,
-      "line-height": 24,
-      "font-weight-token": "typography.font-weight.regular",
-      "figma-note": "Figma typography/font-size-body·Body/Regular."
-    },
-    "body-medium": {
-      "font-size": 16,
-      "line-height": 24,
-      "font-weight-token": "typography.font-weight.medium",
-      "figma-note": "Figma Body/Medium."
-    },
-    "body-bold": {
-      "font-size": 16,
-      "line-height": 24,
-      "font-weight-token": "typography.font-weight.bold",
-      "figma-note": "Figma Body/Bold."
-    },
-    "search-bar-value": {
-      "font-size": 16,
-      "line-height": 24,
-      "font-weight-token": "typography.font-weight.medium",
-      "figma-note": "Figma SearchBar/Value. 채워진 검색어."
-    },
-    "label-toggle": {
-      "font-size": 16,
-      "line-height": 24,
-      "font-weight-token": "typography.font-weight.medium",
-      "figma-note": "Figma Label/Toggle."
-    },
-    "label-button": {
-      "font-size": 16,
-      "line-height": 24,
-      "font-weight-token": "typography.font-weight.bold",
-      "figma-note": "Figma Label/Button. 필터 하단 버튼 라벨."
-    },
-    "caption": {
-      "font-size": 14,
-      "line-height": 21,
-      "font-weight-token": "typography.font-weight.regular",
-      "figma-note": "Figma typography/font-size-caption·Caption/Regular."
-    },
-    "caption-medium": {
-      "font-size": 14,
-      "line-height": 21,
-      "font-weight-token": "typography.font-weight.medium",
-      "figma-note": "Figma Label/Dropdown. 정렬 드롭다운 등."
-    },
-    "card-body": {
-      "font-size": 14,
-      "line-height": 21,
-      "font-weight-token": "typography.font-weight.regular",
-      "figma-note": "Figma Card/Body. 검색 카드 요약 설명."
-    },
-    "card-section-heading": {
-      "font-size": 18,
-      "line-height": 27,
-      "font-weight-token": "typography.font-weight.medium",
-      "figma-note": "Figma Card/Heading. 필터 카드 섹션 제목(Medium·h3 스케일)."
-    },
-    "small": {
-      "font-size": 12,
-      "line-height": 16,
-      "font-weight-token": "typography.font-weight.regular",
-      "usage-note": "보조 텍스트/레이블 전용. 본문·주요 인터랙티브 텍스트에는 사용하지 않습니다.",
-      "figma-note": "Figma Small(12/16) 및 챗봇 타임스탬프 스타일과 정렬."
-    },
-    "card-caption": {
-      "font-size": 12,
-      "line-height": 16,
-      "font-weight-token": "typography.font-weight.medium",
-      "figma-note": "Figma Card/Caption·typography/font-size-small + Medium. 레시피 카드 메타 행."
-    },
-    "tab": {
-      "font-size": 12,
-      "line-height": 16,
-      "font-weight-token": "typography.font-weight.medium",
-      "figma-note": "Figma Label/Tab·typography/font-size-small.",
-      "color-active-token": "color.light.tab-active",
-      "color-active-dark-token": "color.dark.tab-active",
-      "color-inactive-token": "color.light.tab-inactive",
-      "color-inactive-dark-token": "color.dark.tab-inactive"
-    }
-  },
-
-  "spacing": {
-    "1": 4,
-    "2": 8,
-    "3": 12,
-    "4": 16,
-    "5": 20,
-    "6": 24,
-    "7": 28,
-    "8": 32,
-    "10": 40,
-    "11": 44,
-    "12": 48,
-    "16": 64,
-    "touch-target-gap-token": "spacing.2",
-    "touch-target-gap-note": "design_principle platform.touchTargetSpacingMinPx(8px)와 동일. Figma spacing/2."
-  },
-
-  "radius": {
-    "sm": 4,
-    "md": 6,
-    "lg": 8,
-    "xl": 12,
-    "2xl": 16,
-    "full": 9999,
-    "figma-note": "radius/lg·xl·full은 Figma와 동일 수치."
-  },
-
-  "card": {
-    "gap": 12,
-    "padding": 16,
-    "radius": 12,
-    "elevation": {
-      "token": "elevation.md",
-      "dark-token": "elevation.dark.md",
-      "figma": {
-        "x": 0,
-        "y": 4,
-        "blur": 8,
-        "color": "#0f172a14"
-      }
-    },
-    "figma-note": "Figma card/gap·card/padding·card/radius·card/elevation/*와 1:1 대응."
-  },
-
-  "layout": {
-    "content-max-width": 1200,
-    "page-padding-x": {
-      "mobile-token": "spacing.4",
-      "tablet-token": "spacing.6",
-      "desktop-token": "spacing.8"
-    },
-    "page-padding-y": {
-      "mobile-token": "spacing.6",
-      "tablet-token": "spacing.8",
-      "desktop-token": "spacing.10"
-    },
-    "page-gap-y": {
-      "mobile-token": "spacing.8",
-      "tablet-token": "spacing.10",
-      "desktop-token": "spacing.12"
-    },
-    "columns": {
-      "mobile": 4,
-      "tablet": 8,
-      "desktop": 12
-    },
-    "safe-area-note": "하단 탭·고정 CTA는 env(safe-area-inset-*)와 spacing 토큰을 함께 고려한다."
-  },
-
-  "component": {
     "card": {
-      "padding-x-token": "card.padding",
-      "padding-y-token": "card.padding",
-      "gap-token": "card.gap",
-      "radius-token": "card.radius",
-      "elevation-token": "card.elevation.token",
-      "elevation-dark-token": "card.elevation.dark-token"
+      "gap": 12,
+      "padding": 16,
+      "radius": 12,
+      "elevation": {
+        "aliasOf": "variables.elevation.md",
+        "figma-note": "Figma `card/elevation/*`는 `elevation/md/*`와 동일 값(alias)."
+      },
+      "figma-note": "`card/gap`·`card/padding`·`card/radius`·`card/elevation/*`(alias → elevation/md)."
     },
-    "recipe-grid-card": {
-      "thumbnail-aspect": "1:1",
-      "usage-note": "RecipeMainPage 등 그리드·슬라이더용 RecipeGridCard(Figma). 정사각 썸네일.",
-      "gap-token": "spacing.2",
-      "title-lines-max": 2,
-      "title-typography-token": "typography.h3",
-      "meta-typography-token": "typography.card-caption",
-      "meta-color-token": "color.light.text-caption",
-      "meta-color-dark-token": "color.dark.text-caption",
-      "thumbnail-radius-token": "radius.xl",
-      "thumbnail-placeholder-token": "color.light.placeholder-surface"
-    },
-    "recipe-search-card": {
-      "thumbnail-aspect": "16:9",
-      "usage-note": "검색 결과 리스트 카드. FlatTag는 tag-default-surface·text-secondary. 설명은 Card/Body(caption 14).",
-      "gap-token": "spacing.3",
-      "title-lines-max": 2,
-      "title-typography-token": "typography.h3",
-      "description-typography-token": "typography.card-body",
-      "description-color-token": "color.light.text-secondary",
-      "description-color-dark-token": "color.dark.text-secondary",
-      "flat-tag-surface-token": "color.light.tag-default-surface",
-      "flat-tag-surface-dark-token": "color.dark.tag-default-surface",
-      "meta-typography-token": "typography.card-caption",
-      "meta-color-token": "color.light.text-caption",
-      "meta-color-dark-token": "color.dark.text-caption",
-      "thumbnail-radius-token": "radius.xl",
-      "thumbnail-placeholder-token": "color.light.placeholder-surface"
-    },
-    "button": {
-      "padding-x-token": "spacing.4",
-      "padding-y-token": "spacing.3",
-      "radius-token": "radius.full",
-      "min-height-token": "spacing.11",
-      "text-light-token": "color.light.on-primary",
-      "text-on-secondary-light-token": "color.light.on-secondary",
-      "text-on-muted-surface-light-token": "color.light.text-on-action-secondary-surface",
-      "background-muted-light-token": "color.light.action-secondary-surface",
-      "text-dark-token": "color.dark.on-primary",
-      "text-on-secondary-dark-token": "color.dark.on-secondary",
-      "text-on-muted-surface-dark-token": "color.dark.text-on-action-secondary-surface",
-      "background-muted-dark-token": "color.dark.action-secondary-surface",
-      "figma-note": "브랜드 Secondary는 secondary/on-secondary. Figma 필터 초기화는 background-muted* + text-on-muted-surface*."
-    },
-    "chip": {
-      "padding-x-token": "spacing.3",
-      "padding-y-token": "spacing.1",
-      "radius-token": "radius.full"
-    },
-    "form-field": {
-      "gap-y-token": "spacing.2",
-      "group-gap-y-token": "spacing.4",
-      "radius-token": "radius.md"
-    },
-    "stack": {
-      "section-y-token": "spacing.8",
-      "card-stack-token": "spacing.4",
-      "list-item-token": "spacing.3"
-    }
-  },
-
-  "border": {
-    "width": {
-      "default": 1,
-      "focus": 2
-    },
-    "style": {
-      "default": "solid"
-    },
-    "figma-note": "border.width.default ↔ Figma border/default (1px)."
-  },
-
-  "elevation": {
-    "sm": "0 1px 2px rgba(15, 23, 42, 0.06)",
-    "md": "0 4px 8px rgba(15, 23, 42, 0.08)",
-    "lg": "0 10px 15px rgba(15, 23, 42, 0.12)",
-    "figma": {
+    "elevation": {
       "sm": {
         "x": 0,
         "y": 1,
         "blur": 2,
-        "color": "#0f172a0f",
-        "usage": "Figma elevation/sm/*·Elevation/Small."
+        "color": "#0f172a0f"
       },
       "md": {
         "x": 0,
         "y": 4,
         "blur": 8,
-        "color": "#0f172a14",
-        "usage": "Figma elevation/md/*·Elevation/Medium."
-      }
+        "color": "#0f172a14"
+      },
+      "figma-note": "`elevation/sm/*`·`elevation/md/*`."
     },
-    "dark": {
-      "sm": "0 1px 3px rgba(0, 0, 0, 0.45)",
-      "md": "0 4px 12px rgba(0, 0, 0, 0.5)",
-      "lg": "0 12px 24px rgba(0, 0, 0, 0.55)"
+    "opacity": {
+      "disabled": 0.5,
+      "figma-note": "MCP 맵 `opacity/disabled`(0–1로 보관)."
     },
-    "usage-note": "라이트 sm/md는 Figma Elevation/Small·Medium과 동일 시각 목표. CSS는 단일 box-shadow 문자열로 사용."
-  },
-
-  "overlay": {
-    "scrim-opacity": 0.5,
-    "scrim-color-light-token": "color.light.text-primary",
-    "scrim-color-dark-token": "color.dark.background"
-  },
-
-  "z-index": {
-    "header": 40,
-    "bottom-tab": 30,
-    "chat-input": 35,
-    "modal": 100,
-    "toast": 110
-  },
-
-  "state": {
-    "hover": {
-      "opacity": 0.9
+    "radius": {
+      "lg": 8,
+      "xl": 12,
+      "2xl": 16,
+      "full": 9999,
+      "sm": 4,
+      "md": 6,
+      "figma-note": "Figma `radius/lg|xl|2xl|full`. sm·md는 코드 유틸(Figma 미정의)."
     },
-    "disabled": {
-      "opacity": 0.5
-    },
-    "focus": {
-      "outline-width-token": "border.width.focus",
-      "outline-offset-px": 2,
-      "outline-color-token": "color.light.primary",
-      "outline-color-light-token": "color.light.primary",
-      "outline-color-dark-token": "color.dark.primary",
-      "theme-note": "다크 UI에서는 outline-color-dark-token을 사용한다. outline-color-token은 라이트 기본값(하위 호환)."
-    },
-    "form": {
-      "error-border-color-token": "color.light.error",
-      "success-border-color-token": "color.light.success",
-      "error-border-dark-token": "color.dark.error",
-      "success-border-dark-token": "color.dark.success",
-      "theme-note": "다크에서는 *-dark-token 참조."
-    }
-  },
-
-  "motion": {
-    "duration": {
-      "reduced": 0,
-      "fast": 150,
-      "normal": 200,
-      "slow": 300
-    },
-    "reduced-motion-note": "prefers-reduced-motion 시 duration.reduced 또는 핵심 전환만 허용.",
-    "easing": {
-      "standard": "cubic-bezier(0.4, 0.0, 0.2, 1)",
-      "decelerate": "cubic-bezier(0.0, 0.0, 0.2, 1)",
-      "accelerate": "cubic-bezier(0.4, 0.0, 1, 1)"
-    }
-  },
-
-  "icon": {
     "size": {
       "sm": 16,
       "md": 20,
       "lg": 24,
-      "2xl": 32
+      "2xl": 32,
+      "figma-note": "`size/sm|md|lg|2xl`."
     },
-    "figma-note": "icon.size.* ↔ Figma size/sm|md|lg|2xl."
-  },
-
-  "empty-state": {
-    "illustration-size": 120,
-    "spacing-y-token": "spacing.6"
-  },
-
-  "breakpoint": {
-    "mobile-max": 767,
-    "tablet-min": 768,
-    "tablet-max": 1023,
-    "desktop-min": 1024
-  },
-
-  "chat": {
-    "bubble": {
-      "user": {
-        "background-color-token": "color.light.primary",
-        "text-color-token": "color.light.on-primary",
-        "background-color-dark-token": "color.dark.primary",
-        "text-color-dark-token": "color.dark.on-primary",
-        "radius-token": "radius.2xl",
-        "max-width-percent": 0.8,
-        "theme-note": "라이트: background/text-color-token. 다크: *-dark-token. (구 surface 텍스트는 on-primary로 통일)"
+    "spacing": {
+      "1": 4,
+      "2": 8,
+      "3": 12,
+      "4": 16,
+      "5": 20,
+      "6": 24,
+      "7": 28,
+      "8": 32,
+      "10": 40,
+      "11": 44,
+      "12": 48,
+      "16": 64,
+      "touch-target-gap-token": "variables.spacing.2",
+      "touch-target-gap-note": "design_principle platform.touchTargetSpacingMinPx(8px). Figma `spacing/2`.",
+      "figma-note": "Figma `spacing/1|2|3|4|6|8|10`. 그 외 숫자 키는 globals 유틸."
+    },
+    "typography": {
+      "fontFamily": "Noto Sans KR",
+      "fontFamilyLogo": "Plus Jakarta Sans",
+      "fontWeight": {
+        "regular": 400,
+        "medium": 500,
+        "semibold": 600,
+        "bold": 700
       },
-      "bot": {
-        "background-color-token": "color.light.surface",
-        "text-color-token": "color.light.text-primary",
-        "background-color-dark-token": "color.dark.surface",
-        "text-color-dark-token": "color.dark.text-primary",
-        "radius-token": "radius.2xl",
-        "max-width-percent": 0.8
+      "fontSize": {
+        "h1": 28,
+        "h2": 20,
+        "h3": 18,
+        "body": 16,
+        "caption": 14,
+        "small": 12,
+        "figma-note": "`typography/font-size-h1|h2|h3|body|caption|small`."
       }
     },
-    "message-gap-token": "spacing.2",
-    "section-padding-token": "spacing.4",
-    "suggested-recipe-card": {
-      "padding-x-token": "spacing.4",
-      "padding-y-token": "spacing.3",
-      "radius-token": "radius.xl",
-      "elevation-token": "elevation.sm",
-      "elevation-dark-token": "elevation.dark.sm"
+    "color": {
+      "light": {
+        "background": {
+          "primary": "#FAFAF9",
+          "surface": "#FFFFFF",
+          "placeholder": "#F5F5F4"
+        },
+        "border": {
+          "accent": "#C2410C",
+          "muted": {
+            "aliasOf": "variables.color.light.background.placeholder"
+          },
+          "subtle": "#E5E5E5"
+        },
+        "chip": {
+          "default": {
+            "aliasOf": "variables.color.light.background.primary"
+          },
+          "hover": {
+            "aliasOf": "variables.color.light.background.placeholder"
+          }
+        },
+        "dropdown": {
+          "selected": {
+            "default": "#FFF7ED",
+            "hover": "#F8F0E6"
+          },
+          "unselected": {
+            "default": "#FFFFFF",
+            "hover": {
+              "aliasOf": "variables.color.light.background.primary"
+            }
+          }
+        },
+        "indicator": {
+          "inactive": "#D4D4D4"
+        },
+        "on": {
+          "primary": "#FFFFFF",
+          "secondary": "#575352"
+        },
+        "primary": {
+          "default": "#C2410C",
+          "hover": "#9A3412",
+          "inactive": {
+            "aliasOf": "variables.color.light.indicator.inactive"
+          }
+        },
+        "provider": {
+          "google": {
+            "primary": "#F2F2F2",
+            "onPrimary": "#1F1F1F"
+          },
+          "kakao": {
+            "primary": "#FEE500",
+            "onPrimary": "#000000D9"
+          },
+          "naver": {
+            "primary": "#03A94D",
+            "onPrimary": "#FFFFFF"
+          }
+        },
+        "scrollbar": {
+          "thumb": "#D4D4D4CC"
+        },
+        "secondary": {
+          "default": {
+            "aliasOf": "variables.color.light.background.primary"
+          },
+          "hover": "#FFFFFF"
+        },
+        "tab": {
+          "active": {
+            "aliasOf": "variables.color.light.primary.default"
+          },
+          "inactive": "#737373"
+        },
+        "tag": {
+          "accent": "#FFF7ED",
+          "default": {
+            "aliasOf": "variables.color.light.background.primary"
+          }
+        },
+        "text": {
+          "accent": {
+            "aliasOf": "variables.color.light.primary.default"
+          },
+          "caption": "#9CA3AF",
+          "disabled": "#A3A3A3",
+          "placeholder": "#737373",
+          "primary": "#1C1A17",
+          "secondary": "#575352"
+        },
+        "toggle": {
+          "selected": {
+            "default": {
+              "aliasOf": "variables.color.light.primary.default"
+            },
+            "hover": {
+              "aliasOf": "variables.color.light.primary.hover"
+            }
+          },
+          "unselected": {
+            "default": {
+              "aliasOf": "variables.color.light.background.primary"
+            },
+            "hover": {
+              "aliasOf": "variables.color.light.background.placeholder"
+            }
+          }
+        },
+        "extensions": {
+          "border": "#8A8480",
+          "border-usage": "Figma에 없는 범용 보더 색.",
+          "text": {
+            "link": "#2B6BA3",
+            "link-hover": "#1E4D7A"
+          },
+          "state": {
+            "success": "#15803D",
+            "error": "#B91C1C",
+            "warning": "#92400E",
+            "info": "#2B6BA3"
+          },
+          "brand": {
+            "secondary": "#6B7250",
+            "secondary-usage": "브랜드 2차색. Figma `color/secondary`는 `secondary.default` 면과 별개."
+          }
+        }
+      },
+      "dark": {
+        "background": {
+          "primary": "#060809",
+          "surface": "#111827",
+          "placeholder": "#1F2937"
+        },
+        "border": {
+          "accent": "#FB923C",
+          "muted": {
+            "aliasOf": "variables.color.dark.background.placeholder"
+          },
+          "subtle": "#334155"
+        },
+        "chip": {
+          "default": {
+            "aliasOf": "variables.color.dark.background.surface"
+          },
+          "hover": {
+            "aliasOf": "variables.color.dark.background.placeholder"
+          }
+        },
+        "dropdown": {
+          "selected": {
+            "default": "#422006",
+            "hover": "#5C2D0E"
+          },
+          "unselected": {
+            "default": {
+              "aliasOf": "variables.color.dark.background.surface"
+            },
+            "hover": {
+              "aliasOf": "variables.color.dark.background.placeholder"
+            }
+          }
+        },
+        "indicator": {
+          "inactive": "#52525B"
+        },
+        "on": {
+          "primary": "#FFFFFF",
+          "secondary": "#D1D5DB"
+        },
+        "primary": {
+          "default": "#C2410C",
+          "hover": "#9A3412",
+          "inactive": {
+            "aliasOf": "variables.color.dark.indicator.inactive"
+          }
+        },
+        "provider": {
+          "google": {
+            "primary": "#F2F2F2",
+            "onPrimary": "#1F1F1F"
+          },
+          "kakao": {
+            "primary": "#FEE500",
+            "onPrimary": "#000000D9"
+          },
+          "naver": {
+            "primary": "#03A94D",
+            "onPrimary": "#FFFFFF"
+          }
+        },
+        "scrollbar": {
+          "thumb": "#52525BCC"
+        },
+        "secondary": {
+          "default": "#1F2937",
+          "hover": "#334155"
+        },
+        "tab": {
+          "active": {
+            "aliasOf": "variables.color.dark.text.accent"
+          },
+          "inactive": "#A3A3A3"
+        },
+        "tag": {
+          "accent": "#422006",
+          "default": {
+            "aliasOf": "variables.color.dark.secondary.default"
+          }
+        },
+        "text": {
+          "accent": "#FB923C",
+          "caption": "#9CA3AF",
+          "disabled": "#6B7280",
+          "placeholder": "#A3A3A3",
+          "primary": "#F9FAFB",
+          "secondary": "#D1D5DB"
+        },
+        "toggle": {
+          "selected": {
+            "default": {
+              "aliasOf": "variables.color.dark.primary.default"
+            },
+            "hover": {
+              "aliasOf": "variables.color.dark.primary.hover"
+            }
+          },
+          "unselected": {
+            "default": {
+              "aliasOf": "variables.color.dark.background.surface"
+            },
+            "hover": {
+              "aliasOf": "variables.color.dark.background.placeholder"
+            }
+          }
+        },
+        "extensions": {
+          "border": "#64748B",
+          "text": {
+            "link": "#60A5FA",
+            "link-hover": "#93C5FD"
+          },
+          "state": {
+            "success": "#22C55E",
+            "error": "#F97373",
+            "warning": "#FBBF24",
+            "info": "#60A5FA"
+          },
+          "brand": {
+            "secondary": "#84CC16",
+            "secondary-usage": "다크 브랜드 2차색."
+          }
+        }
+      }
+    }
+  },
+  "styles": {
+    "color": {
+      "action": {
+        "primary": {
+          "default": {
+            "figma": "Action/Primary/Default",
+            "variable-token": "variables.color.light.primary.default"
+          },
+          "hover": {
+            "figma": "Action/Primary/Hover",
+            "variable-token": "variables.color.light.primary.hover"
+          },
+          "inactive": {
+            "figma": "Action/Primary/Inactive",
+            "variable-token": "variables.color.light.primary.inactive"
+          }
+        },
+        "secondary": {
+          "default": {
+            "figma": "Action/Secondary/Default",
+            "variable-token": "variables.color.light.secondary.default"
+          },
+          "hover": {
+            "figma": "Action/Secondary/Hover",
+            "variable-token": "variables.color.light.secondary.hover"
+          }
+        }
+      },
+      "background": {
+        "placeholder": {
+          "figma": "Background/Placeholder",
+          "variable-token": "variables.color.light.background.placeholder"
+        },
+        "primary": {
+          "default": {
+            "figma": "Background/Primary/Default",
+            "variable-token": "variables.color.light.background.primary"
+          },
+          "hover": {
+            "figma": "Background/Primary/Hover",
+            "variable-token": "variables.color.light.background.placeholder",
+            "figma-note": "Figma 값은 placeholder와 동일 면."
+          }
+        },
+        "surface": {
+          "figma": "Background/Surface",
+          "variable-token": "variables.color.light.background.surface"
+        }
+      },
+      "border": {
+        "accent": {
+          "figma": "Border/Accent",
+          "color-token": "variables.color.light.border.accent",
+          "border-width-token": "variables.border.width.focus"
+        },
+        "muted": {
+          "figma": "Border/Muted",
+          "color-token": "variables.color.light.border.muted",
+          "border-width-token": "variables.border.width.default"
+        },
+        "subtle": {
+          "figma": "Border/Subtle",
+          "color-token": "variables.color.light.border.subtle",
+          "border-width-token": "variables.border.width.default"
+        }
+      },
+      "chip": {
+        "default": {
+          "figma": "Chip/Default",
+          "variable-token": "variables.color.light.chip.default"
+        },
+        "hover": {
+          "figma": "Chip/Hover",
+          "variable-token": "variables.color.light.chip.hover"
+        }
+      },
+      "dropdown": {
+        "selected": {
+          "default": {
+            "figma": "Dropdown/Selected/Default",
+            "variable-token": "variables.color.light.dropdown.selected.default"
+          },
+          "hover": {
+            "figma": "Dropdown/Selected/Hover",
+            "variable-token": "variables.color.light.dropdown.selected.hover"
+          }
+        },
+        "unselected": {
+          "default": {
+            "figma": "Dropdown/Unselected/Default",
+            "variable-token": "variables.color.light.dropdown.unselected.default"
+          },
+          "hover": {
+            "figma": "Dropdown/Unselected/Hover",
+            "variable-token": "variables.color.light.dropdown.unselected.hover"
+          }
+        }
+      },
+      "indicator": {
+        "active": {
+          "figma": "Indicator/Active",
+          "variable-token": "variables.color.light.primary.default"
+        },
+        "inactive": {
+          "figma": "Indicator/Inactive",
+          "variable-token": "variables.color.light.indicator.inactive"
+        }
+      },
+      "login": {
+        "google": {
+          "background": {
+            "figma": "Login/Google/Background",
+            "variable-token": "variables.color.light.provider.google.primary"
+          },
+          "label": {
+            "figma": "Login/Google/Label",
+            "variable-token": "variables.color.light.provider.google.onPrimary"
+          }
+        },
+        "kakao": {
+          "background": {
+            "figma": "Login/Kakao/Background",
+            "variable-token": "variables.color.light.provider.kakao.primary"
+          },
+          "label": {
+            "figma": "Login/Kakao/Label",
+            "variable-token": "variables.color.light.provider.kakao.onPrimary"
+          }
+        },
+        "naver": {
+          "background": {
+            "figma": "Login/Naver/Background",
+            "variable-token": "variables.color.light.provider.naver.primary"
+          },
+          "label": {
+            "figma": "Login/Naver/Label",
+            "variable-token": "variables.color.light.provider.naver.onPrimary"
+          }
+        }
+      },
+      "scrollbar": {
+        "thumb": {
+          "figma": "Scrollbar/Thumb",
+          "variable-token": "variables.color.light.scrollbar.thumb"
+        }
+      },
+      "tag": {
+        "accent": {
+          "figma": "Tag/Accent",
+          "variable-token": "variables.color.light.tag.accent"
+        },
+        "default": {
+          "figma": "Tag/Default",
+          "variable-token": "variables.color.light.tag.default"
+        }
+      },
+      "text": {
+        "accent": {
+          "figma": "Text/Accent",
+          "variable-token": "variables.color.light.text.accent"
+        },
+        "button": {
+          "primary": {
+            "figma": "Text/Button/Primary",
+            "variable-token": "variables.color.light.on.primary"
+          },
+          "secondary": {
+            "figma": "Text/Button/Secondary",
+            "variable-token": "variables.color.light.on.secondary"
+          }
+        },
+        "caption": {
+          "figma": "Text/Caption",
+          "variable-token": "variables.color.light.text.caption"
+        },
+        "disabled": {
+          "figma": "Text/Disabled",
+          "variable-token": "variables.color.light.text.disabled"
+        },
+        "dropdown": {
+          "active": {
+            "figma": "Text/Dropdown/Active",
+            "variable-token": "variables.color.light.text.accent"
+          },
+          "inactive": {
+            "figma": "Text/Dropdown/Inactive",
+            "variable-token": "variables.color.light.text.primary"
+          }
+        },
+        "placeholder": {
+          "figma": "Text/Placeholder",
+          "variable-token": "variables.color.light.text.placeholder"
+        },
+        "primary": {
+          "figma": "Text/Primary",
+          "variable-token": "variables.color.light.text.primary"
+        },
+        "secondary": {
+          "figma": "Text/Secondary",
+          "variable-token": "variables.color.light.text.secondary"
+        },
+        "tab": {
+          "active": {
+            "figma": "Text/Tab/Active",
+            "variable-token": "variables.color.light.tab.active"
+          },
+          "inactive": {
+            "figma": "Text/Tab/Inactive",
+            "variable-token": "variables.color.light.tab.inactive"
+          }
+        },
+        "toggle": {
+          "active": {
+            "figma": "Text/Toggle/Active",
+            "variable-token": "variables.color.light.on.primary"
+          },
+          "inactive": {
+            "figma": "Text/Toggle/Inactive",
+            "variable-token": "variables.color.light.text.secondary"
+          }
+        }
+      },
+      "toggle": {
+        "selected": {
+          "default": {
+            "figma": "Toggle/Selected/Default",
+            "variable-token": "variables.color.light.toggle.selected.default"
+          },
+          "hover": {
+            "figma": "Toggle/Selected/Hover",
+            "variable-token": "variables.color.light.toggle.selected.hover"
+          }
+        },
+        "unselected": {
+          "default": {
+            "figma": "Toggle/Unselected/Default",
+            "variable-token": "variables.color.light.toggle.unselected.default"
+          },
+          "hover": {
+            "figma": "Toggle/Unselected/Hover",
+            "variable-token": "variables.color.light.toggle.unselected.hover"
+          }
+        }
+      }
+    },
+    "typography": {
+      "h1": {
+        "figma": "H1",
+        "font-size-token": "variables.typography.fontSize.h1",
+        "line-height": 42,
+        "font-weight-token": "variables.typography.fontWeight.bold"
+      },
+      "h2": {
+        "figma": "H2",
+        "font-size-token": "variables.typography.fontSize.h2",
+        "line-height": 30,
+        "font-weight-token": "variables.typography.fontWeight.bold"
+      },
+      "h3": {
+        "figma": "H3",
+        "font-size-token": "variables.typography.fontSize.h3",
+        "line-height": 27,
+        "font-weight-token": "variables.typography.fontWeight.bold"
+      },
+      "body": {
+        "regular": {
+          "figma": "Body/Regular",
+          "font-size-token": "variables.typography.fontSize.body",
+          "line-height": 24,
+          "font-weight-token": "variables.typography.fontWeight.regular"
+        },
+        "medium": {
+          "figma": "Body/Medium",
+          "font-size-token": "variables.typography.fontSize.body",
+          "line-height": 24,
+          "font-weight-token": "variables.typography.fontWeight.medium"
+        },
+        "bold": {
+          "figma": "Body/Bold",
+          "font-size-token": "variables.typography.fontSize.body",
+          "line-height": 24,
+          "font-weight-token": "variables.typography.fontWeight.bold"
+        }
+      },
+      "caption": {
+        "regular": {
+          "figma": "Caption/Regular",
+          "font-size-token": "variables.typography.fontSize.caption",
+          "line-height": 21,
+          "font-weight-token": "variables.typography.fontWeight.regular"
+        }
+      },
+      "card": {
+        "body": {
+          "figma": "Card/Body",
+          "font-size-token": "variables.typography.fontSize.caption",
+          "line-height": 21,
+          "font-weight-token": "variables.typography.fontWeight.regular"
+        },
+        "caption": {
+          "figma": "Card/Caption",
+          "font-size-token": "variables.typography.fontSize.small",
+          "line-height": 16,
+          "font-weight-token": "variables.typography.fontWeight.medium"
+        },
+        "heading": {
+          "figma": "Card/Heading",
+          "font-size-token": "variables.typography.fontSize.h3",
+          "line-height": 27,
+          "font-weight-token": "variables.typography.fontWeight.medium"
+        }
+      },
+      "label": {
+        "button": {
+          "figma": "Label/Button",
+          "font-size-token": "variables.typography.fontSize.body",
+          "line-height": 24,
+          "font-weight-token": "variables.typography.fontWeight.bold"
+        },
+        "dropdown": {
+          "figma": "Label/Dropdown",
+          "font-size-token": "variables.typography.fontSize.caption",
+          "line-height": 21,
+          "font-weight-token": "variables.typography.fontWeight.medium"
+        },
+        "tab": {
+          "figma": "Label/Tab",
+          "font-size-token": "variables.typography.fontSize.small",
+          "line-height": 16,
+          "font-weight-token": "variables.typography.fontWeight.medium"
+        },
+        "toggle": {
+          "figma": "Label/Toggle",
+          "font-size-token": "variables.typography.fontSize.body",
+          "line-height": 24,
+          "font-weight-token": "variables.typography.fontWeight.medium"
+        }
+      },
+      "logo": {
+        "large": {
+          "figma": "Logo/Large",
+          "font-family-token": "variables.typography.fontFamilyLogo",
+          "font-size": 32,
+          "line-height": 42,
+          "font-weight": 800
+        },
+        "small": {
+          "figma": "Logo/Small",
+          "font-family-token": "variables.typography.fontFamilyLogo",
+          "font-size": 20,
+          "line-height": 31,
+          "letter-spacing": 0,
+          "font-weight": 800,
+          "color-token": "variables.color.light.text.primary"
+        }
+      },
+      "searchBar": {
+        "value": {
+          "figma": "SearchBar/Value",
+          "font-size-token": "variables.typography.fontSize.body",
+          "line-height": 24,
+          "font-weight-token": "variables.typography.fontWeight.medium"
+        }
+      },
+      "small": {
+        "figma": "Small",
+        "font-size-token": "variables.typography.fontSize.small",
+        "line-height": 16,
+        "font-weight-token": "variables.typography.fontWeight.regular",
+        "usage-note": "보조 텍스트/레이블 전용."
+      }
+    },
+    "elevation": {
+      "small": {
+        "figma": "Elevation/Small",
+        "shadow": "0 1px 2px rgba(15, 23, 42, 0.06)",
+        "variable-atoms": {
+          "color": "variables.elevation.sm.color",
+          "x": "variables.elevation.sm.x",
+          "y": "variables.elevation.sm.y",
+          "blur": "variables.elevation.sm.blur"
+        }
+      },
+      "medium": {
+        "figma": "Elevation/Medium",
+        "shadow": "0 4px 8px rgba(15, 23, 42, 0.08)",
+        "variable-atoms": {
+          "color": "variables.elevation.md.color",
+          "x": "variables.elevation.md.x",
+          "y": "variables.elevation.md.y",
+          "blur": "variables.elevation.md.blur"
+        }
+      },
+      "large": {
+        "figma": "(코드 전용, Figma Small/Medium 외 추가 그림자)",
+        "shadow": "0 10px 15px rgba(15, 23, 42, 0.12)"
+      },
+      "card": {
+        "figma": "Elevation/Card",
+        "shadow": "0 4px 8px rgba(15, 23, 42, 0.08)",
+        "variable-atoms": {
+          "color": "variables.elevation.md.color",
+          "x": "variables.elevation.md.x",
+          "y": "variables.elevation.md.y",
+          "blur": "variables.elevation.md.blur"
+        },
+        "figma-note": "Figma 원자는 `card/elevation/*` → `elevation/md/*` alias(`variables.card.elevation` → `variables.elevation.md`)."
+      },
+      "dark": {
+        "small": "0 1px 3px rgba(0, 0, 0, 0.45)",
+        "medium": "0 4px 12px rgba(0, 0, 0, 0.5)",
+        "large": "0 12px 24px rgba(0, 0, 0, 0.55)"
+      },
+      "usage-note": "CSS `box-shadow`는 `shadow` 필드. Figma Elevation 원자는 `variable-atoms`·`variables.elevation`·`variables.card`."
+    }
+  },
+  "component": {
+    "card": {
+      "padding-x-token": "variables.card.padding",
+      "padding-y-token": "variables.card.padding",
+      "gap-token": "variables.card.gap",
+      "radius-token": "variables.card.radius",
+      "elevation-token": "styles.elevation.medium",
+      "elevation-dark-token": "styles.elevation.dark.medium",
+      "figma-note": "레이아웃 토큰만. 면·타이포는 Figma 컴포넌트별로 `styles.color`·`styles.typography` 참조."
+    },
+    "recipe-grid-card": {
+      "thumbnail-aspect": "1:1",
+      "usage-note": "RecipeMainPage 등 그리드·슬라이더용 RecipeGridCard. Figma 표에 없는 화면 규칙.",
+      "gap-token": "variables.spacing.2",
+      "title-lines-max": 2,
+      "title-typography-token": "styles.typography.h3",
+      "meta-typography-token": "styles.typography.card.caption",
+      "meta-color-token": "variables.color.light.text.caption",
+      "meta-color-dark-token": "variables.color.dark.text.caption",
+      "thumbnail-radius-token": "variables.radius.xl",
+      "thumbnail-placeholder-token": "variables.color.light.background.placeholder"
+    },
+    "recipe-search-card": {
+      "thumbnail-aspect": "16:9",
+      "usage-note": "검색 결과 리스트 카드.",
+      "gap-token": "variables.spacing.3",
+      "title-lines-max": 2,
+      "title-typography-token": "styles.typography.h3",
+      "description-typography-token": "styles.typography.card.body",
+      "description-color-token": "variables.color.light.text.secondary",
+      "description-color-dark-token": "variables.color.dark.text.secondary",
+      "flat-tag-surface-token": "variables.color.light.tag.default",
+      "flat-tag-surface-dark-token": "variables.color.dark.tag.default",
+      "meta-typography-token": "styles.typography.card.caption",
+      "meta-color-token": "variables.color.light.text.caption",
+      "meta-color-dark-token": "variables.color.dark.text.caption",
+      "thumbnail-radius-token": "variables.radius.xl",
+      "thumbnail-placeholder-token": "variables.color.light.background.placeholder"
+    },
+    "button": {
+      "padding-x-token": "variables.spacing.4",
+      "padding-y-token": "variables.spacing.3",
+      "radius-token": "variables.radius.full",
+      "min-height-token": "variables.spacing.11",
+      "text-light-token": "variables.color.light.on.primary",
+      "text-on-secondary-light-token": "variables.color.light.on.secondary",
+      "text-on-muted-surface-light-token": "variables.color.light.on.secondary",
+      "background-muted-light-token": "variables.color.light.secondary.default",
+      "text-dark-token": "variables.color.dark.on.primary",
+      "text-on-secondary-dark-token": "variables.color.dark.on.secondary",
+      "text-on-muted-surface-dark-token": "variables.color.dark.on.secondary",
+      "background-muted-dark-token": "variables.color.dark.secondary.default",
+      "figma-note": "필터 초기화 등은 Figma `Action/Secondary/*`·`Text/Button/Secondary`와 정렬."
+    },
+    "chip": {
+      "padding-x-token": "variables.spacing.3",
+      "padding-y-token": "variables.spacing.1",
+      "radius-token": "variables.radius.full",
+      "background-token": "variables.color.light.chip.default",
+      "background-hover-token": "variables.color.light.chip.hover",
+      "background-dark-token": "variables.color.dark.chip.default",
+      "background-hover-dark-token": "variables.color.dark.chip.hover"
+    },
+    "form-field": {
+      "gap-y-token": "variables.spacing.2",
+      "group-gap-y-token": "variables.spacing.4",
+      "radius-token": "variables.radius.md"
+    },
+    "stack": {
+      "section-y-token": "variables.spacing.8",
+      "card-stack-token": "variables.spacing.4",
+      "list-item-token": "variables.spacing.3"
+    },
+    "chat": {
+      "bubble": {
+        "user": {
+          "background-color-token": "variables.color.light.primary.default",
+          "text-color-token": "variables.color.light.on.primary",
+          "background-color-dark-token": "variables.color.dark.primary.default",
+          "text-color-dark-token": "variables.color.dark.on.primary",
+          "radius-token": "variables.radius.2xl",
+          "max-width-percent": 0.8,
+          "theme-note": "Figma 채팅 전용 스타일 없음 — 앱 규칙."
+        },
+        "bot": {
+          "background-color-token": "variables.color.light.background.surface",
+          "text-color-token": "variables.color.light.text.primary",
+          "background-color-dark-token": "variables.color.dark.background.surface",
+          "text-color-dark-token": "variables.color.dark.text.primary",
+          "radius-token": "variables.radius.2xl",
+          "max-width-percent": 0.8
+        }
+      },
+      "message-gap-token": "variables.spacing.2",
+      "section-padding-token": "variables.spacing.4",
+      "suggested-recipe-card": {
+        "padding-x-token": "variables.spacing.4",
+        "padding-y-token": "variables.spacing.3",
+        "radius-token": "variables.radius.xl",
+        "elevation-token": "styles.elevation.small",
+        "elevation-dark-token": "styles.elevation.dark.small"
+      }
+    }
+  },
+  "system": {
+    "theme": {
+      "default": "light",
+      "modes": [
+        "light",
+        "dark"
+      ]
+    },
+    "layout": {
+      "content-max-width": 1200,
+      "page-padding-x": {
+        "mobile-token": "variables.spacing.4",
+        "tablet-token": "variables.spacing.6",
+        "desktop-token": "variables.spacing.8"
+      },
+      "page-padding-y": {
+        "mobile-token": "variables.spacing.6",
+        "tablet-token": "variables.spacing.8",
+        "desktop-token": "variables.spacing.10"
+      },
+      "page-gap-y": {
+        "mobile-token": "variables.spacing.8",
+        "tablet-token": "variables.spacing.10",
+        "desktop-token": "variables.spacing.12"
+      },
+      "columns": {
+        "mobile": 4,
+        "tablet": 8,
+        "desktop": 12
+      },
+      "safe-area-note": "하단 탭·고정 CTA는 env(safe-area-inset-*)와 spacing 토큰을 함께 고려한다."
+    },
+    "overlay": {
+      "scrim-opacity": 0.5,
+      "scrim-color-light-token": "variables.color.light.text.primary",
+      "scrim-color-dark-token": "variables.color.dark.background.primary"
+    },
+    "z-index": {
+      "header": 40,
+      "bottom-tab": 30,
+      "chat-input": 35,
+      "modal": 100,
+      "toast": 110
+    },
+    "state": {
+      "hover": {
+        "opacity": 0.9
+      },
+      "disabled": {
+        "opacity-token": "variables.opacity.disabled"
+      },
+      "focus": {
+        "outline-width-token": "variables.border.width.focus",
+        "outline-offset-px": 2,
+        "outline-color-token": "variables.color.light.primary.default",
+        "outline-color-light-token": "variables.color.light.primary.default",
+        "outline-color-dark-token": "variables.color.dark.primary.default",
+        "theme-note": "다크 UI에서는 outline-color-dark-token."
+      },
+      "form": {
+        "error-border-color-token": "variables.color.light.extensions.state.error",
+        "success-border-color-token": "variables.color.light.extensions.state.success",
+        "error-border-dark-token": "variables.color.dark.extensions.state.error",
+        "success-border-dark-token": "variables.color.dark.extensions.state.success",
+        "theme-note": "상태 색은 Figma 스테이징 외 확장(`extensions.state`)."
+      }
+    },
+    "motion": {
+      "duration": {
+        "reduced": 0,
+        "fast": 150,
+        "normal": 200,
+        "slow": 300
+      },
+      "reduced-motion-note": "prefers-reduced-motion 시 duration.reduced 또는 핵심 전환만 허용.",
+      "easing": {
+        "standard": "cubic-bezier(0.4, 0.0, 0.2, 1)",
+        "decelerate": "cubic-bezier(0.0, 0.0, 0.2, 1)",
+        "accelerate": "cubic-bezier(0.4, 0.0, 1, 1)"
+      }
+    },
+    "empty-state": {
+      "illustration-size": 120,
+      "spacing-y-token": "variables.spacing.6"
+    },
+    "breakpoint": {
+      "mobile-max": 767,
+      "tablet-min": 768,
+      "tablet-max": 1023,
+      "desktop-min": 1024
     }
   }
 }

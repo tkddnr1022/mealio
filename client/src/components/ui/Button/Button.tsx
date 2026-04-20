@@ -29,7 +29,7 @@ export function Button({
     "inline-flex w-full items-center justify-center px-4 outline-none transition-colors";
   const sizeClassName =
     size === "large"
-      ? "rounded-full py-3 text-body font-bold leading-6"
+      ? "rounded-full py-3 typography-label-button"
       : "rounded-xl py-3 typography-label-dropdown";
 
   const toneClassName =
@@ -37,7 +37,7 @@ export function Button({
       ? isDisabled
         ? "bg-primary-inactive text-text-disabled"
         : "bg-primary text-on-primary hover:bg-primary-hover"
-      : "bg-action-secondary-surface text-on-action-secondary-surface hover:bg-action-secondary-surface-hover";
+      : "bg-secondary text-on-secondary hover:bg-secondary-hover";
 
   return (
     <button

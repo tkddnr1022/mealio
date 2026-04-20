@@ -70,7 +70,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         {...inputProps}
         disabled={disabled}
         className={cn(
-          "min-h-0 min-w-0 flex-1 bg-transparent text-body text-text-primary outline-none placeholder:font-normal placeholder:text-text-placeholder disabled:cursor-not-allowed not-placeholder-shown:font-medium [&::-webkit-search-cancel-button]:hidden",
+          "min-h-0 min-w-0 flex-1 bg-transparent typography-body text-text-primary outline-none placeholder:font-normal placeholder:text-text-placeholder disabled:cursor-not-allowed not-placeholder-shown:font-medium [&::-webkit-search-cancel-button]:hidden",
           className,
         )}
       />

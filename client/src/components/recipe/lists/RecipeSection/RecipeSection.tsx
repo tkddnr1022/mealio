@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils/cn";
 
 /**
  * 홈 등 레시피 블록 (Figma RecipeSection).
- * 제목은 Card/Heading → `typography-card-section-heading`, 본문과 `gap-4` (stack.card-stack-token).
+ * 제목은 Card/Heading → `typography-card-heading`, 본문과 `gap-4` (stack.card-stack-token).
  */
 export type RecipeSectionProps = Readonly<{
   className?: string;
@@ -32,10 +32,7 @@ export function RecipeSection({
       data-name="RecipeSection"
     >
       <div className="px-4">
-        <h2
-          id={titleId}
-          className="typography-card-section-heading text-text-primary"
-        >
+        <h2 id={titleId}>
           {title}
         </h2>
       </div>

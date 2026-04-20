@@ -23,7 +23,7 @@ export function Toggle({
 }: ToggleProps) {
   const sizeClassName =
     size === "large"
-      ? "rounded-full px-4 py-2 text-body"
+      ? "rounded-full px-4 py-2 typography-body"
       : "w-full rounded-xl px-4 py-3 typography-label-dropdown";
 
   const stateClassName = selected

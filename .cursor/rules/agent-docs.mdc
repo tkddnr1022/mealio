@@ -82,7 +82,7 @@ alwaysApply: true
 | **design_tokens.json** | 디자인 토큰(JSON) | 컬러·타이포·스페이싱 등 값 정의. `client/app/globals.css`와 동기화할 때 |
 | **design_principle.json** | 디자인 원칙(JSON) | product·brand·accessibility·platform·layout·interaction·contentTone·media·theme 등 구조화된 UX/UI·접근성·성능 수치 |
 | **figma-variables-and-styles.md** | Figma 변수·스타일 통합 표(**목록**) | 변수 경로·로컬 스타일·의미·사용처. **작성·갱신**: `design_system_collection_guidelines.md`. **권장사항·검토 표**는 `agent/design/temp/`(예: `figma-variables-and-styles-feedback.md`, `design_system_analysis_guidelines.md` 기준). **분석 범위·순서**는 `figma-ds-component-progress.md` 체크리스트와 정렬 |
-| **style-guide.html**, **component-library.html** | 스타일·컴포넌트 참고 HTML | 시각적 참고(브라우저) |
+| **style-guide.html** | 스타일 참고 HTML | 시각적 참고(브라우저) |
 
 ### 디자인 — 임시·피드백 (`agent/design/temp/`)
 

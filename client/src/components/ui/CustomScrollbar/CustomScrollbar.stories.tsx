@@ -31,7 +31,7 @@ export const InMainContent: Story = {
       <CustomScrollbar {...args} className="flex flex-col gap-8 px-4 py-6">
         <ul className="divide-y divide-border-subtle">
           {Array.from({ length: 40 }, (_, i) => (
-            <li key={i} className="py-3 text-body text-text-primary">
+            <li key={i} className="py-3 typography-body text-text-primary">
               스크롤 테스트 아이템 {i + 1}
             </li>
           ))}

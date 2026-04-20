@@ -11,6 +11,13 @@
 - **범위 밖**: 컴포넌트 구현 상세, Figma 플러그인 제작(필요 시 별도 문서).
 - **선택 확장 (`use_figma`)**: Figma MCP의 `use_figma`는 파일 컨텍스트에서 **Plugin API용 JavaScript를 실행**한다. 변수·스타일·노드 속성을 **스크립트로 대량 조회·검증**할 때 보조 수단이 될 수 있으나, 본 가이드의 **표준 수집·문서화**는 `get_variable_defs`·`get_design_context`가 우선이다. 상세는 **2.4절**.
 
+### 1.1 디자인 시스템 연동 정합성 원칙 (필수)
+
+- 디자인 시스템 연동의 기준 경로(SSOT 체인)는 **`agent/design/spec/figma-variables-and-styles.md` -> `agent/design/spec/design_tokens.json` -> `client/src/app/globals.css`** 순서로 고정한다.
+- 위 3개 소스는 동일 개념의 토큰에 대해 **네이밍과 사용처가 1:1로 매칭**되어야 하며, 어느 한쪽에서만 존재하는 임의 토큰을 허용하지 않는다.(단, `globals.css` 내 범용 유틸리티나 클래스는 편의성을 위해 사용되므로 예외이다.)
+- **변수(Variable)와 스타일(Style) 모두 정합성을 유지해야 한다.**. 변수와 스타일은 Figma 디자인 시스템 뿐만 아니라 `design_token.json`, `globals.css`에서도 동일하게 사용되어야 한다.(`globals.css`를 사용하는 실제 코드에서도 마찬가지이다.)
+- 신규/수정/삭제 작업은 항상 SSOT 체인의 앞단부터 반영하고, 뒷단 문서·코드가 앞단 정의와 불일치하지 않도록 동기화한다.
+
 ---
 
 ## 2. 사전 준비

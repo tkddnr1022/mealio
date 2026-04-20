@@ -60,6 +60,7 @@ Figma 디자인을 클라이언트 코드로 옮길 때의 **공통 원칙**과 
 - **컴포넌트 세트(Component set)** 안의 각 배리언트는 레이어 이름이 `PropertyName=Value` 형태로 표시되는 경우가 많다.
 - 코드의 `variant` 타입(유니온)은 이 **프로퍼티 값 조합**을 반영한다.  
   (예: 어떤 Navbar는 Figma의 `AdditionalButtons` 프로퍼티 값 세트와 코드 `variant`를 맞춘다.)
+- `state=hover`처럼 **상호작용 상태를 보여주기 위한 프리뷰 배리언트**는 컴포넌트 API의 1급 `variant`/`state` prop으로 승격하지 않는다. 기본은 `:hover`/`focus-visible` CSS 상호작용으로 구현하고, 비활성은 `disabled` 등 의미 있는 상태 prop으로만 노출한다.
 
 ### 링크·노드 ID (에이전트·리뷰용)
 

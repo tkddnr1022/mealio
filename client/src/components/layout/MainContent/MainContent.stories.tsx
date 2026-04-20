@@ -35,7 +35,7 @@ export const WithPlaceholder: Story = {
   render: (args) => (
     <MainContent {...args}>
       <div className="text-text-secondary">
-        <p className="text-body">본문이 여기 들어갑니다.</p>
+        <p className="typography-body">본문이 여기 들어갑니다.</p>
       </div>
     </MainContent>
   ),
@@ -48,7 +48,7 @@ export const Scrollable: Story = {
     <MainContent {...args}>
       <ul className="divide-y divide-border-subtle px-4 py-2">
         {Array.from({ length: 24 }, (_, i) => (
-          <li key={i} className="py-3 text-body text-text-primary">
+          <li key={i} className="py-3 typography-body text-text-primary">
             레시피 카드 영역 {i + 1}
           </li>
         ))}
@@ -63,7 +63,7 @@ export const NoPadding: Story = {
   args: { paddingX: false, paddingY: false },
   render: (args) => (
     <MainContent {...args}>
-      <div className="bg-surface px-4 py-3 text-body text-text-primary">
+      <div className="bg-surface px-4 py-3 typography-body text-text-primary">
         `paddingX={false}` · `paddingY={false}`이면 기본 px-4/py-6이 빠집니다.
       </div>
     </MainContent>
@@ -76,7 +76,7 @@ export const PaddingXOff: Story = {
   args: { paddingX: false, paddingY: true },
   render: (args) => (
     <MainContent {...args}>
-      <div className="h-24 w-full bg-primary/10 text-body text-text-primary">
+      <div className="h-24 w-full bg-primary/10 typography-body text-text-primary">
         좌우는 끝까지, 세로는 `py-6` 유지.
       </div>
     </MainContent>
@@ -96,8 +96,8 @@ export const WithNavbarShell: Story = {
   render: (args) => (
     <MainContent {...args}>
       <div>
-        <h2 className="text-h2">오늘의 추천</h2>
-        <p className="mt-2 text-body text-text-secondary">
+        <h2 className="typography-h2">오늘의 추천</h2>
+        <p className="mt-2 typography-body text-text-secondary">
           상단 Navbar 아래 영역이 본문으로 채워집니다.
         </p>
       </div>
@@ -112,8 +112,8 @@ export const Centered: Story = {
   render: (args) => (
     <MainContent {...args}>
       <div className="w-full max-w-[280px] rounded-xl border border-border-subtle bg-surface p-4 text-center shadow-sm">
-        <p className="text-body text-text-primary">중앙 정렬된 카드</p>
-        <p className="mt-2 text-caption">
+        <p className="typography-body text-text-primary">중앙 정렬된 카드</p>
+        <p className="mt-2 typography-caption">
           `centered`가 true면 내부 스택에 `justify-center items-center`가 적용됩니다.
         </p>
       </div>
