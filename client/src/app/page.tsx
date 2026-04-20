@@ -9,10 +9,8 @@ import {
   Tabbar,
   type TabbarTabId,
 } from '@/components/layout/Tabbar';
-import type { RecipeGridItem } from '@/components/ui/RecipeGrid';
-import { RecipeSection } from '@/components/ui/RecipeSection';
-import { RecipeSlider } from '@/components/ui/RecipeSlider';
-import { SearchBarHeader } from '@/components/ui/SearchBarHeader';
+import { type RecipeGridItem, RecipeSection, RecipeSlider } from '@/components/recipe';
+import { SearchBarHeader } from '@/components/layout/SearchBarHeader';
 
 const images = [
   'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?w=640&h=640&fit=crop',

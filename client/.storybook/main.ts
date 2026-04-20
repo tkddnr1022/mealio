@@ -14,6 +14,7 @@ function getAbsolutePath(value: string) {
 const config: StorybookConfig = {
   stories: [
     "../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)",
+    "../src/components/**/*.stories.@(js|jsx|mjs|ts|tsx)",
   ],
   addons: [
     getAbsolutePath("@storybook/addon-vitest"),

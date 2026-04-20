@@ -41,12 +41,14 @@ alwaysApply: true
 | 파일 | 설명 | 참고 용도 |
 |------|------|-----------|
 | **frontend_development_guidelines.md** | 프론트엔드 개발 지침 (어떻게) | SSG/ISR/SSR/CSR 구현, 캐싱·이미지·상태 관리·코드 스플리팅, 성능 측정 방법을 적용할 때 |
+| **frontend_component_conventions_guidelines.md** | 프론트엔드 컴포넌트 컨벤션 가이드 (어떻게) | `client/src/components/` 하위 폴더 구성, 컴포넌트 파일 배치, import 방향 규칙, 배럴 export 규칙을 적용할 때 |
 
 ### 프론트엔드 — 명세 (`agent/frontend/spec/`)
 
 | 파일 | 설명 | 참고 용도 |
 |------|------|-----------|
 | **frontend_architecture_spec.md** | 프론트엔드 아키텍처 명세 (무엇을) | Next.js App Router 라우팅·페이지·파일 단위 명세, 라우팅 맵, 성능 목표를 확인할 때 |
+| **frontend_components_structure_spec.md** | 프론트엔드 컴포넌트 구조 명세 (무엇을) | `client/src/components/` 레이어/도메인 트리, 컴포넌트 배치 경로, 라우팅 그룹과 컴포넌트 도메인 매핑을 확인할 때 |
 
 ### 백엔드 — 지침 (`agent/backend/guidelines/`)
 
@@ -103,6 +105,9 @@ alwaysApply: true
 
 - **프론트엔드 페이지/라우팅**  
   `agent/frontend/spec/frontend_architecture_spec.md` (특히 §2 페이지 구조 및 라우팅 맵) → `agent/common/screen_flowchart.mermaid` (화면 전환·탭 흐름 확인) → `agent/common/spec_driven_development_guidelines.md` → `agent/frontend/guidelines/frontend_development_guidelines.md` → `agent/common/openapi_spec.yaml` → `agent/common/proposal.md`
+
+- **프론트엔드 컴포넌트 구조/컨벤션**  
+  `agent/frontend/spec/frontend_components_structure_spec.md` → `agent/frontend/guidelines/frontend_component_conventions_guidelines.md` → `agent/frontend/spec/frontend_architecture_spec.md` (라우팅 그룹/탭 매핑 확인) → `agent/frontend/guidelines/frontend_development_guidelines.md` (Storybook·코드 스플리팅·성능 지침 반영)
 
 - **데이터·엔티티·스키마**  
   `agent/common/schema.md` → `agent/backend/spec/backend_architecture_spec.md` → `agent/common/openapi_spec.yaml`
