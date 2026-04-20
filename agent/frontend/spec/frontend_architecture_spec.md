@@ -132,3 +132,111 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 | 챗봇 대화 (`/chatbot/[id]`) | < 2.5초 | < 3.5초 | < 200KB |
 
 측정 방법·캐싱·로딩 전략 등 구현 가이드는 `../guidelines/frontend_development_guidelines.md`에 정의되어 있다.
+
+---
+
+## 5. 핵심 라이브러리 명세
+
+프론트엔드 패키지 루트는 `client/`이며, App Router(`client/src/app/`) · 공용 컴포넌트(`client/src/components/`) 외에 아래의 **핵심 라이브러리**를 `client/src/lib/` 이하에 둔다.
+
+**경로 표기 규칙**: 아래 표의 경로는 모두 **저장소 루트 기준**이다. `*`는 해당 디렉터리 내의 임의의 파일·하위 경로를 의미하고, **굵게 표시된 경로**는 디렉터리(그룹)를 의미하며 그 아래 행들이 해당 디렉터리 내부 파일·세부 경로와 역할을 정의한다. 백엔드 엔드포인트 경로는 `../../backend/spec/backend_architecture_spec_producer.md` §1.1과 일치한다.
+
+### 5.1 API 클라이언트 (`client/src/lib/api/`)
+
+백엔드 REST API 호출용 클라이언트. fetch 래퍼 위에 도메인별 API 함수를 둔다. JWT는 HttpOnly 쿠키로 전달되므로 `credentials: 'include'`를 기본으로 사용한다.
+
+| 경로 | 역할 |
+|------|------|
+| **client/src/lib/api/** | 백엔드 REST API 호출 클라이언트 묶음 |
+| client/src/lib/api/http-client.ts | fetch 래퍼. baseURL, `credentials: 'include'`(JWT 쿠키 자동 포함), Content-Type, 공통 에러 변환·Correlation-Id 헤더 주입 |
+| client/src/lib/api/endpoints.ts | 엔드포인트 상수·경로 빌더 (예: `/api/v1/recipes`, `/api/v1/recipes/:id`, `/api/v1/chatbot/messages`) |
+| client/src/lib/api/error.ts | `ApiError` 클래스, HTTP 상태 → 에러 타입 매핑, 사용자 노출 메시지 변환 |
+| client/src/lib/api/users.api.ts | 유저 프로필 조회·닉네임 수정 (`GET /api/v1/users/me`, `PATCH /api/v1/users/me/nickname`) |
+| client/src/lib/api/recipes.api.ts | 레시피 목록·상세·검색·요약 (`GET /api/v1/recipes`, `GET /api/v1/recipes/:recipeId`, `GET /api/v1/recipes/search`, `POST /api/v1/recipes/summaries`) |
+| client/src/lib/api/ingredients.api.ts | 재료 목록·검색 (`GET /api/v1/ingredients`, `GET /api/v1/ingredients/search`) |
+| client/src/lib/api/user-ingredients.api.ts | 유저 보유/관심 재료 조회·변경 (`GET/PUT/POST/DELETE /api/v1/users/me/ingredients` 등) |
+| client/src/lib/api/chatbot.api.ts | 챗봇 대화 목록·상세 조회 (`GET /api/v1/chatbot/conversations`, `GET /api/v1/chatbot/conversations/:id`). SSE 전송은 §5.4 sse-client 사용 |
+
+### 5.2 인증 (`client/src/lib/auth/`, `client/src/middleware.ts`)
+
+OAuth는 **백엔드 주도** 흐름을 따른다(§3.1, `../../backend/guidelines/oauth_implementation_guidelines.md`). 프론트엔드는 JWT 쿠키 존재 여부 확인·세션 상태 관리·보호 라우트 리다이렉트만 담당하며, Authorization Code·토큰 교환은 처리하지 않는다.
+
+| 경로 | 역할 |
+|------|------|
+| **client/src/lib/auth/** | 인증 상태·세션·보호 라우트 |
+| client/src/lib/auth/providers.ts | OAuth Provider 식별자 상수(`google` \| `kakao` \| `naver`), 진입 URL 빌드 유틸 |
+| client/src/lib/auth/session.ts | 세션 조회 유틸. 서버 컴포넌트에서는 `cookies()`로 JWT 존재 확인, 클라이언트에서는 `GET /api/v1/users/me`로 검증 |
+| client/src/lib/auth/auth-context.tsx | `AuthProvider`(Client Component), `useAuth()` 훅 — 현재 유저·로그인 상태 제공 |
+| client/src/lib/auth/protected-route.tsx | 보호 라우트 래퍼 컴포넌트(비로그인 시 `/login` 리다이렉트) |
+| **client/src/middleware.ts** | Next.js 미들웨어. `(main)` 그룹(`/recipe`·`/chatbot`·`/inventory`·`/mypage`) 접근 시 JWT 쿠키 검사, 미인증 시 `/login` 리다이렉트. `matcher`로 `(auth)`·`(marketing)`·정적 자산 제외 |
+
+### 5.3 데이터 페칭 / React Query (`client/src/lib/providers/`, `client/src/lib/queries/`)
+
+React Query(TanStack Query) 기반. 쿼리 키 계층화·`staleTime`·`cacheTime` 규칙은 `../guidelines/frontend_development_guidelines.md` §5에 정의되어 있다.
+
+| 경로 | 역할 |
+|------|------|
+| **client/src/lib/providers/** | 클라이언트 전역 Provider 묶음 |
+| client/src/lib/providers/query-client.provider.tsx | `QueryClientProvider` + devtools, SSR-safe `QueryClient` 생성 |
+| client/src/lib/providers/root-providers.tsx | React Query·Auth 등 Provider 합성. `app/layout.tsx`에서 사용 |
+| **client/src/lib/queries/** | React Query 쿼리 키·훅 |
+| client/src/lib/queries/recipe.queries.ts | `recipeQueries` 키, `useRecipeList` / `useRecipeDetail` / `useRecipeSearch` / `useRecipeSummaries` |
+| client/src/lib/queries/ingredient.queries.ts | `ingredientQueries` 키, `useIngredientList` / `useIngredientSearch` |
+| client/src/lib/queries/user.queries.ts | `userQueries` 키, `useCurrentUser` / `useUpdateNickname` |
+| client/src/lib/queries/user-ingredient.queries.ts | `userIngredientQueries` 키, 보유·관심 재료 조회/변경 훅 |
+| client/src/lib/queries/chatbot.queries.ts | `chatbotQueries` 키, `useConversationList` / `useConversationDetail` |
+
+### 5.4 챗봇 SSE 클라이언트 (`client/src/lib/chatbot/`)
+
+SSE 구독·이벤트 파싱 담당. `ChatbotStreamEvent` 타입·Redis 채널·Kafka 토픽 계약은 `../../backend/spec/backend_architecture_spec_producer.md` §1.2에 정의되어 있다.
+
+| 경로 | 역할 |
+|------|------|
+| **client/src/lib/chatbot/** | 챗봇 SSE 구독·스트림 상태 관리 |
+| client/src/lib/chatbot/sse-client.ts | `POST /api/v1/chatbot/messages` fetch + `ReadableStream` 파서. SSE `data:` 라인 → JSON 디코딩, 재연결·취소 지원 |
+| client/src/lib/chatbot/stream-events.ts | `ChatbotStreamEvent` 타입(`intent` \| `chunk` \| `done` \| `error`)·타입 가드·이벤트 파서 |
+| client/src/lib/chatbot/use-chatbot-stream.ts | `useChatbotStream` 훅 — 메시지 전송·스트림 구독·부분 응답 상태 관리, 컴포넌트 언마운트 시 abort |
+
+### 5.5 설정·환경 변수 (`client/src/lib/config/`)
+
+| 경로 | 역할 |
+|------|------|
+| **client/src/lib/config/** | 런타임·빌드 타임 설정 |
+| client/src/lib/config/env.ts | `NEXT_PUBLIC_*` 환경 변수 로드·검증(Zod 또는 수동). API base URL, 환경(dev/prod), OAuth Provider 노출 플래그 |
+| client/src/lib/config/api.config.ts | API base URL, SSE timeout, 재시도 정책 상수 |
+| client/src/lib/config/cache.config.ts | React Query 기본 `staleTime` / `cacheTime`, ISR `revalidate` 주기 상수(§4 성능 예산과 연계) |
+
+### 5.6 타입·DTO (`client/src/lib/types/`)
+
+백엔드 DTO와 1:1 대응되는 프론트엔드 타입. 백엔드 DTO 정의는 `../../backend/spec/backend_architecture_spec_producer.md` §1.1 참조.
+
+| 경로 | 역할 |
+|------|------|
+| **client/src/lib/types/** | 프론트엔드 타입 정의 |
+| client/src/lib/types/api.ts | `ApiResponse<T>`, `Paginated<T>`, 에러 응답 등 공통 래퍼 타입 |
+| client/src/lib/types/auth.ts | `OAuthProvider`, `SessionUser` |
+| client/src/lib/types/user.ts | `UserProfile`, 닉네임 변경 DTO |
+| client/src/lib/types/recipe.ts | `Recipe`, `RecipeDetail`, `RecipeSummary`, `RecipeListQuery`, `RecipeSearchQuery` |
+| client/src/lib/types/ingredient.ts | `Ingredient`, `IngredientCategory`, 목록·검색 쿼리 타입 |
+| client/src/lib/types/user-ingredient.ts | `UserIngredient`(보유/관심 구분 포함) |
+| client/src/lib/types/chatbot.ts | `Conversation`, `ConversationMessage`, `SuggestedRecipe`, `ChatbotStreamEvent` |
+
+### 5.7 유틸 (`client/src/lib/utils/`)
+
+| 경로 | 역할 |
+|------|------|
+| **client/src/lib/utils/** | 공통 유틸 |
+| client/src/lib/utils/cn.ts | Tailwind 클래스 머지(`clsx` + `tailwind-merge`) |
+| client/src/lib/utils/date.ts | 날짜·시간 포맷팅(요리 시간 표시 등) |
+| client/src/lib/utils/image.ts | `blurDataURL`·반응형 `sizes` 헬퍼 (`next/image`용) |
+| client/src/lib/utils/logger.ts | 클라이언트 로그 래퍼, dev/prod 분기 |
+
+### 5.8 관측·모니터링 (`client/src/lib/observability/`)
+
+Web Vitals 수집·성능 예산 초과 감지. 목표·예산은 §4에 정의되어 있다.
+
+| 경로 | 역할 |
+|------|------|
+| **client/src/lib/observability/** | 프론트엔드 모니터링 |
+| client/src/lib/observability/web-vitals.ts | `web-vitals` 라이브러리로 LCP/FID/CLS 수집·리포팅 엔드포인트 전송 |
+| client/src/lib/observability/analytics.ts | 페이지 이동·사용자 이벤트 트래킹 래퍼 |
