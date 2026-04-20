@@ -33,10 +33,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
-      <body
-        className={`${notoSansKr.variable} ${geistMono.variable} ${plusJakartaSans.variable} antialiased`}
-      >
+    <html
+      lang="ko"
+      className={`${notoSansKr.variable} ${geistMono.variable} ${plusJakartaSans.variable}`}
+    >
+      <body className="antialiased">
         <AppRootFrame>{children}</AppRootFrame>
       </body>
     </html>

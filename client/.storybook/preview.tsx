@@ -43,16 +43,26 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   display: "swap",
 });
 
+const fontVariableClassName = `${notoSansKr.variable} ${geistMono.variable} ${plusJakartaSans.variable}`;
+
 const preview: Preview = {
   decorators: [
-    (Story) => (
-      <div
-        className={`${notoSansKr.variable} ${geistMono.variable} ${plusJakartaSans.variable} antialiased`}
-        style={{ minHeight: "100%" }}
-      >
-        <Story />
-      </div>
-    ),
+    (Story) => {
+      React.useEffect(() => {
+        const htmlElement = document.documentElement;
+        htmlElement.classList.add(...fontVariableClassName.split(" "));
+
+        return () => {
+          htmlElement.classList.remove(...fontVariableClassName.split(" "));
+        };
+      }, []);
+
+      return (
+        <div className="antialiased" style={{ minHeight: "100%" }}>
+          <Story />
+        </div>
+      );
+    },
   ],
   parameters: {
     controls: {
