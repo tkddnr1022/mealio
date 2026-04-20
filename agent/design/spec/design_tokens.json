@@ -1,5 +1,5 @@
 {
-  "version": "1.5",
+  "version": "1.7",
   "lastReviewed": "2026-04-19",
   "relatedFiles": [
     "agent/design/spec/design_principle.json",
@@ -15,13 +15,13 @@
     "variable-index": {
       "border/default": "border.width.default",
       "border/focus": "border.width.focus",
-      "card/elevation/blur": "elevation.figma.md.blur",
-      "card/elevation/color": "elevation.figma.md.color",
-      "card/elevation/x": "elevation.figma.md.x",
-      "card/elevation/y": "elevation.figma.md.y",
-      "card/gap": "spacing.3",
-      "card/padding": "spacing.4",
-      "card/radius": "radius.xl",
+      "card/elevation/blur": "card.elevation.figma.blur",
+      "card/elevation/color": "card.elevation.figma.color",
+      "card/elevation/x": "card.elevation.figma.x",
+      "card/elevation/y": "card.elevation.figma.y",
+      "card/gap": "card.gap",
+      "card/padding": "card.padding",
+      "card/radius": "card.radius",
       "color/background/placeholder": "color.light.placeholder-surface",
       "color/background/primary": "color.light.background",
       "color/background/surface": "color.light.surface",
@@ -105,15 +105,12 @@
       "Background/Primary/Default": "color.light.background",
       "Background/Primary/Hover": "color.light.placeholder-surface",
       "Background/Surface": "color.light.surface",
-      "Body/Accent": "typography.body-accent",
-      "Body/Bold": "typography.body-accent",
-      "Body/Default": "typography.body",
+      "Body/Bold": "typography.body-bold",
       "Body/Medium": "typography.body-medium",
       "Body/Regular": "typography.body",
       "Border/Accent": "color.light.primary + border.width.focus",
       "Border/Muted": "color.light.border-muted + border.width.default",
       "Border/Subtle": "color.light.border-subtle + border.width.default",
-      "Caption/Default": "typography.caption",
       "Caption/Regular": "typography.caption",
       "Card/Body": "typography.card-body",
       "Card/Caption": "typography.card-caption",
@@ -347,11 +344,11 @@
       "font-weight-token": "typography.font-weight.medium",
       "figma-note": "Figma Body/Medium."
     },
-    "body-accent": {
+    "body-bold": {
       "font-size": 16,
       "line-height": 24,
       "font-weight-token": "typography.font-weight.bold",
-      "figma-note": "Figma Body/Accent. 강조 본문."
+      "figma-note": "Figma Body/Bold."
     },
     "search-bar-value": {
       "font-size": 16,
@@ -447,6 +444,23 @@
     "figma-note": "radius/lg·xl·full은 Figma와 동일 수치."
   },
 
+  "card": {
+    "gap": 12,
+    "padding": 16,
+    "radius": 12,
+    "elevation": {
+      "token": "elevation.md",
+      "dark-token": "elevation.dark.md",
+      "figma": {
+        "x": 0,
+        "y": 4,
+        "blur": 8,
+        "color": "#0f172a14"
+      }
+    },
+    "figma-note": "Figma card/gap·card/padding·card/radius·card/elevation/*와 1:1 대응."
+  },
+
   "layout": {
     "content-max-width": 1200,
     "page-padding-x": {
@@ -474,11 +488,12 @@
 
   "component": {
     "card": {
-      "padding-x-token": "spacing.4",
-      "padding-y-token": "spacing.4",
-      "radius-token": "radius.xl",
-      "elevation-token": "elevation.md",
-      "elevation-dark-token": "elevation.dark.md"
+      "padding-x-token": "card.padding",
+      "padding-y-token": "card.padding",
+      "gap-token": "card.gap",
+      "radius-token": "card.radius",
+      "elevation-token": "card.elevation.token",
+      "elevation-dark-token": "card.elevation.dark-token"
     },
     "recipe-grid-card": {
       "thumbnail-aspect": "1:1",

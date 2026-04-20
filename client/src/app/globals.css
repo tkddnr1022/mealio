@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  /* design tokens — agent/design/spec/design_tokens.json v1.5 + figma variable-index */
+  /* design tokens — agent/design/spec/design_tokens.json v1.7 + figma variable-index */
   --background: #fafaf9;
   --surface: #ffffff;
   --text-primary: #1c1a17;
@@ -161,6 +161,11 @@
   --elevation-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
   --elevation-md: 0 4px 8px rgba(15, 23, 42, 0.08);
   --elevation-lg: 0 10px 15px rgba(15, 23, 42, 0.12);
+  /* card tokens (design_tokens.json card.*) */
+  --card-gap: 12px;
+  --card-padding: 16px;
+  --card-radius: 12px;
+  --card-elevation: var(--elevation-md);
 
   /* layout — design_tokens.json layout.content-max-width */
   --layout-content-max-width: 1200px;
@@ -333,6 +338,7 @@
     --elevation-sm: 0 1px 3px rgba(0, 0, 0, 0.45);
     --elevation-md: 0 4px 12px rgba(0, 0, 0, 0.5);
     --elevation-lg: 0 12px 24px rgba(0, 0, 0, 0.55);
+    --card-elevation: var(--elevation-md);
   }
 }
 
@@ -512,4 +518,11 @@ small {
  */
 @utility touch-target-icon {
   @apply inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-toggle-unselected-hover focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary;
+}
+
+/**
+ * 카드 공통 토큰 유틸 — gap/padding/radius/elevation.
+ */
+@utility card {
+  @apply gap-(--card-gap) rounded-(--card-radius) bg-surface p-(--card-padding) shadow-(--card-elevation);
 }
