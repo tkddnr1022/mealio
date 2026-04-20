@@ -35,6 +35,8 @@
   --action-secondary-surface-hover: #ffffff;
   --text-on-action-secondary-surface: #575352;
   --toggle-selected-background: #c2410c;
+  /* design_tokens: color/toggle/selected/hover -> color.light.primary-hover */
+  --toggle-selected-hover: #9a3412;
   --toggle-unselected-background: #fafaf9;
   --toggle-unselected-hover: #f5f5f4;
   --dropdown-selected-surface: #fff7ed;
@@ -199,6 +201,7 @@
   --color-action-secondary-surface-hover: var(--action-secondary-surface-hover);
   --color-on-action-secondary-surface: var(--text-on-action-secondary-surface);
   --color-toggle-selected: var(--toggle-selected-background);
+  --color-toggle-selected-hover: var(--toggle-selected-hover);
   --color-toggle-unselected: var(--toggle-unselected-background);
   --color-toggle-unselected-hover: var(--toggle-unselected-hover);
   --color-dropdown-selected-surface: var(--dropdown-selected-surface);
@@ -309,6 +312,7 @@
     --action-secondary-surface-hover: #334155;
     --text-on-action-secondary-surface: #d1d5db;
     --toggle-selected-background: #c2410c;
+    --toggle-selected-hover: #9a3412;
     --toggle-unselected-background: #111827;
     --toggle-unselected-hover: #1f2937;
     --dropdown-selected-surface: #422006;

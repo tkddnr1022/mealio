@@ -1,0 +1,55 @@
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { ReactNode } from "react";
+
+import { ToggleCard } from "@/components/ui/ToggleCard";
+import { Toggle } from "@/components/ui/Toggle";
+
+const figmaWidth = (Story: () => ReactNode) => (
+  <div className="w-[min(100vw-2rem,24rem)]">
+    <Story />
+  </div>
+);
+
+const meta = {
+  title: "UI/ToggleCard",
+  component: ToggleCard,
+  tags: ["autodocs"],
+  parameters: {
+    layout: "centered",
+    viewport: { defaultViewport: "mobile1" },
+  },
+  decorators: [figmaWidth],
+  args: {
+    heading: "Heading",
+  },
+} satisfies Meta<typeof ToggleCard>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {
+  render: (args) => (
+    <ToggleCard {...args}>
+      <Toggle selected label="Label" />
+      <Toggle selected={false} label="Label" />
+      <Toggle selected={false} label="Label" />
+      <Toggle selected={false} label="Label" />
+      <Toggle selected={false} label="Label" />
+      <Toggle selected label="Label" />
+    </ToggleCard>
+  ),
+};
+
+export const CustomItems: Story = {
+  name: "커스텀 토글 목록",
+  render: (args) => (
+    <ToggleCard {...args}>
+      <Toggle selected label="한식" />
+      <Toggle selected={false} label="양식" />
+      <Toggle selected={false} label="중식" />
+      <Toggle selected={false} label="일식" />
+      <Toggle selected={false} label="분식" />
+      <Toggle selected label="비건" />
+    </ToggleCard>
+  ),
+};
