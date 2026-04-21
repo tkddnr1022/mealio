@@ -72,7 +72,9 @@ alwaysApply: true
 |------|------|-----------|
 | **design_to_code_guidelines.md** | Design to Code 가이드 | **Figma → 코드**: Variables·텍스트/컬러 스타일·컴포넌트·variant를 토큰·`globals.css` 전역 타이포·코드 prop에 맞추는 원칙. 구체 수치·키는 `design_tokens.json`·`globals.css`가 단일 근거. MCP **읽기**는 `get_metadata`·`get_design_context`(해당 문서 §4). Code Connect 매핑. **Figma 편집·`use_figma`·HTML 캡처**는 `code_to_design_guidelines.md`로 위임 |
 | **code_to_design_guidelines.md** | Code to Design 가이드 (Figma MCP) | **코드·웹 → Figma·파일 내 동기화**: `generate_figma_design`(HTML 캡처)과 `use_figma`(Plugin API) 구분, 에이전트·사용자 역할, **tool call limit** 시 60초 대기 후 재시도. `design_to_code_guidelines.md`와 역할 분담은 해당 문서 §3.4 |
-| **design_system_collection_guidelines.md** | 디자인 시스템 **수집** 가이드 | Figma **변수·스타일** 수집·통합 표·**명세 vs `temp` 분리** 절차. 기본 MCP: `get_variable_defs`·`get_design_context`, 보조 `search_design_system`. 선택적 `use_figma`·캡처와의 관계는 해당 문서 §2.4. 컴포넌트 범위·순서는 **`agent/design/temp/figma-ds-component-progress.md`**와 정렬. |
+| **design_system_collection_guidelines.md** | 디자인 시스템 **수집** 가이드 | **1단계(Figma → `figma-variables-and-styles.md`)**. MCP(`get_variable_defs`, `get_design_context`)로 변수·스타일을 읽어 목록화하는 절차. |
+| **design_tokens_conversion_guidelines.md** | 디자인 토큰 **변환** 가이드 | **2단계(`figma-variables-and-styles.md` → `design_tokens.json`)**. 변수·스타일 목록을 구조화 JSON으로 반영하는 절차. `design_tokens.json`의 `component`·`system` 등 기존 시스템 규칙을 보존하고 변수/스타일만 병합 갱신하는 원칙 포함. |
+| **design_system_integration_guidelines.md** | 디자인 시스템 **연동** 가이드 | **3단계(`design_tokens.json` → 코드)**. 변수/스타일을 `client/src/app/globals.css`로 변환·반영하는 규칙. |
 | **design_system_analysis_guidelines.md** | 디자인 시스템 **분석** 가이드 | 수집된 통합 표를 기준으로 **품질 검토(구조·의미·중복·대비)** 및 **권장 수정사항 운영** 절차. 분석 결과는 `agent/design/temp/` 피드백 문서로 관리 |
 
 ### 디자인 — 명세·산출물 (`agent/design/spec/`)
@@ -88,10 +90,10 @@ alwaysApply: true
 
 | 파일 | 설명 | 참고 용도 |
 |------|------|-----------|
-| **figma-variables-and-styles-feedback.md** (예) | Figma 변수·스타일 **권장 수정사항·검토 표·참고** | `figma-variables-and-styles.md`와 짝. 절차·역할 분리는 `design_system_collection_guidelines.md` §7·§8 + `design_system_analysis_guidelines.md` |
-| **figma-ds-component-progress.md** | Figma ↔ 코드 DS **컴포넌트 순차 작업 프로그레스**(체크리스트) | 범위·절차·메타는 `design_system_collection_guidelines.md` §2.5. 연동 시 `get_design_context` 등 + `design_to_code`와 병행 |
+| **figma-variables-and-styles-feedback.md** (예) | Figma 변수·스타일 **권장 수정사항·검토 표·참고** | `figma-variables-and-styles.md`와 짝. 분석·권장사항은 `design_system_analysis_guidelines.md` 기준으로 관리 |
+| **figma-ds-component-progress.md** | DS **컴포넌트 순차 수집 프로그레스**(체크리스트) | 수집 범위·순서 관리(`design_system_collection_guidelines.md`와 함께 사용) |
 
-**Figma·DS 문서 역할 요약**: 구현 시 **design_to_code** → (필요 시) **code_to_design**으로 편집·캡처. **DS 수집 → `figma-variables-and-styles.md`**: `design_system_collection_guidelines.md`(수집·통합·분리) + `agent/design/temp/figma-ds-component-progress.md`(순차 진행 체크리스트) → **`agent/design/spec/figma-variables-and-styles.md`**(목록). **DS 분석**은 `design_system_analysis_guidelines.md`로 수행하고, 검토·권장사항은 **`agent/design/temp/`**로 관리한다.
+**Figma·DS 문서 역할 요약**: 구현 시 **design_to_code** → (필요 시) **code_to_design**으로 편집·캡처. 디자인 시스템 워크플로우는 **1) 수집** `design_system_collection_guidelines.md` (**Figma → `figma-variables-and-styles.md`**) → **2) 변환** `design_tokens_conversion_guidelines.md` (**`figma-variables-and-styles.md` → `design_tokens.json`**) → **3) 연동** `design_system_integration_guidelines.md` (**`design_tokens.json` → `globals.css`**) 순서로 진행한다. **DS 분석**은 `design_system_analysis_guidelines.md`로 수행하고, 검토·권장사항은 **`agent/design/temp/`**로 관리한다.
 
 ---
 
@@ -121,5 +123,5 @@ alwaysApply: true
 - **UI/UX·디자인 원칙·Figma**  
   - **화면 구현(Figma→코드)**: `agent/design/guidelines/design_to_code_guidelines.md` → `agent/design/spec/design_tokens.json` → `agent/design/spec/design_principle.json`(터치 타겟 44px, WCAG 2.1 AA, 반응형 브레이크포인트, LCP/FID/CLS·번들 예산, 레이아웃·챗봇 톤 등) → `agent/frontend/guidelines/frontend_development_guidelines.md`  
   - **코드·웹을 Figma에 반영·MCP 쓰기/캡처**: `agent/design/guidelines/code_to_design_guidelines.md`  
-  - **DS 변수·스타일 통합 표(`figma-variables-and-styles.md`) 작성·갱신**: `agent/design/guidelines/design_system_collection_guidelines.md`(MCP 수집·통합) + `agent/design/temp/figma-ds-component-progress.md`(체크리스트) → `agent/design/spec/figma-variables-and-styles.md`(목록)
+  - **DS 워크플로우(수집→변환→연동)**: `agent/design/guidelines/design_system_collection_guidelines.md` + `agent/design/temp/figma-ds-component-progress.md` → `agent/design/spec/figma-variables-and-styles.md` → `agent/design/guidelines/design_tokens_conversion_guidelines.md` → `agent/design/spec/design_tokens.json` → `agent/design/guidelines/design_system_integration_guidelines.md` → `client/src/app/globals.css`
   - **DS 분석·권장 수정사항 정리**: `agent/design/guidelines/design_system_analysis_guidelines.md`(체크리스트·운영) → `agent/design/temp/` 피드백 문서 갱신

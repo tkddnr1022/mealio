@@ -1,5 +1,8 @@
 # Design to Code — 컴포넌트 순차 작업 프로그레스
 
+- **소스**: `https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook` — `fileKey` `r9bdZPeswvPR1ncezzt4ri`, 스테이징 섹션 **UI** 루트 노드 `36:333`.
+- **로그**: `temp` 폴더 내 문서 확인.
+
 ## 전체 컴포넌트 목록 및 순차 작업 프로그레스
 
 ### 액션 · 아이콘 버튼
@@ -39,10 +42,10 @@
 
 ### 드롭다운 · 칩 · 검색 결과 헤더
 
-- [ ] `DropdownButton` 세트 (`open=true` / `false`)
-- [ ] `DropdownItem` 세트 (`selected` × `state`)
-- [ ] `DropdownList`
-- [ ] `FilterDropdown` 세트
+- [x] `DropdownButton` 세트 (`open=true` / `false`)
+- [x] `DropdownItem` 세트 (`selected` × `state`)
+- [x] `DropdownList`
+- [x] `FilterDropdown` 세트
 - [ ] `Chip` 세트 (`state=기본` / `hover`)
 - [ ] `ChipsRow`
 - [ ] `SearchResultTop`

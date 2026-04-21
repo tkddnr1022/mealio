@@ -1,11 +1,6 @@
 {
   "version": "2.3",
   "lastReviewed": "2026-04-21",
-  "relatedFiles": [
-    "agent/design/spec/design_principle.json",
-    "agent/design/spec/figma-variables-and-styles.md"
-  ],
-  "structure-note": "figma-variables-and-styles.md의 **변수 표 → variables**, **스타일 표 → styles**(color·typography·elevation)로 JSON 변환한 결과. Figma에 없는 앱·컴포넌트 조합 규칙은 루트 component. 코드 전용 확장(extensions)·alias 메타는 Figma와 동기화된 variables 내부에 유지. system은 theme/layout/overlay/z-index/state/motion/breakpoint 등. SSOT: figma-variables-and-styles.md → design_tokens.json → globals.css.",
   "variables": {
     "figmaVariableAliases": {
       "figma-note": "Figma 변수명(slug) 기준. 값이 다른 변수를 가리키는 alias(= 동일 토큰 체인). canonical은 오른쪽.",

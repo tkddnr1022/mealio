@@ -1,127 +1,60 @@
 @import "tailwindcss";
 
-/**
- * design_tokens.json v2.3 → globals.css 리팩토링 (v2.0, 2026-04-21).
- * - :root         = Figma `variables.*` 원자 값만 (kebab-case Figma 슬러그).
- * - @theme inline = (1) variables → Tailwind 테마 미러, (2) `styles.*` 전부 (색·타이포 숏컷·그림자).
- * - .typography-* = Figma `styles.typography.*` 프리셋 (값 직접 선언).
- * - :root 내 `var(--other)`는 Figma `aliasOf`를 CSS 변수 체인으로 표현.
- * 마이그레이션 가이드: agent/design/temp/globals-css-refactor-migration.md.
- */
-:root {
-  /* ────────────────────────────────────────────────────────────
-   * variables.color.light  (design_tokens.json $.variables.color.light)
-   * ──────────────────────────────────────────────────────────── */
-  --color-background-primary: #fafaf9;
-  --color-background-surface: #ffffff;
-  --color-background-placeholder: #f5f5f4;
+@theme {
+  --color-background-primary: var(--ref-color-background-primary);
+  --color-background-surface: var(--ref-color-background-surface);
+  --color-background-placeholder: var(--ref-color-background-placeholder);
+  --color-primary-default: var(--ref-color-primary-default);
+  --color-primary-hover: var(--ref-color-primary-hover);
+  --color-primary-inactive: var(--ref-color-primary-inactive);
+  --color-secondary-default: var(--ref-color-secondary-default);
+  --color-secondary-hover: var(--ref-color-secondary-hover);
+  --color-text-primary: var(--ref-color-text-primary);
+  --color-text-secondary: var(--ref-color-text-secondary);
+  --color-text-caption: var(--ref-color-text-caption);
+  --color-text-placeholder: var(--ref-color-text-placeholder);
+  --color-text-disabled: var(--ref-color-text-disabled);
+  --color-text-accent: var(--ref-color-text-accent);
+  --color-border-accent: var(--ref-color-border-accent);
+  --color-border-subtle: var(--ref-color-border-subtle);
+  --color-border-muted: var(--ref-color-border-muted);
+  --color-chip-default: var(--ref-color-chip-default);
+  --color-chip-hover: var(--ref-color-chip-hover);
+  --color-dropdown-selected-default: var(--ref-color-dropdown-selected-default);
+  --color-dropdown-selected-hover: var(--ref-color-dropdown-selected-hover);
+  --color-dropdown-unselected-default: var(--ref-color-dropdown-unselected-default);
+  --color-dropdown-unselected-hover: var(--ref-color-dropdown-unselected-hover);
+  --color-indicator-inactive: var(--ref-color-indicator-inactive);
+  --color-on-primary: var(--ref-color-on-primary);
+  --color-on-secondary: var(--ref-color-on-secondary);
+  --color-tag-accent: var(--ref-color-tag-accent);
+  --color-tag-default: var(--ref-color-tag-default);
+  --color-tab-active: var(--ref-color-tab-active);
+  --color-tab-inactive: var(--ref-color-tab-inactive);
+  --color-toggle-selected-default: var(--ref-color-toggle-selected-default);
+  --color-toggle-selected-hover: var(--ref-color-toggle-selected-hover);
+  --color-toggle-unselected-default: var(--ref-color-toggle-unselected-default);
+  --color-toggle-unselected-hover: var(--ref-color-toggle-unselected-hover);
+  --color-scrollbar-thumb: var(--ref-color-scrollbar-thumb);
+  --color-provider-google-primary: var(--ref-color-provider-google-primary);
+  --color-provider-google-on-primary: var(--ref-color-provider-google-on-primary);
+  --color-provider-kakao-primary: var(--ref-color-provider-kakao-primary);
+  --color-provider-kakao-on-primary: var(--ref-color-provider-kakao-on-primary);
+  --color-provider-naver-primary: var(--ref-color-provider-naver-primary);
+  --color-provider-naver-on-primary: var(--ref-color-provider-naver-on-primary);
+  --color-ext-border: var(--ref-color-ext-border);
+  --color-ext-link: var(--ref-color-ext-link);
+  --color-ext-link-hover: var(--ref-color-ext-link-hover);
+  --color-ext-success: var(--ref-color-ext-success);
+  --color-ext-error: var(--ref-color-ext-error);
+  --color-ext-warning: var(--ref-color-ext-warning);
+  --color-ext-info: var(--ref-color-ext-info);
 
-  --color-border-accent: #c2410c;
-  --color-border-subtle: #e5e5e5;
-  --color-border-muted: var(--color-background-placeholder);
-
-  --color-chip-default: var(--color-background-primary);
-  --color-chip-hover: var(--color-background-placeholder);
-
-  --color-dropdown-selected-default: #fff7ed;
-  --color-dropdown-selected-hover: #f8f0e6;
-  --color-dropdown-unselected-default: #ffffff;
-  --color-dropdown-unselected-hover: var(--color-background-primary);
-
-  --color-indicator-inactive: #d4d4d4;
-
-  --color-on-primary: #ffffff;
-  --color-on-secondary: #575352;
-
-  --color-primary-default: #c2410c;
-  --color-primary-hover: #9a3412;
-  --color-primary-inactive: var(--color-indicator-inactive);
-
-  --color-provider-google-primary: #f2f2f2;
-  --color-provider-google-on-primary: #1f1f1f;
-  --color-provider-kakao-primary: #fee500;
-  --color-provider-kakao-on-primary: #000000d9;
-  --color-provider-naver-primary: #03a94d;
-  --color-provider-naver-on-primary: #ffffff;
-
-  --color-scrollbar-thumb: #d4d4d4cc;
-
-  --color-secondary-default: var(--color-background-primary);
-  --color-secondary-hover: #ffffff;
-
-  --color-tab-active: var(--color-primary-default);
-  --color-tab-inactive: #737373;
-
-  --color-tag-accent: #fff7ed;
-  --color-tag-default: var(--color-background-primary);
-
-  --color-text-accent: var(--color-primary-default);
-  --color-text-caption: #9ca3af;
-  --color-text-disabled: #a3a3a3;
-  --color-text-placeholder: #737373;
-  --color-text-primary: #1c1a17;
-  --color-text-secondary: #575352;
-
-  --color-toggle-selected-default: var(--color-primary-default);
-  --color-toggle-selected-hover: var(--color-primary-hover);
-  --color-toggle-unselected-default: var(--color-background-primary);
-  --color-toggle-unselected-hover: var(--color-background-placeholder);
-
-  /* variables.color.light.extensions — Figma 밖 코드 전용 */
-  --ext-border: #8a8480;
-  --ext-brand-secondary: #6b7250;
-  --ext-text-link: #2b6ba3;
-  --ext-text-link-hover: #1e4d7a;
-  --ext-state-success: #15803d;
-  --ext-state-error: #b91c1c;
-  --ext-state-warning: #92400e;
-  --ext-state-info: #2b6ba3;
-
-  /* ────────────────────────────────────────────────────────────
-   * variables.border / variables.opacity
-   * ──────────────────────────────────────────────────────────── */
   --border-width-default: 1px;
   --border-width-focus: 2px;
   --border-style-default: solid;
   --opacity-disabled: 0.5;
 
-  /* ────────────────────────────────────────────────────────────
-   * variables.elevation (sm / md) + variables.card.* 원자
-   * ──────────────────────────────────────────────────────────── */
-  --elevation-sm-x: 0;
-  --elevation-sm-y: 1px;
-  --elevation-sm-blur: 2px;
-  --elevation-sm-color: rgba(15, 23, 42, 0.06);
-  --elevation-md-x: 0;
-  --elevation-md-y: 4px;
-  --elevation-md-blur: 8px;
-  --elevation-md-color: rgba(15, 23, 42, 0.08);
-
-  --card-gap: 12px;
-  --card-padding: 16px;
-  --card-radius: 12px;
-
-  /* ────────────────────────────────────────────────────────────
-   * variables.typography (fontFamily / fontSize / fontWeight)
-   * ──────────────────────────────────────────────────────────── */
-  --font-family-body: var(--font-noto-sans-kr), ui-sans-serif, system-ui, sans-serif;
-  --font-family-logo: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
-
-  --font-weight-regular: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-
-  --font-size-h1: 28px;
-  --font-size-h2: 20px;
-  --font-size-h3: 18px;
-  --font-size-body: 16px;
-  --font-size-caption: 14px;
-  --font-size-small: 12px;
-
-  /* ────────────────────────────────────────────────────────────
-   * variables.radius.*  (Figma `radius/lg|xl|2xl|full` + 코드 유틸 sm|md)
-   * ──────────────────────────────────────────────────────────── */
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
@@ -129,17 +62,6 @@
   --radius-2xl: 16px;
   --radius-full: 9999px;
 
-  /* ────────────────────────────────────────────────────────────
-   * variables.size.*  (Figma `size/sm|md|lg|2xl` — 아이콘)
-   * ──────────────────────────────────────────────────────────── */
-  --size-icon-sm: 16px;
-  --size-icon-md: 20px;
-  --size-icon-lg: 24px;
-  --size-icon-2xl: 32px;
-
-  /* ────────────────────────────────────────────────────────────
-   * variables.spacing.*  (Figma `spacing/1|2|3|4|6|8|10` + 코드 유틸)
-   * ──────────────────────────────────────────────────────────── */
   --spacing-1: 4px;
   --spacing-2: 8px;
   --spacing-3: 12px;
@@ -153,423 +75,426 @@
   --spacing-12: 48px;
   --spacing-16: 64px;
 
-  /* ────────────────────────────────────────────────────────────
-   * system.layout (design_tokens.json $.system.layout.content-max-width)
-   * ──────────────────────────────────────────────────────────── */
+  --size-sm: 16px;
+  --size-md: 20px;
+  --size-lg: 24px;
+  --size-2xl: 32px;
+
+  --text-h1: 28px;
+  --text-h2: 20px;
+  --text-h3: 18px;
+  --text-body: 16px;
+  --text-caption: 14px;
+  --text-small: 12px;
+
+  --font-size-h1: var(--text-h1);
+  --font-size-h2: var(--text-h2);
+  --font-size-h3: var(--text-h3);
+  --font-size-body: var(--text-body);
+  --font-size-caption: var(--text-caption);
+  --font-size-small: var(--text-small);
+
+  --font-family-body: var(--font-noto-sans-kr), ui-sans-serif, system-ui, sans-serif;
+  --font-family-logo: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --elevation-sm-x: 0;
+  --elevation-sm-y: 1px;
+  --elevation-sm-blur: var(--ref-elevation-sm-blur);
+  --elevation-sm-color: var(--ref-elevation-sm-color);
+  --elevation-md-x: 0;
+  --elevation-md-y: 4px;
+  --elevation-md-blur: var(--ref-elevation-md-blur);
+  --elevation-md-color: var(--ref-elevation-md-color);
+
+  --semantic-bg-default: var(--color-background-primary);
+  --semantic-bg-surface: var(--color-background-surface);
+  --semantic-text-default: var(--color-text-primary);
+  --semantic-text-muted: var(--color-text-secondary);
+  --semantic-action-primary: var(--color-primary-default);
+  --semantic-action-primary-hover: var(--color-primary-hover);
+  --semantic-action-secondary: var(--color-secondary-default);
+  --semantic-action-secondary-hover: var(--color-secondary-hover);
+  --semantic-border-default: var(--color-border-subtle);
+  --semantic-border-accent: var(--color-border-accent);
+  --semantic-shadow-sm: var(--elevation-sm-x) var(--elevation-sm-y) var(--elevation-sm-blur) var(--elevation-sm-color);
+  --semantic-shadow-md: var(--elevation-md-x) var(--elevation-md-y) var(--elevation-md-blur) var(--elevation-md-color);
+
   --layout-content-max-width: 1200px;
+  --card-gap: 12px;
+  --card-padding: 16px;
+  --card-radius: 12px;
+  --card-elevation: var(--semantic-shadow-md);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* variables.color.dark */
-    --color-background-primary: #060809;
-    --color-background-surface: #111827;
-    --color-background-placeholder: #1f2937;
+.theme-light,
+:root {
+  --ref-color-background-primary: #fafaf9;
+  --ref-color-background-surface: #ffffff;
+  --ref-color-background-placeholder: #f5f5f4;
+  --ref-color-primary-default: #c2410c;
+  --ref-color-primary-hover: #9a3412;
+  --ref-color-primary-inactive: #d4d4d4;
+  --ref-color-secondary-default: #fafaf9;
+  --ref-color-secondary-hover: #ffffff;
+  --ref-color-text-primary: #1c1a17;
+  --ref-color-text-secondary: #575352;
+  --ref-color-text-caption: #9ca3af;
+  --ref-color-text-placeholder: #737373;
+  --ref-color-text-disabled: #a3a3a3;
+  --ref-color-text-accent: #c2410c;
+  --ref-color-border-accent: #c2410c;
+  --ref-color-border-subtle: #e5e5e5;
+  --ref-color-border-muted: #f5f5f4;
+  --ref-color-chip-default: #fafaf9;
+  --ref-color-chip-hover: #f5f5f4;
+  --ref-color-dropdown-selected-default: #fff7ed;
+  --ref-color-dropdown-selected-hover: #f8f0e6;
+  --ref-color-dropdown-unselected-default: #ffffff;
+  --ref-color-dropdown-unselected-hover: #fafaf9;
+  --ref-color-indicator-inactive: #d4d4d4;
+  --ref-color-on-primary: #ffffff;
+  --ref-color-on-secondary: #575352;
+  --ref-color-tag-accent: #fff7ed;
+  --ref-color-tag-default: #fafaf9;
+  --ref-color-tab-active: #c2410c;
+  --ref-color-tab-inactive: #737373;
+  --ref-color-toggle-selected-default: #c2410c;
+  --ref-color-toggle-selected-hover: #9a3412;
+  --ref-color-toggle-unselected-default: #fafaf9;
+  --ref-color-toggle-unselected-hover: #f5f5f4;
+  --ref-color-scrollbar-thumb: #d4d4d4cc;
+  --ref-color-provider-google-primary: #f2f2f2;
+  --ref-color-provider-google-on-primary: #1f1f1f;
+  --ref-color-provider-kakao-primary: #fee500;
+  --ref-color-provider-kakao-on-primary: #000000d9;
+  --ref-color-provider-naver-primary: #03a94d;
+  --ref-color-provider-naver-on-primary: #ffffff;
+  --ref-color-ext-border: #8a8480;
+  --ref-color-ext-link: #2b6ba3;
+  --ref-color-ext-link-hover: #1e4d7a;
+  --ref-color-ext-success: #15803d;
+  --ref-color-ext-error: #b91c1c;
+  --ref-color-ext-warning: #92400e;
+  --ref-color-ext-info: #2b6ba3;
+  --ref-elevation-sm-blur: 2px;
+  --ref-elevation-sm-color: rgba(15, 23, 42, 0.06);
+  --ref-elevation-md-blur: 8px;
+  --ref-elevation-md-color: rgba(15, 23, 42, 0.08);
+}
 
-    --color-border-accent: #fb923c;
-    --color-border-subtle: #334155;
-    /* border-muted/chip-hover/toggle-unselected-hover — aliasOf background-placeholder (자동 반영) */
+.dark {
+  --ref-color-background-primary: #060809;
+  --ref-color-background-surface: #111827;
+  --ref-color-background-placeholder: #1f2937;
+  --ref-color-primary-default: #c2410c;
+  --ref-color-primary-hover: #9a3412;
+  --ref-color-primary-inactive: #52525b;
+  --ref-color-secondary-default: #1f2937;
+  --ref-color-secondary-hover: #334155;
+  --ref-color-text-primary: #f9fafb;
+  --ref-color-text-secondary: #d1d5db;
+  --ref-color-text-caption: #9ca3af;
+  --ref-color-text-placeholder: #a3a3a3;
+  --ref-color-text-disabled: #6b7280;
+  --ref-color-text-accent: #fb923c;
+  --ref-color-border-accent: #fb923c;
+  --ref-color-border-subtle: #334155;
+  --ref-color-border-muted: #1f2937;
+  --ref-color-chip-default: #111827;
+  --ref-color-chip-hover: #1f2937;
+  --ref-color-dropdown-selected-default: #422006;
+  --ref-color-dropdown-selected-hover: #5c2d0e;
+  --ref-color-dropdown-unselected-default: #111827;
+  --ref-color-dropdown-unselected-hover: #1f2937;
+  --ref-color-indicator-inactive: #52525b;
+  --ref-color-on-primary: #ffffff;
+  --ref-color-on-secondary: #d1d5db;
+  --ref-color-tag-accent: #422006;
+  --ref-color-tag-default: #1f2937;
+  --ref-color-tab-active: #fb923c;
+  --ref-color-tab-inactive: #a3a3a3;
+  --ref-color-toggle-selected-default: #c2410c;
+  --ref-color-toggle-selected-hover: #9a3412;
+  --ref-color-toggle-unselected-default: #111827;
+  --ref-color-toggle-unselected-hover: #1f2937;
+  --ref-color-scrollbar-thumb: #52525bcc;
+  --ref-color-provider-google-primary: #f2f2f2;
+  --ref-color-provider-google-on-primary: #1f1f1f;
+  --ref-color-provider-kakao-primary: #fee500;
+  --ref-color-provider-kakao-on-primary: #000000d9;
+  --ref-color-provider-naver-primary: #03a94d;
+  --ref-color-provider-naver-on-primary: #ffffff;
+  --ref-color-ext-border: #64748b;
+  --ref-color-ext-link: #60a5fa;
+  --ref-color-ext-link-hover: #93c5fd;
+  --ref-color-ext-success: #22c55e;
+  --ref-color-ext-error: #f97373;
+  --ref-color-ext-warning: #fbbf24;
+  --ref-color-ext-info: #60a5fa;
+  --ref-elevation-sm-blur: 3px;
+  --ref-elevation-sm-color: rgba(0, 0, 0, 0.45);
+  --ref-elevation-md-blur: 12px;
+  --ref-elevation-md-color: rgba(0, 0, 0, 0.5);
+}
 
-    /* chip.default 는 dark 에서 aliasOf background.surface */
-    --color-chip-default: var(--color-background-surface);
-
-    --color-dropdown-selected-default: #422006;
-    --color-dropdown-selected-hover: #5c2d0e;
-    /* dropdown.unselected.default 는 dark 에서 aliasOf background.surface */
-    --color-dropdown-unselected-default: var(--color-background-surface);
-    /* dropdown.unselected.hover 는 dark 에서 aliasOf background.placeholder
-       (라이트는 background.primary alias 라 override 필요) */
-    --color-dropdown-unselected-hover: var(--color-background-placeholder);
-
-    --color-indicator-inactive: #52525b;
-    /* primary-inactive 는 aliasOf indicator-inactive (자동 반영) */
-
-    --color-on-primary: #ffffff;
-    --color-on-secondary: #d1d5db;
-
-    --color-primary-default: #c2410c;
-    --color-primary-hover: #9a3412;
-
-    --color-scrollbar-thumb: #52525bcc;
-
-    /* dark 에서 secondary.default 는 실제 값 (light 의 aliasOf 해제) */
-    --color-secondary-default: #1f2937;
-    --color-secondary-hover: #334155;
-
-    /* tab.active 는 dark 에서 aliasOf text.accent */
-    --color-tab-active: var(--color-text-accent);
-    --color-tab-inactive: #a3a3a3;
-
-    --color-tag-accent: #422006;
-    /* tag.default 는 dark 에서 aliasOf secondary.default */
-    --color-tag-default: var(--color-secondary-default);
-
-    --color-text-accent: #fb923c;
-    --color-text-caption: #9ca3af;
-    --color-text-disabled: #6b7280;
-    --color-text-placeholder: #a3a3a3;
-    --color-text-primary: #f9fafb;
-    --color-text-secondary: #d1d5db;
-
-    /* toggle.unselected.default 는 dark 에서 aliasOf background.surface
-       (라이트 background.primary alias 라 override 필요)
-       toggle.selected-*, toggle.unselected.hover 는 aliasOf 자동 반영 */
-    --color-toggle-unselected-default: var(--color-background-surface);
-
-    /* variables.color.dark.extensions */
-    --ext-border: #64748b;
-    --ext-brand-secondary: #84cc16;
-    --ext-text-link: #60a5fa;
-    --ext-text-link-hover: #93c5fd;
-    --ext-state-success: #22c55e;
-    --ext-state-error: #f97373;
-    --ext-state-warning: #fbbf24;
-    --ext-state-info: #60a5fa;
-
-    /* styles.elevation.dark.* — 원자만 override → styles 블록의 shadow-sm/md가 자동 반영 */
-    --elevation-sm-y: 1px;
-    --elevation-sm-blur: 3px;
-    --elevation-sm-color: rgba(0, 0, 0, 0.45);
-    --elevation-md-y: 4px;
-    --elevation-md-blur: 12px;
-    --elevation-md-color: rgba(0, 0, 0, 0.5);
+@layer base {
+  body {
+    background: var(--semantic-bg-default);
+    color: var(--semantic-text-default);
+    font-family: var(--font-family-body, Arial, Helvetica, sans-serif);
+    font-size: var(--text-body);
+    line-height: 24px;
+    font-weight: var(--font-weight-regular);
   }
 }
 
-/**
- * Tailwind @theme inline — (A) variables 미러, (B) styles 전부.
- * 규칙:
- *   1) :root 에는 variables.* 원자만. styles.* 는 아래 (B) 블록에만.
- *   2) (A) 는 Tailwind 유틸 등록용 미러(radius/spacing 등). 값은 :root 참조.
- *   3) 기존 코드 호환 별칭(bg-primary 등)은 (B) 에 유지.
- */
-@theme inline {
-  /* ─── A. variables → Tailwind 테마 미러 (design_tokens $.variables) ─── */
-  --font-sans: var(--font-family-body);
-  --font-logo: var(--font-family-logo);
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+@layer utilities {
+  .hide-native-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 
-  /* variables.radius.* — :root canonical 참조 */
-  --radius-sm: var(--radius-sm);
-  --radius-md: var(--radius-md);
-  --radius-lg: var(--radius-lg);
-  --radius-xl: var(--radius-xl);
-  --radius-2xl: var(--radius-2xl);
-  --radius-full: var(--radius-full);
-
-  /* variables.spacing.* — :root canonical 참조 */
-  --spacing-1: var(--spacing-1);
-  --spacing-2: var(--spacing-2);
-  --spacing-3: var(--spacing-3);
-  --spacing-4: var(--spacing-4);
-  --spacing-5: var(--spacing-5);
-  --spacing-6: var(--spacing-6);
-  --spacing-7: var(--spacing-7);
-  --spacing-8: var(--spacing-8);
-  --spacing-10: var(--spacing-10);
-  --spacing-11: var(--spacing-11);
-  --spacing-12: var(--spacing-12);
-  --spacing-16: var(--spacing-16);
-
-  /* variables.size.* (아이콘) — :root canonical 참조 */
-  --size-icon-sm: var(--size-icon-sm);
-  --size-icon-md: var(--size-icon-md);
-  --size-icon-lg: var(--size-icon-lg);
-  --size-icon-2xl: var(--size-icon-2xl);
-
-  /* variables.typography.fontWeight — :root canonical 참조 */
-  --font-weight-regular: var(--font-weight-regular);
-  --font-weight-medium: var(--font-weight-medium);
-  --font-weight-semibold: var(--font-weight-semibold);
-  --font-weight-bold: var(--font-weight-bold);
-}
-
-@theme styles {
-  /* ─── B. styles (design_tokens $.styles — color / typography / elevation) ─── */
-
-  /* styles.color.* — 전역 면·텍스트 (Tailwind color-* 유틸) */
-  --color-background: var(--color-background-primary);
-  --color-surface: var(--color-background-surface);
-  --color-foreground: var(--color-text-primary);
-  --color-placeholder-surface: var(--color-background-placeholder);
-
-  /* Figma styles.color.text.* */
-  --color-text-primary: var(--color-text-primary);
-  --color-text-secondary: var(--color-text-secondary);
-  --color-text-accent: var(--color-text-accent);
-  --color-text-caption: var(--color-text-caption);
-  --color-text-placeholder: var(--color-text-placeholder);
-  --color-text-disabled: var(--color-text-disabled);
-  --color-muted: var(--color-text-secondary);
-  --color-caption: var(--color-text-caption);
-
-  /* Figma styles.color.action.primary */
-  --color-primary: var(--color-primary-default);
-  --color-primary-hover: var(--color-primary-hover);
-  --color-primary-inactive: var(--color-primary-inactive);
-  --color-on-primary: var(--color-on-primary);
-
-  /* Figma styles.color.action.secondary — bg-secondary · text-on-secondary · hover:bg-secondary-hover */
-  --color-secondary: var(--color-secondary-default);
-  --color-secondary-hover: var(--color-secondary-hover);
-  --color-on-secondary: var(--color-on-secondary);
-
-  /* Figma styles.color.tab */
-  --color-tab-active: var(--color-tab-active);
-  --color-tab-inactive: var(--color-tab-inactive);
-
-  /* Figma styles.color.border */
-  --color-border: var(--ext-border);
-  --color-border-default: var(--ext-border);
-  --color-border-accent: var(--color-border-accent);
-  --color-border-subtle: var(--color-border-subtle);
-  --color-border-muted: var(--color-border-muted);
-
-  /* Figma styles.color.chip */
-  --color-chip: var(--color-chip-default);
-  --color-chip-hover: var(--color-chip-hover);
-
-  /* Figma styles.color.indicator */
-  --color-indicator-inactive: var(--color-indicator-inactive);
-
-  /* Figma styles.color.toggle — 기존 -surface 접미사 없는 짧은 별칭 유지 */
-  --color-toggle-selected: var(--color-toggle-selected-default);
-  --color-toggle-selected-hover: var(--color-toggle-selected-hover);
-  --color-toggle-unselected: var(--color-toggle-unselected-default);
-  --color-toggle-unselected-hover: var(--color-toggle-unselected-hover);
-
-  /* Figma styles.color.dropdown */
-  --color-dropdown-selected: var(--color-dropdown-selected-default);
-  --color-dropdown-selected-hover: var(--color-dropdown-selected-hover);
-  --color-dropdown-unselected: var(--color-dropdown-unselected-default);
-  --color-dropdown-unselected-hover: var(--color-dropdown-unselected-hover);
-
-  /* Figma styles.color.tag */
-  --color-tag-accent: var(--color-tag-accent);
-  --color-tag-default: var(--color-tag-default);
-
-  /* Figma styles.color.scrollbar */
-  --color-scrollbar-thumb: var(--color-scrollbar-thumb);
-
-  /* Figma styles.color.login.* (variables.color.*.provider) */
-  --color-provider-kakao-primary: var(--color-provider-kakao-primary);
-  --color-provider-kakao-on-primary: var(--color-provider-kakao-on-primary);
-  --color-provider-naver-primary: var(--color-provider-naver-primary);
-  --color-provider-naver-on-primary: var(--color-provider-naver-on-primary);
-  --color-provider-google-primary: var(--color-provider-google-primary);
-  --color-provider-google-on-primary: var(--color-provider-google-on-primary);
-
-  /* extensions → Tailwind 유틸 */
-  --color-success: var(--ext-state-success);
-  --color-error: var(--ext-state-error);
-  --color-warning: var(--ext-state-warning);
-  --color-info: var(--ext-state-info);
-  --color-text-link: var(--ext-text-link);
-  --color-text-link-hover: var(--ext-text-link-hover);
-
-  /* styles.typography.* — 폰트 스케일은 `.typography-*` 클래스 사용 (Tailwind text-h1 등 숏컷 없음) */
-
-  /* styles.elevation.* — shadow-* / card (variables.elevation 원자 조합 + large 프리셋) */
-  --shadow-sm:
-    var(--elevation-sm-x) var(--elevation-sm-y) var(--elevation-sm-blur)
-    var(--elevation-sm-color);
-  --shadow-md:
-    var(--elevation-md-x) var(--elevation-md-y) var(--elevation-md-blur)
-    var(--elevation-md-color);
-  --shadow-lg: 0 10px 15px rgba(15, 23, 42, 0.12);
-  --card-elevation: var(--shadow-md);
-}
-
-@media (prefers-color-scheme: dark) {
-  @theme inline {
-    /* styles.elevation.dark.large — 라이트 전용 --shadow-lg 덮어씀 */
-    --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.55);
+  .hide-native-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 }
 
-body {
-  background: var(--color-background-primary);
-  color: var(--color-text-primary);
-  font-family: var(--font-family-body, Arial, Helvetica, sans-serif);
-  font-size: var(--font-size-body);
-  line-height: 24px;
-  font-weight: var(--font-weight-regular);
-}
+@layer components {
+  h1,
+  .typo-h1,
+  .typography-h1 {
+    font-family: var(--font-family-body);
+    font-size: var(--text-h1);
+    line-height: 42px;
+    font-weight: var(--font-weight-bold);
+  }
 
-/**
- * 모든 input: 시각적 세로 정렬 보정용 상단 패딩.
- * Tailwind 등에서 pt/py를 지정하면 해당 유틸이 이 값을 덮어씁니다.
- */
-input {
-  padding-top: 0.5px;
-}
+  h2,
+  .typo-h2,
+  .typography-h2 {
+    font-family: var(--font-family-body);
+    font-size: var(--text-h2);
+    line-height: 30px;
+    font-weight: var(--font-weight-bold);
+  }
 
-.hide-native-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+  h3,
+  .typo-h3,
+  .typography-h3 {
+    font-family: var(--font-family-body);
+    font-size: var(--text-h3);
+    line-height: 27px;
+    font-weight: var(--font-weight-bold);
+  }
 
-.hide-native-scrollbar::-webkit-scrollbar {
-  display: none;
-}
+  .typo-body-regular,
+  .typography-body-regular {
+    font-family: var(--font-family-body);
+    font-size: var(--text-body);
+    line-height: 24px;
+    font-weight: var(--font-weight-regular);
+  }
 
-/**
- * styles.typography.* — Figma 텍스트 스타일 프리셋.
- * 규칙 1개가 Figma 1 스타일에 대응. letter-spacing 은 Figma 정의가 0 → 생략.
- * 시맨틱 태그(h1~h3, figcaption, small, body)는 globals에서 선언,
- * 그 외는 `.typography-<fig-slug>` 클래스로 제공.
- */
-h1,
-.typography-h1 {
-  font-family: inherit;
-  font-size: var(--font-size-h1);
-  line-height: 42px;
-  font-weight: var(--font-weight-bold);
-}
+  .typo-body-medium,
+  .typography-body-medium {
+    font-family: var(--font-family-body);
+    font-size: var(--text-body);
+    line-height: 24px;
+    font-weight: var(--font-weight-medium);
+  }
 
-h2,
-.typography-h2 {
-  font-family: inherit;
-  font-size: var(--font-size-h2);
-  line-height: 30px;
-  font-weight: var(--font-weight-bold);
-}
+  .typo-body-bold,
+  .typography-body-bold {
+    font-family: var(--font-family-body);
+    font-size: var(--text-body);
+    line-height: 24px;
+    font-weight: var(--font-weight-bold);
+  }
 
-h3,
-.typography-h3 {
-  font-family: inherit;
-  font-size: var(--font-size-h3);
-  line-height: 27px;
-  font-weight: var(--font-weight-bold);
-}
+  .typo-caption-regular,
+  .typography-caption-regular {
+    font-family: var(--font-family-body);
+    font-size: var(--text-caption);
+    line-height: 21px;
+    font-weight: var(--font-weight-regular);
+  }
 
-figcaption,
-.typography-caption,
-.typography-caption-regular {
-  font-family: inherit;
-  font-size: var(--font-size-caption);
-  line-height: 21px;
-  font-weight: var(--font-weight-regular);
-}
+  .typo-card-body,
+  .typography-card-body {
+    font-family: var(--font-family-body);
+    font-size: var(--text-caption);
+    line-height: 21px;
+    font-weight: var(--font-weight-regular);
+  }
 
-.typography-caption-medium {
-  font-family: inherit;
-  font-size: var(--font-size-caption);
-  line-height: 21px;
-  font-weight: var(--font-weight-medium);
-}
+  .typo-card-caption,
+  .typography-card-caption {
+    font-family: var(--font-family-body);
+    font-size: var(--text-small);
+    line-height: 16px;
+    font-weight: var(--font-weight-medium);
+  }
 
-small,
-.typography-small {
-  font-family: inherit;
-  font-size: var(--font-size-small);
-  line-height: 16px;
-  font-weight: var(--font-weight-regular);
-}
+  .typo-card-heading,
+  .typography-card-heading {
+    font-family: var(--font-family-body);
+    font-size: var(--text-h3);
+    line-height: 27px;
+    font-weight: var(--font-weight-medium);
+  }
 
-.typography-body,
-.typography-body-regular {
-  font-family: inherit;
-  font-size: var(--font-size-body);
-  line-height: 24px;
-  font-weight: var(--font-weight-regular);
-}
+  .typo-label-button,
+  .typography-label-button {
+    font-family: var(--font-family-body);
+    font-size: var(--text-body);
+    line-height: 24px;
+    font-weight: var(--font-weight-bold);
+  }
 
-.typography-body-medium {
-  font-family: inherit;
-  font-size: var(--font-size-body);
-  line-height: 24px;
-  font-weight: var(--font-weight-medium);
-}
+  .typo-label-dropdown,
+  .typography-label-dropdown {
+    font-family: var(--font-family-body);
+    font-size: var(--text-caption);
+    line-height: 21px;
+    font-weight: var(--font-weight-medium);
+  }
 
-.typography-body-bold,
-.typography-body-accent {
-  font-family: inherit;
-  font-size: var(--font-size-body);
-  line-height: 24px;
-  font-weight: var(--font-weight-bold);
-}
+  .typo-label-tab,
+  .typography-label-tab {
+    font-family: var(--font-family-body);
+    font-size: var(--text-small);
+    line-height: 16px;
+    font-weight: var(--font-weight-medium);
+  }
 
-.typography-card-body {
-  font-family: inherit;
-  font-size: var(--font-size-caption);
-  line-height: 21px;
-  font-weight: var(--font-weight-regular);
-}
+  .typo-label-toggle,
+  .typography-label-toggle {
+    font-family: var(--font-family-body);
+    font-size: var(--text-body);
+    line-height: 24px;
+    font-weight: var(--font-weight-medium);
+  }
 
-.typography-card-caption {
-  font-family: inherit;
-  font-size: var(--font-size-small);
-  line-height: 16px;
-  font-weight: var(--font-weight-medium);
-}
+  .typo-logo-large,
+  .typography-logo-large {
+    font-family: var(--font-family-logo);
+    font-size: 32px;
+    line-height: 42px;
+    font-weight: 800;
+  }
 
-.typography-card-heading,
-.typography-card-section-heading {
-  font-family: inherit;
-  font-size: var(--font-size-h3);
-  line-height: 27px;
-  font-weight: var(--font-weight-medium);
-}
+  .typo-logo-small,
+  .typography-logo-small {
+    font-family: var(--font-family-logo);
+    font-size: 20px;
+    line-height: 31px;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
 
-.typography-label-button {
-  font-family: inherit;
-  font-size: var(--font-size-body);
-  line-height: 24px;
-  font-weight: var(--font-weight-bold);
-}
+  .typo-search-bar-value,
+  .typography-search-bar-value {
+    font-family: var(--font-family-body);
+    font-size: var(--text-body);
+    line-height: 24px;
+    font-weight: var(--font-weight-medium);
+  }
 
-.typography-label-dropdown {
-  font-family: inherit;
-  font-size: var(--font-size-caption);
-  line-height: 21px;
-  font-weight: var(--font-weight-medium);
-}
+  .typo-small,
+  .typography-small {
+    font-family: var(--font-family-body);
+    font-size: var(--text-small);
+    line-height: 16px;
+    font-weight: var(--font-weight-regular);
+  }
 
-.typography-label-tab,
-.typography-tab {
-  font-family: inherit;
-  font-size: var(--font-size-small);
-  line-height: 16px;
-  font-weight: var(--font-weight-medium);
-}
+  .style-text-primary {
+    color: var(--color-text-primary);
+  }
 
-.typography-label-toggle {
-  font-family: inherit;
-  font-size: var(--font-size-body);
-  line-height: 24px;
-  font-weight: var(--font-weight-medium);
-}
+  .style-text-secondary {
+    color: var(--color-text-secondary);
+  }
 
-.typography-search-bar-value {
-  font-family: inherit;
-  font-size: var(--font-size-body);
-  line-height: 24px;
-  font-weight: var(--font-weight-medium);
-}
+  .style-text-accent {
+    color: var(--color-text-accent);
+  }
 
-.typography-logo-large {
-  font-family: var(--font-family-logo);
-  font-size: 32px;
-  line-height: 42px;
-  font-weight: 800;
-}
+  .style-text-caption {
+    color: var(--color-text-caption);
+  }
 
-.typography-logo-small {
-  font-family: var(--font-family-logo);
-  font-size: 20px;
-  line-height: 31px;
-  font-weight: 800;
-}
+  .style-text-disabled {
+    color: var(--color-text-disabled);
+  }
 
-/**
- * component.* — design_tokens.json $.component 앱 규칙 유틸.
- * touch-target-icon: design_principle platform.touchTargetMinPx 44.
- */
-@utility touch-target-icon {
-  @apply inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-toggle-unselected-hover focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary;
-}
+  .style-text-placeholder {
+    color: var(--color-text-placeholder);
+  }
 
-@utility card {
-  @apply gap-(--card-gap) rounded-(--card-radius) bg-surface p-(--card-padding) shadow-(--card-elevation);
+  .style-text-button-primary {
+    color: var(--color-on-primary);
+  }
+
+  .style-text-button-secondary {
+    color: var(--color-on-secondary);
+  }
+
+  .style-text-dropdown-active {
+    color: var(--color-text-accent);
+  }
+
+  .style-text-dropdown-inactive {
+    color: var(--color-text-primary);
+  }
+
+  .style-text-tab-active {
+    color: var(--color-tab-active);
+  }
+
+  .style-text-tab-inactive {
+    color: var(--color-tab-inactive);
+  }
+
+  .style-text-toggle-active {
+    color: var(--color-on-primary);
+  }
+
+  .style-text-toggle-inactive {
+    color: var(--color-text-secondary);
+  }
+
+  .touch-target-icon {
+    display: inline-flex;
+    width: var(--spacing-11);
+    height: var(--spacing-11);
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-lg);
+    color: var(--semantic-text-default);
+    transition: background-color 150ms ease;
+  }
+
+  .touch-target-icon:hover {
+    background: var(--color-toggle-unselected-hover);
+  }
+
+  .touch-target-icon:focus-visible {
+    outline: var(--border-width-focus) solid var(--color-primary-default);
+    outline-offset: 2px;
+  }
+
+  .card {
+    display: flex;
+    gap: var(--card-gap);
+    border-radius: var(--card-radius);
+    background: var(--color-background-surface);
+    padding: var(--card-padding);
+    box-shadow: var(--card-elevation);
+  }
 }
