@@ -57,7 +57,7 @@ export const WithStartAdornment: Story = {
   args: {
     placeholder: "검색어를 입력해 주세요",
     startAdornment: (
-      <Search className="size-full text-text-placeholder" strokeWidth={2} />
+      <Search className="size-full style-text-placeholder" strokeWidth={2} />
     ),
   },
 };
@@ -71,7 +71,7 @@ export const WithEndClearButton: Story = {
       <button
         type="button"
         aria-label="지우기"
-        className="inline-flex size-5 items-center justify-center text-text-placeholder"
+        className="inline-flex size-5 items-center justify-center style-text-placeholder"
       >
         <X className="size-full" strokeWidth={2} aria-hidden />
       </button>

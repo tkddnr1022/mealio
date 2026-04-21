@@ -5,7 +5,7 @@ import { MainContent } from "@/components/layout/MainContent";
 import { Navbar } from "@/components/layout/Navbar";
 
 const figmaMobileFrame = (Story: () => ReactNode) => (
-  <div className="mx-auto flex h-[640px] w-full max-w-[400px] flex-col border border-border-subtle bg-background shadow-md">
+  <div className="mx-auto flex h-[640px] w-full max-w-[400px] flex-col border border-border-subtle bg-background-primary shadow-md">
     <Story />
   </div>
 );
@@ -34,8 +34,8 @@ export const WithPlaceholder: Story = {
   decorators: [figmaMobileFrame],
   render: (args) => (
     <MainContent {...args}>
-      <div className="text-text-secondary">
-        <p className="typography-body">본문이 여기 들어갑니다.</p>
+      <div className="style-text-secondary">
+        <p className="typo-body-regular">본문이 여기 들어갑니다.</p>
       </div>
     </MainContent>
   ),
@@ -48,7 +48,7 @@ export const Scrollable: Story = {
     <MainContent {...args}>
       <ul className="divide-y divide-border-subtle px-4 py-2">
         {Array.from({ length: 24 }, (_, i) => (
-          <li key={i} className="py-3 typography-body text-text-primary">
+          <li key={i} className="py-3 typo-body-regular style-text-primary">
             레시피 카드 영역 {i + 1}
           </li>
         ))}
@@ -63,7 +63,7 @@ export const NoPadding: Story = {
   args: { paddingX: false, paddingY: false },
   render: (args) => (
     <MainContent {...args}>
-      <div className="bg-surface px-4 py-3 typography-body text-text-primary">
+      <div className="bg-background-surface px-4 py-3 typo-body-regular style-text-primary">
         `paddingX={false}` · `paddingY={false}`이면 기본 px-4/py-6이 빠집니다.
       </div>
     </MainContent>
@@ -76,7 +76,7 @@ export const PaddingXOff: Story = {
   args: { paddingX: false, paddingY: true },
   render: (args) => (
     <MainContent {...args}>
-      <div className="h-24 w-full bg-primary/10 typography-body text-text-primary">
+      <div className="h-24 w-full bg-primary-default/10 typo-body-regular style-text-primary">
         좌우는 끝까지, 세로는 `py-6` 유지.
       </div>
     </MainContent>
@@ -87,7 +87,7 @@ export const WithNavbarShell: Story = {
   name: "Navbar + MainContent (앱 셸)",
   decorators: [
     (Story) => (
-      <div className="mx-auto flex min-h-screen w-full max-w-[400px] flex-col bg-background">
+      <div className="mx-auto flex min-h-screen w-full max-w-[400px] flex-col bg-background-primary">
         <Navbar variant="Empty" />
         <Story />
       </div>
@@ -96,8 +96,8 @@ export const WithNavbarShell: Story = {
   render: (args) => (
     <MainContent {...args}>
       <div>
-        <h2 className="typography-h2">오늘의 추천</h2>
-        <p className="mt-2 typography-body text-text-secondary">
+        <h2 className="typo-h2">오늘의 추천</h2>
+        <p className="mt-2 typo-body-regular style-text-secondary">
           상단 Navbar 아래 영역이 본문으로 채워집니다.
         </p>
       </div>
@@ -111,9 +111,9 @@ export const Centered: Story = {
   args: { centered: true },
   render: (args) => (
     <MainContent {...args}>
-      <div className="w-full max-w-[280px] rounded-xl border border-border-subtle bg-surface p-4 text-center shadow-sm">
-        <p className="typography-body text-text-primary">중앙 정렬된 카드</p>
-        <p className="mt-2 typography-caption">
+      <div className="w-full max-w-[280px] rounded-xl border border-border-subtle bg-background-surface p-4 text-center shadow-sm">
+        <p className="typo-body-regular style-text-primary">중앙 정렬된 카드</p>
+        <p className="typo-caption-regular mt-2 style-text-caption">
           `centered`가 true면 내부 스택에 `justify-center items-center`가 적용됩니다.
         </p>
       </div>

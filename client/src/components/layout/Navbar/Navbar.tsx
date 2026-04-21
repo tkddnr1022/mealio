@@ -75,14 +75,14 @@ export function Navbar({
   return (
     <header
       role="banner"
-      className={cn("z-40 border-b border-border-subtle bg-surface", className)}
+      className={cn("z-40 border-b border-border-subtle bg-background-surface", className)}
     >
       <div className="mx-auto grid h-12 w-full max-w-(--layout-content-max-width) grid-cols-[minmax(var(--spacing-11),1fr)_auto_minmax(var(--spacing-11),1fr)] items-center gap-2 px-2">
         <div className="flex justify-start">{leading}</div>
 
         {showTitle ? (
           <div className="flex min-w-0 max-w-[min(100vw-8rem,28rem)] items-center justify-center">
-            <h1 className="typography-logo-small truncate text-center text-text-primary">
+            <h1 className="typo-logo-small truncate text-center style-text-primary">
               {NAVBAR_LOGO_TEXT}
             </h1>
           </div>

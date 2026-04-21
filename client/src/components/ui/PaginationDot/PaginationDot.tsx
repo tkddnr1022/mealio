@@ -21,7 +21,7 @@ export function PaginationDot({
     <span
       className={cn(
         "inline-block shrink-0 rounded-full transition-[width,background-color] duration-200 ease-out",
-        active ? "h-2 w-6 bg-primary" : "size-2 bg-indicator-inactive",
+        active ? "h-2 w-6 bg-primary-default" : "size-2 bg-indicator-inactive",
         className,
       )}
       data-name="PaginationDot"

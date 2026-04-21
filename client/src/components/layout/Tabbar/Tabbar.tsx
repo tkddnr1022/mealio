@@ -62,13 +62,11 @@ function TabButton({
   return (
     <span className="relative flex shrink-0 flex-col items-center justify-center gap-1">
       <Icon
-        className={cn("size-6 shrink-0", selected ? "text-tab-active" : "text-tab-inactive")}
+        className={cn("size-6 shrink-0", selected ? "style-text-tab-active" : "style-text-tab-inactive")}
         strokeWidth={2}
         aria-hidden
       />
-      <span
-        className={cn("typography-label-tab", selected ? "text-tab-active" : "text-tab-inactive")}
-      >
+      <span className={cn("typo-label-tab", selected ? "style-text-tab-active" : "style-text-tab-inactive")}>
         {label}
       </span>
     </span>
@@ -78,7 +76,7 @@ function TabButton({
 export function Tabbar({ className = "", activeId, onSelect }: TabbarProps) {
   return (
     <nav
-      className={cn("w-full border-t border-border-subtle bg-surface", className)}
+      className={cn("w-full border-t border-border-subtle bg-background-surface", className)}
       aria-label="하단 탭"
     >
       <div className="mx-auto flex w-full max-w-(--layout-content-max-width) items-start gap-6 px-6 py-3">
@@ -88,7 +86,7 @@ export function Tabbar({ className = "", activeId, onSelect }: TabbarProps) {
             <TabButtonWrapper key={id}>
               <button
                 type="button"
-                className="flex px-1 min-h-11 flex-col items-center justify-center border-0 bg-transparent p-0 text-center transition-colors focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary"
+                className="flex px-1 min-h-11 flex-col items-center justify-center border-0 bg-transparent p-0 text-center transition-colors focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default"
                 aria-current={selected ? "page" : undefined}
                 onClick={() => onSelect(id)}
               >

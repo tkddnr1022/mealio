@@ -75,7 +75,7 @@ export const EmptyTotal: Story = {
     activeIndex: 0,
   },
   render: (args) => (
-    <div className="typography-caption flex min-h-[2rem] flex-col items-center justify-center gap-2 text-text-caption">
+    <div className="flex min-h-[2rem] flex-col items-center justify-center gap-2 typo-caption-regular style-text-caption">
       <SliderPagination {...args} />
       <span aria-live="polite">위 영역은 비어 있습니다 (null).</span>
     </div>

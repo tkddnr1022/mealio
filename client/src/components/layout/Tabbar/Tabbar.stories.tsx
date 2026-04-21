@@ -26,8 +26,8 @@ export const Interactive: Story = {
   render: function Render(args) {
     const [activeId, setActiveId] = useState<TabbarTabId>(args.activeId);
     return (
-      <div className="flex min-h-[200px] flex-col bg-background">
-        <div className="flex flex-1 items-center justify-center text-text-secondary">
+      <div className="flex min-h-[200px] flex-col bg-background-primary">
+        <div className="flex flex-1 items-center justify-center style-text-secondary">
           선택: {activeId}
         </div>
         <Tabbar

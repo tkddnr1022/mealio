@@ -26,7 +26,7 @@ export function SearchBarCard({
       data-name="SearchBarCard"
       {...rest}
     >
-      <h3 className="text-text-primary">{heading}</h3>
+      <h3 className="typo-card-heading style-text-primary">{heading}</h3>
       <SearchBar {...searchBarProps} />
     </section>
   );

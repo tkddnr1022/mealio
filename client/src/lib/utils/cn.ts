@@ -9,7 +9,7 @@ import { twMerge } from 'tailwind-merge';
  *
  * 사용 예:
  * ```ts
- * cn('px-2 py-1', condition && 'px-4', { 'text-red-500': hasError })
+ * cn('px-2 py-1', condition && 'px-4', { 'style-text-accent': hasError })
  * ```
  */
 export function cn(...inputs: ClassValue[]): string {

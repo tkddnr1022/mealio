@@ -38,8 +38,7 @@ export const SearchBarHeader = forwardRef<HTMLDivElement, SearchBarHeaderProps>(
     },
     ref
   ) {
-    const placeholder =
-      searchBarProps?.placeholder ?? "검색어를 입력해 주세요";
+    const placeholder = searchBarProps?.placeholder ?? "레시피 검색하기";
     const ariaLabel = searchBarProps?.["aria-label"] ?? placeholder;
     const isDisabled = disabled || !!searchBarProps?.disabled;
 
@@ -54,7 +53,7 @@ export const SearchBarHeader = forwardRef<HTMLDivElement, SearchBarHeaderProps>(
 
     /** 트리거 pill 배경·호버(Figma 헤더 검색) — SearchBar·Input과 동일 토큰 */
     const headerSearchBarSurfaceClassName = cn(
-      "bg-background",
+      "bg-background-primary",
       "transition-shadow",
       "hover:bg-toggle-unselected-hover",
       searchBarProps?.wrapperClassName,
@@ -65,7 +64,7 @@ export const SearchBarHeader = forwardRef<HTMLDivElement, SearchBarHeaderProps>(
       <div
         ref={ref}
         className={cn(
-          "flex w-full flex-col items-stretch bg-surface px-4 py-3 shadow-sm",
+          "flex w-full flex-col items-stretch bg-background-surface px-4 py-3 shadow-sm",
           className,
         )}
         {...rest}
@@ -76,7 +75,7 @@ export const SearchBarHeader = forwardRef<HTMLDivElement, SearchBarHeaderProps>(
           aria-label={ariaLabel}
           aria-disabled={isDisabled || undefined}
           className={cn(
-            "w-full rounded-full outline-none transition-shadow focus-visible:ring-(length:--border-width-focus) focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+            "w-full rounded-full outline-none transition-shadow focus-visible:ring-(length:--border-width-focus) focus-visible:ring-primary-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-primary",
             isDisabled ? "pointer-events-none cursor-not-allowed" : "cursor-pointer",
           )}
           onClick={isDisabled ? undefined : onClick}

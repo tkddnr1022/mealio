@@ -63,7 +63,7 @@ export function RecipeGridCard({
       data-name="RecipeGridCard"
       {...rest}
     >
-      <div className="w-full shrink-0 overflow-hidden rounded-xl bg-placeholder-surface">
+      <div className="w-full shrink-0 overflow-hidden rounded-xl bg-background-placeholder">
         <div className="relative aspect-square w-full">
           <Image
             alt={alt}
@@ -76,11 +76,11 @@ export function RecipeGridCard({
         </div>
       </div>
       <div className="flex w-full min-w-0 flex-col gap-1">
-        <h3 className="line-clamp-2 min-w-0 wrap-break-word text-text-primary">
+        <h3 className="line-clamp-2 min-w-0 wrap-break-word style-text-primary">
           {title}
         </h3>
         {metaLine ? (
-          <p className="typography-card-caption whitespace-normal text-text-caption">
+          <p className="typo-card-caption whitespace-normal style-text-caption">
             {metaLine}
           </p>
         ) : null}

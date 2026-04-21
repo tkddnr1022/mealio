@@ -13,7 +13,7 @@ export type AppRootFrameProps = Readonly<{
 export function AppRootFrame({ className = "", children }: AppRootFrameProps) {
   return (
     <div className={cn("flex h-screen w-full justify-center", className)}>
-      <div className="flex flex-col size-full max-w-[400px]">{children}</div>
+      <div className="flex flex-col size-full max-w-[400px] overflow-hidden">{children}</div>
     </div>
   );
 }

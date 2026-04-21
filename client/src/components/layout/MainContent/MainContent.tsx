@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils/cn";
 import { CustomScrollbar } from "@/components/ui/CustomScrollbar";
 
 /**
- * Figma `MainContent` (node 166:1227): Background/Primary → `bg-background`, 세로 플렉스 영역.
+ * Figma `MainContent` (node 166:1227): Background/Primary → `bg-background-primary`, 세로 플렉스 영역.
  * Navbar·하단 탭 사이 본문에 두면 `flex-1`·`min-h-0`로 남는 높이를 채우고 내부만 스크롤됩니다.
  */
 export type MainContentProps = Readonly<{
@@ -43,7 +43,7 @@ export function MainContent({
   );
 
   return (
-    <main className={cn("flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-background", className)}>
+    <main className={cn("flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-background-primary", className)}>
       {scroll ? (
         <CustomScrollbar className={innerClasses}>{children}</CustomScrollbar>
       ) : (

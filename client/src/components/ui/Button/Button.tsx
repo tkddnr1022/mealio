@@ -29,15 +29,15 @@ export function Button({
     "inline-flex w-full items-center justify-center px-4 outline-none transition-colors";
   const sizeClassName =
     size === "large"
-      ? "rounded-full py-3 typography-label-button"
-      : "rounded-xl py-3 typography-label-dropdown";
+      ? "rounded-full py-3 typo-label-button"
+      : "rounded-xl py-3 typo-label-dropdown";
 
   const toneClassName =
     variant === "primary"
       ? isDisabled
-        ? "bg-primary-inactive text-text-disabled"
-        : "bg-primary text-on-primary hover:bg-primary-hover"
-      : "bg-secondary text-on-secondary hover:bg-secondary-hover";
+        ? "bg-primary-inactive style-text-disabled"
+        : "bg-primary-default style-text-button-primary hover:bg-primary-hover"
+      : "bg-secondary-default style-text-button-secondary hover:bg-secondary-hover";
 
   return (
     <button

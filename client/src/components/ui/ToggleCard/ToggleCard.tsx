@@ -25,7 +25,7 @@ export function ToggleCard({
       data-name="ToggleCard"
       {...rest}
     >
-      <h3 className="text-text-primary">{heading}</h3>
+      <h3 className="typo-card-heading style-text-primary">{heading}</h3>
       <FlatRow>{children}</FlatRow>
     </section>
   );

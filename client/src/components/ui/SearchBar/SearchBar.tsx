@@ -105,7 +105,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
         wrapperClassName={wrapperClassName}
         startAdornment={
           <Search
-            className="size-full shrink-0 text-text-placeholder"
+            className="size-full shrink-0 style-text-placeholder"
             strokeWidth={2}
           />
         }
@@ -119,7 +119,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
               disabled={!hasText || disabled}
               onClick={handleClear}
               className={cn(
-                "inline-flex size-5 shrink-0 items-center justify-center overflow-hidden text-text-placeholder transition-colors focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none cursor-pointer",
+                "inline-flex size-5 shrink-0 items-center justify-center overflow-hidden style-text-placeholder transition-colors focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default disabled:pointer-events-none cursor-pointer",
                 !hasText && "invisible pointer-events-none",
               )}
             >

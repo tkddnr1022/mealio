@@ -25,7 +25,7 @@ export function LikeButton({
       onClick={onClick}
     >
       <Heart
-        className={cn("size-6", isFavorite && "fill-primary text-primary")}
+        className={cn("size-6", isFavorite && "fill-primary-default style-text-accent")}
         strokeWidth={2}
         aria-hidden
       />
