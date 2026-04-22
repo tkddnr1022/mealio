@@ -2,7 +2,7 @@ import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
 import { FilterDropdown } from "@/components/ui/dropdown/FilterDropdown";
 
 const figmaWidth: Decorator = (Story) => (
-  <div className="w-[min(100vw-2rem,10rem)]">
+  <div>
     <Story />
   </div>
 );
