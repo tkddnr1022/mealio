@@ -1,3 +1,4 @@
+import { ChevronDown, ChevronUp } from "lucide-react";
 import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
@@ -8,44 +9,6 @@ export type DropdownButtonProps = Readonly<
     open?: boolean;
   }
 >;
-
-function ChevronDownIcon() {
-  return (
-    <svg
-      viewBox="0 0 20 20"
-      fill="none"
-      aria-hidden
-      className="size-5 style-text-secondary"
-    >
-      <path
-        d="M6.667 8.333 10 11.667l3.333-3.334"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function ChevronUpIcon() {
-  return (
-    <svg
-      viewBox="0 0 20 20"
-      fill="none"
-      aria-hidden
-      className="size-5 style-text-secondary"
-    >
-      <path
-        d="M6.667 11.667 10 8.333l3.333 3.334"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 export function DropdownButton({
   className = "",
@@ -66,7 +29,11 @@ export function DropdownButton({
       {...rest}
     >
       <span>{children ?? label}</span>
-      {open ? <ChevronUpIcon /> : <ChevronDownIcon />}
+      {open ? (
+        <ChevronUp className="size-5 style-text-secondary" strokeWidth={2} aria-hidden />
+      ) : (
+        <ChevronDown className="size-5 style-text-secondary" strokeWidth={2} aria-hidden />
+      )}
     </button>
   );
 }
