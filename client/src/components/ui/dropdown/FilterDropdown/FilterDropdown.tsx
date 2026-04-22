@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { DropdownButton } from "@/components/ui/dropdown/DropdownButton";
 import {
   DropdownList,
@@ -12,7 +13,6 @@ export type FilterDropdownProps = Readonly<{
   options?: readonly DropdownOption[];
   selectedValue?: string;
   onSelect?: (option: DropdownOption) => void;
-  onToggle?: () => void;
 }>;
 
 export function FilterDropdown({
@@ -22,17 +22,27 @@ export function FilterDropdown({
   options,
   selectedValue,
   onSelect,
-  onToggle,
 }: FilterDropdownProps) {
+  const [isOpen, setIsOpen] = useState(open);
+
+  const handleToggle = () => {
+    setIsOpen((prev) => !prev);
+  };
+
+  const handleSelect = (option: DropdownOption) => {
+    onSelect?.(option);
+    setIsOpen(false);
+  };
+
   return (
     <div className={cn("relative flex w-[121px] flex-col items-end", className)}>
-      <DropdownButton label={label} open={open} onClick={onToggle} />
-      {open ? (
+      <DropdownButton label={label} open={isOpen} onClick={handleToggle} />
+      {isOpen ? (
         <DropdownList
           className="absolute top-10 right-0"
           options={options}
           selectedValue={selectedValue}
-          onSelect={onSelect}
+          onSelect={handleSelect}
         />
       ) : null}
     </div>
