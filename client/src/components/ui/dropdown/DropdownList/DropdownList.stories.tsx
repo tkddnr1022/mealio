@@ -1,8 +1,7 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import type { ReactNode } from "react";
+import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
 import { DropdownList } from "@/components/ui/dropdown/DropdownList";
 
-const figmaWidth = (Story: () => ReactNode) => (
+const figmaWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,10rem)]">
     <Story />
   </div>

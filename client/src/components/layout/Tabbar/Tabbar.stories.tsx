@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { useState } from "react";
+import { type ComponentProps, useState } from "react";
 import { fn } from "storybook/test";
 
 import { Tabbar, type TabbarTabId } from "@/components/layout/Tabbar";
@@ -21,9 +21,10 @@ const meta = {
 export default meta;
 
 type Story = StoryObj<typeof meta>;
+type TabbarStoryArgs = ComponentProps<typeof Tabbar>;
 
 export const Interactive: Story = {
-  render: function Render(args) {
+  render: function Render(args: TabbarStoryArgs) {
     const [activeId, setActiveId] = useState<TabbarTabId>(args.activeId);
     return (
       <div className="flex min-h-[200px] flex-col bg-background-primary">

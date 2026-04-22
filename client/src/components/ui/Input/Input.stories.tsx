@@ -1,11 +1,10 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import type { ReactNode } from "react";
+import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Search, X } from "lucide-react";
 import { fn } from "storybook/test";
 
 import { Input } from "@/components/ui/Input";
 
-const narrowWidth = (Story: () => ReactNode) => (
+const narrowWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,23rem)]">
     <Story />
   </div>

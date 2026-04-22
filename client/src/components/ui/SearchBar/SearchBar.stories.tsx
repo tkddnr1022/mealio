@@ -1,11 +1,10 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import type { ReactNode } from "react";
+import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn } from "storybook/test";
 
 import { Navbar } from "@/components/layout/Navbar";
 import { SearchBar } from "@/components/ui/SearchBar";
 
-const narrowWidth = (Story: () => ReactNode) => (
+const narrowWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,23rem)]">
     <Story />
   </div>
@@ -75,7 +74,7 @@ export const InsideNavbar: Story = {
     layout: "fullscreen",
   },
   decorators: [
-    (Story) => (
+    ((Story) => (
       <div className="min-h-screen bg-background-primary">
         <Navbar variant="Empty" />
         <div className="mx-auto w-full max-w-[1200px] px-2 py-4">
@@ -84,6 +83,6 @@ export const InsideNavbar: Story = {
           </div>
         </div>
       </div>
-    ),
+    )) satisfies Decorator,
   ],
 };

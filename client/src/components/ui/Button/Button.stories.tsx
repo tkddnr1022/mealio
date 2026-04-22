@@ -1,12 +1,11 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import type { ReactNode } from "react";
+import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
 import {
   type ButtonSize,
   type ButtonVariant,
   Button,
 } from "@/components/ui/Button";
 
-const figmaWidth = (Story: () => ReactNode) => (
+const figmaWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,26rem)]">
     <Story />
   </div>

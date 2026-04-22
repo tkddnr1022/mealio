@@ -1,9 +1,8 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import type { ReactNode } from "react";
+import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { PaginationDot } from "@/components/ui/PaginationDot";
 
-const row = (Story: () => ReactNode) => (
+const row: Decorator = (Story) => (
   <div className="flex items-center gap-2 py-4">
     <Story />
   </div>

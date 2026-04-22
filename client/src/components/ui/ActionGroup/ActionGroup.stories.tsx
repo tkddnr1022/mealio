@@ -1,9 +1,8 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import type { ReactNode } from "react";
+import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { ActionGroup } from "@/components/ui/ActionGroup";
 
-const figmaWidth = (Story: () => ReactNode) => (
+const figmaWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,24rem)] border border-border-subtle">
     <Story />
   </div>

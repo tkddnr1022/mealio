@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import type { ReactNode } from "react";
+import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { ComponentProps } from "react";
 
 import { SliderPagination } from "@/components/ui/SliderPagination";
 
-const paddedRow = (Story: () => ReactNode) => (
+const paddedRow: Decorator = (Story) => (
   <div className="w-full max-w-[400px] py-4">
     <Story />
   </div>
@@ -26,6 +26,7 @@ const meta = {
 export default meta;
 
 type Story = StoryObj<typeof meta>;
+type SliderPaginationStoryArgs = ComponentProps<typeof SliderPagination>;
 
 export const FirstActive: Story = {
   name: "첫 번째 활성",
@@ -74,7 +75,7 @@ export const EmptyTotal: Story = {
     total: 0,
     activeIndex: 0,
   },
-  render: (args) => (
+  render: (args: SliderPaginationStoryArgs) => (
     <div className="flex min-h-[2rem] flex-col items-center justify-center gap-2 typo-caption-regular style-text-caption">
       <SliderPagination {...args} />
       <span aria-live="polite">위 영역은 비어 있습니다 (null).</span>

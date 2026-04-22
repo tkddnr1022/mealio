@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import type { ReactNode } from "react";
+import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { ComponentProps } from "react";
 
 import { MainContent } from "@/components/layout/MainContent";
 import { Navbar } from "@/components/layout/Navbar";
 
-const figmaMobileFrame = (Story: () => ReactNode) => (
+const figmaMobileFrame: Decorator = (Story) => (
   <div className="mx-auto flex h-[640px] w-full max-w-[400px] flex-col border border-border-subtle bg-background-primary shadow-md">
     <Story />
   </div>
@@ -23,6 +23,7 @@ const meta = {
 export default meta;
 
 type Story = StoryObj<typeof meta>;
+type MainContentStoryArgs = ComponentProps<typeof MainContent>;
 
 export const Empty: Story = {
   name: "빈 영역 (Figma 프레임 400×640)",
@@ -32,7 +33,7 @@ export const Empty: Story = {
 export const WithPlaceholder: Story = {
   name: "플레이스홀더 콘텐츠",
   decorators: [figmaMobileFrame],
-  render: (args) => (
+  render: (args: MainContentStoryArgs) => (
     <MainContent {...args}>
       <div className="style-text-secondary">
         <p className="typo-body-regular">본문이 여기 들어갑니다.</p>
@@ -44,7 +45,7 @@ export const WithPlaceholder: Story = {
 export const Scrollable: Story = {
   name: "스크롤 (긴 목록)",
   decorators: [figmaMobileFrame],
-  render: (args) => (
+  render: (args: MainContentStoryArgs) => (
     <MainContent {...args}>
       <ul className="divide-y divide-border-subtle px-4 py-2">
         {Array.from({ length: 24 }, (_, i) => (
@@ -61,7 +62,7 @@ export const NoPadding: Story = {
   name: "패딩 없음 (XY 풀블리드)",
   decorators: [figmaMobileFrame],
   args: { paddingX: false, paddingY: false },
-  render: (args) => (
+  render: (args: MainContentStoryArgs) => (
     <MainContent {...args}>
       <div className="bg-background-surface px-4 py-3 typo-body-regular style-text-primary">
         `paddingX={false}` · `paddingY={false}`이면 기본 px-4/py-6이 빠집니다.
@@ -74,7 +75,7 @@ export const PaddingXOff: Story = {
   name: "가로만 풀블리드",
   decorators: [figmaMobileFrame],
   args: { paddingX: false, paddingY: true },
-  render: (args) => (
+  render: (args: MainContentStoryArgs) => (
     <MainContent {...args}>
       <div className="h-24 w-full bg-primary-default/10 typo-body-regular style-text-primary">
         좌우는 끝까지, 세로는 `py-6` 유지.
@@ -86,14 +87,14 @@ export const PaddingXOff: Story = {
 export const WithNavbarShell: Story = {
   name: "Navbar + MainContent (앱 셸)",
   decorators: [
-    (Story) => (
+    ((Story) => (
       <div className="mx-auto flex min-h-screen w-full max-w-[400px] flex-col bg-background-primary">
         <Navbar variant="Empty" />
         <Story />
       </div>
-    ),
+    )) satisfies Decorator,
   ],
-  render: (args) => (
+  render: (args: MainContentStoryArgs) => (
     <MainContent {...args}>
       <div>
         <h2 className="typo-h2">오늘의 추천</h2>
@@ -109,7 +110,7 @@ export const Centered: Story = {
   name: "중앙 정렬 (`centered`)",
   decorators: [figmaMobileFrame],
   args: { centered: true },
-  render: (args) => (
+  render: (args: MainContentStoryArgs) => (
     <MainContent {...args}>
       <div className="w-full max-w-[280px] rounded-xl border border-border-subtle bg-background-surface p-4 text-center shadow-sm">
         <p className="typo-body-regular style-text-primary">중앙 정렬된 카드</p>
