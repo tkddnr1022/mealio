@@ -35,14 +35,14 @@ export function Chip({
           aria-label={removeAriaLabel}
           className="inline-flex size-5 p-[2px] items-center justify-center rounded-full style-text-secondary transition-colors hover:style-text-primary focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default"
         >
-          <X className="size-full" strokeWidth={2} aria-hidden />
+          <X strokeWidth={2} aria-hidden />
         </button>
       ) : (
         <span
           aria-hidden
           className="inline-flex size-5 p-[2px] items-center justify-center style-text-secondary"
         >
-          <X className="size-full" strokeWidth={2} />
+          <X strokeWidth={2} />
         </span>
       )}
     </div>

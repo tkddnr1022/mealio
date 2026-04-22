@@ -50,8 +50,8 @@
 - [x] `SearchResultTop`
 - [x] `SearchResultMeta`
 - [x] `SearchResultHeader`
-- [ ] `FlatTag` 세트 (`accent=true` / `false`)
-- [ ] `FlatTagsRow`
+- [x] `FlatTag` 세트 (`accent=true` / `false`)
+- [x] `FlatTagsRow`
 
 ### 썸네일 · 검색 카드 · 정보 화면
 
