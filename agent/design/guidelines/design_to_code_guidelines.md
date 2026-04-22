@@ -1,6 +1,6 @@
 # Design to Code 가이드
 
-Figma 디자인을 클라이언트 코드로 옮길 때의 **공통 원칙**과 **변수·스타일·컴포넌트를 코드에 연결하는 방법**을 정리한다.  
+Figma MCP를 사용하여 Figma 디자인을 클라이언트 코드로 옮길 때의 **공통 원칙**과 **변수·스타일·컴포넌트를 코드에 연결하는 방법**을 정리한다.  
 **무엇을** 구현할지는 `../../frontend/spec/frontend_architecture_spec.md` 등 명세를 따르고, 본 문서는 **절차·판단 기준**에 초점을 둔다.
 
 **수치·팔레트·타이포 크기·간격·컴포넌트별 필드 이름·비율 등 실제 스펙은 `design_tokens.json`과 `client/app/globals.css`가 단일 근거**이며, 본 가이드에는 넣지 않는다.
@@ -71,6 +71,8 @@ Figma 디자인을 클라이언트 코드로 옮길 때의 **공통 원칙**과 
 
 - **`get_metadata`**: 구조·자식 심볼 이름을 빠르게 볼 때 유리. 배리언트 **전체**는 부모 프레임 id로 호출하는 것이 좋다.
 - **`get_design_context`**: 구현 참고용 코드·스크린샷. **반드시** 프로젝트 컨벤션에 맞게 재작성한다.
+- Design to Code 단계에서는 MCP를 **읽기 중심**으로 사용한다. Figma 파일에 직접 쓰기(`use_figma`)나 HTML 캡처(`generate_figma_design`)는 `code_to_design_guidelines.md`를 단일 기준으로 따른다.
+- MCP에서 **tool call limit** 응답이 오면 **60초 대기 후 동일 호출 재시도**를 기본으로 한다.
 
 ### Code Connect
 

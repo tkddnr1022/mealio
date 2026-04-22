@@ -12,3 +12,12 @@ export type { RecipeSliderProps } from "./lists/RecipeSlider";
 
 export { RecipeSection } from "./lists/RecipeSection";
 export type { RecipeSectionProps } from "./lists/RecipeSection";
+
+export { SearchResultTop } from "./search/SearchResultTop";
+export type { SearchResultTopProps } from "./search/SearchResultTop";
+
+export { SearchResultMeta } from "./search/SearchResultMeta";
+export type { SearchResultMetaProps } from "./search/SearchResultMeta";
+
+export { SearchResultHeader } from "./search/SearchResultHeader";
+export type { SearchResultHeaderProps } from "./search/SearchResultHeader";
