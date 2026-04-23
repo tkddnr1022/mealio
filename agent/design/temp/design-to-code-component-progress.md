@@ -67,8 +67,8 @@
 - [x] `CardTagsRow`
 - [x] `RecipeIngredientRow`
 - [x] `RecipeIngredientsCard`
-- [ ] `RecipeStepRow`
-- [ ] `RecipeStepsCard`
+- [x] `RecipeStepRow`
+- [x] `RecipeStepsCard`
 - [ ] `RecipeDetailHeader`
 - [ ] `RecipeDetailContent`
 
