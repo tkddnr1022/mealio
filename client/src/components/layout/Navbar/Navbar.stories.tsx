@@ -1,7 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn } from "storybook/test";
 
-import { Navbar } from "@/components/layout/Navbar";
+import {
+  Navbar,
+  type NavbarVariant,
+} from "@/components/layout/Navbar";
 
 const variantOrder = [
   "Empty",
@@ -9,7 +12,7 @@ const variantOrder = [
   "BackOnly",
   "AddWithBack",
   "EngageWithBack",
-] as const;
+] as const satisfies readonly NavbarVariant[];
 
 const meta = {
   title: "Layout/Navbar",

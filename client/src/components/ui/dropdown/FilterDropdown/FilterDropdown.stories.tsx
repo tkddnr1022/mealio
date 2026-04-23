@@ -1,5 +1,6 @@
 import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
 import { FilterDropdown } from "@/components/ui/dropdown/FilterDropdown";
+import type { DropdownOption } from "@/components/ui/dropdown/DropdownList";
 
 const figmaWidth: Decorator = (Story) => (
   <div>
@@ -11,7 +12,7 @@ const sampleOptions = [
   { value: "selected", label: "Label" },
   { value: "option-a", label: "Label" },
   { value: "option-b", label: "Label" },
-] as const;
+] as const satisfies readonly DropdownOption[];
 
 const meta = {
   title: "UI/Dropdown/FilterDropdown",
