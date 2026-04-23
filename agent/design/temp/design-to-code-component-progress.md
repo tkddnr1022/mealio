@@ -65,8 +65,8 @@
 - [x] `IconShell` 세트 (`variant` × `size`)
 - [x] `CardTag`
 - [x] `CardTagsRow`
-- [ ] `RecipeIngredientRow`
-- [ ] `RecipeIngredientsCard`
+- [x] `RecipeIngredientRow`
+- [x] `RecipeIngredientsCard`
 - [ ] `RecipeStepRow`
 - [ ] `RecipeStepsCard`
 - [ ] `RecipeDetailHeader`

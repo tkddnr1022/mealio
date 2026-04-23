@@ -30,3 +30,12 @@ export type { SearchResultMetaProps } from "./search/SearchResultMeta";
 
 export { SearchResultHeader } from "./search/SearchResultHeader";
 export type { SearchResultHeaderProps } from "./search/SearchResultHeader";
+
+export { RecipeIngredientRow } from "./detail/RecipeIngredientRow";
+export type { RecipeIngredientRowProps } from "./detail/RecipeIngredientRow";
+
+export { RecipeIngredientsCard } from "./detail/RecipeIngredientsCard";
+export type {
+  RecipeIngredientsCardProps,
+  RecipeIngredientItem,
+} from "./detail/RecipeIngredientsCard";
