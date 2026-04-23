@@ -63,8 +63,8 @@
 ### 아이콘 셸 · 레시피 상세 블록
 
 - [x] `IconShell` 세트 (`variant` × `size`)
-- [ ] `CardTag`
-- [ ] `CardTagsRow`
+- [x] `CardTag`
+- [x] `CardTagsRow`
 - [ ] `RecipeIngredientRow`
 - [ ] `RecipeIngredientsCard`
 - [ ] `RecipeStepRow`
