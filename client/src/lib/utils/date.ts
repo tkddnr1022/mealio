@@ -67,6 +67,23 @@ export function formatDateTime(
 }
 
 /**
+ * 시간을 `오전/오후 h:mm` 형식으로 포맷한다. (예: `오전 10:31`)
+ */
+export function formatMeridiemTime(
+  value: DateInput | null | undefined,
+  options: FormatDateOptions = {},
+): string {
+  const date = toDate(value);
+  if (!date) return '';
+  return new Intl.DateTimeFormat(options.locale ?? DEFAULT_LOCALE, {
+    timeZone: options.timeZone ?? DEFAULT_TIME_ZONE,
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }).format(date);
+}
+
+/**
  * 현재 시각 대비 상대 시간 문구를 반환한다(예: `"3분 전"`, `"1시간 후"`).
  * Intl.RelativeTimeFormat을 사용해 로케일 규칙을 따른다.
  */

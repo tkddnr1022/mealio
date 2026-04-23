@@ -1,6 +1,6 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
-import { formatRelativeTime, type DateInput } from "@/lib/utils/date";
+import { formatMeridiemTime, type DateInput } from "@/lib/utils/date";
 
 export type ChatBubbleRole = "assistant" | "user";
 
@@ -21,7 +21,7 @@ export function ChatBubble({
   ...rest
 }: ChatBubbleProps) {
   const isUser = role === "user";
-  const formattedTimestamp = formatRelativeTime(timestamp);
+  const formattedTimestamp = formatMeridiemTime(timestamp);
 
   return (
     <div
