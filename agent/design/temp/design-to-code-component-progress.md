@@ -76,10 +76,10 @@
 
 - [x] `ChatCard`
 - [x] `ChatList`
-- [ ] `ChatBubble` 세트 (`role=assistant` / `user`)
-- [ ] `ChatConversationRow` 세트 (`role=assistant` / `user`)
-- [ ] `MiniTag`
-- [ ] `MiniTagsRow`
+- [x] `ChatBubble` 세트 (`role=assistant` / `user`)
+- [x] `ChatConversationRow` 세트 (`role=assistant` / `user`)
+- [x] `MiniTag`
+- [x] `MiniTagsRow`
 - [ ] `SuggestedRecipeCard`
 - [ ] `SuggestedRecipeSlider`
 - [ ] `ChatConversation`
