@@ -69,8 +69,8 @@
 - [x] `RecipeIngredientsCard`
 - [x] `RecipeStepRow`
 - [x] `RecipeStepsCard`
-- [ ] `RecipeDetailHeader`
-- [ ] `RecipeDetailContent`
+- [x] `RecipeDetailHeader`
+- [x] `RecipeDetailContent`
 
 ### 채팅 · 추천
 

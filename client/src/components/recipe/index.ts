@@ -45,3 +45,9 @@ export type { RecipeStepRowProps } from "./detail/RecipeStepRow";
 
 export { RecipeStepsCard } from "./detail/RecipeStepsCard";
 export type { RecipeStepsCardProps, RecipeStepItem } from "./detail/RecipeStepsCard";
+
+export { RecipeDetailHeader } from "./detail/RecipeDetailHeader";
+export type { RecipeDetailHeaderProps } from "./detail/RecipeDetailHeader";
+
+export { RecipeDetailContent } from "./detail/RecipeDetailContent";
+export type { RecipeDetailContentProps } from "./detail/RecipeDetailContent";
