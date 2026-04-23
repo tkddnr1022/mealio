@@ -80,8 +80,8 @@
 - [x] `ChatConversationRow` 세트 (`role=assistant` / `user`)
 - [x] `MiniTag`
 - [x] `MiniTagsRow`
-- [ ] `SuggestedRecipeCard`
-- [ ] `SuggestedRecipeSlider`
+- [x] `SuggestedRecipeCard`
+- [x] `SuggestedRecipeSlider`
 - [ ] `ChatConversation`
 - [ ] `ChatComposer` 세트 (`filled=true` / `false`)
 
