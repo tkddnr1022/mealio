@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
+import { formatCookingTime } from "@/lib/utils/date";
 
 export type RecipeGridCardProps = Readonly<
   Omit<HTMLAttributes<HTMLElement>, "children"> & {
@@ -12,6 +13,8 @@ export type RecipeGridCardProps = Readonly<
     title: string;
     /** 조리 시간 라벨 (예: 45분) */
     cookingTime?: string;
+    /** 조리 시간(분). 있으면 `formatCookingTime`으로 우선 표기 */
+    cookingTimeMinutes?: number;
     /** 난이도 라벨 (예: 쉬움) */
     difficulty?: string;
     /** 인분 라벨 (예: 4인분) */
@@ -44,14 +47,19 @@ export function RecipeGridCard({
   imageAlt,
   title,
   cookingTime,
+  cookingTimeMinutes,
   difficulty,
   servings,
   category,
   ...rest
 }: RecipeGridCardProps) {
   const alt = imageAlt?.trim() || title;
+  const cookingTimeLabel =
+    cookingTimeMinutes !== undefined
+      ? (formatCookingTime(cookingTimeMinutes) || cookingTime)
+      : cookingTime;
   const metaLine = buildMetaLine(
-    cookingTime,
+    cookingTimeLabel,
     difficulty,
     servings,
     category,

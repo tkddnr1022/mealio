@@ -2,12 +2,13 @@ import { MessageCircle } from "lucide-react";
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 import { IconShell } from "@/components/ui/IconShell";
+import { formatRelativeTime, type DateInput } from "@/lib/utils/date";
 
 export type ChatCardProps = Readonly<
   Omit<HTMLAttributes<HTMLElement>, "children"> & {
     className?: string;
     title?: string;
-    timestamp?: string;
+    timestamp?: DateInput;
     lastMessage?: string;
   }
 >;
@@ -15,10 +16,12 @@ export type ChatCardProps = Readonly<
 export function ChatCard({
   className = "",
   title = "Title",
-  timestamp = "Timestamp",
+  timestamp = new Date(),
   lastMessage = "LastMessage",
   ...rest
 }: ChatCardProps) {
+  const formattedTimestamp = formatRelativeTime(timestamp);
+
   return (
     <article
       className={cn("card flex w-full flex-col gap-0", className)}
@@ -37,7 +40,7 @@ export function ChatCard({
               {title}
             </h3>
             <span className="ml-3 shrink-0 typo-card-caption style-text-caption">
-              {timestamp}
+              {formattedTimestamp}
             </span>
           </div>
           <p className="line-clamp-2 typo-card-body style-text-secondary">

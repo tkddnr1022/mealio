@@ -18,7 +18,7 @@ const meta = {
   decorators: [figmaWidth],
   args: {
     title: "김치찌개 레시피 추천",
-    timestamp: "2시간 전",
+    timestamp: new Date("2026-04-23T10:00:00+09:00"),
     lastMessage: "김치찌개를 맛있게 끓이려면 묵은지를 사용하는 것이 좋습니다.",
   },
 } satisfies Meta<typeof ChatCard>;

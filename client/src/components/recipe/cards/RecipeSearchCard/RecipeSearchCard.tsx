@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils/cn";
 import { FlatTagsRow } from "@/components/ui/FlatTagsRow";
 import { Thumbnail } from "@/components/ui/Thumbnail";
 import { LikeButton } from "@/components/ui/buttons/LikeButton";
+import { formatCookingTime } from "@/lib/utils/date";
 
 export type RecipeSearchCardProps = Readonly<
   Omit<HTMLAttributes<HTMLElement>, "children"> & {
@@ -13,6 +14,7 @@ export type RecipeSearchCardProps = Readonly<
     title: string;
     summary?: string;
     cookingTime?: string;
+    cookingTimeMinutes?: number;
     difficulty?: string;
     servings?: string;
     isFavorite?: boolean;
@@ -27,16 +29,22 @@ export function RecipeSearchCard({
   title,
   summary = "설명이 없습니다.",
   cookingTime = "15분",
+  cookingTimeMinutes,
   difficulty = "쉬움",
   servings = "2인분",
   isFavorite = false,
   onFavoriteClick,
   ...rest
 }: RecipeSearchCardProps) {
+  const cookingTimeLabel =
+    cookingTimeMinutes !== undefined
+      ? (formatCookingTime(cookingTimeMinutes) || cookingTime)
+      : cookingTime;
+
   return (
     <article
       className={cn(
-        "flex w-full flex-col overflow-hidden rounded-(--card-radius) bg-background-surface shadow-[var(--card-elevation)]",
+        "flex w-full flex-col overflow-hidden rounded-(--card-radius) bg-background-surface shadow-(--card-elevation)",
         className,
       )}
       data-name="RecipeSearchCard"
@@ -48,7 +56,7 @@ export function RecipeSearchCard({
           imageAlt={imageAlt ?? title}
           square={false}
         />
-        <div className="absolute top-4 right-4 rounded-full bg-background-surface shadow-[var(--semantic-shadow-sm)]">
+        <div className="absolute top-4 right-4 rounded-full bg-background-surface shadow-(--semantic-shadow-sm)">
           <LikeButton
             isFavorite={isFavorite}
             onClick={onFavoriteClick}
@@ -61,7 +69,7 @@ export function RecipeSearchCard({
         <FlatTagsRow
           items={[
             {
-              label: cookingTime,
+              label: cookingTimeLabel,
               leftIcon: (
                 <Clock3 className="size-4 p-px" strokeWidth={2} aria-hidden />
               ),
