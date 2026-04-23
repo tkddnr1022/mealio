@@ -55,14 +55,14 @@
 
 ### 썸네일 · 검색 카드 · 정보 화면
 
-- [ ] `Thumbnail` 세트 (`square=true` / `false`)
-- [ ] `RecipeSearchCard`
-- [ ] `RecipeSearchList`
-- [ ] `InfoScreen` (명칭·용도 확인)
+- [x] `Thumbnail` 세트 (`square=true` / `false`)
+- [x] `RecipeSearchCard`
+- [x] `RecipeSearchList`
+- [x] `InfoScreen` (명칭·용도 확인)
 
 ### 아이콘 셸 · 레시피 상세 블록
 
-- [ ] `IconShell` 세트 (`variant` × `size`)
+- [x] `IconShell` 세트 (`variant` × `size`)
 - [ ] `CardTag`
 - [ ] `CardTagsRow`
 - [ ] `RecipeIngredientRow`

@@ -475,7 +475,7 @@
     flex-shrink: 0;
     align-items: center;
     justify-content: center;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-full);
     color: var(--semantic-text-default);
     transition: background-color 150ms ease;
   }
