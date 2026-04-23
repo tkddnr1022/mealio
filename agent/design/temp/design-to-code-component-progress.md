@@ -74,8 +74,8 @@
 
 ### 채팅 · 추천
 
-- [ ] `ChatCard`
-- [ ] `ChatList`
+- [x] `ChatCard`
+- [x] `ChatList`
 - [ ] `ChatBubble` 세트 (`role=assistant` / `user`)
 - [ ] `ChatConversationRow` 세트 (`role=assistant` / `user`)
 - [ ] `MiniTag`
