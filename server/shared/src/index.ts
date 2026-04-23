@@ -24,7 +24,7 @@ export {
   type CacheKeyPrefix,
   buildCacheKey,
   cacheKeyUserProfile,
-  cacheKeyUserIngredient,
+  cacheKeyInventory,
   cacheKeyIngredientById,
   cacheKeyChatbotFoodCategories,
   cacheKeyRateLimitApi,
@@ -51,13 +51,13 @@ export {
   ChatbotLogSchema,
   EventLog,
   EventLogSchema,
-  UserIngredient,
-  UserIngredientSchema,
+  Inventory,
+  InventorySchema,
 } from './database/mongoose/schemas';
 export type {
   ChatbotLogDocument,
   EventLogDocument,
-  UserIngredientDocument,
+  InventoryDocument,
 } from './database/mongoose/schemas';
 
 // Types / Events

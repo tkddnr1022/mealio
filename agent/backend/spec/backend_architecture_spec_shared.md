@@ -27,11 +27,11 @@
 | server/shared/src/database/prisma/generated/ | prisma generate 결과 (커밋 제외) |
 | server/shared/src/database/prisma/migrations/ | PostgreSQL 마이그레이션 |
 | server/shared/src/database/mongoose/mongoose-pool.config.ts | MongoosePoolConfig 타입 (커넥션 풀 설정). 앱에서는 풀만 정의, URI·retry·readPreference 등은 shared 공용 |
-| server/shared/src/database/mongoose/mongoose.module.ts | MongooseSchemasModule. forRoot(poolConfig) / forRootAsync 로 풀 config 주입. URI·스키마(EventLog, ChatbotLog, UserIngredient)는 shared에서 공용 관리 |
-| server/shared/src/database/mongoose/schemas/* | ChatbotLog, EventLog, UserIngredient 스키마 |
+| server/shared/src/database/mongoose/mongoose.module.ts | MongooseSchemasModule. forRoot(poolConfig) / forRootAsync 로 풀 config 주입. URI·스키마(EventLog, ChatbotLog, Inventory)는 shared에서 공용 관리 |
+| server/shared/src/database/mongoose/schemas/* | ChatbotLog, EventLog, Inventory 스키마 |
 | server/shared/src/redis/redis.service.ts | RedisService (NestJS). get/set/setex/del/exists/expire/ttl, 구독 채널 관리 |
 | server/shared/src/redis/redis.module.ts | RedisModule |
-| server/shared/src/types/events/* | ChatbotRequestEvent, ChatbotStreamEvent, UserEvent, UserIngredientEvent, CacheInvalidationPayload·CacheInvalidationEventType 등 |
+| server/shared/src/types/events/* | ChatbotRequestEvent, ChatbotStreamEvent, UserEvent, InventoryEvent, CacheInvalidationPayload·CacheInvalidationEventType 등 |
 
 ## 3.2 Prisma 스키마 (schema.prisma) — 모델·필드 명세
 

@@ -38,7 +38,7 @@ tags:
     description: 레시피 관련 API
   - name: Ingredient
     description: 재료 관련 API
-  - name: UserIngredient
+  - name: Inventory
     description: 사용자 재료함 관련 API
   - name: Chatbot
     description: AI 챗봇 관련 API
@@ -735,12 +735,12 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /api/v1/users/me/ingredients:
+  /api/v1/users/me/inventory/ingredients:
     get:
       tags:
-        - UserIngredient
-      summary: 내 재료함 조회
-      description: 사용자의 재료함 정보 조회
+        - Inventory
+      summary: 내 보관함 조회
+      description: 사용자의 보유/관심 재료 목록을 함께 조회
       parameters:
         - name: accessToken
           in: cookie
@@ -751,21 +751,22 @@ paths:
           example: "{{apiKey}}"
       responses:
         '200':
-          description: 재료함 조회 성공
+          description: 보관함 조회 성공
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserIngredientList'
+                $ref: '#/components/schemas/InventoryResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /api/v1/users/me/inventory/ingredients/owned:
     put:
       tags:
-        - UserIngredient
-      summary: 내 재료함 업데이트
-      description: 유저 재료 업데이트 (재료함 전체 교체)
+        - Inventory
+      summary: 내 보유 재료 업데이트 (전체 교체)
+      description: 보유 재료 목록 전체 교체
       parameters:
         - name: accessToken
           in: cookie
@@ -781,9 +782,9 @@ paths:
             schema:
               type: object
               required:
-                - ingredientIds
+                - ownedIngredientIds
               properties:
-                ingredientIds:
+                ownedIngredientIds:
                   type: array
                   items:
                     type: integer
@@ -807,9 +808,9 @@ paths:
 
     post:
       tags:
-        - UserIngredient
-      summary: 재료 추가/수정
-      description: 재료함에 재료 추가 또는 수정
+        - Inventory
+      summary: 내 보유 재료 추가
+      description: 보유 재료 목록에 재료 ID 추가
       parameters:
         - name: accessToken
           in: cookie
@@ -825,16 +826,16 @@ paths:
             schema:
               type: object
               required:
-                - ingredientIds
+                - ownedIngredientIds
               properties:
-                ingredientIds:
+                ownedIngredientIds:
                   type: array
                   items:
                     type: integer
                     format: int64
       responses:
         '201':
-          description: 재료 추가 성공
+          description: 추가 성공
           content:
             application/json:
               schema:
@@ -849,12 +850,12 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /api/v1/users/me/ingredients/{ingredientId}:
+  /api/v1/users/me/inventory/ingredients/owned/{ingredientId}:
     delete:
       tags:
-        - UserIngredient
-      summary: 재료 삭제
-      description: 재료함에서 특정 재료 삭제
+        - Inventory
+      summary: 내 보유 재료 삭제
+      description: 보유 재료 목록에서 특정 재료 삭제
       parameters:
         - name: accessToken
           in: cookie
@@ -880,12 +881,12 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /api/v1/users/me/ingredients/favorites:
+  /api/v1/users/me/inventory/ingredients/favorites:
     put:
       tags:
-        - UserIngredient
-      summary: 즐겨찾는 재료 설정 (전체 교체)
-      description: 즐겨찾는 재료 목록 전체 교체
+        - Inventory
+      summary: 내 관심 재료 업데이트 (전체 교체)
+      description: 관심 재료 목록 전체 교체
       parameters:
         - name: accessToken
           in: cookie
@@ -901,15 +902,15 @@ paths:
             schema:
               type: object
               required:
-                - ingredientIds
+                - favoriteIngredientIds
               properties:
-                ingredientIds:
+                favoriteIngredientIds:
                   type: array
                   items:
                     type: integer
                     format: int64
             example:
-              ingredientIds: [1, 5, 12, 23]
+              favoriteIngredientIds: [1, 5, 12, 23]
       responses:
         '200':
           description: 업데이트 성공
@@ -929,9 +930,9 @@ paths:
 
     post:
       tags:
-        - UserIngredient
-      summary: 즐겨찾는 재료 추가
-      description: 즐겨찾는 재료 목록에 재료 ID 추가 (기존 목록에 병합)
+        - Inventory
+      summary: 내 관심 재료 추가
+      description: 관심 재료 목록에 재료 ID 추가 (기존 목록에 병합)
       parameters:
         - name: accessToken
           in: cookie
@@ -947,15 +948,15 @@ paths:
             schema:
               type: object
               required:
-                - ingredientIds
+                - favoriteIngredientIds
               properties:
-                ingredientIds:
+                favoriteIngredientIds:
                   type: array
                   items:
                     type: integer
                     format: int64
             example:
-              ingredientIds: [1, 5]
+              favoriteIngredientIds: [1, 5]
       responses:
         '201':
           description: 추가 성공
@@ -973,12 +974,12 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /api/v1/users/me/ingredients/favorites/{ingredientId}:
+  /api/v1/users/me/inventory/ingredients/favorites/{ingredientId}:
     delete:
       tags:
-        - UserIngredient
-      summary: 즐겨찾는 재료 삭제
-      description: 즐겨찾는 재료 목록에서 특정 재료 제거
+        - Inventory
+      summary: 내 관심 재료 삭제
+      description: 관심 재료 목록에서 특정 재료 제거
       parameters:
         - name: accessToken
           in: cookie
@@ -1459,7 +1460,7 @@ components:
         displayOrder: 1
         isActive: true
 
-    UserIngredientEntry:
+    InventoryEntry:
       type: object
       required:
         - id
@@ -1479,19 +1480,19 @@ components:
           nullable: true
           description: 재료 카테고리 ID (마스터에 없는 ID는 null)
 
-    UserIngredientList:
+    InventoryResponse:
       type: object
       properties:
-        ingredients:
+        ownedIngredients:
           type: array
           description: 보유 재료 (id, name, categoryId)
           items:
-            $ref: '#/components/schemas/UserIngredientEntry'
+            $ref: '#/components/schemas/InventoryEntry'
         favoriteIngredients:
           type: array
-          description: 즐겨찾기 재료 (id, name, categoryId)
+          description: 관심 재료 (id, name, categoryId)
           items:
-            $ref: '#/components/schemas/UserIngredientEntry'
+            $ref: '#/components/schemas/InventoryEntry'
 
     ChatbotResponse:
       type: object

@@ -5,11 +5,11 @@
  */
 import 'dotenv/config';
 import mongoose from 'mongoose';
-import { UserIngredientSchema, ChatbotLogSchema } from '@cook/shared';
+import { InventorySchema, ChatbotLogSchema } from '@cook/shared';
 
-const UserIngredientModel = mongoose.model(
-  'UserIngredient',
-  UserIngredientSchema,
+const InventoryModel = mongoose.model(
+  'Inventory',
+  InventorySchema,
   'user_ingredients',
 );
 
@@ -214,7 +214,7 @@ async function main() {
 
   for (const doc of SEED_USER_INGREDIENTS) {
     const now = new Date();
-    const updated = await UserIngredientModel.findOneAndUpdate(
+    const updated = await InventoryModel.findOneAndUpdate(
       { userId: doc.userId },
       {
         $set: {

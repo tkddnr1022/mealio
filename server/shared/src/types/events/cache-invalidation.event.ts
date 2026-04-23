@@ -5,7 +5,7 @@
  */
 export enum CacheInvalidationEventType {
   USER_PROFILE = 'user-profile',
-  USER_INGREDIENT = 'user-ingredient',
+  INVENTORY = 'inventory',
 }
 
 export interface CacheInvalidationUserProfilePayload {
@@ -13,11 +13,11 @@ export interface CacheInvalidationUserProfilePayload {
   userId: number;
 }
 
-export interface CacheInvalidationUserIngredientPayload {
-  type: CacheInvalidationEventType.USER_INGREDIENT;
+export interface CacheInvalidationInventoryPayload {
+  type: CacheInvalidationEventType.INVENTORY;
   userId: number;
 }
 
 export type CacheInvalidationPayload =
   | CacheInvalidationUserProfilePayload
-  | CacheInvalidationUserIngredientPayload;
+  | CacheInvalidationInventoryPayload;

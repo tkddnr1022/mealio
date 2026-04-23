@@ -5,9 +5,9 @@ import {
   KAFKA_TOPICS,
   UserEventType,
   type UserEvent,
-  type UserIngredientEvent,
+  type InventoryEvent,
   isUserEvent,
-  isUserIngredientEvent,
+  isInventoryEvent,
 } from '@cook/shared';
 import { BaseTopicProcessor } from '../base/base.processor';
 import { RetryStrategy } from '../base/retry.strategy';
@@ -20,13 +20,13 @@ import { SchemaValidator } from 'src/processing/validation/schema.validator';
 import { UpdateUserProfileHandler } from './handlers/UpdateUserProfileHandler';
 import { TrackUserActivityHandler } from './handlers/TrackUserActivityHandler';
 import { RecommendationHandler } from './handlers/RecommendationHandler';
-import { UpdateUserIngredientHandler } from './handlers/UpdateUserIngredientHandler';
+import { UpdateInventoryHandler } from './handlers/UpdateInventoryHandler';
 
-export type UserEventPayload = UserEvent | UserIngredientEvent;
+export type UserEventPayload = UserEvent | InventoryEvent;
 
 function isValidUserEventPayload(obj: unknown): obj is UserEventPayload {
   const o = obj as Record<string, unknown>;
-  if (!isUserEvent(obj) && !isUserIngredientEvent(obj)) return false;
+  if (!isUserEvent(obj) && !isInventoryEvent(obj)) return false;
   if ('userId' in o && typeof o.userId !== 'number') return false;
   return true;
 }
@@ -67,7 +67,7 @@ export class UserEventsProcessor extends BaseTopicProcessor<UserEventPayload> {
     private readonly updateUserProfileHandler: UpdateUserProfileHandler,
     private readonly trackUserActivityHandler: TrackUserActivityHandler,
     private readonly recommendationHandler: RecommendationHandler,
-    private readonly updateUserIngredientHandler: UpdateUserIngredientHandler,
+    private readonly updateInventoryHandler: UpdateInventoryHandler,
   ) {
     super(UserEventsProcessor.name, retryStrategy, deadLetterHandler);
   }
@@ -96,8 +96,8 @@ export class UserEventsProcessor extends BaseTopicProcessor<UserEventPayload> {
 
     if (event.type === UserEventType.NICKNAME_UPDATE) {
       await this.updateUserProfileHandler.execute(event);
-    } else if (isUserIngredientEvent(event)) {
-      await this.updateUserIngredientHandler.execute(event);
+    } else if (isInventoryEvent(event)) {
+      await this.updateInventoryHandler.execute(event);
     }
     await this.trackUserActivityHandler.execute(event);
     await this.recommendationHandler.execute(event);

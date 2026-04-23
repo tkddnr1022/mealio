@@ -10,5 +10,5 @@ export * from './auth';
 export * from './user';
 export * from './recipe';
 export * from './ingredient';
-export * from './user-ingredient';
+export * from './inventory';
 export * from './chatbot';

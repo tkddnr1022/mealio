@@ -1,13 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Document } from 'mongoose';
 
-export type UserIngredientDocument = HydratedDocument<UserIngredient>;
+export type InventoryDocument = HydratedDocument<Inventory>;
 
 @Schema({
   collection: 'user_ingredients',
   timestamps: true,
 })
-export class UserIngredient extends Document {
+export class Inventory extends Document {
   @Prop({ required: true, unique: true, type: Number, index: true })
   userId: number;
 
@@ -24,8 +24,7 @@ export class UserIngredient extends Document {
   updatedAt?: Date;
 }
 
-export const UserIngredientSchema =
-  SchemaFactory.createForClass(UserIngredient);
+export const InventorySchema = SchemaFactory.createForClass(Inventory);
 
-UserIngredientSchema.index({ ingredientsIds: 1 });
-UserIngredientSchema.index({ favoriteIngredientIds: 1 });
+InventorySchema.index({ ingredientsIds: 1 });
+InventorySchema.index({ favoriteIngredientIds: 1 });

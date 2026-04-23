@@ -9,8 +9,8 @@ import {
   ChatbotLogSchema,
   EventLog,
   EventLogSchema,
-  UserIngredient,
-  UserIngredientSchema,
+  Inventory,
+  InventorySchema,
 } from './schemas';
 
 /** shared에서 공용으로 관리하는 옵션 (URL 제외) */
@@ -53,7 +53,7 @@ export class MongooseSchemasModule {
         MongooseModule.forFeature([
           { name: EventLog.name, schema: EventLogSchema },
           { name: ChatbotLog.name, schema: ChatbotLogSchema },
-          { name: UserIngredient.name, schema: UserIngredientSchema },
+          { name: Inventory.name, schema: InventorySchema },
         ]),
       ],
       exports: [MongooseModule],
@@ -82,7 +82,7 @@ export class MongooseSchemasModule {
         MongooseModule.forFeature([
           { name: EventLog.name, schema: EventLogSchema },
           { name: ChatbotLog.name, schema: ChatbotLogSchema },
-          { name: UserIngredient.name, schema: UserIngredientSchema },
+          { name: Inventory.name, schema: InventorySchema },
         ]),
       ],
       exports: [MongooseModule],

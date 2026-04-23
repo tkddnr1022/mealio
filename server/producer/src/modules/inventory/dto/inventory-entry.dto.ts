@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 /**
  * 내 재료함 항목 (GET /api/v1/users/me/ingredients)
  */
-export class UserIngredientEntryDto {
+export class InventoryEntryDto {
   @ApiProperty({ example: 1, description: '재료 ID' })
   id: number;
 

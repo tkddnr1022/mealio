@@ -67,12 +67,13 @@
 | server/producer/src/modules/ingredients/dto/ingredient-search-query.dto.ts | 재료 검색 쿼리 DTO |
 | server/producer/src/modules/ingredients/dto/ingredient.dto.ts | 재료 단건 응답 DTO |
 | server/producer/src/modules/ingredients/dto/pagination.dto.ts | 페이지네이션 DTO(재료 전용) |
-| **server/producer/src/modules/user-ingredients/** | 유저 보유 재료 모듈 |
-| server/producer/src/modules/user-ingredients/user-ingredients.module.ts | UserIngredientsModule 정의 |
-| server/producer/src/modules/user-ingredients/user-ingredients.service.ts | UserIngredientService (MongoDB 저장, 캐시 관리) |
-| server/producer/src/modules/user-ingredients/user-ingredients.controller.ts | GET/PUT/POST/DELETE /api/v1/users/me/ingredients, 즐겨찾기 CRUD 등 |
-| server/producer/src/modules/user-ingredients/dto/ingredient-ids.dto.ts | 재료 ID 리스트 DTO |
-| server/producer/src/modules/user-ingredients/dto/user-ingredient-list.dto.ts | 유저 보유 재료 리스트 DTO |
+| **server/producer/src/modules/inventory/** | 유저 보유 재료 모듈 |
+| server/producer/src/modules/inventory/inventory.module.ts | InventoryModule 정의 |
+| server/producer/src/modules/inventory/inventory.service.ts | InventoryService (MongoDB 저장, 캐시 관리) |
+| server/producer/src/modules/inventory/inventory.controller.ts | `GET /api/v1/users/me/inventory/ingredients`, `PUT/POST/DELETE /api/v1/users/me/inventory/ingredients/{owned\|favorites}` |
+| server/producer/src/modules/inventory/dto/owned-ingredient-ids.dto.ts | 보유 재료 ID 리스트 DTO (`ownedIngredientIds`) |
+| server/producer/src/modules/inventory/dto/favorite-ingredient-ids.dto.ts | 관심 재료 ID 리스트 DTO (`favoriteIngredientIds`) |
+| server/producer/src/modules/inventory/dto/inventory-list.dto.ts | 보관함 조회 응답 DTO (`ownedIngredients`, `favoriteIngredients`) |
 | **server/producer/src/modules/chatbot/** | 챗봇 SSE·대화 모듈 |
 | server/producer/src/modules/chatbot/chatbot.module.ts | ChatbotModule 정의 |
 | server/producer/src/modules/chatbot/chatbot.service.ts | ChatbotService (Kafka 발행, Redis 구독, SSE 전달) |
@@ -93,7 +94,7 @@
 | **server/producer/src/infrastructure/database/repositories/mongodb/** | |
 | server/producer/src/infrastructure/database/repositories/mongodb/event-log.repository.ts | EventLog (스키마·타입 @cook/shared) |
 | server/producer/src/infrastructure/database/repositories/mongodb/chatbot-log.repository.ts | ChatbotLog (스키마·타입 @cook/shared) |
-| server/producer/src/infrastructure/database/repositories/mongodb/user-ingredient.repository.ts | UserIngredient (스키마·타입 @cook/shared) |
+| server/producer/src/infrastructure/database/repositories/mongodb/inventory.repository.ts | Inventory (스키마·타입 @cook/shared) |
 | **server/producer/src/infrastructure/cache/** | |
 | server/producer/src/infrastructure/cache/cache.service.ts | 캐시 서비스 (Redis는 @cook/shared 사용) |
 | server/producer/src/infrastructure/cache/cache.module.ts | 캐시 모듈 |
@@ -103,7 +104,7 @@
 | server/producer/src/infrastructure/cache/strategies/recipe-cache-strategy.ts | TTL 1시간 |
 | server/producer/src/infrastructure/cache/strategies/ingredient-cache-strategy.ts | TTL 24시간 |
 | server/producer/src/infrastructure/cache/strategies/user-cache-strategy.ts | TTL 30분. 캐시 키 prefix는 @cook/shared CACHE_KEY_PREFIX.USER 사용 |
-| server/producer/src/infrastructure/cache/strategies/user-ingredient-cache-strategy.ts | TTL 30분. 캐시 키 prefix는 @cook/shared CACHE_KEY_PREFIX.USER_INGREDIENT 사용 |
+| server/producer/src/infrastructure/cache/strategies/inventory-cache-strategy.ts | TTL 30분. 캐시 키 prefix는 @cook/shared CACHE_KEY_PREFIX.INVENTORY 사용 |
 | **server/producer/src/infrastructure/kafka/** | |
 | server/producer/src/infrastructure/kafka/kafka.module.ts | Kafka 모듈 |
 | server/producer/src/infrastructure/kafka/kafka-admin.service.ts | 토픽 생성·확인 등 |

@@ -4,7 +4,7 @@ import { CacheService } from './cache.service';
 import { RecipeCacheStrategy } from './strategies/recipe-cache-strategy';
 import { IngredientCacheStrategy } from './strategies/ingredient-cache-strategy';
 import { UserCacheStrategy } from './strategies/user-cache-strategy';
-import { UserIngredientCacheStrategy } from './strategies/user-ingredient-cache-strategy';
+import { InventoryCacheStrategy } from './strategies/inventory-cache-strategy';
 
 /**
  * 캐시 모듈
@@ -20,14 +20,14 @@ import { UserIngredientCacheStrategy } from './strategies/user-ingredient-cache-
     RecipeCacheStrategy,
     IngredientCacheStrategy,
     UserCacheStrategy,
-    UserIngredientCacheStrategy,
+    InventoryCacheStrategy,
   ],
   exports: [
     CacheService,
     RecipeCacheStrategy,
     IngredientCacheStrategy,
     UserCacheStrategy,
-    UserIngredientCacheStrategy,
+    InventoryCacheStrategy,
   ],
 })
 export class CacheModule {}

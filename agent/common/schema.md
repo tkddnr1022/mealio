@@ -24,7 +24,7 @@
 
 ### 행동/상태/로그 도메인 (NoSQL / Mongoose)
 
-* **UserIngredient**: 사용자가 보유·선호하는 재료 ID 목록 (`user_ingredients` 컬렉션)
+* **Inventory**: 사용자가 보유·선호하는 재료 ID 목록 (`inventories` 컬렉션)
 * **ChatbotLog**: LLM 챗봇 대화 기록 (`chatbot_logs` 컬렉션, 30일 TTL)
 * **EventLog**: 도메인 이벤트 스트림 (`event_logs` 컬렉션, 90일 TTL)
 
@@ -186,9 +186,9 @@
 
 ---
 
-### 3.1 UserIngredient
+### 3.1 Inventory
 
-**컬렉션**: `user_ingredients`  
+**컬렉션**: `inventories`  
 **의미**
 
 * 사용자별 보유 재료 ID·즐겨찾기 재료 ID 목록
@@ -199,7 +199,7 @@
 * 사용자 보유·관심 재료 기반 레시피 추천
 * 부족 재료 안내
 
-**필드 설명** (Mongoose `UserIngredient`)
+**필드 설명** (Mongoose `Inventory`)
 
 | 필드                  | 타입     | 의미                             |
 | --------------------- | -------- | -------------------------------- |
@@ -408,12 +408,12 @@
 ### 사용자 상태 이해
 
 * **User (RDB)**: 정체성
-* **UserIngredient (NoSQL)**: 현재 요리 가능성 상태
+* **Inventory (NoSQL)**: 현재 요리 가능성 상태
 
 ### 추천 및 추론
 
 * Recipe + RecipeIngredient + Ingredient → 조합 추론
-* UserIngredient → 필터링 조건
+* Inventory → 필터링 조건
 
 ### 대화 및 행동 분석
 

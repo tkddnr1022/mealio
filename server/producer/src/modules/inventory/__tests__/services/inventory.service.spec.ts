@@ -1,28 +1,29 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
-import { UserIngredientsService } from '../../user-ingredients.service';
-import { UserIngredientRepository } from '../../../../infrastructure/database/repositories/mongodb/user-ingredient.repository';
+import { InventoryService } from '../../inventory.service';
+import { InventoryRepository } from '../../../../infrastructure/database/repositories/mongodb/inventory.repository';
 import { IngredientRepository } from '../../../../infrastructure/database/repositories/postgresql/ingredient.repository';
 import { UserRepository } from '../../../../infrastructure/database/repositories/postgresql/user.repository';
 import { KafkaProducerService } from '../../../../infrastructure/kafka/producer.service';
 import { CacheService } from '../../../../infrastructure/cache/cache.service';
-import { UserIngredientCacheStrategy } from '../../../../infrastructure/cache/strategies/user-ingredient-cache-strategy';
+import { InventoryCacheStrategy } from '../../../../infrastructure/cache/strategies/inventory-cache-strategy';
 import {
   CACHE_KEY_PREFIX,
   KAFKA_TOPICS,
-  UserIngredientEventType,
+  InventoryEventType,
   buildCacheKey,
 } from '@cook/shared';
-import { IngredientIdsDto } from '../../dto/ingredient-ids.dto';
+import { OwnedIngredientIdsDto } from '../../dto/owned-ingredient-ids.dto';
+import { FavoriteIngredientIdsDto } from '../../dto/favorite-ingredient-ids.dto';
 
-describe('UserIngredientsService', () => {
-  let service: UserIngredientsService;
-  let userIngredientRepository: jest.Mocked<UserIngredientRepository>;
+describe('InventoryService', () => {
+  let service: InventoryService;
+  let inventoryRepository: jest.Mocked<InventoryRepository>;
   let ingredientRepository: jest.Mocked<IngredientRepository>;
   let userRepository: jest.Mocked<UserRepository>;
   let kafkaProducerService: jest.Mocked<KafkaProducerService>;
   let cacheService: jest.Mocked<CacheService>;
-  let userIngredientCacheStrategy: jest.Mocked<UserIngredientCacheStrategy>;
+  let inventoryCacheStrategy: jest.Mocked<InventoryCacheStrategy>;
 
   const mockUser = {
     id: 1,
@@ -34,7 +35,7 @@ describe('UserIngredientsService', () => {
     updatedAt: new Date(),
   };
 
-  const mockUserIngredientDoc = {
+  const mockInventoryDoc = {
     userId: 1,
     ingredientsIds: [1, 5, 12],
     favoriteIngredientIds: [3, 5],
@@ -44,8 +45,8 @@ describe('UserIngredientsService', () => {
   };
 
   beforeEach(async () => {
-    const mockUserIngredientRepo = {
-      findByUserId: jest.fn().mockResolvedValue(mockUserIngredientDoc),
+    const mockInventoryRepo = {
+      findByUserId: jest.fn().mockResolvedValue(mockInventoryDoc),
     };
 
     const mockIngredientRepo = {
@@ -87,33 +88,33 @@ describe('UserIngredientsService', () => {
       generateKey: jest
         .fn()
         .mockImplementation((...args: (string | number)[]) =>
-          buildCacheKey(CACHE_KEY_PREFIX.USER_INGREDIENT, ...args),
+          buildCacheKey(CACHE_KEY_PREFIX.INVENTORY, ...args),
         ),
       getTtl: jest.fn().mockReturnValue(1800),
     };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        UserIngredientsService,
+        InventoryService,
         {
-          provide: UserIngredientRepository,
-          useValue: mockUserIngredientRepo,
+          provide: InventoryRepository,
+          useValue: mockInventoryRepo,
         },
         { provide: IngredientRepository, useValue: mockIngredientRepo },
         { provide: UserRepository, useValue: mockUserRepo },
         { provide: KafkaProducerService, useValue: mockKafkaProducer },
         { provide: CacheService, useValue: mockCacheService },
         {
-          provide: UserIngredientCacheStrategy,
+          provide: InventoryCacheStrategy,
           useValue: mockCacheStrategy,
         },
       ],
     }).compile();
 
-    service = module.get<UserIngredientsService>(UserIngredientsService);
-    userIngredientRepository = module.get<UserIngredientRepository>(
-      UserIngredientRepository,
-    ) as jest.Mocked<UserIngredientRepository>;
+    service = module.get<InventoryService>(InventoryService);
+    inventoryRepository = module.get<InventoryRepository>(
+      InventoryRepository,
+    ) as jest.Mocked<InventoryRepository>;
     ingredientRepository = module.get<IngredientRepository>(
       IngredientRepository,
     ) as jest.Mocked<IngredientRepository>;
@@ -126,29 +127,29 @@ describe('UserIngredientsService', () => {
     cacheService = module.get<CacheService>(
       CacheService,
     ) as jest.Mocked<CacheService>;
-    userIngredientCacheStrategy = module.get<UserIngredientCacheStrategy>(
-      UserIngredientCacheStrategy,
-    ) as jest.Mocked<UserIngredientCacheStrategy>;
+    inventoryCacheStrategy = module.get<InventoryCacheStrategy>(
+      InventoryCacheStrategy,
+    ) as jest.Mocked<InventoryCacheStrategy>;
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  describe('getMyIngredients', () => {
+  describe('getMyInventory', () => {
     it('Cache-Aside로 getOrSet을 호출하고 MongoDB 폴백 결과를 반환한다', async () => {
-      const result = await service.getMyIngredients(1);
+      const result = await service.getMyInventory(1);
 
       expect(cacheService.getOrSet).toHaveBeenCalledWith(
-        userIngredientCacheStrategy,
+        inventoryCacheStrategy,
         expect.any(Function),
         1,
       );
-      expect(userIngredientRepository.findByUserId).toHaveBeenCalledWith(1);
+      expect(inventoryRepository.findByUserId).toHaveBeenCalledWith(1);
       expect(ingredientRepository.findManyByIds).toHaveBeenCalledWith([
         1, 5, 12, 3,
       ]);
-      expect(result.ingredients).toEqual([
+      expect(result.ownedIngredients).toEqual([
         { id: 1, name: 'A', categoryId: 10 },
         { id: 5, name: 'C', categoryId: 10 },
         { id: 12, name: 'D', categoryId: 30 },
@@ -160,30 +161,30 @@ describe('UserIngredientsService', () => {
     });
 
     it('문서가 없으면 빈 배열을 반환한다', async () => {
-      userIngredientRepository.findByUserId.mockResolvedValue(null);
+      inventoryRepository.findByUserId.mockResolvedValue(null);
 
-      const result = await service.getMyIngredients(1);
+      const result = await service.getMyInventory(1);
 
       expect(result).toEqual({
-        ingredients: [],
+        ownedIngredients: [],
         favoriteIngredients: [],
       });
     });
   });
 
-  describe('update', () => {
+  describe('updateOwnedIngredients', () => {
     it('사용자 존재 여부 확인 후 Kafka 이벤트를 발행하고 { success: true }를 반환한다', async () => {
-      const dto: IngredientIdsDto = { ingredientIds: [1, 2, 3] };
+      const dto: OwnedIngredientIdsDto = { ownedIngredientIds: [1, 2, 3] };
 
-      const result = await service.update(1, dto);
+      const result = await service.updateOwnedIngredients(1, dto);
 
       expect(userRepository.findById).toHaveBeenCalledWith(1);
       expect(kafkaProducerService.emit).toHaveBeenCalledWith(
         KAFKA_TOPICS.USER_EVENTS,
         expect.objectContaining({
-          type: UserIngredientEventType.UPDATE,
+          type: InventoryEventType.UPDATE,
           userId: 1,
-          ingredientIds: [1, 2, 3],
+          ownedIngredientIds: [1, 2, 3],
         }),
       );
       expect(result).toEqual({ success: true });
@@ -191,27 +192,31 @@ describe('UserIngredientsService', () => {
 
     it('사용자가 없으면 NotFoundException을 던지고 이벤트를 발행하지 않는다', async () => {
       userRepository.findById.mockResolvedValue(null);
-      const dto: IngredientIdsDto = { ingredientIds: [1] };
+      const dto: OwnedIngredientIdsDto = { ownedIngredientIds: [1] };
 
-      await expect(service.update(999, dto)).rejects.toThrow(NotFoundException);
-      await expect(service.update(999, dto)).rejects.toThrow('User not found');
+      await expect(service.updateOwnedIngredients(999, dto)).rejects.toThrow(
+        NotFoundException,
+      );
+      await expect(service.updateOwnedIngredients(999, dto)).rejects.toThrow(
+        'User not found',
+      );
       expect(kafkaProducerService.emit).not.toHaveBeenCalled();
     });
   });
 
-  describe('add', () => {
+  describe('addOwnedIngredients', () => {
     it('사용자 존재 여부 확인 후 Kafka 이벤트를 발행하고 { success: true }를 반환한다', async () => {
-      const dto: IngredientIdsDto = { ingredientIds: [5, 12] };
+      const dto: OwnedIngredientIdsDto = { ownedIngredientIds: [5, 12] };
 
-      const result = await service.add(1, dto);
+      const result = await service.addOwnedIngredients(1, dto);
 
       expect(userRepository.findById).toHaveBeenCalledWith(1);
       expect(kafkaProducerService.emit).toHaveBeenCalledWith(
         KAFKA_TOPICS.USER_EVENTS,
         expect.objectContaining({
-          type: UserIngredientEventType.ADD,
+          type: InventoryEventType.ADD,
           userId: 1,
-          ingredientIds: [5, 12],
+          ownedIngredientIds: [5, 12],
         }),
       );
       expect(result).toEqual({ success: true });
@@ -220,49 +225,53 @@ describe('UserIngredientsService', () => {
     it('사용자가 없으면 NotFoundException을 던진다', async () => {
       userRepository.findById.mockResolvedValue(null);
 
-      await expect(service.add(999, { ingredientIds: [1] })).rejects.toThrow(
+      await expect(
+        service.addOwnedIngredients(999, { ownedIngredientIds: [1] }),
+      ).rejects.toThrow(NotFoundException);
+      expect(kafkaProducerService.emit).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('removeOwnedIngredient', () => {
+    it('사용자 존재 여부 확인 후 Kafka 이벤트를 발행한다', async () => {
+      await service.removeOwnedIngredient(1, 5);
+
+      expect(userRepository.findById).toHaveBeenCalledWith(1);
+      expect(kafkaProducerService.emit).toHaveBeenCalledWith(
+        KAFKA_TOPICS.USER_EVENTS,
+        expect.objectContaining({
+          type: InventoryEventType.REMOVE,
+          userId: 1,
+          ingredientId: 5,
+        }),
+      );
+    });
+
+    it('사용자가 없으면 NotFoundException을 던진다', async () => {
+      userRepository.findById.mockResolvedValue(null);
+
+      await expect(service.removeOwnedIngredient(999, 5)).rejects.toThrow(
         NotFoundException,
       );
       expect(kafkaProducerService.emit).not.toHaveBeenCalled();
     });
   });
 
-  describe('remove', () => {
-    it('사용자 존재 여부 확인 후 Kafka 이벤트를 발행한다', async () => {
-      await service.remove(1, 5);
-
-      expect(userRepository.findById).toHaveBeenCalledWith(1);
-      expect(kafkaProducerService.emit).toHaveBeenCalledWith(
-        KAFKA_TOPICS.USER_EVENTS,
-        expect.objectContaining({
-          type: UserIngredientEventType.REMOVE,
-          userId: 1,
-          ingredientId: 5,
-        }),
-      );
-    });
-
-    it('사용자가 없으면 NotFoundException을 던진다', async () => {
-      userRepository.findById.mockResolvedValue(null);
-
-      await expect(service.remove(999, 5)).rejects.toThrow(NotFoundException);
-      expect(kafkaProducerService.emit).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('updateFavorites', () => {
+  describe('updateFavoriteIngredients', () => {
     it('사용자 존재 여부 확인 후 Kafka 이벤트를 발행하고 { success: true }를 반환한다', async () => {
-      const dto: IngredientIdsDto = { ingredientIds: [1, 5, 12, 23] };
+      const dto: FavoriteIngredientIdsDto = {
+        favoriteIngredientIds: [1, 5, 12, 23],
+      };
 
-      const result = await service.updateFavorites(1, dto);
+      const result = await service.updateFavoriteIngredients(1, dto);
 
       expect(userRepository.findById).toHaveBeenCalledWith(1);
       expect(kafkaProducerService.emit).toHaveBeenCalledWith(
         KAFKA_TOPICS.USER_EVENTS,
         expect.objectContaining({
-          type: UserIngredientEventType.FAVORITES_UPDATE,
+          type: InventoryEventType.FAVORITES_UPDATE,
           userId: 1,
-          ingredientIds: [1, 5, 12, 23],
+          favoriteIngredientIds: [1, 5, 12, 23],
         }),
       );
       expect(result).toEqual({ success: true });
@@ -272,25 +281,27 @@ describe('UserIngredientsService', () => {
       userRepository.findById.mockResolvedValue(null);
 
       await expect(
-        service.updateFavorites(999, { ingredientIds: [1] }),
+        service.updateFavoriteIngredients(999, {
+          favoriteIngredientIds: [1],
+        }),
       ).rejects.toThrow(NotFoundException);
       expect(kafkaProducerService.emit).not.toHaveBeenCalled();
     });
   });
 
-  describe('addFavorites', () => {
+  describe('addFavoriteIngredients', () => {
     it('사용자 존재 여부 확인 후 FAVORITES_ADD 이벤트를 발행하고 { success: true }를 반환한다', async () => {
-      const dto: IngredientIdsDto = { ingredientIds: [1, 5] };
+      const dto: FavoriteIngredientIdsDto = { favoriteIngredientIds: [1, 5] };
 
-      const result = await service.addFavorites(1, dto);
+      const result = await service.addFavoriteIngredients(1, dto);
 
       expect(userRepository.findById).toHaveBeenCalledWith(1);
       expect(kafkaProducerService.emit).toHaveBeenCalledWith(
         KAFKA_TOPICS.USER_EVENTS,
         expect.objectContaining({
-          type: UserIngredientEventType.FAVORITES_ADD,
+          type: InventoryEventType.FAVORITES_ADD,
           userId: 1,
-          ingredientIds: [1, 5],
+          favoriteIngredientIds: [1, 5],
         }),
       );
       expect(result).toEqual({ success: true });
@@ -300,21 +311,21 @@ describe('UserIngredientsService', () => {
       userRepository.findById.mockResolvedValue(null);
 
       await expect(
-        service.addFavorites(999, { ingredientIds: [1] }),
+        service.addFavoriteIngredients(999, { favoriteIngredientIds: [1] }),
       ).rejects.toThrow(NotFoundException);
       expect(kafkaProducerService.emit).not.toHaveBeenCalled();
     });
   });
 
-  describe('removeFavorite', () => {
+  describe('removeFavoriteIngredient', () => {
     it('사용자 존재 여부 확인 후 FAVORITES_REMOVE 이벤트를 발행한다', async () => {
-      await service.removeFavorite(1, 5);
+      await service.removeFavoriteIngredient(1, 5);
 
       expect(userRepository.findById).toHaveBeenCalledWith(1);
       expect(kafkaProducerService.emit).toHaveBeenCalledWith(
         KAFKA_TOPICS.USER_EVENTS,
         expect.objectContaining({
-          type: UserIngredientEventType.FAVORITES_REMOVE,
+          type: InventoryEventType.FAVORITES_REMOVE,
           userId: 1,
           ingredientId: 5,
         }),
@@ -324,7 +335,7 @@ describe('UserIngredientsService', () => {
     it('사용자가 없으면 NotFoundException을 던진다', async () => {
       userRepository.findById.mockResolvedValue(null);
 
-      await expect(service.removeFavorite(999, 5)).rejects.toThrow(
+      await expect(service.removeFavoriteIngredient(999, 5)).rejects.toThrow(
         NotFoundException,
       );
       expect(kafkaProducerService.emit).not.toHaveBeenCalled();

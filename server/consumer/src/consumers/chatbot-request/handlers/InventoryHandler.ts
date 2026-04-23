@@ -4,14 +4,14 @@ import { Model } from 'mongoose';
 import {
   PrismaService,
   RedisService,
-  UserIngredient,
-  UserIngredientDocument,
+  Inventory,
+  InventoryDocument,
   cacheKeyIngredientById,
 } from '@cook/shared';
 
 const INGREDIENT_BY_ID_CACHE_TTL_SECONDS = 3600;
 
-export interface UserIngredientItem {
+export interface InventoryItem {
   id: number;
   name: string;
   isFavorite: boolean;
@@ -23,19 +23,19 @@ export interface UserIngredientItem {
 }
 
 /**
- * get_user_ingredients 함수 실행 — MongoDB UserIngredient 조회, Prisma Ingredient(+분류)(Redis 캐시), 분류 정보 포함 목록 반환
+ * get_user_inventory 함수 실행 - MongoDB Inventory 조회, Prisma Ingredient(+분류)(Redis 캐시), 분류 정보 포함 목록 반환
  */
 @Injectable()
-export class UserIngredientsHandler {
+export class InventoryHandler {
   constructor(
-    @InjectModel(UserIngredient.name)
-    private readonly userIngredientModel: Model<UserIngredientDocument>,
+    @InjectModel(Inventory.name)
+    private readonly inventoryModel: Model<InventoryDocument>,
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
   ) {}
 
-  async execute(userId: number): Promise<UserIngredientItem[]> {
-    const doc = await this.userIngredientModel
+  async execute(userId: number): Promise<InventoryItem[]> {
+    const doc = await this.inventoryModel
       .findOne({ userId })
       .lean()
       .exec();
@@ -54,7 +54,7 @@ export class UserIngredientsHandler {
       return [];
     }
 
-    const items: UserIngredientItem[] = [];
+    const items: InventoryItem[] = [];
     const missingIds: number[] = [];
 
     for (const id of allIds) {

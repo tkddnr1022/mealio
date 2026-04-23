@@ -26,7 +26,7 @@ export function createSwaggerConfig() {
     .addTag('User', '사용자 관련 API')
     .addTag('Recipe', '레시피 관련 API')
     .addTag('Ingredient', '재료 관련 API')
-    .addTag('UserIngredient', '사용자 재료함 관련 API')
+    .addTag('Inventory', '사용자 재료함 관련 API')
     .addTag('Chatbot', 'AI 챗봇 관련 API')
     .addTag('Internal', '내부 API')
     .addApiKey(

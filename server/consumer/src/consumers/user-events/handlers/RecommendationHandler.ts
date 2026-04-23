@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import type { UserEvent } from '@cook/shared';
-import type { UserIngredientEvent } from '@cook/shared';
+import type { InventoryEvent } from '@cook/shared';
 
-export type UserEventPayload = UserEvent | UserIngredientEvent;
+export type UserEventPayload = UserEvent | InventoryEvent;
 
 /**
  * 유저 이벤트 수신 시 추천 갱신 (선호도/협업 필터 등)

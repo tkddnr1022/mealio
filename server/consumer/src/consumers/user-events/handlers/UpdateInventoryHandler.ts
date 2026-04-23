@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import {
-  UserIngredientEventType,
-  type UserIngredientEvent,
+  InventoryEventType,
+  type InventoryEvent,
 } from '@cook/shared';
-import { UserIngredientRepository } from 'src/persistence/repositories/mongodb/user-ingredient.repository';
+import { InventoryRepository } from 'src/persistence/repositories/mongodb/inventory.repository';
 import { CacheInvalidationRequestService } from 'src/consumers/cache-invalidation/cache-invalidation-request.service';
 
 /**
- * 유저 재료 이벤트 수신 시 MongoDB UserIngredient 갱신
+ * 유저 재료 이벤트 수신 시 MongoDB Inventory 갱신
  * - UPDATE: 보유 재료 목록 전체 교체
  * - ADD: 보유 재료 추가
  * - REMOVE: 보유 재료 한 건 제거 (즐겨찾기에서도 제거)
@@ -20,54 +20,54 @@ import { CacheInvalidationRequestService } from 'src/consumers/cache-invalidatio
  * 실제 Redis 삭제는 cache-invalidation 토픽을 구독하는 쪽에서 수행한다.
  */
 @Injectable()
-export class UpdateUserIngredientHandler {
+export class UpdateInventoryHandler {
   constructor(
-    private readonly userIngredientRepository: UserIngredientRepository,
+    private readonly inventoryRepository: InventoryRepository,
     private readonly cacheInvalidationRequestService: CacheInvalidationRequestService,
   ) {}
 
-  async execute(event: UserIngredientEvent): Promise<void> {
+  async execute(event: InventoryEvent): Promise<void> {
     switch (event.type) {
-      case UserIngredientEventType.UPDATE:
-        await this.userIngredientRepository.update(
+      case InventoryEventType.UPDATE:
+        await this.inventoryRepository.update(
           event.userId,
-          event.ingredientIds,
+          event.ownedIngredientIds,
         );
         break;
-      case UserIngredientEventType.ADD:
-        await this.userIngredientRepository.add(
+      case InventoryEventType.ADD:
+        await this.inventoryRepository.add(
           event.userId,
-          event.ingredientIds,
+          event.ownedIngredientIds,
         );
         break;
-      case UserIngredientEventType.REMOVE:
-        await this.userIngredientRepository.remove(
+      case InventoryEventType.REMOVE:
+        await this.inventoryRepository.remove(
           event.userId,
           event.ingredientId,
         );
         break;
-      case UserIngredientEventType.FAVORITES_UPDATE:
-        await this.userIngredientRepository.updateFavorites(
+      case InventoryEventType.FAVORITES_UPDATE:
+        await this.inventoryRepository.updateFavorites(
           event.userId,
-          event.ingredientIds,
+          event.favoriteIngredientIds,
         );
         break;
-      case UserIngredientEventType.FAVORITES_ADD:
-        await this.userIngredientRepository.addFavoriteIngredientIds(
+      case InventoryEventType.FAVORITES_ADD:
+        await this.inventoryRepository.addFavoriteIngredientIds(
           event.userId,
-          event.ingredientIds,
+          event.favoriteIngredientIds,
         );
         break;
-      case UserIngredientEventType.FAVORITES_REMOVE:
-        await this.userIngredientRepository.removeFavoriteIngredientId(
+      case InventoryEventType.FAVORITES_REMOVE:
+        await this.inventoryRepository.removeFavoriteIngredientId(
           event.userId,
           event.ingredientId,
         );
         break;
     }
 
-    // Producer의 user-ingredient 캐시 무효화 요청 (발행은 서비스 레이어에서 수행)
-    await this.cacheInvalidationRequestService.requestUserIngredientInvalidation(
+    // Producer의 inventory 캐시 무효화 요청 (발행은 서비스 레이어에서 수행)
+    await this.cacheInvalidationRequestService.requestInventoryInvalidation(
       event.userId,
     );
   }

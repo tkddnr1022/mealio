@@ -7,7 +7,7 @@
 /** 최상위 네임스페이스 (prefix) — 애플리케이션 캐시·Consumer 무효화·인프라 Redis 키 공통 정의 */
 export const CACHE_KEY_PREFIX = {
   USER: 'user',
-  USER_INGREDIENT: 'user-ingredient',
+  INVENTORY: 'inventory',
   RECIPE: 'recipe',
   INGREDIENT: 'ingredient',
   /** Producer API 레이트 리밋 카운터 (애플리케이션 데이터 캐시와 별도 네임스페이스) */
@@ -55,9 +55,9 @@ export function cacheKeyUserProfile(userId: number): string {
   return buildCacheKey(CACHE_KEY_PREFIX.USER, userId);
 }
 
-/** Producer 내 재료함 캐시 — `user-ingredient:{userId}` */
-export function cacheKeyUserIngredient(userId: number): string {
-  return buildCacheKey(CACHE_KEY_PREFIX.USER_INGREDIENT, userId);
+/** Producer 내 재료함 캐시 — `inventory:{userId}` */
+export function cacheKeyInventory(userId: number): string {
+  return buildCacheKey(CACHE_KEY_PREFIX.INVENTORY, userId);
 }
 
 /**

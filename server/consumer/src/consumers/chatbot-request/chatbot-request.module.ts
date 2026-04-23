@@ -5,8 +5,8 @@ import {
   ChatbotLogSchema,
   EventLog,
   EventLogSchema,
-  UserIngredient,
-  UserIngredientSchema,
+  Inventory,
+  InventorySchema,
 } from '@cook/shared';
 import { KafkaModule } from 'src/integrations/kafka/kafka.module';
 import { OpenAIModule } from 'src/integrations/openai/openai.module';
@@ -19,7 +19,7 @@ import { ChatbotRequestConsumer } from './chatbot-request.consumer';
 import { ProcessChatHandler } from './handlers/ProcessChatHandler';
 import { SaveChatLogHandler } from './handlers/SaveChatLogHandler';
 import { SearchRecipesHandler } from './handlers/SearchRecipesHandler';
-import { UserIngredientsHandler } from './handlers/UserIngredientsHandler';
+import { InventoryHandler } from './handlers/InventoryHandler';
 import { ToolDispatcher } from './tools/tool-dispatcher';
 
 @Module({
@@ -29,7 +29,7 @@ import { ToolDispatcher } from './tools/tool-dispatcher';
     MongooseModule.forFeature([
       { name: ChatbotLog.name, schema: ChatbotLogSchema },
       { name: EventLog.name, schema: EventLogSchema },
-      { name: UserIngredient.name, schema: UserIngredientSchema },
+      { name: Inventory.name, schema: InventorySchema },
     ]),
   ],
   providers: [
@@ -38,7 +38,7 @@ import { ToolDispatcher } from './tools/tool-dispatcher';
     ChatbotLogRepository,
     EventLogRepository,
     SearchRecipesHandler,
-    UserIngredientsHandler,
+    InventoryHandler,
     ToolDispatcher,
     ProcessChatHandler,
     SaveChatLogHandler,

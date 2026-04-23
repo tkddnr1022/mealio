@@ -57,8 +57,8 @@ export const QUERY_CACHE = {
     gcTime: 10 * MINUTE_MS,
     retry: false,
   },
-  /** 유저 보유·관심 재료 — 변경이 잦으므로 매우 짧게 */
-  userIngredient: {
+  /** 유저 인벤토리(보유·관심 재료) — 변경이 잦으므로 매우 짧게 */
+  inventory: {
     staleTime: 30 * SECOND_MS,
     gcTime: 10 * MINUTE_MS,
   },

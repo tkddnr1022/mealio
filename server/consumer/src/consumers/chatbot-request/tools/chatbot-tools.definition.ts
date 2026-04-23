@@ -1,15 +1,15 @@
 import type { ChatCompletionTool } from 'openai/resources/chat/completions';
 
 /**
- * OpenAI Function Calling용 tools 배열 (search_recipes, get_user_ingredients 등)
+ * OpenAI Function Calling용 tools 배열 (search_recipes, get_user_inventory 등)
  */
 export const CHATBOT_TOOLS: ChatCompletionTool[] = [
   {
     type: 'function',
     function: {
-      name: 'get_user_ingredients',
+      name: 'get_user_inventory',
       description:
-        '사용자의 보유 재료·즐겨찾기 재료 목록을 조회합니다. 각 항목에 id, name, isFavorite, 재료 분류(categoryId, categoryName, categoryKey)가 포함됩니다. 재료 분류 기반 필터링 시 search_recipes의 ingredientCategoryIds에 categoryId를 넣을 수 있습니다.',
+        '사용자의 인벤토리(보유 재료·관심 재료) 목록을 조회합니다. 각 항목에 id, name, isFavorite, 재료 분류(categoryId, categoryName, categoryKey)가 포함됩니다. 재료 분류 기반 필터링 시 search_recipes의 ingredientCategoryIds에 categoryId를 넣을 수 있습니다.',
     },
   },
   {
@@ -25,7 +25,7 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
     function: {
       name: 'search_recipes',
       description:
-        '키워드·조리시간·재료 ID·레시피/재료 카테고리로 레시피를 검색합니다. get_user_ingredients로 재료 id·재료 분류를, get_food_categories로 레시피/재료 분류 id를 확인한 뒤 조합해 사용할 수 있습니다.',
+        '키워드·조리시간·재료 ID·레시피/재료 카테고리로 레시피를 검색합니다. get_user_inventory로 재료 id·재료 분류를, get_food_categories로 레시피/재료 분류 id를 확인한 뒤 조합해 사용할 수 있습니다.',
       parameters: {
         type: 'object',
         properties: {
@@ -39,7 +39,7 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
             type: 'array',
             items: { type: 'number' },
             description:
-              '보유 재료와 겹치는 재료가 많은 레시피에 가산점. get_user_ingredients의 id 목록.',
+              '보유 인벤토리와 겹치는 재료가 많은 레시피에 가산점. get_user_inventory의 id 목록.',
           },
           recipeCategoryIds: {
             type: 'array',
@@ -51,7 +51,7 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
             type: 'array',
             items: { type: 'number' },
             description:
-              '해당 재료 분류를 쓰는 레시피만 포함. get_food_categories 또는 get_user_ingredients의 categoryId.',
+              '해당 재료 분류를 쓰는 레시피만 포함. get_food_categories 또는 get_user_inventory의 categoryId.',
           },
           maxCookTime: {
             type: 'number',

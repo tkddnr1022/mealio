@@ -154,7 +154,7 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 | client/src/lib/api/users.api.ts | 유저 프로필 조회·닉네임 수정 (`GET /api/v1/users/me`, `PATCH /api/v1/users/me/nickname`) |
 | client/src/lib/api/recipes.api.ts | 레시피 목록·상세·검색·요약 (`GET /api/v1/recipes`, `GET /api/v1/recipes/:recipeId`, `GET /api/v1/recipes/search`, `POST /api/v1/recipes/summaries`) |
 | client/src/lib/api/ingredients.api.ts | 재료 목록·검색 (`GET /api/v1/ingredients`, `GET /api/v1/ingredients/search`) |
-| client/src/lib/api/user-ingredients.api.ts | 유저 보유/관심 재료 조회·변경 (`GET/PUT/POST/DELETE /api/v1/users/me/ingredients` 등) |
+| client/src/lib/api/inventory.api.ts | 유저 보관함 조회 + 보유/관심 재료 변경 (`GET /api/v1/users/me/inventory/ingredients`, `PUT/POST/DELETE /api/v1/users/me/inventory/ingredients/{owned\|favorites}`) |
 | client/src/lib/api/chatbot.api.ts | 챗봇 대화 목록·상세 조회 (`GET /api/v1/chatbot/conversations`, `GET /api/v1/chatbot/conversations/:id`). SSE 전송은 §5.4 sse-client 사용 |
 
 ### 5.2 인증 (`client/src/lib/auth/`, `client/src/middleware.ts`)
@@ -183,7 +183,7 @@ React Query(TanStack Query) 기반. 쿼리 키 계층화·`staleTime`·`cacheTim
 | client/src/lib/queries/recipe.queries.ts | `recipeQueries` 키, `useRecipeList` / `useRecipeDetail` / `useRecipeSearch` / `useRecipeSummaries` |
 | client/src/lib/queries/ingredient.queries.ts | `ingredientQueries` 키, `useIngredientList` / `useIngredientSearch` |
 | client/src/lib/queries/user.queries.ts | `userQueries` 키, `useCurrentUser` / `useUpdateNickname` |
-| client/src/lib/queries/user-ingredient.queries.ts | `userIngredientQueries` 키, 보유·관심 재료 조회/변경 훅 |
+| client/src/lib/queries/inventory.queries.ts | `inventoryQueries` 키, 보유·관심 재료 조회/변경 훅 |
 | client/src/lib/queries/chatbot.queries.ts | `chatbotQueries` 키, `useConversationList` / `useConversationDetail` |
 
 ### 5.4 챗봇 SSE 클라이언트 (`client/src/lib/chatbot/`)
@@ -218,7 +218,7 @@ SSE 구독·이벤트 파싱 담당. `ChatbotStreamEvent` 타입·Redis 채널·
 | client/src/lib/types/user.ts | `UserProfile`, 닉네임 변경 DTO |
 | client/src/lib/types/recipe.ts | `Recipe`, `RecipeDetail`, `RecipeSummary`, `RecipeListQuery`, `RecipeSearchQuery` |
 | client/src/lib/types/ingredient.ts | `Ingredient`, `IngredientCategory`, 목록·검색 쿼리 타입 |
-| client/src/lib/types/user-ingredient.ts | `UserIngredient`(보유/관심 구분 포함) |
+| client/src/lib/types/inventory.ts | `Inventory`(보유/관심 구분 포함) |
 | client/src/lib/types/chatbot.ts | `Conversation`, `ConversationMessage`, `SuggestedRecipe`, `ChatbotStreamEvent` |
 
 ### 5.7 유틸 (`client/src/lib/utils/`)

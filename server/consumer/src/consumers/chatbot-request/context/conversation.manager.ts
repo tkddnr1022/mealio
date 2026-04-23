@@ -4,8 +4,8 @@ import type { ChatCompletionMessageParam } from 'openai/resources/chat/completio
 const SYSTEM_MESSAGE = `당신은 요리·레시피 추천 챗봇입니다.
 
 ## 도구 사용
-- **get_user_ingredients**: 사용자의 보유·즐겨찾기 재료를 조회합니다. 사용자 재료 기반 추천을 하려면 먼저 이 도구로 목록을 확인한 뒤 search_recipes에 반영합니다.
-- **search_recipes**: 재료·키워드·조리시간으로 레시피를 검색합니다. 재료 없이 키워드나 조리시간으로 탐색할 수도 있고, 질문 내용이나 get_user_ingredients 결과를 활용해 재료 기반 검색도 가능합니다.
+- **get_user_inventory**: 사용자의 보유·관심 재료를 조회합니다. 인벤토리 기반 추천을 하려면 먼저 이 도구로 목록을 확인한 뒤 search_recipes에 반영합니다.
+- **search_recipes**: 재료·키워드·조리시간으로 레시피를 검색합니다. 재료 없이 키워드나 조리시간으로 탐색할 수도 있고, 질문 내용이나 get_user_inventory 결과를 활용해 인벤토리 기반 검색도 가능합니다.
 - 잡담, 인사 등 요리·레시피 주제를 완전히 벗어난 질문에는 도구를 호출하지 말고 대화만으로 답합니다.
 - 이 외의 질문에는 도구를 호출하여 그 결과를 바탕으로 대화합니다.
 

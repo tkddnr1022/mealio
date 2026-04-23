@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { type UserEvent, type UserIngredientEvent } from '@cook/shared';
+import { type UserEvent, type InventoryEvent } from '@cook/shared';
 import {
   EventLogRepository,
   type CreateEventLogInput,
 } from 'src/persistence/repositories/mongodb/event-log.repository';
 
-export type UserEventPayload = UserEvent | UserIngredientEvent;
+export type UserEventPayload = UserEvent | InventoryEvent;
 
 function toEventLogPayload(event: UserEventPayload): Record<string, unknown> {
   if ('nickname' in event) {
@@ -15,8 +15,11 @@ function toEventLogPayload(event: UserEventPayload): Record<string, unknown> {
         .previousNickname,
     };
   }
-  if ('ingredientIds' in event) {
-    return { ingredientIds: event.ingredientIds };
+  if ('ownedIngredientIds' in event) {
+    return { ownedIngredientIds: event.ownedIngredientIds };
+  }
+  if ('favoriteIngredientIds' in event) {
+    return { favoriteIngredientIds: event.favoriteIngredientIds };
   }
   if ('ingredientId' in event) {
     return { ingredientId: event.ingredientId };

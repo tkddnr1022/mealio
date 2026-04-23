@@ -3,7 +3,7 @@ import {
   KAFKA_TOPICS,
   CacheInvalidationEventType,
   type CacheInvalidationUserProfilePayload,
-  type CacheInvalidationUserIngredientPayload,
+  type CacheInvalidationInventoryPayload,
 } from '@cook/shared';
 import { KafkaProducerService } from 'src/integrations/kafka/kafka-producer.service';
 
@@ -33,12 +33,12 @@ export class CacheInvalidationRequestService {
   }
 
   /**
-   * Producer의 유저 재료 캐시(`cacheKeyUserIngredient`) 무효화를 요청한다.
+   * Producer의 유저 재료 캐시(`cacheKeyInventory`) 무효화를 요청한다.
    * cache-invalidation 토픽에 이벤트를 발행하며, 수신 측에서 Redis 키를 삭제한다.
    */
-  async requestUserIngredientInvalidation(userId: number): Promise<void> {
-    const payload: CacheInvalidationUserIngredientPayload = {
-      type: CacheInvalidationEventType.USER_INGREDIENT,
+  async requestInventoryInvalidation(userId: number): Promise<void> {
+    const payload: CacheInvalidationInventoryPayload = {
+      type: CacheInvalidationEventType.INVENTORY,
       userId,
     };
     await this.kafkaProducerService.emit(

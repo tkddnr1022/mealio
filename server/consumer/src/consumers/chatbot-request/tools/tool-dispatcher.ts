@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SearchRecipesHandler } from '../handlers/SearchRecipesHandler';
-import { UserIngredientsHandler } from '../handlers/UserIngredientsHandler';
+import { InventoryHandler } from '../handlers/InventoryHandler';
 
 export interface ToolContext {
   userId: number;
@@ -13,7 +13,7 @@ export interface ToolContext {
 export class ToolDispatcher {
   constructor(
     private readonly searchRecipesHandler: SearchRecipesHandler,
-    private readonly userIngredientsHandler: UserIngredientsHandler,
+    private readonly inventoryHandler: InventoryHandler,
   ) {}
 
   async execute(
@@ -22,8 +22,8 @@ export class ToolDispatcher {
     context: ToolContext,
   ): Promise<string> {
     switch (functionName) {
-      case 'get_user_ingredients': {
-        const result = await this.userIngredientsHandler.execute(
+      case 'get_user_inventory': {
+        const result = await this.inventoryHandler.execute(
           context.userId,
         );
         return JSON.stringify(result);

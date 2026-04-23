@@ -1,24 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { UserIngredientRepository } from './user-ingredient.repository';
-import { UserIngredient, UserIngredientDocument } from '@cook/shared';
+import { InventoryRepository } from './inventory.repository';
+import { Inventory, InventoryDocument } from '@cook/shared';
 
-describe('UserIngredientRepository', () => {
-  let repository: UserIngredientRepository;
-  let model: Model<UserIngredientDocument>;
+describe('InventoryRepository', () => {
+  let repository: InventoryRepository;
+  let model: Model<InventoryDocument>;
 
-  const mockUserIngredient = {
+  const mockInventory = {
     userId: 1,
     ingredients: { '1': 'salt' },
-  } as UserIngredient;
+  } as Inventory;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        UserIngredientRepository,
+        InventoryRepository,
         {
-          provide: getModelToken(UserIngredient.name),
+          provide: getModelToken(Inventory.name),
           useValue: {
             findOne: jest.fn(),
             findOneAndUpdate: jest.fn(),
@@ -27,9 +27,9 @@ describe('UserIngredientRepository', () => {
       ],
     }).compile();
 
-    repository = module.get<UserIngredientRepository>(UserIngredientRepository);
-    model = module.get<Model<UserIngredientDocument>>(
-      getModelToken(UserIngredient.name),
+    repository = module.get<InventoryRepository>(InventoryRepository);
+    model = module.get<Model<InventoryDocument>>(
+      getModelToken(Inventory.name),
     );
   });
 
@@ -40,7 +40,7 @@ describe('UserIngredientRepository', () => {
   describe('findByUserId', () => {
     it('should find and return user ingredients by user id (lean + select)', async () => {
       const userId = 1;
-      const exec = jest.fn().mockResolvedValue(mockUserIngredient);
+      const exec = jest.fn().mockResolvedValue(mockInventory);
       const lean = jest.fn().mockReturnValue({ exec });
       const select = jest.fn().mockReturnValue({ lean });
       jest.spyOn(model, 'findOne').mockReturnValue({ select } as any);
@@ -52,7 +52,7 @@ describe('UserIngredientRepository', () => {
         'userId ingredientsIds favoriteIngredientIds lastSyncedAt',
       );
       expect(lean).toHaveBeenCalled();
-      expect(result).toEqual(mockUserIngredient);
+      expect(result).toEqual(mockInventory);
     });
   });
 

@@ -12,55 +12,37 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { UserIngredientsService } from './user-ingredients.service';
-import { UserIngredientListDto } from './dto/user-ingredient-list.dto';
-import { IngredientIdsDto } from './dto/ingredient-ids.dto';
+import { InventoryService } from './inventory.service';
+import { InventoryListDto } from './dto/inventory-list.dto';
+import { OwnedIngredientIdsDto } from './dto/owned-ingredient-ids.dto';
+import { FavoriteIngredientIdsDto } from './dto/favorite-ingredient-ids.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthUser } from '../auth/types/request.types';
 
-@ApiTags('UserIngredient')
-@Controller('api/v1/users/me/ingredients')
+@ApiTags('Inventory')
+@Controller('api/v1/users/me/inventory/ingredients')
 @UseGuards(JwtAuthGuard)
-export class UserIngredientsController {
-  constructor(
-    private readonly userIngredientsService: UserIngredientsService,
-  ) {}
+export class InventoryController {
+  constructor(private readonly inventoryService: InventoryService) {}
 
   @Get()
-  @ApiOperation({ summary: '내 재료함 조회' })
+  @ApiOperation({ summary: '내 보관함 조회' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: '재료함 조회 성공',
-    type: UserIngredientListDto,
+    description: '보관함 조회 성공',
+    type: InventoryListDto,
   })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
-  async getMyIngredients(
+  async getMyInventory(
     @CurrentUser() user: AuthUser,
-  ): Promise<UserIngredientListDto> {
-    return this.userIngredientsService.getMyIngredients(user.id);
+  ): Promise<InventoryListDto> {
+    return this.inventoryService.getMyInventory(user.id);
   }
 
-  @Put()
-  @ApiOperation({ summary: '내 재료함 업데이트' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: '업데이트 성공',
-    schema: { type: 'object', properties: { success: { type: 'boolean' } } },
-  })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
-  async update(
-    @CurrentUser() user: AuthUser,
-    @Body() dto: IngredientIdsDto,
-  ): Promise<{ success: boolean }> {
-    return this.userIngredientsService.update(user.id, dto);
-  }
-
-  @Put('favorites')
-  @ApiOperation({ summary: '즐겨찾는 재료 설정 (전체 교체)' })
+  @Put('owned')
+  @ApiOperation({ summary: '내 보유 재료 업데이트 (전체 교체)' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: '업데이트 성공',
@@ -69,16 +51,16 @@ export class UserIngredientsController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
-  async updateFavorites(
+  async updateOwnedIngredients(
     @CurrentUser() user: AuthUser,
-    @Body() dto: IngredientIdsDto,
+    @Body() dto: OwnedIngredientIdsDto,
   ): Promise<{ success: boolean }> {
-    return this.userIngredientsService.updateFavorites(user.id, dto);
+    return this.inventoryService.updateOwnedIngredients(user.id, dto);
   }
 
-  @Post('favorites')
+  @Post('owned')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: '즐겨찾는 재료 추가' })
+  @ApiOperation({ summary: '내 보유 재료 추가' })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: '추가 성공',
@@ -87,55 +69,72 @@ export class UserIngredientsController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
-  async addFavorites(
+  async addOwnedIngredients(
     @CurrentUser() user: AuthUser,
-    @Body() dto: IngredientIdsDto,
+    @Body() dto: OwnedIngredientIdsDto,
   ): Promise<{ success: boolean }> {
-    return this.userIngredientsService.addFavorites(user.id, dto);
+    return this.inventoryService.addOwnedIngredients(user.id, dto);
   }
 
-  @Delete('favorites/:ingredientId')
+  @Delete('owned/:ingredientId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: '즐겨찾는 재료 삭제' })
+  @ApiOperation({ summary: '내 보유 재료 삭제' })
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: '삭제 성공' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '사용자 없음' })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
-  async removeFavorite(
+  async removeOwnedIngredient(
     @CurrentUser() user: AuthUser,
     @Param('ingredientId', ParseIntPipe) ingredientId: number,
   ): Promise<void> {
-    await this.userIngredientsService.removeFavorite(user.id, ingredientId);
+    await this.inventoryService.removeOwnedIngredient(user.id, ingredientId);
   }
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: '재료 추가' })
+  @Put('favorites')
+  @ApiOperation({ summary: '내 관심 재료 업데이트 (전체 교체)' })
   @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: '재료 추가 성공',
+    status: HttpStatus.OK,
+    description: '업데이트 성공',
     schema: { type: 'object', properties: { success: { type: 'boolean' } } },
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
-  async add(
+  async updateFavoriteIngredients(
     @CurrentUser() user: AuthUser,
-    @Body() dto: IngredientIdsDto,
+    @Body() dto: FavoriteIngredientIdsDto,
   ): Promise<{ success: boolean }> {
-    return this.userIngredientsService.add(user.id, dto);
+    return this.inventoryService.updateFavoriteIngredients(user.id, dto);
   }
 
-  @Delete(':ingredientId')
+  @Post('favorites')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: '내 관심 재료 추가' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: '추가 성공',
+    schema: { type: 'object', properties: { success: { type: 'boolean' } } },
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  async addFavoriteIngredients(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: FavoriteIngredientIdsDto,
+  ): Promise<{ success: boolean }> {
+    return this.inventoryService.addFavoriteIngredients(user.id, dto);
+  }
+
+  @Delete('favorites/:ingredientId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: '재료 삭제' })
+  @ApiOperation({ summary: '내 관심 재료 삭제' })
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: '삭제 성공' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '사용자 없음' })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
-  async remove(
+  async removeFavoriteIngredient(
     @CurrentUser() user: AuthUser,
     @Param('ingredientId', ParseIntPipe) ingredientId: number,
   ): Promise<void> {
-    await this.userIngredientsService.remove(user.id, ingredientId);
+    await this.inventoryService.removeFavoriteIngredient(user.id, ingredientId);
   }
 }

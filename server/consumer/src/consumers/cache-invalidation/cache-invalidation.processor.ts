@@ -23,7 +23,7 @@ function isValidCacheInvalidationPayload(
   const o = obj as Record<string, unknown>;
   if (
     o.type !== CacheInvalidationEventType.USER_PROFILE &&
-    o.type !== CacheInvalidationEventType.USER_INGREDIENT
+    o.type !== CacheInvalidationEventType.INVENTORY
   )
     return false;
   if (typeof (o as { userId?: unknown }).userId !== 'number') return false;
