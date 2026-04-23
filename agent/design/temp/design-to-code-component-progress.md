@@ -82,8 +82,8 @@
 - [x] `MiniTagsRow`
 - [x] `SuggestedRecipeCard`
 - [x] `SuggestedRecipeSlider`
-- [ ] `ChatConversation`
-- [ ] `ChatComposer` 세트 (`filled=true` / `false`)
+- [x] `ChatConversation`
+- [x] `ChatComposer` 세트 (`filled=true` / `false`)
 
 ### 재료 · 인벤토리
 
