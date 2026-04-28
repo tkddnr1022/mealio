@@ -5,6 +5,7 @@ import {
 } from '@cook/shared';
 import { InventoryRepository } from 'src/persistence/repositories/mongodb/inventory.repository';
 import { CacheInvalidationRequestService } from 'src/consumers/cache-invalidation/cache-invalidation-request.service';
+import { RecipeStatsUpdaterService } from '../services/recipe-stats-updater.service';
 
 /**
  * 유저 인벤토리 이벤트 수신 시 MongoDB Inventory 갱신
@@ -25,6 +26,7 @@ import { CacheInvalidationRequestService } from 'src/consumers/cache-invalidatio
 export class UpdateInventoryHandler {
   constructor(
     private readonly inventoryRepository: InventoryRepository,
+    private readonly recipeStatsUpdaterService: RecipeStatsUpdaterService, // TODO: 배치 위치(레이어 깊이)가 적절한지 검토
     private readonly cacheInvalidationRequestService: CacheInvalidationRequestService,
   ) {}
 
@@ -79,6 +81,8 @@ export class UpdateInventoryHandler {
         );
         break;
     }
+
+    await this.recipeStatsUpdaterService.apply(event);
 
     // Producer의 inventory 캐시 무효화 요청 (발행은 서비스 레이어에서 수행)
     await this.cacheInvalidationRequestService.requestInventoryInvalidation(

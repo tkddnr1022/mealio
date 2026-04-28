@@ -383,7 +383,7 @@ paths:
           description: 정렬 기준
           schema:
             type: string
-            enum: [latest, cookTime, difficulty]
+            enum: [latest, cookTime, difficulty, viewCount, likeCount]
             default: latest
       responses:
         '200':
@@ -568,7 +568,7 @@ paths:
           description: 정렬 기준
           schema:
             type: string
-            enum: [latest, cookTime, difficulty]
+            enum: [latest, cookTime, difficulty, viewCount, likeCount]
             default: latest
       responses:
         '200':
@@ -1401,6 +1401,9 @@ components:
         viewCount:
           type: integer
           description: 조회수
+        likeCount:
+          type: integer
+          description: 좋아요 수
         isPublished:
           type: boolean
           description: 공개 여부
@@ -1414,6 +1417,8 @@ components:
         difficulty: 1
         cookTime: 15
         imageUrl: https://example.com/images/recipe456.jpg
+        viewCount: 1240
+        likeCount: 180
         createdAt: "2025-01-10T10:30:00Z"
 
     RecipeDetail:

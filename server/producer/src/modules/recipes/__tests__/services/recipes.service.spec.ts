@@ -34,6 +34,7 @@ describe('RecipeQueryService', () => {
     imageUrl: null,
     servings: 2,
     viewCount: 0,
+    likeCount: 0,
     isPublished: true,
     instructions: [{ step: 1, content: '재료를 준비한다.' }],
     createdAt: new Date('2025-01-10T10:30:00.000Z'),
@@ -90,7 +91,7 @@ describe('RecipeQueryService', () => {
         .mockImplementation((...args: (string | number)[]) =>
           buildCacheKey(CACHE_KEY_PREFIX.RECIPE, ...args),
         ),
-      getTtl: jest.fn().mockReturnValue(3600),
+      getTtl: jest.fn().mockReturnValue(60),
     };
 
     const mockKafkaProducer = { emit: jest.fn().mockResolvedValue(undefined) };
@@ -184,6 +185,25 @@ describe('RecipeQueryService', () => {
       });
     });
 
+    it('viewCount 정렬도 공통 캐시 전략을 사용한다', async () => {
+      await service.getList({
+        page: 1,
+        size: 20,
+        sort: 'viewCount',
+      });
+
+      expect(cacheService.getOrSet).toHaveBeenCalledWith(
+        recipeCacheStrategy,
+        expect.any(Function),
+        CACHE_KEY_SEGMENT.LIST,
+        CACHE_KEY_SEGMENT.ALL,
+        CACHE_KEY_SEGMENT.ALL,
+        'viewCount',
+        1,
+        20,
+      );
+    });
+
     it('캐시 히트 시 repository를 호출하지 않는다', async () => {
       const cached = {
         data: [
@@ -196,6 +216,7 @@ describe('RecipeQueryService', () => {
             imageUrl: null,
             servings: 1,
             viewCount: 0,
+            likeCount: 0,
             isPublished: true,
             createdAt: new Date('2025-01-01T00:00:00.000Z'),
           },
@@ -255,6 +276,7 @@ describe('RecipeQueryService', () => {
         imageUrl: null,
         servings: 2,
         viewCount: 0,
+        likeCount: 0,
         isPublished: true,
         createdAt: new Date(),
         categoryId: 1,

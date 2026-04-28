@@ -18,6 +18,7 @@
 * **User**: 서비스를 이용하는 사용자
 * **RecipeCategory**: 레시피 카테고리 마스터 데이터
 * **Recipe**: 요리 레시피
+* **RecipeStats**: 레시피 조회/좋아요 집계 카운터
 * **IngredientCategory**: 재료 카테고리 마스터 데이터
 * **Ingredient**: 재료 마스터 데이터
 * **RecipeIngredient**: 레시피와 재료 간의 다대다 관계
@@ -102,7 +103,6 @@
 | cookTime        | cook_time    | INT             | 예상 조리 시간 (분)              |
 | imageUrl        | image_url    | VARCHAR(512)    | 레시피 이미지 URL (nullable)     |
 | servings        | servings     | INT             | 인분 (기본값 2)                  |
-| viewCount       | view_count   | INT             | 조회수 (기본값 0)                |
 | isPublished     | is_published | BOOLEAN         | 공개 여부 (기본값 true)          |
 | createdAt       | created_at   | TIMESTAMP       | 생성 시각                        |
 | updatedAt       | updated_at   | TIMESTAMP       | 수정 시각                        |
@@ -110,9 +110,28 @@
 **제약**: `FK(category) -> RecipeCategory(id)` (Prisma: `categoryId` → `@map("category")`)  
 **인덱스**: `(category, difficulty, cook_time, created_at)`, `(difficulty, cook_time, created_at)`, `(created_at DESC)`
 
+### 2.4 RecipeStats
+
+**의미**
+
+* 레시피 통계(조회수, 좋아요 수) 전용 엔터티
+* 정적 본문(`Recipe`)과 동적 카운터를 분리해 고빈도 업데이트 경합을 완화
+
+**필드 설명** (Prisma `RecipeStats` ↔ DB 컬럼)
+
+| 필드 (Prisma) | DB 컬럼    | 타입      | 의미 |
+| ------------- | ---------- | --------- | ---- |
+| recipeId      | recipe_id  | INT       | 레시피 ID (PK, `Recipe.id` FK) |
+| viewCount     | view_count | INT       | 조회수 (기본값 0) |
+| likeCount     | like_count | INT       | 좋아요 수 (기본값 0) |
+| updatedAt     | updated_at | TIMESTAMP | 최종 통계 갱신 시각 |
+
+**제약**: `FK(recipe_id) -> Recipe(id)` (ON DELETE CASCADE)  
+**인덱스**: `(view_count DESC, recipe_id DESC)`, `(like_count DESC, recipe_id DESC)`
+
 ---
 
-### 2.4 IngredientCategory
+### 2.5 IngredientCategory
 
 **의미**
 
@@ -135,7 +154,7 @@
 
 ---
 
-### 2.5 Ingredient
+### 2.6 Ingredient
 
 **의미**
 
@@ -156,7 +175,7 @@
 
 ---
 
-### 2.6 RecipeIngredient
+### 2.7 RecipeIngredient
 
 **의미**
 

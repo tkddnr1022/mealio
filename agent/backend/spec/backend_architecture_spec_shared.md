@@ -20,7 +20,7 @@
 | server/shared/src/constants/redis-channels.ts | getChatbotStreamChannel, CHATBOT_STREAM_CHANNEL_PREFIX |
 | server/shared/src/constants/cache-keys.ts | CACHE_KEY_PREFIX. Producer 캐시 전략·Consumer 캐시 무효화에서 공통 사용 |
 | server/shared/src/constants/asset-url-prefixes.ts | ASSET_URL_PREFIX (RECIPE_IMAGE, INGREDIENT_CATEGORY_ICON). 레시피 이미지/재료 카테고리 아이콘 URL prefix 공통 사용 |
-| server/shared/src/database/prisma/schema.prisma | PostgreSQL 스키마 (User, RecipeCategory, Recipe, IngredientCategory, Ingredient, RecipeIngredient) |
+| server/shared/src/database/prisma/schema.prisma | PostgreSQL 스키마 (User, RecipeCategory, Recipe, RecipeStats, IngredientCategory, Ingredient, RecipeIngredient) |
 | server/shared/src/database/prisma/prisma-pool.config.ts | PrismaPoolConfig 타입, PRISMA_POOL_CONFIG DI 토큰 (커넥션 풀 설정용). PrismaService·PrismaModule에서 참조 |
 | server/shared/src/database/prisma/prisma.service.ts | PrismaService (NestJS, OnModuleInit/OnModuleDestroy, PrismaPg 어댑터. PRISMA_POOL_CONFIG 주입) |
 | server/shared/src/database/prisma/prisma.module.ts | PrismaModule. forRoot(config) / forRootAsync({ useFactory }) 로 connection pool config 주입. Producer/Consumer에서 import 시 config 전달 |
@@ -41,7 +41,8 @@
 |------|------|------|
 | User | id, email, nickname, platformName, platformId, createdAt, updatedAt | @@index(platformName, platformId), (email), (createdAt) |
 | RecipeCategory | id, key, name, displayOrder, isActive, createdAt, updatedAt | recipes 관계. @@index(isActive, displayOrder), @unique(key) |
-| Recipe | id, categoryId(@map category), title, description?, instructions(Json), difficulty, cookTime, imageUrl?, servings, viewCount, isPublished, createdAt, updatedAt | categoryMeta(RecipeCategory), recipeIngredients 관계. @@index(categoryId, difficulty, cookTime, createdAt), @@index(difficulty, cookTime, createdAt), (createdAt Desc) |
+| Recipe | id, categoryId(@map category), title, description?, instructions(Json), difficulty, cookTime, imageUrl?, servings, isPublished, createdAt, updatedAt | categoryMeta(RecipeCategory), recipeIngredients, stats(RecipeStats, 1:1 optional) 관계. @@index(categoryId, difficulty, cookTime, createdAt), @@index(difficulty, cookTime, createdAt), (createdAt Desc) |
+| RecipeStats | recipeId(@map recipe_id, PK), viewCount(@map view_count), likeCount(@map like_count), updatedAt(@map updated_at) | recipe(Recipe, onDelete: Cascade). @@index(viewCount desc, recipeId desc), @@index(likeCount desc, recipeId desc) |
 | IngredientCategory | id, key, name, displayOrder, isActive, createdAt, updatedAt | ingredients 관계. @@index(isActive, displayOrder), @unique(key) |
 | Ingredient | id, name, categoryId(@map category), createdAt | categoryMeta(IngredientCategory), recipeIngredients 관계. @@index(categoryId, name) |
 | RecipeIngredient | id, recipeId, ingredientId, amount?, unit?, isOptional | recipe, ingredient 관계. @@unique(recipeId, ingredientId), @@index(recipeId), (ingredientId) |

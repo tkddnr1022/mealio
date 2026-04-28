@@ -23,9 +23,16 @@ function isValidCacheInvalidationPayload(
   const o = obj as Record<string, unknown>;
   if (
     o.type !== CacheInvalidationEventType.USER_PROFILE &&
-    o.type !== CacheInvalidationEventType.INVENTORY
+    o.type !== CacheInvalidationEventType.INVENTORY &&
+    o.type !== CacheInvalidationEventType.RECIPE
   )
     return false;
+  if (o.type === CacheInvalidationEventType.RECIPE) {
+    if (!Array.isArray((o as { recipeIds?: unknown }).recipeIds)) return false;
+    return (o as { recipeIds?: unknown[] }).recipeIds?.every(
+      (id) => typeof id === 'number',
+    ) === true;
+  }
   if (typeof (o as { userId?: unknown }).userId !== 'number') return false;
   return true;
 }
@@ -33,6 +40,23 @@ function isValidCacheInvalidationPayload(
 const cacheInvalidationBusinessRules: BusinessRule<CacheInvalidationPayload>[] =
   [
     (event) => {
+      if (event.type === CacheInvalidationEventType.RECIPE) {
+        if (event.recipeIds.length === 0) {
+          return {
+            code: 'RECIPE_IDS_EMPTY',
+            message: 'recipeIds must contain at least one item',
+            detail: { recipeIds: event.recipeIds },
+          };
+        }
+        if (event.recipeIds.some((id) => id <= 0)) {
+          return {
+            code: 'RECIPE_ID_INVALID',
+            message: 'recipeIds must contain positive integers only',
+            detail: { recipeIds: event.recipeIds },
+          };
+        }
+        return null;
+      }
       if (event.userId <= 0) {
         return {
           code: 'USER_ID_INVALID',

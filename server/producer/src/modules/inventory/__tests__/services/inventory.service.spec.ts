@@ -89,6 +89,7 @@ describe('InventoryService', () => {
             imageUrl: null,
             servings: 2,
             viewCount: 10,
+            likeCount: 3,
             isPublished: true,
             createdAt: new Date('2025-01-10T10:30:00Z'),
           },

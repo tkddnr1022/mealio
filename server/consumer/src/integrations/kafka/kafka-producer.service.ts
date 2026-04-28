@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Kafka, Producer } from 'kafkajs';
 import { createKafkaConfig } from '@cook/shared';
-
+// TODO: Consumer 프로세스에서 Kafka Produce/Consume 모두 수행하는 것이 적절한지 검토
 /**
  * Consumer 패키지 내부에서 토픽 발행이 필요할 때 사용하는 Kafka Producer.
  * (예: user-events 처리 후 cache-invalidation 토픽 발행)

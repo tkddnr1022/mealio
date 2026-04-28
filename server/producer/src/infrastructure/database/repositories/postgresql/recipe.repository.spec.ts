@@ -4,17 +4,22 @@ import { PrismaService } from '@cook/shared';
 
 describe('RecipeRepository', () => {
   let repository: RecipeRepository;
-  let prisma: PrismaService;
+  let prisma: jest.Mocked<PrismaService>;
 
   const mockRecipe: any = {
-    id: 1n,
+    id: 1,
     title: 'Test Recipe',
     description: 'A delicious test recipe',
     cookTime: 30,
     difficulty: 3,
-    authorId: 1n,
+    categoryId: 1,
+    servings: 2,
+    imageUrl: null,
+    isPublished: true,
     createdAt: new Date(),
     updatedAt: new Date(),
+    categoryMeta: { id: 1, key: 'KOREAN', name: '한식' },
+    recipeIngredients: [],
   };
 
   const mockPrismaService = {
@@ -23,6 +28,12 @@ describe('RecipeRepository', () => {
       findMany: jest.fn().mockResolvedValue([mockRecipe]),
       count: jest.fn().mockResolvedValue(1),
     },
+    recipeStats: {
+      findMany: jest.fn().mockResolvedValue([
+        { recipeId: 1, viewCount: 7, likeCount: 3 },
+      ]),
+    },
+    $queryRaw: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -37,7 +48,8 @@ describe('RecipeRepository', () => {
     }).compile();
 
     repository = module.get<RecipeRepository>(RecipeRepository);
-    prisma = module.get<PrismaService>(PrismaService);
+    prisma = module.get(PrismaService);
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -46,9 +58,9 @@ describe('RecipeRepository', () => {
 
   describe('findById', () => {
     it('should find a recipe by id (published only)', async () => {
-      const result = await repository.findById(1n);
+      const result = await repository.findById(1);
       expect(prisma.recipe.findUnique).toHaveBeenCalledWith({
-        where: { id: 1n, isPublished: true },
+        where: { id: 1, isPublished: true },
         include: {
           categoryMeta: {
             select: { id: true, key: true, name: true },
@@ -60,11 +72,49 @@ describe('RecipeRepository', () => {
           },
         },
       });
-      expect(result).toEqual(mockRecipe);
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: 1,
+          viewCount: 7,
+          likeCount: 3,
+        }),
+      );
+    });
+
+    it('통계가 누락되면 Error를 던진다', async () => {
+      mockPrismaService.recipeStats.findMany.mockResolvedValueOnce([]);
+
+      await expect(repository.findById(1)).rejects.toThrow(
+        'RecipeStats not found for recipeId=1',
+      );
     });
   });
 
   // create, createWithIngredients는 producer에서 제거됨 (Command는 consumer에서 이벤트로 처리)
+
+  describe('findManyPaginated', () => {
+    it('cookTime 일반 정렬에서도 2차 정렬로 stats.viewCount를 사용한다', async () => {
+      await repository.findManyPaginated({
+        page: 1,
+        size: 20,
+        sort: 'cookTime',
+      });
+
+      expect(prisma.recipe.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { isPublished: true },
+          skip: 0,
+          take: 20,
+          orderBy: [
+            { cookTime: 'asc' },
+            { stats: { viewCount: 'desc' } },
+            { stats: { likeCount: 'desc' } },
+            { id: 'desc' },
+          ],
+        }),
+      );
+    });
+  });
 
   describe('searchRecipes', () => {
     it('should search recipes', async () => {
@@ -84,6 +134,27 @@ describe('RecipeRepository', () => {
       });
       expect(prisma.recipe.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
+          where: { isPublished: true },
+        }),
+      );
+    });
+
+    it('viewCount 정렬 시 일반 조회와 동일한 findMany orderBy를 사용한다', async () => {
+      await repository.searchByKeyword({
+        page: 1,
+        size: 20,
+        sort: 'viewCount',
+      });
+
+      expect(prisma.recipe.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          orderBy: [
+            { stats: { viewCount: 'desc' } },
+            { stats: { likeCount: 'desc' } },
+            { id: 'desc' },
+          ],
+          skip: 0,
+          take: 20,
           where: { isPublished: true },
         }),
       );

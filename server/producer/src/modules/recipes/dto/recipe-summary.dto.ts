@@ -33,6 +33,9 @@ export class RecipeSummaryDto {
   @ApiProperty({ example: 0, description: '조회수' })
   viewCount: number;
 
+  @ApiProperty({ example: 0, description: '좋아요 수' })
+  likeCount: number;
+
   @ApiProperty({ example: true, description: '공개 여부' })
   isPublished: boolean;
 

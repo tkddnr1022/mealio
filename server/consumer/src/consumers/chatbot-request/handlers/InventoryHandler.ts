@@ -30,6 +30,7 @@ export interface FavoriteRecipeSummary {
   imageUrl: string | null;
   servings: number;
   viewCount: number;
+  likeCount: number;
   isPublished: boolean;
   createdAt: Date;
 }
@@ -202,13 +203,33 @@ export class InventoryHandler {
         cookTime: true,
         imageUrl: true,
         servings: true,
-        viewCount: true,
         isPublished: true,
         createdAt: true,
       },
     });
 
-    const map = new Map(rows.map((row) => [row.id, row]));
+    const statsRows = await this.prisma.recipeStats.findMany({
+      where: { recipeId: { in: rows.map((row) => row.id) } },
+      select: {
+        recipeId: true,
+        viewCount: true,
+        likeCount: true,
+      },
+    });
+    const statsMap = new Map(statsRows.map((row) => [row.recipeId, row]));
+    const map = new Map(
+      rows.map((row) => {
+        const stats = statsMap.get(row.id);
+        return [
+          row.id,
+          {
+            ...row,
+            viewCount: stats?.viewCount ?? 0,
+            likeCount: stats?.likeCount ?? 0,
+          },
+        ];
+      }),
+    );
     return favoriteRecipeIds
       .map((id) => map.get(id))
       .filter((row): row is FavoriteRecipeSummary => row !== undefined);

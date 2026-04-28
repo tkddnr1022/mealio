@@ -4,11 +4,11 @@ import { CacheStrategy } from './cache-strategy.interface';
 
 /**
  * Recipe 캐시 전략
- * TTL: 1시간 (3600초)
+ * TTL: 1분 (60초)
  */
 @Injectable()
 export class RecipeCacheStrategy implements CacheStrategy {
-  private readonly TTL_SECONDS = 3600; // 1시간
+  private readonly TTL_SECONDS = 60; // 1분
 
   generateKey(...args: (string | number)[]): string {
     if (args.length === 0) {

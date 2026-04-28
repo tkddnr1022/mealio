@@ -48,10 +48,11 @@ export class RecipeListQueryDto {
 
   @ApiPropertyOptional({
     description: '정렬 기준',
-    enum: ['latest', 'cookTime', 'difficulty'],
+    enum: ['latest', 'cookTime', 'difficulty', 'viewCount', 'likeCount'],
     default: 'latest',
   })
   @IsOptional()
-  @IsIn(['latest', 'cookTime', 'difficulty'])
-  sort?: 'latest' | 'cookTime' | 'difficulty' = 'latest';
+  @IsIn(['latest', 'cookTime', 'difficulty', 'viewCount', 'likeCount'])
+  sort?: 'latest' | 'cookTime' | 'difficulty' | 'viewCount' | 'likeCount' =
+    'latest';
 }

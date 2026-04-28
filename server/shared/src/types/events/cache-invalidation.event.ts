@@ -6,6 +6,7 @@
 export enum CacheInvalidationEventType {
   USER_PROFILE = 'user-profile',
   INVENTORY = 'inventory',
+  RECIPE = 'recipe',
 }
 
 export interface CacheInvalidationUserProfilePayload {
@@ -18,6 +19,12 @@ export interface CacheInvalidationInventoryPayload {
   userId: number;
 }
 
+export interface CacheInvalidationRecipePayload {
+  type: CacheInvalidationEventType.RECIPE;
+  recipeIds: number[];
+}
+
 export type CacheInvalidationPayload =
   | CacheInvalidationUserProfilePayload
-  | CacheInvalidationInventoryPayload;
+  | CacheInvalidationInventoryPayload
+  | CacheInvalidationRecipePayload;

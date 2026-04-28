@@ -4,6 +4,7 @@ import {
   CacheInvalidationEventType,
   type CacheInvalidationUserProfilePayload,
   type CacheInvalidationInventoryPayload,
+  type CacheInvalidationRecipePayload,
 } from '@cook/shared';
 import { KafkaProducerService } from 'src/integrations/kafka/kafka-producer.service';
 
@@ -45,6 +46,26 @@ export class CacheInvalidationRequestService {
       KAFKA_TOPICS.CACHE_INVALIDATION,
       payload,
       String(userId),
+    );
+  }
+
+  /**
+   * Producer의 레시피 관련 캐시(`recipe:*`) 무효화를 요청한다.
+   * cache-invalidation 토픽에 이벤트를 발행하며, 수신 측에서 Redis 키를 삭제한다.
+   */
+  async requestRecipeInvalidation(recipeIds: number[]): Promise<void> {
+    const uniqueRecipeIds = [...new Set(recipeIds)].filter((id) => id > 0);
+    if (uniqueRecipeIds.length === 0) {
+      return;
+    }
+    const payload: CacheInvalidationRecipePayload = {
+      type: CacheInvalidationEventType.RECIPE,
+      recipeIds: uniqueRecipeIds,
+    };
+    await this.kafkaProducerService.emit(
+      KAFKA_TOPICS.CACHE_INVALIDATION,
+      payload,
+      `recipe:${uniqueRecipeIds.join(',')}`,
     );
   }
 }

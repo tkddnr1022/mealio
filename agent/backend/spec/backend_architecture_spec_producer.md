@@ -59,6 +59,7 @@
 | server/producer/src/modules/recipes/dto/recipe-list-query.dto.ts | 리스트 조회 쿼리 DTO |
 | server/producer/src/modules/recipes/dto/recipe-search-query.dto.ts | 검색 쿼리 DTO |
 | server/producer/src/modules/recipes/dto/recipe-summary.dto.ts | 레시피 요약 응답 DTO |
+| server/producer/src/modules/recipes/policies/recipe-sort.policy.ts | 레시피 정렬 정책 (latest/cookTime/difficulty/viewCount/likeCount) 및 Prisma orderBy 규칙 |
 | **server/producer/src/modules/ingredients/** | 재료 조회 모듈 |
 | server/producer/src/modules/ingredients/ingredients.module.ts | IngredientsModule 정의 |
 | server/producer/src/modules/ingredients/ingredients.service.ts | 재료 목록·검색, 캐시 우선 조회 |
@@ -89,7 +90,7 @@
 | server/producer/src/modules/chatbot/dto/suggested-recipe.dto.ts | 챗봇이 제안하는 레시피 DTO |
 | **server/producer/src/infrastructure/database/repositories/postgresql/** | |
 | server/producer/src/infrastructure/database/repositories/postgresql/user.repository.ts | User 조회·생성(OAuth 로그인용)·갱신 (PrismaService, @cook/shared/prisma-client) |
-| server/producer/src/infrastructure/database/repositories/postgresql/recipe.repository.ts | Recipe 조회/생성 (PrismaService, @cook/shared/prisma-client) |
+| server/producer/src/infrastructure/database/repositories/postgresql/recipe.repository.ts | Recipe 조회/검색 리포지토리. RecipeStats 조인(attach) 및 통계 기반 정렬(viewCount/likeCount) 지원 |
 | server/producer/src/infrastructure/database/repositories/postgresql/ingredient.repository.ts | Ingredient 조회 |
 | server/producer/src/infrastructure/database/repositories/postgresql/recipe-ingredient.repository.ts | RecipeIngredient 조회/생성 |
 | **server/producer/src/infrastructure/database/repositories/mongodb/** | |
@@ -102,7 +103,7 @@
 | server/producer/src/infrastructure/cache/cache.decorator.ts | @Cacheable 데코레이터 |
 | server/producer/src/infrastructure/cache/strategies/cache-strategy.interface.ts | 캐시 전략 인터페이스 |
 | server/producer/src/infrastructure/cache/strategies/index.ts | 전략 export |
-| server/producer/src/infrastructure/cache/strategies/recipe-cache-strategy.ts | TTL 1시간 |
+| server/producer/src/infrastructure/cache/strategies/recipe-cache-strategy.ts | TTL 1시간. 상세(`recipe:{id}`), 목록(`recipe:list:*`), 검색(`recipe:search:*`) 키 세그먼트 사용 |
 | server/producer/src/infrastructure/cache/strategies/ingredient-cache-strategy.ts | TTL 24시간 |
 | server/producer/src/infrastructure/cache/strategies/user-cache-strategy.ts | TTL 30분. 캐시 키 prefix는 @cook/shared CACHE_KEY_PREFIX.USER 사용 |
 | server/producer/src/infrastructure/cache/strategies/inventory-cache-strategy.ts | TTL 30분. 캐시 키 prefix는 @cook/shared CACHE_KEY_PREFIX.INVENTORY 사용 |

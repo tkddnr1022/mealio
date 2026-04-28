@@ -87,3 +87,16 @@ export function cacheKeyRateLimitApi(
 ): string {
   return buildCacheKey(CACHE_KEY_PREFIX.RATE_LIMIT_API, identifier, windowId);
 }
+
+/** Producer 레시피 상세 캐시 — `recipe:{recipeId}` */
+export function cacheKeyRecipeDetail(recipeId: number): string {
+  return buildCacheKey(CACHE_KEY_PREFIX.RECIPE, recipeId);
+}
+
+/** Producer 레시피 목록/검색 캐시 패턴 — `recipe:list:*`, `recipe:search:*` */
+export function cachePatternRecipeListAndSearch(): string[] {
+  return [
+    buildCacheKey(CACHE_KEY_PREFIX.RECIPE, CACHE_KEY_SEGMENT.LIST, '*'),
+    buildCacheKey(CACHE_KEY_PREFIX.RECIPE, CACHE_KEY_SEGMENT.SEARCH, '*'),
+  ];
+}

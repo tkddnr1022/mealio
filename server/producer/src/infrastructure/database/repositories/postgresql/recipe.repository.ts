@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, Recipe } from '@cook/shared/prisma-client';
 import { PrismaService } from '@cook/shared';
-
-export type RecipeListOrder = 'latest' | 'cookTime' | 'difficulty';
+import {
+  RecipeListOrder,
+  resolveRecipeSortPolicy,
+} from '../../../../modules/recipes/policies/recipe-sort.policy';
 
 export interface RecipeListParams {
   page: number;
@@ -32,12 +34,23 @@ export interface RecipeCategoryRow {
   isActive: boolean;
 }
 
+export type RecipeWithStats = Recipe & {
+  viewCount: number;
+  likeCount: number;
+};
+
+type RecipeStatsRow = {
+  recipeId: number;
+  viewCount: number;
+  likeCount: number;
+};
+
 @Injectable()
 export class RecipeRepository {
   constructor(private prisma: PrismaService) {}
 
-  async findById(id: number): Promise<Recipe | null> {
-    return this.prisma.recipe.findUnique({
+  async findById(id: number): Promise<RecipeWithStats | null> {
+    const recipe = await this.prisma.recipe.findUnique({
       where: { id, isPublished: true },
       include: {
         categoryMeta: {
@@ -50,14 +63,27 @@ export class RecipeRepository {
         },
       },
     });
+    if (!recipe) {
+      return null;
+    }
+    const statsMap = await this.findStatsMap([id]);
+    const stats = statsMap.get(id);
+    if (!stats) {
+      throw new Error(`RecipeStats not found for recipeId=${id}`);
+    }
+    return {
+      ...recipe,
+      viewCount: stats.viewCount,
+      likeCount: stats.likeCount,
+    };
   }
 
   /**
    * ID 목록으로 레시피 요약 정보 벌크 조회 (RecipeSummaryDto 필드만)
    */
-  async findSummariesByIds(ids: number[]): Promise<Recipe[]> {
+  async findSummariesByIds(ids: number[]): Promise<RecipeWithStats[]> {
     if (ids.length === 0) return [];
-    return this.prisma.recipe.findMany({
+    const rows = await this.prisma.recipe.findMany({
       where: { id: { in: ids }, isPublished: true },
       select: {
         id: true,
@@ -67,15 +93,15 @@ export class RecipeRepository {
         cookTime: true,
         imageUrl: true,
         servings: true,
-        viewCount: true,
         isPublished: true,
         createdAt: true,
       },
-    }) as Promise<Recipe[]>;
+    });
+    return this.attachStats(rows as Recipe[], rows.map((row) => row.id));
   }
 
   async findManyPaginated(params: RecipeListParams): Promise<{
-    data: Recipe[];
+    data: RecipeWithStats[];
     total: number;
   }> {
     const { page, size, difficulty, maxCookTime, sort = 'latest' } = params;
@@ -87,28 +113,28 @@ export class RecipeRepository {
       ...(maxCookTime != null ? { cookTime: { lte: maxCookTime } } : undefined),
     };
 
-    const orderBy =
-      sort === 'cookTime'
-        ? { cookTime: 'asc' as const }
-        : sort === 'difficulty'
-          ? { difficulty: 'asc' as const }
-          : { createdAt: 'desc' as const };
+    const totalPromise = this.prisma.recipe.count({ where });
+    const sortPolicy = resolveRecipeSortPolicy(sort);
 
-    const [data, total] = await Promise.all([
+    const [rows, total] = await Promise.all([
       this.prisma.recipe.findMany({
         where,
         skip,
         take: size,
-        orderBy,
+        orderBy: sortPolicy.orderBy,
       }),
-      this.prisma.recipe.count({ where }),
+      totalPromise,
     ]);
 
+    const data = await this.attachStats(
+      rows as Recipe[],
+      rows.map((row) => row.id),
+    );
     return { data, total };
   }
 
   async searchByKeyword(params: RecipeSearchParams): Promise<{
-    data: Recipe[];
+    data: RecipeWithStats[];
     total: number;
   }> {
     const {
@@ -150,23 +176,23 @@ export class RecipeRepository {
       ...(andConditions.length > 0 ? { AND: andConditions } : {}),
     };
 
-    const orderBy =
-      sort === 'cookTime'
-        ? { cookTime: 'asc' as const }
-        : sort === 'difficulty'
-          ? { difficulty: 'asc' as const }
-          : { createdAt: 'desc' as const };
+    const totalPromise = this.prisma.recipe.count({ where });
+    const sortPolicy = resolveRecipeSortPolicy(sort);
 
-    const [data, total] = await Promise.all([
+    const [rows, total] = await Promise.all([
       this.prisma.recipe.findMany({
         where,
         skip,
         take: size,
-        orderBy,
+        orderBy: sortPolicy.orderBy,
       }),
-      this.prisma.recipe.count({ where }),
+      totalPromise,
     ]);
 
+    const data = await this.attachStats(
+      rows as Recipe[],
+      rows.map((row) => row.id),
+    );
     return { data, total };
   }
 
@@ -212,5 +238,38 @@ export class RecipeRepository {
       WHERE "is_active" = true
       ORDER BY "display_order" ASC, "id" ASC
     `;
+  }
+
+  private async findStatsMap(recipeIds: number[]): Promise<Map<number, RecipeStatsRow>> {
+    if (recipeIds.length === 0) {
+      return new Map();
+    }
+    const rows = await this.prisma.recipeStats.findMany({
+      where: { recipeId: { in: recipeIds } },
+      select: {
+        recipeId: true,
+        viewCount: true,
+        likeCount: true,
+      },
+    });
+    return new Map(rows.map((row) => [row.recipeId, row]));
+  }
+
+  private async attachStats(
+    rows: Recipe[],
+    recipeIds: number[],
+  ): Promise<RecipeWithStats[]> {
+    const statsMap = await this.findStatsMap(recipeIds);
+    return rows.map((row) => {
+      const stats = statsMap.get(row.id);
+      if (!stats) {
+        throw new Error(`RecipeStats not found for recipeId=${row.id}`);
+      }
+      return {
+        ...row,
+        viewCount: stats.viewCount,
+        likeCount: stats.likeCount,
+      };
+    });
   }
 }

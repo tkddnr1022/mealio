@@ -1,10 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CACHE_KEY_SEGMENT, KAFKA_TOPICS } from '@cook/shared';
-import { Recipe } from '@cook/shared/prisma-client';
 import {
   RecipeRepository,
-  RecipeListOrder,
   RecipeSearchParams,
+  RecipeWithStats,
 } from '../../infrastructure/database/repositories/postgresql/recipe.repository';
 import { CacheService } from '../../infrastructure/cache/cache.service';
 import { RecipeCacheStrategy } from '../../infrastructure/cache/strategies/recipe-cache-strategy';
@@ -17,6 +16,7 @@ import {
 } from './dto/recipe-detail.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { RecipeCategoryDto } from './dto/recipe-category.dto';
+import { RecipeListOrder } from './policies/recipe-sort.policy';
 
 export interface ActivityContext {
   userId?: number;
@@ -24,7 +24,7 @@ export interface ActivityContext {
   userAgent?: string;
 }
 
-type RecipeWithIngredients = Recipe & {
+type RecipeWithIngredients = RecipeWithStats & {
   categoryMeta: { id: number; key: string; name: string };
   recipeIngredients: Array<{
     id: number;
@@ -113,6 +113,8 @@ export class RecipeQueryService {
     return recipe;
   }
 
+  // TODO: 조인 비용 및 캐시 정책(Write Behind) 검토
+  //? 현재는 Cache-Aside에 가깝고, 짧은 캐시 TTL을 사용하고 있어 조회 부담이 클 수 있다.
   async search(
     params: {
       q?: string;
@@ -127,6 +129,13 @@ export class RecipeQueryService {
   ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
     const raw = params.q?.trim() ?? '';
     const keyword = raw.length > 0 ? raw : undefined;
+    const difficultyKey =
+      params.difficulty && params.difficulty.length > 0
+        ? [...params.difficulty].sort((a, b) => a - b).join(',')
+        : CACHE_KEY_SEGMENT.ALL;
+    const cookTimeKey = params.cookTime ?? CACHE_KEY_SEGMENT.ALL;
+    const categoryKey = params.categoryId ?? CACHE_KEY_SEGMENT.ALL;
+    const sortKey = params.sort ?? 'latest';
     const payload: RecipeSearchParams = {
       keyword,
       page: params.page,
@@ -134,20 +143,33 @@ export class RecipeQueryService {
       difficulty: params.difficulty,
       maxCookTime: params.cookTime,
       categoryId: params.categoryId,
-      sort: params.sort ?? 'latest',
+      sort: sortKey,
     };
-    const { data, total } = await this.recipeRepository.searchByKeyword(payload);
-
-    const totalPages = Math.ceil(total / params.size) || 1;
-    const result = {
-      data: data.map((r) => this.toSummaryDto(r)),
-      pagination: {
-        page: params.page,
-        size: params.size,
-        total,
-        totalPages,
+    const keywordKey = keyword ?? CACHE_KEY_SEGMENT.ALL;
+    const result = await this.cacheService.getOrSet(
+      this.recipeCacheStrategy,
+      async () => {
+        const { data, total } = await this.recipeRepository.searchByKeyword(payload);
+        const totalPages = Math.ceil(total / params.size) || 1;
+        return {
+          data: data.map((r) => this.toSummaryDto(r)),
+          pagination: {
+            page: params.page,
+            size: params.size,
+            total,
+            totalPages,
+          },
+        };
       },
-    };
+      CACHE_KEY_SEGMENT.SEARCH,
+      keywordKey,
+      difficultyKey,
+      cookTimeKey,
+      categoryKey,
+      sortKey,
+      params.page,
+      params.size,
+    );
 
     this.emitSearchQuery(payload, context).catch(() => {
       /* fire-and-forget */
@@ -161,7 +183,7 @@ export class RecipeQueryService {
   async getSummariesByIds(ids: number[]): Promise<RecipeSummaryDto[]> {
     if (ids.length === 0) return [];
     const data = await this.recipeRepository.findSummariesByIds(ids);
-    return data.map((r) => this.toSummaryDto(r as Recipe));
+    return data.map((r) => this.toSummaryDto(r));
   }
 
   async getCategories(): Promise<{ data: RecipeCategoryDto[] }> {
@@ -183,7 +205,7 @@ export class RecipeQueryService {
     return { data };
   }
 
-  private toSummaryDto(recipe: Recipe): RecipeSummaryDto {
+  private toSummaryDto(recipe: RecipeWithStats): RecipeSummaryDto {
     return {
       id: recipe.id,
       title: recipe.title,
@@ -193,6 +215,7 @@ export class RecipeQueryService {
       imageUrl: recipe.imageUrl ?? null,
       servings: recipe.servings,
       viewCount: recipe.viewCount,
+      likeCount: recipe.likeCount,
       isPublished: recipe.isPublished,
       createdAt: recipe.createdAt,
     };

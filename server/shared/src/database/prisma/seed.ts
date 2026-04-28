@@ -432,6 +432,16 @@ async function seed(): Promise<void> {
       );
     }
 
+    // 모든 레시피가 반드시 RecipeStats를 가지도록 보장한다.
+    for (const recipe of RECIPES) {
+      await client.query(
+        `INSERT INTO "RecipeStats" ("recipe_id","view_count","like_count","updated_at")
+         VALUES ($1,0,0,CURRENT_TIMESTAMP)
+         ON CONFLICT ("recipe_id") DO NOTHING`,
+        [recipe.id],
+      );
+    }
+
     for (const [recipeId, ingredientId, amount, unit, isOptional] of RECIPE_INGREDIENTS) {
       await client.query(
         `INSERT INTO "RecipeIngredient" ("recipe_id","ingredient_id","amount","unit","is_optional")
