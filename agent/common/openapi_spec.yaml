@@ -735,12 +735,12 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /api/v1/users/me/inventory/ingredients:
+  /api/v1/users/me/inventory:
     get:
       tags:
         - Inventory
       summary: 내 보관함 조회
-      description: 사용자의 보유/관심 재료 목록을 함께 조회
+      description: 사용자의 보유/관심 재료 및 관심 레시피 목록을 함께 조회
       parameters:
         - name: accessToken
           in: cookie
@@ -992,6 +992,84 @@ paths:
           in: path
           required: true
           description: 제거할 재료 ID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: 삭제 성공
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/users/me/inventory/recipes/favorites:
+    post:
+      tags:
+        - Inventory
+      summary: 내 관심 레시피 추가
+      description: 관심 레시피 목록에 레시피 ID 추가 (기존 목록에 병합)
+      parameters:
+        - name: accessToken
+          in: cookie
+          required: true
+          description: JWT 액세스 토큰
+          schema:
+            type: string
+          example: "{{apiKey}}"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - favoriteRecipeIds
+              properties:
+                favoriteRecipeIds:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
+            example:
+              favoriteRecipeIds: [101, 202]
+      responses:
+        '201':
+          description: 추가 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/users/me/inventory/recipes/favorites/{recipeId}:
+    delete:
+      tags:
+        - Inventory
+      summary: 내 관심 레시피 삭제
+      description: 관심 레시피 목록에서 특정 레시피 제거
+      parameters:
+        - name: accessToken
+          in: cookie
+          required: true
+          description: JWT 액세스 토큰
+          schema:
+            type: string
+          example: "{{apiKey}}"
+        - name: recipeId
+          in: path
+          required: true
+          description: 제거할 레시피 ID
           schema:
             type: integer
             format: int64
@@ -1493,6 +1571,11 @@ components:
           description: 관심 재료 (id, name, categoryId)
           items:
             $ref: '#/components/schemas/InventoryEntry'
+        favoriteRecipes:
+          type: array
+          description: 관심 레시피 목록
+          items:
+            $ref: '#/components/schemas/RecipeSummary'
 
     ChatbotResponse:
       type: object

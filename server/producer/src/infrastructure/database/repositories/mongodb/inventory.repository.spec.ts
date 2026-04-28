@@ -10,8 +10,9 @@ describe('InventoryRepository', () => {
 
   const mockInventory = {
     userId: 1,
-    ingredients: { '1': 'salt' },
-  } as Inventory;
+    ingredients: { ownedIds: [1], favoriteIds: [1] },
+    recipes: { favoriteIds: [101] },
+  } as unknown as Inventory;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -49,7 +50,7 @@ describe('InventoryRepository', () => {
 
       expect(model.findOne).toHaveBeenCalledWith({ userId });
       expect(select).toHaveBeenCalledWith(
-        'userId ingredientsIds favoriteIngredientIds lastSyncedAt',
+        'userId ingredients.ownedIds ingredients.favoriteIds recipes.favoriteIds lastSyncedAt',
       );
       expect(lean).toHaveBeenCalled();
       expect(result).toEqual(mockInventory);

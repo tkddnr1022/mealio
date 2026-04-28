@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { Inventory, type InventoryDocument } from '@cook/shared';
 
 /**
- * Consumer 전용 Inventory 리포지토리 - 유저 재료 이벤트 처리 시 MongoDB user_ingredients 갱신
+ * Consumer 전용 Inventory 리포지토리 - 유저 재료 이벤트 처리 시 MongoDB inventory 갱신
  */
 @Injectable()
 export class InventoryRepository {
@@ -16,7 +16,7 @@ export class InventoryRepository {
   /**
    * 보유 재료 목록 전체 교체 (유저 재료 업데이트)
    */
-  async update(
+  async updateOwnedIngredientIds(
     userId: number,
     ingredientIds: number[],
   ): Promise<InventoryDocument> {
@@ -26,7 +26,7 @@ export class InventoryRepository {
         { userId },
         {
           $set: {
-            ingredientsIds: uniqueIds,
+            'ingredients.ownedIds': uniqueIds,
             lastSyncedAt: new Date(),
           },
         },
@@ -38,7 +38,7 @@ export class InventoryRepository {
   /**
    * 보유 재료 추가 (ADD)
    */
-  async add(
+  async addOwnedIngredientIds(
     userId: number,
     ingredientIds: number[],
   ): Promise<InventoryDocument> {
@@ -47,7 +47,7 @@ export class InventoryRepository {
       .findOneAndUpdate(
         { userId },
         {
-          $addToSet: { ingredientsIds: { $each: uniqueToAdd } },
+          $addToSet: { 'ingredients.ownedIds': { $each: uniqueToAdd } },
           $set: { lastSyncedAt: new Date() },
         },
         { new: true, upsert: true },
@@ -58,7 +58,7 @@ export class InventoryRepository {
   /**
    * 보유 재료 한 건 제거 (REMOVE). 즐겨찾기에서도 제거.
    */
-  async remove(
+  async removeOwnedIngredientId(
     userId: number,
     ingredientId: number,
   ): Promise<InventoryDocument | null> {
@@ -67,8 +67,8 @@ export class InventoryRepository {
         { userId },
         {
           $pull: {
-            ingredientsIds: ingredientId,
-            favoriteIngredientIds: ingredientId,
+            'ingredients.ownedIds': ingredientId,
+            'ingredients.favoriteIds': ingredientId,
           },
           $set: { lastSyncedAt: new Date() },
         },
@@ -80,7 +80,7 @@ export class InventoryRepository {
   /**
    * 즐겨찾기 재료 목록 교체 (FAVORITES_UPDATE)
    */
-  async updateFavorites(
+  async updateFavoriteIngredientIds(
     userId: number,
     ingredientIds: number[],
   ): Promise<InventoryDocument> {
@@ -90,7 +90,7 @@ export class InventoryRepository {
         { userId },
         {
           $set: {
-            favoriteIngredientIds: uniqueIds,
+            'ingredients.favoriteIds': uniqueIds,
             lastSyncedAt: new Date(),
           },
         },
@@ -111,7 +111,7 @@ export class InventoryRepository {
       .findOneAndUpdate(
         { userId },
         {
-          $addToSet: { favoriteIngredientIds: { $each: uniqueToAdd } },
+          $addToSet: { 'ingredients.favoriteIds': { $each: uniqueToAdd } },
           $set: { lastSyncedAt: new Date() },
         },
         { new: true, upsert: true },
@@ -130,7 +130,46 @@ export class InventoryRepository {
       .findOneAndUpdate(
         { userId },
         {
-          $pull: { favoriteIngredientIds: ingredientId },
+          $pull: { 'ingredients.favoriteIds': ingredientId },
+          $set: { lastSyncedAt: new Date() },
+        },
+        { new: true },
+      )
+      .exec();
+  }
+
+  /**
+   * 관심 레시피 추가 (RECIPE_FAVORITES_ADD)
+   */
+  async addFavoriteRecipeIds(
+    userId: number,
+    recipeIds: number[],
+  ): Promise<InventoryDocument> {
+    const uniqueToAdd = [...new Set(recipeIds)];
+    return this.inventoryModel
+      .findOneAndUpdate(
+        { userId },
+        {
+          $addToSet: { 'recipes.favoriteIds': { $each: uniqueToAdd } },
+          $set: { lastSyncedAt: new Date() },
+        },
+        { new: true, upsert: true },
+      )
+      .exec() as Promise<InventoryDocument>;
+  }
+
+  /**
+   * 관심 레시피 한 건 제거 (RECIPE_FAVORITES_REMOVE)
+   */
+  async removeFavoriteRecipeId(
+    userId: number,
+    recipeId: number,
+  ): Promise<InventoryDocument | null> {
+    return this.inventoryModel
+      .findOneAndUpdate(
+        { userId },
+        {
+          $pull: { 'recipes.favoriteIds': recipeId },
           $set: { lastSyncedAt: new Date() },
         },
         { new: true },

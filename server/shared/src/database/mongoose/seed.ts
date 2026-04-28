@@ -1,5 +1,5 @@
 /**
- * 개발용 시드 데이터 (user_ingredients, chatbot_logs)
+ * 개발용 시드 데이터 (inventory, chatbot_logs)
  * Prisma 시드(재료·레시피) 후 실행 권장. userId·ingredientId는 RDS User·Ingredient와 맞춤.
  * 실행: npm run mongoose:seed
  */
@@ -10,7 +10,7 @@ import { InventorySchema, ChatbotLogSchema } from '@cook/shared';
 const InventoryModel = mongoose.model(
   'Inventory',
   InventorySchema,
-  'user_ingredients',
+  'inventory',
 );
 
 const ChatbotLogModel = mongoose.model(
@@ -20,21 +20,36 @@ const ChatbotLogModel = mongoose.model(
 );
 
 /** Prisma 시드 재료 ID 참고 (밥1, 김치2, 양파3, 대파4, 달걀5, 간장6, ...) */
-const SEED_USER_INGREDIENTS = [
+const SEED_INVENTORY = [
   {
     userId: 1,
-    ingredientsIds: [1, 2, 3, 4, 5, 6, 7],
-    favoriteIngredientIds: [1, 3, 5],
+    ingredients: {
+      ownedIds: [1, 2, 3, 4, 5, 6, 7],
+      favoriteIds: [1, 3, 5],
+    },
+    recipes: {
+      favoriteIds: [],
+    },
   },
   {
     userId: 2,
-    ingredientsIds: [2, 3, 5, 8, 9, 10],
-    favoriteIngredientIds: [2, 5],
+    ingredients: {
+      ownedIds: [2, 3, 5, 8, 9, 10],
+      favoriteIds: [2, 5],
+    },
+    recipes: {
+      favoriteIds: [],
+    },
   },
   {
     userId: 3,
-    ingredientsIds: [1, 5, 6, 7, 11, 12],
-    favoriteIngredientIds: [1, 6],
+    ingredients: {
+      ownedIds: [1, 5, 6, 7, 11, 12],
+      favoriteIds: [1, 6],
+    },
+    recipes: {
+      favoriteIds: [],
+    },
   },
 ];
 
@@ -210,16 +225,16 @@ const SEED_CHATBOT_LOGS = [
 async function main() {
   const uri = process.env.MONGODB_URL!;
   await mongoose.connect(uri);
-  console.log('🌱 user_ingredients 시드 데이터 삽입 시작...');
+  console.log('🌱 inventory 시드 데이터 삽입 시작...');
 
-  for (const doc of SEED_USER_INGREDIENTS) {
+  for (const doc of SEED_INVENTORY) {
     const now = new Date();
     const updated = await InventoryModel.findOneAndUpdate(
       { userId: doc.userId },
       {
         $set: {
-          ingredientsIds: doc.ingredientsIds,
-          favoriteIngredientIds: doc.favoriteIngredientIds,
+          ingredients: doc.ingredients,
+          recipes: doc.recipes,
           lastSyncedAt: now,
           updatedAt: now,
         },
@@ -231,12 +246,12 @@ async function main() {
       { upsert: true, new: true },
     );
     console.log(
-      `  ✓ userId=${doc.userId} 재료함: ${doc.ingredientsIds.length}개, 즐겨찾기: ${doc.favoriteIngredientIds.length}개 (id: ${updated._id})`,
+      `  ✓ userId=${doc.userId} 재료함: ${doc.ingredients.ownedIds.length}개, 즐겨찾기: ${doc.ingredients.favoriteIds.length}개 (id: ${updated._id})`,
     );
   }
 
   console.log(
-    `✅ user_ingredients 시드 완료 (${SEED_USER_INGREDIENTS.length}명)`,
+    `✅ inventory 시드 완료 (${SEED_INVENTORY.length}명)`,
   );
 
   console.log('🌱 chatbot_logs 시드 데이터 삽입 시작...');

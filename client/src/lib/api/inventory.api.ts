@@ -2,15 +2,17 @@
  * 인벤토리 API.
  *
  * 엔드포인트: `agent/backend/spec/backend_architecture_spec_producer.md` §1.1
- * (`InventoryController` - `/api/v1/users/me/inventory/ingredients`)
+ * (`InventoryController` - `/api/v1/users/me/inventory`)
  *
- * - GET  /api/v1/users/me/inventory/ingredients                      -> {@link getMyInventory}
+ * - GET  /api/v1/users/me/inventory                                  -> {@link getMyInventory}
  * - PUT  /api/v1/users/me/inventory/ingredients/owned                -> {@link updateMyOwnedIngredients}
  * - POST /api/v1/users/me/inventory/ingredients/owned                -> {@link addMyOwnedIngredients}
  * - DELETE /api/v1/users/me/inventory/ingredients/owned/:id          -> {@link removeMyOwnedIngredient}
  * - PUT  /api/v1/users/me/inventory/ingredients/favorites            -> {@link updateMyFavoriteIngredients}
  * - POST /api/v1/users/me/inventory/ingredients/favorites            -> {@link addMyFavoriteIngredients}
  * - DELETE /api/v1/users/me/inventory/ingredients/favorites/:id      -> {@link removeMyFavoriteIngredient}
+ * - POST /api/v1/users/me/inventory/recipes/favorites                 -> {@link addMyFavoriteRecipes}
+ * - DELETE /api/v1/users/me/inventory/recipes/favorites/:id          -> {@link removeMyFavoriteRecipe}
  *
  * 도메인 타입은 `@/lib/types/inventory`에서 정의한다.
  */
@@ -67,5 +69,20 @@ export function addMyFavoriteIngredients(
 export function removeMyFavoriteIngredient(ingredientId: number): Promise<void> {
   return httpClient.delete<void>(
     API_ENDPOINTS.users.meInventoryFavoriteDetail(ingredientId),
+  );
+}
+
+export function addMyFavoriteRecipes(
+  favoriteRecipeIds: number[],
+): Promise<MutationResult> {
+  return httpClient.post<MutationResult>(
+    API_ENDPOINTS.users.meInventoryRecipeFavorites,
+    { favoriteRecipeIds },
+  );
+}
+
+export function removeMyFavoriteRecipe(recipeId: number): Promise<void> {
+  return httpClient.delete<void>(
+    API_ENDPOINTS.users.meInventoryRecipeFavoritesDetail(recipeId),
   );
 }

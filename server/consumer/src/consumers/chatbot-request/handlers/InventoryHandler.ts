@@ -14,7 +14,6 @@ const INGREDIENT_BY_ID_CACHE_TTL_SECONDS = 3600;
 export interface InventoryItem {
   id: number;
   name: string;
-  isFavorite: boolean;
   /** IngredientCategory.id */
   categoryId: number;
   categoryName: string;
@@ -22,8 +21,38 @@ export interface InventoryItem {
   categoryKey: string;
 }
 
+export interface FavoriteRecipeSummary {
+  id: number;
+  title: string;
+  description: string | null;
+  difficulty: number;
+  cookTime: number;
+  imageUrl: string | null;
+  servings: number;
+  viewCount: number;
+  isPublished: boolean;
+  createdAt: Date;
+}
+
+export interface UserInventoryResult {
+  ownedIngredients: InventoryItem[];
+  favoriteIngredients: InventoryItem[];
+  favoriteRecipes: FavoriteRecipeSummary[];
+}
+
+interface InventoryDocumentShape {
+  ingredients?: {
+    ownedIds?: number[];
+    favoriteIds?: number[];
+  };
+  recipes?: {
+    favoriteIds?: number[];
+  };
+}
+
 /**
- * get_user_inventory 함수 실행 - MongoDB Inventory 조회, Prisma Ingredient(+분류)(Redis 캐시), 분류 정보 포함 목록 반환
+ * get_user_inventory 함수 실행 - MongoDB Inventory 조회, Prisma Ingredient/Recipe 조회 후
+ * Inventory API와 동일한 셰입(ownedIngredients, favoriteIngredients, favoriteRecipes)으로 반환
  */
 @Injectable()
 export class InventoryHandler {
@@ -34,24 +63,36 @@ export class InventoryHandler {
     private readonly redis: RedisService,
   ) {}
 
-  async execute(userId: number): Promise<InventoryItem[]> {
+  async execute(userId: number): Promise<UserInventoryResult> {
     const doc = await this.inventoryModel
       .findOne({ userId })
       .lean()
       .exec();
 
     if (!doc) {
-      return [];
+      return {
+        ownedIngredients: [],
+        favoriteIngredients: [],
+        favoriteRecipes: [],
+      };
     }
 
-    const ingredientIds = doc.ingredientsIds ?? [];
-    const favoriteIds = new Set(doc.favoriteIngredientIds ?? []);
-    const allIds = [
-      ...new Set([...ingredientIds, ...(doc.favoriteIngredientIds ?? [])]),
-    ];
+    const typedDoc = doc as InventoryDocumentShape;
+    const ingredientIds = typedDoc.ingredients?.ownedIds ?? [];
+    const favoriteIngredientIds = typedDoc.ingredients?.favoriteIds ?? [];
+    const favoriteRecipeIds = typedDoc.recipes?.favoriteIds ?? [];
+    const favoriteIds = new Set(favoriteIngredientIds);
+    const allIds = [...new Set([...ingredientIds, ...favoriteIngredientIds])];
 
     if (allIds.length === 0) {
-      return [];
+      const favoriteRecipes = await this.fetchFavoriteRecipes(
+        favoriteRecipeIds,
+      );
+      return {
+        ownedIngredients: [],
+        favoriteIngredients: [],
+        favoriteRecipes,
+      };
     }
 
     const items: InventoryItem[] = [];
@@ -76,7 +117,6 @@ export class InventoryHandler {
             items.push({
               id,
               name: parsed.name,
-              isFavorite: favoriteIds.has(id),
               categoryId: parsed.categoryId,
               categoryName: parsed.categoryName,
               categoryKey: parsed.categoryKey,
@@ -122,7 +162,6 @@ export class InventoryHandler {
         items.push({
           id: ing.id,
           name: ing.name,
-          isFavorite: favoriteIds.has(ing.id),
           categoryId,
           categoryName,
           categoryKey,
@@ -130,6 +169,48 @@ export class InventoryHandler {
       }
     }
 
-    return items.sort((a, b) => a.id - b.id);
+    const sorted = items.sort((a, b) => a.id - b.id);
+    const ownedIngredients = sorted.filter((item) =>
+      ingredientIds.includes(item.id),
+    );
+    const favoriteIngredients = sorted.filter((item) =>
+      favoriteIds.has(item.id),
+    );
+    const favoriteRecipes = await this.fetchFavoriteRecipes(favoriteRecipeIds);
+
+    return {
+      ownedIngredients,
+      favoriteIngredients,
+      favoriteRecipes,
+    };
+  }
+
+  private async fetchFavoriteRecipes(
+    favoriteRecipeIds: number[],
+  ): Promise<FavoriteRecipeSummary[]> {
+    if (favoriteRecipeIds.length === 0) {
+      return [];
+    }
+
+    const rows = await this.prisma.recipe.findMany({
+      where: { id: { in: favoriteRecipeIds }, isPublished: true },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        difficulty: true,
+        cookTime: true,
+        imageUrl: true,
+        servings: true,
+        viewCount: true,
+        isPublished: true,
+        createdAt: true,
+      },
+    });
+
+    const map = new Map(rows.map((row) => [row.id, row]));
+    return favoriteRecipeIds
+      .map((id) => map.get(id))
+      .filter((row): row is FavoriteRecipeSummary => row !== undefined);
   }
 }

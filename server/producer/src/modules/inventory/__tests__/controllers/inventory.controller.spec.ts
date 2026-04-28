@@ -22,6 +22,20 @@ describe('InventoryController', () => {
       { id: 3, name: 'B', categoryId: 20 },
       { id: 5, name: 'C', categoryId: 10 },
     ],
+    favoriteRecipes: [
+      {
+        id: 101,
+        title: '김치볶음밥',
+        description: '간단하고 맛있는 김치볶음밥',
+        difficulty: 1,
+        cookTime: 15,
+        imageUrl: null,
+        servings: 2,
+        viewCount: 10,
+        isPublished: true,
+        createdAt: new Date('2025-01-10T10:30:00Z'),
+      },
+    ],
   };
 
   beforeEach(async () => {
@@ -33,6 +47,8 @@ describe('InventoryController', () => {
       updateFavoriteIngredients: jest.fn().mockResolvedValue({ success: true }),
       addFavoriteIngredients: jest.fn().mockResolvedValue({ success: true }),
       removeFavoriteIngredient: jest.fn().mockResolvedValue(undefined),
+      addFavoriteRecipes: jest.fn().mockResolvedValue({ success: true }),
+      removeFavoriteRecipe: jest.fn().mockResolvedValue(undefined),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -67,6 +83,7 @@ describe('InventoryController', () => {
       inventoryService.getMyInventory.mockResolvedValue({
         ownedIngredients: [],
         favoriteIngredients: [],
+        favoriteRecipes: [],
       });
 
       const result = await controller.getMyInventory(mockAuthUser);
@@ -74,6 +91,7 @@ describe('InventoryController', () => {
       expect(result).toEqual({
         ownedIngredients: [],
         favoriteIngredients: [],
+        favoriteRecipes: [],
       });
     });
   });
@@ -198,6 +216,44 @@ describe('InventoryController', () => {
       await expect(
         controller.removeFavoriteIngredient(mockAuthUser, 5),
       ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('addFavoriteRecipes', () => {
+    it('관심 레시피 추가를 요청하고 201과 { success: true }를 반환한다', async () => {
+      const dto = { favoriteRecipeIds: [101, 202] };
+      const result = await controller.addFavoriteRecipes(mockAuthUser, dto);
+
+      expect(inventoryService.addFavoriteRecipes).toHaveBeenCalledWith(1, dto);
+      expect(result).toEqual({ success: true });
+    });
+
+    it('사용자가 없으면 NotFoundException을 던진다', async () => {
+      inventoryService.addFavoriteRecipes.mockRejectedValue(
+        new NotFoundException('User not found'),
+      );
+
+      await expect(
+        controller.addFavoriteRecipes(mockAuthUser, { favoriteRecipeIds: [101] }),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('removeFavoriteRecipe', () => {
+    it('관심 레시피 삭제를 요청하고 204로 완료된다', async () => {
+      await controller.removeFavoriteRecipe(mockAuthUser, 101);
+
+      expect(inventoryService.removeFavoriteRecipe).toHaveBeenCalledWith(1, 101);
+    });
+
+    it('사용자가 없으면 NotFoundException을 던진다', async () => {
+      inventoryService.removeFavoriteRecipe.mockRejectedValue(
+        new NotFoundException('User not found'),
+      );
+
+      await expect(controller.removeFavoriteRecipe(mockAuthUser, 101)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

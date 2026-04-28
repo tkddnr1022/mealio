@@ -24,7 +24,7 @@
 
 ### 행동/상태/로그 도메인 (NoSQL / Mongoose)
 
-* **Inventory**: 사용자가 보유·선호하는 재료 ID 목록 (`inventories` 컬렉션)
+* **Inventory**: 사용자가 보유 재료·관심 재료·관심 레시피 ID를 관리하는 상태 문서 (`inventories` 컬렉션)
 * **ChatbotLog**: LLM 챗봇 대화 기록 (`chatbot_logs` 컬렉션, 30일 TTL)
 * **EventLog**: 도메인 이벤트 스트림 (`event_logs` 컬렉션, 90일 TTL)
 
@@ -188,10 +188,10 @@
 
 ### 3.1 Inventory
 
-**컬렉션**: `inventories`  
+**컬렉션**: `inventory`  
 **의미**
 
-* 사용자별 보유 재료 ID·즐겨찾기 재료 ID 목록
+* 사용자별 인벤토리를 계층형으로 관리 (`ingredients.ownedIds`, `ingredients.favoriteIds`, `recipes.favoriteIds`)
 * `Ingredient` 마스터와 JOIN하여 상세 정보 조회
 
 **LLM 활용 포인트**
@@ -204,13 +204,14 @@
 | 필드                  | 타입     | 의미                             |
 | --------------------- | -------- | -------------------------------- |
 | userId                | Number   | 사용자 ID (required, unique, index) |
-| ingredientsIds        | [Number] | 보유 재료 ID 배열 (기본 [])      |
-| favoriteIngredientIds | [Number] | 즐겨찾기 재료 ID 배열 (기본 [])  |
+| ingredients.ownedIds      | [Number] | 보유 재료 ID 배열 (기본 [])      |
+| ingredients.favoriteIds   | [Number] | 관심 재료 ID 배열 (기본 [])      |
+| recipes.favoriteIds       | [Number] | 관심 레시피 ID 배열 (기본 [])    |
 | lastSyncedAt          | Date     | 마지막 동기화 시각 (optional)    |
 | createdAt             | Date     | 생성 시각 (timestamps)           |
 | updatedAt             | Date     | 수정 시각 (timestamps)           |
 
-**인덱스**: `ingredientsIds`, `favoriteIngredientIds`
+**인덱스**: `ingredients.ownedIds`, `ingredients.favoriteIds`, `recipes.favoriteIds`
 
 **문서 구조 예시**
 
@@ -218,8 +219,13 @@
 {
   "_id": "...",
   "userId": 1,
-  "ingredientsIds": [1, 5, 12],
-  "favoriteIngredientIds": [3, 5],
+  "ingredients": {
+    "ownedIds": [1, 5, 12],
+    "favoriteIds": [3, 5]
+  },
+  "recipes": {
+    "favoriteIds": [101, 202]
+  },
   "lastSyncedAt": "2025-01-25T00:00:00.000Z",
   "createdAt": "2025-01-20T00:00:00.000Z",
   "updatedAt": "2025-01-25T00:00:00.000Z"
@@ -330,6 +336,7 @@
 * `user.signup`, `user.login`, `nickname.update`
 * `ingredient.add`, `ingredient.remove`, `ingredient.update`
 * `ingredient.favorites_add`, `ingredient.favorites_remove`, `ingredient.favorites_update`
+* `recipe.favorites_add`, `recipe.favorites_remove`
 * `chatbot.start`, `chatbot.message`
 
 **필드 설명** (Mongoose `EventLog`)
@@ -408,12 +415,12 @@
 ### 사용자 상태 이해
 
 * **User (RDB)**: 정체성
-* **Inventory (NoSQL)**: 현재 요리 가능성 상태
+* **Inventory (NoSQL)**: 현재 요리 가능성 + 선호(관심 재료/레시피) 상태
 
 ### 추천 및 추론
 
 * Recipe + RecipeIngredient + Ingredient → 조합 추론
-* Inventory → 필터링 조건
+* Inventory → 필터링/개인화 조건
 
 ### 대화 및 행동 분석
 

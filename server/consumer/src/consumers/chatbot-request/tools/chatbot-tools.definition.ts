@@ -9,7 +9,7 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
     function: {
       name: 'get_user_inventory',
       description:
-        '사용자의 인벤토리(보유 재료·관심 재료) 목록을 조회합니다. 각 항목에 id, name, isFavorite, 재료 분류(categoryId, categoryName, categoryKey)가 포함됩니다. 재료 분류 기반 필터링 시 search_recipes의 ingredientCategoryIds에 categoryId를 넣을 수 있습니다.',
+        '사용자의 인벤토리를 조회합니다. 응답 구조는 ownedIngredients, favoriteIngredients, favoriteRecipes 입니다. 재료 항목에는 id, name, 재료 분류(categoryId, categoryName, categoryKey)가 포함되고, favoriteRecipes는 레시피 요약 정보를 포함합니다. 재료 분류 기반 필터링 시 search_recipes의 ingredientCategoryIds에 categoryId를 넣을 수 있습니다.',
     },
   },
   {
@@ -39,7 +39,7 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
             type: 'array',
             items: { type: 'number' },
             description:
-              '보유 인벤토리와 겹치는 재료가 많은 레시피에 가산점. get_user_inventory의 id 목록.',
+              '보유 인벤토리와 겹치는 재료가 많은 레시피에 가산점. get_user_inventory 결과의 ownedIngredients/favoriteIngredients id 목록을 사용.',
           },
           recipeCategoryIds: {
             type: 'array',
@@ -51,7 +51,7 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
             type: 'array',
             items: { type: 'number' },
             description:
-              '해당 재료 분류를 쓰는 레시피만 포함. get_food_categories 또는 get_user_inventory의 categoryId.',
+              '해당 재료 분류를 쓰는 레시피만 포함. get_food_categories 또는 get_user_inventory 결과의 *Ingredients[].categoryId.',
           },
           maxCookTime: {
             type: 'number',

@@ -3,6 +3,7 @@ import { NotFoundException } from '@nestjs/common';
 import { InventoryService } from '../../inventory.service';
 import { InventoryRepository } from '../../../../infrastructure/database/repositories/mongodb/inventory.repository';
 import { IngredientRepository } from '../../../../infrastructure/database/repositories/postgresql/ingredient.repository';
+import { RecipeRepository } from '../../../../infrastructure/database/repositories/postgresql/recipe.repository';
 import { UserRepository } from '../../../../infrastructure/database/repositories/postgresql/user.repository';
 import { KafkaProducerService } from '../../../../infrastructure/kafka/producer.service';
 import { CacheService } from '../../../../infrastructure/cache/cache.service';
@@ -15,11 +16,14 @@ import {
 } from '@cook/shared';
 import { OwnedIngredientIdsDto } from '../../dto/owned-ingredient-ids.dto';
 import { FavoriteIngredientIdsDto } from '../../dto/favorite-ingredient-ids.dto';
+import { FavoriteRecipeIdsDto } from '../../dto/favorite-recipe-ids.dto';
+import type { Recipe } from '@cook/shared/prisma-client';
 
 describe('InventoryService', () => {
   let service: InventoryService;
   let inventoryRepository: jest.Mocked<InventoryRepository>;
   let ingredientRepository: jest.Mocked<IngredientRepository>;
+  let recipeRepository: jest.Mocked<RecipeRepository>;
   let userRepository: jest.Mocked<UserRepository>;
   let kafkaProducerService: jest.Mocked<KafkaProducerService>;
   let cacheService: jest.Mocked<CacheService>;
@@ -37,8 +41,13 @@ describe('InventoryService', () => {
 
   const mockInventoryDoc = {
     userId: 1,
-    ingredientsIds: [1, 5, 12],
-    favoriteIngredientIds: [3, 5],
+    ingredients: {
+      ownedIds: [1, 5, 12],
+      favoriteIds: [3, 5],
+    },
+    recipes: {
+      favoriteIds: [101],
+    },
     lastSyncedAt: undefined,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -66,6 +75,26 @@ describe('InventoryService', () => {
 
     const mockUserRepo = {
       findById: jest.fn().mockResolvedValue(mockUser),
+    };
+
+    const mockRecipeRepo = {
+      findSummariesByIds: jest.fn().mockImplementation(async (ids: number[]) => {
+        const meta: Record<number, Recipe> = {
+          101: {
+            id: 101,
+            title: '김치볶음밥',
+            description: '간단하고 맛있는 김치볶음밥',
+            difficulty: 1,
+            cookTime: 15,
+            imageUrl: null,
+            servings: 2,
+            viewCount: 10,
+            isPublished: true,
+            createdAt: new Date('2025-01-10T10:30:00Z'),
+          },
+        };
+        return ids.filter((id) => id in meta).map((id) => meta[id]);
+      }),
     };
 
     const mockKafkaProducer = {
@@ -101,6 +130,7 @@ describe('InventoryService', () => {
           useValue: mockInventoryRepo,
         },
         { provide: IngredientRepository, useValue: mockIngredientRepo },
+        { provide: RecipeRepository, useValue: mockRecipeRepo },
         { provide: UserRepository, useValue: mockUserRepo },
         { provide: KafkaProducerService, useValue: mockKafkaProducer },
         { provide: CacheService, useValue: mockCacheService },
@@ -118,6 +148,9 @@ describe('InventoryService', () => {
     ingredientRepository = module.get<IngredientRepository>(
       IngredientRepository,
     ) as jest.Mocked<IngredientRepository>;
+    recipeRepository = module.get<RecipeRepository>(
+      RecipeRepository,
+    ) as jest.Mocked<RecipeRepository>;
     userRepository = module.get<UserRepository>(
       UserRepository,
     ) as jest.Mocked<UserRepository>;
@@ -158,6 +191,13 @@ describe('InventoryService', () => {
         { id: 3, name: 'B', categoryId: 20 },
         { id: 5, name: 'C', categoryId: 10 },
       ]);
+      expect(recipeRepository.findSummariesByIds).toHaveBeenCalledWith([101]);
+      expect(result.favoriteRecipes).toEqual([
+        expect.objectContaining({
+          id: 101,
+          title: '김치볶음밥',
+        }),
+      ]);
     });
 
     it('문서가 없으면 빈 배열을 반환한다', async () => {
@@ -168,6 +208,7 @@ describe('InventoryService', () => {
       expect(result).toEqual({
         ownedIngredients: [],
         favoriteIngredients: [],
+        favoriteRecipes: [],
       });
     });
   });
@@ -336,6 +377,59 @@ describe('InventoryService', () => {
       userRepository.findById.mockResolvedValue(null);
 
       await expect(service.removeFavoriteIngredient(999, 5)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(kafkaProducerService.emit).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('addFavoriteRecipes', () => {
+    it('사용자 존재 여부 확인 후 RECIPE_FAVORITES_ADD 이벤트를 발행하고 { success: true }를 반환한다', async () => {
+      const dto: FavoriteRecipeIdsDto = { favoriteRecipeIds: [101, 202] };
+
+      const result = await service.addFavoriteRecipes(1, dto);
+
+      expect(userRepository.findById).toHaveBeenCalledWith(1);
+      expect(kafkaProducerService.emit).toHaveBeenCalledWith(
+        KAFKA_TOPICS.USER_EVENTS,
+        expect.objectContaining({
+          type: 'recipe.favorites_add',
+          userId: 1,
+          favoriteRecipeIds: [101, 202],
+        }),
+      );
+      expect(result).toEqual({ success: true });
+    });
+
+    it('사용자가 없으면 NotFoundException을 던진다', async () => {
+      userRepository.findById.mockResolvedValue(null);
+
+      await expect(
+        service.addFavoriteRecipes(999, { favoriteRecipeIds: [101] }),
+      ).rejects.toThrow(NotFoundException);
+      expect(kafkaProducerService.emit).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('removeFavoriteRecipe', () => {
+    it('사용자 존재 여부 확인 후 RECIPE_FAVORITES_REMOVE 이벤트를 발행한다', async () => {
+      await service.removeFavoriteRecipe(1, 101);
+
+      expect(userRepository.findById).toHaveBeenCalledWith(1);
+      expect(kafkaProducerService.emit).toHaveBeenCalledWith(
+        KAFKA_TOPICS.USER_EVENTS,
+        expect.objectContaining({
+          type: 'recipe.favorites_remove',
+          userId: 1,
+          recipeId: 101,
+        }),
+      );
+    });
+
+    it('사용자가 없으면 NotFoundException을 던진다', async () => {
+      userRepository.findById.mockResolvedValue(null);
+
+      await expect(service.removeFavoriteRecipe(999, 101)).rejects.toThrow(
         NotFoundException,
       );
       expect(kafkaProducerService.emit).not.toHaveBeenCalled();

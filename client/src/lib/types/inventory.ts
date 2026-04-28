@@ -16,10 +16,30 @@ export interface InventoryIngredient {
   categoryId: number | null;
 }
 
-/** `GET /users/me/inventory/ingredients` 응답 */
+export interface InventoryFavoriteRecipe {
+  id: number;
+  title: string;
+  description: string | null;
+  difficulty: number;
+  cookTime: number;
+  imageUrl: string | null;
+  servings: number;
+  viewCount: number;
+  isPublished: boolean;
+  createdAt: string;
+}
+
+/** `GET /users/me/inventory` 응답 */
 export interface InventoryResponse {
   /** 보유 재료 목록 */
   ownedIngredients: InventoryIngredient[];
   /** 즐겨찾기(관심) 재료 목록 */
   favoriteIngredients: InventoryIngredient[];
+  /** 즐겨찾기(관심) 레시피 목록 */
+  favoriteRecipes: InventoryFavoriteRecipe[];
+}
+
+/** 관심 레시피 추가 요청 payload */
+export interface FavoriteRecipeIdsPayload {
+  favoriteRecipeIds: number[];
 }

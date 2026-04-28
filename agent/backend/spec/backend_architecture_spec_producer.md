@@ -67,12 +67,13 @@
 | server/producer/src/modules/ingredients/dto/ingredient-search-query.dto.ts | 재료 검색 쿼리 DTO |
 | server/producer/src/modules/ingredients/dto/ingredient.dto.ts | 재료 단건 응답 DTO |
 | server/producer/src/modules/ingredients/dto/pagination.dto.ts | 페이지네이션 DTO(재료 전용) |
-| **server/producer/src/modules/inventory/** | 유저 보유 재료 모듈 |
+| **server/producer/src/modules/inventory/** | 유저 보관함 모듈 |
 | server/producer/src/modules/inventory/inventory.module.ts | InventoryModule 정의 |
 | server/producer/src/modules/inventory/inventory.service.ts | InventoryService (MongoDB 저장, 캐시 관리) |
-| server/producer/src/modules/inventory/inventory.controller.ts | `GET /api/v1/users/me/inventory/ingredients`, `PUT/POST/DELETE /api/v1/users/me/inventory/ingredients/{owned\|favorites}` |
+| server/producer/src/modules/inventory/inventory.controller.ts | `GET /api/v1/users/me/inventory`, `PUT/POST/DELETE /api/v1/users/me/inventory/ingredients/{owned\|favorites}`, `POST/DELETE /api/v1/users/me/inventory/recipes/favorites` |
 | server/producer/src/modules/inventory/dto/owned-ingredient-ids.dto.ts | 보유 재료 ID 리스트 DTO (`ownedIngredientIds`) |
 | server/producer/src/modules/inventory/dto/favorite-ingredient-ids.dto.ts | 관심 재료 ID 리스트 DTO (`favoriteIngredientIds`) |
+| server/producer/src/modules/inventory/dto/favorite-recipe-ids.dto.ts | 관심 레시피 ID 리스트 DTO (`favoriteRecipeIds`) |
 | server/producer/src/modules/inventory/dto/inventory-list.dto.ts | 보관함 조회 응답 DTO (`ownedIngredients`, `favoriteIngredients`) |
 | **server/producer/src/modules/chatbot/** | 챗봇 SSE·대화 모듈 |
 | server/producer/src/modules/chatbot/chatbot.module.ts | ChatbotModule 정의 |

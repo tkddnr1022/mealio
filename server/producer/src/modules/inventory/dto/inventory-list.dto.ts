@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { InventoryEntryDto } from './inventory-entry.dto';
+import { RecipeSummaryDto } from '../../recipes/dto/recipe-summary.dto';
 
 /**
- * GET /api/v1/users/me/inventory/ingredients 응답 DTO
+ * GET /api/v1/users/me/inventory 응답 DTO
  */
 export class InventoryListDto {
   @ApiProperty({
@@ -16,4 +17,10 @@ export class InventoryListDto {
     type: [InventoryEntryDto],
   })
   favoriteIngredients: InventoryEntryDto[];
+
+  @ApiProperty({
+    description: '관심 레시피 목록',
+    type: [RecipeSummaryDto],
+  })
+  favoriteRecipes: RecipeSummaryDto[];
 }

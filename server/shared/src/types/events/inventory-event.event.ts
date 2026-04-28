@@ -8,6 +8,8 @@ export enum InventoryEventType {
   FAVORITES_UPDATE = 'ingredient.favorites_update',
   FAVORITES_ADD = 'ingredient.favorites_add',
   FAVORITES_REMOVE = 'ingredient.favorites_remove',
+  RECIPE_FAVORITES_ADD = 'recipe.favorites_add',
+  RECIPE_FAVORITES_REMOVE = 'recipe.favorites_remove',
 }
 
 export const INVENTORY_EVENT_TYPES: InventoryEventType[] = [
@@ -56,13 +58,29 @@ export interface InventoryFavoritesRemoveEvent {
   timestamp: string;
 }
 
+export interface InventoryRecipeFavoritesAddEvent {
+  type: InventoryEventType.RECIPE_FAVORITES_ADD;
+  userId: number;
+  favoriteRecipeIds: number[];
+  timestamp: string;
+}
+
+export interface InventoryRecipeFavoritesRemoveEvent {
+  type: InventoryEventType.RECIPE_FAVORITES_REMOVE;
+  userId: number;
+  recipeId: number;
+  timestamp: string;
+}
+
 export type InventoryEvent =
   | InventoryUpdateEvent
   | InventoryAddEvent
   | InventoryRemoveEvent
   | InventoryFavoritesUpdateEvent
   | InventoryFavoritesAddEvent
-  | InventoryFavoritesRemoveEvent;
+  | InventoryFavoritesRemoveEvent
+  | InventoryRecipeFavoritesAddEvent
+  | InventoryRecipeFavoritesRemoveEvent;
 
 export function isInventoryEvent(
   obj: unknown,

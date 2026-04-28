@@ -22,7 +22,9 @@ import {
   getMyInventory,
   addMyOwnedIngredients,
   addMyFavoriteIngredients,
+  addMyFavoriteRecipes,
   removeMyFavoriteIngredient,
+  removeMyFavoriteRecipe,
   removeMyOwnedIngredient,
   updateMyOwnedIngredients,
   updateMyFavoriteIngredients,
@@ -100,3 +102,13 @@ export const useRemoveMyFavoriteIngredient = createInvalidatingMutationHook<
   void,
   number
 >(removeMyFavoriteIngredient, inventoryQueries.all);
+
+export const useAddMyFavoriteRecipes = createInvalidatingMutationHook<
+  MutationResult,
+  number[]
+>(addMyFavoriteRecipes, inventoryQueries.all);
+
+export const useRemoveMyFavoriteRecipe = createInvalidatingMutationHook<
+  void,
+  number
+>(removeMyFavoriteRecipe, inventoryQueries.all);

@@ -16,7 +16,9 @@ export class InventoryRepository {
   async findByUserId(userId: number): Promise<Inventory | null> {
     return this.inventoryModel
       .findOne({ userId })
-      .select('userId ingredientsIds favoriteIngredientIds lastSyncedAt')
+      .select(
+        'userId ingredients.ownedIds ingredients.favoriteIds recipes.favoriteIds lastSyncedAt',
+      )
       .lean()
       .exec();
   }

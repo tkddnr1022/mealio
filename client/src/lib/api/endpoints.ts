@@ -23,13 +23,16 @@ export const API_ENDPOINTS = {
   users: {
     me: `${API_PREFIX}/users/me`,
     meNickname: `${API_PREFIX}/users/me/nickname`,
-    meInventory: `${API_PREFIX}/users/me/inventory/ingredients`,
+    meInventory: `${API_PREFIX}/users/me/inventory`,
     meInventoryOwned: `${API_PREFIX}/users/me/inventory/ingredients/owned`,
     meInventoryOwnedDetail: (ingredientId: number) =>
       `${API_PREFIX}/users/me/inventory/ingredients/owned/${encodeURIComponent(ingredientId)}`,
     meInventoryFavorites: `${API_PREFIX}/users/me/inventory/ingredients/favorites`,
     meInventoryFavoriteDetail: (ingredientId: number) =>
       `${API_PREFIX}/users/me/inventory/ingredients/favorites/${encodeURIComponent(ingredientId)}`,
+    meInventoryRecipeFavorites: `${API_PREFIX}/users/me/inventory/recipes/favorites`,
+    meInventoryRecipeFavoritesDetail: (recipeId: number) =>
+      `${API_PREFIX}/users/me/inventory/recipes/favorites/${encodeURIComponent(recipeId)}`,
   },
   recipes: {
     list: `${API_PREFIX}/recipes`,

@@ -21,6 +21,12 @@ function toEventLogPayload(event: UserEventPayload): Record<string, unknown> {
   if ('favoriteIngredientIds' in event) {
     return { favoriteIngredientIds: event.favoriteIngredientIds };
   }
+  if ('favoriteRecipeIds' in event) {
+    return { favoriteRecipeIds: event.favoriteRecipeIds };
+  }
+  if ('recipeId' in event) {
+    return { recipeId: event.recipeId };
+  }
   if ('ingredientId' in event) {
     return { ingredientId: event.ingredientId };
   }
@@ -36,6 +42,12 @@ export class TrackUserActivityHandler {
 
   async execute(event: UserEventPayload): Promise<void> {
     const payload = toEventLogPayload(event);
+    const entity =
+      'recipeId' in event && typeof event.recipeId === 'number'
+        ? { type: 'recipe', id: event.recipeId }
+        : 'ingredientId' in event && typeof event.ingredientId === 'number'
+        ? { type: 'ingredient', id: event.ingredientId }
+        : undefined;
 
     const input: CreateEventLogInput = {
       type: event.type,
@@ -43,10 +55,7 @@ export class TrackUserActivityHandler {
         type: 'user',
         userId: event.userId,
       },
-      entity:
-        'ingredientId' in event
-          ? { type: 'ingredient', id: event.ingredientId }
-          : undefined,
+      entity,
       payload: { ...payload, _eventType: event.type },
     };
 
