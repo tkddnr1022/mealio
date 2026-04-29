@@ -21,3 +21,11 @@ export interface AuthUser {
 export interface RequestWithUser extends Request {
   user: AuthUser;
 }
+
+/**
+ * 선택 인증 요청 확장 타입.
+ * OptionalJwtAuthGuard를 거친 요청에서는 user가 없을 수 있다.
+ */
+export interface RequestWithOptionalUser extends Request {
+  user?: AuthUser;
+}

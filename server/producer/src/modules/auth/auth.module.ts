@@ -5,6 +5,7 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from './guards/optional-jwt-auth.guard';
 import { OAuthCallbackGuard } from './guards/oauth-callback.guard';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { KakaoStrategy } from './strategies/kakao.strategy';
@@ -34,8 +35,9 @@ import { KafkaModule } from '../../infrastructure/kafka/kafka.module';
     KakaoStrategy,
     NaverStrategy,
     JwtAuthGuard,
+    OptionalJwtAuthGuard,
     OAuthCallbackGuard,
   ],
-  exports: [JwtAuthGuard, JwtModule, AuthService],
+  exports: [JwtAuthGuard, OptionalJwtAuthGuard, JwtModule, AuthService],
 })
 export class AuthModule {}

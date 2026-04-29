@@ -24,6 +24,7 @@ import { OwnedIngredientIdsDto } from './dto/owned-ingredient-ids.dto';
 import { FavoriteIngredientIdsDto } from './dto/favorite-ingredient-ids.dto';
 import { FavoriteRecipeIdsDto } from './dto/favorite-recipe-ids.dto';
 import type { Ingredient } from '@cook/shared/prisma-client';
+import type { RecipeWithStats } from '../../infrastructure/database/repositories/postgresql/recipe.repository';
 import type { RecipeSummaryDto } from '../recipes/dto/recipe-summary.dto';
 
 interface InventorySnapshotDto {
@@ -235,6 +236,26 @@ export class InventoryService {
       .filter((row): row is RecipeSummaryDto => row !== undefined);
   }
 
+  private toRecipeSummaryDto(
+    recipe: RecipeWithStats,
+    isFavorite = true,
+  ): RecipeSummaryDto {
+    return {
+      id: recipe.id,
+      title: recipe.title,
+      description: recipe.description ?? null,
+      difficulty: recipe.difficulty,
+      cookTime: recipe.cookTime,
+      imageUrl: recipe.imageUrl ?? null,
+      servings: recipe.servings,
+      viewCount: recipe.viewCount,
+      likeCount: recipe.likeCount,
+      isPublished: recipe.isPublished,
+      isFavorite,
+      createdAt: recipe.createdAt,
+    };
+  }
+
   // TODO: 캐시 전략 검토
   private async getCachedInventorySnapshot(
     userId: number,
@@ -260,9 +281,9 @@ export class InventoryService {
           ...new Set([...ownedIds, ...favoriteIds]),
         ] as number[];
         const rows = await this.ingredientRepository.findManyByIds(uniqueIds);
-        const favoriteRecipes = await this.recipeRepository.findSummariesByIds(
-          favoriteRecipeIds,
-        );
+        const favoriteRecipes = (
+          await this.recipeRepository.findSummariesByIds(favoriteRecipeIds)
+        ).map((recipe) => this.toRecipeSummaryDto(recipe));
 
         return {
           ownedIngredients: this.mapIdsToEntries(ownedIds, rows),

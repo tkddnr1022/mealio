@@ -8,6 +8,7 @@ import {
 } from '@cook/shared';
 import { RecipeQueryService } from '../../recipes.service';
 import { RecipeRepository } from '../../../../infrastructure/database/repositories/postgresql/recipe.repository';
+import { InventoryRepository } from '../../../../infrastructure/database/repositories/mongodb/inventory.repository';
 import { CacheService } from '../../../../infrastructure/cache/cache.service';
 import { RecipeCacheStrategy } from '../../../../infrastructure/cache/strategies/recipe-cache-strategy';
 import { KafkaProducerService } from '../../../../infrastructure/kafka/producer.service';
@@ -15,6 +16,7 @@ import { KafkaProducerService } from '../../../../infrastructure/kafka/producer.
 describe('RecipeQueryService', () => {
   let service: RecipeQueryService;
   let recipeRepository: jest.Mocked<RecipeRepository>;
+  let inventoryRepository: jest.Mocked<InventoryRepository>;
   let cacheService: jest.Mocked<CacheService>;
   let recipeCacheStrategy: jest.Mocked<RecipeCacheStrategy>;
   let kafkaProducer: { emit: jest.Mock };
@@ -74,6 +76,11 @@ describe('RecipeQueryService', () => {
       findSummariesByIds: jest.fn().mockResolvedValue([mockRecipe]),
       findActiveCategories: jest.fn().mockResolvedValue([mockCategory]),
     };
+    const mockInventoryRepo = {
+      findFavoriteRecipeIdsByUserId: jest.fn().mockResolvedValue({
+        recipes: { favoriteIds: [1] },
+      }),
+    };
 
     const mockCacheService = {
       get: jest.fn().mockResolvedValue(null),
@@ -100,6 +107,7 @@ describe('RecipeQueryService', () => {
       providers: [
         RecipeQueryService,
         { provide: RecipeRepository, useValue: mockRepo },
+        { provide: InventoryRepository, useValue: mockInventoryRepo },
         { provide: CacheService, useValue: mockCacheService },
         { provide: RecipeCacheStrategy, useValue: mockCacheStrategy },
         { provide: KafkaProducerService, useValue: mockKafkaProducer },
@@ -110,6 +118,9 @@ describe('RecipeQueryService', () => {
     recipeRepository = module.get<RecipeRepository>(
       RecipeRepository,
     ) as jest.Mocked<RecipeRepository>;
+    inventoryRepository = module.get<InventoryRepository>(
+      InventoryRepository,
+    ) as jest.Mocked<InventoryRepository>;
     cacheService = module.get<CacheService>(
       CacheService,
     ) as jest.Mocked<CacheService>;
@@ -151,6 +162,7 @@ describe('RecipeQueryService', () => {
       expect(result.data).toHaveLength(1);
       expect(result.data[0].id).toBe(1);
       expect(result.data[0].title).toBe('김치볶음밥');
+      expect(result.data[0].isFavorite).toBe(false);
       expect(result.pagination.page).toBe(1);
       expect(result.pagination.size).toBe(20);
       expect(result.pagination.total).toBe(1);
@@ -218,6 +230,7 @@ describe('RecipeQueryService', () => {
             viewCount: 0,
             likeCount: 0,
             isPublished: true,
+            isFavorite: false,
             createdAt: new Date('2025-01-01T00:00:00.000Z'),
           },
         ],
@@ -239,6 +252,20 @@ describe('RecipeQueryService', () => {
       expect(result).toEqual(cached);
       expect(recipeRepository.findManyPaginated).not.toHaveBeenCalled();
     });
+
+    it('로그인 사용자면 favorite 레시피를 isFavorite=true로 반환한다', async () => {
+      const result = await service.getList(
+        {
+          page: 1,
+          size: 20,
+          sort: 'latest',
+        },
+        1,
+      );
+
+      expect(inventoryRepository.findFavoriteRecipeIdsByUserId).toHaveBeenCalledWith(1);
+      expect(result.data[0].isFavorite).toBe(true);
+    });
   });
 
   describe('getById', () => {
@@ -257,6 +284,7 @@ describe('RecipeQueryService', () => {
       expect(result.ingredients).toHaveLength(1);
       expect(result.ingredients[0].name).toBe('김치');
       expect(result.ingredients[0].amount).toBe(100);
+      expect(result.isFavorite).toBe(false);
     });
 
     it('레시피가 없으면 NotFoundException을 던진다', async () => {
@@ -292,6 +320,13 @@ describe('RecipeQueryService', () => {
       expect(result.title).toBe('캐시된 레시피');
       expect(recipeRepository.findById).not.toHaveBeenCalled();
     });
+
+    it('로그인 사용자면 상세 응답에 isFavorite를 반영한다', async () => {
+      const result = await service.getById(1, undefined, 1);
+
+      expect(inventoryRepository.findFavoriteRecipeIdsByUserId).toHaveBeenCalledWith(1);
+      expect(result.isFavorite).toBe(true);
+    });
   });
 
   describe('getSummariesByIds', () => {
@@ -302,6 +337,7 @@ describe('RecipeQueryService', () => {
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe(1);
       expect(result[0].title).toBe('김치볶음밥');
+      expect(result[0].isFavorite).toBe(false);
     });
 
     it('ids가 빈 배열이면 빈 배열을 반환한다', async () => {
@@ -330,6 +366,7 @@ describe('RecipeQueryService', () => {
       );
       expect(result.data).toHaveLength(1);
       expect(result.pagination.total).toBe(1);
+      expect(result.data[0].isFavorite).toBe(false);
       expect(kafkaProducer.emit).toHaveBeenCalledWith(
         KAFKA_TOPICS.ACTIVITY_EVENTS,
         expect.objectContaining({
@@ -345,6 +382,21 @@ describe('RecipeQueryService', () => {
           },
         }),
       );
+    });
+
+    it('로그인 사용자 검색 결과에 isFavorite를 반영한다', async () => {
+      const result = await service.search(
+        {
+          q: '김치',
+          page: 1,
+          size: 20,
+        },
+        undefined,
+        1,
+      );
+
+      expect(inventoryRepository.findFavoriteRecipeIdsByUserId).toHaveBeenCalledWith(1);
+      expect(result.data[0].isFavorite).toBe(true);
     });
 
     it('키워드 앞뒤 공백을 trim하여 전달한다', async () => {

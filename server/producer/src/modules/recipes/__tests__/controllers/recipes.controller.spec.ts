@@ -5,6 +5,7 @@ import { RecipeQueryService } from '../../recipes.service';
 import { RecipeSummaryDto } from '../../dto/recipe-summary.dto';
 import { RecipeDetailDto } from '../../dto/recipe-detail.dto';
 import { PaginationDto } from '../../dto/pagination.dto';
+import { OptionalJwtAuthGuard } from '../../../auth/guards/optional-jwt-auth.guard';
 
 describe('RecipesController', () => {
   let controller: RecipesController;
@@ -21,6 +22,7 @@ describe('RecipesController', () => {
     viewCount: 0,
     likeCount: 0,
     isPublished: true,
+    isFavorite: false,
     createdAt: new Date('2025-01-10T10:30:00.000Z'),
   };
 
@@ -67,7 +69,10 @@ describe('RecipesController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [RecipesController],
       providers: [{ provide: RecipeQueryService, useValue: mockService }],
-    }).compile();
+    })
+      .overrideGuard(OptionalJwtAuthGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get<RecipesController>(RecipesController);
     recipeQueryService = module.get<RecipeQueryService>(
@@ -82,7 +87,7 @@ describe('RecipesController', () => {
   describe('getList', () => {
     it('쿼리로 레시피 목록과 페이지네이션을 반환한다', async () => {
       const query = { page: 1, size: 20, sort: 'latest' as const };
-      const result = await controller.getList(query);
+      const result = await controller.getList(query, undefined);
 
       expect(recipeQueryService.getList).toHaveBeenCalledWith({
         page: 1,
@@ -90,7 +95,7 @@ describe('RecipesController', () => {
         difficulty: undefined,
         cookTime: undefined,
         sort: 'latest',
-      });
+      }, undefined);
       expect(result.data).toHaveLength(1);
       expect(result.data[0].title).toBe('김치볶음밥');
       expect(result.pagination).toEqual(mockPagination);
@@ -104,7 +109,7 @@ describe('RecipesController', () => {
         cookTime: 30,
         sort: 'cookTime' as const,
       };
-      await controller.getList(query);
+      await controller.getList(query, undefined);
 
       expect(recipeQueryService.getList).toHaveBeenCalledWith({
         page: 2,
@@ -112,14 +117,14 @@ describe('RecipesController', () => {
         difficulty: [1, 2],
         cookTime: 30,
         sort: 'cookTime',
-      });
+      }, undefined);
     });
   });
 
   describe('search', () => {
     it('키워드로 검색 결과와 페이지네이션을 반환한다', async () => {
       const query = { q: '김치', page: 1, size: 20 };
-      const result = await controller.search(query);
+      const result = await controller.search(query, undefined);
 
       expect(recipeQueryService.search).toHaveBeenCalledWith({
         q: '김치',
@@ -129,14 +134,14 @@ describe('RecipesController', () => {
         cookTime: undefined,
         categoryId: undefined,
         sort: 'latest',
-      });
+      }, undefined, undefined);
       expect(result.data).toHaveLength(1);
       expect(result.pagination).toEqual(mockPagination);
     });
 
     it('q 없이 검색할 수 있다', async () => {
       const query = { page: 2, size: 10, sort: 'cookTime' as const };
-      await controller.search(query);
+      await controller.search(query, undefined);
 
       expect(recipeQueryService.search).toHaveBeenCalledWith({
         q: undefined,
@@ -146,7 +151,46 @@ describe('RecipesController', () => {
         cookTime: undefined,
         categoryId: undefined,
         sort: 'cookTime',
-      });
+      }, undefined, undefined);
+    });
+
+    it('사용자 컨텍스트가 있으면 userId를 서비스에 전달한다', async () => {
+      const query = { q: '김치', page: 1, size: 20 };
+
+      await controller.search(query, { id: 42 });
+
+      expect(recipeQueryService.search).toHaveBeenCalledWith(
+        expect.objectContaining({
+          q: '김치',
+          page: 1,
+          size: 20,
+        }),
+        undefined,
+        42,
+      );
+    });
+
+    it('요청 컨텍스트가 있으면 userId/ip/userAgent를 함께 전달한다', async () => {
+      const query = { q: '김치', page: 1, size: 20 };
+      await controller.search(
+        query,
+        { id: 42 },
+        { ip: '127.0.0.1', headers: { 'user-agent': 'jest-agent' } },
+      );
+
+      expect(recipeQueryService.search).toHaveBeenCalledWith(
+        expect.objectContaining({
+          q: '김치',
+          page: 1,
+          size: 20,
+        }),
+        {
+          userId: 42,
+          ipAddress: '127.0.0.1',
+          userAgent: 'jest-agent',
+        },
+        42,
+      );
     });
   });
 
@@ -165,9 +209,9 @@ describe('RecipesController', () => {
 
   describe('getById', () => {
     it('recipeId로 상세 레시피를 반환한다', async () => {
-      const result = await controller.getById(1);
+      const result = await controller.getById(1, undefined);
 
-      expect(recipeQueryService.getById).toHaveBeenCalledWith(1);
+      expect(recipeQueryService.getById).toHaveBeenCalledWith(1, undefined, undefined);
       expect(result).toEqual(mockDetail);
       expect(result.instructions).toHaveLength(1);
       expect(result.ingredients).toHaveLength(1);
@@ -178,8 +222,32 @@ describe('RecipesController', () => {
         new NotFoundException('Recipe not found'),
       );
 
-      await expect(controller.getById(999)).rejects.toThrow(NotFoundException);
-      await expect(controller.getById(999)).rejects.toThrow('Recipe not found');
+      await expect(controller.getById(999, undefined)).rejects.toThrow(NotFoundException);
+      await expect(controller.getById(999, undefined)).rejects.toThrow('Recipe not found');
+    });
+
+    it('사용자 컨텍스트가 있으면 userId를 서비스에 전달한다', async () => {
+      await controller.getById(1, { id: 7 });
+
+      expect(recipeQueryService.getById).toHaveBeenCalledWith(1, undefined, 7);
+    });
+
+    it('요청 컨텍스트가 있으면 userId/ip/userAgent를 함께 전달한다', async () => {
+      await controller.getById(
+        1,
+        { id: 7 },
+        { ip: '127.0.0.1', headers: { 'user-agent': 'jest-agent' } },
+      );
+
+      expect(recipeQueryService.getById).toHaveBeenCalledWith(
+        1,
+        {
+          userId: 7,
+          ipAddress: '127.0.0.1',
+          userAgent: 'jest-agent',
+        },
+        7,
+      );
     });
   });
 

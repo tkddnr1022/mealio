@@ -27,7 +27,9 @@
 | server/producer/src/modules/auth/constants/auth-providers.ts | Provider enum·설정 키 상수 |
 | server/producer/src/modules/auth/controllers/auth.controller.ts | OAuth 진입·콜백: GET /api/v1/auth/{provider}, GET /api/v1/auth/{provider}/callback |
 | server/producer/src/modules/auth/decorators/current-user.decorator.ts | `@CurrentUser()` 데코레이터, 요청 유저 정보 주입 |
+| server/producer/src/modules/auth/decorators/current-user-optional.decorator.ts | `@CurrentUserOptional()` 데코레이터, 선택 인증 요청의 유저 정보 주입(없을 수 있음) |
 | server/producer/src/modules/auth/guards/jwt-auth.guard.ts | JWT 인증 가드 (Access Token 검증) |
+| server/producer/src/modules/auth/guards/optional-jwt-auth.guard.ts | 선택 인증 가드 (토큰 없음은 익명 통과, 토큰 유효 시 사용자 주입, 무효/만료는 401) |
 | server/producer/src/modules/auth/guards/oauth-callback.guard.ts | OAuth 콜백 보안 검증(state 등) |
 | server/producer/src/modules/auth/strategies/index.ts | Passport 전략 export |
 | server/producer/src/modules/auth/strategies/google.strategy.ts | Google OAuth 전략 |

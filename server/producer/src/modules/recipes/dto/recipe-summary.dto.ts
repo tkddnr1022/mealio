@@ -39,6 +39,9 @@ export class RecipeSummaryDto {
   @ApiProperty({ example: true, description: '공개 여부' })
   isPublished: boolean;
 
+  @ApiProperty({ example: false, description: '내 관심 레시피 여부' })
+  isFavorite: boolean;
+
   @ApiProperty({ example: '2025-01-10T10:30:00Z', format: 'date-time' })
   createdAt: Date;
 }

@@ -401,6 +401,8 @@ paths:
                     $ref: '#/components/schemas/Pagination'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -497,6 +499,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RecipeDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
@@ -586,6 +590,8 @@ paths:
                     $ref: '#/components/schemas/Pagination'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -1407,6 +1413,9 @@ components:
         isPublished:
           type: boolean
           description: 공개 여부
+        isFavorite:
+          type: boolean
+          description: 내 관심 레시피 여부 (비로그인은 false)
         createdAt:
           type: string
           format: date-time
@@ -1419,6 +1428,7 @@ components:
         imageUrl: https://example.com/images/recipe456.jpg
         viewCount: 1240
         likeCount: 180
+        isFavorite: false
         createdAt: "2025-01-10T10:30:00Z"
 
     RecipeDetail:

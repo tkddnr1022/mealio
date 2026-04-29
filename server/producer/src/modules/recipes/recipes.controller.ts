@@ -11,6 +11,7 @@ import {
   ValidationPipe,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { RecipeQueryService } from './recipes.service';
@@ -21,9 +22,13 @@ import { RecipeListQueryDto } from './dto/recipe-list-query.dto';
 import { RecipeSearchQueryDto } from './dto/recipe-search-query.dto';
 import { RecipeIdsDto } from './dto/recipe-ids.dto';
 import { RecipeCategoryDto } from './dto/recipe-category.dto';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
+import { CurrentUserOptional } from '../auth/decorators/current-user-optional.decorator';
+import type { AuthUser } from '../auth/types/request.types';
 
 @ApiTags('Recipe')
 @Controller('api/v1/recipes')
+@UseGuards(OptionalJwtAuthGuard)
 @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
 export class RecipesController {
   constructor(private readonly recipeQueryService: RecipeQueryService) {}
@@ -48,6 +53,7 @@ export class RecipesController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
   async getList(
     @Query() query: RecipeListQueryDto,
+    @CurrentUserOptional() user?: AuthUser,
   ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
     const page = query.page ?? 1;
     const size = query.size ?? 20;
@@ -58,7 +64,7 @@ export class RecipesController {
       difficulty: query.difficulty,
       cookTime: query.cookTime,
       sort,
-    });
+    }, user?.id);
   }
 
   @Post('summaries') // Body 사용을 위해 POST 사용
@@ -118,6 +124,7 @@ export class RecipesController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
   async search(
     @Query() query: RecipeSearchQueryDto,
+    @CurrentUserOptional() user?: AuthUser,
     @Req() req?: { ip?: string; headers: { [key: string]: string | string[] | undefined } },
   ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
     const page = query.page ?? 1;
@@ -134,15 +141,16 @@ export class RecipesController {
     };
 
     if (!req) {
-      return this.recipeQueryService.search(params);
+      return this.recipeQueryService.search(params, undefined, user?.id);
     }
 
     const ua = req.headers?.['user-agent'];
     const context = {
+      userId: user?.id,
       ipAddress: req.ip,
       userAgent: Array.isArray(ua) ? ua[0] : ua,
     };
-    return this.recipeQueryService.search(params, context);
+    return this.recipeQueryService.search(params, context, user?.id);
   }
 
   @Get(':recipeId')
@@ -157,17 +165,19 @@ export class RecipesController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
   async getById(
     @Param('recipeId', ParseIntPipe) recipeId: number,
+    @CurrentUserOptional() user?: AuthUser,
     @Req() req?: { ip?: string; headers: { [key: string]: string | string[] | undefined } },
   ): Promise<RecipeDetailDto> {
     if (!req) {
-      return this.recipeQueryService.getById(recipeId);
+      return this.recipeQueryService.getById(recipeId, undefined, user?.id);
     }
 
     const ua = req.headers?.['user-agent'];
     const context = {
+      userId: user?.id,
       ipAddress: req.ip,
       userAgent: Array.isArray(ua) ? ua[0] : ua,
     };
-    return this.recipeQueryService.getById(recipeId, context);
+    return this.recipeQueryService.getById(recipeId, context, user?.id);
   }
 }

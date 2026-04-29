@@ -23,6 +23,19 @@ export class InventoryRepository {
       .exec();
   }
 
+  /**
+   * 사용자별 관심 레시피 ID 목록 조회 (레시피 응답 개인화 용도)
+   */
+  async findFavoriteRecipeIdsByUserId(
+    userId: number,
+  ): Promise<Pick<Inventory, 'recipes'> | null> {
+    return this.inventoryModel
+      .findOne({ userId })
+      .select('recipes.favoriteIds')
+      .lean()
+      .exec();
+  }
+
   // Command 메서드들은 producer 서버에서 제거
   // Command 작업은 이벤트를 통해 consumer 서버에서 처리됨
   // async upsert(
