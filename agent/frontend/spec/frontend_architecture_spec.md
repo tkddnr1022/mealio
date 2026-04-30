@@ -38,8 +38,9 @@
 | (main) · 레시피 탭 | `/recipe/[id]` | `(main)/recipe/[id]/page.tsx` | ISR | RecipeDetailPage — 레시피 상세 |
 | (main) · 챗봇 탭 | `/chatbot/list` | `(main)/chatbot/list/page.tsx` | CSR | ChatbotConversationListPage — 대화 목록 |
 | (main) · 챗봇 탭 | `/chatbot/[id]` | `(main)/chatbot/[id]/page.tsx` | CSR | ChatbotConversationPage — 대화 |
-| (main) · 보관함 탭 | `/inventory/favorite` | `(main)/inventory/favorite/page.tsx` | CSR | InventoryFavoriteListPage — 관심 재료 목록 |
-| (main) · 보관함 탭 | `/inventory/owned` | `(main)/inventory/owned/page.tsx` | CSR | InventoryOwnedListPage — 보유 재료 목록 |
+| (main) · 보관함 탭 | `/inventory/ingredients/favorite` | `(main)/inventory/ingredients/favorite/page.tsx` | CSR | InventoryFavoriteListPage — 관심 재료 목록 |
+| (main) · 보관함 탭 | `/inventory/ingredients/owned` | `(main)/inventory/ingredients/owned/page.tsx` | CSR | InventoryOwnedListPage — 보유 재료 목록 |
+| (main) · 보관함 탭 | `/inventory/recipes/favorite` | `(main)/inventory/recipes/favorite/page.tsx` | CSR | InventoryFavoriteListPage — 관심 레시피 목록 |
 | (main) · 마이페이지 탭 | `/mypage` | `(main)/mypage/page.tsx` | SSR | MypageMainPage — 마이페이지 메인 |
 | **api** | `/api/revalidate` | `api/revalidate/route.ts` | — | ISR 재검증 웹훅 |
 | api | `/api/health` | `api/health/route.ts` | — | 헬스체크 |

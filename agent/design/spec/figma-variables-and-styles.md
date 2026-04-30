@@ -1,8 +1,8 @@
 # Figma — 통합 변수·스타일 목록
 
-- **소스**: `https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook` — `fileKey` `r9bdZPeswvPR1ncezzt4ri`, 스테이징 섹션 **UI** 루트 노드 `36:333`.
+- **소스**: `https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook` — `fileKey` `r9bdZPeswvPR1ncezzt4ri`, 스테이징 섹션 **UI** 루트 노드 `36:333` + 추가 수집 노드 `492:2935`(`SubTab`), `492:2955`(`InventorySubTabbar`).
 - **수집 방법**: Figma MCP `get_variable_defs`를 위 루트에 **한 번** 호출해 스테이징 하위 전 컴포넌트 서브트리에 등장하는 변수·스타일 정의를 평탄 맵으로 수집 후 표로 정리했다. 동일 노드에 대한 `get_design_context`는 섹션 노드라 **희소 메타(XML 구조)만** 반환되어, 본 표는 **변수 맵이 단일 근거**다. 보조 `search_design_system`은 사용하지 않았다.
-- **수집 시점**: 2026-04-19
+- **수집 시점**: 2026-05-01
 - **주의**: MCP 응답 시점 스냅샷이다. Figma 수정 후 재수집할 것.
 - **절차·피드백 분리**: 수집·검토 절차는 `agent/design/guidelines/design_system_collection_guidelines.md`를 본다. **컴포넌트 순차 작업 프로그레스**는 `agent/design/temp/figma-ds-component-progress.md`에 둔다. **권장 수정사항·토큰·스타일 검토·참고 노트**는 `agent/design/temp/figma-variables-and-styles-feedback.md`에 둔다.
 
@@ -13,9 +13,9 @@
 ### 변수
 
 | 구분 | 이름 | 값 | 사용처 |
-|------|------|-----|--------|
-| 변수 | `border/default` | `1` (px) | UI 스테이징 전반 보더 두께(내비·탭·액션 바·드롭다운·메뉴 구분선 등) |
-| 변수 | `border/focus` | `2` (px) | **Input** 포커스 링·검색 필드 포커스 링 두께 |
+| ---- | ---- | --- | ------ |
+| 변수 | `border/default` | `1` (px) | UI 스테이징 전반 보더 두께(내비·탭·액션 바·드롭다운·메뉴 구분선·`InventorySubTabbar` 비활성 하단선 등) |
+| 변수 | `border/focus` | `2` (px) | **Input** 포커스 링·검색 필드 포커스 링·`SubTab` 활성 하단선 두께 |
 | 변수 | `card/elevation/blur` | `8` (px) | 카드 계열 그림자(`Elevation/Card`·필터 카드) |
 | 변수 | `card/elevation/color` | `#0f172a` @ 약 8% 불투명 (`#0f172a14`) | 카드 그림자 색 |
 | 변수 | `card/elevation/x` | `0` (px) | 카드 그림자 X |
@@ -25,7 +25,7 @@
 | 변수 | `card/radius` | `12` (px) | 카드 코너 반경 |
 | 변수 | `color/background/placeholder` | `#f5f5f4` | 썸네일 플레이스홀더·연한 면 |
 | 변수 | `color/background/primary` | `#fafaf9` | **Input**·**SearchBar**·**MainContent** 등 필드·본문 배경 |
-| 변수 | `color/background/surface` | `#ffffff` | **Navbar**·**Tabbar**·카드·서치 헤더·서페이스 면 |
+| 변수 | `color/background/surface` | `#ffffff` | **Navbar**·**Tabbar**·`InventorySubTabbar`·카드·서치 헤더·서페이스 면 |
 | 변수 | `color/border/accent` | `#c2410c` | 포커스·강조 보더 |
 | 변수 | `color/border/muted` | `#f5f5f4` | 마이페이지·리스트 저대비 구분선 |
 | 변수 | `color/border/subtle` | `#e5e5e5` | 내비·탭·행 구분선 |
@@ -50,8 +50,8 @@
 | 변수 | `color/scrollbar/thumb` | `#d4d4d4` @ 80% 불투명 (`#d4d4d4cc`) | **CustomScrollbar**·스크롤 오버레이 |
 | 변수 | `color/secondary` | `#fafaf9` | Secondary(초기화) 버튼 면 |
 | 변수 | `color/secondary-hover` | `#ffffff` | Secondary 버튼 호버 |
-| 변수 | `color/tab/active` | `#c2410c` | 탭 활성 라벨 |
-| 변수 | `color/tab/inactive` | `#737373` | 탭 비활성 라벨 |
+| 변수 | `color/tab/active` | `#c2410c` | 탭 활성 라벨(`SubTab`·`InventorySubTabbar`) |
+| 변수 | `color/tab/inactive` | `#737373` | 탭 비활성 라벨(`SubTab`·`InventorySubTabbar`) |
 | 변수 | `color/tag/accent` | `#fff7ed` | 강조 **FlatTag** 면 |
 | 변수 | `color/tag/default` | `#fafaf9` | 검색 카드 **FlatTag** 기본 면 |
 | 변수 | `color/text/accent` | `#c2410c` | 강조 라벨·카테고리 태그 |
@@ -99,7 +99,7 @@
 ### 스타일
 
 | 구분 | 이름 | 값 | 사용처 |
-|------|------|-----|--------|
+| ---- | ---- | --- | ------ |
 | 스타일 | `Action/Primary/Default` | `color/primary` | Primary 버튼·인디케이터·토글 선택 면 등 |
 | 스타일 | `Action/Primary/Hover` | `color/primary-hover` | Primary 호버 |
 | 스타일 | `Action/Primary/Inactive` | `color/primary-inactive` | Primary 비활성 트랙 |
@@ -112,9 +112,10 @@
 | 스타일 | `Body/Bold` | `typography/font-size-body` · Noto Sans KR Bold · lineHeight `24` | 본문 볼드 |
 | 스타일 | `Body/Medium` | `typography/font-size-body` · Noto Sans KR Medium · lineHeight `24` | 본문 미디엄 |
 | 스타일 | `Body/Regular` | `typography/font-size-body` · Noto Sans KR Regular · lineHeight `24` | 본문 레귤러·플레이스홀더 톤 |
-| 스타일 | `Border/Accent` | `color/border/accent`, `border/focus` | 포커스 링 |
+| 스타일 | `Border/Accent` | `color/border/accent`, `border/focus` | 포커스 링·`SubTab` 활성 하단선 |
 | 스타일 | `Border/Muted` | `color/border/muted`, `border/default` | 마이페이지 등 연한 구분선 |
-| 스타일 | `Border/Subtle` | `color/border/subtle`, `border/default` | 내비·탭·액션 바 구분선 |
+| 스타일 | `Border/Subtle` | `color/border/subtle`, `border/default` | 내비·탭·액션 바·`InventorySubTabbar` 비활성 구분선 |
+| 스타일 | `Caption/Medium` | `typography/font-size-caption` · Noto Sans KR Medium · lineHeight `21` | `SubTab`·`InventorySubTabbar` 라벨 |
 | 스타일 | `Caption/Regular` | `typography/font-size-caption` · Noto Sans KR Regular · lineHeight `21` | 캡션 본문 |
 | 스타일 | `Card/Body` | `typography/font-size-caption` · Noto Sans KR Regular · lineHeight `21` | 카드 설명 |
 | 스타일 | `Card/Caption` | `typography/font-size-small` · Noto Sans KR Medium · lineHeight `16` | 카드 메타 |
@@ -160,8 +161,8 @@
 | 스타일 | `Text/Placeholder` | `color/text/placeholder` | 플레이스홀더 색 |
 | 스타일 | `Text/Primary` | `color/text/primary` | 본문·제목 기본 색 |
 | 스타일 | `Text/Secondary` | `color/text/secondary` | 보조 본문 색 |
-| 스타일 | `Text/Tab/Active` | `color/tab/active` | 탭 활성 |
-| 스타일 | `Text/Tab/Inactive` | `color/tab/inactive` | 탭 비활성 |
+| 스타일 | `Text/Tab/Active` | `color/tab/active` | 탭 활성(`SubTab`·`InventorySubTabbar`) |
+| 스타일 | `Text/Tab/Inactive` | `color/tab/inactive` | 탭 비활성(`SubTab`·`InventorySubTabbar`) |
 | 스타일 | `Text/Toggle/Active` | `color/on-primary` | 토글 선택 라벨 |
 | 스타일 | `Text/Toggle/Inactive` | `color/text/secondary` | 토글 비선택 라벨 |
 | 스타일 | `Toggle/Selected/Default` | `color/toggle/selected/default` | 토글 선택 배경 |

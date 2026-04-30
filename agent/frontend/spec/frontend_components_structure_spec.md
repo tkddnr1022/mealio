@@ -122,7 +122,8 @@
 | **client/src/components/inventory/** | 재료 보관함 도메인 컴포넌트 묶음 |
 | client/src/components/inventory/IngredientCard/ | 재료 카드 세트(`selected`) |
 | client/src/components/inventory/IngredientGrid/ | 재료 그리드 |
-| client/src/components/inventory/InventoryTab/ | 보관함 탭 세트(`selected=owned|favorite`) |
+| client/src/components/inventory/SubTab/ | 서브 탭 단일 아이템 세트(`selected`) |
+| client/src/components/inventory/InventorySubTabbar/ | 보관함 서브 탭바 세트(`selectedIndex`) |
 | client/src/components/inventory/IngredientGridHeader/ | 재료 그리드 헤더 |
 | client/src/components/inventory/IngredientSearchResult/ | 재료 검색 결과 |
 
@@ -161,4 +162,3 @@
 | `(main) · 챗봇` | `client/src/components/chatbot/` |
 | `(main) · 보관함` | `client/src/components/inventory/` |
 | `(main) · 마이페이지` | `client/src/components/mypage/` |
-
