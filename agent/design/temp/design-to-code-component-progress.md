@@ -101,8 +101,8 @@
 - [x] `UserProfile` 세트 (`loggedIn=true` / `false`)
 - [x] `StatCard`
 - [x] `MypageHeader` 세트 (`loggedIn=true` / `false`)
-- [ ] `MenuItem` 세트 (`border=true` / `false`)
-- [ ] `MenuSection`
+- [x] `MenuItem` 세트 (`border=true` / `false`)
+- [x] `MenuSection`
 
 ### 로그인
 
