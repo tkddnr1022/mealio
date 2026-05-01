@@ -1,4 +1,4 @@
-import { Apple, Check, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
 
@@ -14,14 +14,11 @@ export type IngredientCardProps = Readonly<
   }
 >;
 
-const DEFAULT_ICON = <Apple className="size-5" strokeWidth={2} aria-hidden />;
-const CHECK_ICON = <Check className="size-3" strokeWidth={2.25} aria-hidden />;
-
 export function IngredientCard({
   className = "",
   name = "재료명",
   selected = false,
-  leadingIcon = DEFAULT_ICON,
+  leadingIcon,
   trailing,
   onRemove,
   removeAriaLabel = `${name} 제거`,
@@ -32,7 +29,7 @@ export function IngredientCard({
       aria-hidden
       className="absolute top-2 right-2 inline-flex size-6 items-center justify-center rounded-full bg-toggle-selected-default style-text-button-primary"
     >
-      {CHECK_ICON}
+      <Check className="size-4" strokeWidth={2.25} aria-hidden />
     </span>
   ) : onRemove ? (
     <button

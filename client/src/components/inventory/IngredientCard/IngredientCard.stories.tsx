@@ -1,6 +1,6 @@
-import { Beef, Egg, Fish, Milk, Wheat } from "lucide-react";
+import { Apple, Beef, Egg, Fish, Milk, Wheat } from "lucide-react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { IngredientCard } from "@/components/inventory/IngredientCard";
+import { IngredientCard } from "@/components/inventory/IngredientCard/index";
 
 const meta = {
   title: "Inventory/IngredientCard",
@@ -19,6 +19,7 @@ export const Unselected: Story = {
   name: "selected=false",
   args: {
     name: "사과",
+    leadingIcon: <Apple />,
     onRemove: () => undefined,
   },
 };
@@ -28,6 +29,7 @@ export const Selected: Story = {
   args: {
     name: "사과",
     selected: true,
+    leadingIcon: <Apple className="size-5" strokeWidth={2} />,
   },
 };
 
