@@ -18,7 +18,7 @@ export type FilterDropdownProps = Readonly<{
 export function FilterDropdown({
   className = "",
   open = false,
-  label = "Label",
+  label,
   options,
   selectedValue,
   onSelect,

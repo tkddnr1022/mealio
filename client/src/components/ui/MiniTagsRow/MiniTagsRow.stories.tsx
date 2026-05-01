@@ -21,4 +21,8 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  args: {
+    items: [{ label: "15분" }, { label: "쉬움" }, { label: "2인분" }],
+  },
+};

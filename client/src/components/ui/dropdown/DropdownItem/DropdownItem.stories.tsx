@@ -30,14 +30,14 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Unselected: Story = {
+export const Unselected = {
   args: {
     selected: false,
   },
-};
+} satisfies Story;
 
-export const Selected: Story = {
+export const Selected = {
   args: {
     selected: true,
   },
-};
+} satisfies Story;

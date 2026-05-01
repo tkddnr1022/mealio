@@ -27,11 +27,11 @@ export function RecipeCard({
   imageUrl,
   imageAlt,
   title,
-  summary = "설명이 없습니다.",
-  cookingTime = "15분",
+  summary,
+  cookingTime,
   cookingTimeMinutes,
-  difficulty = "쉬움",
-  servings = "2인분",
+  difficulty,
+  servings,
   isFavorite = false,
   onFavoriteClick,
   ...rest
@@ -40,6 +40,32 @@ export function RecipeCard({
     cookingTimeMinutes !== undefined
       ? (formatCookingTime(cookingTimeMinutes) || cookingTime)
       : cookingTime;
+  const tagItems = [
+    cookingTimeLabel
+      ? {
+          label: cookingTimeLabel,
+          leftIcon: (
+            <Clock3 className="size-4 p-px" strokeWidth={2} aria-hidden />
+          ),
+        }
+      : null,
+    difficulty
+      ? {
+          label: difficulty,
+          leftIcon: (
+            <Flame className="size-4 p-px" strokeWidth={2} aria-hidden />
+          ),
+        }
+      : null,
+    servings
+      ? {
+          label: servings,
+          leftIcon: (
+            <UsersRound className="size-4 p-px" strokeWidth={2} aria-hidden />
+          ),
+        }
+      : null,
+  ].filter((item) => item !== null);
 
   return (
     <article
@@ -66,31 +92,10 @@ export function RecipeCard({
       </div>
 
       <div className="flex w-full flex-col gap-(--card-gap) p-(--card-padding)">
-        <FlatTagsRow
-          items={[
-            {
-              label: cookingTimeLabel,
-              leftIcon: (
-                <Clock3 className="size-4 p-px" strokeWidth={2} aria-hidden />
-              ),
-            },
-            {
-              label: difficulty,
-              leftIcon: (
-                <Flame className="size-4 p-px" strokeWidth={2} aria-hidden />
-              ),
-            },
-            {
-              label: servings,
-              leftIcon: (
-                <UsersRound className="size-4 p-px" strokeWidth={2} aria-hidden />
-              ),
-            },
-          ]}
-        />
+        <FlatTagsRow items={tagItems} />
         <div className="flex w-full flex-col gap-1">
           <h3 className="typo-card-heading style-text-primary">{title}</h3>
-          <p className="typo-card-body style-text-secondary">{summary}</p>
+          <p className="typo-card-body style-text-secondary">{summary ?? ""}</p>
         </div>
       </div>
     </article>

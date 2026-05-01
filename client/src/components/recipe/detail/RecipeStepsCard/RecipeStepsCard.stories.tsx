@@ -28,9 +28,9 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default = {} satisfies Story;
 
-export const LongSteps: Story = {
+export const LongSteps = {
   args: {
     steps: [
       { step: "1", instruction: "재료를 모두 손질하고 밥을 준비합니다." },
@@ -38,4 +38,4 @@ export const LongSteps: Story = {
       { step: "3", instruction: "그릇에 밥과 재료를 담아 완성합니다." },
     ],
   },
-};
+} satisfies Story;

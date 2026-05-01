@@ -25,20 +25,20 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default = {} satisfies Story;
 
-export const FlameIcon: Story = {
+export const FlameIcon = {
   args: {
     label: "Difficulty",
     leftIcon: <Flame className="size-5 p-0.5 style-text-accent" strokeWidth={2} aria-hidden />,
   },
-};
+} satisfies Story;
 
-export const UsersIcon: Story = {
+export const UsersIcon = {
   args: {
     label: "Servings",
     leftIcon: (
       <UsersRound className="size-5 p-0.5 style-text-accent" strokeWidth={2} aria-hidden />
     ),
   },
-};
+} satisfies Story;

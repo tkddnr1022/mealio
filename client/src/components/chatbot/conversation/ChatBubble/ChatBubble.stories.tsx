@@ -26,10 +26,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Assistant: Story = {};
+export const Assistant = {} satisfies Story;
 
-export const User: Story = {
+export const User = {
   args: {
     role: "user",
   },
-};
+} satisfies Story;

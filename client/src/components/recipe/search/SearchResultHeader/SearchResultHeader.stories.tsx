@@ -24,6 +24,15 @@ const meta = {
     },
     searchResultMetaProps: {
       totalCount: 1,
+      filterDropdownProps: {
+        label: "정렬",
+        selectedValue: "latest",
+        options: [
+          { value: "latest", label: "최신순" },
+          { value: "popular", label: "인기순" },
+          { value: "time-asc", label: "조리시간 짧은순" },
+        ],
+      },
     },
     chipsRowProps: {
       labels: ["Label", "Label", "Label"],
@@ -35,4 +44,4 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default = {} satisfies Story;

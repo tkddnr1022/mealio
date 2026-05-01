@@ -1,9 +1,7 @@
-import { Beef, Egg, Fish, Milk, Wheat } from "lucide-react";
+import { Apple, Beef, Egg, Fish, Milk, Wheat } from "lucide-react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import {
-  type IngredientGridItem,
-  IngredientSearchResult,
-} from "@/components/inventory/IngredientSearchResult";
+import { IngredientSearchResult } from "./IngredientSearchResult";
+import type { IngredientGridItem } from "@/components/inventory/IngredientGrid";
 
 const meta = {
   title: "Inventory/IngredientSearchResult",
@@ -26,7 +24,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const sampleItems: readonly IngredientGridItem[] = [
-  { id: "apple", name: "사과", selected: true },
+  { id: "apple", name: "사과", leadingIcon: <Apple className="size-5" strokeWidth={2} />, selected: true },
   { id: "beef", name: "소고기", leadingIcon: <Beef className="size-5" strokeWidth={2} /> },
   { id: "egg", name: "계란", leadingIcon: <Egg className="size-5" strokeWidth={2} /> },
   { id: "fish", name: "고등어", leadingIcon: <Fish className="size-5" strokeWidth={2} /> },

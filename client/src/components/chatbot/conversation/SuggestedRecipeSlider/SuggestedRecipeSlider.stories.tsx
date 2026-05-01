@@ -42,13 +42,13 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const TwoCards: Story = {
+export const TwoCards = {
   args: {
     items: baseItems,
   },
-};
+} satisfies Story;
 
-export const ThreeCards: Story = {
+export const ThreeCards = {
   args: {
     items: [
       ...baseItems,
@@ -60,4 +60,4 @@ export const ThreeCards: Story = {
       },
     ],
   },
-};
+} satisfies Story;

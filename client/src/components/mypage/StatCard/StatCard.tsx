@@ -1,4 +1,3 @@
-import { BookMarked } from "lucide-react";
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
 
@@ -13,9 +12,9 @@ export type StatCardProps = Readonly<
 
 export function StatCard({
   className = "",
-  icon = <BookMarked className="size-5" strokeWidth={2} />,
-  value = "10",
-  label = "Label",
+  icon,
+  value,
+  label,
   ...rest
 }: StatCardProps) {
   return (

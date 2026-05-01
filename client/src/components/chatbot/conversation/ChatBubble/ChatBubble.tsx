@@ -16,7 +16,7 @@ export type ChatBubbleProps = Readonly<
 export function ChatBubble({
   className = "",
   role = "assistant",
-  message = "Message",
+  message,
   timestamp = new Date(),
   ...rest
 }: ChatBubbleProps) {
@@ -42,7 +42,7 @@ export function ChatBubble({
           isUser ? "style-text-button-primary" : "style-text-primary",
         )}
       >
-        {message}
+        {message ?? ""}
       </p>
       <span className={cn("typo-small", isUser ? "style-text-button-primary" : "style-text-caption")}>
         {formattedTimestamp}

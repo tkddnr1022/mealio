@@ -1,4 +1,3 @@
-import { MessageCircle, Package } from "lucide-react";
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 import { StatCard, type StatCardProps } from "@/components/mypage/StatCard";
@@ -13,17 +12,11 @@ export type MypageHeaderProps = Readonly<
   }
 >;
 
-const DEFAULT_STAT_CARDS: readonly StatCardProps[] = [
-  { value: "24", label: "저장한 레시피" },
-  { value: "12", label: "보유 재료", icon: <Package className="size-5" strokeWidth={2} /> },
-  { value: "10", label: "챗봇 대화", icon: <MessageCircle className="size-5" strokeWidth={2} /> },
-];
-
 export function MypageHeader({
   className = "",
   loggedIn = true,
   userProfileProps,
-  statCards = DEFAULT_STAT_CARDS,
+  statCards = [],
   ...rest
 }: MypageHeaderProps) {
   return (

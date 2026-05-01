@@ -17,15 +17,10 @@ export type RecipeStepsCardProps = Readonly<
   }
 >;
 
-const defaultSteps: readonly RecipeStepItem[] = [
-  { step: "1", instruction: "첫 번째 조리 단계입니다." },
-  { step: "2", instruction: "다음 단계를 진행합니다." },
-];
-
 export function RecipeStepsCard({
   className = "",
   title = "조리 순서",
-  steps = defaultSteps,
+  steps = [],
   rowClassName = "",
   rowProps,
   ...rest

@@ -71,12 +71,12 @@ const fourSameAsFigma: readonly RecipeGridItem[] = [
   },
 ];
 
-export const Default: Story = {
+export const Default = {
   name: "기본 (Figma 2×2)",
   args: {
     recipes: fourSameAsFigma,
   },
-};
+} satisfies Story;
 
 const variedRecipes: readonly RecipeGridItem[] = [
   {
@@ -116,28 +116,28 @@ const variedRecipes: readonly RecipeGridItem[] = [
   },
 ];
 
-export const VariedRecipes: Story = {
+export const VariedRecipes = {
   name: "서로 다른 레시피",
   args: {
     recipes: variedRecipes,
   },
-};
+} satisfies Story;
 
-export const ThreeItems: Story = {
+export const ThreeItems = {
   name: "홀수 개(3개)",
   args: {
     recipes: variedRecipes.slice(0, 3),
   },
-};
+} satisfies Story;
 
-export const Empty: Story = {
+export const Empty = {
   name: "빈 목록",
   args: {
     recipes: [],
   },
-};
+} satisfies Story;
 
-export const FluidContainer: Story = {
+export const FluidContainer = {
   name: "넓은 컨테이너",
   decorators: [
     ((Story) => (
@@ -149,4 +149,4 @@ export const FluidContainer: Story = {
   args: {
     recipes: fourSameAsFigma,
   },
-};
+} satisfies Story;

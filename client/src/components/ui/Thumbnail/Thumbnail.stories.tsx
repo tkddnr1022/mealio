@@ -29,10 +29,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Square: Story = {};
+export const Square = {} satisfies Story;
 
-export const Landscape: Story = {
+export const Landscape = {
   args: {
     square: false,
   },
-};
+} satisfies Story;

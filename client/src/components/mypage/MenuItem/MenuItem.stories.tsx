@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { MenuItem } from "@/components/mypage/MenuItem/index";
+import { SquarePen } from "lucide-react";
+import { MenuItem } from "@/components/mypage/MenuItem";
 
 const meta = {
   title: "Mypage/MenuItem",
@@ -17,6 +18,7 @@ const meta = {
   ],
   args: {
     label: "내 레시피 관리",
+    leadingIcon: <SquarePen className="size-5" strokeWidth={2} />,
   },
 } satisfies Meta<typeof MenuItem>;
 
@@ -24,16 +26,16 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const BorderFalse: Story = {
+export const BorderFalse = {
   name: "border=false",
   args: {
     border: false,
   },
-};
+} satisfies Story;
 
-export const BorderTrue: Story = {
+export const BorderTrue = {
   name: "border=true",
   args: {
     border: true,
   },
-};
+} satisfies Story;

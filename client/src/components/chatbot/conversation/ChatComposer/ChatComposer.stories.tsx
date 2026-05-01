@@ -26,16 +26,16 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Empty: Story = {
+export const Empty = {
   args: {
     filled: false,
     value: "",
   },
-};
+} satisfies Story;
 
-export const Filled: Story = {
+export const Filled = {
   args: {
     filled: true,
     value: "한식 레시피 추천해줘",
   },
-};
+} satisfies Story;

@@ -1,4 +1,3 @@
-import { Clock3 } from "lucide-react";
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
 
@@ -13,8 +12,8 @@ export type CardTagProps = Readonly<
 
 export function CardTag({
   className = "",
-  label = "Label",
-  leftIcon = <Clock3 className="size-5 p-0.5 style-text-accent" strokeWidth={2} aria-hidden />,
+  label,
+  leftIcon,
   trailing,
   ...rest
 }: CardTagProps) {

@@ -29,28 +29,28 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Empty: Story = {
+export const Empty = {
   name: "기본",
   decorators: [narrowWidth],
-};
+} satisfies Story;
 
-export const Filled: Story = {
+export const Filled = {
   name: "값 있음",
   decorators: [narrowWidth],
   args: {
     defaultValue: "입력된 텍스트",
   },
-};
+} satisfies Story;
 
-export const Disabled: Story = {
+export const Disabled = {
   name: "비활성",
   decorators: [narrowWidth],
   args: {
     disabled: true,
   },
-};
+} satisfies Story;
 
-export const WithStartAdornment: Story = {
+export const WithStartAdornment = {
   name: "왼쪽 아이콘",
   decorators: [narrowWidth],
   args: {
@@ -59,9 +59,9 @@ export const WithStartAdornment: Story = {
       <Search className="size-full style-text-placeholder" strokeWidth={2} />
     ),
   },
-};
+} satisfies Story;
 
-export const WithEndClearButton: Story = {
+export const WithEndClearButton = {
   name: "오른쪽 클리어 버튼",
   decorators: [narrowWidth],
   args: {
@@ -76,13 +76,13 @@ export const WithEndClearButton: Story = {
       </button>
     ),
   },
-};
+} satisfies Story;
 
-export const NoFocusWithinRing: Story = {
+export const NoFocusWithinRing = {
   name: "focus-within 링 없음",
   decorators: [narrowWidth],
   args: {
     focusWithinRing: false,
     placeholder: "상위가 포커스 링 처리",
   },
-};
+} satisfies Story;

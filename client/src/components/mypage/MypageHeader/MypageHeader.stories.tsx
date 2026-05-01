@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { MessageCircle, Package } from "lucide-react";
 import { MypageHeader } from "@/components/mypage/MypageHeader/index";
 
 const meta = {
@@ -29,6 +30,11 @@ export const LoggedIn: Story = {
       nickname: "김레시피",
       email: "recipe@example.com",
     },
+    statCards: [
+      { value: "24", label: "저장한 레시피" },
+      { value: "12", label: "보유 재료", icon: <Package className="size-5" strokeWidth={2} /> },
+      { value: "10", label: "챗봇 대화", icon: <MessageCircle className="size-5" strokeWidth={2} /> },
+    ],
   },
 };
 

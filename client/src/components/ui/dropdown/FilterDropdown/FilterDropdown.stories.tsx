@@ -39,14 +39,14 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Closed: Story = {
+export const Closed = {
   args: {
     open: false,
   },
-};
+} satisfies Story;
 
-export const Open: Story = {
+export const Open = {
   args: {
     open: true,
   },
-};
+} satisfies Story;

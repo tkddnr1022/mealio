@@ -48,10 +48,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default = {} satisfies Story;
 
-export const Single: Story = {
+export const Single = {
   args: {
     recipes: sampleRecipes.slice(0, 1),
   },
-};
+} satisfies Story;

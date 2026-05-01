@@ -47,54 +47,54 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Playground: Story = {};
+export const Playground = {} satisfies Story;
 
-export const PrimaryLargeDefault: Story = {
+export const PrimaryLargeDefault = {
   name: "Primary / Large",
   args: {
     variant: "primary",
     size: "large",
   },
-};
+} satisfies Story;
 
-export const PrimaryMediumDefault: Story = {
+export const PrimaryMediumDefault = {
   name: "Primary / Medium",
   args: {
     variant: "primary",
     size: "medium",
   },
-};
+} satisfies Story;
 
-export const PrimaryLargeInactive: Story = {
+export const PrimaryLargeInactive = {
   name: "Primary / Large / Disabled",
   args: {
     variant: "primary",
     size: "large",
     disabled: true,
   },
-};
+} satisfies Story;
 
-export const PrimaryMediumInactive: Story = {
+export const PrimaryMediumInactive = {
   name: "Primary / Medium / Disabled",
   args: {
     variant: "primary",
     size: "medium",
     disabled: true,
   },
-};
+} satisfies Story;
 
-export const SecondaryLargeDefault: Story = {
+export const SecondaryLargeDefault = {
   name: "Secondary / Large",
   args: {
     variant: "secondary",
     size: "large",
   },
-};
+} satisfies Story;
 
-export const SecondaryMediumDefault: Story = {
+export const SecondaryMediumDefault = {
   name: "Secondary / Medium",
   args: {
     variant: "secondary",
     size: "medium",
   },
-};
+} satisfies Story;

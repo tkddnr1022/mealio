@@ -22,22 +22,22 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Inactive: Story = {
+export const Inactive = {
   name: "비활성",
   args: {
     active: false,
   },
-};
+} satisfies Story;
 
-export const Active: Story = {
+export const Active = {
   name: "활성",
   args: {
     active: true,
   },
-};
+} satisfies Story;
 
 /** 인디케이터 행 사용 예시 (3번째 활성) */
-export const RowExample: Story = {
+export const RowExample = {
   name: "행 예시",
   render: () => (
     <div className="flex items-center gap-2" role="group" aria-label="슬라이드 위치">
@@ -48,4 +48,4 @@ export const RowExample: Story = {
       <PaginationDot aria-hidden />
     </div>
   ),
-};
+} satisfies Story;

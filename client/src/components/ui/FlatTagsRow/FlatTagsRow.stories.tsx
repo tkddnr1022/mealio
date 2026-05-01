@@ -1,4 +1,4 @@
-import { Flame } from "lucide-react";
+import { Clock3, Flame, UsersRound } from "lucide-react";
 import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
 import { FlatTagsRow } from "@/components/ui/FlatTagsRow";
 
@@ -22,7 +22,15 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  args: {
+    items: [
+      { label: "Time", leftIcon: <Clock3 className="size-4 p-px" strokeWidth={2} aria-hidden /> },
+      { label: "Difficulty", leftIcon: <Flame className="size-4 p-px" strokeWidth={2} aria-hidden /> },
+      { label: "Servings", leftIcon: <UsersRound className="size-4 p-px" strokeWidth={2} aria-hidden /> },
+    ],
+  },
+};
 
 export const WithAccentItem: Story = {
   args: {

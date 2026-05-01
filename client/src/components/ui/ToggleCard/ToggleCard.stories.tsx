@@ -28,7 +28,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 type ToggleCardStoryArgs = ComponentProps<typeof ToggleCard>;
 
-export const Default: Story = {
+export const Default = {
   render: (args: ToggleCardStoryArgs) => (
     <ToggleCard {...args}>
       <Toggle selected label="Label" />
@@ -39,9 +39,9 @@ export const Default: Story = {
       <Toggle selected label="Label" />
     </ToggleCard>
   ),
-};
+} satisfies Story;
 
-export const CustomItems: Story = {
+export const CustomItems = {
   name: "커스텀 토글 목록",
   render: (args: ToggleCardStoryArgs) => (
     <ToggleCard {...args}>
@@ -53,4 +53,4 @@ export const CustomItems: Story = {
       <Toggle selected label="비건" />
     </ToggleCard>
   ),
-};
+} satisfies Story;

@@ -1,4 +1,3 @@
-import { Clock3, Flame, UsersRound } from "lucide-react";
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
 import { CardTag } from "@/components/ui/CardTag";
@@ -15,24 +14,9 @@ export type CardTagsRowProps = Readonly<
   }
 >;
 
-const defaultItems: readonly CardTagItem[] = [
-  {
-    label: "Time",
-    leftIcon: <Clock3 className="size-5 p-0.5 style-text-accent" strokeWidth={2} aria-hidden />,
-  },
-  {
-    label: "Difficulty",
-    leftIcon: <Flame className="size-5 p-0.5 style-text-accent" strokeWidth={2} aria-hidden />,
-  },
-  {
-    label: "Servings",
-    leftIcon: <UsersRound className="size-5 p-0.5 style-text-accent" strokeWidth={2} aria-hidden />,
-  },
-];
-
 export function CardTagsRow({
   className = "",
-  items = defaultItems,
+  items = [],
   ...rest
 }: CardTagsRowProps) {
   return (

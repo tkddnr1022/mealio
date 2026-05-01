@@ -1,4 +1,3 @@
-import { Clock3 } from "lucide-react";
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
 
@@ -14,9 +13,9 @@ export type FlatTagProps = Readonly<
 
 export function FlatTag({
   className = "",
-  label = "Label",
+  label,
   accent = false,
-  leftIcon = <Clock3 className="size-4 p-px" strokeWidth={2} aria-hidden />,
+  leftIcon,
   trailing,
   ...rest
 }: FlatTagProps) {

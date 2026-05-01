@@ -21,7 +21,14 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  args: {
+    items: [
+      { label: "내 레시피 관리", border: true },
+      { label: "계정 설정", border: false },
+    ],
+  },
+};
 
 export const CustomItems: Story = {
   args: {

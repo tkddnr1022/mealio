@@ -29,14 +29,12 @@ export function ActionGroup({
       <Button
         size="large"
         variant="secondary"
-        label="Label"
         className="flex-1"
         {...leftButtonProps}
       />
       <Button
         size="large"
         variant="primary"
-        label="Label"
         className="flex-1"
         {...rightButtonProps}
       />

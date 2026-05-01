@@ -25,7 +25,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 type CustomScrollbarStoryArgs = ComponentProps<typeof CustomScrollbar>;
 
-export const InMainContent: Story = {
+export const InMainContent = {
   name: "CustomScrollbar 확인",
   render: (args: CustomScrollbarStoryArgs) => (
     <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-background-primary">
@@ -40,4 +40,4 @@ export const InMainContent: Story = {
       </CustomScrollbar>
     </div>
   ),
-};
+} satisfies Story;

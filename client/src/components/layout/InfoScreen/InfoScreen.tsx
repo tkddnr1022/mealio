@@ -1,4 +1,3 @@
-import { Search } from "lucide-react";
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
 import { IconShell } from "@/components/ui/IconShell";
@@ -17,11 +16,11 @@ export type InfoScreenProps = Readonly<
 
 export function InfoScreen({
   className = "",
-  title = "Title",
-  message = "Message",
-  icon = <Search className="size-8" strokeWidth={2} aria-hidden />,
+  title,
+  message,
+  icon,
   showButton = true,
-  buttonLabel = "Label",
+  buttonLabel,
   onButtonClick,
   ...rest
 }: InfoScreenProps) {

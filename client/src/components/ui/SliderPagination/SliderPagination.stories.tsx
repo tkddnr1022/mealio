@@ -28,48 +28,48 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 type SliderPaginationStoryArgs = ComponentProps<typeof SliderPagination>;
 
-export const FirstActive: Story = {
+export const FirstActive = {
   name: "첫 번째 활성",
   args: {
     total: 3,
     activeIndex: 0,
   },
-};
+} satisfies Story;
 
-export const SecondActive: Story = {
+export const SecondActive = {
   name: "두 번째 활성",
   args: {
     total: 3,
     activeIndex: 1,
   },
-};
+} satisfies Story;
 
-export const ThirdActive: Story = {
+export const ThirdActive = {
   name: "세 번째 활성",
   args: {
     total: 3,
     activeIndex: 2,
   },
-};
+} satisfies Story;
 
-export const FiveSlides: Story = {
+export const FiveSlides = {
   name: "슬라이드 5개",
   args: {
     total: 5,
     activeIndex: 2,
   },
-};
+} satisfies Story;
 
-export const SingleSlide: Story = {
+export const SingleSlide = {
   name: "슬라이드 1개",
   args: {
     total: 1,
     activeIndex: 0,
   },
-};
+} satisfies Story;
 
 /** total이 0이면 아무것도 렌더하지 않음 */
-export const EmptyTotal: Story = {
+export const EmptyTotal = {
   name: "total 0 (미렌더)",
   args: {
     total: 0,
@@ -81,4 +81,4 @@ export const EmptyTotal: Story = {
       <span aria-live="polite">위 영역은 비어 있습니다 (null).</span>
     </div>
   ),
-};
+} satisfies Story;

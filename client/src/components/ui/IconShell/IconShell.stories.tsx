@@ -46,9 +46,9 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Playground: Story = {};
+export const Playground = {} satisfies Story;
 
-export const VariantSizeMatrix: Story = {
+export const VariantSizeMatrix = {
   render: () => (
     <div className="grid grid-cols-4 gap-4">
       {variantOptions.map((variant) =>
@@ -58,12 +58,12 @@ export const VariantSizeMatrix: Story = {
       )}
     </div>
   ),
-};
+} satisfies Story;
 
-export const CustomIconSlot: Story = {
+export const CustomIconSlot = {
   args: {
     variant: "accent",
     size: "large",
     icon: <Flame className="size-6" strokeWidth={2} aria-hidden />,
   },
-};
+} satisfies Story;

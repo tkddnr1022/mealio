@@ -25,12 +25,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 type MainContentStoryArgs = ComponentProps<typeof MainContent>;
 
-export const Empty: Story = {
+export const Empty = {
   name: "빈 영역 (Figma 프레임 400×640)",
   decorators: [figmaMobileFrame],
-};
+} satisfies Story;
 
-export const WithPlaceholder: Story = {
+export const WithPlaceholder = {
   name: "플레이스홀더 콘텐츠",
   decorators: [figmaMobileFrame],
   render: (args: MainContentStoryArgs) => (
@@ -40,9 +40,9 @@ export const WithPlaceholder: Story = {
       </div>
     </MainContent>
   ),
-};
+} satisfies Story;
 
-export const Scrollable: Story = {
+export const Scrollable = {
   name: "스크롤 (긴 목록)",
   decorators: [figmaMobileFrame],
   render: (args: MainContentStoryArgs) => (
@@ -56,9 +56,9 @@ export const Scrollable: Story = {
       </ul>
     </MainContent>
   ),
-};
+} satisfies Story;
 
-export const NoPadding: Story = {
+export const NoPadding = {
   name: "패딩 없음 (XY 풀블리드)",
   decorators: [figmaMobileFrame],
   args: { paddingX: false, paddingY: false },
@@ -69,9 +69,9 @@ export const NoPadding: Story = {
       </div>
     </MainContent>
   ),
-};
+} satisfies Story;
 
-export const PaddingXOff: Story = {
+export const PaddingXOff = {
   name: "가로만 풀블리드",
   decorators: [figmaMobileFrame],
   args: { paddingX: false, paddingY: true },
@@ -82,9 +82,9 @@ export const PaddingXOff: Story = {
       </div>
     </MainContent>
   ),
-};
+} satisfies Story;
 
-export const WithNavbarShell: Story = {
+export const WithNavbarShell = {
   name: "Navbar + MainContent (앱 셸)",
   decorators: [
     ((Story) => (
@@ -104,9 +104,9 @@ export const WithNavbarShell: Story = {
       </div>
     </MainContent>
   ),
-};
+} satisfies Story;
 
-export const Centered: Story = {
+export const Centered = {
   name: "중앙 정렬 (`centered`)",
   decorators: [figmaMobileFrame],
   args: { centered: true },
@@ -120,4 +120,4 @@ export const Centered: Story = {
       </div>
     </MainContent>
   ),
-};
+} satisfies Story;

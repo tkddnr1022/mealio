@@ -13,15 +13,9 @@ export type MiniTagsRowProps = Readonly<
   }
 >;
 
-const defaultItems: readonly MiniTagItem[] = [
-  { label: "Label" },
-  { label: "Label" },
-  { label: "Label" },
-];
-
 export function MiniTagsRow({
   className = "",
-  items = defaultItems,
+  items = [],
   ...rest
 }: MiniTagsRowProps) {
   return (

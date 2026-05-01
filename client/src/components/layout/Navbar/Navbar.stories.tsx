@@ -43,27 +43,27 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const VariantEmpty: Story = {
+export const VariantEmpty = {
   name: "Variant / Empty",
   args: { variant: "Empty" },
-};
+} satisfies Story;
 
-export const VariantAddOnly: Story = {
+export const VariantAddOnly = {
   name: "Variant / AddOnly",
   args: { variant: "AddOnly" },
-};
+} satisfies Story;
 
-export const VariantBackOnly: Story = {
+export const VariantBackOnly = {
   name: "Variant / BackOnly",
   args: { variant: "BackOnly" },
-};
+} satisfies Story;
 
-export const VariantAddWithBack: Story = {
+export const VariantAddWithBack = {
   name: "Variant / AddWithBack",
   args: { variant: "AddWithBack" },
-};
+} satisfies Story;
 
-export const VariantEngageWithBack: Story = {
+export const VariantEngageWithBack = {
   name: "Variant / EngageWithBack",
   args: { variant: "EngageWithBack" },
-};
+} satisfies Story;

@@ -11,7 +11,7 @@ export type DropdownItemProps = Readonly<
 
 export function DropdownItem({
   className = "",
-  label = "Label",
+  label,
   selected = false,
   type = "button",
   children,

@@ -1,4 +1,5 @@
 import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
+import { Clock3, Flame, UsersRound } from "lucide-react";
 import { CardTagsRow } from "@/components/ui/CardTagsRow";
 
 const rowWidth: Decorator = (Story) => (
@@ -21,4 +22,21 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  args: {
+    items: [
+      {
+        label: "Time",
+        leftIcon: <Clock3 className="size-5 p-0.5 style-text-accent" strokeWidth={2} aria-hidden />,
+      },
+      {
+        label: "Difficulty",
+        leftIcon: <Flame className="size-5 p-0.5 style-text-accent" strokeWidth={2} aria-hidden />,
+      },
+      {
+        label: "Servings",
+        leftIcon: <UsersRound className="size-5 p-0.5 style-text-accent" strokeWidth={2} aria-hidden />,
+      },
+    ],
+  },
+};

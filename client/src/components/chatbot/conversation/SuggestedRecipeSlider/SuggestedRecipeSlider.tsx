@@ -40,22 +40,9 @@ const SPACE_BETWEEN = 16;
 const DEFAULT_PEEK_PX = 16;
 const MIN_SLIDE_WIDTH = 200;
 
-const DEFAULT_ITEMS: readonly SuggestedRecipeSliderItem[] = [
-  {
-    id: "suggested-1",
-    title: "비빔밥",
-    tags: [{ label: "15분" }, { label: "쉬움" }, { label: "2인분" }],
-  },
-  {
-    id: "suggested-2",
-    title: "김치볶음밥",
-    tags: [{ label: "20분" }, { label: "쉬움" }, { label: "2인분" }],
-  },
-];
-
 export function SuggestedRecipeSlider({
   className = "",
-  items = DEFAULT_ITEMS,
+  items = [],
   cardClassName = "",
   peekPx = DEFAULT_PEEK_PX,
   ...rest

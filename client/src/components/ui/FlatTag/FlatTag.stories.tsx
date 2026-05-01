@@ -26,24 +26,24 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default = {} satisfies Story;
 
-export const Accent: Story = {
+export const Accent = {
   args: {
     accent: true,
   },
-};
+} satisfies Story;
 
-export const CustomLeftIcon: Story = {
+export const CustomLeftIcon = {
   args: {
     leftIcon: <Flame className="size-4 p-px" strokeWidth={2} aria-hidden />,
   },
-};
+} satisfies Story;
 
-export const WithTrailing: Story = {
+export const WithTrailing = {
   args: {
     trailing: (
       <UsersRound className="size-4 p-px" strokeWidth={2} aria-hidden />
     ),
   },
-};
+} satisfies Story;

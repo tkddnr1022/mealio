@@ -13,15 +13,9 @@ export type DropdownListProps = Readonly<{
   onSelect?: (option: DropdownOption) => void;
 }>;
 
-const defaultOptions: readonly DropdownOption[] = [
-  { value: "label-1", label: "Label" },
-  { value: "label-2", label: "Label" },
-  { value: "label-3", label: "Label" },
-];
-
 export function DropdownList({
   className = "",
-  options = defaultOptions,
+  options = [],
   selectedValue = options[0]?.value,
   onSelect,
 }: DropdownListProps) {

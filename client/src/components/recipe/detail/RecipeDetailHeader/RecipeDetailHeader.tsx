@@ -12,9 +12,9 @@ export type RecipeDetailHeaderProps = Readonly<
 
 export function RecipeDetailHeader({
   className = "",
-  category = "Category",
-  title = "Title",
-  description = "Description",
+  category,
+  title,
+  description,
   ...rest
 }: RecipeDetailHeaderProps) {
   return (
@@ -24,10 +24,10 @@ export function RecipeDetailHeader({
       {...rest}
     >
       <div className="inline-flex items-center rounded-full bg-tag-accent px-4 py-2">
-        <span className="typo-caption-regular style-text-accent">{category}</span>
+        <span className="typo-caption-regular style-text-accent">{category ?? ""}</span>
       </div>
-      <h1 className="style-text-primary">{title}</h1>
-      <p className="typo-body-regular style-text-secondary">{description}</p>
+      <h1 className="style-text-primary">{title ?? ""}</h1>
+      <p className="typo-body-regular style-text-secondary">{description ?? ""}</p>
     </header>
   );
 }

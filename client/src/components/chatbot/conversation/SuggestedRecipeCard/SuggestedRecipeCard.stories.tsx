@@ -29,10 +29,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default = {} satisfies Story;
 
-export const LongTitle: Story = {
+export const LongTitle = {
   args: {
     title: "제철 채소를 듬뿍 넣은 고소한 참기름 향 비빔밥",
   },
-};
+} satisfies Story;

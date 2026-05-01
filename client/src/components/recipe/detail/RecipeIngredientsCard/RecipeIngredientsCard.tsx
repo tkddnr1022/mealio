@@ -20,15 +20,10 @@ export type RecipeIngredientsCardProps = Readonly<
   }
 >;
 
-const defaultIngredients: readonly RecipeIngredientItem[] = [
-  { name: "밥", quantity: "2공기" },
-  { name: "소고기", quantity: "150g" },
-];
-
 export function RecipeIngredientsCard({
   className = "",
   title = "재료",
-  ingredients = defaultIngredients,
+  ingredients = [],
   rowClassName = "",
   rowProps,
   ...rest

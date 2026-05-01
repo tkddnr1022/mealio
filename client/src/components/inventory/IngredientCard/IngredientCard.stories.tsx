@@ -15,25 +15,25 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Unselected: Story = {
+export const Unselected = {
   name: "selected=false",
   args: {
     name: "사과",
     leadingIcon: <Apple />,
     onRemove: () => undefined,
   },
-};
+} satisfies Story;
 
-export const Selected: Story = {
+export const Selected = {
   name: "selected=true",
   args: {
     name: "사과",
     selected: true,
     leadingIcon: <Apple className="size-5" strokeWidth={2} />,
   },
-};
+} satisfies Story;
 
-export const IconExamples: Story = {
+export const IconExamples = {
   name: "아이콘 예시",
   render: () => (
     <div className="grid grid-cols-5 gap-4">
@@ -44,4 +44,4 @@ export const IconExamples: Story = {
       <IngredientCard name="밀가루" leadingIcon={<Wheat className="size-5" strokeWidth={2} />} />
     </div>
   ),
-};
+} satisfies Story;

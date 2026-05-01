@@ -25,7 +25,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 type FlatRowStoryArgs = ComponentProps<typeof FlatRow>;
 
-export const WithToggles: Story = {
+export const WithToggles = {
   name: "Toggle 배치",
   render: (args: FlatRowStoryArgs) => (
     <FlatRow {...args}>
@@ -37,4 +37,4 @@ export const WithToggles: Story = {
       <Toggle selected label="Label" />
     </FlatRow>
   ),
-};
+} satisfies Story;

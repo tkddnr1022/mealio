@@ -35,9 +35,9 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 type RangeSliderCardStoryArgs = ComponentProps<typeof RangeSliderCard>;
 
-export const Default: Story = {};
+export const Default = {} satisfies Story;
 
-export const DifferentRanges: Story = {
+export const DifferentRanges = {
   name: "다양한 범위 설정",
   render: (args: RangeSliderCardStoryArgs) => (
     <div className="flex w-[min(100vw-2rem,24rem)] flex-col gap-4">
@@ -58,4 +58,4 @@ export const DifferentRanges: Story = {
       />
     </div>
   ),
-};
+} satisfies Story;

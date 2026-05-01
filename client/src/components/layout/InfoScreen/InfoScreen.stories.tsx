@@ -30,19 +30,19 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default = {} satisfies Story;
 
-export const WithoutButton: Story = {
+export const WithoutButton = {
   args: {
     showButton: false,
   },
-};
+} satisfies Story;
 
-export const CustomIcon: Story = {
+export const CustomIcon = {
   args: {
     icon: <SearchX className="size-8" strokeWidth={2} aria-hidden />,
     title: "검색 결과가 없어요",
     message: "다른 키워드로 다시 시도해 주세요.",
     buttonLabel: "검색 초기화",
   },
-};
+} satisfies Story;

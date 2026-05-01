@@ -10,7 +10,7 @@ export type MiniTagProps = Readonly<
 
 export function MiniTag({
   className = "",
-  label = "Label",
+  label,
   ...rest
 }: MiniTagProps) {
   return (

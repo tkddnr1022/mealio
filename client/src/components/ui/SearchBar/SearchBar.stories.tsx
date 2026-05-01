@@ -29,20 +29,20 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Empty: Story = {
+export const Empty = {
   name: "기본 (빈 값)",
   decorators: [narrowWidth],
-};
+} satisfies Story;
 
-export const Filled: Story = {
+export const Filled = {
   name: "입력됨",
   decorators: [narrowWidth],
   args: {
     defaultValue: "비빔밥",
   },
-};
+} satisfies Story;
 
-export const ReadOnlyTrigger: Story = {
+export const ReadOnlyTrigger = {
   name: "readOnly + tabIndex -1 (헤더·트리거)",
   decorators: [narrowWidth],
   args: {
@@ -50,25 +50,25 @@ export const ReadOnlyTrigger: Story = {
     tabIndex: -1,
     defaultValue: "비빔밥",
   },
-};
+} satisfies Story;
 
-export const Disabled: Story = {
+export const Disabled = {
   name: "비활성",
   decorators: [narrowWidth],
   args: {
     disabled: true,
   },
-};
+} satisfies Story;
 
-export const CustomPlaceholder: Story = {
+export const CustomPlaceholder = {
   name: "플레이스홀더 변경",
   decorators: [narrowWidth],
   args: {
     placeholder: "재료로 검색 (예: 달걀)",
   },
-};
+} satisfies Story;
 
-export const InsideNavbar: Story = {
+export const InsideNavbar = {
   name: "Navbar 아래 (레이아웃 참고)",
   parameters: {
     layout: "fullscreen",
@@ -85,4 +85,4 @@ export const InsideNavbar: Story = {
       </div>
     )) satisfies Decorator,
   ],
-};
+} satisfies Story;

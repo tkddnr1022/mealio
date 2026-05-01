@@ -31,13 +31,13 @@ const sampleItems: readonly IngredientGridItem[] = [
   { id: "wheat", name: "밀가루", leadingIcon: <Wheat className="size-5" strokeWidth={2} />, onRemove: () => undefined },
 ];
 
-export const Default: Story = {
+export const Default = {
   args: {
     items: sampleItems,
   },
-};
+} satisfies Story;
 
-export const WithSelectedItem: Story = {
+export const WithSelectedItem = {
   args: {
     items: [
       ...sampleItems.slice(0, 1),
@@ -45,4 +45,4 @@ export const WithSelectedItem: Story = {
       ...sampleItems.slice(2),
     ],
   },
-};
+} satisfies Story;

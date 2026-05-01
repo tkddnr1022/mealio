@@ -25,13 +25,13 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default = {} satisfies Story;
 
-export const Filled: Story = {
+export const Filled = {
   name: "입력값 있음",
   args: {
     searchBarProps: {
       defaultValue: "김치찌개",
     },
   },
-};
+} satisfies Story;

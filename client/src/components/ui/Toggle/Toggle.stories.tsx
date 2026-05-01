@@ -28,36 +28,36 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Playground: Story = {};
+export const Playground = {} satisfies Story;
 
-export const SelectedLargeDefault: Story = {
+export const SelectedLargeDefault = {
   name: "Selected / Large",
   args: {
     selected: true,
     size: "large",
   },
-};
+} satisfies Story;
 
-export const UnselectedLargeDefault: Story = {
+export const UnselectedLargeDefault = {
   name: "Unselected / Large",
   args: {
     selected: false,
     size: "large",
   },
-};
+} satisfies Story;
 
-export const SelectedMediumDefault: Story = {
+export const SelectedMediumDefault = {
   name: "Selected / Medium",
   args: {
     selected: true,
     size: "medium",
   },
-};
+} satisfies Story;
 
-export const UnselectedMediumDefault: Story = {
+export const UnselectedMediumDefault = {
   name: "Unselected / Medium",
   args: {
     selected: false,
     size: "medium",
   },
-};
+} satisfies Story;

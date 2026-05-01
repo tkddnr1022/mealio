@@ -20,11 +20,17 @@ const meta = {
 export default meta;
 
 type Story = StoryObj<typeof meta>;
+const defaultItems = [
+  { id: "owned", label: "보유 재료" },
+  { id: "favorite", label: "관심 재료" },
+  { id: "favorite-recipe", label: "관심 레시피" },
+] as const;
 
 export const SelectedIndex1: Story = {
   name: "selectedIndex=1",
   args: {
     selectedIndex: 1,
+    items: defaultItems,
   },
 };
 
@@ -32,6 +38,7 @@ export const SelectedIndex2: Story = {
   name: "selectedIndex=2",
   args: {
     selectedIndex: 2,
+    items: defaultItems,
   },
 };
 
@@ -39,5 +46,6 @@ export const SelectedIndex3: Story = {
   name: "selectedIndex=3",
   args: {
     selectedIndex: 3,
+    items: defaultItems,
   },
 };

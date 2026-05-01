@@ -28,9 +28,9 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default = {} satisfies Story;
 
-export const MoreItems: Story = {
+export const MoreItems = {
   args: {
     ingredients: [
       { name: "밥", quantity: "2공기" },
@@ -39,4 +39,4 @@ export const MoreItems: Story = {
       { name: "참기름", quantity: "1작은술" },
     ],
   },
-};
+} satisfies Story;

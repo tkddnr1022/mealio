@@ -14,7 +14,7 @@ export type ToggleProps = Readonly<
 
 export function Toggle({
   className = "",
-  label = "Label",
+  label,
   selected = false,
   size = "large",
   type = "button",

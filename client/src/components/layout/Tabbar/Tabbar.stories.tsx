@@ -23,7 +23,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 type TabbarStoryArgs = ComponentProps<typeof Tabbar>;
 
-export const Interactive: Story = {
+export const Interactive = {
   render: function Render(args: TabbarStoryArgs) {
     const [activeId, setActiveId] = useState<TabbarTabId>(args.activeId);
     return (
@@ -42,20 +42,20 @@ export const Interactive: Story = {
       </div>
     );
   },
-};
+} satisfies Story;
 
-export const ActiveRecipe: Story = {
+export const ActiveRecipe = {
   args: { activeId: "recipe" },
-};
+} satisfies Story;
 
-export const ActiveChatbot: Story = {
+export const ActiveChatbot = {
   args: { activeId: "chatbot" },
-};
+} satisfies Story;
 
-export const ActivePantry: Story = {
+export const ActivePantry = {
   args: { activeId: "inventory" },
-};
+} satisfies Story;
 
-export const ActiveMypage: Story = {
+export const ActiveMypage = {
   args: { activeId: "mypage" },
-};
+} satisfies Story;

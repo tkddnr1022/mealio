@@ -12,7 +12,7 @@ export type DropdownButtonProps = Readonly<
 
 export function DropdownButton({
   className = "",
-  label = "Label",
+  label,
   open = false,
   type = "button",
   children,

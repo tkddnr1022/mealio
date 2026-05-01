@@ -21,19 +21,19 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const LoggedIn: Story = {
+export const LoggedIn = {
   name: "loggedIn=true",
   args: {
     loggedIn: true,
     nickname: "김레시피",
     email: "recipe@example.com",
   },
-};
+} satisfies Story;
 
-export const LoggedOut: Story = {
+export const LoggedOut = {
   name: "loggedIn=false",
   args: {
     loggedIn: false,
     message: "로그인이 필요합니다",
   },
-};
+} satisfies Story;

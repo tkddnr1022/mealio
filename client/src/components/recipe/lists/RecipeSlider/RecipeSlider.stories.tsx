@@ -65,31 +65,31 @@ function makeRecipes(count: number): RecipeGridItem[] {
   }));
 }
 
-export const Default: Story = {
+export const Default = {
   name: "기본 (3페이지)",
   args: {
     recipes: makeRecipes(12),
   },
-};
+} satisfies Story;
 
-export const TwoPages: Story = {
+export const TwoPages = {
   name: "2페이지",
   args: {
     recipes: makeRecipes(8),
   },
-};
+} satisfies Story;
 
-export const SinglePage: Story = {
+export const SinglePage = {
   name: "1페이지만",
   args: {
     recipes: makeRecipes(4),
   },
-};
+} satisfies Story;
 
-export const WiderPeek: Story = {
+export const WiderPeek = {
   name: "peek 넓게 (48px)",
   args: {
     recipes: makeRecipes(12),
     peekPx: 48,
   },
-};
+} satisfies Story;

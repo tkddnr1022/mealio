@@ -17,7 +17,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
+export const Default = {
   name: '기본',
   args: {
     children: (
@@ -28,4 +28,4 @@ export const Default: Story = {
       </MainContent>
     ),
   },
-};
+} satisfies Story;

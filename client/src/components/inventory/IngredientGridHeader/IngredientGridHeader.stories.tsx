@@ -21,9 +21,9 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
+export const Default = {
   args: {
     title: "재료 선택",
     countText: "6개의 재료",
   },
-};
+} satisfies Story;

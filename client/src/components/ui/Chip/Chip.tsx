@@ -13,11 +13,12 @@ export type ChipProps = Readonly<
 
 export function Chip({
   className = "",
-  label = "Label",
+  label,
   onRemove,
-  removeAriaLabel = `${label} 제거`,
+  removeAriaLabel,
   ...rest
 }: ChipProps) {
+  const resolvedRemoveAriaLabel = removeAriaLabel ?? `${label ?? ""} 제거`;
   return (
     <div
       className={cn(
@@ -32,7 +33,7 @@ export function Chip({
         <button
           type="button"
           onClick={onRemove}
-          aria-label={removeAriaLabel}
+          aria-label={resolvedRemoveAriaLabel}
           className="inline-flex size-5 p-[2px] items-center justify-center rounded-full style-text-secondary transition-colors hover:style-text-primary focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default"
         >
           <X strokeWidth={2} aria-hidden />

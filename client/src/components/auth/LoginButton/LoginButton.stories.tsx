@@ -21,14 +21,14 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Kakao: Story = {
+export const Kakao = {
   args: { provider: "kakao" },
-};
+} satisfies Story;
 
-export const Naver: Story = {
+export const Naver = {
   args: { provider: "naver" },
-};
+} satisfies Story;
 
-export const Google: Story = {
+export const Google = {
   args: { provider: "google" },
-};
+} satisfies Story;

@@ -1,4 +1,4 @@
-import { ChevronRight, SquarePen } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
 
@@ -14,8 +14,8 @@ export type MenuItemProps = Readonly<
 export function MenuItem({
   className = "",
   border = false,
-  label = "Label",
-  leadingIcon = <SquarePen className="size-5" strokeWidth={2} />,
+  label,
+  leadingIcon,
   type = "button",
   ...rest
 }: MenuItemProps) {

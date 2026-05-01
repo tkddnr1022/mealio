@@ -30,9 +30,9 @@ const sampleOptions = [
   { value: "option-b", label: "Label" },
 ] as const satisfies readonly DropdownOption[];
 
-export const Default: Story = {
+export const Default = {
   args: {
     options: sampleOptions,
     selectedValue: "selected",
   },
-};
+} satisfies Story;

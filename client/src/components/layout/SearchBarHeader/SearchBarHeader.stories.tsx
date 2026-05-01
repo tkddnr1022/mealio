@@ -26,12 +26,12 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
+export const Default = {
   name: "기본",
   decorators: [narrowWidth],
-};
+} satisfies Story;
 
-export const CustomPlaceholder: Story = {
+export const CustomPlaceholder = {
   name: "플레이스홀더",
   decorators: [narrowWidth],
   args: {
@@ -39,12 +39,12 @@ export const CustomPlaceholder: Story = {
       placeholder: "재료로 검색 (예: 달걀)",
     },
   },
-};
+} satisfies Story;
 
-export const Disabled: Story = {
+export const Disabled = {
   name: "비활성",
   decorators: [narrowWidth],
   args: {
     disabled: true,
   },
-};
+} satisfies Story;

@@ -17,7 +17,7 @@ export function Button({
   className = "",
   variant = "primary",
   size = "large",
-  label = "Label",
+  label,
   disabled,
   type = "button",
   children,

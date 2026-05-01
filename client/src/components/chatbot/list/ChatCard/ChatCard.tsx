@@ -15,9 +15,9 @@ export type ChatCardProps = Readonly<
 
 export function ChatCard({
   className = "",
-  title = "Title",
+  title,
   timestamp = new Date(),
-  lastMessage = "LastMessage",
+  lastMessage,
   ...rest
 }: ChatCardProps) {
   const formattedTimestamp = formatRelativeTime(timestamp);
@@ -37,14 +37,14 @@ export function ChatCard({
         <div className="flex min-w-0 flex-1 flex-col gap-2 overflow-hidden">
           <div className="flex w-full items-center justify-between">
             <h3 className="min-w-0 flex-1 truncate typo-card-heading style-text-primary">
-              {title}
+              {title ?? ""}
             </h3>
             <span className="ml-3 shrink-0 typo-card-caption style-text-caption">
               {formattedTimestamp}
             </span>
           </div>
           <p className="line-clamp-2 typo-card-body style-text-secondary">
-            {lastMessage}
+            {lastMessage ?? ""}
           </p>
         </div>
       </div>

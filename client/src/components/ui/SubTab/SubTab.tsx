@@ -11,7 +11,7 @@ export type SubTabProps = Readonly<
 
 export function SubTab({
   className = "",
-  label = "Label",
+  label,
   selected = false,
   type = "button",
   ...rest

@@ -30,11 +30,11 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = { name: "기본 범위" };
-export const SmallRange: Story = {
+export const SmallRange = {
   name: "작은 범위",
   args: { min: 0, max: 10, step: 1, defaultMinValue: 3, defaultMaxValue: 7 },
-};
-export const WideRange: Story = {
+} satisfies Story;
+export const WideRange = {
   name: "넓은 범위",
   args: { min: 0, max: 1000, step: 10, defaultMinValue: 200, defaultMaxValue: 700 },
-};
+} satisfies Story;

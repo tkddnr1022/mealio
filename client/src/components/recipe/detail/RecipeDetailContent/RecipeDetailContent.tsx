@@ -1,8 +1,6 @@
-import { Clock3, Flame, UsersRound } from "lucide-react";
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 import { CardTagsRow, type CardTagItem } from "@/components/ui/CardTagsRow";
-import { formatCookingTime } from "@/lib/utils/date";
 import {
   RecipeDetailHeader,
   type RecipeDetailHeaderProps,
@@ -26,25 +24,10 @@ export type RecipeDetailContentProps = Readonly<
   }
 >;
 
-const defaultTags: readonly CardTagItem[] = [
-  {
-    label: formatCookingTime(15),
-    leftIcon: <Clock3 className="size-5 p-0.5 style-text-accent" strokeWidth={2} aria-hidden />,
-  },
-  {
-    label: "쉬움",
-    leftIcon: <Flame className="size-5 p-0.5 style-text-accent" strokeWidth={2} aria-hidden />,
-  },
-  {
-    label: "2인분",
-    leftIcon: <UsersRound className="size-5 p-0.5 style-text-accent" strokeWidth={2} aria-hidden />,
-  },
-];
-
 export function RecipeDetailContent({
   className = "",
   headerProps,
-  tags = defaultTags,
+  tags = [],
   ingredientsCardProps,
   stepsCardProps,
   ...rest

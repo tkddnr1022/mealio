@@ -1,4 +1,3 @@
-import { Clock3, Flame, UsersRound } from "lucide-react";
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
 import { FlatTag } from "@/components/ui/FlatTag";
@@ -16,15 +15,9 @@ export type FlatTagsRowProps = Readonly<
   }
 >;
 
-const defaultItems: readonly FlatTagItem[] = [
-  { label: "Time", leftIcon: <Clock3 className="size-4 p-px" strokeWidth={2} aria-hidden /> },
-  { label: "Difficulty", leftIcon: <Flame className="size-4 p-px" strokeWidth={2} aria-hidden /> },
-  { label: "Servings", leftIcon: <UsersRound className="size-4 p-px" strokeWidth={2} aria-hidden /> },
-];
-
 export function FlatTagsRow({
   className = "",
-  items = defaultItems,
+  items = [],
   ...rest
 }: FlatTagsRowProps) {
   return (

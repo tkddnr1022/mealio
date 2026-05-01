@@ -9,14 +9,9 @@ export type MenuSectionProps = Readonly<
   }
 >;
 
-const DEFAULT_ITEMS: readonly MenuItemProps[] = [
-  { label: "내 레시피 관리", border: true },
-  { label: "계정 설정", border: false },
-];
-
 export function MenuSection({
   className = "",
-  items = DEFAULT_ITEMS,
+  items = [],
   ...rest
 }: MenuSectionProps) {
   return (

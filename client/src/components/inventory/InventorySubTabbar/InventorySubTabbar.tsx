@@ -19,16 +19,10 @@ export type InventorySubTabbarProps = Readonly<
   }
 >;
 
-const DEFAULT_ITEMS: readonly InventorySubTabbarItem[] = [
-  { id: "owned", label: "보유 재료" },
-  { id: "favorite", label: "관심 재료" },
-  { id: "favorite-recipe", label: "관심 레시피" },
-];
-
 export function InventorySubTabbar({
   className = "",
   selectedIndex = 1,
-  items = DEFAULT_ITEMS,
+  items = [],
   onSelect,
   ...rest
 }: InventorySubTabbarProps) {
