@@ -10,8 +10,11 @@
 
 import type { UserProfile } from './user';
 
+/** 백엔드가 지원하는 OAuth 공급자 목록 (SSOT) */
+export const OAUTH_PROVIDERS = ['google', 'kakao', 'naver'] as const;
+
 /** 백엔드가 지원하는 OAuth 공급자 */
-export type OAuthProvider = 'google' | 'kakao' | 'naver';
+export type OAuthProvider = (typeof OAUTH_PROVIDERS)[number];
 
 /**
  * 세션 사용자 정보 — `GET /api/v1/users/me` 응답.

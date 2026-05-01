@@ -11,11 +11,10 @@
 
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { env, isOAuthProviderEnabled } from '@/lib/config/env';
+import { OAUTH_PROVIDERS } from '@/lib/types/auth';
 import type { OAuthProvider } from '@/lib/types/auth';
 
 export type { OAuthProvider } from '@/lib/types/auth';
-
-export const OAUTH_PROVIDERS = ['google', 'kakao', 'naver'] as const;
 
 /** Provider 표시명 (로그인 버튼 라벨 등) */
 export const OAUTH_PROVIDER_LABELS: Readonly<Record<OAuthProvider, string>> = {
