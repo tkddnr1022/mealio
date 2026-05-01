@@ -33,6 +33,8 @@
 ### 카드 · 토글 · 액션 그룹
 
 - [x] `SearchBarCard`
+- [x] `RangeSlider`
+- [x] `RangeSliderCard`
 - [x] `Button` 세트 (`variant` × `state` × `size`, primary에만 `inactive`)
 - [x] `Toggle` 세트 (`selected` × `state` × `size`)
 - [x] `FlatRow`

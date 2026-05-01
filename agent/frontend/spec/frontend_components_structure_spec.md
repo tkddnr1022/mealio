@@ -32,6 +32,8 @@
 | client/src/components/ui/Button/ | 버튼 세트(`variant` × `state` × `size`) |
 | client/src/components/ui/Input/ | 입력 필드 세트(`filled` × `state` × 아이콘/클리어 표시) |
 | client/src/components/ui/SearchBar/ | 검색 입력 조합 컴포넌트 |
+| client/src/components/ui/RangeSlider/ | 범위 슬라이더 |
+| client/src/components/ui/RangeSliderCard/ | 범위 슬라이더 카드 조합 컴포넌트 |
 | client/src/components/ui/Toggle/ | 토글 세트(`selected` × `state` × `size`) |
 | client/src/components/ui/ToggleCard/ | 카드형 토글 UI |
 | client/src/components/ui/Chip/ | 칩 세트(`state`) |
