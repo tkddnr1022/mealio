@@ -53,7 +53,7 @@
 | 변수 | `color/tab/active` | `#c2410c` | 탭 활성 라벨(`SubTab`·`InventorySubTabbar`) |
 | 변수 | `color/tab/inactive` | `#737373` | 탭 비활성 라벨(`SubTab`·`InventorySubTabbar`) |
 | 변수 | `color/tag/accent` | `#fff7ed` | 강조 **FlatTag** 면 |
-| 변수 | `color/tag/default` | `#fafaf9` | 검색 카드 **FlatTag** 기본 면 |
+| 변수 | `color/tag/default` | `#fafaf9` | 레시피 카드 **FlatTag** 기본 면 |
 | 변수 | `color/text/accent` | `#c2410c` | 강조 라벨·카테고리 태그 |
 | 변수 | `color/text/caption` | `#9ca3af` | 보조 메타 텍스트 |
 | 변수 | `color/text/disabled` | `#a3a3a3` | 비활성 라벨 |

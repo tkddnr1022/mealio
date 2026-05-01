@@ -34,7 +34,7 @@
 | **(main)** | — | `(main)/layout.tsx` | — | 공통 레이아웃 (하단 탭: 레시피 / 챗봇 / 보관함 / 마이페이지) |
 | (main) · 레시피 탭 | `/recipe` | `(main)/recipe/page.tsx` | ISR | RecipeMainPage — 레시피 메인 |
 | (main) · 레시피 탭 | `/recipe/filter` | `(main)/recipe/filter/page.tsx` | ISR | RecipeFilterPage — 레시피 검색 필터 |
-| (main) · 레시피 탭 | `/recipe/search` | `(main)/recipe/search/page.tsx` | ISR | RecipeSearchListPage — 레시피 검색 결과 |
+| (main) · 레시피 탭 | `/recipe/search` | `(main)/recipe/search/page.tsx` | ISR | RecipeListPage — 레시피 검색 결과 |
 | (main) · 레시피 탭 | `/recipe/[id]` | `(main)/recipe/[id]/page.tsx` | ISR | RecipeDetailPage — 레시피 상세 |
 | (main) · 챗봇 탭 | `/chatbot/list` | `(main)/chatbot/list/page.tsx` | CSR | ChatbotConversationListPage — 대화 목록 |
 | (main) · 챗봇 탭 | `/chatbot/[id]` | `(main)/chatbot/[id]/page.tsx` | CSR | ChatbotConversationPage — 대화 |
@@ -87,7 +87,7 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 |------|----------|--------|------|
 | `/recipe` | RecipeMainPage | ISR | 레시피 메인 페이지 |
 | `/recipe/category` | RecipeCategoryPage | ISR | 레시피 카테고리 목록 페이지 |
-| `/recipe/search` | RecipeSearchListPage | ISR | 레시피 목록 페이지 (검색 결과) |
+| `/recipe/search` | RecipeListPage | ISR | 레시피 목록 페이지 (검색 결과) |
 | `/recipe/filter` | RecipeFilterListPage | ISR | 레시피 목록 페이지 (필터 결과) |
 | `/recipe/[id]` | RecipeDetailPage | ISR | 레시피 상세 페이지 (동적 OG 이미지) |
 

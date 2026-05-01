@@ -1,5 +1,5 @@
 import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
-import { type RecipeSearchListItem, RecipeSearchList } from "@/components/recipe";
+import { type RecipeListItem, RecipeList } from "@/components/recipe";
 
 const figmaWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,22.5rem)]">
@@ -10,7 +10,7 @@ const figmaWidth: Decorator = (Story) => (
 const sampleImage =
   "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1200&h=800&fit=crop";
 
-const sampleRecipes: readonly RecipeSearchListItem[] = [
+const sampleRecipes: readonly RecipeListItem[] = [
   {
     id: "search-1",
     imageUrl: sampleImage,
@@ -32,8 +32,8 @@ const sampleRecipes: readonly RecipeSearchListItem[] = [
 ];
 
 const meta = {
-  title: "Recipe/Lists/RecipeSearchList",
-  component: RecipeSearchList,
+  title: "Recipe/Lists/RecipeList",
+  component: RecipeList,
   tags: ["autodocs"],
   parameters: {
     layout: "centered",
@@ -43,7 +43,7 @@ const meta = {
   args: {
     recipes: sampleRecipes,
   },
-} satisfies Meta<typeof RecipeSearchList>;
+} satisfies Meta<typeof RecipeList>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

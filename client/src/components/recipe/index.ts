@@ -4,8 +4,8 @@ export type { RecipeGridCardProps } from "./cards/RecipeGridCard";
 export { SearchBarCard } from "./cards/SearchBarCard";
 export type { SearchBarCardProps } from "./cards/SearchBarCard";
 
-export { RecipeSearchCard } from "./cards/RecipeSearchCard";
-export type { RecipeSearchCardProps } from "./cards/RecipeSearchCard";
+export { RecipeCard } from "./cards/RecipeCard";
+export type { RecipeCardProps } from "./cards/RecipeCard";
 
 export { RecipeGrid } from "./lists/RecipeGrid";
 export type { RecipeGridProps, RecipeGridItem } from "./lists/RecipeGrid";
@@ -16,11 +16,11 @@ export type { RecipeSliderProps } from "./lists/RecipeSlider";
 export { RecipeSection } from "./lists/RecipeSection";
 export type { RecipeSectionProps } from "./lists/RecipeSection";
 
-export { RecipeSearchList } from "./lists/RecipeSearchList";
+export { RecipeList } from "./lists/RecipeList";
 export type {
-  RecipeSearchListProps,
-  RecipeSearchListItem,
-} from "./lists/RecipeSearchList";
+  RecipeListProps,
+  RecipeListItem,
+} from "./lists/RecipeList";
 
 export { SearchResultTop } from "./search/SearchResultTop";
 export type { SearchResultTopProps } from "./search/SearchResultTop";

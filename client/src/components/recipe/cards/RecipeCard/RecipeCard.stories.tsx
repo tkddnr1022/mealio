@@ -1,6 +1,6 @@
 import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn } from "storybook/test";
-import { RecipeSearchCard } from "@/components/recipe";
+import { RecipeCard } from "@/components/recipe";
 
 const figmaWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,22.5rem)]">
@@ -12,8 +12,8 @@ const sampleImage =
   "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1200&h=800&fit=crop";
 
 const meta = {
-  title: "Recipe/Cards/RecipeSearchCard",
-  component: RecipeSearchCard,
+  title: "Recipe/Cards/RecipeCard",
+  component: RecipeCard,
   tags: ["autodocs"],
   parameters: {
     layout: "centered",
@@ -31,7 +31,7 @@ const meta = {
     isFavorite: false,
     onFavoriteClick: fn(),
   },
-} satisfies Meta<typeof RecipeSearchCard>;
+} satisfies Meta<typeof RecipeCard>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

@@ -53,11 +53,11 @@
 - [ ] `FlatTag` 세트 (`accent=true` / `false`)
 - [ ] `FlatTagsRow`
 
-### 썸네일 · 검색 카드 · 정보 화면
+### 썸네일 · 레시피 카드 · 정보 화면
 
 - [ ] `Thumbnail` 세트 (`square=true` / `false`)
-- [ ] `RecipeSearchCard`
-- [ ] `RecipeSearchList`
+- [ ] `RecipeCard`
+- [ ] `RecipeList`
 - [ ] `InfoScreen` (명칭·용도 확인)
 
 ### 아이콘 셸 · 레시피 상세 블록

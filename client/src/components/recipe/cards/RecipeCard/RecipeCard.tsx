@@ -6,7 +6,7 @@ import { Thumbnail } from "@/components/ui/Thumbnail";
 import { LikeButton } from "@/components/ui/buttons/LikeButton";
 import { formatCookingTime } from "@/lib/utils/date";
 
-export type RecipeSearchCardProps = Readonly<
+export type RecipeCardProps = Readonly<
   Omit<HTMLAttributes<HTMLElement>, "children"> & {
     className?: string;
     imageUrl: string;
@@ -22,7 +22,7 @@ export type RecipeSearchCardProps = Readonly<
   }
 >;
 
-export function RecipeSearchCard({
+export function RecipeCard({
   className = "",
   imageUrl,
   imageAlt,
@@ -35,7 +35,7 @@ export function RecipeSearchCard({
   isFavorite = false,
   onFavoriteClick,
   ...rest
-}: RecipeSearchCardProps) {
+}: RecipeCardProps) {
   const cookingTimeLabel =
     cookingTimeMinutes !== undefined
       ? (formatCookingTime(cookingTimeMinutes) || cookingTime)
@@ -47,7 +47,7 @@ export function RecipeSearchCard({
         "flex w-full flex-col overflow-hidden rounded-(--card-radius) bg-background-surface shadow-(--card-elevation)",
         className,
       )}
-      data-name="RecipeSearchCard"
+      data-name="RecipeCard"
       {...rest}
     >
       <div className="relative">

@@ -79,13 +79,13 @@
 | **client/src/components/recipe/** | 레시피 도메인 컴포넌트 묶음 |
 | **client/src/components/recipe/cards/** | 레시피 카드 계열 |
 | client/src/components/recipe/cards/RecipeGridCard/ | 그리드 카드 |
-| client/src/components/recipe/cards/RecipeSearchCard/ | 검색 결과 카드 |
+| client/src/components/recipe/cards/RecipeCard/ | 검색 결과 카드 |
 | client/src/components/recipe/cards/SearchBarCard/ | 검색바 연계 카드 |
 | **client/src/components/recipe/lists/** | 레시피 노출 목록·캐러셀 |
 | client/src/components/recipe/lists/RecipeGrid/ | 레시피 그리드 |
 | client/src/components/recipe/lists/RecipeSlider/ | 레시피 슬라이더 |
 | client/src/components/recipe/lists/RecipeSection/ | 섹션 단위 레시피 묶음 |
-| client/src/components/recipe/lists/RecipeSearchList/ | 검색 결과 리스트 |
+| client/src/components/recipe/lists/RecipeList/ | 검색 결과 리스트 |
 | **client/src/components/recipe/search/** | 검색 결과 헤더/메타 |
 | client/src/components/recipe/search/SearchResultTop/ | 검색 상단 요약 |
 | client/src/components/recipe/search/SearchResultMeta/ | 검색 메타 정보 |
