@@ -250,6 +250,10 @@
     line-height: 24px;
     font-weight: var(--font-weight-regular);
   }
+
+  button {
+    cursor: pointer;
+  }
 }
 
 @layer utilities {

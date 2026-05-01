@@ -119,7 +119,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
               disabled={!hasText || disabled}
               onClick={handleClear}
               className={cn(
-                "inline-flex size-5 shrink-0 items-center justify-center overflow-hidden style-text-placeholder transition-colors focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default disabled:pointer-events-none cursor-pointer",
+                "inline-flex size-5 shrink-0 items-center justify-center overflow-hidden style-text-placeholder transition-colors focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default disabled:pointer-events-none",
                 !hasText && "invisible pointer-events-none",
               )}
             >
