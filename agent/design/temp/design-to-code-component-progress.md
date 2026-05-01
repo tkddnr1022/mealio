@@ -98,9 +98,9 @@
 
 ### 마이페이지 · 메뉴
 
-- [ ] `UserProfile` 세트 (`loggedIn=true` / `false`)
-- [ ] `StatCard`
-- [ ] `MypageHeader` 세트 (`loggedIn=true` / `false`)
+- [x] `UserProfile` 세트 (`loggedIn=true` / `false`)
+- [x] `StatCard`
+- [x] `MypageHeader` 세트 (`loggedIn=true` / `false`)
 - [ ] `MenuItem` 세트 (`border=true` / `false`)
 - [ ] `MenuSection`
 
