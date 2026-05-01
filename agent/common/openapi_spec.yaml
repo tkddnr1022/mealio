@@ -372,7 +372,13 @@ paths:
               maximum: 5
           style: form
           explode: false
-        - name: cookTime
+        - name: cookTimeMin
+          in: query
+          description: 최소 조리시간 (분)
+          schema:
+            type: integer
+            minimum: 1
+        - name: cookTimeMax
           in: query
           description: 최대 조리시간 (분)
           schema:
@@ -554,7 +560,13 @@ paths:
               maximum: 5
           style: form
           explode: false
-        - name: cookTime
+        - name: cookTimeMin
+          in: query
+          description: 최소 조리시간 (분)
+          schema:
+            type: integer
+            minimum: 1
+        - name: cookTimeMax
           in: query
           description: 최대 조리시간 (분)
           schema:

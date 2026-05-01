@@ -147,7 +147,7 @@ describe('RecipeQueryService', () => {
         expect.any(Function),
         CACHE_KEY_SEGMENT.LIST,
         CACHE_KEY_SEGMENT.ALL,
-        CACHE_KEY_SEGMENT.ALL,
+        `${CACHE_KEY_SEGMENT.ALL}-${CACHE_KEY_SEGMENT.ALL}`,
         'latest',
         1,
         20,
@@ -156,6 +156,7 @@ describe('RecipeQueryService', () => {
         page: 1,
         size: 20,
         difficulty: undefined,
+        minCookTime: undefined,
         maxCookTime: undefined,
         sort: 'latest',
       });
@@ -169,12 +170,13 @@ describe('RecipeQueryService', () => {
       expect(result.pagination.totalPages).toBe(1);
     });
 
-    it('difficulty, cookTime, sort를 전달하면 repository에 전달한다', async () => {
+    it('difficulty, cookTime range, sort를 전달하면 repository에 전달한다', async () => {
       await service.getList({
         page: 2,
         size: 10,
         difficulty: [1, 2],
-        cookTime: 30,
+        cookTimeMin: 10,
+        cookTimeMax: 30,
         sort: 'cookTime',
       });
 
@@ -183,7 +185,7 @@ describe('RecipeQueryService', () => {
         expect.any(Function),
         CACHE_KEY_SEGMENT.LIST,
         '1,2',
-        30,
+        '10-30',
         'cookTime',
         2,
         10,
@@ -192,8 +194,36 @@ describe('RecipeQueryService', () => {
         page: 2,
         size: 10,
         difficulty: [1, 2],
+        minCookTime: 10,
         maxCookTime: 30,
         sort: 'cookTime',
+      });
+    });
+
+    it('cookTimeMin만 전달하면 캐시 키와 repository에 min만 반영한다', async () => {
+      await service.getList({
+        page: 1,
+        size: 20,
+        cookTimeMin: 12,
+      });
+
+      expect(cacheService.getOrSet).toHaveBeenCalledWith(
+        recipeCacheStrategy,
+        expect.any(Function),
+        CACHE_KEY_SEGMENT.LIST,
+        CACHE_KEY_SEGMENT.ALL,
+        `12-${CACHE_KEY_SEGMENT.ALL}`,
+        'latest',
+        1,
+        20,
+      );
+      expect(recipeRepository.findManyPaginated).toHaveBeenCalledWith({
+        page: 1,
+        size: 20,
+        difficulty: undefined,
+        minCookTime: 12,
+        maxCookTime: undefined,
+        sort: 'latest',
       });
     });
 
@@ -209,7 +239,7 @@ describe('RecipeQueryService', () => {
         expect.any(Function),
         CACHE_KEY_SEGMENT.LIST,
         CACHE_KEY_SEGMENT.ALL,
-        CACHE_KEY_SEGMENT.ALL,
+        `${CACHE_KEY_SEGMENT.ALL}-${CACHE_KEY_SEGMENT.ALL}`,
         'viewCount',
         1,
         20,
@@ -377,6 +407,7 @@ describe('RecipeQueryService', () => {
             size: 20,
             sort: 'latest',
             difficulty: undefined,
+            minCookTime: undefined,
             maxCookTime: undefined,
             categoryId: undefined,
           },
@@ -418,7 +449,8 @@ describe('RecipeQueryService', () => {
         page: 2,
         size: 10,
         difficulty: [2, 3],
-        cookTime: 45,
+        cookTimeMin: 15,
+        cookTimeMax: 45,
         categoryId: 3,
         sort: 'cookTime',
       });
@@ -433,6 +465,7 @@ describe('RecipeQueryService', () => {
             size: 10,
             sort: 'cookTime',
             difficulty: [2, 3],
+            minCookTime: 15,
             maxCookTime: 45,
             categoryId: 3,
           },
@@ -446,7 +479,8 @@ describe('RecipeQueryService', () => {
         page: 2,
         size: 10,
         difficulty: [2, 3],
-        cookTime: 45,
+        cookTimeMin: 15,
+        cookTimeMax: 45,
         categoryId: 3,
         sort: 'cookTime',
       });
@@ -456,6 +490,7 @@ describe('RecipeQueryService', () => {
         page: 2,
         size: 10,
         difficulty: [2, 3],
+        minCookTime: 15,
         maxCookTime: 45,
         categoryId: 3,
         sort: 'cookTime',
@@ -475,6 +510,7 @@ describe('RecipeQueryService', () => {
         page: 1,
         size: 15,
         difficulty: undefined,
+        minCookTime: undefined,
         maxCookTime: undefined,
         categoryId: 2,
         sort: 'latest',
@@ -491,6 +527,26 @@ describe('RecipeQueryService', () => {
           }),
         }),
       );
+    });
+
+    it('cookTimeMax만 전달하면 max만 반영해 검색한다', async () => {
+      await service.search({
+        q: '국',
+        page: 1,
+        size: 20,
+        cookTimeMax: 25,
+      });
+
+      expect(recipeRepository.searchByKeyword).toHaveBeenCalledWith({
+        keyword: '국',
+        page: 1,
+        size: 20,
+        difficulty: undefined,
+        minCookTime: undefined,
+        maxCookTime: 25,
+        categoryId: undefined,
+        sort: 'latest',
+      });
     });
   });
 

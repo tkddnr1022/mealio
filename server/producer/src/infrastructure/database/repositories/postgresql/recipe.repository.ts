@@ -11,6 +11,7 @@ export interface RecipeListParams {
   page: number;
   size: number;
   difficulty?: number[];
+  minCookTime?: number;
   maxCookTime?: number;
   sort?: RecipeListOrder;
 }
@@ -21,6 +22,7 @@ export interface RecipeSearchParams {
   page: number;
   size: number;
   difficulty?: number[];
+  minCookTime?: number;
   maxCookTime?: number;
   /** RecipeCategory.id (활성 카테고리만 매칭) */
   categoryId?: number;
@@ -109,6 +111,7 @@ export class RecipeRepository {
       page,
       size,
       difficulty,
+      minCookTime,
       maxCookTime,
       sort = DEFAULT_RECIPE_SORT,
     } = params;
@@ -117,7 +120,14 @@ export class RecipeRepository {
     const where = {
       isPublished: true,
       ...(difficulty?.length ? { difficulty: { in: difficulty } } : undefined),
-      ...(maxCookTime != null ? { cookTime: { lte: maxCookTime } } : undefined),
+      ...(minCookTime != null || maxCookTime != null
+        ? {
+            cookTime: {
+              ...(minCookTime != null ? { gte: minCookTime } : undefined),
+              ...(maxCookTime != null ? { lte: maxCookTime } : undefined),
+            },
+          }
+        : undefined),
     };
 
     const totalPromise = this.prisma.recipe.count({ where });
@@ -149,6 +159,7 @@ export class RecipeRepository {
       page,
       size,
       difficulty,
+      minCookTime,
       maxCookTime,
       categoryId,
       sort = DEFAULT_RECIPE_SORT,
@@ -167,6 +178,9 @@ export class RecipeRepository {
     }
     if (difficulty?.length) {
       andConditions.push({ difficulty: { in: difficulty } });
+    }
+    if (minCookTime != null) {
+      andConditions.push({ cookTime: { gte: minCookTime } });
     }
     if (maxCookTime != null) {
       andConditions.push({ cookTime: { lte: maxCookTime } });

@@ -93,7 +93,8 @@ describe('RecipesController', () => {
         page: 1,
         size: 20,
         difficulty: undefined,
-        cookTime: undefined,
+        cookTimeMin: undefined,
+        cookTimeMax: undefined,
         sort: 'latest',
       }, undefined);
       expect(result.data).toHaveLength(1);
@@ -101,12 +102,13 @@ describe('RecipesController', () => {
       expect(result.pagination).toEqual(mockPagination);
     });
 
-    it('difficulty, cookTime, sort를 전달하면 서비스에 그대로 전달한다', async () => {
+    it('difficulty, cookTime range, sort를 전달하면 서비스에 그대로 전달한다', async () => {
       const query = {
         page: 2,
         size: 10,
         difficulty: [1, 2],
-        cookTime: 30,
+        cookTimeMin: 10,
+        cookTimeMax: 30,
         sort: 'cookTime' as const,
       };
       await controller.getList(query, undefined);
@@ -115,8 +117,23 @@ describe('RecipesController', () => {
         page: 2,
         size: 10,
         difficulty: [1, 2],
-        cookTime: 30,
+        cookTimeMin: 10,
+        cookTimeMax: 30,
         sort: 'cookTime',
+      }, undefined);
+    });
+
+    it('cookTimeMin만 전달하면 min 필터만 전달한다', async () => {
+      const query = { page: 1, size: 20, cookTimeMin: 12 };
+      await controller.getList(query, undefined);
+
+      expect(recipeQueryService.getList).toHaveBeenCalledWith({
+        page: 1,
+        size: 20,
+        difficulty: undefined,
+        cookTimeMin: 12,
+        cookTimeMax: undefined,
+        sort: 'latest',
       }, undefined);
     });
   });
@@ -131,7 +148,8 @@ describe('RecipesController', () => {
         page: 1,
         size: 20,
         difficulty: undefined,
-        cookTime: undefined,
+        cookTimeMin: undefined,
+        cookTimeMax: undefined,
         categoryId: undefined,
         sort: 'latest',
       }, undefined, undefined);
@@ -148,9 +166,26 @@ describe('RecipesController', () => {
         page: 2,
         size: 10,
         difficulty: undefined,
-        cookTime: undefined,
+        cookTimeMin: undefined,
+        cookTimeMax: undefined,
         categoryId: undefined,
         sort: 'cookTime',
+      }, undefined, undefined);
+    });
+
+    it('cookTimeMax만 전달하면 max 필터만 전달한다', async () => {
+      const query = { q: '김치', page: 1, size: 20, cookTimeMax: 25 };
+      await controller.search(query, undefined);
+
+      expect(recipeQueryService.search).toHaveBeenCalledWith({
+        q: '김치',
+        page: 1,
+        size: 20,
+        difficulty: undefined,
+        cookTimeMin: undefined,
+        cookTimeMax: 25,
+        categoryId: undefined,
+        sort: 'latest',
       }, undefined, undefined);
     });
 

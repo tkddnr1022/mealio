@@ -63,7 +63,8 @@ export class RecipesController {
       page,
       size,
       difficulty: query.difficulty,
-      cookTime: query.cookTime,
+      cookTimeMin: query.cookTimeMin,
+      cookTimeMax: query.cookTimeMax,
       sort,
     }, user?.id);
   }
@@ -136,7 +137,8 @@ export class RecipesController {
       page,
       size,
       difficulty: query.difficulty,
-      cookTime: query.cookTime,
+      cookTimeMin: query.cookTimeMin,
+      cookTimeMax: query.cookTimeMax,
       categoryId: query.categoryId,
       sort,
     };

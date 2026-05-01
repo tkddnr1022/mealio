@@ -79,7 +79,8 @@ export interface RecipeListQuery {
   page?: number;
   size?: number;
   difficulty?: number[];
-  cookTime?: number;
+  cookTimeMin?: number;
+  cookTimeMax?: number;
   sort?: RecipeSortKey;
 }
 

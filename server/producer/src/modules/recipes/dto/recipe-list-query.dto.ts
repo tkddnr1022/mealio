@@ -44,12 +44,19 @@ export class RecipeListQueryDto {
   @Max(5, { each: true })
   difficulty?: number[];
 
+  @ApiPropertyOptional({ description: '최소 조리시간 (분)', minimum: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  cookTimeMin?: number;
+
   @ApiPropertyOptional({ description: '최대 조리시간 (분)', minimum: 1 })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  cookTime?: number;
+  cookTimeMax?: number;
 
   @ApiPropertyOptional({
     description: '정렬 기준',

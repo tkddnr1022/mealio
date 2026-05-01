@@ -57,15 +57,15 @@ export class RecipeQueryService {
     page: number;
     size: number;
     difficulty?: number[];
-    cookTime?: number;
+    cookTimeMin?: number;
+    cookTimeMax?: number;
     sort?: RecipeListOrder;
   }, userId?: number): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
     const difficultyKey =
       params.difficulty && params.difficulty.length > 0
         ? [...params.difficulty].sort((a, b) => a - b).join(',')
         : CACHE_KEY_SEGMENT.ALL;
-    const cookTimeKey =
-      params.cookTime ?? CACHE_KEY_SEGMENT.ALL;
+    const cookTimeRangeKey = `${params.cookTimeMin ?? CACHE_KEY_SEGMENT.ALL}-${params.cookTimeMax ?? CACHE_KEY_SEGMENT.ALL}`;
     const sortKey = params.sort ?? DEFAULT_RECIPE_SORT;
 
     const result = await this.cacheService.getOrSet(
@@ -75,7 +75,8 @@ export class RecipeQueryService {
           page: params.page,
           size: params.size,
           difficulty: params.difficulty,
-          maxCookTime: params.cookTime,
+          minCookTime: params.cookTimeMin,
+          maxCookTime: params.cookTimeMax,
           sort: sortKey,
         });
 
@@ -93,7 +94,7 @@ export class RecipeQueryService {
       },
       CACHE_KEY_SEGMENT.LIST,
       difficultyKey,
-      cookTimeKey,
+      cookTimeRangeKey,
       sortKey,
       params.page,
       params.size,
@@ -135,7 +136,8 @@ export class RecipeQueryService {
       page: number;
       size: number;
       difficulty?: number[];
-      cookTime?: number;
+      cookTimeMin?: number;
+      cookTimeMax?: number;
       categoryId?: number;
       sort?: RecipeListOrder;
     },
@@ -148,7 +150,7 @@ export class RecipeQueryService {
       params.difficulty && params.difficulty.length > 0
         ? [...params.difficulty].sort((a, b) => a - b).join(',')
         : CACHE_KEY_SEGMENT.ALL;
-    const cookTimeKey = params.cookTime ?? CACHE_KEY_SEGMENT.ALL;
+    const cookTimeRangeKey = `${params.cookTimeMin ?? CACHE_KEY_SEGMENT.ALL}-${params.cookTimeMax ?? CACHE_KEY_SEGMENT.ALL}`;
     const categoryKey = params.categoryId ?? CACHE_KEY_SEGMENT.ALL;
     const sortKey = params.sort ?? DEFAULT_RECIPE_SORT;
     const payload: RecipeSearchParams = {
@@ -156,7 +158,8 @@ export class RecipeQueryService {
       page: params.page,
       size: params.size,
       difficulty: params.difficulty,
-      maxCookTime: params.cookTime,
+      minCookTime: params.cookTimeMin,
+      maxCookTime: params.cookTimeMax,
       categoryId: params.categoryId,
       sort: sortKey,
     };
@@ -179,7 +182,7 @@ export class RecipeQueryService {
       CACHE_KEY_SEGMENT.SEARCH,
       keywordKey,
       difficultyKey,
-      cookTimeKey,
+      cookTimeRangeKey,
       categoryKey,
       sortKey,
       params.page,
