@@ -35,6 +35,7 @@
 | client/src/components/ui/RangeSlider/ | 범위 슬라이더 |
 | client/src/components/ui/RangeSliderCard/ | 범위 슬라이더 카드 조합 컴포넌트 |
 | client/src/components/ui/Toggle/ | 토글 세트(`selected` × `state` × `size`) |
+| client/src/components/ui/SubTab/ | 서브 탭 단일 아이템 세트(`selected`) |
 | client/src/components/ui/ToggleCard/ | 카드형 토글 UI |
 | client/src/components/ui/Chip/ | 칩 세트(`state`) |
 | client/src/components/ui/ChipsRow/ | 칩 행 조합 컴포넌트 |
@@ -124,7 +125,6 @@
 | **client/src/components/inventory/** | 재료 보관함 도메인 컴포넌트 묶음 |
 | client/src/components/inventory/IngredientCard/ | 재료 카드 세트(`selected`) |
 | client/src/components/inventory/IngredientGrid/ | 재료 그리드 |
-| client/src/components/inventory/SubTab/ | 서브 탭 단일 아이템 세트(`selected`) |
 | client/src/components/inventory/InventorySubTabbar/ | 보관함 서브 탭바 세트(`selectedIndex`) |
 | client/src/components/inventory/IngredientGridHeader/ | 재료 그리드 헤더 |
 | client/src/components/inventory/IngredientSearchResult/ | 재료 검색 결과 |

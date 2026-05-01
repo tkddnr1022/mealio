@@ -91,8 +91,8 @@
 
 - [x] `IngredientCard` 세트 (`selected=true` / `false`)
 - [x] `IngredientGrid`
-- [ ] `SubTab` 세트 (`selected=true` / `false`)
-- [ ] `InventorySubTabbar` 세트 (`selectedIndex`)
+- [x] `SubTab` 세트 (`selected=true` / `false`)
+- [x] `InventorySubTabbar` 세트 (`selectedIndex`)
 - [ ] `IngredientGridHeader`
 - [ ] `IngredientSearchResult`
 
