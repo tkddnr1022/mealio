@@ -14,6 +14,7 @@ import { AuthService } from '../auth.service';
 import { OAuthCallbackGuard } from '../guards/oauth-callback.guard';
 import { OAuthProfile } from '../types/oauth.types';
 import { ConfigService } from '@nestjs/config';
+import { SUPPORTED_AUTH_PROVIDERS } from '../constants/auth-providers';
 // TODO: refresh token 구현
 const COOKIE_MAX_AGE_MS = 60 * 60 * 1000; // 1h
 
@@ -29,9 +30,13 @@ export class AuthController {
   @ApiOperation({
     summary: 'OAuth 로그인 진입 (소셜)',
     description:
-      '백엔드 주도 OAuth 진입. Provider 인증 페이지로 302 리다이렉트. 지원 provider: google, kakao, naver',
+      `백엔드 주도 OAuth 진입. Provider 인증 페이지로 302 리다이렉트. 지원 provider: ${SUPPORTED_AUTH_PROVIDERS.join(', ')}`,
   })
-  @ApiParam({ name: 'provider', description: 'OAuth Provider', enum: ['google', 'kakao', 'naver'] })
+  @ApiParam({
+    name: 'provider',
+    description: 'OAuth Provider',
+    enum: SUPPORTED_AUTH_PROVIDERS,
+  })
   @ApiResponse({ status: HttpStatus.FOUND, description: 'Provider 인증 URL로 리다이렉트' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 provider' })
   async login(
@@ -50,7 +55,7 @@ export class AuthController {
     description:
       'Provider 인증 후 호출. Code 교환·사용자 생성/조회·JWT 발급 후 클라이언트 로그인 성공 URL로 302 + Set-Cookie',
   })
-  @ApiParam({ name: 'provider', enum: ['google', 'kakao', 'naver'] })
+  @ApiParam({ name: 'provider', enum: SUPPORTED_AUTH_PROVIDERS })
   @ApiResponse({ status: HttpStatus.FOUND, description: '로그인 성공 URL로 리다이렉트 + Set-Cookie' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'OAuth 인증 실패' })
   async callback(

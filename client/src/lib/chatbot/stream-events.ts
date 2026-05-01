@@ -17,29 +17,33 @@ import type {
   ChatbotStreamEvent,
   ChatbotStreamToolCallEvent,
 } from '@/lib/types/chatbot';
+import {
+  CHATBOT_STREAM_EVENT_TYPES,
+  CHATBOT_TOOL_CALL_STATUS,
+} from '@/lib/types/chatbot';
 
 export function isChunkEvent(
   event: ChatbotStreamEvent,
 ): event is ChatbotStreamChunkEvent {
-  return event.type === 'chunk';
+  return event.type === CHATBOT_STREAM_EVENT_TYPES.CHUNK;
 }
 
 export function isDoneEvent(
   event: ChatbotStreamEvent,
 ): event is ChatbotStreamDoneEvent {
-  return event.type === 'done';
+  return event.type === CHATBOT_STREAM_EVENT_TYPES.DONE;
 }
 
 export function isErrorEvent(
   event: ChatbotStreamEvent,
 ): event is ChatbotStreamErrorEvent {
-  return event.type === 'error';
+  return event.type === CHATBOT_STREAM_EVENT_TYPES.ERROR;
 }
 
 export function isToolCallEvent(
   event: ChatbotStreamEvent,
 ): event is ChatbotStreamToolCallEvent {
-  return event.type === 'tool_call';
+  return event.type === CHATBOT_STREAM_EVENT_TYPES.TOOL_CALL;
 }
 
 /**
@@ -62,21 +66,21 @@ export function parseStreamEvent(raw: string): ChatbotStreamEvent | null {
   if (typeof obj.type !== 'string') return null;
 
   switch (obj.type) {
-    case 'chunk':
+    case CHATBOT_STREAM_EVENT_TYPES.CHUNK:
       return typeof obj.data === 'string'
-        ? { type: 'chunk', data: obj.data }
+        ? { type: CHATBOT_STREAM_EVENT_TYPES.CHUNK, data: obj.data }
         : null;
-    case 'done':
+    case CHATBOT_STREAM_EVENT_TYPES.DONE:
       return isDoneEventShape(obj.data)
-        ? { type: 'done', data: obj.data }
+        ? { type: CHATBOT_STREAM_EVENT_TYPES.DONE, data: obj.data }
         : null;
-    case 'error':
+    case CHATBOT_STREAM_EVENT_TYPES.ERROR:
       return isErrorEventShape(obj.data)
-        ? { type: 'error', data: obj.data }
+        ? { type: CHATBOT_STREAM_EVENT_TYPES.ERROR, data: obj.data }
         : null;
-    case 'tool_call':
+    case CHATBOT_STREAM_EVENT_TYPES.TOOL_CALL:
       return isToolCallEventShape(obj.data)
-        ? { type: 'tool_call', data: obj.data }
+        ? { type: CHATBOT_STREAM_EVENT_TYPES.TOOL_CALL, data: obj.data }
         : null;
     default:
       return null;
@@ -108,7 +112,12 @@ function isToolCallEventShape(
   if (!data || typeof data !== 'object') return false;
   const d = data as Record<string, unknown>;
   if (typeof d.functionName !== 'string') return false;
-  if (d.status !== 'start' && d.status !== 'complete') return false;
+  if (
+    d.status !== CHATBOT_TOOL_CALL_STATUS.START &&
+    d.status !== CHATBOT_TOOL_CALL_STATUS.COMPLETE
+  ) {
+    return false;
+  }
   if (d.arguments !== undefined && typeof d.arguments !== 'string') {
     return false;
   }

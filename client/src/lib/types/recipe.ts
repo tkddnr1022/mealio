@@ -8,7 +8,16 @@
  */
 
 /** 정렬 키. 백엔드 기본값은 `latest`. */
-export type RecipeSortKey = 'latest' | 'cookTime' | 'difficulty';
+export const RECIPE_SORT_KEYS = [
+  'latest',
+  'cookTime',
+  'difficulty',
+  'viewCount',
+  'likeCount',
+] as const;
+
+/** 정렬 키. 백엔드 기본값은 `latest`. */
+export type RecipeSortKey = (typeof RECIPE_SORT_KEYS)[number];
 
 /** 목록·검색에서 반환되는 레시피 기본 정보 */
 export interface RecipeSummary {

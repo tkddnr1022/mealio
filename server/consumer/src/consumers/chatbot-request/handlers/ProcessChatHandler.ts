@@ -5,6 +5,8 @@ import type { ChatCompletionChunk } from 'openai/resources/chat/completions';
 import {
   RedisService,
   getChatbotStreamChannel,
+  CHATBOT_STREAM_EVENT_TYPES,
+  CHATBOT_TOOL_CALL_STATUS,
   type ChatbotStreamEvent,
   type ChatbotStreamToolCallEvent,
 } from '@cook/shared';
@@ -66,7 +68,10 @@ export class ProcessChatHandler {
     } catch (err) {
       const message = (err as Error).message ?? 'Unknown error';
       this.logger.error('ProcessChat error', err as Error);
-      publish({ type: 'error', data: { message } });
+      publish({
+        type: CHATBOT_STREAM_EVENT_TYPES.ERROR,
+        data: { message },
+      });
       return { error: message };
     }
   }
@@ -120,15 +125,18 @@ export class ProcessChatHandler {
       } = await this.consumeStream(stream, (chunk) => {
         if (chunk.content) {
           fullContent += chunk.content;
-          publish({ type: 'chunk', data: chunk.content });
+          publish({
+            type: CHATBOT_STREAM_EVENT_TYPES.CHUNK,
+            data: chunk.content,
+          });
         }
         if (chunk.toolCalls?.length) {
           for (const tc of chunk.toolCalls) {
             publish({
-              type: 'tool_call',
+              type: CHATBOT_STREAM_EVENT_TYPES.TOOL_CALL,
               data: {
                 functionName: tc.name,
-                status: 'start',
+                status: CHATBOT_TOOL_CALL_STATUS.START,
                 arguments: tc.arguments,
               } as ChatbotStreamToolCallEvent['data'],
             });
@@ -166,10 +174,10 @@ export class ProcessChatHandler {
 
         for (const tc of toolCalls) {
           publish({
-            type: 'tool_call',
+            type: CHATBOT_STREAM_EVENT_TYPES.TOOL_CALL,
             data: {
               functionName: tc.name,
-              status: 'complete',
+              status: CHATBOT_TOOL_CALL_STATUS.COMPLETE,
               arguments: tc.arguments,
             } as ChatbotStreamToolCallEvent['data'],
           });
@@ -211,7 +219,7 @@ export class ProcessChatHandler {
       } else {
         if (channel) {
           publish({
-            type: 'done',
+            type: CHATBOT_STREAM_EVENT_TYPES.DONE,
             data: {
               conversationId,
               suggestedRecipes:
@@ -238,7 +246,7 @@ export class ProcessChatHandler {
 
     if (channel) {
       publish({
-        type: 'done',
+        type: CHATBOT_STREAM_EVENT_TYPES.DONE,
         data: {
           conversationId,
           suggestedRecipes:

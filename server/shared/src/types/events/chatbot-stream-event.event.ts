@@ -3,13 +3,31 @@
  * Consumer가 Redis 채널로 발행하는 메시지 형식 (Producer가 구독하여 클라이언트로 SSE 전달)
  */
 
+export const CHATBOT_STREAM_EVENT_TYPES = {
+  CHUNK: 'chunk',
+  DONE: 'done',
+  ERROR: 'error',
+  TOOL_CALL: 'tool_call',
+} as const;
+
+export type ChatbotStreamEventType =
+  (typeof CHATBOT_STREAM_EVENT_TYPES)[keyof typeof CHATBOT_STREAM_EVENT_TYPES];
+
+export const CHATBOT_TOOL_CALL_STATUS = {
+  START: 'start',
+  COMPLETE: 'complete',
+} as const;
+
+export type ChatbotToolCallStatus =
+  (typeof CHATBOT_TOOL_CALL_STATUS)[keyof typeof CHATBOT_TOOL_CALL_STATUS];
+
 export interface ChatbotStreamChunkEvent {
-  type: 'chunk';
+  type: typeof CHATBOT_STREAM_EVENT_TYPES.CHUNK;
   data: string;
 }
 
 export interface ChatbotStreamDoneEvent {
-  type: 'done';
+  type: typeof CHATBOT_STREAM_EVENT_TYPES.DONE;
   data: {
     conversationId: string;
     suggestedRecipes?: Array<unknown>;
@@ -17,16 +35,16 @@ export interface ChatbotStreamDoneEvent {
 }
 
 export interface ChatbotStreamErrorEvent {
-  type: 'error';
+  type: typeof CHATBOT_STREAM_EVENT_TYPES.ERROR;
   data: { message: string };
 }
 
 /** Function Calling 실행 중 클라이언트 피드백용 (예: "레시피 검색 중…") */
 export interface ChatbotStreamToolCallEvent {
-  type: 'tool_call';
+  type: typeof CHATBOT_STREAM_EVENT_TYPES.TOOL_CALL;
   data: {
     functionName: string;
-    status: 'start' | 'complete';
+    status: ChatbotToolCallStatus;
     arguments?: string;
   };
 }

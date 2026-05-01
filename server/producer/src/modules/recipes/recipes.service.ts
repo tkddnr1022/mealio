@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CACHE_KEY_SEGMENT, KAFKA_TOPICS } from '@cook/shared';
+import { ActivityEventType, CACHE_KEY_SEGMENT, KAFKA_TOPICS } from '@cook/shared';
 import {
   RecipeRepository,
   RecipeSearchParams,
@@ -17,7 +17,10 @@ import {
 } from './dto/recipe-detail.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { RecipeCategoryDto } from './dto/recipe-category.dto';
-import { RecipeListOrder } from './policies/recipe-sort.policy';
+import {
+  DEFAULT_RECIPE_SORT,
+  RecipeListOrder,
+} from './policies/recipe-sort.policy';
 
 export interface ActivityContext {
   userId?: number;
@@ -63,7 +66,7 @@ export class RecipeQueryService {
         : CACHE_KEY_SEGMENT.ALL;
     const cookTimeKey =
       params.cookTime ?? CACHE_KEY_SEGMENT.ALL;
-    const sortKey = params.sort ?? 'latest';
+    const sortKey = params.sort ?? DEFAULT_RECIPE_SORT;
 
     const result = await this.cacheService.getOrSet(
       this.recipeCacheStrategy,
@@ -147,7 +150,7 @@ export class RecipeQueryService {
         : CACHE_KEY_SEGMENT.ALL;
     const cookTimeKey = params.cookTime ?? CACHE_KEY_SEGMENT.ALL;
     const categoryKey = params.categoryId ?? CACHE_KEY_SEGMENT.ALL;
-    const sortKey = params.sort ?? 'latest';
+    const sortKey = params.sort ?? DEFAULT_RECIPE_SORT;
     const payload: RecipeSearchParams = {
       keyword,
       page: params.page,
@@ -323,7 +326,7 @@ export class RecipeQueryService {
     await this.kafkaProducerService.emit(
       KAFKA_TOPICS.ACTIVITY_EVENTS,
       {
-        type: 'recipe.view',
+        type: ActivityEventType.RECIPE_VIEW,
         actor: {
           type: 'user',
           userId: context?.userId,
@@ -345,7 +348,7 @@ export class RecipeQueryService {
     context?: ActivityContext,
   ): Promise<void> {
     await this.kafkaProducerService.emit(KAFKA_TOPICS.ACTIVITY_EVENTS, {
-      type: 'search.query',
+      type: ActivityEventType.SEARCH_QUERY,
       actor: {
         type: 'user',
         userId: context?.userId,

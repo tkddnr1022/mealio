@@ -10,6 +10,11 @@ import {
   IsIn,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
+import {
+  DEFAULT_RECIPE_SORT,
+  RECIPE_SORT_KEYS,
+  type RecipeListOrder,
+} from '../policies/recipe-sort.policy';
 
 function toNumberArray(value: unknown): number[] | undefined {
   if (value == null) return undefined;
@@ -80,11 +85,10 @@ export class RecipeSearchQueryDto {
 
   @ApiPropertyOptional({
     description: '정렬 기준',
-    enum: ['latest', 'cookTime', 'difficulty', 'viewCount', 'likeCount'],
-    default: 'latest',
+    enum: RECIPE_SORT_KEYS,
+    default: DEFAULT_RECIPE_SORT,
   })
   @IsOptional()
-  @IsIn(['latest', 'cookTime', 'difficulty', 'viewCount', 'likeCount'])
-  sort?: 'latest' | 'cookTime' | 'difficulty' | 'viewCount' | 'likeCount' =
-    'latest';
+  @IsIn(RECIPE_SORT_KEYS)
+  sort?: RecipeListOrder = DEFAULT_RECIPE_SORT;
 }

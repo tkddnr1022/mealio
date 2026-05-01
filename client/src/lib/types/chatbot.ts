@@ -65,17 +65,34 @@ export interface Conversation {
 // ─── SSE 스트림 이벤트 ────────────────────────────────────────────────────────
 
 /** SSE 이벤트 `type` 판별자 union */
-export type ChatbotStreamEventType = 'chunk' | 'done' | 'error' | 'tool_call';
+export const CHATBOT_STREAM_EVENT_TYPES = {
+  CHUNK: 'chunk',
+  DONE: 'done',
+  ERROR: 'error',
+  TOOL_CALL: 'tool_call',
+} as const;
+
+/** SSE 이벤트 `type` 판별자 union */
+export type ChatbotStreamEventType =
+  (typeof CHATBOT_STREAM_EVENT_TYPES)[keyof typeof CHATBOT_STREAM_EVENT_TYPES];
+
+export const CHATBOT_TOOL_CALL_STATUS = {
+  START: 'start',
+  COMPLETE: 'complete',
+} as const;
+
+export type ChatbotToolCallStatus =
+  (typeof CHATBOT_TOOL_CALL_STATUS)[keyof typeof CHATBOT_TOOL_CALL_STATUS];
 
 /** 부분 텍스트 청크 */
 export interface ChatbotStreamChunkEvent {
-  type: 'chunk';
+  type: typeof CHATBOT_STREAM_EVENT_TYPES.CHUNK;
   data: string;
 }
 
 /** 스트림 종료. 확정된 `conversationId`와 추천 레시피가 전달된다. */
 export interface ChatbotStreamDoneEvent {
-  type: 'done';
+  type: typeof CHATBOT_STREAM_EVENT_TYPES.DONE;
   data: {
     conversationId: string;
     suggestedRecipes?: SuggestedRecipe[];
@@ -84,16 +101,16 @@ export interface ChatbotStreamDoneEvent {
 
 /** 서버 측 에러. 클라이언트는 사용자에게 메시지 표시 후 스트림을 종료한다. */
 export interface ChatbotStreamErrorEvent {
-  type: 'error';
+  type: typeof CHATBOT_STREAM_EVENT_TYPES.ERROR;
   data: { message: string };
 }
 
 /** Function Calling 진행 중 클라이언트 피드백용 (예: "레시피 검색 중…") */
 export interface ChatbotStreamToolCallEvent {
-  type: 'tool_call';
+  type: typeof CHATBOT_STREAM_EVENT_TYPES.TOOL_CALL;
   data: {
     functionName: string;
-    status: 'start' | 'complete';
+    status: ChatbotToolCallStatus;
     arguments?: string;
   };
 }

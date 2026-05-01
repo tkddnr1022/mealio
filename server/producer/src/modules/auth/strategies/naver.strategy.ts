@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-oauth2';
 import { OAuthProfile } from '../types/oauth.types';
+import { AUTH_PROVIDERS } from '../constants/auth-providers';
 
 const NAVER_USER_ME_URL = 'https://openapi.naver.com/v1/nid/me';
 
@@ -19,7 +20,10 @@ interface NaverUserMeResponse {
 }
 
 @Injectable()
-export class NaverStrategy extends PassportStrategy(Strategy, 'naver') {
+export class NaverStrategy extends PassportStrategy(
+  Strategy,
+  AUTH_PROVIDERS.NAVER,
+) {
   constructor(private readonly config: ConfigService) {
     const clientID = config.getOrThrow<string>('NAVER_CLIENT_ID');
     const clientSecret = config.getOrThrow<string>('NAVER_CLIENT_SECRET');
@@ -29,7 +33,7 @@ export class NaverStrategy extends PassportStrategy(Strategy, 'naver') {
     super({
       clientID,
       clientSecret,
-      callbackURL: `${callbackBase}/api/v1/auth/naver/callback`,
+      callbackURL: `${callbackBase}/api/v1/auth/${AUTH_PROVIDERS.NAVER}/callback`,
       authorizationURL: 'https://nid.naver.com/oauth2.0/authorize',
       tokenURL: 'https://nid.naver.com/oauth2.0/token',
       customHeaders: {
@@ -71,7 +75,7 @@ export class NaverStrategy extends PassportStrategy(Strategy, 'naver') {
       email.split('@')[0] ||
       'user';
     return {
-      provider: 'naver',
+      provider: AUTH_PROVIDERS.NAVER,
       providerId,
       email,
       nickname,

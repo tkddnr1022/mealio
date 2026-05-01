@@ -5,6 +5,7 @@ import {
   RedisService,
   KAFKA_TOPICS,
   getChatbotStreamChannel,
+  CHATBOT_STREAM_EVENT_TYPES,
   ChatbotEventType,
   type ChatbotRequestEvent,
   type ChatbotStreamEvent,
@@ -102,9 +103,12 @@ export class ChatbotService {
         const payload = JSON.parse(raw) as ChatbotStreamEvent;
         callbacks.write(raw);
 
-        if (payload.type === 'done' || payload.type === 'error') {
+        if (
+          payload.type === CHATBOT_STREAM_EVENT_TYPES.DONE ||
+          payload.type === CHATBOT_STREAM_EVENT_TYPES.ERROR
+        ) {
           finish(() => {
-            if (payload.type === 'error') {
+            if (payload.type === CHATBOT_STREAM_EVENT_TYPES.ERROR) {
               callbacks.error(new Error(payload.data.message));
             } else {
               callbacks.end();

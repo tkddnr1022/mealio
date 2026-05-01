@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ChatbotService } from '../../chatbot.service';
 import { KafkaProducerService } from '../../../../infrastructure/kafka/producer.service';
-import { RedisService, KAFKA_TOPICS } from '@cook/shared';
+import {
+  RedisService,
+  KAFKA_TOPICS,
+  CHATBOT_STREAM_EVENT_TYPES,
+} from '@cook/shared';
 import { ChatbotLogRepository } from '../../../../infrastructure/database/repositories/mongodb/chatbot-log.repository';
 import type { SendMessageDto } from '../../dto/send-message.dto';
 
@@ -20,7 +24,7 @@ describe('ChatbotService', () => {
       subscribe: jest.fn().mockImplementation((_channel, onMessage) => {
         onMessage(
           JSON.stringify({
-            type: 'done',
+            type: CHATBOT_STREAM_EVENT_TYPES.DONE,
             data: { conversationId: 'conv_abc' },
           }),
         );
@@ -96,7 +100,10 @@ describe('ChatbotService', () => {
     it('Redis에서 error 이벤트를 받으면 error 콜백을 호출한다', async () => {
       redisService.subscribe.mockImplementation((_ch, onMessage) => {
         onMessage(
-          JSON.stringify({ type: 'error', data: { message: 'GPT 오류' } }),
+          JSON.stringify({
+            type: CHATBOT_STREAM_EVENT_TYPES.ERROR,
+            data: { message: 'GPT 오류' },
+          }),
         );
         return Promise.resolve(() => Promise.resolve());
       });

@@ -1,11 +1,16 @@
 import { Prisma } from '@cook/shared/prisma-client';
 
-export type RecipeListOrder =
-  | 'latest'
-  | 'cookTime'
-  | 'difficulty'
-  | 'viewCount'
-  | 'likeCount';
+export const RECIPE_SORT_KEYS = [
+  'latest',
+  'cookTime',
+  'difficulty',
+  'viewCount',
+  'likeCount',
+] as const;
+
+export type RecipeListOrder = (typeof RECIPE_SORT_KEYS)[number];
+
+export const DEFAULT_RECIPE_SORT: RecipeListOrder = 'latest';
 
 export interface RecipeSortPolicy {
   key: RecipeListOrder;
@@ -36,6 +41,6 @@ const RECIPE_SORT_POLICIES: Record<RecipeListOrder, RecipeSortPolicy> = {
 };
 
 export function resolveRecipeSortPolicy(sort?: RecipeListOrder): RecipeSortPolicy {
-  return RECIPE_SORT_POLICIES[sort ?? 'latest'];
+  return RECIPE_SORT_POLICIES[sort ?? DEFAULT_RECIPE_SORT];
 }
 

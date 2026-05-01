@@ -4,6 +4,7 @@ import { ChatbotController } from '../../chatbot.controller';
 import { ChatbotService } from '../../chatbot.service';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import type { AuthUser } from '../../../auth/types/request.types';
+import { CHATBOT_STREAM_EVENT_TYPES } from '@cook/shared';
 
 describe('ChatbotController', () => {
   let controller: ChatbotController;
@@ -46,7 +47,7 @@ describe('ChatbotController', () => {
         .mockImplementation((_userId, _dto, callbacks) => {
           callbacks.write(
             JSON.stringify({
-              type: 'done',
+              type: CHATBOT_STREAM_EVENT_TYPES.DONE,
               data: { conversationId: 'conv_abc123' },
             }),
           );

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma, Recipe } from '@cook/shared/prisma-client';
 import { PrismaService } from '@cook/shared';
 import {
+  DEFAULT_RECIPE_SORT,
   RecipeListOrder,
   resolveRecipeSortPolicy,
 } from '../../../../modules/recipes/policies/recipe-sort.policy';
@@ -104,7 +105,13 @@ export class RecipeRepository {
     data: RecipeWithStats[];
     total: number;
   }> {
-    const { page, size, difficulty, maxCookTime, sort = 'latest' } = params;
+    const {
+      page,
+      size,
+      difficulty,
+      maxCookTime,
+      sort = DEFAULT_RECIPE_SORT,
+    } = params;
     const skip = (page - 1) * size;
 
     const where = {
@@ -144,7 +151,7 @@ export class RecipeRepository {
       difficulty,
       maxCookTime,
       categoryId,
-      sort = 'latest',
+      sort = DEFAULT_RECIPE_SORT,
     } = params;
     const skip = (page - 1) * size;
 

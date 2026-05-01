@@ -7,6 +7,7 @@ import { UserRepository } from '../../infrastructure/database/repositories/postg
 import { KafkaProducerService } from '../../infrastructure/kafka/producer.service';
 import { OAuthProfile } from './types/oauth.types';
 import {
+  AUTH_PROVIDERS,
   AuthProvider,
   isSupportedProvider,
 } from './constants/auth-providers';
@@ -29,16 +30,16 @@ export class AuthService {
     if (!isSupportedProvider(provider)) {
       throw new BadRequestException(`Unsupported provider: ${provider}`);
     }
-    if (provider === 'google') {
-      return this.getGoogleAuthUrl(state);
-    }
-    if (provider === 'kakao') {
-      return this.getKakaoAuthUrl(state);
-    }
-    if (provider === 'naver') {
-      return this.getNaverAuthUrl(state);
-    }
-    throw new BadRequestException(`Unsupported provider: ${provider}`);
+
+    const authUrlBuilders: Record<AuthProvider, (state?: string) => string> = {
+      [AUTH_PROVIDERS.GOOGLE]: (nextState?: string) =>
+        this.getGoogleAuthUrl(nextState),
+      [AUTH_PROVIDERS.KAKAO]: (nextState?: string) =>
+        this.getKakaoAuthUrl(nextState),
+      [AUTH_PROVIDERS.NAVER]: (nextState?: string) =>
+        this.getNaverAuthUrl(nextState),
+    };
+    return authUrlBuilders[provider](state);
   }
 
   /**
@@ -111,7 +112,7 @@ export class AuthService {
 
   private getGoogleAuthUrl(state?: string): string {
     const clientId = this.config.getOrThrow<string>('GOOGLE_CLIENT_ID');
-    const redirectUri = this.getCallbackUrl('google');
+    const redirectUri = this.getCallbackUrl(AUTH_PROVIDERS.GOOGLE);
     const scope = encodeURIComponent('email profile');
     const stateParam = state ? `&state=${encodeURIComponent(state)}` : '';
     return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${scope}${stateParam}`;
@@ -119,7 +120,7 @@ export class AuthService {
 
   private getKakaoAuthUrl(state?: string): string {
     const clientId = this.config.getOrThrow<string>('KAKAO_CLIENT_ID');
-    const redirectUri = this.getCallbackUrl('kakao');
+    const redirectUri = this.getCallbackUrl(AUTH_PROVIDERS.KAKAO);
     const scope = encodeURIComponent('profile_nickname account_email');
     const stateParam = state ? `&state=${encodeURIComponent(state)}` : '';
     return `https://kauth.kakao.com/oauth/authorize?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${scope}${stateParam}`;
@@ -127,7 +128,7 @@ export class AuthService {
 
   private getNaverAuthUrl(state?: string): string {
     const clientId = this.config.getOrThrow<string>('NAVER_CLIENT_ID');
-    const redirectUri = this.getCallbackUrl('naver');
+    const redirectUri = this.getCallbackUrl(AUTH_PROVIDERS.NAVER);
     const stateParam = state ? `&state=${encodeURIComponent(state)}` : '';
     return `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}${stateParam}`;
   }

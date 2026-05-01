@@ -21,6 +21,7 @@ import { ConversationListQueryDto } from './dto/conversation-list-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthUser } from '../auth/types/request.types';
+import { CHATBOT_STREAM_EVENT_TYPES } from '@cook/shared';
 
 /** SSE 이벤트 형식: data: {JSON}\n\n */
 function formatSSE(data: string): string {
@@ -83,7 +84,10 @@ export class ChatbotController {
       error: (err: Error) => {
         res.write(
           formatSSE(
-            JSON.stringify({ type: 'error', data: { message: err.message } }),
+            JSON.stringify({
+              type: CHATBOT_STREAM_EVENT_TYPES.ERROR,
+              data: { message: err.message },
+            }),
           ),
         );
         res.end();

@@ -25,6 +25,7 @@ import { RecipeCategoryDto } from './dto/recipe-category.dto';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { CurrentUserOptional } from '../auth/decorators/current-user-optional.decorator';
 import type { AuthUser } from '../auth/types/request.types';
+import { DEFAULT_RECIPE_SORT } from './policies/recipe-sort.policy';
 
 @ApiTags('Recipe')
 @Controller('api/v1/recipes')
@@ -57,7 +58,7 @@ export class RecipesController {
   ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
     const page = query.page ?? 1;
     const size = query.size ?? 20;
-    const sort = query.sort ?? 'latest';
+    const sort = query.sort ?? DEFAULT_RECIPE_SORT;
     return this.recipeQueryService.getList({
       page,
       size,
@@ -129,7 +130,7 @@ export class RecipesController {
   ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
     const page = query.page ?? 1;
     const size = query.size ?? 20;
-    const sort = query.sort ?? 'latest';
+    const sort = query.sort ?? DEFAULT_RECIPE_SORT;
     const params = {
       q: query.q,
       page,

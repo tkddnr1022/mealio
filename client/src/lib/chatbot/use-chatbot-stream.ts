@@ -5,9 +5,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ApiError } from '@/lib/api/error';
 import type {
   ChatbotStreamEvent,
+  ChatbotToolCallStatus,
   SendChatbotMessageRequest,
   SuggestedRecipe,
 } from '@/lib/types/chatbot';
+import { CHATBOT_STREAM_EVENT_TYPES } from '@/lib/types/chatbot';
 
 import {
   streamChatbotMessage,
@@ -31,7 +33,7 @@ export type ChatbotStreamStatus = 'idle' | 'streaming' | 'done' | 'error';
 
 export interface ToolCallState {
   functionName: string;
-  status: 'start' | 'complete';
+  status: ChatbotToolCallStatus;
   arguments?: string;
 }
 
@@ -188,16 +190,16 @@ function applyEvent(
   event: ChatbotStreamEvent,
 ): void {
   switch (event.type) {
-    case 'chunk':
+    case CHATBOT_STREAM_EVENT_TYPES.CHUNK:
       setState((prev) => ({ ...prev, text: prev.text + event.data }));
       return;
-    case 'tool_call':
+    case CHATBOT_STREAM_EVENT_TYPES.TOOL_CALL:
       setState((prev) => ({
         ...prev,
         activeToolCalls: mergeToolCall(prev.activeToolCalls, event.data),
       }));
       return;
-    case 'done':
+    case CHATBOT_STREAM_EVENT_TYPES.DONE:
       setState((prev) => ({
         ...prev,
         status: 'done',
@@ -205,7 +207,7 @@ function applyEvent(
         suggestedRecipes: event.data.suggestedRecipes ?? [],
       }));
       return;
-    case 'error':
+    case CHATBOT_STREAM_EVENT_TYPES.ERROR:
       setState((prev) => ({
         ...prev,
         status: 'error',

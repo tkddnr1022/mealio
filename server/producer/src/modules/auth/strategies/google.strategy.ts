@@ -3,9 +3,13 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, Profile } from 'passport-google-oauth20';
 import { OAuthProfile } from '../types/oauth.types';
+import { AUTH_PROVIDERS } from '../constants/auth-providers';
 
 @Injectable()
-export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
+export class GoogleStrategy extends PassportStrategy(
+  Strategy,
+  AUTH_PROVIDERS.GOOGLE,
+) {
   constructor(private readonly config: ConfigService) {
     const clientID = config.getOrThrow<string>('GOOGLE_CLIENT_ID');
     const clientSecret = config.getOrThrow<string>('GOOGLE_CLIENT_SECRET');
@@ -13,7 +17,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     super({
       clientID,
       clientSecret,
-      callbackURL: `${callbackBase}/api/v1/auth/google/callback`, // TODO: 콜백 URL 관리 통일
+      callbackURL: `${callbackBase}/api/v1/auth/${AUTH_PROVIDERS.GOOGLE}/callback`,
       scope: ['email', 'profile'],
     });
   }
@@ -22,7 +26,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     const email = profile.emails?.[0]?.value ?? '';
     const nickname = profile.displayName ?? email.split('@')[0] ?? 'user';
     return {
-      provider: 'google',
+      provider: AUTH_PROVIDERS.GOOGLE,
       providerId: profile.id,
       email,
       nickname,
