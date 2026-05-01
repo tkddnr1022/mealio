@@ -93,8 +93,8 @@
 - [x] `IngredientGrid`
 - [x] `SubTab` 세트 (`selected=true` / `false`)
 - [x] `InventorySubTabbar` 세트 (`selectedIndex`)
-- [ ] `IngredientGridHeader`
-- [ ] `IngredientSearchResult`
+- [x] `IngredientGridHeader`
+- [x] `IngredientSearchResult`
 
 ### 마이페이지 · 메뉴
 

@@ -10,3 +10,9 @@ export type {
   InventorySubTabbarItem,
   InventorySubTabbarSelectedIndex,
 } from "./InventorySubTabbar";
+
+export { IngredientGridHeader } from "./IngredientGridHeader";
+export type { IngredientGridHeaderProps } from "./IngredientGridHeader";
+
+export { IngredientSearchResult } from "./IngredientSearchResult";
+export type { IngredientSearchResultProps } from "./IngredientSearchResult";
