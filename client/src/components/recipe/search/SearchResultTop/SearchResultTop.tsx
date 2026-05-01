@@ -3,14 +3,12 @@ import { cn } from "@/lib/utils/cn";
 import { BackButton } from "@/components/ui/buttons/BackButton";
 import { SearchBar, type SearchBarProps } from "@/components/ui/SearchBar";
 
-export type SearchResultTopProps = Readonly<
-  Omit<HTMLAttributes<HTMLElement>, "className" | "children"> & {
-    className?: string;
-    query?: string;
-    onBackClick?: () => void;
-    searchBarProps?: Omit<SearchBarProps, "readOnly" | "tabIndex">;
-  }
->;
+export interface SearchResultTopProps extends Omit<HTMLAttributes<HTMLElement>, "className" | "children"> {
+className?: string;
+query?: string;
+onBackClick?: () => void;
+searchBarProps?: Omit<SearchBarProps, "readOnly" | "tabIndex">;
+}
 
 export function SearchResultTop({
   className = "",

@@ -1,14 +1,12 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type CardTagProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "className" | "children"> & {
-    className?: string;
-    label?: string;
-    leftIcon?: ReactNode;
-    trailing?: ReactNode;
-  }
->;
+export interface CardTagProps extends Omit<HTMLAttributes<HTMLDivElement>, "className" | "children"> {
+className?: string;
+label?: string;
+leftIcon?: ReactNode;
+trailing?: ReactNode;
+}
 
 export function CardTag({
   className = "",

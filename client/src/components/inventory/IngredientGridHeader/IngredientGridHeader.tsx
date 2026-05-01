@@ -1,13 +1,11 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type IngredientGridHeaderProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    className?: string;
-    title?: string;
-    countText?: string;
-  }
->;
+export interface IngredientGridHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+className?: string;
+title?: string;
+countText?: string;
+}
 
 export function IngredientGridHeader({
   className = "",

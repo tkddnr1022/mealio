@@ -5,14 +5,12 @@ import { cn } from "@/lib/utils/cn";
 export type IconShellVariant = "primary" | "accent" | "muted" | "secondary";
 export type IconShellSize = "small" | "medium" | "large" | "xlarge";
 
-export type IconShellProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "className" | "children"> & {
-    className?: string;
-    variant?: IconShellVariant;
-    size?: IconShellSize;
-    icon?: ReactNode;
-  }
->;
+export interface IconShellProps extends Omit<HTMLAttributes<HTMLDivElement>, "className" | "children"> {
+className?: string;
+variant?: IconShellVariant;
+size?: IconShellSize;
+icon?: ReactNode;
+}
 
 const shellSizeClassMap: Record<IconShellSize, string> = {
   small: "p-1",

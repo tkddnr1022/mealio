@@ -2,13 +2,11 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type DropdownButtonProps = Readonly<
-  Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> & {
-    className?: string;
-    label?: string;
-    open?: boolean;
-  }
->;
+export interface DropdownButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> {
+className?: string;
+label?: string;
+open?: boolean;
+}
 
 export function DropdownButton({
   className = "",

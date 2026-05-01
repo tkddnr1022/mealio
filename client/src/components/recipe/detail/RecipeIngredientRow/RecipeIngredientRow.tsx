@@ -1,13 +1,11 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type RecipeIngredientRowProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    className?: string;
-    name?: string;
-    quantity?: string;
-  }
->;
+export interface RecipeIngredientRowProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+className?: string;
+name?: string;
+quantity?: string;
+}
 
 export function RecipeIngredientRow({
   className = "",

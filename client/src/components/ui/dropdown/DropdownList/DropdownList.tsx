@@ -6,12 +6,12 @@ export type DropdownOption = Readonly<{
   label: string;
 }>;
 
-export type DropdownListProps = Readonly<{
+export interface DropdownListProps {
   className?: string;
   options?: readonly DropdownOption[];
   selectedValue?: string;
   onSelect?: (option: DropdownOption) => void;
-}>;
+}
 
 export function DropdownList({
   className = "",

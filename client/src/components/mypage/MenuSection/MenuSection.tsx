@@ -2,12 +2,10 @@ import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 import { MenuItem, type MenuItemProps } from "@/components/mypage/MenuItem";
 
-export type MenuSectionProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    className?: string;
-    items?: readonly MenuItemProps[];
-  }
->;
+export interface MenuSectionProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+className?: string;
+items?: readonly MenuItemProps[];
+}
 
 export function MenuSection({
   className = "",

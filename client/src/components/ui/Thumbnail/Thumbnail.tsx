@@ -2,14 +2,12 @@ import Image from "next/image";
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type ThumbnailProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    className?: string;
-    imageUrl: string;
-    imageAlt?: string;
-    square?: boolean;
-  }
->;
+export interface ThumbnailProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+className?: string;
+imageUrl: string;
+imageAlt?: string;
+square?: boolean;
+}
 
 export function Thumbnail({
   className = "",

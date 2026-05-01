@@ -3,12 +3,10 @@ import { cn } from "@/lib/utils/cn";
 
 import { FlatRow } from "@/components/ui/FlatRow";
 
-export type ToggleCardProps = Readonly<
-  Omit<HTMLAttributes<HTMLElement>, "className"> & {
-    className?: string;
-    heading?: string;
-  }
->;
+export interface ToggleCardProps extends Omit<HTMLAttributes<HTMLElement>, "className"> {
+className?: string;
+heading?: string;
+}
 
 export function ToggleCard({
   className = "",

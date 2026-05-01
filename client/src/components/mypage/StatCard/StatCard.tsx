@@ -1,14 +1,12 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type StatCardProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    className?: string;
-    icon?: ReactNode;
-    value?: string;
-    label?: string;
-  }
->;
+export interface StatCardProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+className?: string;
+icon?: ReactNode;
+value?: string;
+label?: string;
+}
 
 export function StatCard({
   className = "",

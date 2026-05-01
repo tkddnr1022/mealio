@@ -14,13 +14,10 @@ import { cn } from "@/lib/utils/cn";
 
 import { Input } from "@/components/ui/Input";
 
-export type SearchBarProps = Readonly<
-  Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "className"> & {
-    className?: string;
-    /** 외곽 pill 컨테이너에 붙는 클래스 */
-    wrapperClassName?: string;
-  }
->;
+export interface SearchBarProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "className"> {
+className?: string;
+wrapperClassName?: string;
+}
 
 /** 편집 필드는 기본 사용. 헤더 트리거는 `readOnly` + `tabIndex={-1}` (`SearchBarHeader` 참고). */
 export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(

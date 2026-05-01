@@ -10,14 +10,12 @@ export type InventorySubTabbarItem = Readonly<{
   label: string;
 }>;
 
-export type InventorySubTabbarProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    className?: string;
-    selectedIndex?: InventorySubTabbarSelectedIndex;
-    items?: readonly InventorySubTabbarItem[];
-    onSelect?: (next: InventorySubTabbarSelectedIndex) => void;
-  }
->;
+export interface InventorySubTabbarProps extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "onSelect"> {
+  className?: string;
+  selectedIndex?: InventorySubTabbarSelectedIndex;
+  items?: readonly InventorySubTabbarItem[];
+  onSelect?: (next: InventorySubTabbarSelectedIndex) => void;
+}
 
 export function InventorySubTabbar({
   className = "",

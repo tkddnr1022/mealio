@@ -2,17 +2,15 @@ import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
 import { IconShell } from "@/components/ui/IconShell";
 
-export type InfoScreenProps = Readonly<
-  Omit<HTMLAttributes<HTMLElement>, "children"> & {
-    className?: string;
-    title?: string;
-    message?: string;
-    icon?: ReactNode;
-    showButton?: boolean;
-    buttonLabel?: string;
-    onButtonClick?: () => void;
-  }
->;
+export interface InfoScreenProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
+className?: string;
+title?: string;
+message?: string;
+icon?: ReactNode;
+showButton?: boolean;
+buttonLabel?: string;
+onButtonClick?: () => void;
+}
 
 export function InfoScreen({
   className = "",

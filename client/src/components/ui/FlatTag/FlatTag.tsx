@@ -1,15 +1,13 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type FlatTagProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "className" | "children"> & {
-    className?: string;
-    label?: string;
-    accent?: boolean;
-    leftIcon?: ReactNode;
-    trailing?: ReactNode;
-  }
->;
+export interface FlatTagProps extends Omit<HTMLAttributes<HTMLDivElement>, "className" | "children"> {
+className?: string;
+label?: string;
+accent?: boolean;
+leftIcon?: ReactNode;
+trailing?: ReactNode;
+}
 
 export function FlatTag({
   className = "",

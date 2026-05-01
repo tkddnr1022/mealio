@@ -7,15 +7,13 @@ export type RecipeStepItem = Readonly<{
   instruction: string;
 }>;
 
-export type RecipeStepsCardProps = Readonly<
-  Omit<HTMLAttributes<HTMLElement>, "children"> & {
-    className?: string;
-    title?: string;
-    steps?: readonly RecipeStepItem[];
-    rowClassName?: string;
-    rowProps?: Omit<RecipeStepRowProps, "step" | "instruction" | "className">;
-  }
->;
+export interface RecipeStepsCardProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
+className?: string;
+title?: string;
+steps?: readonly RecipeStepItem[];
+rowClassName?: string;
+rowProps?: Omit<RecipeStepRowProps, "step" | "instruction" | "className">;
+}
 
 export function RecipeStepsCard({
   className = "",

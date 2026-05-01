@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type AppRootFrameProps = Readonly<{
+export interface AppRootFrameProps {
   className?: string;
   children: ReactNode;
-}>;
+}
 
 /**
  * 프로덕션 앱 루트와 동일한 모바일 프레임(가로 400px 최대폭).

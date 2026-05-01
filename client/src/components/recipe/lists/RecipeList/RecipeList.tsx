@@ -4,13 +4,11 @@ import { RecipeCard, type RecipeCardProps } from "@/components/recipe/cards/Reci
 
 export type RecipeListItem = RecipeCardProps;
 
-export type RecipeListProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    className?: string;
-    recipes: readonly RecipeListItem[];
-    cardClassName?: string;
-  }
->;
+export interface RecipeListProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+className?: string;
+recipes: readonly RecipeListItem[];
+cardClassName?: string;
+}
 
 export function RecipeList({
   className = "",

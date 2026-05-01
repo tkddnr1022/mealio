@@ -2,17 +2,15 @@ import { Check, X } from "lucide-react";
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type IngredientCardProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    className?: string;
-    name?: string;
-    selected?: boolean;
-    leadingIcon?: ReactNode;
-    trailing?: ReactNode;
-    onRemove?: () => void;
-    removeAriaLabel?: string;
-  }
->;
+export interface IngredientCardProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+  className?: string;
+  name?: string;
+  selected?: boolean;
+  leadingIcon?: ReactNode;
+  trailing?: ReactNode;
+  onRemove?: () => void;
+  removeAriaLabel?: string;
+}
 
 export function IngredientCard({
   className = "",

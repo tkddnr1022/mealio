@@ -4,14 +4,12 @@ import { formatMeridiemTime, type DateInput } from "@/lib/utils/date";
 
 export type ChatBubbleRole = "assistant" | "user";
 
-export type ChatBubbleProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    className?: string;
-    role?: ChatBubbleRole;
-    message?: string;
-    timestamp?: DateInput;
-  }
->;
+export interface ChatBubbleProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+className?: string;
+role?: ChatBubbleRole;
+message?: string;
+timestamp?: DateInput;
+}
 
 export function ChatBubble({
   className = "",

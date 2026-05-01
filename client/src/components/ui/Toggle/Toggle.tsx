@@ -3,14 +3,12 @@ import { cn } from "@/lib/utils/cn";
 
 export type ToggleSize = "large" | "medium";
 
-export type ToggleProps = Readonly<
-  Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> & {
-    className?: string;
-    label?: string;
-    selected?: boolean;
-    size?: ToggleSize;
-  }
->;
+export interface ToggleProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> {
+className?: string;
+label?: string;
+selected?: boolean;
+size?: ToggleSize;
+}
 
 export function Toggle({
   className = "",

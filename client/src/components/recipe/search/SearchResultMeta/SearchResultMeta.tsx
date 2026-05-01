@@ -5,13 +5,11 @@ import {
   type FilterDropdownProps,
 } from "@/components/ui/dropdown/FilterDropdown";
 
-export type SearchResultMetaProps = Readonly<
-  Omit<HTMLAttributes<HTMLElement>, "className" | "children"> & {
-    className?: string;
-    totalCount?: number;
-    filterDropdownProps?: FilterDropdownProps;
-  }
->;
+export interface SearchResultMetaProps extends Omit<HTMLAttributes<HTMLElement>, "className" | "children"> {
+className?: string;
+totalCount?: number;
+filterDropdownProps?: FilterDropdownProps;
+}
 
 export function SearchResultMeta({
   className = "",

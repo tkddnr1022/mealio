@@ -6,21 +6,19 @@ import { Thumbnail } from "@/components/ui/Thumbnail";
 import { LikeButton } from "@/components/ui/buttons/LikeButton";
 import { formatCookingTime } from "@/lib/utils/date";
 
-export type RecipeCardProps = Readonly<
-  Omit<HTMLAttributes<HTMLElement>, "children"> & {
-    className?: string;
-    imageUrl: string;
-    imageAlt?: string;
-    title: string;
-    summary?: string;
-    cookingTime?: string;
-    cookingTimeMinutes?: number;
-    difficulty?: string;
-    servings?: string;
-    isFavorite?: boolean;
-    onFavoriteClick?: () => void;
-  }
->;
+export interface RecipeCardProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
+className?: string;
+imageUrl: string;
+imageAlt?: string;
+title: string;
+summary?: string;
+cookingTime?: string;
+cookingTimeMinutes?: number;
+difficulty?: string;
+servings?: string;
+isFavorite?: boolean;
+onFavoriteClick?: () => void;
+}
 
 export function RecipeCard({
   className = "",

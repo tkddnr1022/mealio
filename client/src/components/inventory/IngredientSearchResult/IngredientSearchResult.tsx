@@ -9,15 +9,13 @@ import {
   type IngredientGridHeaderProps,
 } from "@/components/inventory/IngredientGridHeader";
 
-export type IngredientSearchResultProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    className?: string;
-    items?: readonly IngredientGridItem[];
-    headerProps?: Omit<IngredientGridHeaderProps, "countText">;
-    countText?: string;
-    cardClassName?: string;
-  }
->;
+export interface IngredientSearchResultProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+className?: string;
+items?: readonly IngredientGridItem[];
+headerProps?: Omit<IngredientGridHeaderProps, "countText">;
+countText?: string;
+cardClassName?: string;
+}
 
 export function IngredientSearchResult({
   className = "",

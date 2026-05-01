@@ -3,12 +3,10 @@ import { OAUTH_PROVIDERS, type OAuthProvider } from '@/lib/types/auth';
 import { cn } from '@/lib/utils/cn';
 import { LoginButton } from '@/components/auth/LoginButton';
 
-export type LoginButtonListProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, 'children'> & {
-    className?: string;
-    providers?: readonly OAuthProvider[];
-  }
->;
+export interface LoginButtonListProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
+className?: string;
+providers?: readonly OAuthProvider[];
+}
 
 export function LoginButtonList({
   className = '',

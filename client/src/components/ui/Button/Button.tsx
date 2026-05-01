@@ -4,14 +4,12 @@ import { cn } from "@/lib/utils/cn";
 export type ButtonVariant = "primary" | "secondary";
 export type ButtonSize = "large" | "medium";
 
-export type ButtonProps = Readonly<
-  Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> & {
-    className?: string;
-    variant?: ButtonVariant;
-    size?: ButtonSize;
-    label?: string;
-  }
->;
+export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> {
+className?: string;
+variant?: ButtonVariant;
+size?: ButtonSize;
+label?: string;
+}
 
 export function Button({
   className = "",

@@ -2,13 +2,13 @@ import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /** Figma LikeButton — `isFavorite`에 따라 채움/윤곽 (Navbar Engage 등). */
-export type LikeButtonProps = Readonly<{
+export interface LikeButtonProps {
   className?: string;
   onClick?: () => void;
   /** true면 primary 채움(찜) 상태 */
   isFavorite?: boolean;
   "aria-label"?: string;
-}>;
+}
 
 export function LikeButton({
   className = "",

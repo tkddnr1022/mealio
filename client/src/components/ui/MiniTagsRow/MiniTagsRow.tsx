@@ -6,12 +6,10 @@ export type MiniTagItem = Readonly<{
   label: string;
 }>;
 
-export type MiniTagsRowProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    className?: string;
-    items?: readonly MiniTagItem[];
-  }
->;
+export interface MiniTagsRowProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+className?: string;
+items?: readonly MiniTagItem[];
+}
 
 export function MiniTagsRow({
   className = "",

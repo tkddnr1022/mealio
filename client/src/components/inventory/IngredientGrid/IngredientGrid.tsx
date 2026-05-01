@@ -8,13 +8,11 @@ export type IngredientGridItem = Readonly<
   }
 >;
 
-export type IngredientGridProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    className?: string;
-    items: readonly IngredientGridItem[];
-    cardClassName?: string;
-  }
->;
+export interface IngredientGridProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+className?: string;
+items: readonly IngredientGridItem[];
+cardClassName?: string;
+}
 
 export function IngredientGrid({
   className = "",

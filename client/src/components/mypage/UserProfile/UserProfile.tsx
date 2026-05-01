@@ -2,15 +2,13 @@ import { User } from "lucide-react";
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type UserProfileProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    className?: string;
-    loggedIn?: boolean;
-    nickname?: string;
-    email?: string;
-    message?: string;
-  }
->;
+export interface UserProfileProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+className?: string;
+loggedIn?: boolean;
+nickname?: string;
+email?: string;
+message?: string;
+}
 
 export function UserProfile({
   className = "",

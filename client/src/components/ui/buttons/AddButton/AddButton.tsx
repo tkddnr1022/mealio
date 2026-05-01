@@ -2,11 +2,11 @@ import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /** Figma AddButton — Navbar 우측 추가 등 (touch-target-icon, 아이콘 lg). */
-export type AddButtonProps = Readonly<{
+export interface AddButtonProps {
   className?: string;
   onClick?: () => void;
   "aria-label"?: string;
-}>;
+}
 
 export function AddButton({
   className = "",

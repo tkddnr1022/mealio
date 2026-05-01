@@ -9,21 +9,16 @@ import {
 import { cn } from "@/lib/utils/cn";
 import { SearchBarProps, SearchBar } from "@/components/ui/SearchBar";
 
-export type SearchBarHeaderProps = Readonly<
-  Omit<
+export interface SearchBarHeaderProps extends Omit<
     HTMLAttributes<HTMLDivElement>,
     "onClick" | "role" | "tabIndex" | "children"
-  > & {
-    /** 헤더(표면·패딩·그림자) 래퍼 클래스 */
-    className?: string;
-    /** SearchBar pill에 전달할 추가 클래스 */
-    searchBarClassName?: string;
-    /** SearchBar에 그대로 전달 (readOnly·tabIndex는 헤더가 덮어씀) */
-    searchBarProps?: Omit<SearchBarProps, "readOnly" | "tabIndex">;
-    disabled?: boolean;
-    onClick?: (e: MouseEvent<HTMLDivElement>) => void;
-  }
->;
+  > {
+className?: string;
+searchBarClassName?: string;
+searchBarProps?: Omit<SearchBarProps, "readOnly" | "tabIndex">;
+disabled?: boolean;
+onClick?: (e: MouseEvent<HTMLDivElement>) => void;
+}
 
 export const SearchBarHeader = forwardRef<HTMLDivElement, SearchBarHeaderProps>(
   function SearchBarHeader(

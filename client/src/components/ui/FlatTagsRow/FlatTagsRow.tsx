@@ -8,12 +8,10 @@ export type FlatTagItem = Readonly<{
   accent?: boolean;
 }>;
 
-export type FlatTagsRowProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "className" | "children"> & {
-    className?: string;
-    items?: readonly FlatTagItem[];
-  }
->;
+export interface FlatTagsRowProps extends Omit<HTMLAttributes<HTMLDivElement>, "className" | "children"> {
+className?: string;
+items?: readonly FlatTagItem[];
+}
 
 export function FlatTagsRow({
   className = "",

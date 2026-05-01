@@ -3,14 +3,12 @@ import { cn } from "@/lib/utils/cn";
 import { StatCard, type StatCardProps } from "@/components/mypage/StatCard";
 import { UserProfile, type UserProfileProps } from "@/components/mypage/UserProfile";
 
-export type MypageHeaderProps = Readonly<
-  Omit<HTMLAttributes<HTMLElement>, "children"> & {
-    className?: string;
-    loggedIn?: boolean;
-    userProfileProps?: Omit<UserProfileProps, "loggedIn">;
-    statCards?: readonly StatCardProps[];
-  }
->;
+export interface MypageHeaderProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
+className?: string;
+loggedIn?: boolean;
+userProfileProps?: Omit<UserProfileProps, "loggedIn">;
+statCards?: readonly StatCardProps[];
+}
 
 export function MypageHeader({
   className = "",

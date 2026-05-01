@@ -2,13 +2,11 @@ import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 import { RangeSlider, type RangeSliderProps } from "@/components/ui/RangeSlider";
 
-export type RangeSliderCardProps = Readonly<
-  Omit<HTMLAttributes<HTMLElement>, "className"> & {
-    className?: string;
-    heading?: string;
-    sliderProps?: Omit<RangeSliderProps, "className">;
-  }
->;
+export interface RangeSliderCardProps extends Omit<HTMLAttributes<HTMLElement>, "className"> {
+className?: string;
+heading?: string;
+sliderProps?: Omit<RangeSliderProps, "className">;
+}
 
 export function RangeSliderCard({
   className = "",

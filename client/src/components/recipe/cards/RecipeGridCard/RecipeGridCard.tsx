@@ -3,26 +3,16 @@ import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 import { formatCookingTime } from "@/lib/utils/date";
 
-export type RecipeGridCardProps = Readonly<
-  Omit<HTMLAttributes<HTMLElement>, "children"> & {
-    /** 레시피 대표 이미지 URL */
-    imageUrl: string;
-    /** 이미지 대체 텍스트 (없으면 title 사용) */
-    imageAlt?: string;
-    /** 레시피 제목 */
-    title: string;
-    /** 조리 시간 라벨 (예: 45분) */
-    cookingTime?: string;
-    /** 조리 시간(분). 있으면 `formatCookingTime`으로 우선 표기 */
-    cookingTimeMinutes?: number;
-    /** 난이도 라벨 (예: 쉬움) */
-    difficulty?: string;
-    /** 인분 라벨 (예: 4인분) */
-    servings?: string;
-    /** 카테고리·태그 라벨 (예: 아시안) */
-    category?: string;
-  }
->;
+export interface RecipeGridCardProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
+imageUrl: string;
+imageAlt?: string;
+title: string;
+cookingTime?: string;
+cookingTimeMinutes?: number;
+difficulty?: string;
+servings?: string;
+category?: string;
+}
 
 function buildMetaLine(
   cookingTime: string | undefined,

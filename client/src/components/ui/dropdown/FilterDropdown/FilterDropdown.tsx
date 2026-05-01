@@ -6,14 +6,14 @@ import {
 } from "@/components/ui/dropdown/DropdownList";
 import { cn } from "@/lib/utils/cn";
 
-export type FilterDropdownProps = Readonly<{
+export interface FilterDropdownProps {
   className?: string;
   open?: boolean;
   label?: string;
   options?: readonly DropdownOption[];
   selectedValue?: string;
   onSelect?: (option: DropdownOption) => void;
-}>;
+}
 
 export function FilterDropdown({
   className = "",

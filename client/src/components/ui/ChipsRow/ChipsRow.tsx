@@ -2,13 +2,11 @@ import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 import { Chip } from "@/components/ui/Chip";
 
-export type ChipsRowProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "className" | "children"> & {
-    className?: string;
-    labels?: readonly string[];
-    onRemoveChip?: (index: number, label: string) => void;
-  }
->;
+export interface ChipsRowProps extends Omit<HTMLAttributes<HTMLDivElement>, "className" | "children"> {
+className?: string;
+labels?: readonly string[];
+onRemoveChip?: (index: number, label: string) => void;
+}
 
 export function ChipsRow({
   className = "",

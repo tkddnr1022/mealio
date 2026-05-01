@@ -6,13 +6,11 @@ import {
   type ChatBubbleRole,
 } from "@/components/chatbot/conversation/ChatBubble";
 
-export type ChatConversationRowProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    className?: string;
-    role?: ChatBubbleRole;
-    bubbleProps?: Omit<ChatBubbleProps, "role" | "className">;
-  }
->;
+export interface ChatConversationRowProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+className?: string;
+role?: ChatBubbleRole;
+bubbleProps?: Omit<ChatBubbleProps, "role" | "className">;
+}
 
 export function ChatConversationRow({
   className = "",

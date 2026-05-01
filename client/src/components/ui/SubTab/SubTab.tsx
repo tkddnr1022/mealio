@@ -1,13 +1,11 @@
 import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type SubTabProps = Readonly<
-  Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> & {
-    className?: string;
-    label?: string;
-    selected?: boolean;
-  }
->;
+export interface SubTabProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> {
+className?: string;
+label?: string;
+selected?: boolean;
+}
 
 export function SubTab({
   className = "",

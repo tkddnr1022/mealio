@@ -3,15 +3,13 @@ import { cn } from "@/lib/utils/cn";
 import { MiniTagsRow, type MiniTagItem } from "@/components/ui/MiniTagsRow";
 import { Thumbnail } from "@/components/ui/Thumbnail";
 
-export type SuggestedRecipeCardProps = Readonly<
-  Omit<HTMLAttributes<HTMLElement>, "children"> & {
-    className?: string;
-    title?: string;
-    imageUrl?: string;
-    imageAlt?: string;
-    tags?: readonly MiniTagItem[];
-  }
->;
+export interface SuggestedRecipeCardProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
+className?: string;
+title?: string;
+imageUrl: string;
+imageAlt?: string;
+tags?: readonly MiniTagItem[];
+}
 
 export function SuggestedRecipeCard({
   className = "",

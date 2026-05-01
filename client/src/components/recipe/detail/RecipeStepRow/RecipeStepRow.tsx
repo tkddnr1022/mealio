@@ -1,13 +1,11 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type RecipeStepRowProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    className?: string;
-    step?: string;
-    instruction?: string;
-  }
->;
+export interface RecipeStepRowProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+className?: string;
+step?: string;
+instruction?: string;
+}
 
 export function RecipeStepRow({
   className = "",

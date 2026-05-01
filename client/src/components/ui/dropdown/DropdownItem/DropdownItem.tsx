@@ -1,13 +1,11 @@
 import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type DropdownItemProps = Readonly<
-  Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> & {
-    className?: string;
-    label?: string;
-    selected?: boolean;
-  }
->;
+export interface DropdownItemProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> {
+className?: string;
+label?: string;
+selected?: boolean;
+}
 
 export function DropdownItem({
   className = "",

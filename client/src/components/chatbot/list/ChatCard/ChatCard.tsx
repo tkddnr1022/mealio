@@ -4,14 +4,12 @@ import { cn } from "@/lib/utils/cn";
 import { IconShell } from "@/components/ui/IconShell";
 import { formatRelativeTime, type DateInput } from "@/lib/utils/date";
 
-export type ChatCardProps = Readonly<
-  Omit<HTMLAttributes<HTMLElement>, "children"> & {
-    className?: string;
-    title?: string;
-    timestamp?: DateInput;
-    lastMessage?: string;
-  }
->;
+export interface ChatCardProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
+className?: string;
+title?: string;
+timestamp?: DateInput;
+lastMessage?: string;
+}
 
 export function ChatCard({
   className = "",

@@ -5,18 +5,16 @@ import { formatCookingTime } from "@/lib/utils/date";
 
 export type RangeSliderUnit = string | "time";
 
-export type RangeSliderProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "className"> & {
-    className?: string;
-    min?: number;
-    max?: number;
-    step?: number;
-    unit?: RangeSliderUnit;
-    defaultMinValue?: number;
-    defaultMaxValue?: number;
-    onValueChange?: (next: { minValue: number; maxValue: number }) => void;
-  }
->;
+export interface RangeSliderProps extends Omit<HTMLAttributes<HTMLDivElement>, "className"> {
+className?: string;
+min?: number;
+max?: number;
+step?: number;
+unit?: RangeSliderUnit;
+defaultMinValue?: number;
+defaultMaxValue?: number;
+onValueChange?: (next: { minValue: number; maxValue: number }) => void;
+}
 
 function getSurfaceStyle(minPercent: number, maxPercent: number) {
   if (minPercent === maxPercent) {

@@ -1,14 +1,12 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type RecipeDetailHeaderProps = Readonly<
-  Omit<HTMLAttributes<HTMLElement>, "children"> & {
-    className?: string;
-    category?: string;
-    title?: string;
-    description?: string;
-  }
->;
+export interface RecipeDetailHeaderProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
+className?: string;
+category?: string;
+title?: string;
+description?: string;
+}
 
 export function RecipeDetailHeader({
   className = "",

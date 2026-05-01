@@ -29,13 +29,13 @@ const TABS: readonly {
   { id: "mypage", label: "마이페이지", Icon: User },
 ] as const;
 
-export type TabbarProps = Readonly<{
+export interface TabbarProps {
   className?: string;
   /** 현재 선택된 탭 */
   activeId: TabbarTabId;
   /** 탭 선택 시 (라우팅·상태 반영은 상위에서 처리) */
   onSelect: (id: TabbarTabId) => void;
-}>;
+}
 
 /** Figma `TabButtonWrapper`: 탭 열 레이아웃( flex-1 · 가로 중앙 정렬 ). */
 function TabButtonWrapper({

@@ -7,10 +7,10 @@ const SCROLLBAR_THUMB_HEIGHT_SCALE = 1;
 const SCROLLBAR_VISIBLE_DURATION_MS = 500;
 const SCROLLBAR_TRACK_INSET_PX = 8;
 
-export type CustomScrollbarProps = Readonly<{
+export interface CustomScrollbarProps {
   className?: string;
   children?: ReactNode;
-}>;
+}
 
 export function CustomScrollbar({
   className = "",

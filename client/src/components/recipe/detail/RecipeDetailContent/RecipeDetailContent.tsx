@@ -14,15 +14,13 @@ import {
   type RecipeStepsCardProps,
 } from "@/components/recipe/detail/RecipeStepsCard";
 
-export type RecipeDetailContentProps = Readonly<
-  Omit<HTMLAttributes<HTMLElement>, "children"> & {
-    className?: string;
-    headerProps?: RecipeDetailHeaderProps;
-    tags?: readonly CardTagItem[];
-    ingredientsCardProps?: RecipeIngredientsCardProps;
-    stepsCardProps?: RecipeStepsCardProps;
-  }
->;
+export interface RecipeDetailContentProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
+className?: string;
+headerProps?: RecipeDetailHeaderProps;
+tags?: readonly CardTagItem[];
+ingredientsCardProps?: RecipeIngredientsCardProps;
+stepsCardProps?: RecipeStepsCardProps;
+}
 
 export function RecipeDetailContent({
   className = "",

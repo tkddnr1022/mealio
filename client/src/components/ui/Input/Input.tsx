@@ -13,24 +13,14 @@ export type InputShellProps = Omit<
   "className" | "children"
 >;
 
-export type InputProps = Readonly<
-  Omit<InputHTMLAttributes<HTMLInputElement>, "className" | "size"> & {
-    className?: string;
-    /** pill 외곽 컨테이너에 붙는 클래스 */
-    wrapperClassName?: string;
-    /** 컨테이너 루트에 전달 (data-* 등). className·children 제외 */
-    wrapperProps?: InputShellProps;
-    /** 왼쪽 슬롯(아이콘). 24×24 영역에 맞춰 배치 */
-    startAdornment?: ReactNode;
-    /** 오른쪽 슬롯(클리어 등) */
-    endAdornment?: ReactNode;
-    /**
-     * Figma Input: `transition-shadow`, focus-within 시 Border/Accent 링(`--border-width-focus`).
-     * `readOnly` 트리거(예: SearchBarHeader)처럼 상위가 포커스 링을 줄 때 false.
-     */
-    focusWithinRing?: boolean;
-  }
->;
+export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "className" | "size"> {
+className?: string;
+wrapperClassName?: string;
+wrapperProps?: InputShellProps;
+startAdornment?: ReactNode;
+endAdornment?: ReactNode;
+focusWithinRing?: boolean;
+}
 
 const focusWithinRingClasses =
   "focus-within:outline-none focus-within:ring-(length:--border-width-focus) focus-within:ring-primary-default focus-within:ring-offset-2 focus-within:ring-offset-background-primary";

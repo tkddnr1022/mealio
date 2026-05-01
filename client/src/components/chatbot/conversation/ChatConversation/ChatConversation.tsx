@@ -10,13 +10,11 @@ export type ChatConversationMessage = Readonly<{
   timestamp: Date | string | number;
 }>;
 
-export type ChatConversationProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    className?: string;
-    messages?: readonly ChatConversationMessage[];
-    suggestedRecipes?: readonly SuggestedRecipeSliderItem[];
-  }
->;
+export interface ChatConversationProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+className?: string;
+messages?: readonly ChatConversationMessage[];
+suggestedRecipes?: readonly SuggestedRecipeSliderItem[];
+}
 
 export function ChatConversation({
   className = "",

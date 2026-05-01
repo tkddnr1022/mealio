@@ -3,14 +3,10 @@ import { cn } from "@/lib/utils/cn";
 
 import { PaginationDot } from "@/components/ui/PaginationDot";
 
-export type SliderPaginationProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    /** 인디케이터(점) 개수 — 슬라이드·페이지 수 */
-    total: number;
-    /** 현재 활성 인덱스 (0부터) */
-    activeIndex: number;
-  }
->;
+export interface SliderPaginationProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+total: number;
+activeIndex: number;
+}
 
 /**
  * 슬라이더·캐러셀용 점 묶음 (Figma SliderPagination, node 198:1388).

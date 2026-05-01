@@ -7,12 +7,10 @@ export type CardTagItem = Readonly<{
   leftIcon?: ReactNode;
 }>;
 
-export type CardTagsRowProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "className" | "children"> & {
-    className?: string;
-    items?: readonly CardTagItem[];
-  }
->;
+export interface CardTagsRowProps extends Omit<HTMLAttributes<HTMLDivElement>, "className" | "children"> {
+className?: string;
+items?: readonly CardTagItem[];
+}
 
 export function CardTagsRow({
   className = "",

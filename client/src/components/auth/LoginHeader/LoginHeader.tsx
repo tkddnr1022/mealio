@@ -1,13 +1,11 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type LoginHeaderProps = Readonly<
-  Omit<HTMLAttributes<HTMLElement>, "children"> & {
-    className?: string;
-    title?: string;
-    subtitle?: string;
-  }
->;
+export interface LoginHeaderProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
+className?: string;
+title?: string;
+subtitle?: string;
+}
 
 export function LoginHeader({
   className = "",

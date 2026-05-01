@@ -38,20 +38,11 @@ function chunkRecipes(
   return out;
 }
 
-export type RecipeSliderProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    /** 슬라이드에 채울 레시피(4개마다 한 페이지의 2×2 그리드) */
-    recipes: readonly RecipeGridItem[];
-    /** 그리드 카드에 공통 적용 */
-    cardClassName?: string;
-    /**
-     * 다음 슬라이드가 보이는 가로 픽셀(고정).
-     * 슬라이드 너비 = 컨테이너 너비 − 좌측 오프셋(16) − 슬라이드 간격(16) − peek.
-     * 컨테이너가 매우 좁으면 `MIN_SLIDE_WIDTH`(200) 때문에 실제 peek은 더 작아질 수 있음.
-     */
-    peekPx?: number;
-  }
->;
+export interface RecipeSliderProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+recipes: readonly RecipeGridItem[];
+cardClassName?: string;
+peekPx?: number;
+}
 
 /**
  * 홈 등용 레시피 슬라이더 (Figma RecipeSlider, node 183:2136).

@@ -4,13 +4,11 @@ import { ChatCard, type ChatCardProps } from "@/components/chatbot/list/ChatCard
 
 export type ChatListItem = ChatCardProps;
 
-export type ChatListProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    className?: string;
-    chats: readonly ChatListItem[];
-    cardClassName?: string;
-  }
->;
+export interface ChatListProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+className?: string;
+chats: readonly ChatListItem[];
+cardClassName?: string;
+}
 
 export function ChatList({
   className = "",

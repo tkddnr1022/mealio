@@ -2,14 +2,12 @@ import { X } from "lucide-react";
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type ChipProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "className" | "children"> & {
-    className?: string;
-    label?: string;
-    onRemove?: () => void;
-    removeAriaLabel?: string;
-  }
->;
+export interface ChipProps extends Omit<HTMLAttributes<HTMLDivElement>, "className" | "children"> {
+className?: string;
+label?: string;
+onRemove?: () => void;
+removeAriaLabel?: string;
+}
 
 export function Chip({
   className = "",

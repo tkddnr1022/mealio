@@ -1,12 +1,10 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type MiniTagProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    className?: string;
-    label?: string;
-  }
->;
+export interface MiniTagProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+className?: string;
+label?: string;
+}
 
 export function MiniTag({
   className = "",

@@ -2,14 +2,12 @@ import { ChevronRight } from "lucide-react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type MenuItemProps = Readonly<
-  Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> & {
-    className?: string;
-    border?: boolean;
-    label?: string;
-    leadingIcon?: ReactNode;
-  }
->;
+export interface MenuItemProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> {
+className?: string;
+border?: boolean;
+label?: string;
+leadingIcon?: ReactNode;
+}
 
 export function MenuItem({
   className = "",

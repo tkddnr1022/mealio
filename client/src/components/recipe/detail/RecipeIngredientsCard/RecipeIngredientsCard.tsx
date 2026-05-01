@@ -10,15 +10,13 @@ export type RecipeIngredientItem = Readonly<{
   quantity: string;
 }>;
 
-export type RecipeIngredientsCardProps = Readonly<
-  Omit<HTMLAttributes<HTMLElement>, "children"> & {
-    className?: string;
-    title?: string;
-    ingredients?: readonly RecipeIngredientItem[];
-    rowClassName?: string;
-    rowProps?: Omit<RecipeIngredientRowProps, "name" | "quantity" | "className">;
-  }
->;
+export interface RecipeIngredientsCardProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
+className?: string;
+title?: string;
+ingredients?: readonly RecipeIngredientItem[];
+rowClassName?: string;
+rowProps?: Omit<RecipeIngredientRowProps, "name" | "quantity" | "className">;
+}
 
 export function RecipeIngredientsCard({
   className = "",

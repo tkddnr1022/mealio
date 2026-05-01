@@ -2,11 +2,11 @@ import { Share2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /** Figma ShareButton — touch-target-icon, 아이콘 lg. */
-export type ShareButtonProps = Readonly<{
+export interface ShareButtonProps {
   className?: string;
   onClick?: () => void;
   "aria-label"?: string;
-}>;
+}
 
 export function ShareButton({
   className = "",

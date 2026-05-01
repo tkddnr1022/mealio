@@ -5,14 +5,10 @@ import { RecipeGridCard, type RecipeGridCardProps } from "@/components/recipe/ca
 
 export type RecipeGridItem = RecipeGridCardProps;
 
-export type RecipeGridProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    /** 그리드에 표시할 레시피 카드 데이터 (순서대로 2열 배치) */
-    recipes: readonly RecipeGridItem[];
-    /** 모든 카드에 공통 적용할 클래스 */
-    cardClassName?: string;
-  }
->;
+export interface RecipeGridProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+recipes: readonly RecipeGridItem[];
+cardClassName?: string;
+}
 
 /**
  * 2열 레시피 그리드 (Figma RecipeGrid, node 167:2276).

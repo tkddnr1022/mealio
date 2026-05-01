@@ -21,18 +21,12 @@ export type SuggestedRecipeSliderItem = Readonly<
   }
 >;
 
-export type SuggestedRecipeSliderProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-    className?: string;
-    items?: readonly SuggestedRecipeSliderItem[];
-    cardClassName?: string;
-    /**
-     * 다음 카드가 보이는 가로 픽셀(고정).
-     * 슬라이드 너비 = 컨테이너 너비 - 좌측 오프셋(16) - 카드 간격(16) - peek.
-     */
-    peekPx?: number;
-  }
->;
+export interface SuggestedRecipeSliderProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+className?: string;
+items?: readonly SuggestedRecipeSliderItem[];
+cardClassName?: string;
+peekPx?: number;
+}
 
 const SLIDES_OFFSET_BEFORE = 16;
 const SLIDES_OFFSET_AFTER = 16;

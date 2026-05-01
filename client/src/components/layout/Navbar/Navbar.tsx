@@ -23,7 +23,7 @@ export type NavbarVariant =
 /** 상단 워드마크 — Figma 변수 `logo`와 동일하게 코드에서 고정 */
 const NAVBAR_LOGO_TEXT = "Coop" as const;
 
-export type NavbarProps = Readonly<{
+export interface NavbarProps {
   className?: string;
   variant?: NavbarVariant;
   onBack?: () => void;
@@ -32,7 +32,7 @@ export type NavbarProps = Readonly<{
   onShare?: () => void;
   /** `EngageWithBack` — 찜 여부(Figma LikeButton true/false) */
   isFavorite?: boolean;
-}>;
+}
 
 const spacer = (
   <span className="inline-block shrink-0" aria-hidden />

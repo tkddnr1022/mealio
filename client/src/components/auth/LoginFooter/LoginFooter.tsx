@@ -6,14 +6,12 @@ export type LoginFooterLink = Readonly<{
   href?: string;
 }>;
 
-export type LoginFooterProps = Readonly<
-  Omit<HTMLAttributes<HTMLElement>, "children"> & {
-    className?: string;
-    leftLink?: LoginFooterLink;
-    rightLink?: LoginFooterLink;
-    linkProps?: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "children">;
-  }
->;
+export interface LoginFooterProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
+className?: string;
+leftLink?: LoginFooterLink;
+rightLink?: LoginFooterLink;
+linkProps?: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "children">;
+}
 
 export function LoginFooter({
   className = "",

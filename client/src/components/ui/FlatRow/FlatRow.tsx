@@ -1,11 +1,9 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export type FlatRowProps = Readonly<
-  Omit<HTMLAttributes<HTMLDivElement>, "className"> & {
-    className?: string;
-  }
->;
+export interface FlatRowProps extends Omit<HTMLAttributes<HTMLDivElement>, "className"> {
+className?: string;
+}
 
 /**
  * 토글/태그 묶음용 유동 행 컨테이너.

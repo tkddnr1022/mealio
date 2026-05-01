@@ -2,12 +2,10 @@ import type { ButtonHTMLAttributes } from 'react';
 import { type OAuthProvider } from '@/lib/types/auth';
 import { cn } from '@/lib/utils/cn';
 
-export type LoginButtonProps = Readonly<
-  Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'> & {
-    className?: string;
-    provider?: OAuthProvider;
-  }
->;
+export interface LoginButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'> {
+className?: string;
+provider?: OAuthProvider;
+}
 
 const PROVIDER_META: Record<
   OAuthProvider,

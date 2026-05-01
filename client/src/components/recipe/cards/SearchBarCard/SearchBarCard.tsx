@@ -3,13 +3,11 @@ import { cn } from "@/lib/utils/cn";
 
 import { SearchBar, type SearchBarProps } from "@/components/ui/SearchBar";
 
-export type SearchBarCardProps = Readonly<
-  Omit<HTMLAttributes<HTMLElement>, "className" | "children"> & {
-    className?: string;
-    heading?: string;
-    searchBarProps?: SearchBarProps;
-  }
->;
+export interface SearchBarCardProps extends Omit<HTMLAttributes<HTMLElement>, "className" | "children"> {
+className?: string;
+heading?: string;
+searchBarProps?: SearchBarProps;
+}
 
 export function SearchBarCard({
   className = "",

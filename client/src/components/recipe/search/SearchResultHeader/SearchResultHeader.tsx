@@ -10,14 +10,12 @@ import {
   type SearchResultTopProps,
 } from "@/components/recipe/search/SearchResultTop";
 
-export type SearchResultHeaderProps = Readonly<
-  Omit<HTMLAttributes<HTMLElement>, "className" | "children"> & {
-    className?: string;
-    searchResultTopProps?: SearchResultTopProps;
-    searchResultMetaProps?: SearchResultMetaProps;
-    chipsRowProps?: ChipsRowProps;
-  }
->;
+export interface SearchResultHeaderProps extends Omit<HTMLAttributes<HTMLElement>, "className" | "children"> {
+className?: string;
+searchResultTopProps?: SearchResultTopProps;
+searchResultMetaProps?: SearchResultMetaProps;
+chipsRowProps?: ChipsRowProps;
+}
 
 export function SearchResultHeader({
   className = "",

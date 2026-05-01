@@ -5,16 +5,14 @@ import type { FormEvent, HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 import { Input } from "@/components/ui/Input";
 
-export type ChatComposerProps = Readonly<
-  Omit<HTMLAttributes<HTMLElement>, "children"> & {
-    className?: string;
-    filled?: boolean;
-    value?: string;
-    placeholder?: string;
-    onValueChange?: (value: string) => void;
-    onSubmitMessage?: (value: string) => void;
-  }
->;
+export interface ChatComposerProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
+className?: string;
+filled?: boolean;
+value?: string;
+placeholder?: string;
+onValueChange?: (value: string) => void;
+onSubmitMessage?: (value: string) => void;
+}
 
 export function ChatComposer({
   className = "",
