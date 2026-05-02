@@ -15,7 +15,7 @@ flowchart TB
     subgraph auth["(auth) 인증"]
         LOGIN["/login 로그인<br/>[CSR]"]
         SIGNUP["/signup 회원가입<br/>[CSR]"]
-        OAUTH_CB["/oauth/callback<br/>OAuth 성공 도착<br/>[CSR]"]
+        OAUTH_ERR["/oauth/error<br/>OAuth 실패 안내<br/>[CSR]"]
     end
 
     subgraph main["(main) 앱 본체 — 하단 탭"]
@@ -54,13 +54,13 @@ flowchart TB
     %% 마케팅 ↔ 인증
     LANDING --> LOGIN
     LANDING --> SIGNUP
-    LOGIN --> OAUTH_CB
+    LOGIN -.-> OAUTH_ERR
+    OAUTH_ERR -.-> LOGIN
     SIGNUP --> LANDING
 
-    %% OAuth 성공 후 앱 진입
-    OAUTH_CB --> R_MAIN
+    %% OAuth 성공: 백엔드 302로 앱 경로 직행(중간 페이지 없음)
 
-    %% 로그인/회원가입 성공 후 앱 진입
+    %% 로그인/회원가입·OAuth 성공 후 앱 진입
     LOGIN --> R_MAIN
     SIGNUP --> R_MAIN
 
@@ -100,7 +100,7 @@ flowchart TB
     %% 스타일
     style LANDING fill:#e8f5e9
     style LOGIN fill:#fff3e0
-    style OAUTH_CB fill:#fff3e0
+    style OAUTH_ERR fill:#fff3e0
     style R_MAIN fill:#e3f2fd
     style C_LIST fill:#f3e5f5
     style INV_FAVORITE fill:#fce4ec

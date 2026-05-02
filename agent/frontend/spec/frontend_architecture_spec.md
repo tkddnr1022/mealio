@@ -27,7 +27,7 @@
 | ------------- | -------- | ------------------- | ------ | ---- |
 | **(auth)** | `/login` | `(auth)/login/page.tsx` | CSR | 로그인 |
 | (auth) | `/signup` | `(auth)/signup/page.tsx` | CSR | 회원가입 |
-| (auth) | `/oauth/callback` | `(auth)/oauth/callback/page.tsx` | CSR | OAuth 로그인 성공 후 백엔드 리다이렉트 도착지 (쿠키 설정됨, /recipe 등으로 이동 또는 성공 표시) |
+| (auth) | `/oauth/error` | `(auth)/oauth/error/page.tsx` | CSR | OAuth **실패** 시 백엔드가 `FRONTEND_OAUTH_ERROR_PATH`로 302. 쿼리: `errorCode`/`errorMessage` 또는 OAuth 표준 `error`/`error_description`, 선택 `next`. `InfoScreen`·로그인 복귀 링크. **성공** 시 백엔드가 `next` 또는 기본 성공 경로로 직접 302하며 이 페이지를 거치지 않음 |
 | **(marketing)** | `/` | `(marketing)/page.tsx` | SSG | 랜딩 |
 | (marketing) | `/about` | `(marketing)/about/page.tsx` | SSG | 서비스 소개 |
 | (marketing) | `/pricing` | `(marketing)/pricing/page.tsx` | SSG | 요금제 (필요시) |
@@ -51,7 +51,7 @@
 
 | 그룹 | 역할 | 하위 URL/경로 |
 | ---- | ---- | -------------- |
-| (auth) | 인증 (로그인·회원가입·OAuth 콜백) | `/login`, `/signup`, `/oauth/callback` |
+| (auth) | 인증 (로그인·회원가입·OAuth 실패 안내) | `/login`, `/signup`, `/oauth/error` |
 | (marketing) | 마케팅 (랜딩·소개·요금제) | `/`, `/about`, `/pricing` |
 | (main) | 앱 본체 (하단 탭 네비게이션) | `/recipe`·하위, `/chatbot`·하위, `/inventory`·하위, `/mypage` |
 | api | API 라우트 | `/api/revalidate`, `/api/health` |
@@ -67,9 +67,9 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 
 | 경로 | 렌더링 | 설명 | 주요 기능 |
 |------|--------|------|-----------|
-| `/login` | CSR | 로그인 | OAuth: 소셜 로그인 버튼 클릭 시 백엔드 `GET /auth/{provider}`(또는 `/api/v1/auth/{provider}`)로 이동(링크 또는 `location` 할당). Provider별 설정(Client ID, Redirect URI 등)은 백엔드에만 둠. 이메일 로그인(해당 시) |
+| `/login` | CSR | 로그인 | OAuth: 소셜 로그인 버튼이 백엔드 `GET /api/v1/auth/{provider}`(또는 동일 계약)로 이동. URL에 `?next=`가 있으면 진입 링크에 전달; **안전 여부는 백엔드**가 `resolveSafeNextPath`로 검증. Provider 설정은 백엔드에만 둠. 이메일 로그인(해당 시) |
 | `/signup` | CSR | 회원가입 | 약관 동의, 초기 선호도 설정 |
-| `/oauth/callback` | CSR | OAuth 로그인 성공 도착 페이지 | 백엔드가 Code 처리·JWT 쿠키 설정 후 302로 리다이렉트하는 URL. 프론트에서는 토큰 처리 없음(쿠키 이미 설정됨). /recipe 등으로 리다이렉트 또는 로그인 성공 표시 |
+| `/oauth/error` | CSR | OAuth 실패 안내 | 백엔드가 `FRONTEND_OAUTH_ERROR_PATH`로 302. `errorCode`/`errorMessage` 또는 `error`/`error_description`, 선택 `next` → `InfoScreen`, `로그인으로 돌아가기`에 `next` 유지. **성공** 플로우는 백엔드가 JWT `Set-Cookie` 후 최종 앱 경로로 직접 302 |
 
 ### 3.2 마케팅 (SSG)
 
@@ -165,7 +165,8 @@ OAuth는 **백엔드 주도** 흐름을 따른다(§3.1, `../../backend/guidelin
 | 경로 | 역할 |
 |------|------|
 | **client/src/lib/auth/** | 인증 상태·세션·보호 라우트 |
-| client/src/lib/auth/providers.ts | OAuth Provider 식별자 상수(`google` \| `kakao` \| `naver`), 진입 URL 빌드 유틸 |
+| client/src/lib/auth/providers.ts | OAuth Provider 식별자 상수(`google` \| `kakao` \| `naver`), 진입 URL 빌드(`buildOAuthEntryUrl`, 비어 있지 않은 `next`면 `?next=` — 검증은 백엔드) |
+| client/src/lib/auth/routes.ts | 보호 경로·`LOGIN_PATH`, `NEXT_QUERY_PARAM`, `buildLoginUrl` |
 | client/src/lib/auth/session.ts | 세션 조회 유틸. 서버 컴포넌트에서는 `cookies()`로 JWT 존재 확인, 클라이언트에서는 `GET /api/v1/users/me`로 검증 |
 | client/src/lib/auth/auth-context.tsx | `AuthProvider`(Client Component), `useAuth()` 훅 — 현재 유저·로그인 상태 제공 |
 | client/src/lib/auth/protected-route.tsx | 보호 라우트 래퍼 컴포넌트(비로그인 시 `/login` 리다이렉트) |
@@ -206,6 +207,7 @@ SSE 구독·이벤트 파싱 담당. `ChatbotStreamEvent` 타입·Redis 채널·
 | client/src/lib/config/env.ts | `NEXT_PUBLIC_*` 환경 변수 로드·검증(Zod 또는 수동). API base URL, 환경(dev/prod), OAuth Provider 노출 플래그 |
 | client/src/lib/config/api.config.ts | API base URL, SSE timeout, 재시도 정책 상수 |
 | client/src/lib/config/cache.config.ts | React Query 기본 `staleTime` / `cacheTime`, ISR `revalidate` 주기 상수(§4 성능 예산과 연계) |
+| client/src/lib/config/oauth-error.config.ts | `/oauth/error` 페이지 쿼리 키(OAuth 표준·백엔드 실패 파라미터) |
 
 ### 5.6 타입·DTO (`client/src/lib/types/`)
 

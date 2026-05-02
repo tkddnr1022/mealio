@@ -37,11 +37,21 @@ export function isOAuthProvider(value: unknown): value is OAuthProvider {
  * - 비어 있으면 same-origin 상대 경로(`/api/v1/auth/google`)를 반환한다.
  *   (Next.js 리라이트 또는 동일 오리진 배포 환경)
  *
+ * `next`가 비어 있지 않으면 쿼리로 붙인다. 안전 여부(오픈 리다이렉트 방지)는 백엔드 `resolveSafeNextPath`가 판단한다.
+ *
  * @example
  * window.location.assign(buildOAuthEntryUrl('google'));
+ * window.location.assign(buildOAuthEntryUrl('google', { next: '/recipe' }));
  */
-export function buildOAuthEntryUrl(provider: OAuthProvider): string {
-  const path = API_ENDPOINTS.auth.provider(provider);
+export function buildOAuthEntryUrl(
+  provider: OAuthProvider,
+  options?: { next?: string | null },
+): string {
+  let path = API_ENDPOINTS.auth.provider(provider);
+  const trimmedNext = options?.next?.trim();
+  if (trimmedNext) {
+    path = `${path}?next=${encodeURIComponent(trimmedNext)}`;
+  }
   if (!env.apiBaseUrl) return path;
   return `${env.apiBaseUrl}${path}`;
 }

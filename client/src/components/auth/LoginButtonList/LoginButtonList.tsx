@@ -8,11 +8,16 @@ export interface LoginButtonListProps extends Omit<HTMLAttributes<HTMLDivElement
   className?: string;
   /** 비우면 `getEnabledOAuthProviders()`(환경 플래그 반영) */
   providers?: readonly OAuthProvider[];
+  /**
+   * 로그인 성공 후 돌아갈 상대 경로. 안전한 값(`/…`, `//` 아님)일 때만 백엔드 진입 URL에 `?next=`로 붙인다.
+   */
+  oauthNext?: string | null;
 }
 
 export function LoginButtonList({
   className = '',
   providers = getEnabledOAuthProviders(),
+  oauthNext = null,
   ...rest
 }: LoginButtonListProps) {
   return (
@@ -25,7 +30,7 @@ export function LoginButtonList({
         <LoginButton
           key={provider}
           provider={provider}
-          href={buildOAuthEntryUrl(provider)}
+          href={buildOAuthEntryUrl(provider, { next: oauthNext })}
         />
       ))}
     </section>

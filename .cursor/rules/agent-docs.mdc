@@ -40,7 +40,7 @@ alwaysApply: true
 
 | 파일 | 설명 | 참고 용도 |
 |------|------|-----------|
-| **frontend_development_guidelines.md** | 프론트엔드 개발 지침 (어떻게) | SSG/ISR/SSR/CSR 구현, 캐싱·이미지·상태 관리·코드 스플리팅, 성능 측정, **`buildAriaLabel`·접근성(§9)** 을 적용할 때 |
+| **frontend_development_guidelines.md** | 프론트엔드 개발 지침 (어떻게) | SSG/ISR/SSR/CSR 구현, 캐싱·이미지·상태 관리·코드 스플리팅, 성능 측정, **`buildAriaLabel`·접근성(§9)**·**OAuth·`next` 리다이렉트 안전 원칙(§10, 계약은 명세·백엔드 OAuth 가이드)** 을 적용할 때 |
 | **frontend_component_conventions_guidelines.md** | 프론트엔드 컴포넌트 컨벤션 가이드 (어떻게) | `client/src/components/` 하위 폴더 구성, 컴포넌트 파일 배치, import 방향 규칙, 배럴 export 규칙을 적용할 때 |
 
 ### 프론트엔드 — 명세 (`agent/frontend/spec/`)
@@ -109,7 +109,7 @@ alwaysApply: true
   `agent/frontend/spec/frontend_architecture_spec.md` (특히 §2 페이지 구조 및 라우팅 맵) → `agent/common/screen_flowchart.mermaid` (화면 전환·탭 흐름 확인) → `agent/common/spec_driven_development_guidelines.md` → `agent/frontend/guidelines/frontend_development_guidelines.md` → `agent/common/openapi_spec.yaml` → `agent/common/proposal.md`
 
 - **프론트엔드 컴포넌트 구조/컨벤션**  
-  `agent/frontend/spec/frontend_components_structure_spec.md` → `agent/frontend/guidelines/frontend_component_conventions_guidelines.md` → `agent/frontend/spec/frontend_architecture_spec.md` (라우팅 그룹/탭 매핑 확인) → `agent/frontend/guidelines/frontend_development_guidelines.md` (Storybook·코드 스플리팅·성능·**§9 접근성/`buildAriaLabel`** 지침 반영)
+  `agent/frontend/spec/frontend_components_structure_spec.md` → `agent/frontend/guidelines/frontend_component_conventions_guidelines.md` → `agent/frontend/spec/frontend_architecture_spec.md` (라우팅 그룹/탭 매핑 확인) → `agent/frontend/guidelines/frontend_development_guidelines.md` (Storybook·코드 스플리팅·성능·**§9 접근성/`buildAriaLabel`**·**§10 리다이렉트 원칙**; OAuth 계약은 명세·`oauth_implementation_guidelines.md` 참조)
 
 - **데이터·엔티티·스키마**  
   `agent/common/schema.md` → `agent/backend/spec/backend_architecture_spec.md` → `agent/common/openapi_spec.yaml`

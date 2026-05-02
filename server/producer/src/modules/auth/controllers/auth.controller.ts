@@ -1,14 +1,20 @@
 import {
   Controller,
   Get,
+  HttpStatus,
   Param,
   Query,
   Req,
   Res,
   UseGuards,
-  HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import * as express from 'express';
 import { AuthService } from '../auth.service';
 import { OAuthCallbackGuard } from '../guards/oauth-callback.guard';
@@ -37,13 +43,20 @@ export class AuthController {
     description: 'OAuth Provider',
     enum: SUPPORTED_AUTH_PROVIDERS,
   })
+  @ApiQuery({
+    name: 'next',
+    required: false,
+    description:
+      '로그인 완료 후 이동할 프론트 상대 경로(`/` 시작, `//` 금지)',
+  })
   @ApiResponse({ status: HttpStatus.FOUND, description: 'Provider 인증 URL로 리다이렉트' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 provider' })
   async login(
     @Param('provider') provider: string,
+    @Query('next') next: string | undefined,
     @Res({ passthrough: false }) res: express.Response,
   ): Promise<void> {
-    const state = this.authService.generateState();
+    const state = this.authService.buildOAuthState(next);
     const url = this.authService.getAuthUrl(provider, state);
     res.redirect(HttpStatus.FOUND, url);
   }
@@ -56,15 +69,34 @@ export class AuthController {
       'Provider 인증 후 호출. Code 교환·사용자 생성/조회·JWT 발급 후 클라이언트 로그인 성공 URL로 302 + Set-Cookie',
   })
   @ApiParam({ name: 'provider', enum: SUPPORTED_AUTH_PROVIDERS })
-  @ApiResponse({ status: HttpStatus.FOUND, description: '로그인 성공 URL로 리다이렉트 + Set-Cookie' })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'OAuth 인증 실패' })
+  @ApiResponse({
+    status: HttpStatus.FOUND,
+    description:
+      '성공 시 프론트 최종 경로(+Set-Cookie), 실패 시 FRONTEND_OAUTH_ERROR_PATH(errorCode/errorMessage 등)로 리다이렉트',
+  })
   async callback(
     @Param('provider') _provider: string,
-    @Query('code') _code: string,
-    @Query('state') _state: string | undefined,
+    @Query('code') _code: string | undefined,
+    @Query('state') state: string | undefined,
+    @Query('next') next: string | undefined,
+    @Query('error') oauthError: string | undefined,
+    @Query('error_description') oauthErrorDescription: string | undefined,
     @Req() req: { user: OAuthProfile },
     @Res({ passthrough: false }) res: express.Response,
   ): Promise<void> {
+    const providerErrorRedirect = this.authService.buildOAuthProviderErrorRedirectUrl({
+      next,
+      state,
+      oauthError,
+      oauthErrorDescription,
+    });
+    if (providerErrorRedirect) {
+      res.redirect(HttpStatus.FOUND, providerErrorRedirect);
+      return;
+    }
+
+    const safeNext = this.authService.resolveOAuthCallbackSafeNext(next, state);
+
     const profile = req.user;
     const user = await this.authService.findOrCreateUser(profile);
     const token = this.authService.signToken(user.id);
@@ -77,7 +109,7 @@ export class AuthController {
       path: '/',
     });
 
-    const redirectUrl = this.authService.getLoginSuccessRedirectUrl();
+    const redirectUrl = this.authService.buildLoginSuccessRedirectUrl(safeNext);
     res.redirect(HttpStatus.FOUND, redirectUrl);
   }
 }

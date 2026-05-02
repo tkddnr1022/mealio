@@ -60,9 +60,26 @@ export const envValidationSchema = Joi.object({
     'any.required': 'OAUTH_CALLBACK_BASE_URL is required',
   }),
 
-  FRONTEND_LOGIN_SUCCESS_URL: Joi.string().uri().required().messages({
-    'any.required': 'FRONTEND_LOGIN_SUCCESS_URL is required',
+  FRONTEND_APP_BASE_URL: Joi.string().uri().required().messages({
+    'any.required': 'FRONTEND_APP_BASE_URL is required',
   }),
+
+  FRONTEND_OAUTH_ERROR_PATH: Joi.string()
+    .pattern(/^\/.+/)
+    .required()
+    .messages({
+      'any.required': 'FRONTEND_OAUTH_ERROR_PATH is required',
+      'string.pattern.base':
+        'FRONTEND_OAUTH_ERROR_PATH must be a path starting with / (e.g. /oauth/error)',
+    }),
+
+  FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH: Joi.string()
+    .pattern(/^\/.+/)
+    .default('/recipe')
+    .messages({
+      'string.pattern.base':
+        'FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH must be a path starting with /',
+    }),
 
   KAKAO_CLIENT_ID: Joi.string().min(1).required().messages({
     'string.empty': 'KAKAO_CLIENT_ID must not be empty',

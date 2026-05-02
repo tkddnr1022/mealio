@@ -13,6 +13,12 @@ import {
 } from './constants/auth-providers';
 import { randomBytes } from 'crypto';
 
+export const OAUTH_FAILURE_QUERY_KEYS = {
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  next: 'next',
+} as const;
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -42,11 +48,96 @@ export class AuthService {
     return authUrlBuilders[provider](state);
   }
 
+  /** 프론트 앱 베이스 URL (트레일링 슬래시 제거). */
+  private getFrontendAppBaseUrl(): string {
+    return this.config.getOrThrow<string>('FRONTEND_APP_BASE_URL').replace(/\/$/, '');
+  }
+
   /**
-   * 로그인 성공 후 리다이렉트할 프론트엔드 URL (환경 변수).
+   * OAuth 성공 후 302 목적지: 검증된 `next` 상대 경로 또는 기본 성공 경로.
    */
-  getLoginSuccessRedirectUrl(): string {
-    return this.config.getOrThrow<string>('FRONTEND_LOGIN_SUCCESS_URL');
+  buildLoginSuccessRedirectUrl(safeNext: string | null): string {
+    const base = this.getFrontendAppBaseUrl();
+    const defaultPath =
+      this.config.get<string>('FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH')?.trim() || '/recipe';
+    const path = safeNext ?? defaultPath;
+    return new URL(path, `${base}/`).toString();
+  }
+
+  /**
+   * OAuth 콜백 실패 리다이렉트 URL을 조립한다.
+   * - 기준: FRONTEND_APP_BASE_URL + FRONTEND_OAUTH_ERROR_PATH
+   * - 쿼리: errorCode, errorMessage, optional next(안전한 경로만)
+   */
+  buildOAuthFailureRedirectUrl({
+    errorCode,
+    errorMessage,
+    next,
+  }: {
+    errorCode: string;
+    errorMessage: string;
+    next?: string | null;
+  }): string {
+    const base = this.getFrontendAppBaseUrl();
+    const errorPath = this.config.getOrThrow<string>('FRONTEND_OAUTH_ERROR_PATH');
+    const redirectUrl = new URL(errorPath, `${base}/`);
+    redirectUrl.searchParams.set(OAUTH_FAILURE_QUERY_KEYS.errorCode, errorCode);
+    redirectUrl.searchParams.set(OAUTH_FAILURE_QUERY_KEYS.errorMessage, errorMessage);
+    const safeNext = this.resolveSafeNextPath(next);
+    if (safeNext) {
+      redirectUrl.searchParams.set(OAUTH_FAILURE_QUERY_KEYS.next, safeNext);
+    }
+    return redirectUrl.toString();
+  }
+
+  /**
+   * 오픈 리다이렉트 방지를 위해 안전한 next 경로만 허용한다.
+   * - `/`로 시작
+   * - `//`로 시작하지 않음
+   */
+  resolveSafeNextPath(raw: string | null | undefined): string | null {
+    if (!raw) return null;
+    const trimmed = raw.trim();
+    if (!trimmed.startsWith('/')) return null;
+    if (trimmed.startsWith('//')) return null;
+    return trimmed;
+  }
+
+  /**
+   * 콜백 쿼리의 `next`·`state` 중 안전한 상대 경로를 하나 고른다 (`next` 우선).
+   */
+  resolveOAuthCallbackSafeNext(
+    next?: string | null | undefined,
+    state?: string | null | undefined,
+  ): string | null {
+    return this.resolveSafeNextPath(next) ?? this.resolveSafeNextPath(state);
+  }
+
+  /**
+   * Provider가 `error` 쿼리로 인증 실패를 통지한 경우 프론트 실패 리다이렉트 URL을 반환한다.
+   * 해당 없으면 `null`.
+   */
+  buildOAuthProviderErrorRedirectUrl({
+    next,
+    state,
+    oauthError,
+    oauthErrorDescription,
+  }: {
+    next?: string | null | undefined;
+    state?: string | null | undefined;
+    oauthError?: string | null | undefined;
+    oauthErrorDescription?: string | null | undefined;
+  }): string | null {
+    const safeNext = this.resolveOAuthCallbackSafeNext(next, state);
+    if (!oauthError || oauthError.trim().length === 0) {
+      return null;
+    }
+    return this.buildOAuthFailureRedirectUrl({
+      errorCode: oauthError,
+      errorMessage:
+        oauthErrorDescription?.trim() || 'OAuth authentication failed',
+      next: safeNext,
+    });
   }
 
   /**
@@ -108,6 +199,17 @@ export class AuthService {
    */
   generateState(): string {
     return randomBytes(32).toString('hex');
+  }
+
+  /**
+   * OAuth state 생성.
+   * - next가 안전한 경로이면 해당 값을 그대로 state에 넣어 콜백까지 전달한다.
+   * - 그 외에는 랜덤 state를 사용한다.
+   */
+  buildOAuthState(next?: string | null): string {
+    const safeNext = this.resolveSafeNextPath(next);
+    if (safeNext) return safeNext;
+    return this.generateState();
   }
 
   private getGoogleAuthUrl(state?: string): string {

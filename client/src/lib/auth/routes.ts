@@ -14,11 +14,10 @@
 /**
  * 인증이 필요한 라우트의 path prefix 목록.
  *
- * `(main)` 그룹(`/recipe`·`/chatbot`·`/inventory`·`/mypage`)을 커버한다.
+ * `(main)` 그룹(`/chatbot`·`/inventory`·`/mypage`)을 커버한다.
  * 각 항목은 정확 일치 또는 `/{prefix}/...` 형태의 하위 경로까지 보호 대상이다.
  */
 export const PROTECTED_PATH_PREFIXES: readonly string[] = [
-  '/recipe',
   '/chatbot',
   '/inventory',
   '/mypage',

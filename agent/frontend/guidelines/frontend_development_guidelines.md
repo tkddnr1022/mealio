@@ -205,3 +205,12 @@ const RecipeEditor = dynamic(
 ### 9.4 스토리·문서
 
 - Storybook에서 데모용 래퍼에 접근 이름이 필요하면 **문자열 리터럴을 직접 넣기보다** `buildAriaLabel`을 사용해 운영 코드와 동일한 규칙을 유지한다.
+
+---
+
+## 10. OAuth·로그인 리다이렉트 (원칙만)
+
+본 절은 **방법·주의점**만 적는다. **콜백 URL, 쿼리 이름, 페이지·설정 파일 경로** 등 **무엇을** 두었는지는 `../spec/frontend_architecture_spec.md`와 백엔드 **`../../backend/guidelines/oauth_implementation_guidelines.md`**·OpenAPI를 본다.
+
+- **성공·실패 목적지**는 백엔드가 나눈다: 성공은 검증된 `next`(또는 기본 성공 경로)로 **직접 302**, 실패는 오류 전용 프론트 경로로 302. 세부는 백엔드 가이드·OpenAPI를 본다.
+- **`next` 안전 검증**(오픈 리다이렉트 방지)은 **백엔드**가 담당한다. 프론트는 계약에 맞는 진입·표시만 한다.

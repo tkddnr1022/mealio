@@ -56,7 +56,7 @@ paths:
       summary: OAuth 로그인 진입 (소셜)
       description: |
         백엔드 주도 OAuth 진입. 클라이언트가 이 URL로 이동(또는 리다이렉트)하면 서버가 Provider 인증 페이지로 302 리다이렉트한다.
-        인증 완료 후 Provider가 백엔드 콜백 URL로 리다이렉트하고, 백엔드가 Code 교환·JWT 발급 후 클라이언트 로그인 성공 URL로 302 + Set-Cookie로 응답한다.
+        인증 완료 후 Provider가 백엔드 콜백 URL로 리다이렉트하고, 백엔드가 Code 교환·JWT 발급 후 프론트 최종 경로(검증된 `next` 또는 기본 성공 경로)로 302 + Set-Cookie로 응답한다.
         Client ID, Secret, Scope, Redirect URI는 백엔드에서만 관리한다.
       operationId: getAuthProvider
       security: []
@@ -68,6 +68,12 @@ paths:
           schema:
             type: string
             enum: [google, kakao, naver]
+        - name: next
+          in: query
+          required: false
+          description: 로그인 완료 후 이동할 프론트엔드 상대 경로 (`/`로 시작하는 경로만 허용)
+          schema:
+            type: string
       responses:
         '302':
           description: Provider 인증 URL로 리다이렉트 (Location 헤더)
@@ -95,7 +101,9 @@ paths:
         Provider 인증 완료 후 Provider가 리다이렉트하는 백엔드 URL.
         클라이언트가 직접 호출하지 않으며, GET /api/v1/auth/{provider} 진입 후 브라우저가 Provider를 거쳐 이 URL로 이동한다.
         서버가 Authorization Code로 Access Token 교환 → 사용자 정보 조회 → 사용자 생성/조회 → JWT 발급 후
-        클라이언트 로그인 성공 URL로 302 리다이렉트하며 응답 헤더에 Set-Cookie로 accessToken을 담아 전달한다.
+        성공 시 프론트 앱의 최종 경로(`FRONTEND_APP_BASE_URL` + 검증된 상대 경로 또는 `FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH`)로 302 리다이렉트하며,
+        실패 시 `FRONTEND_APP_BASE_URL` + `FRONTEND_OAUTH_ERROR_PATH`로 302 하고 오류 쿼리를 붙인다.
+        성공 응답에 Set-Cookie로 accessToken을 담아 전달한다.
       operationId: getAuthProviderCallback
       security: []
       parameters:
@@ -108,7 +116,7 @@ paths:
             enum: [google, kakao, naver]
         - name: code
           in: query
-          required: true
+          required: false
           description: Provider가 전달하는 Authorization Code
           schema:
             type: string
@@ -118,12 +126,33 @@ paths:
           description: CSRF 방지용 state (진입 시 서버가 생성해 전달한 값)
           schema:
             type: string
+        - name: error
+          in: query
+          required: false
+          description: Provider OAuth 표준 오류 코드 (예: access_denied)
+          schema:
+            type: string
+        - name: error_description
+          in: query
+          required: false
+          description: Provider OAuth 표준 오류 설명
+          schema:
+            type: string
+        - name: next
+          in: query
+          required: false
+          description: 성공/실패 리다이렉트 시 프론트로 전달할 상대 경로 (`/` 시작, `//` 금지)
+          schema:
+            type: string
       responses:
         '302':
-          description: 로그인 성공. 클라이언트 로그인 성공 URL로 리다이렉트 + Set-Cookie(accessToken)
+          description: |
+            OAuth 처리 결과에 따라 프론트엔드 URL로 리다이렉트.
+            - 성공: 최종 앱 경로로 302 + Set-Cookie(accessToken). `next`는 서버에서 안전한 상대 경로로 검증된 값만 반영.
+            - 실패: `FRONTEND_OAUTH_ERROR_PATH`로 302 (`errorCode`, `errorMessage`, optional `next` 쿼리 포함)
           headers:
             Location:
-              description: 프론트엔드 로그인 성공 URL (환경 변수로 설정)
+              description: 프론트엔드 리다이렉트 URL (성공 또는 실패 URL)
               schema:
                 type: string
                 example: "https://app.example.com"
@@ -132,12 +161,6 @@ paths:
               schema:
                 type: string
                 example: "accessToken=eyJhbGc...; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=3600"
-        '401':
-          description: OAuth 인증 실패 (code 무효, 사용자 거부 등)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
