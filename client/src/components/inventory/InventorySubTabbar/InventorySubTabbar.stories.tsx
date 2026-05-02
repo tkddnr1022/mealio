@@ -26,26 +26,26 @@ const defaultItems = [
   { id: "favorite-recipe", label: "관심 레시피" },
 ] as const;
 
-export const SelectedIndex1: Story = {
-  name: "selectedIndex=1",
+export const SelectedOwned: Story = {
+  name: "selected=owned",
   args: {
-    selectedIndex: 1,
+    selected: "owned",
     items: defaultItems,
   },
 };
 
-export const SelectedIndex2: Story = {
-  name: "selectedIndex=2",
+export const SelectedFavorite: Story = {
+  name: "selected=favorite",
   args: {
-    selectedIndex: 2,
+    selected: "favorite",
     items: defaultItems,
   },
 };
 
-export const SelectedIndex3: Story = {
-  name: "selectedIndex=3",
+export const SelectedFavoriteRecipe: Story = {
+  name: "selected=favorite-recipe",
   args: {
-    selectedIndex: 3,
+    selected: "favorite-recipe",
     items: defaultItems,
   },
 };

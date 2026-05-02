@@ -8,18 +8,18 @@ export type ChatConversationMessage = Readonly<{
   role: "assistant" | "user";
   message: string;
   timestamp: Date | string | number;
+  /** 이 assistant/응답 메시지 직후에 추천 레시피 슬라이더를 붙일 때(스트림 done·RAG 결과 등) */
+  suggestedRecipes?: readonly SuggestedRecipeSliderItem[];
 }>;
 
 export interface ChatConversationProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
-className?: string;
-messages?: readonly ChatConversationMessage[];
-suggestedRecipes?: readonly SuggestedRecipeSliderItem[];
+  className?: string;
+  messages?: readonly ChatConversationMessage[];
 }
 
 export function ChatConversation({
   className = "",
   messages = [],
-  suggestedRecipes,
   ...rest
 }: ChatConversationProps) {
   return (
@@ -28,7 +28,7 @@ export function ChatConversation({
       data-name="ChatConversation"
       {...rest}
     >
-      {messages.map((message, index) => (
+      {messages.map((message) => (
         <div key={message.id} className="flex w-full flex-col gap-4">
           <ChatConversationRow
             role={message.role}
@@ -37,7 +37,9 @@ export function ChatConversation({
               timestamp: message.timestamp,
             }}
           />
-          {index === 1 ? <SuggestedRecipeSlider items={suggestedRecipes} /> : null}
+          {message.suggestedRecipes && message.suggestedRecipes.length > 0 ? (
+            <SuggestedRecipeSlider items={message.suggestedRecipes} />
+          ) : null}
         </div>
       ))}
     </section>

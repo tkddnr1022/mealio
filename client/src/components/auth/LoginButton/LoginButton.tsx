@@ -1,11 +1,6 @@
-import type { ButtonHTMLAttributes } from 'react';
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react';
 import { type OAuthProvider } from '@/lib/types/auth';
 import { cn } from '@/lib/utils/cn';
-
-export interface LoginButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'> {
-className?: string;
-provider?: OAuthProvider;
-}
 
 const PROVIDER_META: Record<
   OAuthProvider,
@@ -32,32 +27,73 @@ const PROVIDER_META: Record<
   },
 };
 
-export function LoginButton({
-  className = '',
-  provider = 'kakao',
-  type = 'button',
-  ...rest
-}: LoginButtonProps) {
+type LoginButtonShared = Readonly<{
+  className?: string;
+  provider?: OAuthProvider;
+}>;
+
+export type LoginButtonProps = LoginButtonShared &
+  (
+    | (Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'> & {
+        href?: undefined;
+      })
+    | (Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'className'> & {
+        href: string;
+      })
+  );
+
+export function LoginButton(props: LoginButtonProps) {
+  const className = props.className ?? '';
+  const provider = props.provider ?? 'kakao';
   const {
     label,
     className: providerClassName,
     iconSrc,
   } = PROVIDER_META[provider];
 
-  return (
-    <button
-      type={type}
-      className={cn(
-        'flex w-full items-center justify-between rounded-xl px-4 py-4 outline-none transition-opacity hover:opacity-90 focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default',
-        providerClassName,
-        className,
-      )}
-      data-name="LoginButton"
-      {...rest}
-    >
+  const surfaceClass = cn(
+    'flex w-full items-center justify-between rounded-xl px-4 py-4 outline-none transition-opacity hover:opacity-90 focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default',
+    providerClassName,
+    className,
+  );
+
+  const inner = (
+    <>
       <img src={iconSrc} alt="" aria-hidden className="size-4 shrink-0" />
       <span className="typo-label-dropdown text-center">{label}</span>
       <span aria-hidden className="w-4 shrink-0" />
+    </>
+  );
+
+  if ('href' in props && props.href !== undefined) {
+    const { href, provider: omitProvider, className: omitClassName, ...anchorRest } =
+      props as Extract<LoginButtonProps, { href: string }>;
+    void omitProvider;
+    void omitClassName;
+    return (
+      <a
+        href={href}
+        className={surfaceClass}
+        data-name="LoginButton"
+        {...anchorRest}
+      >
+        {inner}
+      </a>
+    );
+  }
+
+  const { type = 'button', provider: omitProvider2, className: omitClassName2, ...buttonRest } =
+    props as Extract<LoginButtonProps, { href?: undefined }>;
+  void omitProvider2;
+  void omitClassName2;
+  return (
+    <button
+      type={type}
+      className={surfaceClass}
+      data-name="LoginButton"
+      {...buttonRest}
+    >
+      {inner}
     </button>
   );
 }

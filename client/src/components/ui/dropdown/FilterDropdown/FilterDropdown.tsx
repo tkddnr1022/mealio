@@ -8,7 +8,11 @@ import { cn } from "@/lib/utils/cn";
 
 export interface FilterDropdownProps {
   className?: string;
+  /** 제어 모드: 넘기면 열림 상태의 단일 소스 */
   open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** 비제어 모드일 때만 초기 열림(`open` 미지정 시) */
+  defaultOpen?: boolean;
   label?: string;
   options?: readonly DropdownOption[];
   selectedValue?: string;
@@ -17,21 +21,32 @@ export interface FilterDropdownProps {
 
 export function FilterDropdown({
   className = "",
-  open = false,
+  open: openProp,
+  onOpenChange,
+  defaultOpen = false,
   label,
   options,
   selectedValue,
   onSelect,
 }: FilterDropdownProps) {
-  const [isOpen, setIsOpen] = useState(open);
+  const isControlled = openProp !== undefined;
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
+  const isOpen = isControlled ? openProp : uncontrolledOpen;
+
+  const setOpen = (next: boolean) => {
+    if (!isControlled) {
+      setUncontrolledOpen(next);
+    }
+    onOpenChange?.(next);
+  };
 
   const handleToggle = () => {
-    setIsOpen((prev) => !prev);
+    setOpen(!isOpen);
   };
 
   const handleSelect = (option: DropdownOption) => {
     onSelect?.(option);
-    setIsOpen(false);
+    setOpen(false);
   };
 
   return (

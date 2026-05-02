@@ -1,13 +1,12 @@
 "use client";
 
 import { Send } from "lucide-react";
-import type { FormEvent, HTMLAttributes } from "react";
+import type { HTMLAttributes, SubmitEventHandler } from "react";
 import { cn } from "@/lib/utils/cn";
 import { Input } from "@/components/ui/Input";
 
 export interface ChatComposerProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
 className?: string;
-filled?: boolean;
 value?: string;
 placeholder?: string;
 onValueChange?: (value: string) => void;
@@ -16,17 +15,16 @@ onSubmitMessage?: (value: string) => void;
 
 export function ChatComposer({
   className = "",
-  filled = false,
   value,
   placeholder = "메시지를 입력하세요",
   onValueChange,
   onSubmitMessage,
   ...rest
 }: ChatComposerProps) {
-  const inputValue = value ?? (filled ? "한식 레시피 추천해줘" : "");
+  const inputValue = value ?? "";
   const isFilled = inputValue.trim().length > 0;
 
-  const handleSubmit = (event: FormEvent<HTMLElement>) => {
+  const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
     if (!isFilled) return;
     onSubmitMessage?.(inputValue);

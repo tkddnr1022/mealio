@@ -28,14 +28,12 @@ type Story = StoryObj<typeof meta>;
 
 export const Empty = {
   args: {
-    filled: false,
     value: "",
   },
 } satisfies Story;
 
 export const Filled = {
   args: {
-    filled: true,
     value: "한식 레시피 추천해줘",
   },
 } satisfies Story;

@@ -25,13 +25,17 @@ const meta = {
   decorators: [figmaWidth],
   args: {
     label: "Label",
-    open: false,
+    defaultOpen: false,
     options: sampleOptions,
     selectedValue: "selected",
   },
   argTypes: {
+    defaultOpen: {
+      control: "boolean",
+    },
     open: {
       control: "boolean",
+      description: "제어 모드: 설정 시 defaultOpen 대신 사용",
     },
   },
 } satisfies Meta<typeof FilterDropdown>;
@@ -41,12 +45,12 @@ type Story = StoryObj<typeof meta>;
 
 export const Closed = {
   args: {
-    open: false,
+    defaultOpen: false,
   },
 } satisfies Story;
 
 export const Open = {
   args: {
-    open: true,
+    defaultOpen: true,
   },
 } satisfies Story;

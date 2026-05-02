@@ -7,6 +7,26 @@ const figmaWidth: Decorator = (Story) => (
   </div>
 );
 
+const imageA =
+  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=320&h=320&fit=crop";
+const imageB =
+  "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=320&h=320&fit=crop";
+
+const sampleSuggestedRecipes = [
+  {
+    id: "recipe-1",
+    title: "비빔밥",
+    imageUrl: imageA,
+    tags: [{ label: "15분" }, { label: "쉬움" }, { label: "2인분" }],
+  },
+  {
+    id: "recipe-2",
+    title: "김치볶음밥",
+    imageUrl: imageB,
+    tags: [{ label: "20분" }, { label: "쉬움" }, { label: "2인분" }],
+  },
+] as const;
+
 const meta = {
   title: "Chatbot/Conversation/ChatConversation",
   component: ChatConversation,
@@ -35,6 +55,7 @@ export const Default: Story = {
         role: "assistant",
         message: "비빔밥을 맛있게 만들려면 봄동을 활용하는 것이 좋습니다. 아래 추천 레시피를 참고해보세요!",
         timestamp: "2026-04-24T10:31:00+09:00",
+        suggestedRecipes: sampleSuggestedRecipes,
       },
       {
         id: "m3",
@@ -54,6 +75,19 @@ export const Default: Story = {
 
 export const WithoutSuggestions: Story = {
   args: {
-    suggestedRecipes: [],
+    messages: [
+      {
+        id: "m1",
+        role: "user",
+        message: "비빔밥 레시피 추천해줘.",
+        timestamp: "2026-04-24T10:31:00+09:00",
+      },
+      {
+        id: "m2",
+        role: "assistant",
+        message: "비빔밥을 맛있게 만들려면 봄동을 활용하는 것이 좋습니다.",
+        timestamp: "2026-04-24T10:31:00+09:00",
+      },
+    ],
   },
 };
