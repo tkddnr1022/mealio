@@ -17,6 +17,9 @@ const meta = {
     layout: "centered",
   },
   decorators: [gridColumn],
+  args: {
+    recipeId: "sample-recipe-grid-1",
+  },
 } satisfies Meta<typeof RecipeGridCard>;
 
 export default meta;

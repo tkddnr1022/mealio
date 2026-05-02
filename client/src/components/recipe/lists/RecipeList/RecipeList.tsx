@@ -22,12 +22,12 @@ export function RecipeList({
       data-name="RecipeList"
       {...rest}
     >
-      {recipes.map((recipe, index) => {
+      {recipes.map((recipe) => {
         const { className: itemClassName = "", ...cardProps } = recipe;
         const mergedCardClass = cn(cardClassName, itemClassName);
         return (
           <RecipeCard
-            key={cardProps.id ?? `recipe-search-${index}`}
+            key={cardProps.recipeId}
             {...cardProps}
             className={mergedCardClass}
           />

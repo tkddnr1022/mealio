@@ -55,7 +55,7 @@ function makeRecipes(count: number): RecipeGridItem[] {
   ];
   const images = [curry, pasta, salad, soup];
   return Array.from({ length: count }, (_, i) => ({
-    id: `recipe-${i + 1}`,
+    recipeId: `recipe-${i + 1}`,
     imageUrl: images[i % images.length] ?? curry,
     title: titles[i % titles.length] ?? `레시피 ${i + 1}`,
     cookingTime: `${20 + (i % 5) * 5}분`,

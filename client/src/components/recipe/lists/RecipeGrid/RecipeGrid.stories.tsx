@@ -34,7 +34,7 @@ const soup =
 
 const fourSameAsFigma: readonly RecipeGridItem[] = [
   {
-    id: "r1",
+    recipeId: "r1",
     imageUrl: curry,
     title: "치킨 카레",
     cookingTime: "45분",
@@ -43,7 +43,7 @@ const fourSameAsFigma: readonly RecipeGridItem[] = [
     category: "아시안",
   },
   {
-    id: "r2",
+    recipeId: "r2",
     imageUrl: curry,
     title: "치킨 카레",
     cookingTime: "45분",
@@ -52,7 +52,7 @@ const fourSameAsFigma: readonly RecipeGridItem[] = [
     category: "아시안",
   },
   {
-    id: "r3",
+    recipeId: "r3",
     imageUrl: curry,
     title: "치킨 카레",
     cookingTime: "45분",
@@ -61,7 +61,7 @@ const fourSameAsFigma: readonly RecipeGridItem[] = [
     category: "아시안",
   },
   {
-    id: "r4",
+    recipeId: "r4",
     imageUrl: curry,
     title: "치킨 카레",
     cookingTime: "45분",
@@ -80,7 +80,7 @@ export const Default = {
 
 const variedRecipes: readonly RecipeGridItem[] = [
   {
-    id: "a",
+    recipeId: "a",
     imageUrl: curry,
     title: "치킨 카레",
     cookingTime: "45분",
@@ -89,7 +89,7 @@ const variedRecipes: readonly RecipeGridItem[] = [
     category: "아시안",
   },
   {
-    id: "b",
+    recipeId: "b",
     imageUrl: pasta,
     title: "토마토 파스타",
     cookingTime: "30분",
@@ -98,7 +98,7 @@ const variedRecipes: readonly RecipeGridItem[] = [
     category: "이탈리안",
   },
   {
-    id: "c",
+    recipeId: "c",
     imageUrl: salad,
     title: "채소 샐러드",
     cookingTime: "15분",
@@ -106,7 +106,7 @@ const variedRecipes: readonly RecipeGridItem[] = [
     servings: "2인분",
   },
   {
-    id: "d",
+    recipeId: "d",
     imageUrl: soup,
     title: "버섯 스프",
     cookingTime: "40분",

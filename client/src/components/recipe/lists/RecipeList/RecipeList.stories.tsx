@@ -12,7 +12,7 @@ const sampleImage =
 
 const sampleRecipes: readonly RecipeListItem[] = [
   {
-    id: "search-1",
+    recipeId: "search-1",
     imageUrl: sampleImage,
     title: "비빔밥",
     summary: "신선한 채소와 고소한 참기름이 어우러진 건강한 한그릇 요리",
@@ -21,7 +21,7 @@ const sampleRecipes: readonly RecipeListItem[] = [
     servings: "2인분",
   },
   {
-    id: "search-2",
+    recipeId: "search-2",
     imageUrl: sampleImage,
     title: "비빔밥",
     summary: "신선한 채소와 고소한 참기름이 어우러진 건강한 한그릇 요리",

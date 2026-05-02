@@ -22,11 +22,11 @@ export function ChatList({
       data-name="ChatList"
       {...rest}
     >
-      {chats.map((chat, index) => {
+      {chats.map((chat) => {
         const { className: itemClassName = "", ...chatProps } = chat;
         return (
           <ChatCard
-            key={chatProps.id ?? `chat-list-${index}`}
+            key={chatProps.conversationId}
             {...chatProps}
             className={cn(cardClassName, itemClassName)}
           />

@@ -2,17 +2,21 @@ import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 import { MiniTagsRow, type MiniTagItem } from "@/components/ui/MiniTagsRow";
 import { Thumbnail } from "@/components/ui/Thumbnail";
+import type { RecipeId } from "@/lib/types";
 
 export interface SuggestedRecipeCardProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
-className?: string;
-title?: string;
-imageUrl: string;
-imageAlt?: string;
-tags?: readonly MiniTagItem[];
+  className?: string;
+  /** OpenAPI `SuggestedRecipe.id`와 동일 */
+  recipeId: RecipeId;
+  title?: string;
+  imageUrl: string;
+  imageAlt?: string;
+  tags?: readonly MiniTagItem[];
 }
 
 export function SuggestedRecipeCard({
   className = "",
+  recipeId,
   title,
   imageUrl,
   imageAlt,
@@ -23,6 +27,7 @@ export function SuggestedRecipeCard({
     <article
       className={cn("w-full shrink-0 py-2", className)}
       data-name="SuggestedRecipeCard"
+      data-recipe-id={String(recipeId)}
       {...rest}
     >
       <div className="card flex flex-col">

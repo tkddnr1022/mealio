@@ -36,7 +36,7 @@ function buildRecipes(seed: number): RecipeGridItem[] {
   ] as const;
 
   return Array.from({ length: 12 }, (_, i) => ({
-    id: `recipe-${seed}-${i + 1}`,
+    recipeId: `recipe-${seed}-${i + 1}`,
     imageUrl: images[(i + seed) % images.length] ?? images[0],
     title: titles[(i + seed) % titles.length] ?? `레시피 ${i + 1}`,
     cookingTime: `${20 + ((i + seed) % 6) * 5}분`,

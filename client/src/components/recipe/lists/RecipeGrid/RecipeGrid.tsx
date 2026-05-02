@@ -26,12 +26,12 @@ export function RecipeGrid({
       data-name="RecipeGrid"
       {...rest}
     >
-      {recipes.map((recipe, index) => {
+      {recipes.map((recipe) => {
         const { className: itemClassName = "", ...cardProps } = recipe;
         const mergedCardClass = cn(cardClassName, itemClassName);
         return (
           <RecipeGridCard
-            key={cardProps.id ?? `recipe-grid-${index}`}
+            key={cardProps.recipeId}
             {...cardProps}
             className={mergedCardClass}
           />

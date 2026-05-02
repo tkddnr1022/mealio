@@ -21,6 +21,7 @@ const meta = {
   },
   decorators: [figmaWidth],
   args: {
+    recipeId: "sample-recipe-1",
     imageUrl: sampleImage,
     imageAlt: "비빔밥",
     title: "비빔밥",
