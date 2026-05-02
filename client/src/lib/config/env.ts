@@ -2,7 +2,7 @@
  * 프론트엔드 런타임·빌드 타임 환경 변수 로드·검증.
  *
  * Next.js는 브라우저에 노출할 값만 `NEXT_PUBLIC_*` 접두어로 빌드 타임에 인라이닝하므로,
- * 본 모듈에서 참조하는 환경 변수는 모두 `NEXT_PUBLIC_*`이어야 한다.
+ * 본 모듈의 앱 설정값은 `NEXT_PUBLIC_*`를 사용한다(`NODE_ENV`는 런타임 판별용 예외).
  *
  * - 외부 의존성을 더하지 않기 위해 Zod 대신 수동 파서를 사용한다.
  * - 모든 값은 모듈 로드 시 한 번만 평가되어 불변 객체 {@link env}로 노출된다.
@@ -31,6 +31,16 @@ export interface AppEnv {
    * 예: `https://api.cook.example.com`
    */
   readonly apiBaseUrl: string;
+  /**
+   * 백엔드 REST API prefix.
+   * 기본값: `/api/v1`
+   */
+  readonly apiPrefix: string;
+  /**
+   * 백엔드가 발급하는 JWT HttpOnly 쿠키 이름.
+   * 기본값: `accessToken`
+   */
+  readonly authCookieName: string;
   /** 로그인 화면에 노출할 OAuth Provider 목록 (순서 유지) */
   readonly enabledOAuthProviders: readonly OAuthProvider[];
   /** Web Vitals·로그 수집 엔드포인트(선택). 비어 있으면 수집을 비활성화한다. */
@@ -48,6 +58,24 @@ const ALL_OAUTH_PROVIDERS: readonly OAuthProvider[] = [
   'naver',
 ] as const;
 
+const DEFAULTS = {
+  apiBaseUrl: '',
+  apiPrefix: '/api/v1',
+  authCookieName: 'accessToken',
+  observabilityEndpoint: '',
+} as const;
+
+const RAW_ENV_MAP: Record<string, string | undefined> = {
+  NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  NEXT_PUBLIC_API_PREFIX: process.env.NEXT_PUBLIC_API_PREFIX,
+  NEXT_PUBLIC_AUTH_COOKIE_NAME: process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME,
+  NEXT_PUBLIC_OAUTH_GOOGLE_ENABLED: process.env.NEXT_PUBLIC_OAUTH_GOOGLE_ENABLED,
+  NEXT_PUBLIC_OAUTH_KAKAO_ENABLED: process.env.NEXT_PUBLIC_OAUTH_KAKAO_ENABLED,
+  NEXT_PUBLIC_OAUTH_NAVER_ENABLED: process.env.NEXT_PUBLIC_OAUTH_NAVER_ENABLED,
+  NEXT_PUBLIC_OBSERVABILITY_ENDPOINT:
+    process.env.NEXT_PUBLIC_OBSERVABILITY_ENDPOINT,
+};
+
 export class EnvValidationError extends Error {
   constructor(message: string) {
     super(message);
@@ -56,7 +84,9 @@ export class EnvValidationError extends Error {
 }
 
 function readRaw(name: string): string | undefined {
-  const value = process.env[name];
+  // Next.js 클라이언트 번들에서는 `process.env[key]` 같은 동적 접근이 인라이닝되지 않는다.
+  // 따라서 PUBLIC env는 정적 참조 맵으로 읽어 서버/클라이언트 값을 일치시킨다.
+  const value = RAW_ENV_MAP[name];
   if (value === undefined) return undefined;
   const trimmed = value.trim();
   return trimmed === '' ? undefined : trimmed;
@@ -70,25 +100,42 @@ function parseRuntime(): RuntimeEnv {
 
 function parseApiBaseUrl(): string {
   const raw = readRaw('NEXT_PUBLIC_API_BASE_URL');
-  if (raw === undefined) return '';
+  return parseHttpUrl('NEXT_PUBLIC_API_BASE_URL', raw, {
+    allowEmpty: true,
+    trimTrailingSlash: true,
+  });
+}
 
-  let parsed: URL;
-  try {
-    parsed = new URL(raw);
-  } catch {
+function parseApiPrefix(): string {
+  const raw = readRaw('NEXT_PUBLIC_API_PREFIX');
+  if (raw === undefined) return DEFAULTS.apiPrefix;
+
+  let normalized = raw.trim();
+  if (!normalized.startsWith('/')) normalized = `/${normalized}`;
+  if (normalized.length > 1 && normalized.endsWith('/')) {
+    normalized = normalized.slice(0, -1);
+  }
+
+  if (!/^\/[A-Za-z0-9/_-]*$/.test(normalized)) {
     throw new EnvValidationError(
-      `Invalid NEXT_PUBLIC_API_BASE_URL: "${raw}". 유효한 절대 URL이어야 합니다(예: https://api.example.com).`,
+      `Invalid NEXT_PUBLIC_API_PREFIX: "${raw}". 예: "/api/v1" 형식이어야 합니다.`,
     );
   }
 
-  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+  return normalized;
+}
+
+function parseAuthCookieName(): string {
+  const raw = readRaw('NEXT_PUBLIC_AUTH_COOKIE_NAME');
+  if (raw === undefined) return DEFAULTS.authCookieName;
+
+  if (!/^[A-Za-z0-9._-]+$/.test(raw)) {
     throw new EnvValidationError(
-      `Invalid NEXT_PUBLIC_API_BASE_URL protocol: "${parsed.protocol}". http(s)만 허용됩니다.`,
+      `Invalid NEXT_PUBLIC_AUTH_COOKIE_NAME: "${raw}". 영문/숫자/.-_만 허용됩니다.`,
     );
   }
 
-  const normalized = parsed.toString();
-  return normalized.endsWith('/') ? normalized.slice(0, -1) : normalized;
+  return raw;
 }
 
 function parseBoolean(name: string, fallback: boolean): boolean {
@@ -114,18 +161,40 @@ function envNameForProvider(provider: OAuthProvider): string {
 
 function parseObservabilityEndpoint(): string {
   const raw = readRaw('NEXT_PUBLIC_OBSERVABILITY_ENDPOINT');
-  if (raw === undefined) return '';
+  return parseHttpUrl('NEXT_PUBLIC_OBSERVABILITY_ENDPOINT', raw, {
+    allowEmpty: true,
+    trimTrailingSlash: false,
+  });
+}
+
+function parseHttpUrl(
+  envName: 'NEXT_PUBLIC_API_BASE_URL' | 'NEXT_PUBLIC_OBSERVABILITY_ENDPOINT',
+  raw: string | undefined,
+  options: { allowEmpty: boolean; trimTrailingSlash: boolean },
+): string {
+  if (raw === undefined) {
+    if (options.allowEmpty) return '';
+    throw new EnvValidationError(`Missing required env: ${envName}`);
+  }
+
+  let parsed: URL;
   try {
-    const parsed = new URL(raw);
-    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-      throw new Error('protocol');
-    }
-    return parsed.toString();
+    parsed = new URL(raw);
   } catch {
     throw new EnvValidationError(
-      `Invalid NEXT_PUBLIC_OBSERVABILITY_ENDPOINT: "${raw}". http(s) URL이어야 합니다.`,
+      `Invalid ${envName}: "${raw}". http(s) URL이어야 합니다.`,
     );
   }
+
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    throw new EnvValidationError(
+      `Invalid ${envName} protocol: "${parsed.protocol}". http(s)만 허용됩니다.`,
+    );
+  }
+
+  const normalized = parsed.toString();
+  if (!options.trimTrailingSlash) return normalized;
+  return normalized.endsWith('/') ? normalized.slice(0, -1) : normalized;
 }
 
 /**
@@ -138,6 +207,7 @@ function safeParse<T>(
   parser: () => T,
   fallback: T,
   errors: EnvValidationError[],
+  runtime: RuntimeEnv,
 ): T {
   try {
     return parser();
@@ -149,7 +219,7 @@ function safeParse<T>(
             error instanceof Error ? error.message : String(error),
           );
     errors.push(wrapped);
-    if (process.env.NODE_ENV !== 'production') {
+    if (runtime !== 'production') {
       console.warn(`[env] ${wrapped.message}`);
     }
     return fallback;
@@ -160,16 +230,25 @@ function buildEnv(): AppEnv {
   const runtime = parseRuntime();
   const errors: EnvValidationError[] = [];
 
-  const apiBaseUrl = safeParse(parseApiBaseUrl, '', errors);
+  const apiBaseUrl = safeParse(parseApiBaseUrl, DEFAULTS.apiBaseUrl, errors, runtime);
+  const apiPrefix = safeParse(parseApiPrefix, DEFAULTS.apiPrefix, errors, runtime);
+  const authCookieName = safeParse(
+    parseAuthCookieName,
+    DEFAULTS.authCookieName,
+    errors,
+    runtime,
+  );
   const enabledOAuthProviders = safeParse(
     parseEnabledOAuthProviders,
     ALL_OAUTH_PROVIDERS,
     errors,
+    runtime,
   );
   const observabilityEndpoint = safeParse(
     parseObservabilityEndpoint,
-    '',
+    DEFAULTS.observabilityEndpoint,
     errors,
+    runtime,
   );
 
   return Object.freeze<AppEnv>({
@@ -177,6 +256,8 @@ function buildEnv(): AppEnv {
     isProduction: runtime === 'production',
     isDevelopment: runtime === 'development',
     apiBaseUrl,
+    apiPrefix,
+    authCookieName,
     enabledOAuthProviders: Object.freeze(enabledOAuthProviders),
     observabilityEndpoint,
     validationErrors: Object.freeze(errors),

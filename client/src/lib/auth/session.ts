@@ -10,9 +10,10 @@
  */
 
 export type { SessionUser } from '@/lib/types/auth';
+import { env } from '@/lib/config/env';
 
 /** 백엔드가 발급하는 JWT HttpOnly 쿠키 이름 */
-export const AUTH_COOKIE_NAME = 'accessToken';
+export const AUTH_COOKIE_NAME = env.authCookieName;
 
 // 기존 호환 re-export — 신규 코드는 `./session.client` / `./session.server`에서 직접 가져오는 것을 권장.
 export { fetchCurrentUser } from './session.client';

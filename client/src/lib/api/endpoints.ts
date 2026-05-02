@@ -9,8 +9,9 @@
  */
 
 import type { OAuthProvider } from '@/lib/types/auth';
+import { env } from '@/lib/config/env';
 
-export const API_PREFIX = '/api/v1';
+export const API_PREFIX = env.apiPrefix;
 
 export const API_ENDPOINTS = {
   auth: {
