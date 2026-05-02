@@ -2,6 +2,7 @@
 
 import { AlertTriangle } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 import { InfoScreen } from '@/components/layout/InfoScreen';
 import {
@@ -82,7 +83,7 @@ function resolveOAuthError(searchParams: ReturnType<typeof useSearchParams>): OA
   return null;
 }
 
-export default function OAuthErrorPage() {
+function OAuthErrorPageContent() {
   const searchParams = useSearchParams();
   const rawNext = searchParams.get(NEXT_QUERY_PARAM);
   const nextForLogin = rawNext && rawNext.trim().length > 0 ? rawNext.trim() : null;
@@ -106,5 +107,21 @@ export default function OAuthErrorPage() {
         />
       </div>
     </main>
+  );
+}
+
+export default function OAuthErrorPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex h-full min-h-0 flex-1 items-center justify-center bg-background-primary-default px-4">
+          <p className="typo-body-regular style-text-caption" aria-busy="true">
+            불러오는 중…
+          </p>
+        </main>
+      }
+    >
+      <OAuthErrorPageContent />
+    </Suspense>
   );
 }

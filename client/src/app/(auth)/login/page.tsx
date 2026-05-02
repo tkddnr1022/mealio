@@ -1,11 +1,13 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Navbar } from '@/components/layout/Navbar';
+import { Suspense } from 'react';
+
 import { LoginButtonList, LoginFooter, LoginHeader } from '@/components/auth';
+import { Navbar } from '@/components/layout/Navbar';
 import { NEXT_QUERY_PARAM } from '@/lib/auth/routes';
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const oauthNext = searchParams.get(NEXT_QUERY_PARAM);
@@ -28,5 +30,21 @@ export default function LoginPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-full min-h-0 flex-1 items-center justify-center bg-background-primary-default px-4">
+          <p className="typo-body-regular style-text-caption" aria-busy="true">
+            불러오는 중…
+          </p>
+        </div>
+      }
+    >
+      <LoginPageContent />
+    </Suspense>
   );
 }
