@@ -42,6 +42,7 @@ type RecipeSeed = {
   difficulty: number;
   cookTime: number;
   servings: number;
+  imageUrl: string;
   instructions: RecipeInstructionStep[];
 };
 
@@ -135,6 +136,8 @@ const RECIPES: RecipeSeed[] = [
     difficulty: 1,
     cookTime: 15,
     servings: 1,
+    imageUrl:
+      'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800&q=80',
     instructions: [
       { step: 1, content: '김치는 적당히 잘라 준비한다.' },
       { step: 2, content: '팬에 기름을 두르고 김치를 넣어 중불로 2분 볶는다.' },
@@ -150,6 +153,8 @@ const RECIPES: RecipeSeed[] = [
     difficulty: 2,
     cookTime: 30,
     servings: 2,
+    imageUrl:
+      'https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=800&q=80',
     instructions: [
       { step: 1, content: '김치는 먹기 좋게 썰고, 두부는 한입 크기로 자른다.' },
       { step: 2, content: '냄비에 김치, 돼지고기, 고춧가루, 마늘을 넣고 볶는다.' },
@@ -164,6 +169,8 @@ const RECIPES: RecipeSeed[] = [
     difficulty: 1,
     cookTime: 10,
     servings: 1,
+    imageUrl:
+      'https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?w=800&q=80',
     instructions: [
       { step: 1, content: '달걀에 소금, 물 한 스푼을 넣고 풀어둔다.' },
       {
@@ -182,6 +189,8 @@ const RECIPES: RecipeSeed[] = [
     difficulty: 1,
     cookTime: 20,
     servings: 2,
+    imageUrl:
+      'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=800&q=80',
     instructions: [
       { step: 1, content: '감자는 껍질을 벗기고 채썬다. 물에 한 번 헹군다.' },
       { step: 2, content: '팬에 기름을 두르고 감자를 넣어 중불로 볶는다.' },
@@ -199,6 +208,8 @@ const RECIPES: RecipeSeed[] = [
     difficulty: 1,
     cookTime: 5,
     servings: 1,
+    imageUrl:
+      'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=800&q=80',
     instructions: [
       { step: 1, content: '달걀에 소금, 후추, 우유 1큰술을 넣고 풀어둔다.' },
       {
@@ -215,6 +226,8 @@ const RECIPES: RecipeSeed[] = [
     difficulty: 1,
     cookTime: 15,
     servings: 1,
+    imageUrl:
+      'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=800&q=80',
     instructions: [
       {
         step: 1,
@@ -235,6 +248,8 @@ const RECIPES: RecipeSeed[] = [
     difficulty: 2,
     cookTime: 25,
     servings: 2,
+    imageUrl:
+      'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=800&q=80',
     instructions: [
       { step: 1, content: '끓는 물에 소금을 넣고 스파게티면을 8~10분 삶는다.' },
       {
@@ -252,6 +267,8 @@ const RECIPES: RecipeSeed[] = [
     difficulty: 1,
     cookTime: 15,
     servings: 1,
+    imageUrl:
+      'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80',
     instructions: [
       {
         step: 1,
@@ -269,6 +286,8 @@ const RECIPES: RecipeSeed[] = [
     difficulty: 2,
     cookTime: 20,
     servings: 2,
+    imageUrl:
+      'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=800&q=80',
     instructions: [
       { step: 1, content: '새우는 등쪽 내장을 제거하고 마늘은 다진다.' },
       {
@@ -289,6 +308,8 @@ const RECIPES: RecipeSeed[] = [
     difficulty: 2,
     cookTime: 25,
     servings: 2,
+    imageUrl:
+      'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&q=80',
     instructions: [
       {
         step: 1,
@@ -416,8 +437,8 @@ async function seed(): Promise<void> {
 
     for (const recipe of RECIPES) {
       await client.query(
-        `INSERT INTO "Recipe" ("id","categoryId","title","description","difficulty","cook_time","servings","instructions")
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8::jsonb)
+        `INSERT INTO "Recipe" ("id","categoryId","title","description","difficulty","cook_time","servings","instructions","image_url")
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9)
          ON CONFLICT ("id") DO NOTHING`,
         [
           recipe.id,
@@ -428,6 +449,7 @@ async function seed(): Promise<void> {
           recipe.cookTime,
           recipe.servings,
           JSON.stringify(recipe.instructions),
+          recipe.imageUrl,
         ],
       );
     }
