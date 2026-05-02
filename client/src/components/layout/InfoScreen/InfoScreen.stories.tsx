@@ -1,6 +1,5 @@
 import { SearchX } from "lucide-react";
 import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
-import { fn } from "storybook/test";
 import { InfoScreen } from "@/components/layout/InfoScreen";
 
 const figmaFrame: Decorator = (Story) => (
@@ -23,7 +22,7 @@ const meta = {
     message: "Message",
     showButton: true,
     buttonLabel: "Label",
-    onButtonClick: fn(),
+    buttonHref: "/",
   },
 } satisfies Meta<typeof InfoScreen>;
 

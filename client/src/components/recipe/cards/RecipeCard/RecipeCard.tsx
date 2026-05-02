@@ -84,7 +84,6 @@ export function RecipeCard({
           <LikeButton
             isFavorite={isFavorite}
             onClick={onFavoriteClick}
-            aria-label={isFavorite ? "찜 해제" : "찜하기"}
           />
         </div>
       </div>

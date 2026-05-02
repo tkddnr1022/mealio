@@ -3,6 +3,7 @@ import { Search, X } from "lucide-react";
 import { fn } from "storybook/test";
 
 import { Input } from "@/components/ui/Input";
+import { buildAriaLabel } from "@/lib/utils/a11y";
 
 const narrowWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,23rem)]">
@@ -69,7 +70,7 @@ export const WithEndClearButton = {
     endAdornment: (
       <button
         type="button"
-        aria-label="지우기"
+        aria-label={buildAriaLabel("button", "지우기")}
         className="inline-flex size-5 items-center justify-center style-text-placeholder"
       >
         <X className="size-full" strokeWidth={2} aria-hidden />

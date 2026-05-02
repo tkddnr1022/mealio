@@ -1,5 +1,6 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
+import { buildAriaLabel } from "@/lib/utils/a11y";
 
 import { PaginationDot } from "@/components/ui/PaginationDot";
 
@@ -32,7 +33,10 @@ export function SliderPagination({
       className={cn("flex w-full items-center justify-center gap-2", className)}
       data-name="SliderPagination"
       role="group"
-      aria-label={`슬라이드 ${clampedIndex + 1} / ${safeTotal}`}
+      aria-label={buildAriaLabel(
+        "generic",
+        `슬라이드 ${clampedIndex + 1} / ${safeTotal}`,
+      )}
       {...rest}
     >
       {Array.from({ length: safeTotal }, (_, i) => (

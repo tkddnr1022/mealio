@@ -227,6 +227,7 @@ SSE 구독·이벤트 파싱 담당. `ChatbotStreamEvent` 타입·Redis 채널·
 | 경로 | 역할 |
 |------|------|
 | **client/src/lib/utils/** | 공통 유틸 |
+| client/src/lib/utils/a11y.ts | 접근 이름 생성. `buildAriaLabel(type, name)` — 엘리먼트 유형별 `aria-label` 문구 규칙·빈 `name` 시 타입별 폴백. 컴포넌트는 `aria-label` 전용 prop 없이 필수/의미 prop으로 문자열을 만든 뒤 이 유틸만 사용 (`../guidelines/frontend_development_guidelines.md` §9) |
 | client/src/lib/utils/cn.ts | Tailwind 클래스 머지(`clsx` + `tailwind-merge`) |
 | client/src/lib/utils/date.ts | 날짜·시간 포맷팅(요리 시간 표시 등) |
 | client/src/lib/utils/image.ts | `blurDataURL`·반응형 `sizes` 헬퍼 (`next/image`용) |

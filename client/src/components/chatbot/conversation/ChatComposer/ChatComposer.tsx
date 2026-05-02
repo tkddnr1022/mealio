@@ -3,6 +3,7 @@
 import { Send } from "lucide-react";
 import type { HTMLAttributes, SubmitEventHandler } from "react";
 import { cn } from "@/lib/utils/cn";
+import { buildAriaLabel } from "@/lib/utils/a11y";
 import { Input } from "@/components/ui/Input";
 
 export interface ChatComposerProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
@@ -44,6 +45,7 @@ export function ChatComposer({
           wrapperClassName="flex-1"
           focusWithinRing
           placeholder={placeholder}
+          aria-label={buildAriaLabel("input", placeholder)}
           value={inputValue}
           onChange={(event) => onValueChange?.(event.target.value)}
           className={cn(
@@ -53,7 +55,7 @@ export function ChatComposer({
         />
         <button
           type="submit"
-          aria-label="메시지 전송"
+          aria-label={buildAriaLabel("button", "메시지 전송")}
           disabled={!isFilled}
           className={cn(
             "inline-flex size-12 shrink-0 items-center justify-center rounded-full transition-colors",

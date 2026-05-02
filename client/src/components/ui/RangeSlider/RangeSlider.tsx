@@ -1,6 +1,7 @@
 import type { HTMLAttributes, KeyboardEvent, PointerEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils/cn";
+import { buildAriaLabel } from "@/lib/utils/a11y";
 import { formatCookingTime } from "@/lib/utils/date";
 
 export type RangeSliderUnit = string | "time";
@@ -244,7 +245,7 @@ export function RangeSlider({
     <div
       className={cn("flex w-full flex-col items-center gap-4 pb-8", className)}
       data-name="RangeSlider"
-      aria-label="범위 슬라이더"
+      aria-label={buildAriaLabel("section", "범위 슬라이더")}
       {...rest}
     >
       <p className="typo-label-dropdown style-text-accent">{label}</p>
@@ -264,7 +265,7 @@ export function RangeSlider({
             className="absolute z-20 size-6 rounded-full bg-background-surface p-0.5 shadow-(--semantic-shadow-md) outline-none focus-visible:ring-2 focus-visible:ring-primary-default"
             style={getThumbStyle(minPercent)}
             role="slider"
-            aria-label="최소 값"
+            aria-label={buildAriaLabel("button", "최소 값")}
             aria-valuemin={normalizedMin}
             aria-valuemax={showSecondThumb ? maxValue : normalizedMax}
             aria-valuenow={Math.round(minValue)}
@@ -282,7 +283,7 @@ export function RangeSlider({
               className="absolute z-30 size-6 rounded-full bg-background-surface p-0.5 shadow-(--semantic-shadow-md) outline-none focus-visible:ring-2 focus-visible:ring-primary-default"
               style={getThumbStyle(maxPercent)}
               role="slider"
-              aria-label="최대 값"
+              aria-label={buildAriaLabel("button", "최대 값")}
               aria-valuemin={minValue}
               aria-valuemax={normalizedMax}
               aria-valuenow={Math.round(maxValue)}

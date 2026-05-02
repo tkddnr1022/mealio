@@ -1,6 +1,7 @@
 import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { PaginationDot } from "@/components/ui/PaginationDot";
+import { buildAriaLabel } from "@/lib/utils/a11y";
 
 const row: Decorator = (Story) => (
   <div className="flex items-center gap-2 py-4">
@@ -40,7 +41,11 @@ export const Active = {
 export const RowExample = {
   name: "행 예시",
   render: () => (
-    <div className="flex items-center gap-2" role="group" aria-label="슬라이드 위치">
+    <div
+      className="flex items-center gap-2"
+      role="group"
+      aria-label={buildAriaLabel("section", "슬라이드 위치")}
+    >
       <PaginationDot aria-hidden />
       <PaginationDot aria-hidden />
       <PaginationDot active aria-current="true" />

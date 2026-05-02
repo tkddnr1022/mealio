@@ -7,6 +7,7 @@ import {
   type MouseEvent,
 } from "react";
 import { cn } from "@/lib/utils/cn";
+import { buildAriaLabel } from "@/lib/utils/a11y";
 import { SearchBarProps, SearchBar } from "@/components/ui/SearchBar";
 
 export interface SearchBarHeaderProps extends Omit<
@@ -34,7 +35,7 @@ export const SearchBarHeader = forwardRef<HTMLDivElement, SearchBarHeaderProps>(
     ref
   ) {
     const placeholder = searchBarProps?.placeholder ?? "레시피 검색하기";
-    const ariaLabel = searchBarProps?.["aria-label"] ?? placeholder;
+    const openSearchLabel = buildAriaLabel("button", `${placeholder} 열기`);
     const isDisabled = disabled || !!searchBarProps?.disabled;
 
     const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -67,7 +68,7 @@ export const SearchBarHeader = forwardRef<HTMLDivElement, SearchBarHeaderProps>(
         <div
           role="button"
           tabIndex={isDisabled ? -1 : 0}
-          aria-label={ariaLabel}
+          aria-label={openSearchLabel}
           aria-disabled={isDisabled || undefined}
           className={cn(
             "w-full rounded-full outline-none transition-shadow focus-visible:ring-(length:--border-width-focus) focus-visible:ring-primary-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-primary",

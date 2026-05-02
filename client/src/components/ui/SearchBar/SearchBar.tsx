@@ -11,10 +11,14 @@ import {
   type InputHTMLAttributes,
 } from "react";
 import { cn } from "@/lib/utils/cn";
+import { buildAriaLabel } from "@/lib/utils/a11y";
 
 import { Input } from "@/components/ui/Input";
 
-export interface SearchBarProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "className"> {
+export interface SearchBarProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "type" | "className" | "aria-label"
+> {
 className?: string;
 wrapperClassName?: string;
 }
@@ -29,7 +33,6 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
       disabled,
       placeholder = "검색어를 입력해 주세요",
       id: idProp,
-      "aria-label": ariaLabel,
       value: valueProp,
       defaultValue,
       onChange,
@@ -39,7 +42,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
   ) {
     const uid = useId();
     const id = idProp ?? uid;
-    const label = ariaLabel ?? placeholder;
+    const label = buildAriaLabel("input", placeholder);
     const innerRef = useRef<HTMLInputElement>(null);
     const isControlled = valueProp !== undefined;
     const [internalValue, setInternalValue] = useState(
@@ -112,7 +115,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
               type="button"
               tabIndex={hasText && !disabled ? 0 : -1}
               aria-hidden={!hasText}
-              aria-label={hasText ? "검색어 지우기" : undefined}
+              aria-label={hasText ? buildAriaLabel("button", "검색어 지우기") : undefined}
               disabled={!hasText || disabled}
               onClick={handleClear}
               className={cn(

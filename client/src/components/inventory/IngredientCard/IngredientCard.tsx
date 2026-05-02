@@ -1,6 +1,7 @@
 import { Check, X } from "lucide-react";
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
+import { buildAriaLabel } from "@/lib/utils/a11y";
 
 export interface IngredientCardProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
   className?: string;
@@ -9,7 +10,6 @@ export interface IngredientCardProps extends Omit<HTMLAttributes<HTMLDivElement>
   leadingIcon?: ReactNode;
   trailing?: ReactNode;
   onRemove?: () => void;
-  removeAriaLabel?: string;
 }
 
 export function IngredientCard({
@@ -19,9 +19,14 @@ export function IngredientCard({
   leadingIcon,
   trailing,
   onRemove,
-  removeAriaLabel = `${name} 제거`,
   ...rest
 }: IngredientCardProps) {
+  const nameText = name.trim();
+  const removeButtonAriaLabel =
+    onRemove !== undefined
+      ? buildAriaLabel("button", nameText ? `${nameText} 제거` : "")
+      : undefined;
+
   const defaultTrailing = selected ? (
     <span
       aria-hidden
@@ -33,7 +38,7 @@ export function IngredientCard({
     <button
       type="button"
       onClick={onRemove}
-      aria-label={removeAriaLabel}
+      aria-label={removeButtonAriaLabel}
       className="absolute top-2 right-2 inline-flex size-6 items-center justify-center rounded-full bg-background-primary style-text-secondary transition-colors hover:style-text-primary focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default"
     >
       <X className="size-4" strokeWidth={2.25} aria-hidden />

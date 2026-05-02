@@ -9,6 +9,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { buildAriaLabel } from "@/lib/utils/a11y";
 
 /**
  * Figma `Tabbar` (node 167:3234): Surface·상단 Border/Subtle, 가로 `gap-6`·`px-6`·`py-3`.
@@ -77,7 +78,7 @@ export function Tabbar({ className = "", activeId, onSelect }: TabbarProps) {
   return (
     <nav
       className={cn("w-full border-t border-border-subtle bg-background-surface", className)}
-      aria-label="하단 탭"
+      aria-label={buildAriaLabel("section", "하단 탭")}
     >
       <div className="mx-auto flex w-full max-w-(--layout-content-max-width) items-start gap-6 px-6 py-3">
         {TABS.map(({ id, label, Icon }) => {

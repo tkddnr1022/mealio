@@ -169,3 +169,39 @@ const RecipeEditor = dynamic(
 
 - **Web Vitals**: LCP, FID, CLS 목표는 `../spec/frontend_architecture_spec.md` §4에 정의되어 있다. Vercel Analytics 또는 `web-vitals` 라이브러리로 수집.
 - **성능 예산**: 랜딩·레시피 목록·상세·챗봇별 초기 로드·TTI·번들 사이즈 예산은 명세서에 정의. CI 또는 Lighthouse로 예산 초과 시 실패하도록 설정 권장.
+
+---
+
+## 9. 접근성: `aria-label`과 `buildAriaLabel`
+
+시각적 라벨이 없거나 보조 이름이 필요한 컨트롤(아이콘 버튼, 검색 필드, 랜드마크 등)은 **공용 유틸**로만 `aria-label` 문구를 만든다. WCAG·터치 타겟·톤 등 상위 원칙은 `../../design/spec/design_principle.json`을 따른다.
+
+### 9.1 단일 진입점
+
+- 구현 위치: **`client/src/lib/utils/a11y.ts`**
+- API: **`buildAriaLabel(type, name)`** — `type`은 아래 표의 엘리먼트 유형, `name`은 맥락을 나타내는 짧은 한국어 문자열(앞뒤 공백은 무시).
+
+| `type` | 생성 규칙 (이름을 `N`이라 할 때) |
+|--------|-----------------------------------|
+| `button` | `N 버튼` |
+| `link` | `N로 이동하기` |
+| `input` | `N 입력` |
+| `section` | `N 영역` |
+| `image` | `N 이미지` |
+| `generic` | `N` (접미 없음) |
+
+### 9.2 빈 `name` 폴백 (컴포넌트에서 throw 금지)
+
+- **`name`이 공백뿐이면** 호출부에서 예외를 던지지 않고, **`a11y.ts` 안에서만** 타입별 기본 이름으로 바꾼 뒤 위 규칙을 적용한다.
+- 기본 이름 매핑: `button` → 동작, `link` → 페이지, `input` → 내용, `section` → 콘텐츠, `image` → 표시, `generic` → 항목. (코드의 `A11Y_LABEL_NAME_FALLBACK`과 동기화)
+
+### 9.3 컴포넌트 공개 API 규칙
+
+- **`aria-label` 전용 prop을 두지 않는다.** 대신 이미 있는 의미 있는 prop(`placeholder`, 링크/버튼에 보이는 문구, 칩의 `label`, 재료 `name` 등)으로 문자열을 조합한 뒤 `buildAriaLabel`에 넘긴다.
+- 네이티브/래퍼가 `aria-label`을 허용하는 경우, **소비자가 임의로 덮어쓰지 못하게** `Omit<..., 'aria-label'>` 등으로 막고, 내부에서만 `buildAriaLabel`을 적용한다(예: 검색 바).
+- **아이콘만 있는 버튼**은 동작이 고정된 컴포넌트라면 `buildAriaLabel('button', '뒤로 가기')`처럼 코드에 고정된 동작명을 쓴다.
+- **`aria-labelledby`·`aria-current`·`aria-hidden`** 등 관계·상태 속성은 필요 시 그대로 사용한다. 라벨 “문구 조합”만 `buildAriaLabel`로 통일한다.
+
+### 9.4 스토리·문서
+
+- Storybook에서 데모용 래퍼에 접근 이름이 필요하면 **문자열 리터럴을 직접 넣기보다** `buildAriaLabel`을 사용해 운영 코드와 동일한 규칙을 유지한다.
