@@ -88,7 +88,7 @@ export default async function RecipesPage() {
 |--------|------|
 | **CloudFlare CDN** | 정적 자산 장기 캐시; ISR 페이지 stale-while-revalidate (예: 24시간) |
 | **Vercel Edge** | Next.js ISR 캐시; Edge Functions 지역별 라우팅 |
-| **Application (Redis)** | API 응답 5–60분; 세션 7일; 레시피 추천 결과 1시간 |
+| **Application (Redis)** | API 응답 5-60분; 세션 7일; 레시피 추천 결과 1시간 |
 
 ### 3.2 페이지별 캐싱 요약
 

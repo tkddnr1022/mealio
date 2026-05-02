@@ -85,7 +85,7 @@
     },
     "opacity": {
       "disabled": 0.5,
-      "figma-note": "MCP 맵 `opacity/disabled`(0–1로 보관)."
+      "figma-note": "MCP 맵 `opacity/disabled`(0-1로 보관)."
     },
     "radius": {
       "lg": 8,
