@@ -14,13 +14,13 @@ const imageB =
 
 const sampleSuggestedRecipes = [
   {
-    id: "recipe-1",
+    id: 1,
     title: "비빔밥",
     imageUrl: imageA,
     tags: [{ label: "15분" }, { label: "쉬움" }, { label: "2인분" }],
   },
   {
-    id: "recipe-2",
+    id: 2,
     title: "김치볶음밥",
     imageUrl: imageB,
     tags: [{ label: "20분" }, { label: "쉬움" }, { label: "2인분" }],

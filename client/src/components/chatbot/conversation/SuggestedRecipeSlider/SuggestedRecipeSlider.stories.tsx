@@ -15,13 +15,13 @@ const imageC =
   "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=320&h=320&fit=crop";
 const baseItems = [
   {
-    id: "recipe-1",
+    id: 1,
     title: "비빔밥",
     imageUrl: imageA,
     tags: [{ label: "15분" }, { label: "쉬움" }, { label: "2인분" }],
   },
   {
-    id: "recipe-2",
+    id: 2,
     title: "김치볶음밥",
     imageUrl: imageB,
     tags: [{ label: "20분" }, { label: "쉬움" }, { label: "2인분" }],
@@ -53,7 +53,7 @@ export const ThreeCards = {
     items: [
       ...baseItems,
       {
-        id: "recipe-3",
+        id: 3,
         title: "닭갈비",
         imageUrl: imageC,
         tags: [{ label: "30분" }, { label: "보통" }, { label: "3인분" }],
