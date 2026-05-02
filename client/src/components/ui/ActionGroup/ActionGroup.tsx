@@ -1,12 +1,12 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-import { Button, type ButtonProps } from "@/components/ui/Button";
+import { Button, type ButtonAsButtonProps } from "@/components/ui/Button";
 
 export interface ActionGroupProps extends Omit<HTMLAttributes<HTMLElement>, "className"> {
-className?: string;
-leftButtonProps?: Omit<ButtonProps, "className" | "size">;
-rightButtonProps?: Omit<ButtonProps, "className" | "size">;
+  className?: string;
+  leftButtonProps?: Omit<ButtonAsButtonProps, "className" | "size">;
+  rightButtonProps?: Omit<ButtonAsButtonProps, "className" | "size">;
 }
 
 export function ActionGroup({

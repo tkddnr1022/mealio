@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { AddButton } from "@/components/ui/buttons/AddButton";
 import { BackButton } from "@/components/ui/buttons/BackButton";
 import { LikeButton } from "@/components/ui/buttons/LikeButton";
@@ -22,6 +23,8 @@ export type NavbarVariant =
 
 /** 상단 워드마크 — Figma 변수 `logo`와 동일하게 코드에서 고정 */
 const NAVBAR_LOGO_TEXT = "Coop" as const;
+/** 로고 탭 시 앱 메인(레시피 탭)으로 이동 — 루트 `/` 리다이렉트와 동일 */
+const NAVBAR_LOGO_HREF = "/recipe" as const;
 
 export interface NavbarProps {
   className?: string;
@@ -82,8 +85,13 @@ export function Navbar({
 
         {showTitle ? (
           <div className="flex min-w-0 max-w-[min(100vw-8rem,28rem)] items-center justify-center">
-            <h1 className="typo-logo-small truncate text-center style-text-primary">
-              {NAVBAR_LOGO_TEXT}
+            <h1 className="typo-logo-small m-0 min-w-0 w-full text-center font-[inherit]">
+              <Link
+                href={NAVBAR_LOGO_HREF}
+                className="block truncate text-center style-text-primary no-underline outline-none transition-colors focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default"
+              >
+                {NAVBAR_LOGO_TEXT}
+              </Link>
             </h1>
           </div>
         ) : (

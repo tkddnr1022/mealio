@@ -1,5 +1,7 @@
+import Link from "next/link";
 import type { AnchorHTMLAttributes, HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
+import { isInternalNavHref } from "@/lib/utils/isInternalNavHref";
 
 export type LoginFooterLink = Readonly<{
   label: string;
@@ -20,21 +22,42 @@ export function LoginFooter({
   linkProps,
   ...rest
 }: LoginFooterProps) {
+  const linkClass = "typo-caption-regular style-text-caption";
+
+  const leftHref = leftLink.href ?? "#";
+  const rightHref = rightLink.href ?? "#";
+
+  const leftEl = isInternalNavHref(leftHref) ? (
+    <Link href={leftHref} className={linkClass} {...linkProps}>
+      {leftLink.label}
+    </Link>
+  ) : (
+    <a className={linkClass} href={leftHref} {...linkProps}>
+      {leftLink.label}
+    </a>
+  );
+
+  const rightEl = isInternalNavHref(rightHref) ? (
+    <Link href={rightHref} className={linkClass} {...linkProps}>
+      {rightLink.label}
+    </Link>
+  ) : (
+    <a className={linkClass} href={rightHref} {...linkProps}>
+      {rightLink.label}
+    </a>
+  );
+
   return (
     <footer
       className={cn("flex w-full items-start justify-center gap-4", className)}
       data-name="LoginFooter"
       {...rest}
     >
-      <a className="typo-caption-regular style-text-caption" href={leftLink.href} {...linkProps}>
-        {leftLink.label}
-      </a>
+      {leftEl}
       <span aria-hidden className="self-stretch py-1">
         <span className="block h-full w-px bg-border-subtle" />
       </span>
-      <a className="typo-caption-regular style-text-caption" href={rightLink.href} {...linkProps}>
-        {rightLink.label}
-      </a>
+      {rightEl}
     </footer>
   );
 }

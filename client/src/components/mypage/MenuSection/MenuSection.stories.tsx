@@ -24,8 +24,8 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     items: [
-      { label: "내 레시피 관리", border: true },
-      { label: "계정 설정", border: false },
+      { label: "내 레시피 관리", href: "/mypage/recipes" },
+      { label: "계정 설정", href: "/mypage/settings" },
     ],
   },
 };
@@ -33,9 +33,9 @@ export const Default: Story = {
 export const CustomItems: Story = {
   args: {
     items: [
-      { label: "공지사항", border: true },
-      { label: "고객센터", border: true },
-      { label: "로그아웃", border: false },
+      { label: "공지사항", href: "/notice" },
+      { label: "고객센터", href: "/support" },
+      { label: "로그아웃", href: "/logout" },
     ],
   },
 };

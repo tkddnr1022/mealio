@@ -8,6 +8,9 @@ const meta = {
   parameters: {
     layout: "centered",
   },
+  args: {
+    preventLinkNavigation: true,
+  },
   decorators: [
     (Story) => (
       <div className="w-[400px] max-w-full">
@@ -21,9 +24,9 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 const defaultItems = [
-  { id: "owned", label: "보유 재료" },
-  { id: "favorite", label: "관심 재료" },
-  { id: "favorite-recipe", label: "관심 레시피" },
+  { id: "owned", label: "보유 재료", href: "/inventory/ingredients/owned" },
+  { id: "favorite", label: "관심 재료", href: "/inventory/ingredients/favorite" },
+  { id: "favorite-recipe", label: "관심 레시피", href: "/inventory/recipes/favorite" },
 ] as const;
 
 export const SelectedOwned: Story = {

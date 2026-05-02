@@ -11,6 +11,16 @@
 - **SSR**: 기본이 서버 컴포넌트. `cookies()`, `headers()` 등으로 개인화 데이터 조회.
 - **CSR**: `'use client'` + 클라이언트 전용 컴포넌트. 챗봇·재료 관리·폼 등 인터랙티브 UI.
 
+### 1.1 네비게이션 UI와 `Link`
+
+**다른 앱 경로로의 이동**이 본질인 컨트롤(하단 탭, 서브탭, 메뉴 행, 내부 CTA 등)은 `<button>`에 `router.push`만 얹는 패턴보다 **`next/link`의 `Link`** 를 우선한다. 클라이언트 전환·선택적 prefetch·시맨틱 앵커에 맞고, App Router와 함께 쓰기 쉽다.
+
+- **내부 경로인지** 한 곳에서만 판별한다. 저장소에 둔 헬퍼 이름·역할·경로는 명세 **`../spec/frontend_architecture_spec.md` §5.7(유틸)** 을 본다. 지침에서 잡는 규칙은 개념만: **같은 오리진 앱 라우트로 쓸 단일 슬래시 경로**면 `Link` 후보, **프로토콜 상대 URL(`//…`)·외부 절대 URL·해시 전용 등**은 `Link`로 치환하지 않는다.
+- 내부 후보: `Link`로 렌더. 그 밖: 일반 `<a>`(또는 접근성·디자인에 맞는 동등 래퍼).
+- **예외 (버튼 유지)**: **뒤로 가기**(히스토리 스택)·**토글/모달/전송/삭제** 등 **URL 변경이 목적이 아닌** 액션은 **`<button type="button">`** 등 네이티브 의미를 유지한다.
+- **OAuth·백엔드 진입 URL**: **전체 문서 네비게이션으로 백엔드 `GET`을 타야 하는** 흐름은 `Link`로 클라이언트 라우팅을 대신하지 않는다. 계약·페이지 경로는 명세와 백엔드 OAuth 가이드를 보고, 구현 패턴은 **§10**을 따른다.
+- **Storybook**: 라우터 밖에서 실제 `href` 이동이 캔버스를 깨뜨릴 수 있으면, 컴포넌트가 제공하는 **`preventLinkNavigation`**(또는 동등 옵션)으로 기본 이동을 막고 상태만 바꾼다.
+
 ---
 
 ## 2. 페이지별 구현 가이드
@@ -157,7 +167,7 @@ const RecipeEditor = dynamic(
 ## 7. Storybook
 
 - **목적**: UI 컴포넌트를 앱 라우트·데이터 없이 **격리**해 개발·리뷰하고, `../../design/spec/design_tokens.json`·`../../design/spec/design_principle.json`과의 시각적 정합을 맞춘다.
-- **배치**: 스토리 파일은 대상 컴포넌트와 가까이 둔다(예: `ComponentName.stories.tsx`). 공용 UI는 `client/components` 등 실제 import 경로와 동일한 트리를 따른다.
+- **배치**: 스토리 파일은 대상 컴포넌트와 가까이 둔다(예: `ComponentName.stories.tsx`). 폴더 트리는 저장소의 컴포넌트 구조 명세·실제 `import` 경로에 맞춘다(세부는 `../spec/frontend_components_structure_spec.md` 등을 본다).
 - **스토리 범위**: 기본 상태 1개 + **의미 있는 변형**(비어 있음, 로딩, 에러, 모바일 폭 등)만 유지한다. 페이지 전체 복제보다는 재사용 단위(버튼, 카드, 폼 필드)를 우선한다.
 - **타입 규칙(필수)**: 스토리는 `Meta<typeof Component>` / `StoryObj<typeof meta>` + `satisfies` 패턴으로 작성해 **프로퍼티 타입 추론**을 강제한다. `as` 단언으로 우회하지 않고 `args`가 실제 컴포넌트 prop 타입에서 자동 검증되게 유지한다.
 - **데이터·API**: React Query·fetch를 쓰는 컴포넌트는 스토리에서 **목(mock) 데이터 또는 MSW**로 고정해, 백엔드 없이 재현 가능하게 한다.
@@ -178,7 +188,7 @@ const RecipeEditor = dynamic(
 
 ### 9.1 단일 진입점
 
-- 구현 위치: **`client/src/lib/utils/a11y.ts`**
+- **소스 위치·파일명**은 명세 **`../spec/frontend_architecture_spec.md` §5.7** 에 맡기고, 여기서는 API 사용 규칙만 정한다.
 - API: **`buildAriaLabel(type, name)`** — `type`은 아래 표의 엘리먼트 유형, `name`은 맥락을 나타내는 짧은 한국어 문자열(앞뒤 공백은 무시).
 
 | `type` | 생성 규칙 (이름을 `N`이라 할 때) |
@@ -192,8 +202,8 @@ const RecipeEditor = dynamic(
 
 ### 9.2 빈 `name` 폴백 (컴포넌트에서 throw 금지)
 
-- **`name`이 공백뿐이면** 호출부에서 예외를 던지지 않고, **`a11y.ts` 안에서만** 타입별 기본 이름으로 바꾼 뒤 위 규칙을 적용한다.
-- 기본 이름 매핑: `button` → 동작, `link` → 페이지, `input` → 내용, `section` → 콘텐츠, `image` → 표시, `generic` → 항목. (코드의 `A11Y_LABEL_NAME_FALLBACK`과 동기화)
+- **`name`이 공백뿐이면** 호출부에서 예외를 던지지 않고, **유틸 구현 내부에서만** 타입별 기본 이름으로 바꾼 뒤 위 규칙을 적용한다.
+- 기본 이름 매핑: `button` → 동작, `link` → 페이지, `input` → 내용, `section` → 콘텐츠, `image` → 표시, `generic` → 항목. 구현 상수(예: 폴백 테이블)와 반드시 동기화한다.
 
 ### 9.3 컴포넌트 공개 API 규칙
 

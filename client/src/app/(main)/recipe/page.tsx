@@ -1,15 +1,11 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
 import { SearchBarHeader } from '@/components/layout/SearchBarHeader';
-import {
-  TABBAR_TAB_IDS,
-  Tabbar,
-  type TabbarTabId,
-} from '@/components/layout/Tabbar';
+import { Tabbar } from '@/components/layout/Tabbar';
 import {
   type RecipeGridItem,
   RecipeSection,
@@ -52,7 +48,6 @@ function buildRecipes(seed: number): RecipeGridItem[] {
 }
 
 export default function RecipeMainPage() {
-  const [activeTab, setActiveTab] = useState<TabbarTabId>('recipe');
   const recommendedRecipes = useMemo(() => buildRecipes(0), []);
   const recentRecipes = useMemo(() => buildRecipes(5), []);
 
@@ -72,12 +67,7 @@ export default function RecipeMainPage() {
         </RecipeSection>
       </MainContent>
 
-      <Tabbar
-        activeId={activeTab}
-        onSelect={(id) =>
-          setActiveTab(TABBAR_TAB_IDS.includes(id) ? id : 'recipe')
-        }
-      />
+      <Tabbar />
     </>
   );
 }

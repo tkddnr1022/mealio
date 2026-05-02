@@ -17,6 +17,7 @@ const meta = {
     ),
   ],
   args: {
+    href: "/mypage",
     label: "내 레시피 관리",
     leadingIcon: <SquarePen className="size-5" strokeWidth={2} />,
   },
@@ -37,5 +38,13 @@ export const BorderTrue = {
   name: "border=true",
   args: {
     border: true,
+  },
+} satisfies Story;
+
+export const ExternalAnchor = {
+  name: "외부·비내부 href(일반 a)",
+  args: {
+    href: "https://example.com/policy",
+    border: false,
   },
 } satisfies Story;

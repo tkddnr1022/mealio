@@ -1,2 +1,2 @@
 export { MenuSection } from "./MenuSection";
-export type { MenuSectionProps } from "./MenuSection";
+export type { MenuSectionItem, MenuSectionProps } from "./MenuSection";

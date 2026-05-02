@@ -98,3 +98,23 @@ export const SecondaryMediumDefault = {
     size: "medium",
   },
 } satisfies Story;
+
+export const InternalNavPrimary = {
+  name: "내부 링크(Primary)",
+  args: {
+    variant: "primary",
+    size: "large",
+    label: "레시피 홈으로",
+    href: "/recipe",
+  },
+} satisfies Story;
+
+export const ExternalAnchorSecondary = {
+  name: "외부 링크(Secondary)",
+  args: {
+    variant: "secondary",
+    size: "medium",
+    label: "이용약관",
+    href: "https://example.com/terms",
+  },
+} satisfies Story;

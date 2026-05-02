@@ -11,9 +11,14 @@ const meta = {
   parameters: {
     layout: "fullscreen",
     viewport: { defaultViewport: "mobile1" },
+    nextjs: {
+      appDirectory: true,
+      navigation: {
+        pathname: "/recipe",
+      },
+    },
   },
   args: {
-    activeId: "recipe",
     onSelect: fn(),
   },
 } satisfies Meta<typeof Tabbar>;
@@ -24,8 +29,11 @@ type Story = StoryObj<typeof meta>;
 type TabbarStoryArgs = ComponentProps<typeof Tabbar>;
 
 export const Interactive = {
+  args: {
+    activeId: "recipe" as TabbarTabId,
+  },
   render: function Render(args: TabbarStoryArgs) {
-    const [activeId, setActiveId] = useState<TabbarTabId>(args.activeId);
+    const [activeId, setActiveId] = useState<TabbarTabId>(args.activeId ?? "recipe");
     return (
       <div className="flex min-h-[200px] flex-col bg-background-primary">
         <div className="flex flex-1 items-center justify-center style-text-secondary">
@@ -34,6 +42,7 @@ export const Interactive = {
         <Tabbar
           {...args}
           activeId={activeId}
+          preventLinkNavigation
           onSelect={(id) => {
             args.onSelect?.(id);
             setActiveId(id);
@@ -46,16 +55,36 @@ export const Interactive = {
 
 export const ActiveRecipe = {
   args: { activeId: "recipe" },
+  parameters: {
+    nextjs: {
+      navigation: { pathname: "/recipe" },
+    },
+  },
 } satisfies Story;
 
 export const ActiveChatbot = {
   args: { activeId: "chatbot" },
+  parameters: {
+    nextjs: {
+      navigation: { pathname: "/chatbot" },
+    },
+  },
 } satisfies Story;
 
-export const ActivePantry = {
+export const ActiveInventory = {
   args: { activeId: "inventory" },
+  parameters: {
+    nextjs: {
+      navigation: { pathname: "/inventory" },
+    },
+  },
 } satisfies Story;
 
 export const ActiveMypage = {
   args: { activeId: "mypage" },
+  parameters: {
+    nextjs: {
+      navigation: { pathname: "/mypage" },
+    },
+  },
 } satisfies Story;

@@ -28,3 +28,13 @@ export const Selected = {
     selected: true,
   },
 } satisfies Story;
+
+export const AsInternalLink = {
+  name: "내부 링크",
+  args: {
+    label: "보유 재료",
+    selected: true,
+    href: "/inventory/ingredients/owned",
+    preventLinkNavigation: true,
+  },
+} satisfies Story;

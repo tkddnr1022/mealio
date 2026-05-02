@@ -2,9 +2,12 @@ import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 import { MenuItem, type MenuItemProps } from "@/components/mypage/MenuItem";
 
+/** `MenuSection`은 항목 사이 구분선을 index로만 결정하므로 `border`는 제외한다. */
+export type MenuSectionItem = Omit<MenuItemProps, "border">;
+
 export interface MenuSectionProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
-className?: string;
-items?: readonly MenuItemProps[];
+  className?: string;
+  items?: readonly MenuSectionItem[];
 }
 
 export function MenuSection({
@@ -22,7 +25,7 @@ export function MenuSection({
         <MenuItem
           key={item.label ?? `menu-item-${index}`}
           {...item}
-          border={item.border ?? index !== items.length - 1}
+          border={index !== items.length - 1}
         />
       ))}
     </section>

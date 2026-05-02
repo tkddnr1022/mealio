@@ -77,6 +77,13 @@ const preview: Preview = {
     viewport: {
       options: projectViewports,
     },
+    /** Docs·iframe 등에서 `usePathname()` 모킹. 스토리별 `parameters.nextjs.navigation`으로 덮어쓸 수 있음 */
+    nextjs: {
+      appDirectory: true,
+      navigation: {
+        pathname: "/recipe",
+      },
+    },
   },
   initialGlobals: {
     viewport: { value: "desktop", isRotated: false },

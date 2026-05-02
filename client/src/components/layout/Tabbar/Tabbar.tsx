@@ -1,6 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   CookingPot,
   MessageCircle,
@@ -21,21 +23,42 @@ export type TabbarTabId = (typeof TABBAR_TAB_IDS)[number];
 
 const TABS: readonly {
   id: TabbarTabId;
+  href: string;
   label: string;
   Icon: LucideIcon;
 }[] = [
-  { id: "recipe", label: "레시피", Icon: CookingPot },
-  { id: "chatbot", label: "챗봇", Icon: MessageCircle },
-  { id: "inventory", label: "보관함", Icon: Package },
-  { id: "mypage", label: "마이페이지", Icon: User },
+  { id: "recipe", href: "/recipe", label: "레시피", Icon: CookingPot },
+  { id: "chatbot", href: "/chatbot", label: "챗봇", Icon: MessageCircle },
+  { id: "inventory", href: "/inventory", label: "보관함", Icon: Package },
+  { id: "mypage", href: "/mypage", label: "마이페이지", Icon: User },
 ] as const;
+
+/**
+ * 현재 pathname에 맞는 하단 탭 id (일치 또는 하위 경로). 매칭 없으면 `recipe`.
+ * Storybook 등에서 `usePathname()`이 `null`/`undefined`일 수 있으므로 방어한다.
+ */
+export function tabbarTabIdFromPathname(pathname: string | null | undefined): TabbarTabId {
+  const path = pathname ?? "";
+  for (const { id, href } of TABS) {
+    if (path === href || path.startsWith(`${href}/`)) return id;
+  }
+  return "recipe";
+}
 
 export interface TabbarProps {
   className?: string;
-  /** 현재 선택된 탭 */
-  activeId: TabbarTabId;
-  /** 탭 선택 시 (라우팅·상태 반영은 상위에서 처리) */
-  onSelect: (id: TabbarTabId) => void;
+  /**
+   * 선택된 탭. 생략 시 `usePathname()`으로 {@link tabbarTabIdFromPathname} 계산.
+   * Storybook 등 경로가 없을 때는 임의 값을 넘긴다.
+   */
+  activeId?: TabbarTabId;
+  /** 탭 클릭 시 추가 처리(분석 등). `preventLinkNavigation`이 true면 필수에 가깝게 사용 */
+  onSelect?: (id: TabbarTabId) => void;
+  /**
+   * true면 `click`에서 기본 네비게이션을 막고 `onSelect`만 호출.
+   * Storybook 등 앱 라우터 밖에서 링크 동작을 쓰지 않을 때
+   */
+  preventLinkNavigation?: boolean;
 }
 
 /** Figma `TabButtonWrapper`: 탭 열 레이아웃( flex-1 · 가로 중앙 정렬 ). */
@@ -74,25 +97,39 @@ function TabButton({
   );
 }
 
-export function Tabbar({ className = "", activeId, onSelect }: TabbarProps) {
+const tabLinkClassName =
+  "flex min-h-11 flex-col items-center justify-center border-0 bg-transparent px-1 p-0 text-center no-underline transition-colors focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default";
+
+export function Tabbar({
+  className = "",
+  activeId: activeIdProp,
+  onSelect,
+  preventLinkNavigation = false,
+}: TabbarProps) {
+  const pathname = usePathname();
+  const activeId = activeIdProp ?? tabbarTabIdFromPathname(pathname);
+
   return (
     <nav
       className={cn("w-full border-t border-border-subtle bg-background-surface", className)}
       aria-label={buildAriaLabel("section", "하단 탭")}
     >
       <div className="mx-auto flex w-full max-w-(--layout-content-max-width) items-start gap-6 px-6 py-3">
-        {TABS.map(({ id, label, Icon }) => {
+        {TABS.map(({ id, href, label, Icon }) => {
           const selected = activeId === id;
           return (
             <TabButtonWrapper key={id}>
-              <button
-                type="button"
-                className="flex px-1 min-h-11 flex-col items-center justify-center border-0 bg-transparent p-0 text-center transition-colors focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default"
+              <Link
+                href={href}
+                className={tabLinkClassName}
                 aria-current={selected ? "page" : undefined}
-                onClick={() => onSelect(id)}
+                onClick={(e) => {
+                  if (preventLinkNavigation) e.preventDefault();
+                  onSelect?.(id);
+                }}
               >
                 <TabButton selected={selected} label={label} Icon={Icon} />
-              </button>
+              </Link>
             </TabButtonWrapper>
           );
         })}

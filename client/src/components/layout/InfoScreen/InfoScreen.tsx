@@ -1,7 +1,6 @@
-import Link from "next/link";
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
-import { buildAriaLabel } from "@/lib/utils/a11y";
+import { Button } from "@/components/ui/Button";
 import { IconShell } from "@/components/ui/IconShell";
 
 export interface InfoScreenProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
@@ -38,8 +37,6 @@ export function InfoScreen({
       ? `info-screen-${slugifyHeadingId(title)}`
       : undefined;
 
-  const linkAriaLabel = showButton ? buildAriaLabel("link", buttonLabel ?? "") : undefined;
-
   return (
     <section
       className={cn(
@@ -59,13 +56,13 @@ export function InfoScreen({
       ) : null}
       <p className="typo-body-regular style-text-secondary">{message}</p>
       {showButton ? (
-        <Link
+        <Button
           href={buttonHref}
-          aria-label={linkAriaLabel}
-          className="inline-flex items-center justify-center rounded-full bg-primary-default px-4 py-3 typo-label-button style-text-button-primary outline-none transition-colors hover:bg-primary-hover focus-visible:ring-(length:--border-width-focus) focus-visible:ring-primary-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-primary"
-        >
-          {buttonLabel}
-        </Link>
+          variant="primary"
+          size="large"
+          label={buttonLabel}
+          className="w-auto self-center"
+        />
       ) : null}
     </section>
   );
