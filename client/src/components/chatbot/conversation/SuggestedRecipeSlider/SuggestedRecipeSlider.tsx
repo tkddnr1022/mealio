@@ -17,7 +17,7 @@ import "swiper/css/a11y";
 
 export type SuggestedRecipeSliderItem = Readonly<
   Pick<SuggestedRecipeCardProps, "title" | "imageUrl" | "imageAlt" | "tags"> & {
-    id: string | number;
+    id: number;
   }
 >;
 
@@ -82,6 +82,7 @@ export function SuggestedRecipeSlider({
           {safeItems.map((item) => (
             <SwiperSlide key={item.id} className="box-border! shrink-0" style={slideWidthStyle}>
               <SuggestedRecipeCard
+                recipeId={item.id}
                 title={item.title}
                 imageUrl={item.imageUrl}
                 imageAlt={item.imageAlt}

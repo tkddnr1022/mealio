@@ -20,6 +20,7 @@ const meta = {
   },
   decorators: [figmaWidth],
   args: {
+    recipeId: 1,
     title: "비빔밥",
     imageUrl: sampleImage,
     tags: [{ label: "15분" }, { label: "쉬움" }, { label: "2인분" }],
