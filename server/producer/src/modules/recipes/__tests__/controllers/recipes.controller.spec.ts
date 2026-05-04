@@ -22,7 +22,6 @@ describe('RecipesController', () => {
     viewCount: 0,
     likeCount: 0,
     isPublished: true,
-    isFavorite: false,
     createdAt: new Date('2025-01-10T10:30:00.000Z'),
   };
 

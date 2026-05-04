@@ -12,6 +12,8 @@ import {
   RecipeSlider,
 } from '@/components/recipe';
 
+import { PersonalizedRecipeSection } from './PersonalizedRecipeSection';
+
 export interface RecipeMainPageClientProps {
   mostViewedRecipes: readonly RecipeGridItem[];
   mostLikedRecipes: readonly RecipeGridItem[];
@@ -54,6 +56,8 @@ export function RecipeMainPageClient({
             </p>
           )}
         </RecipeSection>
+
+        <PersonalizedRecipeSection />
       </MainContent>
 
       <Tabbar />

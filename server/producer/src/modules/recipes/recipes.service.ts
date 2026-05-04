@@ -124,8 +124,11 @@ export class RecipeQueryService {
       /* fire-and-forget */
     });
 
-    const isFavorite = await this.isFavoriteRecipe(recipe.id, userId);
-    return { ...recipe, isFavorite };
+    if (userId) {
+      const isFavorite = await this.isFavoriteRecipe(recipe.id, userId);
+      return { ...recipe, isFavorite };
+    }
+    return { ...recipe };
   }
 
   // TODO: 조인 비용 및 캐시 정책(Write Behind) 검토
@@ -201,7 +204,7 @@ export class RecipeQueryService {
   async getSummariesByIds(ids: number[]): Promise<RecipeSummaryDto[]> {
     if (ids.length === 0) return [];
     const data = await this.recipeRepository.findSummariesByIds(ids);
-    return data.map((r) => this.toSummaryDto(r, false));
+    return data.map((r) => this.toSummaryDto(r));
   }
 
   async getCategories(): Promise<{ data: RecipeCategoryDto[] }> {
@@ -223,11 +226,15 @@ export class RecipeQueryService {
     return { data };
   }
 
+  /**
+   * 공개 요약 DTO. `includeIsFavorite`가 주어질 때만 `isFavorite` 키를 넣는다
+   * (비로그인·ISR·공용 캐시 응답과의 정합).
+   */
   private toSummaryDto(
     recipe: RecipeWithStats,
-    isFavorite = false,
+    includeIsFavorite?: boolean,
   ): RecipeSummaryDto {
-    return {
+    const base: RecipeSummaryDto = {
       id: recipe.id,
       title: recipe.title,
       description: recipe.description ?? null,
@@ -238,9 +245,12 @@ export class RecipeQueryService {
       viewCount: recipe.viewCount,
       likeCount: recipe.likeCount,
       isPublished: recipe.isPublished,
-      isFavorite,
       createdAt: recipe.createdAt,
     };
+    if (includeIsFavorite !== undefined) {
+      return { ...base, isFavorite: includeIsFavorite };
+    }
+    return base;
   }
 
   private toDetailDto(recipe: RecipeWithIngredients): RecipeDetailDto {
@@ -256,7 +266,7 @@ export class RecipeQueryService {
     );
 
     return {
-      ...this.toSummaryDto(recipe, false),
+      ...this.toSummaryDto(recipe),
       categoryId: recipe.categoryId,
       categoryName: recipe.categoryMeta.name,
       instructions,
@@ -271,7 +281,10 @@ export class RecipeQueryService {
     if (!userId || result.data.length === 0) {
       return {
         ...result,
-        data: result.data.map((recipe) => ({ ...recipe, isFavorite: false })),
+        data: result.data.map((recipe) => {
+          const { isFavorite: _removed, ...rest } = recipe;
+          return rest;
+        }),
       };
     }
 

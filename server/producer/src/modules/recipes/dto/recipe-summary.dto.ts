@@ -39,8 +39,13 @@ export class RecipeSummaryDto {
   @ApiProperty({ example: true, description: '공개 여부' })
   isPublished: boolean;
 
-  @ApiProperty({ example: false, description: '내 관심 레시피 여부' })
-  isFavorite: boolean;
+  @ApiProperty({
+    example: false,
+    required: false,
+    description:
+      '내 관심 레시피 여부. 인증된 사용자 컨텍스트에서만 포함되며, 비로그인·공개 캐시 응답에서는 생략될 수 있다.',
+  })
+  isFavorite?: boolean;
 
   @ApiProperty({ example: '2025-01-10T10:30:00Z', format: 'date-time' })
   createdAt: Date;

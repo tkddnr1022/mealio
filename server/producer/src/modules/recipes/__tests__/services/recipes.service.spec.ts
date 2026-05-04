@@ -163,7 +163,7 @@ describe('RecipeQueryService', () => {
       expect(result.data).toHaveLength(1);
       expect(result.data[0].id).toBe(1);
       expect(result.data[0].title).toBe('김치볶음밥');
-      expect(result.data[0].isFavorite).toBe(false);
+      expect(result.data[0].isFavorite).toBeUndefined();
       expect(result.pagination.page).toBe(1);
       expect(result.pagination.size).toBe(20);
       expect(result.pagination.total).toBe(1);
@@ -279,7 +279,10 @@ describe('RecipeQueryService', () => {
         sort: 'latest',
       });
 
-      expect(result).toEqual(cached);
+      expect(result).toEqual({
+        ...cached,
+        data: cached.data.map(({ isFavorite: _f, ...row }) => row),
+      });
       expect(recipeRepository.findManyPaginated).not.toHaveBeenCalled();
     });
 
@@ -314,7 +317,7 @@ describe('RecipeQueryService', () => {
       expect(result.ingredients).toHaveLength(1);
       expect(result.ingredients[0].name).toBe('김치');
       expect(result.ingredients[0].amount).toBe(100);
-      expect(result.isFavorite).toBe(false);
+      expect(result.isFavorite).toBeUndefined();
     });
 
     it('레시피가 없으면 NotFoundException을 던진다', async () => {
@@ -367,7 +370,7 @@ describe('RecipeQueryService', () => {
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe(1);
       expect(result[0].title).toBe('김치볶음밥');
-      expect(result[0].isFavorite).toBe(false);
+      expect(result[0].isFavorite).toBeUndefined();
     });
 
     it('ids가 빈 배열이면 빈 배열을 반환한다', async () => {
@@ -396,7 +399,7 @@ describe('RecipeQueryService', () => {
       );
       expect(result.data).toHaveLength(1);
       expect(result.pagination.total).toBe(1);
-      expect(result.data[0].isFavorite).toBe(false);
+      expect(result.data[0].isFavorite).toBeUndefined();
       expect(kafkaProducer.emit).toHaveBeenCalledWith(
         KAFKA_TOPICS.ACTIVITY_EVENTS,
         expect.objectContaining({

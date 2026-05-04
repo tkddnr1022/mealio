@@ -29,7 +29,13 @@ export interface RecipeSummary {
   imageUrl: string | null;
   servings: number;
   viewCount: number;
+  /** 좋아요 수(목록·검색 응답) */
+  likeCount: number;
   isPublished: boolean;
+  /**
+   * 인증된 요청에서만 포함. 공개/ISR 경로 응답에서는 생략될 수 있다.
+   */
+  isFavorite?: boolean;
   /** ISO 8601 */
   createdAt: string;
 }
