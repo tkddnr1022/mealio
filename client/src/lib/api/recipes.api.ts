@@ -11,7 +11,7 @@
  * 도메인 타입은 `@/lib/types/recipe`에서 정의한다.
  */
 
-import { httpClient } from './http-client';
+import { httpClient, type RequestOptions } from './http-client';
 import { objectToQuery } from './query';
 import { API_ENDPOINTS } from './endpoints';
 import type { Paginated } from '@/lib/types/api';
@@ -31,9 +31,11 @@ export type RecipeListResult = Paginated<RecipeSummary>;
  */
 export function getRecipeList(
   params: RecipeListQuery = {},
+  fetchOptions?: Pick<RequestOptions, 'headers' | 'signal'>,
 ): Promise<RecipeListResult> {
   return httpClient.get<RecipeListResult>(API_ENDPOINTS.recipes.list, {
     query: objectToQuery(params),
+    ...fetchOptions,
   });
 }
 
