@@ -37,6 +37,7 @@ export function RecipeFilterClientPage({
   );
   const [cookTimeRange, setCookTimeRange] =
     useState<RangeSliderValue>(DEFAULT_COOK_TIME_RANGE);
+  const [sliderResetKey, setSliderResetKey] = useState(0);
 
   const toggleDifficulty = (difficulty: number) => {
     setSelectedDifficulties((prev) => {
@@ -56,6 +57,7 @@ export function RecipeFilterClientPage({
     setSelectedDifficulties([]);
     setSelectedCategoryId(null);
     setCookTimeRange(DEFAULT_COOK_TIME_RANGE);
+    setSliderResetKey((prev) => prev + 1);
   };
 
   const runSearch = () => {
@@ -118,6 +120,7 @@ export function RecipeFilterClientPage({
         </ToggleCard>
 
         <RangeSliderCard
+          key={sliderResetKey}
           heading="조리 시간"
           sliderProps={{
             min: DEFAULT_COOK_TIME_RANGE.minValue,
