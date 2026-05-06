@@ -51,7 +51,7 @@ export function IngredientCard({
   return (
     <div
       className={cn(
-        'relative flex h-[113px] w-20 shrink-0 flex-col items-center gap-3 rounded-xl bg-background-surface p-4 shadow-(--semantic-shadow-md)',
+        'relative flex w-20 shrink-0 flex-col items-center gap-3 rounded-xl bg-background-surface p-4 shadow-(--semantic-shadow-md)',
         className,
       )}
       data-name="IngredientCard"

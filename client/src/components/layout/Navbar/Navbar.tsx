@@ -82,7 +82,7 @@ export function Navbar({
 
         {showTitle ? (
           <div className="flex min-w-0 max-w-[min(100vw-8rem,28rem)] items-center justify-center">
-            <h1 className="typo-logo-small m-0 min-w-0 w-full text-center font-[inherit]">
+            <h1 className="typo-logo-small m-0 min-w-0 w-full text-center">
               <Link
                 href={NAVBAR_LOGO_HREF}
                 className="block truncate text-center style-text-primary no-underline outline-none transition-colors focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default"

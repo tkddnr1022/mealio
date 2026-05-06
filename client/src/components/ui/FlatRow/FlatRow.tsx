@@ -16,7 +16,7 @@ export function FlatRow({ className = '', children, ...rest }: FlatRowProps) {
   return (
     <div
       className={cn(
-        'flex min-h-[85px] w-full flex-wrap content-start items-start gap-2',
+        'flex w-full flex-wrap content-start items-start gap-2',
         className,
       )}
       {...rest}

@@ -25,8 +25,8 @@ export function MenuItem({
   ...rest
 }: MenuItemProps) {
   const surfaceClass = cn(
-    'flex w-full items-center gap-4 bg-background-surface text-left outline-none',
-    border ? 'border-b border-border-muted pb-[17px] pt-4' : 'py-4',
+    'flex w-full items-center gap-4 bg-background-surface text-left outline-none py-4',
+    border ? 'border-b border-border-muted' : '',
     className,
   );
 
