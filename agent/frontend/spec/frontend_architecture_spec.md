@@ -206,7 +206,7 @@ SSE 구독·이벤트 파싱 담당. `ChatbotStreamEvent` 타입·Redis 채널·
 | **client/src/lib/config/** | 런타임·빌드 타임 설정 |
 | client/src/lib/config/env.ts | `NEXT_PUBLIC_*` 환경 변수 로드·검증(Zod 또는 수동). API base URL, 환경(dev/prod), OAuth Provider 노출 플래그 |
 | client/src/lib/config/api.config.ts | API base URL, SSE timeout, 재시도 정책 상수 |
-| client/src/lib/config/cache.config.ts | React Query 기본 `staleTime` / `cacheTime`, ISR `revalidate` 주기 상수(§4 성능 예산과 연계) |
+| client/src/lib/config/cache.config.ts | React Query 기본 `staleTime` / `cacheTime` 상수(§4 성능 예산과 연계) |
 | client/src/lib/config/oauth-error.config.ts | `/oauth/error` 페이지 쿼리 키(OAuth 표준·백엔드 실패 파라미터) |
 
 ### 5.6 타입·DTO (`client/src/lib/types/`)

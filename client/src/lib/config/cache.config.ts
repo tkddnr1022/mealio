@@ -2,7 +2,6 @@
  * 캐시 관련 상수.
  *
  * - React Query 전역·쿼리별 `staleTime`/`gcTime`(TanStack Query v5) 기본값
- * - Next.js ISR `revalidate` 주기
  *
  * 근거:
  * - `agent/frontend/spec/frontend_architecture_spec.md` §4 성능 예산
@@ -10,7 +9,6 @@
  *
  * 단위:
  * - React Query 값: **밀리초(ms)**
- * - ISR 값: **초(s)** — Next.js `export const revalidate`의 단위
  */
 
 const SECOND_MS = 1_000;
@@ -33,12 +31,12 @@ export const QUERY_DEFAULTS = {
  * 유저/세션은 짧게 유지한다.
  */
 export const QUERY_CACHE = {
-  /** 레시피 목록·검색·필터 결과 — ISR과 보조하여 5분 fresh */
+  /** 레시피 목록·검색·필터 결과 — 5분 fresh */
   recipeList: {
     staleTime: 5 * MINUTE_MS,
     gcTime: 30 * MINUTE_MS,
   },
-  /** 레시피 상세 — CDN/ISR과 중복 캐싱되므로 10분 fresh */
+  /** 레시피 상세 — 상대적으로 긴 수명의 10분 fresh */
   recipeDetail: {
     staleTime: 10 * MINUTE_MS,
     gcTime: 60 * MINUTE_MS,
@@ -69,21 +67,5 @@ export const QUERY_CACHE = {
   },
 } as const;
 
-/**
- * Next.js ISR `revalidate` 주기(초). 페이지 파일에서
- * `export const revalidate = ISR_REVALIDATE.xxx` 형태로 사용한다.
- *
- * 가이드라인 §3.2:
- * - `/recipes` 계열(메인/검색/필터 목록): 300s
- * - `/recipes/[id]` 상세: 600s
- * - 마케팅(SSG 유사): 24시간
- */
-export const ISR_REVALIDATE = {
-  recipeList: 300,
-  recipeDetail: 600,
-  marketing: 24 * 60 * 60,
-} as const;
-
 export type QueryDefaults = typeof QUERY_DEFAULTS;
 export type QueryCache = typeof QUERY_CACHE;
-export type IsrRevalidate = typeof ISR_REVALIDATE;

@@ -11,7 +11,13 @@
 - **SSR**: 기본이 서버 컴포넌트. `cookies()`, `headers()` 등으로 개인화 데이터 조회.
 - **CSR**: `'use client'` + 클라이언트 전용 컴포넌트. 챗봇·재료 관리·폼 등 인터랙티브 UI.
 
-### 1.1 네비게이션 UI와 `Link`
+### 1.1 `revalidate` 선언 규칙
+
+- `app/**/page.tsx`의 ISR 선언은 **항상 숫자 리터럴**로 작성한다. 예: `export const revalidate = 300`.
+- `export const revalidate = SOME_CONST` 형태(상수 참조)는 빌드 타임 정적 분석 실패 원인이 될 수 있으므로 금지한다.
+- 공개 ISR 페이지에서는 `cookies()` 의존 함수를 호출하지 않고, 쿠키 비의존 서버 API 래퍼만 사용한다.
+
+### 1.2 네비게이션 UI와 `Link`
 
 **다른 앱 경로로의 이동**이 본질인 컨트롤(하단 탭, 서브탭, 메뉴 행, 내부 CTA 등)은 `<button>`에 `router.push`만 얹는 패턴보다 **`next/link`의 `Link`** 를 우선한다. 클라이언트 전환·선택적 prefetch·시맨틱 앵커에 맞고, App Router와 함께 쓰기 쉽다.
 
