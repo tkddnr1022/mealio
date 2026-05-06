@@ -2,7 +2,7 @@ export { ChatCard } from './list/ChatCard';
 export type { ChatCardProps } from './list/ChatCard';
 
 export { ChatList } from './list/ChatList';
-export type { ChatListProps, ChatListItem } from './list/ChatList';
+export type { ChatListProps } from './list/ChatList';
 
 export { ChatBubble } from './conversation/ChatBubble';
 export type {
@@ -26,7 +26,4 @@ export { SuggestedRecipeCard } from './conversation/SuggestedRecipeCard';
 export type { SuggestedRecipeCardProps } from './conversation/SuggestedRecipeCard';
 
 export { SuggestedRecipeSlider } from './conversation/SuggestedRecipeSlider';
-export type {
-  SuggestedRecipeSliderItem,
-  SuggestedRecipeSliderProps,
-} from './conversation/SuggestedRecipeSlider';
+export type { SuggestedRecipeSliderProps } from './conversation/SuggestedRecipeSlider';

@@ -1,32 +1,33 @@
 import { MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import type { HTMLAttributes } from 'react';
+import type { ConversationListItem } from '@/lib/types/chatbot';
 import { cn } from '@/lib/utils/cn';
 import { IconShell } from '@/components/ui/IconShell';
-import { formatRelativeTime, type DateInput } from '@/lib/utils/date';
+import {
+  toChatListTimestampLabel,
+  toConversationHref,
+} from '@/components/chatbot/utils/chatbot-format';
 
 export interface ChatCardProps extends Omit<
   HTMLAttributes<HTMLElement>,
   'children'
 > {
   className?: string;
-  /** `/chatbot/{conversationId}` 대화 화면으로 이동 */
-  conversationId: string;
+  conversation: ConversationListItem;
   title?: string;
-  timestamp?: DateInput;
   lastMessage?: string;
 }
 
 export function ChatCard({
   className = '',
-  conversationId,
+  conversation,
   title,
-  timestamp = new Date(),
   lastMessage,
   ...rest
 }: ChatCardProps) {
-  const formattedTimestamp = formatRelativeTime(timestamp);
-  const conversationHref = `/chatbot/${encodeURIComponent(conversationId)}`;
+  const formattedTimestamp = toChatListTimestampLabel(conversation.lastMessageAt);
+  const conversationHref = toConversationHref(conversation.conversationId);
 
   const linkClassName =
     'card flex w-full flex-col gap-0 text-inherit no-underline outline-none transition-[opacity,colors] focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default';

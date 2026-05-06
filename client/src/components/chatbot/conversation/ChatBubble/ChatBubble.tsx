@@ -1,6 +1,7 @@
 import type { HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils/cn';
-import { formatMeridiemTime, type DateInput } from '@/lib/utils/date';
+import { type DateInput } from '@/lib/utils/date';
+import { toChatBubbleTimestampLabel } from '@/components/chatbot/utils/chatbot-format';
 
 export type ChatBubbleRole = 'assistant' | 'user';
 
@@ -22,7 +23,7 @@ export function ChatBubble({
   ...rest
 }: ChatBubbleProps) {
   const isUser = role === 'user';
-  const formattedTimestamp = formatMeridiemTime(timestamp);
+  const formattedTimestamp = toChatBubbleTimestampLabel(timestamp);
 
   return (
     <div

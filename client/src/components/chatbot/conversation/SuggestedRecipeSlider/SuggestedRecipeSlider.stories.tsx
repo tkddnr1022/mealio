@@ -1,4 +1,5 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
+import type { SuggestedRecipe } from '@/lib/types/chatbot';
 import { SuggestedRecipeSlider } from '@/components/chatbot/conversation/SuggestedRecipeSlider';
 
 const figmaWidth: Decorator = (Story) => (
@@ -17,16 +18,24 @@ const baseItems = [
   {
     id: 1,
     title: '비빔밥',
-    imageUrl: imageA,
-    tags: [{ label: '15분' }, { label: '쉬움' }, { label: '2인분' }],
+    categoryId: 10,
+    categoryName: '한식',
+    matchScore: 93,
   },
   {
     id: 2,
     title: '김치볶음밥',
-    imageUrl: imageB,
-    tags: [{ label: '20분' }, { label: '쉬움' }, { label: '2인분' }],
+    categoryId: 10,
+    categoryName: '한식',
+    matchScore: 88,
   },
-] as const;
+] satisfies readonly SuggestedRecipe[];
+
+const imageMap = new Map<number, string>([
+  [1, imageA],
+  [2, imageB],
+  [3, imageC],
+]);
 
 const meta = {
   title: 'Chatbot/Conversation/SuggestedRecipeSlider',
@@ -45,6 +54,7 @@ type Story = StoryObj<typeof meta>;
 export const TwoCards = {
   args: {
     items: baseItems,
+    getImageUrl: (item: SuggestedRecipe) => imageMap.get(item.id),
   },
 } satisfies Story;
 
@@ -55,9 +65,11 @@ export const ThreeCards = {
       {
         id: 3,
         title: '닭갈비',
-        imageUrl: imageC,
-        tags: [{ label: '30분' }, { label: '보통' }, { label: '3인분' }],
+        categoryId: 10,
+        categoryName: '한식',
+        matchScore: 84,
       },
     ],
+    getImageUrl: (item: SuggestedRecipe) => imageMap.get(item.id),
   },
 } satisfies Story;

@@ -17,7 +17,4 @@ export { SuggestedRecipeCard } from './SuggestedRecipeCard';
 export type { SuggestedRecipeCardProps } from './SuggestedRecipeCard';
 
 export { SuggestedRecipeSlider } from './SuggestedRecipeSlider';
-export type {
-  SuggestedRecipeSliderItem,
-  SuggestedRecipeSliderProps,
-} from './SuggestedRecipeSlider';
+export type { SuggestedRecipeSliderProps } from './SuggestedRecipeSlider';

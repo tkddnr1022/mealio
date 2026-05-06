@@ -5,28 +5,25 @@ import { useCallback, useMemo, useState } from 'react';
 import type { Swiper as SwiperType } from 'swiper';
 import { A11y, Keyboard } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import type { SuggestedRecipe } from '@/lib/types/chatbot';
 import { cn } from '@/lib/utils/cn';
 import { SliderPagination } from '@/components/ui/SliderPagination';
 import {
   SuggestedRecipeCard,
-  type SuggestedRecipeCardProps,
 } from '@/components/chatbot/conversation/SuggestedRecipeCard';
+import { isValidSuggestedRecipe } from '@/components/chatbot/utils/chatbot-format';
 
 import 'swiper/css';
 import 'swiper/css/a11y';
-
-export type SuggestedRecipeSliderItem = Readonly<
-  Pick<SuggestedRecipeCardProps, 'title' | 'imageUrl' | 'imageAlt' | 'tags'> & {
-    id: number;
-  }
->;
 
 export interface SuggestedRecipeSliderProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   'children'
 > {
   className?: string;
-  items?: readonly SuggestedRecipeSliderItem[];
+  items?: readonly SuggestedRecipe[];
+  getImageUrl?: (recipe: SuggestedRecipe) => string | undefined;
+  getImageAlt?: (recipe: SuggestedRecipe) => string | undefined;
   cardClassName?: string;
   peekPx?: number;
 }
@@ -40,12 +37,14 @@ const MIN_SLIDE_WIDTH = 200;
 export function SuggestedRecipeSlider({
   className = '',
   items = [],
+  getImageUrl,
+  getImageAlt,
   cardClassName = '',
   peekPx = DEFAULT_PEEK_PX,
   ...rest
 }: SuggestedRecipeSliderProps) {
   const safeItems = useMemo(
-    () => items.filter((item) => Boolean(item.id)),
+    () => items.filter((item) => isValidSuggestedRecipe(item)),
     [items],
   );
   const [activeIndex, setActiveIndex] = useState(0);
@@ -92,11 +91,9 @@ export function SuggestedRecipeSlider({
               style={slideWidthStyle}
             >
               <SuggestedRecipeCard
-                recipeId={item.id}
-                title={item.title}
-                imageUrl={item.imageUrl}
-                imageAlt={item.imageAlt}
-                tags={item.tags}
+                recipe={item}
+                imageUrl={getImageUrl?.(item)}
+                imageAlt={getImageAlt?.(item)}
                 className={cardClassName}
               />
             </SwiperSlide>

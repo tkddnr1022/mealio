@@ -1,4 +1,5 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
+import type { SuggestedRecipe } from '@/lib/types/chatbot';
 import { ChatConversation } from '@/components/chatbot/conversation/ChatConversation';
 
 const figmaWidth: Decorator = (Story) => (
@@ -7,25 +8,22 @@ const figmaWidth: Decorator = (Story) => (
   </div>
 );
 
-const imageA =
-  'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=320&h=320&fit=crop';
-const imageB =
-  'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=320&h=320&fit=crop';
-
-const sampleSuggestedRecipes = [
+const sampleSuggestedRecipes: readonly SuggestedRecipe[] = [
   {
     id: 1,
     title: '비빔밥',
-    imageUrl: imageA,
-    tags: [{ label: '15분' }, { label: '쉬움' }, { label: '2인분' }],
+    categoryId: 10,
+    categoryName: '한식',
+    matchScore: 93,
   },
   {
     id: 2,
     title: '김치볶음밥',
-    imageUrl: imageB,
-    tags: [{ label: '20분' }, { label: '쉬움' }, { label: '2인분' }],
+    categoryId: 10,
+    categoryName: '한식',
+    matchScore: 88,
   },
-] as const;
+];
 
 const meta = {
   title: 'Chatbot/Conversation/ChatConversation',

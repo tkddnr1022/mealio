@@ -1,24 +1,26 @@
 import type { HTMLAttributes } from 'react';
+import type { ConversationListItem } from '@/lib/types/chatbot';
 import { cn } from '@/lib/utils/cn';
 import {
   ChatCard,
-  type ChatCardProps,
 } from '@/components/chatbot/list/ChatCard';
-
-export type ChatListItem = ChatCardProps;
 
 export interface ChatListProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   'children'
 > {
   className?: string;
-  chats: readonly ChatListItem[];
+  chats: readonly ConversationListItem[];
+  getTitle?: (chat: ConversationListItem) => string | undefined;
+  getLastMessage?: (chat: ConversationListItem) => string | undefined;
   cardClassName?: string;
 }
 
 export function ChatList({
   className = '',
   chats,
+  getTitle,
+  getLastMessage,
   cardClassName = '',
   ...rest
 }: ChatListProps) {
@@ -29,12 +31,13 @@ export function ChatList({
       {...rest}
     >
       {chats.map((chat) => {
-        const { className: itemClassName = '', ...chatProps } = chat;
         return (
           <ChatCard
-            key={chatProps.conversationId}
-            {...chatProps}
-            className={cn(cardClassName, itemClassName)}
+            key={chat.conversationId}
+            conversation={chat}
+            title={getTitle?.(chat)}
+            lastMessage={getLastMessage?.(chat)}
+            className={cardClassName}
           />
         );
       })}
