@@ -37,7 +37,7 @@ export function SuggestedRecipeCard({
   const resolvedImageUrl = imageUrl?.trim() || FALLBACK_RECIPE_IMAGE;
 
   const linkClassName =
-    'block w-full shrink-0 py-2 text-inherit no-underline outline-none transition-[opacity,colors] focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default';
+    'block w-full shrink-0 py-2 text-inherit no-underline outline-none transition-[opacity,colors] focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default select-none';
 
   return (
     <Link

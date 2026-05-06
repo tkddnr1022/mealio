@@ -40,7 +40,7 @@ export function RecipeGridCard({
   const detailHref = toRecipeDetailHref(recipe.id);
 
   const linkClassName =
-    'flex w-full min-w-0 flex-col items-start gap-2 text-inherit no-underline outline-none transition-[opacity,colors] focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default';
+    'flex w-full min-w-0 flex-col items-start gap-2 text-inherit no-underline outline-none transition-[opacity,colors] focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default select-none';
 
   return (
     <Link
