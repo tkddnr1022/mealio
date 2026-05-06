@@ -1,14 +1,11 @@
 import type { HTMLAttributes } from 'react';
+import type { RecipeIngredientItem } from '@/lib/types/recipe';
 import { cn } from '@/lib/utils/cn';
 import {
   RecipeIngredientRow,
   type RecipeIngredientRowProps,
 } from '@/components/recipe/detail/RecipeIngredientRow';
-
-export type RecipeIngredientItem = Readonly<{
-  name: string;
-  quantity: string;
-}>;
+import { toIngredientQuantityLabel } from '@/components/recipe/utils/recipe-format';
 
 export interface RecipeIngredientsCardProps extends Omit<
   HTMLAttributes<HTMLElement>,
@@ -41,7 +38,7 @@ export function RecipeIngredientsCard({
           <RecipeIngredientRow
             key={`${ingredient.name}-${index}`}
             name={ingredient.name}
-            quantity={ingredient.quantity}
+            quantity={toIngredientQuantityLabel(ingredient)}
             className={rowClassName}
             {...rowProps}
           />

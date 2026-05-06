@@ -1,6 +1,7 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
+import type { RecipeSummary } from '@/lib/types/recipe';
 
-import { type RecipeGridItem, RecipeSlider } from '@/components/recipe';
+import { RecipeSlider } from '@/components/recipe';
 
 const centered: Decorator = (Story) => (
   <div className="flex w-full justify-center py-6">
@@ -38,7 +39,7 @@ const salad =
 const soup =
   'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=400&fit=crop';
 
-function makeRecipes(count: number): RecipeGridItem[] {
+function makeRecipes(count: number): RecipeSummary[] {
   const titles = [
     '치킨 카레',
     '토마토 파스타',
@@ -55,13 +56,17 @@ function makeRecipes(count: number): RecipeGridItem[] {
   ];
   const images = [curry, pasta, salad, soup];
   return Array.from({ length: count }, (_, i) => ({
-    recipeId: `recipe-${i + 1}`,
+    id: i + 1,
     imageUrl: images[i % images.length] ?? curry,
     title: titles[i % titles.length] ?? `레시피 ${i + 1}`,
-    cookingTime: `${20 + (i % 5) * 5}분`,
-    difficulty: i % 3 === 0 ? '쉬움' : i % 3 === 1 ? '보통' : '어려움',
-    servings: `${2 + (i % 3)}인분`,
-    category: i % 2 === 0 ? '아시안' : '양식',
+    description: null,
+    cookTime: 20 + (i % 5) * 5,
+    difficulty: i % 3 === 0 ? 2 : i % 3 === 1 ? 3 : 4,
+    servings: 2 + (i % 3),
+    viewCount: 10 + i,
+    likeCount: 3 + i,
+    isPublished: true,
+    createdAt: new Date().toISOString(),
   }));
 }
 

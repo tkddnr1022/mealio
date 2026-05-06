@@ -19,8 +19,8 @@ const meta = {
   args: {
     title: '조리 순서',
     steps: [
-      { step: '1', instruction: '첫 번째 조리 단계입니다.' },
-      { step: '2', instruction: '다음 단계를 진행합니다.' },
+      { step: 1, content: '첫 번째 조리 단계입니다.' },
+      { step: 2, content: '다음 단계를 진행합니다.' },
     ],
   },
 } satisfies Meta<typeof RecipeStepsCard>;
@@ -33,9 +33,9 @@ export const Default = {} satisfies Story;
 export const LongSteps = {
   args: {
     steps: [
-      { step: '1', instruction: '재료를 모두 손질하고 밥을 준비합니다.' },
-      { step: '2', instruction: '팬에 고기를 볶고 양념을 더해 간을 맞춥니다.' },
-      { step: '3', instruction: '그릇에 밥과 재료를 담아 완성합니다.' },
+      { step: 1, content: '재료를 모두 손질하고 밥을 준비합니다.' },
+      { step: 2, content: '팬에 고기를 볶고 양념을 더해 간을 맞춥니다.' },
+      { step: 3, content: '그릇에 밥과 재료를 담아 완성합니다.' },
     ],
   },
 } satisfies Story;

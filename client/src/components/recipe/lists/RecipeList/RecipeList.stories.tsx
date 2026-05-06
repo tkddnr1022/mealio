@@ -1,5 +1,6 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
-import { type RecipeListItem, RecipeList } from '@/components/recipe';
+import type { RecipeSummary } from '@/lib/types/recipe';
+import { RecipeList } from '@/components/recipe';
 
 const figmaWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,22.5rem)]">
@@ -10,24 +11,32 @@ const figmaWidth: Decorator = (Story) => (
 const sampleImage =
   'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1200&h=800&fit=crop';
 
-const sampleRecipes: readonly RecipeListItem[] = [
+const sampleRecipes: readonly RecipeSummary[] = [
   {
-    recipeId: 'search-1',
+    id: 1,
     imageUrl: sampleImage,
     title: '비빔밥',
-    summary: '신선한 채소와 고소한 참기름이 어우러진 건강한 한그릇 요리',
-    cookingTime: '15분',
-    difficulty: '쉬움',
-    servings: '2인분',
+    description: '신선한 채소와 고소한 참기름이 어우러진 건강한 한그릇 요리',
+    difficulty: 2,
+    cookTime: 15,
+    servings: 2,
+    viewCount: 100,
+    likeCount: 20,
+    isPublished: true,
+    createdAt: new Date().toISOString(),
   },
   {
-    recipeId: 'search-2',
+    id: 2,
     imageUrl: sampleImage,
     title: '비빔밥',
-    summary: '신선한 채소와 고소한 참기름이 어우러진 건강한 한그릇 요리',
-    cookingTime: '15분',
-    difficulty: '쉬움',
-    servings: '2인분',
+    description: '신선한 채소와 고소한 참기름이 어우러진 건강한 한그릇 요리',
+    difficulty: 2,
+    cookTime: 15,
+    servings: 2,
+    viewCount: 120,
+    likeCount: 30,
+    isPublished: true,
+    createdAt: new Date().toISOString(),
   },
 ];
 

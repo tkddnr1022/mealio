@@ -19,8 +19,8 @@ const meta = {
   args: {
     title: '재료',
     ingredients: [
-      { name: '밥', quantity: '2공기' },
-      { name: '소고기', quantity: '150g' },
+      { id: 1, name: '밥', amount: 2, unit: '공기', isOptional: false },
+      { id: 2, name: '소고기', amount: 150, unit: 'g', isOptional: false },
     ],
   },
 } satisfies Meta<typeof RecipeIngredientsCard>;
@@ -33,10 +33,10 @@ export const Default = {} satisfies Story;
 export const MoreItems = {
   args: {
     ingredients: [
-      { name: '밥', quantity: '2공기' },
-      { name: '소고기', quantity: '150g' },
-      { name: '고추장', quantity: '1큰술' },
-      { name: '참기름', quantity: '1작은술' },
+      { id: 1, name: '밥', amount: 2, unit: '공기', isOptional: false },
+      { id: 2, name: '소고기', amount: 150, unit: 'g', isOptional: false },
+      { id: 3, name: '고추장', amount: 1, unit: '큰술', isOptional: false },
+      { id: 4, name: '참기름', amount: 1, unit: '작은술', isOptional: true },
     ],
   },
 } satisfies Story;

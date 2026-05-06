@@ -1,18 +1,16 @@
 import type { HTMLAttributes } from 'react';
+import type { RecipeSummary } from '@/lib/types/recipe';
 import { cn } from '@/lib/utils/cn';
 
 import {
   RecipeGridCard,
-  type RecipeGridCardProps,
 } from '@/components/recipe/cards/RecipeGridCard';
-
-export type RecipeGridItem = RecipeGridCardProps;
 
 export interface RecipeGridProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   'children'
 > {
-  recipes: readonly RecipeGridItem[];
+  recipes: readonly RecipeSummary[];
   cardClassName?: string;
 }
 
@@ -33,13 +31,11 @@ export function RecipeGrid({
       {...rest}
     >
       {recipes.map((recipe) => {
-        const { className: itemClassName = '', ...cardProps } = recipe;
-        const mergedCardClass = cn(cardClassName, itemClassName);
         return (
           <RecipeGridCard
-            key={cardProps.recipeId}
-            {...cardProps}
-            className={mergedCardClass}
+            key={recipe.id}
+            recipe={recipe}
+            className={cardClassName}
           />
         );
       })}

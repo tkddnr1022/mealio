@@ -6,7 +6,6 @@ import { SearchBarHeader } from '@/components/layout/SearchBarHeader';
 import { Tabbar } from '@/components/layout/Tabbar';
 import { RecipeSection, RecipeSlider } from '@/components/recipe';
 import { getRecipeListPublicForPage } from '@/lib/api/recipes.server';
-import { mapRecipeSummaryToGridItem } from '@/lib/utils/recipe-grid-item';
 
 import { PersonalizedRecipeSection } from './PersonalizedRecipeSection';
 
@@ -37,12 +36,12 @@ export default async function RecipeMainPage() {
 
   const mostViewedRecipes =
     viewedResult.status === 'fulfilled'
-      ? viewedResult.value.data.map(mapRecipeSummaryToGridItem)
+      ? viewedResult.value.data
       : [];
 
   const mostLikedRecipes =
     likedResult.status === 'fulfilled'
-      ? likedResult.value.data.map(mapRecipeSummaryToGridItem)
+      ? likedResult.value.data
       : [];
 
   return (

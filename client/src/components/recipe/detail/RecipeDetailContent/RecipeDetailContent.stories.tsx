@@ -59,14 +59,14 @@ const meta = {
     ],
     ingredientsCardProps: {
       ingredients: [
-        { name: '밥', quantity: '2공기' },
-        { name: '소고기', quantity: '150g' },
+        { id: 1, name: '밥', amount: 2, unit: '공기', isOptional: false },
+        { id: 2, name: '소고기', amount: 150, unit: 'g', isOptional: false },
       ],
     },
     stepsCardProps: {
       steps: [
-        { step: '1', instruction: '첫 번째 조리 단계입니다.' },
-        { step: '2', instruction: '다음 단계를 진행합니다.' },
+        { step: 1, content: '첫 번째 조리 단계입니다.' },
+        { step: 2, content: '다음 단계를 진행합니다.' },
       ],
     },
   },

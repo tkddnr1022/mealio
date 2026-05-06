@@ -1,14 +1,11 @@
 import type { HTMLAttributes } from 'react';
+import type { RecipeInstructionStep } from '@/lib/types/recipe';
 import { cn } from '@/lib/utils/cn';
 import {
   RecipeStepRow,
   type RecipeStepRowProps,
 } from '@/components/recipe/detail/RecipeStepRow';
-
-export type RecipeStepItem = Readonly<{
-  step: string;
-  instruction: string;
-}>;
+import { toRecipeStepLabel } from '@/components/recipe/utils/recipe-format';
 
 export interface RecipeStepsCardProps extends Omit<
   HTMLAttributes<HTMLElement>,
@@ -16,7 +13,7 @@ export interface RecipeStepsCardProps extends Omit<
 > {
   className?: string;
   title?: string;
-  steps?: readonly RecipeStepItem[];
+  steps?: readonly RecipeInstructionStep[];
   rowClassName?: string;
   rowProps?: Omit<RecipeStepRowProps, 'step' | 'instruction' | 'className'>;
 }
@@ -40,8 +37,8 @@ export function RecipeStepsCard({
         {steps.map((item, index) => (
           <RecipeStepRow
             key={`${item.step}-${index}`}
-            step={item.step}
-            instruction={item.instruction}
+            step={toRecipeStepLabel(item.step)}
+            instruction={item.content}
             className={rowClassName}
             {...rowProps}
           />

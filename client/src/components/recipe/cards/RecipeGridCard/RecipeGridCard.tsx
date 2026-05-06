@@ -1,36 +1,23 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { HTMLAttributes } from 'react';
+import type { RecipeSummary } from '@/lib/types/recipe';
 import { cn } from '@/lib/utils/cn';
-import { formatCookingTime } from '@/lib/utils/date';
+import {
+  joinRecipeMetaLine,
+  toRecipeCookingTimeLabel,
+  toRecipeDetailHref,
+  toRecipeDifficultyLabel,
+  toRecipeImageUrl,
+  toRecipeServingsLabel,
+} from '@/components/recipe/utils/recipe-format';
 
 export interface RecipeGridCardProps extends Omit<
   HTMLAttributes<HTMLElement>,
   'children'
 > {
   /** `/recipe/{recipeId}` 상세로 이동 */
-  recipeId: string;
-  imageUrl: string;
-  imageAlt?: string;
-  title: string;
-  cookingTime?: string;
-  cookingTimeMinutes?: number;
-  difficulty?: string;
-  servings?: string;
-  category?: string;
-}
-
-function buildMetaLine(
-  cookingTime: string | undefined,
-  difficulty: string | undefined,
-  servings: string | undefined,
-  category: string | undefined,
-): string | null {
-  const parts = [cookingTime, difficulty, servings, category].filter(
-    (p): p is string => typeof p === 'string' && p.trim().length > 0,
-  );
-  if (parts.length === 0) return null;
-  return parts.join(' · ');
+  recipe: RecipeSummary;
 }
 
 /**
@@ -39,30 +26,18 @@ function buildMetaLine(
  */
 export function RecipeGridCard({
   className = '',
-  recipeId,
-  imageUrl,
-  imageAlt,
-  title,
-  cookingTime,
-  cookingTimeMinutes,
-  difficulty,
-  servings,
-  category,
+  recipe,
   ...rest
 }: RecipeGridCardProps) {
-  const alt = imageAlt?.trim() || title;
-  const cookingTimeLabel =
-    cookingTimeMinutes !== undefined
-      ? formatCookingTime(cookingTimeMinutes) || cookingTime
-      : cookingTime;
-  const metaLine = buildMetaLine(
-    cookingTimeLabel,
-    difficulty,
-    servings,
-    category,
-  );
+  const imageUrl = toRecipeImageUrl(recipe.imageUrl);
+  const title = recipe.title;
+  const cookingTime = toRecipeCookingTimeLabel(recipe.cookTime);
+  const difficulty = toRecipeDifficultyLabel(recipe.difficulty);
+  const servings = toRecipeServingsLabel(recipe.servings);
+  const alt = title;
+  const metaLine = joinRecipeMetaLine(cookingTime, difficulty, servings);
 
-  const detailHref = `/recipe/${encodeURIComponent(recipeId)}`;
+  const detailHref = toRecipeDetailHref(recipe.id);
 
   const linkClassName =
     'flex w-full min-w-0 flex-col items-start gap-2 text-inherit no-underline outline-none transition-[opacity,colors] focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default';

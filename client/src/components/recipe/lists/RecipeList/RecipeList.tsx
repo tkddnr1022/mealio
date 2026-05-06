@@ -1,18 +1,16 @@
 import type { HTMLAttributes } from 'react';
+import type { RecipeSummary } from '@/lib/types/recipe';
 import { cn } from '@/lib/utils/cn';
 import {
   RecipeCard,
-  type RecipeCardProps,
 } from '@/components/recipe/cards/RecipeCard';
-
-export type RecipeListItem = RecipeCardProps;
 
 export interface RecipeListProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   'children'
 > {
   className?: string;
-  recipes: readonly RecipeListItem[];
+  recipes: readonly RecipeSummary[];
   cardClassName?: string;
 }
 
@@ -29,13 +27,11 @@ export function RecipeList({
       {...rest}
     >
       {recipes.map((recipe) => {
-        const { className: itemClassName = '', ...cardProps } = recipe;
-        const mergedCardClass = cn(cardClassName, itemClassName);
         return (
           <RecipeCard
-            key={cardProps.recipeId}
-            {...cardProps}
-            className={mergedCardClass}
+            key={recipe.id}
+            recipe={recipe}
+            className={cardClassName}
           />
         );
       })}

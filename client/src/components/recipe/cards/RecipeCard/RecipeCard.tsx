@@ -1,11 +1,18 @@
 import { Clock3, Flame, UsersRound } from 'lucide-react';
 import Link from 'next/link';
 import type { HTMLAttributes } from 'react';
+import type { RecipeSummary } from '@/lib/types/recipe';
 import { cn } from '@/lib/utils/cn';
 import { FlatTagsRow } from '@/components/ui/FlatTagsRow';
 import { Thumbnail } from '@/components/ui/Thumbnail';
 import { LikeButton } from '@/components/ui/buttons/LikeButton';
-import { formatCookingTime } from '@/lib/utils/date';
+import {
+  toRecipeCookingTimeLabel,
+  toRecipeDetailHref,
+  toRecipeDifficultyLabel,
+  toRecipeImageUrl,
+  toRecipeServingsLabel,
+} from '@/components/recipe/utils/recipe-format';
 
 export interface RecipeCardProps extends Omit<
   HTMLAttributes<HTMLElement>,
@@ -13,38 +20,24 @@ export interface RecipeCardProps extends Omit<
 > {
   className?: string;
   /** `/recipe/{recipeId}` 상세로 이동 (좋아요 버튼은 링크 밖) */
-  recipeId: string;
-  imageUrl: string;
-  imageAlt?: string;
-  title: string;
-  summary?: string;
-  cookingTime?: string;
-  cookingTimeMinutes?: number;
-  difficulty?: string;
-  servings?: string;
-  isFavorite?: boolean;
+  recipe: RecipeSummary;
   onFavoriteClick?: () => void;
 }
 
 export function RecipeCard({
   className = '',
-  recipeId,
-  imageUrl,
-  imageAlt,
-  title,
-  summary,
-  cookingTime,
-  cookingTimeMinutes,
-  difficulty,
-  servings,
-  isFavorite = false,
+  recipe,
   onFavoriteClick,
   ...rest
 }: RecipeCardProps) {
-  const cookingTimeLabel =
-    cookingTimeMinutes !== undefined
-      ? formatCookingTime(cookingTimeMinutes) || cookingTime
-      : cookingTime;
+  const imageUrl = toRecipeImageUrl(recipe.imageUrl);
+  const imageAlt = recipe.title;
+  const title = recipe.title;
+  const summary = recipe.description ?? '';
+  const cookingTimeLabel = toRecipeCookingTimeLabel(recipe.cookTime);
+  const difficulty = toRecipeDifficultyLabel(recipe.difficulty);
+  const servings = toRecipeServingsLabel(recipe.servings);
+  const isFavorite = recipe.isFavorite ?? false;
   const tagItems = [
     cookingTimeLabel
       ? {
@@ -72,7 +65,7 @@ export function RecipeCard({
       : null,
   ].filter((item) => item !== null);
 
-  const detailHref = `/recipe/${encodeURIComponent(recipeId)}`;
+  const detailHref = toRecipeDetailHref(recipe.id);
 
   const linkClassName =
     'flex w-full flex-col overflow-hidden rounded-(--card-radius) bg-background-surface shadow-(--card-elevation) text-inherit no-underline outline-none transition-[opacity,colors] focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default';

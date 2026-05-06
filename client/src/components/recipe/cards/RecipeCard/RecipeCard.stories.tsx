@@ -1,5 +1,6 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
 import { fn } from 'storybook/test';
+import type { RecipeSummary } from '@/lib/types/recipe';
 import { RecipeCard } from '@/components/recipe';
 
 const figmaWidth: Decorator = (Story) => (
@@ -10,6 +11,20 @@ const figmaWidth: Decorator = (Story) => (
 
 const sampleImage =
   'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1200&h=800&fit=crop';
+const sampleRecipe: RecipeSummary = {
+  id: 1,
+  title: '비빔밥',
+  description: '신선한 채소와 고소한 참기름이 어우러진 건강한 한그릇 요리',
+  difficulty: 2,
+  cookTime: 15,
+  imageUrl: sampleImage,
+  servings: 2,
+  viewCount: 120,
+  likeCount: 28,
+  isPublished: true,
+  isFavorite: false,
+  createdAt: new Date().toISOString(),
+};
 
 const meta = {
   title: 'Recipe/Cards/RecipeCard',
@@ -21,15 +36,7 @@ const meta = {
   },
   decorators: [figmaWidth],
   args: {
-    recipeId: 'sample-recipe-1',
-    imageUrl: sampleImage,
-    imageAlt: '비빔밥',
-    title: '비빔밥',
-    summary: '신선한 채소와 고소한 참기름이 어우러진 건강한 한그릇 요리',
-    cookingTime: '15분',
-    difficulty: '쉬움',
-    servings: '2인분',
-    isFavorite: false,
+    recipe: sampleRecipe,
     onFavoriteClick: fn(),
   },
 } satisfies Meta<typeof RecipeCard>;
@@ -41,6 +48,9 @@ export const Default = {} satisfies Story;
 
 export const Favorite = {
   args: {
-    isFavorite: true,
+    recipe: {
+      ...sampleRecipe,
+      isFavorite: true,
+    },
   },
 } satisfies Story;

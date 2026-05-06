@@ -59,6 +59,13 @@ client/src/components/ui/Button/
 - 두 개 이상 도메인에서 공통으로 쓰는 UI는 도메인 내부에 중복 생성하지 않고 `ui/` 또는 `layout/`으로 승격한다.
 - 특정 도메인 맥락이 강한 컴포넌트는 해당 도메인 내부에 유지한다.
 
+### 2.3 도메인 타입/유틸리티 작성 원칙
+
+- 도메인 컴포넌트(`client/src/components/<domain>/**`)는 SSOT 준수를 위해 가능하면 `client/src/lib/types/*`의 도메인 타입(`RecipeSummary`, `RecipeDetail` 등)을 직접 props/내부 타입으로 참조한다.
+- 도메인 의미를 변형한 중간 UI 전용 타입은 꼭 필요한 경우에만 만들고, 우선순위는 **도메인 타입 직접 참조**로 둔다.
+- 도메인 내부에서 반복되는 포맷/변환 로직(표시 라벨, 링크 생성, fallback 처리 등)은 `client/src/components/<domain>/utils/**`에 도메인 특화 유틸리티로 추출해 재사용한다.
+- 도메인 특화 유틸리티는 다른 도메인으로 확산하지 않고 해당 도메인 내부에서 우선 관리하며, 범용화가 확인되면 `client/src/lib/utils/*`로 승격한다.
+
 ---
 
 ## 3. 네이밍·배럴 export 규칙

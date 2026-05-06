@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from 'react';
 import type { Swiper as SwiperType } from 'swiper';
 import { A11y, Keyboard } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import type { RecipeSummary } from '@/lib/types/recipe';
 import { cn } from '@/lib/utils/cn';
 
 import 'swiper/css';
@@ -12,7 +13,6 @@ import 'swiper/css/a11y';
 
 import {
   RecipeGrid,
-  type RecipeGridItem,
 } from '@/components/recipe/lists/RecipeGrid';
 import { SliderPagination } from '@/components/ui/SliderPagination';
 
@@ -26,11 +26,11 @@ const DEFAULT_PEEK_PX = 16;
 const MIN_SLIDE_WIDTH = 200;
 
 function chunkRecipes(
-  items: readonly RecipeGridItem[],
+  items: readonly RecipeSummary[],
   size: number,
-): RecipeGridItem[][] {
+): RecipeSummary[][] {
   if (items.length === 0) return [];
-  const out: RecipeGridItem[][] = [];
+  const out: RecipeSummary[][] = [];
   for (let i = 0; i < items.length; i += size) {
     out.push(items.slice(i, i + size));
   }
@@ -41,7 +41,7 @@ export interface RecipeSliderProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   'children'
 > {
-  recipes: readonly RecipeGridItem[];
+  recipes: readonly RecipeSummary[]; // TODO: optional로 만들고 fallback 구현
   cardClassName?: string;
   peekPx?: number;
 }
