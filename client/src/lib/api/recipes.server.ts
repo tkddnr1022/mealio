@@ -2,8 +2,9 @@ import 'server-only';
 
 import { cookies } from 'next/headers';
 
-import { getRecipeList } from '@/lib/api/recipes.api';
+import { getRecipeCategories, getRecipeList } from '@/lib/api/recipes.api';
 import type { RecipeListQuery } from '@/lib/types/recipe';
+import type { RecipeCategory } from '@/lib/types/recipe';
 
 /**
  * ISR·공개 목록용. `cookies()`를 호출하지 않아 App Router 정적 재검증 경로와 정합된다.
@@ -11,6 +12,22 @@ import type { RecipeListQuery } from '@/lib/types/recipe';
  */
 export async function getRecipeListPublicForPage(params: RecipeListQuery = {}) {
   return getRecipeList(params);
+}
+
+/**
+ * ISR·공개 카테고리 목록용.
+ * 공개 마스터 데이터 조회이므로 쿠키를 읽지 않는다.
+ * 실패 시 필터 페이지가 깨지지 않도록 빈 배열을 반환한다.
+ */
+export async function getRecipeCategoriesPublicForPage(): Promise<
+  RecipeCategory[]
+> {
+  try {
+    const result = await getRecipeCategories();
+    return result.data;
+  } catch {
+    return [];
+  }
 }
 
 /**
