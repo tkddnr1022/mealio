@@ -18,7 +18,7 @@ const meta = {
     viewport: { defaultViewport: "mobile1" },
   },
   args: {
-    onClick: fn(),
+    href: "/recipe/filter",
   },
 } satisfies Meta<typeof SearchBarHeader>;
 
