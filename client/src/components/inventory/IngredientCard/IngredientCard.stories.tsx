@@ -41,6 +41,9 @@ export const Selected = {
 
 export const IconExamples = {
   name: '아이콘 예시',
+  args: {
+    ingredient: appleIngredient,
+  },
   render: () => (
     <div className="grid grid-cols-5 gap-4">
       <IngredientCard
