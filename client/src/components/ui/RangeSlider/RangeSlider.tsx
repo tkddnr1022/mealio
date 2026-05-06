@@ -5,6 +5,7 @@ import { buildAriaLabel } from '@/lib/utils/a11y';
 import { formatCookingTime } from '@/lib/utils/date';
 
 export type RangeSliderUnit = string | 'time';
+export type RangeSliderValue = { minValue: number; maxValue: number };
 
 export interface RangeSliderProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
@@ -17,7 +18,7 @@ export interface RangeSliderProps extends Omit<
   unit?: RangeSliderUnit;
   defaultMinValue?: number;
   defaultMaxValue?: number;
-  onValueChange?: (next: { minValue: number; maxValue: number }) => void;
+  onValueChange?: (next: RangeSliderValue) => void;
 }
 
 function getSurfaceStyle(minPercent: number, maxPercent: number) {

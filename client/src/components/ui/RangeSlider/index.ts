@@ -1,2 +1,6 @@
 export { RangeSlider } from './RangeSlider';
-export type { RangeSliderProps, RangeSliderUnit } from './RangeSlider';
+export type {
+  RangeSliderProps,
+  RangeSliderUnit,
+  RangeSliderValue,
+} from './RangeSlider';
