@@ -1,4 +1,10 @@
-import { OAuthErrorClientPage } from './OAuthErrorClientPage';
+'use client';
+
+import { AlertTriangle } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
+
+import { InfoScreen } from '@/components/layout/InfoScreen';
 import {
   BACKEND_ERROR_CODE_QUERY_PARAMS,
   BACKEND_ERROR_MESSAGE_QUERY_PARAMS,
@@ -6,27 +12,23 @@ import {
   OAUTH_ERROR_QUERY_PARAM,
 } from '@/lib/config/oauth-error.config';
 import { buildLoginUrl, NEXT_QUERY_PARAM } from '@/lib/auth/routes';
-import {
-  getFirstTrimmedSearchParam,
-  getTrimmedSearchParam,
-  resolveSearchParams,
-  type SearchParamRecord,
-} from '@/lib/utils/search-params';
 
 interface OAuthErrorDisplay {
   code: string;
   message: string;
 }
 
-interface OAuthErrorPageProps {
-  searchParams?: Promise<SearchParamRecord>;
-}
-
 function getFirstParamValue(
-  searchParams: SearchParamRecord | undefined,
+  searchParams: ReturnType<typeof useSearchParams>,
   keys: readonly string[],
 ): string | null {
-  return getFirstTrimmedSearchParam(searchParams, keys) ?? null;
+  for (const key of keys) {
+    const value = searchParams.get(key);
+    if (value && value.trim().length > 0) {
+      return value.trim();
+    }
+  }
+  return null;
 }
 
 function getOAuthErrorMessage(code: string, fallback: string): string {
@@ -58,11 +60,11 @@ function getOAuthErrorMessage(code: string, fallback: string): string {
 }
 
 function resolveOAuthError(
-  searchParams: SearchParamRecord | undefined,
+  searchParams: ReturnType<typeof useSearchParams>,
 ): OAuthErrorDisplay | null {
-  const oauthError = getTrimmedSearchParam(searchParams?.[OAUTH_ERROR_QUERY_PARAM]);
+  const oauthError = searchParams.get(OAUTH_ERROR_QUERY_PARAM)?.trim();
   const oauthErrorDescription =
-    getTrimmedSearchParam(searchParams?.[OAUTH_ERROR_DESCRIPTION_QUERY_PARAM]) ?? '';
+    searchParams.get(OAUTH_ERROR_DESCRIPTION_QUERY_PARAM)?.trim() ?? '';
   const backendErrorCode = getFirstParamValue(
     searchParams,
     BACKEND_ERROR_CODE_QUERY_PARAMS,
@@ -95,10 +97,12 @@ function resolveOAuthError(
   return null;
 }
 
-export default async function OAuthErrorPage({ searchParams }: OAuthErrorPageProps) {
-  const resolvedSearchParams = await resolveSearchParams(searchParams);
-  const nextForLogin = getTrimmedSearchParam(resolvedSearchParams?.[NEXT_QUERY_PARAM]);
-  const oauthError = resolveOAuthError(resolvedSearchParams);
+function OAuthErrorPageContent() {
+  const searchParams = useSearchParams();
+  const rawNext = searchParams.get(NEXT_QUERY_PARAM);
+  const nextForLogin =
+    rawNext && rawNext.trim().length > 0 ? rawNext.trim() : null;
+  const oauthError = resolveOAuthError(searchParams);
   const loginHref = buildLoginUrl(nextForLogin);
 
   const display = oauthError ?? {
@@ -107,10 +111,38 @@ export default async function OAuthErrorPage({ searchParams }: OAuthErrorPagePro
   };
 
   return (
-    <OAuthErrorClientPage
-      code={display.code}
-      message={display.message}
-      loginHref={loginHref}
-    />
+    <main className="flex h-full min-h-0 flex-1 items-center justify-center bg-background-primary-default px-4">
+      <div className="w-full max-w-(--layout-content-max-width)">
+        <InfoScreen
+          title="로그인에 실패했습니다"
+          message={`${display.message} (code: ${display.code})`}
+          icon={
+            <AlertTriangle
+              className="size-8 text-text-accent"
+              strokeWidth={2}
+              aria-hidden
+            />
+          }
+          buttonLabel="로그인으로 돌아가기"
+          buttonHref={loginHref}
+        />
+      </div>
+    </main>
+  );
+}
+
+export default function OAuthErrorPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex h-full min-h-0 flex-1 items-center justify-center bg-background-primary-default px-4">
+          <p className="typo-body-regular style-text-caption" aria-busy="true">
+            불러오는 중…
+          </p>
+        </main>
+      }
+    >
+      <OAuthErrorPageContent />
+    </Suspense>
   );
 }
