@@ -230,6 +230,7 @@ SSE 구독·이벤트 파싱 담당. `ChatbotStreamEvent` 타입·Redis 채널·
 |------|------|
 | **client/src/lib/utils/** | 공통 유틸 |
 | client/src/lib/utils/a11y.ts | 접근 이름 생성. `buildAriaLabel(type, name)` — 엘리먼트 유형별 `aria-label` 문구 규칙·빈 `name` 시 타입별 폴백. 컴포넌트는 `aria-label` 전용 prop 없이 필수/의미 prop으로 문자열을 만든 뒤 이 유틸만 사용 (`../guidelines/frontend_development_guidelines.md` §9) |
+| client/src/lib/utils/search-params.ts | 페이지 `searchParams` 파싱 공용화. `resolveSearchParams`, `getSingleSearchParam`, `getMultiSearchParam`, `getTrimmedSearchParam`, `getFirstTrimmedSearchParam`으로 query 값 정규화·빈 문자열 제거·다중 키 fallback 처리 |
 | client/src/lib/utils/cn.ts | Tailwind 클래스 머지(`clsx` + `tailwind-merge`) |
 | client/src/lib/utils/isInternalNavHref.ts | 앱 내 경로 문자열 판별. `isInternalNavHref(href)` — `"/"`로 시작하고 `"//"`로 시작하지 않으면 true(Next.js `Link`·클라이언트 전환 대상). 프로토콜 상대 URL·외부 절대 URL·해시 전용 등은 false. 네비게이션 UI에서 `Link` vs `<a>` 분기의 단일 근거 (`../guidelines/frontend_development_guidelines.md` §1.1) |
 | client/src/lib/utils/date.ts | 날짜·시간 포맷팅(요리 시간 표시 등) |
