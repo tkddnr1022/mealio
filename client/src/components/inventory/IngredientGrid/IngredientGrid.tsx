@@ -1,28 +1,31 @@
 import type { HTMLAttributes } from 'react';
+import type { InventoryIngredient } from '@/lib/types/inventory';
 import { cn } from '@/lib/utils/cn';
 import {
   IngredientCard,
   type IngredientCardProps,
 } from '@/components/inventory/IngredientCard';
 
-export type IngredientGridItem = Readonly<
-  IngredientCardProps & {
-    id: string | number;
-  }
->;
-
 export interface IngredientGridProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   'children'
 > {
   className?: string;
-  items: readonly IngredientGridItem[];
+  items: readonly InventoryIngredient[];
+  selectedIngredientIds?: readonly number[];
+  getLeadingIcon?: (ingredient: InventoryIngredient) => IngredientCardProps['leadingIcon'];
+  getTrailing?: (ingredient: InventoryIngredient) => IngredientCardProps['trailing'];
+  onRemoveIngredient?: (ingredient: InventoryIngredient) => void;
   cardClassName?: string;
 }
 
 export function IngredientGrid({
   className = '',
   items,
+  selectedIngredientIds = [],
+  getLeadingIcon,
+  getTrailing,
+  onRemoveIngredient,
   cardClassName = '',
   ...rest
 }: IngredientGridProps) {
@@ -33,12 +36,19 @@ export function IngredientGrid({
       {...rest}
     >
       {items.map((item) => {
-        const { id, className: itemClassName = '', ...cardProps } = item;
         return (
           <IngredientCard
-            key={id}
-            {...cardProps}
-            className={cn(cardClassName, itemClassName)}
+            key={item.id}
+            ingredient={item}
+            selected={selectedIngredientIds.includes(item.id)}
+            leadingIcon={getLeadingIcon?.(item)}
+            trailing={getTrailing?.(item)}
+            onRemove={
+              onRemoveIngredient
+                ? () => onRemoveIngredient(item)
+                : undefined
+            }
+            className={cn(cardClassName)}
           />
         );
       })}

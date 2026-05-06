@@ -1,14 +1,15 @@
 import { Check, X } from 'lucide-react';
 import type { HTMLAttributes, ReactNode } from 'react';
+import type { InventoryIngredient } from '@/lib/types/inventory';
 import { cn } from '@/lib/utils/cn';
-import { buildAriaLabel } from '@/lib/utils/a11y';
+import { toInventoryIngredientRemoveAriaLabel } from '@/components/inventory/utils/inventory-format';
 
 export interface IngredientCardProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   'children'
 > {
   className?: string;
-  name?: string;
+  ingredient: InventoryIngredient;
   selected?: boolean;
   leadingIcon?: ReactNode;
   trailing?: ReactNode;
@@ -17,17 +18,16 @@ export interface IngredientCardProps extends Omit<
 
 export function IngredientCard({
   className = '',
-  name = '재료명',
+  ingredient,
   selected = false,
   leadingIcon,
   trailing,
   onRemove,
   ...rest
 }: IngredientCardProps) {
-  const nameText = name.trim();
   const removeButtonAriaLabel =
     onRemove !== undefined
-      ? buildAriaLabel('button', nameText ? `${nameText} 제거` : '')
+      ? toInventoryIngredientRemoveAriaLabel(ingredient)
       : undefined;
 
   const defaultTrailing = selected ? (
@@ -69,7 +69,7 @@ export function IngredientCard({
         {leadingIcon}
       </span>
       <p className="w-full truncate text-center typo-card-body style-text-primary">
-        {name}
+        {ingredient.name}
       </p>
       {trailing ?? defaultTrailing}
     </div>

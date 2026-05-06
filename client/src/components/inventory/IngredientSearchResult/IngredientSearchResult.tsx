@@ -1,22 +1,27 @@
 import type { HTMLAttributes } from 'react';
+import type { InventoryIngredient } from '@/lib/types/inventory';
 import { cn } from '@/lib/utils/cn';
 import {
   IngredientGrid,
-  type IngredientGridItem,
 } from '@/components/inventory/IngredientGrid';
 import {
   IngredientGridHeader,
   type IngredientGridHeaderProps,
 } from '@/components/inventory/IngredientGridHeader';
+import { toInventoryIngredientCountText } from '@/components/inventory/utils/inventory-format';
 
 export interface IngredientSearchResultProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   'children'
 > {
   className?: string;
-  items?: readonly IngredientGridItem[];
+  items?: readonly InventoryIngredient[];
   headerProps?: Omit<IngredientGridHeaderProps, 'countText'>;
   countText?: string;
+  selectedIngredientIds?: readonly number[];
+  getLeadingIcon?: Parameters<typeof IngredientGrid>[0]['getLeadingIcon'];
+  getTrailing?: Parameters<typeof IngredientGrid>[0]['getTrailing'];
+  onRemoveIngredient?: Parameters<typeof IngredientGrid>[0]['onRemoveIngredient'];
   cardClassName?: string;
 }
 
@@ -25,10 +30,14 @@ export function IngredientSearchResult({
   items = [],
   headerProps,
   countText,
+  selectedIngredientIds = [],
+  getLeadingIcon,
+  getTrailing,
+  onRemoveIngredient,
   cardClassName = '',
   ...rest
 }: IngredientSearchResultProps) {
-  const resolvedCountText = countText ?? `${items.length}개의 재료`;
+  const resolvedCountText = countText ?? toInventoryIngredientCountText(items.length);
 
   return (
     <section
@@ -37,7 +46,14 @@ export function IngredientSearchResult({
       {...rest}
     >
       <IngredientGridHeader {...headerProps} countText={resolvedCountText} />
-      <IngredientGrid items={items} cardClassName={cardClassName} />
+      <IngredientGrid
+        items={items}
+        selectedIngredientIds={selectedIngredientIds}
+        getLeadingIcon={getLeadingIcon}
+        getTrailing={getTrailing}
+        onRemoveIngredient={onRemoveIngredient}
+        cardClassName={cardClassName}
+      />
     </section>
   );
 }

@@ -1,7 +1,8 @@
 import { Apple, Beef, Egg, Fish, Milk, Wheat } from 'lucide-react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import type { ReactNode } from 'react';
+import type { InventoryIngredient } from '@/lib/types/inventory';
 import { IngredientSearchResult } from './IngredientSearchResult';
-import type { IngredientGridItem } from '@/components/inventory/IngredientGrid';
 
 const meta = {
   title: 'Inventory/IngredientSearchResult',
@@ -23,43 +24,53 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-const sampleItems: readonly IngredientGridItem[] = [
+const sampleItems: readonly InventoryIngredient[] = [
   {
-    id: 'apple',
+    id: 1,
     name: '사과',
-    leadingIcon: <Apple className="size-5" strokeWidth={2} />,
-    selected: true,
+    categoryId: 1,
   },
   {
-    id: 'beef',
+    id: 2,
     name: '소고기',
-    leadingIcon: <Beef className="size-5" strokeWidth={2} />,
+    categoryId: 2,
   },
   {
-    id: 'egg',
+    id: 3,
     name: '계란',
-    leadingIcon: <Egg className="size-5" strokeWidth={2} />,
+    categoryId: 3,
   },
   {
-    id: 'fish',
+    id: 4,
     name: '고등어',
-    leadingIcon: <Fish className="size-5" strokeWidth={2} />,
+    categoryId: 4,
   },
   {
-    id: 'milk',
+    id: 5,
     name: '우유',
-    leadingIcon: <Milk className="size-5" strokeWidth={2} />,
+    categoryId: 5,
   },
   {
-    id: 'wheat',
+    id: 6,
     name: '밀가루',
-    leadingIcon: <Wheat className="size-5" strokeWidth={2} />,
+    categoryId: 6,
   },
 ];
+
+const iconMap = new Map<number, ReactNode>([
+  [1, <Apple className="size-5" strokeWidth={2} />],
+  [2, <Beef className="size-5" strokeWidth={2} />],
+  [3, <Egg className="size-5" strokeWidth={2} />],
+  [4, <Fish className="size-5" strokeWidth={2} />],
+  [5, <Milk className="size-5" strokeWidth={2} />],
+  [6, <Wheat className="size-5" strokeWidth={2} />],
+]);
 
 export const Default: Story = {
   args: {
     items: sampleItems,
+    selectedIngredientIds: [1],
+    getLeadingIcon: (ingredient) => iconMap.get(ingredient.id),
   },
 };
 
