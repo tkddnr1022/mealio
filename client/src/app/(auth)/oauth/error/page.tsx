@@ -1,8 +1,4 @@
-'use client';
-
 import { AlertTriangle } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
 
 import { InfoScreen } from '@/components/layout/InfoScreen';
 import {
@@ -18,14 +14,24 @@ interface OAuthErrorDisplay {
   message: string;
 }
 
+interface OAuthErrorPageProps {
+  searchParams?: Record<string, string | string[] | undefined>;
+}
+
+const normalizeSearchParam = (value: string | string[] | undefined) => {
+  const normalized = Array.isArray(value) ? value[0] : value;
+  const trimmed = normalized?.trim();
+  return trimmed && trimmed.length > 0 ? trimmed : null;
+};
+
 function getFirstParamValue(
-  searchParams: ReturnType<typeof useSearchParams>,
+  searchParams: Record<string, string | string[] | undefined> | undefined,
   keys: readonly string[],
 ): string | null {
   for (const key of keys) {
-    const value = searchParams.get(key);
-    if (value && value.trim().length > 0) {
-      return value.trim();
+    const value = normalizeSearchParam(searchParams?.[key]);
+    if (value) {
+      return value;
     }
   }
   return null;
@@ -60,11 +66,11 @@ function getOAuthErrorMessage(code: string, fallback: string): string {
 }
 
 function resolveOAuthError(
-  searchParams: ReturnType<typeof useSearchParams>,
+  searchParams: Record<string, string | string[] | undefined> | undefined,
 ): OAuthErrorDisplay | null {
-  const oauthError = searchParams.get(OAUTH_ERROR_QUERY_PARAM)?.trim();
+  const oauthError = normalizeSearchParam(searchParams?.[OAUTH_ERROR_QUERY_PARAM]);
   const oauthErrorDescription =
-    searchParams.get(OAUTH_ERROR_DESCRIPTION_QUERY_PARAM)?.trim() ?? '';
+    normalizeSearchParam(searchParams?.[OAUTH_ERROR_DESCRIPTION_QUERY_PARAM]) ?? '';
   const backendErrorCode = getFirstParamValue(
     searchParams,
     BACKEND_ERROR_CODE_QUERY_PARAMS,
@@ -97,11 +103,8 @@ function resolveOAuthError(
   return null;
 }
 
-function OAuthErrorPageContent() {
-  const searchParams = useSearchParams();
-  const rawNext = searchParams.get(NEXT_QUERY_PARAM);
-  const nextForLogin =
-    rawNext && rawNext.trim().length > 0 ? rawNext.trim() : null;
+export default function OAuthErrorPage({ searchParams }: OAuthErrorPageProps) {
+  const nextForLogin = normalizeSearchParam(searchParams?.[NEXT_QUERY_PARAM]);
   const oauthError = resolveOAuthError(searchParams);
   const loginHref = buildLoginUrl(nextForLogin);
 
@@ -128,21 +131,5 @@ function OAuthErrorPageContent() {
         />
       </div>
     </main>
-  );
-}
-
-export default function OAuthErrorPage() {
-  return (
-    <Suspense
-      fallback={
-        <main className="flex h-full min-h-0 flex-1 items-center justify-center bg-background-primary-default px-4">
-          <p className="typo-body-regular style-text-caption" aria-busy="true">
-            불러오는 중…
-          </p>
-        </main>
-      }
-    >
-      <OAuthErrorPageContent />
-    </Suspense>
   );
 }

@@ -27,6 +27,35 @@
 - **OAuth·백엔드 진입 URL**: **전체 문서 네비게이션으로 백엔드 `GET`을 타야 하는** 흐름은 `Link`로 클라이언트 라우팅을 대신하지 않는다. 계약·페이지 경로는 명세와 백엔드 OAuth 가이드를 보고, 구현 패턴은 **§10**을 따른다.
 - **Storybook**: 라우터 밖에서 실제 `href` 이동이 캔버스를 깨뜨릴 수 있으면, 컴포넌트가 제공하는 **`preventLinkNavigation`**(또는 동등 옵션)으로 기본 이동을 막고 상태만 바꾼다.
 
+### 1.3 `page.tsx`의 Server Component 원칙 (`'use client'` 금지 기본값)
+
+`page.tsx`는 기본적으로 Server Component로 유지한다.  
+`page.tsx`에 `'use client'` 직접 선언은 **명시적 승인 없는 한 금지**한다.
+
+#### 1) 역할 분리 규칙
+
+- `page.tsx`에서 수행: 데이터 페칭, 권한/세션 확인, Server/Client 컴포넌트 조합
+- 하위 컴포넌트에서 수행: `useState`, `useEffect`, 이벤트 핸들러, 애니메이션, 브라우저 의존 UI
+- `'use client'`는 가능한 한 말단(leaf) 컴포넌트에만 선언한다.
+
+#### 2) 페이지 수준 상태 규칙
+
+- 페이지 전역 필터/검색 상태는 `searchParams`를 우선 사용한다.
+- `searchParams`를 사용해도 `page.tsx`는 Server Component로 유지한다.
+- 입력/인터랙션 UI만 Client Component로 분리한다.
+
+#### 3) 판단 기준
+
+| 상황 | 배치 위치 |
+| ------ | ----------- |
+| DB 조회, 인증 확인, 서버 API 조합 | `page.tsx` (Server) |
+| `useState`, `useEffect` 필요 | 하위 Client Component |
+| 이벤트 핸들러, 애니메이션 | 하위 Client Component |
+| 차트/에디터 등 브라우저 의존 라이브러리 | 하위 Client Component |
+| 단순 데이터 표시 | Server Component 유지 |
+
+- 최종 원칙: `page.tsx`는 데이터 수집/조합 전용 orchestrator로 유지하고, 인터랙티브 로직은 하위 Client Component로 위임한다.
+
 ---
 
 ## 2. 페이지별 구현 가이드
@@ -60,7 +89,7 @@ export async function generateMetadata({ params }): Promise<Metadata> {
 
 챗봇은 Producer API를 통해 SSE로 스트리밍 응답을 수신한다.
 
-```
+```text
 사용자 메시지 → API (POST /api/v1/chatbot/messages) → Kafka (chatbot-requests)
 → Consumer → OpenAI API → Redis → SSE → 클라이언트
 ```
@@ -91,7 +120,7 @@ export default async function RecipesPage() {
 ### 3.1 레이어별
 
 | 레이어 | 역할 |
-|--------|------|
+| -------- | ------ |
 | **CloudFlare CDN** | 정적 자산 장기 캐시; ISR 페이지 stale-while-revalidate (예: 24시간) |
 | **Vercel Edge** | Next.js ISR 캐시; Edge Functions 지역별 라우팅 |
 | **Application (Redis)** | API 응답 5-60분; 세션 7일; 레시피 추천 결과 1시간 |
@@ -198,7 +227,7 @@ const RecipeEditor = dynamic(
 - API: **`buildAriaLabel(type, name)`** — `type`은 아래 표의 엘리먼트 유형, `name`은 맥락을 나타내는 짧은 한국어 문자열(앞뒤 공백은 무시).
 
 | `type` | 생성 규칙 (이름을 `N`이라 할 때) |
-|--------|-----------------------------------|
+| -------- | ----------------------------------- |
 | `button` | `N 버튼` |
 | `link` | `N로 이동하기` |
 | `input` | `N 입력` |
