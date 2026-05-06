@@ -129,7 +129,7 @@ paths:
         - name: error
           in: query
           required: false
-          description: Provider OAuth 표준 오류 코드 (예: access_denied)
+          description: Provider OAuth 표준 오류 코드
           schema:
             type: string
         - name: error_description
