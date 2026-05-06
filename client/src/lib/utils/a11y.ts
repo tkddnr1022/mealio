@@ -35,10 +35,7 @@ const A11Y_LABEL_NAME_FALLBACK: Record<A11yElementType, string> = {
  *
  * `name`이 공백뿐이면 타입별 기본 이름으로 치환한 뒤 같은 규칙을 적용한다.
  */
-export function buildAriaLabel(
-  type: A11yElementType,
-  name: string,
-): string {
+export function buildAriaLabel(type: A11yElementType, name: string): string {
   const normalizedName = name.trim();
   const effectiveName =
     normalizedName.length > 0 ? normalizedName : A11Y_LABEL_NAME_FALLBACK[type];

@@ -25,7 +25,10 @@ function toNumberArray(value: unknown): number[] | undefined {
 }
 
 export class RecipeSearchQueryDto {
-  @ApiPropertyOptional({ description: '검색 키워드 (생략 시 제목·설명 텍스트 검색 없음)', minLength: 1 })
+  @ApiPropertyOptional({
+    description: '검색 키워드 (생략 시 제목·설명 텍스트 검색 없음)',
+    minLength: 1,
+  })
   @IsOptional()
   @Transform(({ value }) => {
     if (value === undefined || value === null || value === '') return undefined;

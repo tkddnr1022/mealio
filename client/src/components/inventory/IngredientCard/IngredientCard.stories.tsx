@@ -1,13 +1,13 @@
-import { Apple, Beef, Egg, Fish, Milk, Wheat } from "lucide-react";
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { IngredientCard } from "@/components/inventory/IngredientCard/index";
+import { Apple, Beef, Egg, Fish, Milk, Wheat } from 'lucide-react';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { IngredientCard } from '@/components/inventory/IngredientCard/index';
 
 const meta = {
-  title: "Inventory/IngredientCard",
+  title: 'Inventory/IngredientCard',
   component: IngredientCard,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
+    layout: 'centered',
   },
 } satisfies Meta<typeof IngredientCard>;
 
@@ -16,32 +16,47 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Unselected = {
-  name: "selected=false",
+  name: 'selected=false',
   args: {
-    name: "사과",
+    name: '사과',
     leadingIcon: <Apple />,
     onRemove: () => undefined,
   },
 } satisfies Story;
 
 export const Selected = {
-  name: "selected=true",
+  name: 'selected=true',
   args: {
-    name: "사과",
+    name: '사과',
     selected: true,
     leadingIcon: <Apple className="size-5" strokeWidth={2} />,
   },
 } satisfies Story;
 
 export const IconExamples = {
-  name: "아이콘 예시",
+  name: '아이콘 예시',
   render: () => (
     <div className="grid grid-cols-5 gap-4">
-      <IngredientCard name="소고기" leadingIcon={<Beef className="size-5" strokeWidth={2} />} />
-      <IngredientCard name="계란" leadingIcon={<Egg className="size-5" strokeWidth={2} />} />
-      <IngredientCard name="고등어" leadingIcon={<Fish className="size-5" strokeWidth={2} />} />
-      <IngredientCard name="우유" leadingIcon={<Milk className="size-5" strokeWidth={2} />} />
-      <IngredientCard name="밀가루" leadingIcon={<Wheat className="size-5" strokeWidth={2} />} />
+      <IngredientCard
+        name="소고기"
+        leadingIcon={<Beef className="size-5" strokeWidth={2} />}
+      />
+      <IngredientCard
+        name="계란"
+        leadingIcon={<Egg className="size-5" strokeWidth={2} />}
+      />
+      <IngredientCard
+        name="고등어"
+        leadingIcon={<Fish className="size-5" strokeWidth={2} />}
+      />
+      <IngredientCard
+        name="우유"
+        leadingIcon={<Milk className="size-5" strokeWidth={2} />}
+      />
+      <IngredientCard
+        name="밀가루"
+        leadingIcon={<Wheat className="size-5" strokeWidth={2} />}
+      />
     </div>
   ),
 } satisfies Story;

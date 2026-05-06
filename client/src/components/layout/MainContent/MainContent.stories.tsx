@@ -1,8 +1,8 @@
-import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
-import type { ComponentProps } from "react";
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
+import type { ComponentProps } from 'react';
 
-import { MainContent } from "@/components/layout/MainContent";
-import { Navbar } from "@/components/layout/Navbar";
+import { MainContent } from '@/components/layout/MainContent';
+import { Navbar } from '@/components/layout/Navbar';
 
 const figmaMobileFrame: Decorator = (Story) => (
   <div className="mx-auto flex h-[640px] w-full max-w-[400px] flex-col border border-border-subtle bg-background-primary shadow-md">
@@ -11,12 +11,12 @@ const figmaMobileFrame: Decorator = (Story) => (
 );
 
 const meta = {
-  title: "Layout/MainContent",
+  title: 'Layout/MainContent',
   component: MainContent,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "fullscreen",
-    viewport: { defaultViewport: "mobile1" },
+    layout: 'fullscreen',
+    viewport: { defaultViewport: 'mobile1' },
   },
 } satisfies Meta<typeof MainContent>;
 
@@ -26,12 +26,12 @@ type Story = StoryObj<typeof meta>;
 type MainContentStoryArgs = ComponentProps<typeof MainContent>;
 
 export const Empty = {
-  name: "빈 영역 (Figma 프레임 400×640)",
+  name: '빈 영역 (Figma 프레임 400×640)',
   decorators: [figmaMobileFrame],
 } satisfies Story;
 
 export const WithPlaceholder = {
-  name: "플레이스홀더 콘텐츠",
+  name: '플레이스홀더 콘텐츠',
   decorators: [figmaMobileFrame],
   render: (args: MainContentStoryArgs) => (
     <MainContent {...args}>
@@ -43,7 +43,7 @@ export const WithPlaceholder = {
 } satisfies Story;
 
 export const Scrollable = {
-  name: "스크롤 (긴 목록)",
+  name: '스크롤 (긴 목록)',
   decorators: [figmaMobileFrame],
   render: (args: MainContentStoryArgs) => (
     <MainContent {...args}>
@@ -59,7 +59,7 @@ export const Scrollable = {
 } satisfies Story;
 
 export const NoPadding = {
-  name: "패딩 없음 (XY 풀블리드)",
+  name: '패딩 없음 (XY 풀블리드)',
   decorators: [figmaMobileFrame],
   args: { paddingX: false, paddingY: false },
   render: (args: MainContentStoryArgs) => (
@@ -72,7 +72,7 @@ export const NoPadding = {
 } satisfies Story;
 
 export const PaddingXOff = {
-  name: "가로만 풀블리드",
+  name: '가로만 풀블리드',
   decorators: [figmaMobileFrame],
   args: { paddingX: false, paddingY: true },
   render: (args: MainContentStoryArgs) => (
@@ -85,7 +85,7 @@ export const PaddingXOff = {
 } satisfies Story;
 
 export const WithNavbarShell = {
-  name: "Navbar + MainContent (앱 셸)",
+  name: 'Navbar + MainContent (앱 셸)',
   decorators: [
     ((Story) => (
       <div className="mx-auto flex min-h-screen w-full max-w-[400px] flex-col bg-background-primary">
@@ -107,7 +107,7 @@ export const WithNavbarShell = {
 } satisfies Story;
 
 export const Centered = {
-  name: "중앙 정렬 (`centered`)",
+  name: '중앙 정렬 (`centered`)',
   decorators: [figmaMobileFrame],
   args: { centered: true },
   render: (args: MainContentStoryArgs) => (
@@ -115,7 +115,8 @@ export const Centered = {
       <div className="w-full max-w-[280px] rounded-xl border border-border-subtle bg-background-surface p-4 text-center shadow-sm">
         <p className="typo-body-regular style-text-primary">중앙 정렬된 카드</p>
         <p className="typo-caption-regular mt-2 style-text-caption">
-          `centered`가 true면 내부 스택에 `justify-center items-center`가 적용됩니다.
+          `centered`가 true면 내부 스택에 `justify-center items-center`가
+          적용됩니다.
         </p>
       </div>
     </MainContent>

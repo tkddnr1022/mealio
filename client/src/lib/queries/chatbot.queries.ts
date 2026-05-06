@@ -19,7 +19,10 @@ import {
   type UseQueryOptions,
 } from '@tanstack/react-query';
 
-import { getConversationHistory, getConversationList } from '@/lib/api/chatbot.api';
+import {
+  getConversationHistory,
+  getConversationList,
+} from '@/lib/api/chatbot.api';
 import { QUERY_CACHE } from '@/lib/config/cache.config';
 import type {
   Conversation,
@@ -75,11 +78,7 @@ export function useConversationListInfinite(
       ReturnType<typeof chatbotQueries.conversationListInfinite>,
       string | undefined
     >,
-    | 'queryKey'
-    | 'queryFn'
-    | 'getNextPageParam'
-    | 'initialPageParam'
-    | 'select'
+    'queryKey' | 'queryFn' | 'getNextPageParam' | 'initialPageParam' | 'select'
   >,
 ) {
   return useInfiniteQuery({

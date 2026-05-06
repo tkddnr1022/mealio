@@ -60,16 +60,16 @@ describe('InventoryService', () => {
 
     const mockIngredientRepo = {
       findManyByIds: jest.fn().mockImplementation(async (ids: number[]) => {
-        const meta: Record<number, { id: number; name: string; categoryId: number }> =
-          {
-            1: { id: 1, name: 'A', categoryId: 10 },
-            3: { id: 3, name: 'B', categoryId: 20 },
-            5: { id: 5, name: 'C', categoryId: 10 },
-            12: { id: 12, name: 'D', categoryId: 30 },
-          };
-        return ids
-          .filter((id) => meta[id])
-          .map((id) => meta[id]);
+        const meta: Record<
+          number,
+          { id: number; name: string; categoryId: number }
+        > = {
+          1: { id: 1, name: 'A', categoryId: 10 },
+          3: { id: 3, name: 'B', categoryId: 20 },
+          5: { id: 5, name: 'C', categoryId: 10 },
+          12: { id: 12, name: 'D', categoryId: 30 },
+        };
+        return ids.filter((id) => meta[id]).map((id) => meta[id]);
       }),
     };
 
@@ -78,24 +78,26 @@ describe('InventoryService', () => {
     };
 
     const mockRecipeRepo = {
-      findSummariesByIds: jest.fn().mockImplementation(async (ids: number[]) => {
-        const meta: Record<number, Recipe> = {
-          101: {
-            id: 101,
-            title: '김치볶음밥',
-            description: '간단하고 맛있는 김치볶음밥',
-            difficulty: 1,
-            cookTime: 15,
-            imageUrl: null,
-            servings: 2,
-            viewCount: 10,
-            likeCount: 3,
-            isPublished: true,
-            createdAt: new Date('2025-01-10T10:30:00Z'),
-          },
-        };
-        return ids.filter((id) => id in meta).map((id) => meta[id]);
-      }),
+      findSummariesByIds: jest
+        .fn()
+        .mockImplementation(async (ids: number[]) => {
+          const meta: Record<number, Recipe> = {
+            101: {
+              id: 101,
+              title: '김치볶음밥',
+              description: '간단하고 맛있는 김치볶음밥',
+              difficulty: 1,
+              cookTime: 15,
+              imageUrl: null,
+              servings: 2,
+              viewCount: 10,
+              likeCount: 3,
+              isPublished: true,
+              createdAt: new Date('2025-01-10T10:30:00Z'),
+            },
+          };
+          return ids.filter((id) => id in meta).map((id) => meta[id]);
+        }),
     };
 
     const mockKafkaProducer = {

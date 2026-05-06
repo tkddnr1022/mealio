@@ -1,25 +1,28 @@
-import type { HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
-import { MiniTag } from "@/components/ui/MiniTag";
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
+import { MiniTag } from '@/components/ui/MiniTag';
 
 export type MiniTagItem = Readonly<{
   label: string;
 }>;
 
-export interface MiniTagsRowProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
-className?: string;
-items?: readonly MiniTagItem[];
+export interface MiniTagsRowProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'children'
+> {
+  className?: string;
+  items?: readonly MiniTagItem[];
 }
 
 export function MiniTagsRow({
-  className = "",
+  className = '',
   items = [],
   ...rest
 }: MiniTagsRowProps) {
   return (
     <div
       className={cn(
-        "hide-native-scrollbar flex w-full items-center gap-3 overflow-x-auto",
+        'hide-native-scrollbar flex w-full items-center gap-3 overflow-x-auto',
         className,
       )}
       data-name="MiniTagsRow"

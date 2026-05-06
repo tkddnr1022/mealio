@@ -4,7 +4,9 @@ import { PRISMA_POOL_CONFIG } from './prisma-pool.config';
 import { PrismaService } from './prisma.service';
 
 export interface PrismaModuleAsyncOptions {
-  useFactory: (...args: unknown[]) => PrismaPoolConfig | Promise<PrismaPoolConfig>;
+  useFactory: (
+    ...args: unknown[]
+  ) => PrismaPoolConfig | Promise<PrismaPoolConfig>;
   inject?: import('@nestjs/common').InjectionToken[];
 }
 

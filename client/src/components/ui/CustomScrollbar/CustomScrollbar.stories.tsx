@@ -1,7 +1,7 @@
-import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
-import type { ComponentProps } from "react";
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
+import type { ComponentProps } from 'react';
 
-import { CustomScrollbar } from "@/components/ui/CustomScrollbar";
+import { CustomScrollbar } from '@/components/ui/CustomScrollbar';
 
 const figmaMobileFrame: Decorator = (Story) => (
   <div className="mx-auto flex h-[640px] w-full max-w-[400px] flex-col border border-border-subtle bg-background-primary shadow-md">
@@ -10,12 +10,12 @@ const figmaMobileFrame: Decorator = (Story) => (
 );
 
 const meta = {
-  title: "UI/CustomScrollbar",
+  title: 'UI/CustomScrollbar',
   component: CustomScrollbar,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "fullscreen",
-    viewport: { defaultViewport: "mobile1" },
+    layout: 'fullscreen',
+    viewport: { defaultViewport: 'mobile1' },
   },
   decorators: [figmaMobileFrame],
 } satisfies Meta<typeof CustomScrollbar>;
@@ -26,7 +26,7 @@ type Story = StoryObj<typeof meta>;
 type CustomScrollbarStoryArgs = ComponentProps<typeof CustomScrollbar>;
 
 export const InMainContent = {
-  name: "CustomScrollbar 확인",
+  name: 'CustomScrollbar 확인',
   render: (args: CustomScrollbarStoryArgs) => (
     <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-background-primary">
       <CustomScrollbar {...args} className="flex flex-col gap-8 px-4 py-6">

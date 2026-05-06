@@ -10,7 +10,8 @@ interface GlobalErrorPageProps {
 }
 
 function resolveErrorMessage(error: Error & { digest?: string }): string {
-  const raw = `${error.name} ${error.message} ${error.digest ?? ''}`.toLowerCase();
+  const raw =
+    `${error.name} ${error.message} ${error.digest ?? ''}`.toLowerCase();
 
   if (raw.includes('not found') || raw.includes('404')) {
     return 'Not Found';
@@ -47,7 +48,13 @@ export default function GlobalErrorPage({ error }: GlobalErrorPageProps) {
         <InfoScreen
           title="오류가 발생했습니다"
           message={message}
-          icon={<Info className="size-8 text-text-accent" strokeWidth={2} aria-hidden />}
+          icon={
+            <Info
+              className="size-8 text-text-accent"
+              strokeWidth={2}
+              aria-hidden
+            />
+          }
           buttonLabel="홈으로 돌아가기"
           buttonHref="/"
         />

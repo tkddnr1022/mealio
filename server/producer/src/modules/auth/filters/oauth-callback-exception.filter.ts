@@ -74,7 +74,10 @@ export class OAuthCallbackExceptionFilter
     return trimmed.length > 0 ? trimmed : undefined;
   }
 
-  private resolveErrorInfo(exception: unknown): { code: string; message: string } {
+  private resolveErrorInfo(exception: unknown): {
+    code: string;
+    message: string;
+  } {
     const fallback = {
       code: 'OAUTH_CALLBACK_ERROR',
       message: 'OAuth 인증 처리 중 오류가 발생했습니다.',

@@ -1,4 +1,11 @@
-import { Controller, Get, Patch, Body, UseGuards, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Patch,
+  Body,
+  UseGuards,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { UserProfileDto } from './dto/user-profile.dto';
@@ -21,7 +28,10 @@ export class UsersController {
     type: UserProfileDto,
   })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async getProfile(@CurrentUser() user: AuthUser): Promise<UserProfileDto> {
     return this.usersService.getProfile(user.id);
   }
@@ -41,7 +51,10 @@ export class UsersController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async updateNickname(
     @CurrentUser() user: AuthUser,
     @Body() updateNicknameDto: UpdateNicknameDto,

@@ -13,7 +13,9 @@ export class GoogleStrategy extends PassportStrategy(
   constructor(private readonly config: ConfigService) {
     const clientID = config.getOrThrow<string>('GOOGLE_CLIENT_ID');
     const clientSecret = config.getOrThrow<string>('GOOGLE_CLIENT_SECRET');
-    const callbackBase = config.getOrThrow<string>('OAUTH_CALLBACK_BASE_URL').replace(/\/$/, '');
+    const callbackBase = config
+      .getOrThrow<string>('OAUTH_CALLBACK_BASE_URL')
+      .replace(/\/$/, '');
     super({
       clientID,
       clientSecret,
@@ -22,7 +24,11 @@ export class GoogleStrategy extends PassportStrategy(
     });
   }
 
-  validate(_accessToken: string, _refreshToken: string, profile: Profile): OAuthProfile {
+  validate(
+    _accessToken: string,
+    _refreshToken: string,
+    profile: Profile,
+  ): OAuthProfile {
     const email = profile.emails?.[0]?.value ?? '';
     const nickname = profile.displayName ?? email.split('@')[0] ?? 'user';
     return {

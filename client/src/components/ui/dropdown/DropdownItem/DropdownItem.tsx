@@ -1,17 +1,20 @@
-import type { ButtonHTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
+import type { ButtonHTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
 
-export interface DropdownItemProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> {
-className?: string;
-label?: string;
-selected?: boolean;
+export interface DropdownItemProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'className'
+> {
+  className?: string;
+  label?: string;
+  selected?: boolean;
 }
 
 export function DropdownItem({
-  className = "",
+  className = '',
   label,
   selected = false,
-  type = "button",
+  type = 'button',
   children,
   ...rest
 }: DropdownItemProps) {
@@ -19,10 +22,10 @@ export function DropdownItem({
     <button
       type={type}
       className={cn(
-        "typo-label-dropdown inline-flex w-full items-start px-4 py-3 text-left outline-none transition-colors",
+        'typo-label-dropdown inline-flex w-full items-start px-4 py-3 text-left outline-none transition-colors',
         selected
-          ? "bg-dropdown-selected-default style-text-accent hover:bg-dropdown-selected-hover"
-          : "bg-dropdown-unselected-default style-text-primary hover:bg-dropdown-unselected-hover",
+          ? 'bg-dropdown-selected-default style-text-accent hover:bg-dropdown-selected-hover'
+          : 'bg-dropdown-unselected-default style-text-primary hover:bg-dropdown-unselected-hover',
         className,
       )}
       {...rest}

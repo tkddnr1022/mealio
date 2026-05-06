@@ -5,10 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import {
-  RequestWithOptionalUser,
-  JwtPayload,
-} from '../types/request.types';
+import { RequestWithOptionalUser, JwtPayload } from '../types/request.types';
 
 /**
  * 선택 인증 가드.
@@ -21,7 +18,9 @@ export class OptionalJwtAuthGuard implements CanActivate {
   constructor(private readonly jwt: JwtService) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest<RequestWithOptionalUser>();
+    const request = context
+      .switchToHttp()
+      .getRequest<RequestWithOptionalUser>();
     const accessToken = request.cookies?.accessToken;
 
     if (!accessToken) {

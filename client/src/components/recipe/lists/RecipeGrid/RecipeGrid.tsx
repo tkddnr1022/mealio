@@ -1,13 +1,19 @@
-import type { HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
 
-import { RecipeGridCard, type RecipeGridCardProps } from "@/components/recipe/cards/RecipeGridCard";
+import {
+  RecipeGridCard,
+  type RecipeGridCardProps,
+} from '@/components/recipe/cards/RecipeGridCard';
 
 export type RecipeGridItem = RecipeGridCardProps;
 
-export interface RecipeGridProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
-recipes: readonly RecipeGridItem[];
-cardClassName?: string;
+export interface RecipeGridProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'children'
+> {
+  recipes: readonly RecipeGridItem[];
+  cardClassName?: string;
 }
 
 /**
@@ -15,19 +21,19 @@ cardClassName?: string;
  * 열 간격 16px·행 간격 24px — design_tokens spacing-4 / spacing-6.
  */
 export function RecipeGrid({
-  className = "",
+  className = '',
   recipes,
-  cardClassName = "",
+  cardClassName = '',
   ...rest
 }: RecipeGridProps) {
   return (
     <div
-      className={cn("grid w-full grid-cols-2 gap-x-4 gap-y-6", className)}
+      className={cn('grid w-full grid-cols-2 gap-x-4 gap-y-6', className)}
       data-name="RecipeGrid"
       {...rest}
     >
       {recipes.map((recipe) => {
-        const { className: itemClassName = "", ...cardProps } = recipe;
+        const { className: itemClassName = '', ...cardProps } = recipe;
         const mergedCardClass = cn(cardClassName, itemClassName);
         return (
           <RecipeGridCard

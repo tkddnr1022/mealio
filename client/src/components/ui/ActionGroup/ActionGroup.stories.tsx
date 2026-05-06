@@ -1,6 +1,6 @@
-import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
 
-import { ActionGroup } from "@/components/ui/ActionGroup";
+import { ActionGroup } from '@/components/ui/ActionGroup';
 
 const figmaWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,24rem)] border border-border-subtle">
@@ -9,17 +9,17 @@ const figmaWidth: Decorator = (Story) => (
 );
 
 const meta = {
-  title: "UI/ActionGroup",
+  title: 'UI/ActionGroup',
   component: ActionGroup,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
-    viewport: { defaultViewport: "mobile1" },
+    layout: 'centered',
+    viewport: { defaultViewport: 'mobile1' },
   },
   decorators: [figmaWidth],
   args: {
-    leftButtonProps: { label: "취소" },
-    rightButtonProps: { label: "적용" },
+    leftButtonProps: { label: '취소' },
+    rightButtonProps: { label: '적용' },
   },
 } satisfies Meta<typeof ActionGroup>;
 

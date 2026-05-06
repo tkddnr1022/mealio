@@ -1,2 +1,2 @@
-export { RecipeSection } from "./RecipeSection";
-export type { RecipeSectionProps } from "./RecipeSection";
+export { RecipeSection } from './RecipeSection';
+export type { RecipeSectionProps } from './RecipeSection';

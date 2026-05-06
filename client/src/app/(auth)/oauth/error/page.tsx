@@ -37,24 +37,38 @@ function getOAuthErrorMessage(code: string, fallback: string): string {
   if (normalizedCode.includes('access_denied')) {
     return '소셜 로그인 동의가 취소되었습니다. 다시 시도해 주세요.';
   }
-  if (normalizedCode.includes('unauthorized') || normalizedCode.includes('invalid_grant')) {
+  if (
+    normalizedCode.includes('unauthorized') ||
+    normalizedCode.includes('invalid_grant')
+  ) {
     return '인증이 만료되었거나 유효하지 않습니다. 다시 로그인해 주세요.';
   }
-  if (normalizedCode.includes('bad_request') || normalizedCode.includes('invalid_request')) {
+  if (
+    normalizedCode.includes('bad_request') ||
+    normalizedCode.includes('invalid_request')
+  ) {
     return '로그인 요청이 올바르지 않습니다. 잠시 후 다시 시도해 주세요.';
   }
-  if (normalizedCode.includes('server') || normalizedCode.includes('internal')) {
+  if (
+    normalizedCode.includes('server') ||
+    normalizedCode.includes('internal')
+  ) {
     return '로그인 처리 중 서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
   }
 
   return fallback;
 }
 
-function resolveOAuthError(searchParams: ReturnType<typeof useSearchParams>): OAuthErrorDisplay | null {
+function resolveOAuthError(
+  searchParams: ReturnType<typeof useSearchParams>,
+): OAuthErrorDisplay | null {
   const oauthError = searchParams.get(OAUTH_ERROR_QUERY_PARAM)?.trim();
   const oauthErrorDescription =
     searchParams.get(OAUTH_ERROR_DESCRIPTION_QUERY_PARAM)?.trim() ?? '';
-  const backendErrorCode = getFirstParamValue(searchParams, BACKEND_ERROR_CODE_QUERY_PARAMS);
+  const backendErrorCode = getFirstParamValue(
+    searchParams,
+    BACKEND_ERROR_CODE_QUERY_PARAMS,
+  );
   const backendErrorMessage = getFirstParamValue(
     searchParams,
     BACKEND_ERROR_MESSAGE_QUERY_PARAMS,
@@ -86,7 +100,8 @@ function resolveOAuthError(searchParams: ReturnType<typeof useSearchParams>): OA
 function OAuthErrorPageContent() {
   const searchParams = useSearchParams();
   const rawNext = searchParams.get(NEXT_QUERY_PARAM);
-  const nextForLogin = rawNext && rawNext.trim().length > 0 ? rawNext.trim() : null;
+  const nextForLogin =
+    rawNext && rawNext.trim().length > 0 ? rawNext.trim() : null;
   const oauthError = resolveOAuthError(searchParams);
   const loginHref = buildLoginUrl(nextForLogin);
 
@@ -101,7 +116,13 @@ function OAuthErrorPageContent() {
         <InfoScreen
           title="로그인에 실패했습니다"
           message={`${display.message} (code: ${display.code})`}
-          icon={<AlertTriangle className="size-8 text-text-accent" strokeWidth={2} aria-hidden />}
+          icon={
+            <AlertTriangle
+              className="size-8 text-text-accent"
+              strokeWidth={2}
+              aria-hidden
+            />
+          }
           buttonLabel="로그인으로 돌아가기"
           buttonHref={loginHref}
         />

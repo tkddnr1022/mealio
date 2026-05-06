@@ -9,9 +9,7 @@ import type { RecipeListQuery } from '@/lib/types/recipe';
  * ISR·공개 목록용. `cookies()`를 호출하지 않아 App Router 정적 재검증 경로와 정합된다.
  * 인증이 없으므로 응답에 `isFavorite` 등 개인화 필드가 생략될 수 있다(백엔드 계약).
  */
-export async function getRecipeListPublicForPage(
-  params: RecipeListQuery = {},
-) {
+export async function getRecipeListPublicForPage(params: RecipeListQuery = {}) {
   return getRecipeList(params);
 }
 

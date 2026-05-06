@@ -3,5 +3,5 @@
  * (`//example.com` 같은 프로토콜 상대 URL은 제외)
  */
 export function isInternalNavHref(href: string): boolean {
-  return href.startsWith("/") && !href.startsWith("//");
+  return href.startsWith('/') && !href.startsWith('//');
 }

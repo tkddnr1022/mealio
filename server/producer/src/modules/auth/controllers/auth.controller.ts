@@ -35,8 +35,7 @@ export class AuthController {
   @Get(':provider')
   @ApiOperation({
     summary: 'OAuth 로그인 진입 (소셜)',
-    description:
-      `백엔드 주도 OAuth 진입. Provider 인증 페이지로 302 리다이렉트. 지원 provider: ${SUPPORTED_AUTH_PROVIDERS.join(', ')}`,
+    description: `백엔드 주도 OAuth 진입. Provider 인증 페이지로 302 리다이렉트. 지원 provider: ${SUPPORTED_AUTH_PROVIDERS.join(', ')}`,
   })
   @ApiParam({
     name: 'provider',
@@ -46,11 +45,16 @@ export class AuthController {
   @ApiQuery({
     name: 'next',
     required: false,
-    description:
-      '로그인 완료 후 이동할 프론트 상대 경로(`/` 시작, `//` 금지)',
+    description: '로그인 완료 후 이동할 프론트 상대 경로(`/` 시작, `//` 금지)',
   })
-  @ApiResponse({ status: HttpStatus.FOUND, description: 'Provider 인증 URL로 리다이렉트' })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 provider' })
+  @ApiResponse({
+    status: HttpStatus.FOUND,
+    description: 'Provider 인증 URL로 리다이렉트',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: '잘못된 provider',
+  })
   async login(
     @Param('provider') provider: string,
     @Query('next') next: string | undefined,
@@ -84,12 +88,13 @@ export class AuthController {
     @Req() req: { user: OAuthProfile },
     @Res({ passthrough: false }) res: express.Response,
   ): Promise<void> {
-    const providerErrorRedirect = this.authService.buildOAuthProviderErrorRedirectUrl({
-      next,
-      state,
-      oauthError,
-      oauthErrorDescription,
-    });
+    const providerErrorRedirect =
+      this.authService.buildOAuthProviderErrorRedirectUrl({
+        next,
+        state,
+        oauthError,
+        oauthErrorDescription,
+      });
     if (providerErrorRedirect) {
       res.redirect(HttpStatus.FOUND, providerErrorRedirect);
       return;

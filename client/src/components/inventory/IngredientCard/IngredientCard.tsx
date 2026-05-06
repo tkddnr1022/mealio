@@ -1,9 +1,12 @@
-import { Check, X } from "lucide-react";
-import type { HTMLAttributes, ReactNode } from "react";
-import { cn } from "@/lib/utils/cn";
-import { buildAriaLabel } from "@/lib/utils/a11y";
+import { Check, X } from 'lucide-react';
+import type { HTMLAttributes, ReactNode } from 'react';
+import { cn } from '@/lib/utils/cn';
+import { buildAriaLabel } from '@/lib/utils/a11y';
 
-export interface IngredientCardProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+export interface IngredientCardProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'children'
+> {
   className?: string;
   name?: string;
   selected?: boolean;
@@ -13,8 +16,8 @@ export interface IngredientCardProps extends Omit<HTMLAttributes<HTMLDivElement>
 }
 
 export function IngredientCard({
-  className = "",
-  name = "재료명",
+  className = '',
+  name = '재료명',
   selected = false,
   leadingIcon,
   trailing,
@@ -24,7 +27,7 @@ export function IngredientCard({
   const nameText = name.trim();
   const removeButtonAriaLabel =
     onRemove !== undefined
-      ? buildAriaLabel("button", nameText ? `${nameText} 제거` : "")
+      ? buildAriaLabel('button', nameText ? `${nameText} 제거` : '')
       : undefined;
 
   const defaultTrailing = selected ? (
@@ -48,7 +51,7 @@ export function IngredientCard({
   return (
     <div
       className={cn(
-        "relative flex h-[113px] w-20 shrink-0 flex-col items-center gap-3 rounded-xl bg-background-surface p-4 shadow-(--semantic-shadow-md)",
+        'relative flex h-[113px] w-20 shrink-0 flex-col items-center gap-3 rounded-xl bg-background-surface p-4 shadow-(--semantic-shadow-md)',
         className,
       )}
       data-name="IngredientCard"
@@ -57,13 +60,17 @@ export function IngredientCard({
       <span
         aria-hidden
         className={cn(
-          "inline-flex size-12 items-center justify-center rounded-full p-3",
-          selected ? "bg-toggle-selected-default style-text-button-primary" : "bg-dropdown-selected-default style-text-accent",
+          'inline-flex size-12 items-center justify-center rounded-full p-3',
+          selected
+            ? 'bg-toggle-selected-default style-text-button-primary'
+            : 'bg-dropdown-selected-default style-text-accent',
         )}
       >
         {leadingIcon}
       </span>
-      <p className="w-full truncate text-center typo-card-body style-text-primary">{name}</p>
+      <p className="w-full truncate text-center typo-card-body style-text-primary">
+        {name}
+      </p>
       {trailing ?? defaultTrailing}
     </div>
   );

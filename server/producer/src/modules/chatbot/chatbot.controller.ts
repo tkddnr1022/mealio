@@ -56,8 +56,14 @@ export class ChatbotController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
-  @ApiResponse({ status: HttpStatus.TOO_MANY_REQUESTS, description: '요청 제한 초과' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.TOO_MANY_REQUESTS,
+    description: '요청 제한 초과',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async sendMessage(
     @CurrentUser() user: AuthUser,
     @Body() dto: SendMessageDto,
@@ -103,7 +109,10 @@ export class ChatbotController {
     type: ConversationListDto,
   })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async getConversationList(
     @CurrentUser() user: AuthUser,
     @Query() query: ConversationListQueryDto,
@@ -125,7 +134,10 @@ export class ChatbotController {
   })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '대화 없음' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async getConversationHistory(
     @CurrentUser() user: AuthUser,
     @Param('conversationId') conversationId: string,

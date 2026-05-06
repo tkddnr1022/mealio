@@ -18,7 +18,9 @@ async function bootstrap() {
 
   const frontendAppBaseUrl = config.getOrThrow<string>('FRONTEND_APP_BASE_URL');
   const frontendOrigin = new URL(
-    frontendAppBaseUrl.endsWith('/') ? frontendAppBaseUrl : `${frontendAppBaseUrl}/`,
+    frontendAppBaseUrl.endsWith('/')
+      ? frontendAppBaseUrl
+      : `${frontendAppBaseUrl}/`,
   ).origin;
 
   app.enableCors({

@@ -1,10 +1,16 @@
 import type { HTMLAttributes } from 'react';
 import { type OAuthProvider } from '@/lib/types/auth';
-import { buildOAuthEntryUrl, getEnabledOAuthProviders } from '@/lib/auth/providers';
+import {
+  buildOAuthEntryUrl,
+  getEnabledOAuthProviders,
+} from '@/lib/auth/providers';
 import { cn } from '@/lib/utils/cn';
 import { LoginButton } from '@/components/auth/LoginButton';
 
-export interface LoginButtonListProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
+export interface LoginButtonListProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'children'
+> {
   className?: string;
   /** 비우면 `getEnabledOAuthProviders()`(환경 플래그 반영) */
   providers?: readonly OAuthProvider[];

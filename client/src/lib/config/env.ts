@@ -69,7 +69,8 @@ const RAW_ENV_MAP: Record<string, string | undefined> = {
   NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   NEXT_PUBLIC_API_PREFIX: process.env.NEXT_PUBLIC_API_PREFIX,
   NEXT_PUBLIC_AUTH_COOKIE_NAME: process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME,
-  NEXT_PUBLIC_OAUTH_GOOGLE_ENABLED: process.env.NEXT_PUBLIC_OAUTH_GOOGLE_ENABLED,
+  NEXT_PUBLIC_OAUTH_GOOGLE_ENABLED:
+    process.env.NEXT_PUBLIC_OAUTH_GOOGLE_ENABLED,
   NEXT_PUBLIC_OAUTH_KAKAO_ENABLED: process.env.NEXT_PUBLIC_OAUTH_KAKAO_ENABLED,
   NEXT_PUBLIC_OAUTH_NAVER_ENABLED: process.env.NEXT_PUBLIC_OAUTH_NAVER_ENABLED,
   NEXT_PUBLIC_OBSERVABILITY_ENDPOINT:
@@ -230,8 +231,18 @@ function buildEnv(): AppEnv {
   const runtime = parseRuntime();
   const errors: EnvValidationError[] = [];
 
-  const apiBaseUrl = safeParse(parseApiBaseUrl, DEFAULTS.apiBaseUrl, errors, runtime);
-  const apiPrefix = safeParse(parseApiPrefix, DEFAULTS.apiPrefix, errors, runtime);
+  const apiBaseUrl = safeParse(
+    parseApiBaseUrl,
+    DEFAULTS.apiBaseUrl,
+    errors,
+    runtime,
+  );
+  const apiPrefix = safeParse(
+    parseApiPrefix,
+    DEFAULTS.apiPrefix,
+    errors,
+    runtime,
+  );
   const authCookieName = safeParse(
     parseAuthCookieName,
     DEFAULTS.authCookieName,

@@ -1,2 +1,2 @@
-export { MainContent } from "./MainContent";
-export type { MainContentProps } from "./MainContent";
+export { MainContent } from './MainContent';
+export type { MainContentProps } from './MainContent';

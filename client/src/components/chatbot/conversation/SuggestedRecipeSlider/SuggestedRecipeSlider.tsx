@@ -1,31 +1,34 @@
-"use client";
+'use client';
 
-import type { HTMLAttributes } from "react";
-import { useCallback, useMemo, useState } from "react";
-import type { Swiper as SwiperType } from "swiper";
-import { A11y, Keyboard } from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { cn } from "@/lib/utils/cn";
-import { SliderPagination } from "@/components/ui/SliderPagination";
+import type { HTMLAttributes } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import type { Swiper as SwiperType } from 'swiper';
+import { A11y, Keyboard } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { cn } from '@/lib/utils/cn';
+import { SliderPagination } from '@/components/ui/SliderPagination';
 import {
   SuggestedRecipeCard,
   type SuggestedRecipeCardProps,
-} from "@/components/chatbot/conversation/SuggestedRecipeCard";
+} from '@/components/chatbot/conversation/SuggestedRecipeCard';
 
-import "swiper/css";
-import "swiper/css/a11y";
+import 'swiper/css';
+import 'swiper/css/a11y';
 
 export type SuggestedRecipeSliderItem = Readonly<
-  Pick<SuggestedRecipeCardProps, "title" | "imageUrl" | "imageAlt" | "tags"> & {
+  Pick<SuggestedRecipeCardProps, 'title' | 'imageUrl' | 'imageAlt' | 'tags'> & {
     id: number;
   }
 >;
 
-export interface SuggestedRecipeSliderProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
-className?: string;
-items?: readonly SuggestedRecipeSliderItem[];
-cardClassName?: string;
-peekPx?: number;
+export interface SuggestedRecipeSliderProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'children'
+> {
+  className?: string;
+  items?: readonly SuggestedRecipeSliderItem[];
+  cardClassName?: string;
+  peekPx?: number;
 }
 
 const SLIDES_OFFSET_BEFORE = 16;
@@ -35,13 +38,16 @@ const DEFAULT_PEEK_PX = 16;
 const MIN_SLIDE_WIDTH = 200;
 
 export function SuggestedRecipeSlider({
-  className = "",
+  className = '',
   items = [],
-  cardClassName = "",
+  cardClassName = '',
   peekPx = DEFAULT_PEEK_PX,
   ...rest
 }: SuggestedRecipeSliderProps) {
-  const safeItems = useMemo(() => items.filter((item) => Boolean(item.id)), [items]);
+  const safeItems = useMemo(
+    () => items.filter((item) => Boolean(item.id)),
+    [items],
+  );
   const [activeIndex, setActiveIndex] = useState(0);
   const slideWidthStyle = useMemo(
     () => ({
@@ -59,7 +65,7 @@ export function SuggestedRecipeSlider({
 
   return (
     <section
-      className={cn("flex w-full flex-col gap-4", className)}
+      className={cn('flex w-full flex-col gap-4', className)}
       data-name="SuggestedRecipeSlider"
       {...rest}
     >
@@ -80,7 +86,11 @@ export function SuggestedRecipeSlider({
           onSlideChange={handleSlideChange}
         >
           {safeItems.map((item) => (
-            <SwiperSlide key={item.id} className="box-border! shrink-0" style={slideWidthStyle}>
+            <SwiperSlide
+              key={item.id}
+              className="box-border! shrink-0"
+              style={slideWidthStyle}
+            >
               <SuggestedRecipeCard
                 recipeId={item.id}
                 title={item.title}
@@ -94,7 +104,11 @@ export function SuggestedRecipeSlider({
         </Swiper>
       </div>
 
-      <SliderPagination className="w-full shrink-0" total={safeItems.length} activeIndex={activeIndex} />
+      <SliderPagination
+        className="w-full shrink-0"
+        total={safeItems.length}
+        activeIndex={activeIndex}
+      />
     </section>
   );
 }

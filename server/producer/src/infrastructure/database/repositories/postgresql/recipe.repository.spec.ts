@@ -29,9 +29,9 @@ describe('RecipeRepository', () => {
       count: jest.fn().mockResolvedValue(1),
     },
     recipeStats: {
-      findMany: jest.fn().mockResolvedValue([
-        { recipeId: 1, viewCount: 7, likeCount: 3 },
-      ]),
+      findMany: jest
+        .fn()
+        .mockResolvedValue([{ recipeId: 1, viewCount: 7, likeCount: 3 }]),
     },
     $queryRaw: jest.fn(),
   };

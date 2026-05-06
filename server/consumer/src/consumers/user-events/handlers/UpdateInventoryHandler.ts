@@ -1,8 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  InventoryEventType,
-  type InventoryEvent,
-} from '@cook/shared';
+import { InventoryEventType, type InventoryEvent } from '@cook/shared';
 import { InventoryRepository } from 'src/persistence/repositories/mongodb/inventory.repository';
 import { CacheInvalidationRequestService } from 'src/consumers/cache-invalidation/cache-invalidation-request.service';
 import { RecipeStatsUpdaterService } from '../services/recipe-stats-updater.service';

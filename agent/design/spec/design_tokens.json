@@ -920,10 +920,7 @@
   "system": {
     "theme": {
       "default": "light",
-      "modes": [
-        "light",
-        "dark"
-      ]
+      "modes": ["light", "dark"]
     },
     "layout": {
       "content-max-width": 1200,

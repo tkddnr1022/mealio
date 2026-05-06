@@ -1,31 +1,37 @@
-import Link from "next/link";
-import type { AnchorHTMLAttributes, HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
-import { isInternalNavHref } from "@/lib/utils/isInternalNavHref";
+import Link from 'next/link';
+import type { AnchorHTMLAttributes, HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
+import { isInternalNavHref } from '@/lib/utils/isInternalNavHref';
 
 export type LoginFooterLink = Readonly<{
   label: string;
   href?: string;
 }>;
 
-export interface LoginFooterProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
-className?: string;
-leftLink?: LoginFooterLink;
-rightLink?: LoginFooterLink;
-linkProps?: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "children">;
+export interface LoginFooterProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'children'
+> {
+  className?: string;
+  leftLink?: LoginFooterLink;
+  rightLink?: LoginFooterLink;
+  linkProps?: Omit<
+    AnchorHTMLAttributes<HTMLAnchorElement>,
+    'href' | 'children'
+  >;
 }
 
 export function LoginFooter({
-  className = "",
-  leftLink = { label: "이용약관", href: "#" },
-  rightLink = { label: "개인정보 처리방침", href: "#" },
+  className = '',
+  leftLink = { label: '이용약관', href: '#' },
+  rightLink = { label: '개인정보 처리방침', href: '#' },
   linkProps,
   ...rest
 }: LoginFooterProps) {
-  const linkClass = "typo-caption-regular style-text-caption";
+  const linkClass = 'typo-caption-regular style-text-caption';
 
-  const leftHref = leftLink.href ?? "#";
-  const rightHref = rightLink.href ?? "#";
+  const leftHref = leftLink.href ?? '#';
+  const rightHref = rightLink.href ?? '#';
 
   const leftEl = isInternalNavHref(leftHref) ? (
     <Link href={leftHref} className={linkClass} {...linkProps}>
@@ -49,7 +55,7 @@ export function LoginFooter({
 
   return (
     <footer
-      className={cn("flex w-full items-start justify-center gap-4", className)}
+      className={cn('flex w-full items-start justify-center gap-4', className)}
       data-name="LoginFooter"
       {...rest}
     >

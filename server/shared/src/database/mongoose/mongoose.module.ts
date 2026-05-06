@@ -1,8 +1,5 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
-import {
-  MongooseModule,
-  type MongooseModuleOptions,
-} from '@nestjs/mongoose';
+import { MongooseModule, type MongooseModuleOptions } from '@nestjs/mongoose';
 import type { MongoosePoolConfig } from './mongoose-pool.config';
 import {
   ChatbotLog,

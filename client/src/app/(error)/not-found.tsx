@@ -9,7 +9,13 @@ export default function NotFoundPage() {
         <InfoScreen
           title="오류가 발생했습니다"
           message="Not Found"
-          icon={<Info className="size-8 text-text-accent" strokeWidth={2} aria-hidden />}
+          icon={
+            <Info
+              className="size-8 text-text-accent"
+              strokeWidth={2}
+              aria-hidden
+            />
+          }
           buttonLabel="홈으로 돌아가기"
           buttonHref="/"
         />

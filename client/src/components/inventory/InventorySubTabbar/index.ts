@@ -1,5 +1,5 @@
-export { InventorySubTabbar } from "./InventorySubTabbar";
+export { InventorySubTabbar } from './InventorySubTabbar';
 export type {
   InventorySubTabbarProps,
   InventorySubTabbarItem,
-} from "./InventorySubTabbar";
+} from './InventorySubTabbar';

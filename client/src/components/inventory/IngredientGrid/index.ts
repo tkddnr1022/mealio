@@ -1,2 +1,2 @@
-export { IngredientGrid } from "./IngredientGrid";
-export type { IngredientGridProps, IngredientGridItem } from "./IngredientGrid";
+export { IngredientGrid } from './IngredientGrid';
+export type { IngredientGridProps, IngredientGridItem } from './IngredientGrid';

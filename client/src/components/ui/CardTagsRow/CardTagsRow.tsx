@@ -1,25 +1,28 @@
-import type { HTMLAttributes, ReactNode } from "react";
-import { cn } from "@/lib/utils/cn";
-import { CardTag } from "@/components/ui/CardTag";
+import type { HTMLAttributes, ReactNode } from 'react';
+import { cn } from '@/lib/utils/cn';
+import { CardTag } from '@/components/ui/CardTag';
 
 export type CardTagItem = Readonly<{
   label: string;
   leftIcon?: ReactNode;
 }>;
 
-export interface CardTagsRowProps extends Omit<HTMLAttributes<HTMLDivElement>, "className" | "children"> {
-className?: string;
-items?: readonly CardTagItem[];
+export interface CardTagsRowProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'className' | 'children'
+> {
+  className?: string;
+  items?: readonly CardTagItem[];
 }
 
 export function CardTagsRow({
-  className = "",
+  className = '',
   items = [],
   ...rest
 }: CardTagsRowProps) {
   return (
     <div
-      className={cn("flex w-full flex-wrap items-start gap-3", className)}
+      className={cn('flex w-full flex-wrap items-start gap-3', className)}
       data-name="CardTagsRow"
       {...rest}
     >

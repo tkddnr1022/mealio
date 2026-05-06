@@ -1,25 +1,28 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
-import { type ToggleSize, Toggle } from "@/components/ui/Toggle";
+import { type ToggleSize, Toggle } from '@/components/ui/Toggle';
 
-const toggleSizeOptions = ["large", "medium"] as const satisfies readonly ToggleSize[];
+const toggleSizeOptions = [
+  'large',
+  'medium',
+] as const satisfies readonly ToggleSize[];
 
 const meta = {
-  title: "UI/Toggle",
+  title: 'UI/Toggle',
   component: Toggle,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
-    viewport: { defaultViewport: "mobile1" },
+    layout: 'centered',
+    viewport: { defaultViewport: 'mobile1' },
   },
   args: {
-    label: "Label",
+    label: 'Label',
     selected: true,
-    size: "large",
+    size: 'large',
   },
   argTypes: {
     size: {
-      control: "select",
+      control: 'select',
       options: toggleSizeOptions,
     },
   },
@@ -31,33 +34,33 @@ type Story = StoryObj<typeof meta>;
 export const Playground = {} satisfies Story;
 
 export const SelectedLargeDefault = {
-  name: "Selected / Large",
+  name: 'Selected / Large',
   args: {
     selected: true,
-    size: "large",
+    size: 'large',
   },
 } satisfies Story;
 
 export const UnselectedLargeDefault = {
-  name: "Unselected / Large",
+  name: 'Unselected / Large',
   args: {
     selected: false,
-    size: "large",
+    size: 'large',
   },
 } satisfies Story;
 
 export const SelectedMediumDefault = {
-  name: "Selected / Medium",
+  name: 'Selected / Medium',
   args: {
     selected: true,
-    size: "medium",
+    size: 'medium',
   },
 } satisfies Story;
 
 export const UnselectedMediumDefault = {
-  name: "Unselected / Medium",
+  name: 'Unselected / Medium',
   args: {
     selected: false,
-    size: "medium",
+    size: 'medium',
   },
 } satisfies Story;

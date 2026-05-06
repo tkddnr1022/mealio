@@ -64,14 +64,11 @@ export const envValidationSchema = Joi.object({
     'any.required': 'FRONTEND_APP_BASE_URL is required',
   }),
 
-  FRONTEND_OAUTH_ERROR_PATH: Joi.string()
-    .pattern(/^\/.+/)
-    .required()
-    .messages({
-      'any.required': 'FRONTEND_OAUTH_ERROR_PATH is required',
-      'string.pattern.base':
-        'FRONTEND_OAUTH_ERROR_PATH must be a path starting with / (e.g. /oauth/error)',
-    }),
+  FRONTEND_OAUTH_ERROR_PATH: Joi.string().pattern(/^\/.+/).required().messages({
+    'any.required': 'FRONTEND_OAUTH_ERROR_PATH is required',
+    'string.pattern.base':
+      'FRONTEND_OAUTH_ERROR_PATH must be a path starting with / (e.g. /oauth/error)',
+  }),
 
   FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH: Joi.string()
     .pattern(/^\/.+/)
@@ -95,7 +92,7 @@ export const envValidationSchema = Joi.object({
     'string.empty': 'NAVER_CLIENT_ID must not be empty',
     'any.required': 'NAVER_CLIENT_ID is required',
   }),
-  
+
   NAVER_CLIENT_SECRET: Joi.string().min(1).required().messages({
     'string.empty': 'NAVER_CLIENT_SECRET must not be empty',
     'any.required': 'NAVER_CLIENT_SECRET is required',

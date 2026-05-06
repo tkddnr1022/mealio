@@ -1,12 +1,15 @@
-import type { HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
-import { buildAriaLabel } from "@/lib/utils/a11y";
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
+import { buildAriaLabel } from '@/lib/utils/a11y';
 
-import { PaginationDot } from "@/components/ui/PaginationDot";
+import { PaginationDot } from '@/components/ui/PaginationDot';
 
-export interface SliderPaginationProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
-total: number;
-activeIndex: number;
+export interface SliderPaginationProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'children'
+> {
+  total: number;
+  activeIndex: number;
 }
 
 /**
@@ -14,7 +17,7 @@ activeIndex: number;
  * `PaginationDot`을 가로로 배치하고 `activeIndex`에 맞춰 활성 pill을 표시한다.
  */
 export function SliderPagination({
-  className = "",
+  className = '',
   total,
   activeIndex,
   ...rest
@@ -30,11 +33,11 @@ export function SliderPagination({
 
   return (
     <div
-      className={cn("flex w-full items-center justify-center gap-2", className)}
+      className={cn('flex w-full items-center justify-center gap-2', className)}
       data-name="SliderPagination"
       role="group"
       aria-label={buildAriaLabel(
-        "generic",
+        'generic',
         `슬라이드 ${clampedIndex + 1} / ${safeTotal}`,
       )}
       {...rest}
@@ -43,7 +46,7 @@ export function SliderPagination({
         <PaginationDot
           key={i}
           active={i === clampedIndex}
-          aria-current={i === clampedIndex ? "true" : undefined}
+          aria-current={i === clampedIndex ? 'true' : undefined}
           aria-hidden={i === clampedIndex ? undefined : true}
         />
       ))}

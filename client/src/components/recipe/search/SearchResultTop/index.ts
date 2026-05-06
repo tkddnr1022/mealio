@@ -1,2 +1,2 @@
-export { SearchResultTop } from "./SearchResultTop";
-export type { SearchResultTopProps } from "./SearchResultTop";
+export { SearchResultTop } from './SearchResultTop';
+export type { SearchResultTopProps } from './SearchResultTop';

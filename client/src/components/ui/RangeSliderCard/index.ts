@@ -1,2 +1,2 @@
-export { RangeSliderCard } from "./RangeSliderCard";
-export type { RangeSliderCardProps } from "./RangeSliderCard";
+export { RangeSliderCard } from './RangeSliderCard';
+export type { RangeSliderCardProps } from './RangeSliderCard';

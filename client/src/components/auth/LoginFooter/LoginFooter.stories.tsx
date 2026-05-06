@@ -1,12 +1,12 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { LoginFooter } from "./LoginFooter";
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { LoginFooter } from './LoginFooter';
 
 const meta = {
-  title: "Auth/LoginFooter",
+  title: 'Auth/LoginFooter',
   component: LoginFooter,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
+    layout: 'centered',
   },
   decorators: [
     (Story) => (

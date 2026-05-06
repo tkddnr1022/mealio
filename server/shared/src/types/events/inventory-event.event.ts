@@ -82,9 +82,7 @@ export type InventoryEvent =
   | InventoryRecipeFavoritesAddEvent
   | InventoryRecipeFavoritesRemoveEvent;
 
-export function isInventoryEvent(
-  obj: unknown,
-): obj is InventoryEvent {
+export function isInventoryEvent(obj: unknown): obj is InventoryEvent {
   const o = obj as Record<string, unknown>;
   return (
     'type' in o &&

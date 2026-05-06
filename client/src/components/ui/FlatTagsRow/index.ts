@@ -1,2 +1,2 @@
-export { FlatTagsRow } from "./FlatTagsRow";
-export type { FlatTagsRowProps, FlatTagItem } from "./FlatTagsRow";
+export { FlatTagsRow } from './FlatTagsRow';
+export type { FlatTagsRowProps, FlatTagItem } from './FlatTagsRow';

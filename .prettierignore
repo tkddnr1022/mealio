@@ -11,6 +11,7 @@ out
 **/build
 **/.next
 **/out
+**/storybook-static
 
 # Lockfiles
 package-lock.json

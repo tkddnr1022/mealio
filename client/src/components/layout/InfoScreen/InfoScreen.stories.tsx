@@ -1,6 +1,6 @@
-import { SearchX } from "lucide-react";
-import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
-import { InfoScreen } from "@/components/layout/InfoScreen";
+import { SearchX } from 'lucide-react';
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
+import { InfoScreen } from '@/components/layout/InfoScreen';
 
 const figmaFrame: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,22.5rem)] bg-background-primary">
@@ -9,20 +9,20 @@ const figmaFrame: Decorator = (Story) => (
 );
 
 const meta = {
-  title: "Layout/InfoScreen",
+  title: 'Layout/InfoScreen',
   component: InfoScreen,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
-    viewport: { defaultViewport: "mobile1" },
+    layout: 'centered',
+    viewport: { defaultViewport: 'mobile1' },
   },
   decorators: [figmaFrame],
   args: {
-    title: "Title",
-    message: "Message",
+    title: 'Title',
+    message: 'Message',
     showButton: true,
-    buttonLabel: "Label",
-    buttonHref: "/",
+    buttonLabel: 'Label',
+    buttonHref: '/',
   },
 } satisfies Meta<typeof InfoScreen>;
 
@@ -40,8 +40,8 @@ export const WithoutButton = {
 export const CustomIcon = {
   args: {
     icon: <SearchX className="size-8" strokeWidth={2} aria-hidden />,
-    title: "검색 결과가 없어요",
-    message: "다른 키워드로 다시 시도해 주세요.",
-    buttonLabel: "검색 초기화",
+    title: '검색 결과가 없어요',
+    message: '다른 키워드로 다시 시도해 주세요.',
+    buttonLabel: '검색 초기화',
   },
 } satisfies Story;

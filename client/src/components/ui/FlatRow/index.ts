@@ -1,2 +1,2 @@
-export { FlatRow } from "./FlatRow";
-export type { FlatRowProps } from "./FlatRow";
+export { FlatRow } from './FlatRow';
+export type { FlatRowProps } from './FlatRow';

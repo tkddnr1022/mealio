@@ -1,6 +1,10 @@
 import { Controller, Get, HttpStatus } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { HealthService, LivenessResponse, ReadinessResponse } from './health.service';
+import {
+  HealthService,
+  LivenessResponse,
+  ReadinessResponse,
+} from './health.service';
 
 @ApiTags('Internal')
 @Controller()
@@ -55,4 +59,3 @@ export class HealthController {
     return this.healthService.getReadiness();
   }
 }
-

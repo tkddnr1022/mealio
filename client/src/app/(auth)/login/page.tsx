@@ -20,7 +20,10 @@ function LoginPageContent() {
         <div className="flex min-h-0 flex-1 flex-col items-center gap-8">
           <LoginHeader className="w-full" />
 
-          <LoginButtonList className="w-full max-w-full" oauthNext={oauthNext} />
+          <LoginButtonList
+            className="w-full max-w-full"
+            oauthNext={oauthNext}
+          />
 
           <LoginFooter
             className="w-full"

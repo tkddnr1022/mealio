@@ -1,9 +1,16 @@
-import Link from "next/link";
-import type { ButtonHTMLAttributes, MouseEvent, MouseEventHandler } from "react";
-import { cn } from "@/lib/utils/cn";
-import { isInternalNavHref } from "@/lib/utils/isInternalNavHref";
+import Link from 'next/link';
+import type {
+  ButtonHTMLAttributes,
+  MouseEvent,
+  MouseEventHandler,
+} from 'react';
+import { cn } from '@/lib/utils/cn';
+import { isInternalNavHref } from '@/lib/utils/isInternalNavHref';
 
-export interface SubTabProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> {
+export interface SubTabProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'className'
+> {
   className?: string;
   label?: string;
   selected?: boolean;
@@ -16,26 +23,26 @@ export interface SubTabProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
 }
 
 export function SubTab({
-  className = "",
+  className = '',
   label,
   selected = false,
-  type = "button",
+  type = 'button',
   href,
   preventLinkNavigation = false,
   onClick,
   ...rest
 }: SubTabProps) {
   const sharedClass = cn(
-    "inline-flex min-h-11 min-w-px flex-1 items-center justify-center border-b bg-background-surface px-3 py-3 text-center outline-none transition-colors",
+    'inline-flex min-h-11 min-w-px flex-1 items-center justify-center border-b bg-background-surface px-3 py-3 text-center outline-none transition-colors',
     selected
-      ? "border-border-accent border-b-2 typo-label-dropdown style-text-tab-active"
-      : "border-border-subtle border-b typo-label-dropdown style-text-tab-inactive",
+      ? 'border-border-accent border-b-2 typo-label-dropdown style-text-tab-active'
+      : 'border-border-subtle border-b typo-label-dropdown style-text-tab-inactive',
     className,
   );
 
   const content = label;
 
-  if (href != null && href !== "") {
+  if (href != null && href !== '') {
     const anchorClick: MouseEventHandler<HTMLAnchorElement> = (e) => {
       if (preventLinkNavigation) e.preventDefault();
       onClick?.(e as unknown as MouseEvent<HTMLButtonElement>);
@@ -46,7 +53,7 @@ export function SubTab({
         <Link
           href={href}
           className={sharedClass}
-          aria-current={selected ? "page" : undefined}
+          aria-current={selected ? 'page' : undefined}
           onClick={anchorClick}
         >
           {content}
@@ -58,7 +65,7 @@ export function SubTab({
       <a
         href={href}
         className={sharedClass}
-        aria-current={selected ? "page" : undefined}
+        aria-current={selected ? 'page' : undefined}
         onClick={anchorClick}
       >
         {content}

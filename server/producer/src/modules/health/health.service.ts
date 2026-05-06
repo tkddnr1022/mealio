@@ -59,9 +59,7 @@ export class HealthService {
     }
 
     const status: HealthStatus =
-      details.postgres === 'ok' && details.mongodb === 'ok'
-        ? 'ok'
-        : 'degraded';
+      details.postgres === 'ok' && details.mongodb === 'ok' ? 'ok' : 'degraded';
 
     return {
       status,
@@ -70,4 +68,3 @@ export class HealthService {
     };
   }
 }
-

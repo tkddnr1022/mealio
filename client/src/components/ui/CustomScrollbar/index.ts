@@ -1,2 +1,2 @@
-export { CustomScrollbar } from "./CustomScrollbar";
-export type { CustomScrollbarProps } from "./CustomScrollbar";
+export { CustomScrollbar } from './CustomScrollbar';
+export type { CustomScrollbarProps } from './CustomScrollbar';

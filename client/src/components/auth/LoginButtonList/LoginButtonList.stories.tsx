@@ -1,12 +1,12 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { LoginButtonList } from "./LoginButtonList";
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { LoginButtonList } from './LoginButtonList';
 
 const meta = {
-  title: "Auth/LoginButtonList",
+  title: 'Auth/LoginButtonList',
   component: LoginButtonList,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
+    layout: 'centered',
   },
   decorators: [
     (Story) => (

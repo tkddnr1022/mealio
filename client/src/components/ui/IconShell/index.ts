@@ -1,6 +1,6 @@
-export { IconShell } from "./IconShell";
+export { IconShell } from './IconShell';
 export type {
   IconShellProps,
   IconShellSize,
   IconShellVariant,
-} from "./IconShell";
+} from './IconShell';

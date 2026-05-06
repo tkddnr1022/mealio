@@ -6,7 +6,10 @@ import {
 } from '@nestjs/common';
 import { PrismaClient } from './generated/client';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PRISMA_POOL_CONFIG, type PrismaPoolConfig } from './prisma-pool.config';
+import {
+  PRISMA_POOL_CONFIG,
+  type PrismaPoolConfig,
+} from './prisma-pool.config';
 
 /**
  * Prisma 서비스 (Producer/Consumer 공용)

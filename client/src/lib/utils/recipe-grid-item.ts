@@ -17,7 +17,8 @@ export function mapRecipeSummaryToGridItem(
   const imageUrl = summary.imageUrl?.trim();
   return {
     recipeId: String(summary.id),
-    imageUrl: imageUrl && imageUrl.length > 0 ? imageUrl : FALLBACK_RECIPE_IMAGE,
+    imageUrl:
+      imageUrl && imageUrl.length > 0 ? imageUrl : FALLBACK_RECIPE_IMAGE,
     imageAlt: summary.title,
     title: summary.title,
     cookingTimeMinutes: summary.cookTime,

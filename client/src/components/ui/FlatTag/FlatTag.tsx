@@ -1,16 +1,19 @@
-import type { HTMLAttributes, ReactNode } from "react";
-import { cn } from "@/lib/utils/cn";
+import type { HTMLAttributes, ReactNode } from 'react';
+import { cn } from '@/lib/utils/cn';
 
-export interface FlatTagProps extends Omit<HTMLAttributes<HTMLDivElement>, "className" | "children"> {
-className?: string;
-label?: string;
-accent?: boolean;
-leftIcon?: ReactNode;
-trailing?: ReactNode;
+export interface FlatTagProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'className' | 'children'
+> {
+  className?: string;
+  label?: string;
+  accent?: boolean;
+  leftIcon?: ReactNode;
+  trailing?: ReactNode;
 }
 
 export function FlatTag({
-  className = "",
+  className = '',
   label,
   accent = false,
   leftIcon,
@@ -20,8 +23,10 @@ export function FlatTag({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2 rounded-full px-3 py-2",
-        accent ? "bg-tag-accent style-text-accent" : "bg-tag-default style-text-secondary",
+        'inline-flex items-center gap-2 rounded-full px-3 py-2',
+        accent
+          ? 'bg-tag-accent style-text-accent'
+          : 'bg-tag-default style-text-secondary',
         className,
       )}
       data-name="FlatTag"

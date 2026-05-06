@@ -1,5 +1,5 @@
-import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
-import { RangeSlider } from "@/components/ui/RangeSlider";
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
+import { RangeSlider } from '@/components/ui/RangeSlider';
 
 const figmaWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,23rem)]">
@@ -8,12 +8,12 @@ const figmaWidth: Decorator = (Story) => (
 );
 
 const meta = {
-  title: "UI/RangeSlider",
+  title: 'UI/RangeSlider',
   component: RangeSlider,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
-    viewport: { defaultViewport: "mobile1" },
+    layout: 'centered',
+    viewport: { defaultViewport: 'mobile1' },
   },
   decorators: [figmaWidth],
   args: {
@@ -22,19 +22,25 @@ const meta = {
     step: 5,
     defaultMinValue: 0,
     defaultMaxValue: 180,
-    unit: "time",
+    unit: 'time',
   },
 } satisfies Meta<typeof RangeSlider>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = { name: "기본 범위" };
+export const Default: Story = { name: '기본 범위' };
 export const SmallRange = {
-  name: "작은 범위",
+  name: '작은 범위',
   args: { min: 0, max: 10, step: 1, defaultMinValue: 3, defaultMaxValue: 7 },
 } satisfies Story;
 export const WideRange = {
-  name: "넓은 범위",
-  args: { min: 0, max: 1000, step: 10, defaultMinValue: 200, defaultMaxValue: 700 },
+  name: '넓은 범위',
+  args: {
+    min: 0,
+    max: 1000,
+    step: 10,
+    defaultMinValue: 200,
+    defaultMaxValue: 700,
+  },
 } satisfies Story;

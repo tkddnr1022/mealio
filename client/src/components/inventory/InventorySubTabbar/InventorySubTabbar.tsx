@@ -1,6 +1,6 @@
-import type { HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
-import { SubTab } from "@/components/ui/SubTab";
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
+import { SubTab } from '@/components/ui/SubTab';
 
 export type InventorySubTabbarItem = Readonly<{
   id: string;
@@ -9,7 +9,10 @@ export type InventorySubTabbarItem = Readonly<{
   href?: string;
 }>;
 
-export interface InventorySubTabbarProps extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "onSelect"> {
+export interface InventorySubTabbarProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'children' | 'onSelect'
+> {
   className?: string;
   /** 비우면 `items[0]?.id`를 선택된 것으로 표시 */
   selected?: string;
@@ -20,7 +23,7 @@ export interface InventorySubTabbarProps extends Omit<HTMLAttributes<HTMLDivElem
 }
 
 export function InventorySubTabbar({
-  className = "",
+  className = '',
   selected,
   items = [],
   onSelect,
@@ -30,7 +33,10 @@ export function InventorySubTabbar({
   const effectiveSelectedId = selected ?? items[0]?.id;
 
   return (
-    <div className={cn("flex w-full items-start bg-background-surface", className)} {...rest}>
+    <div
+      className={cn('flex w-full items-start bg-background-surface', className)}
+      {...rest}
+    >
       {items.map((item) => (
         <SubTab
           key={item.id}

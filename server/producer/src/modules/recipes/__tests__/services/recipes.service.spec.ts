@@ -49,7 +49,12 @@ describe('RecipeQueryService', () => {
         amount: 100,
         unit: 'g',
         isOptional: false,
-        ingredient: { id: 1, name: '김치', categoryId: 1, createdAt: new Date() },
+        ingredient: {
+          id: 1,
+          name: '김치',
+          categoryId: 1,
+          createdAt: new Date(),
+        },
       },
     ],
   };
@@ -296,7 +301,9 @@ describe('RecipeQueryService', () => {
         1,
       );
 
-      expect(inventoryRepository.findFavoriteRecipeIdsByUserId).toHaveBeenCalledWith(1);
+      expect(
+        inventoryRepository.findFavoriteRecipeIdsByUserId,
+      ).toHaveBeenCalledWith(1);
       expect(result.data[0].isFavorite).toBe(true);
     });
   });
@@ -357,7 +364,9 @@ describe('RecipeQueryService', () => {
     it('로그인 사용자면 상세 응답에 isFavorite를 반영한다', async () => {
       const result = await service.getById(1, undefined, 1);
 
-      expect(inventoryRepository.findFavoriteRecipeIdsByUserId).toHaveBeenCalledWith(1);
+      expect(
+        inventoryRepository.findFavoriteRecipeIdsByUserId,
+      ).toHaveBeenCalledWith(1);
       expect(result.isFavorite).toBe(true);
     });
   });
@@ -429,7 +438,9 @@ describe('RecipeQueryService', () => {
         1,
       );
 
-      expect(inventoryRepository.findFavoriteRecipeIdsByUserId).toHaveBeenCalledWith(1);
+      expect(
+        inventoryRepository.findFavoriteRecipeIdsByUserId,
+      ).toHaveBeenCalledWith(1);
       expect(result.data[0].isFavorite).toBe(true);
     });
 

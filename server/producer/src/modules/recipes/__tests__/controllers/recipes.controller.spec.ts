@@ -88,14 +88,17 @@ describe('RecipesController', () => {
       const query = { page: 1, size: 20, sort: 'latest' as const };
       const result = await controller.getList(query, undefined);
 
-      expect(recipeQueryService.getList).toHaveBeenCalledWith({
-        page: 1,
-        size: 20,
-        difficulty: undefined,
-        cookTimeMin: undefined,
-        cookTimeMax: undefined,
-        sort: 'latest',
-      }, undefined);
+      expect(recipeQueryService.getList).toHaveBeenCalledWith(
+        {
+          page: 1,
+          size: 20,
+          difficulty: undefined,
+          cookTimeMin: undefined,
+          cookTimeMax: undefined,
+          sort: 'latest',
+        },
+        undefined,
+      );
       expect(result.data).toHaveLength(1);
       expect(result.data[0].title).toBe('김치볶음밥');
       expect(result.pagination).toEqual(mockPagination);
@@ -112,28 +115,34 @@ describe('RecipesController', () => {
       };
       await controller.getList(query, undefined);
 
-      expect(recipeQueryService.getList).toHaveBeenCalledWith({
-        page: 2,
-        size: 10,
-        difficulty: [1, 2],
-        cookTimeMin: 10,
-        cookTimeMax: 30,
-        sort: 'cookTime',
-      }, undefined);
+      expect(recipeQueryService.getList).toHaveBeenCalledWith(
+        {
+          page: 2,
+          size: 10,
+          difficulty: [1, 2],
+          cookTimeMin: 10,
+          cookTimeMax: 30,
+          sort: 'cookTime',
+        },
+        undefined,
+      );
     });
 
     it('cookTimeMin만 전달하면 min 필터만 전달한다', async () => {
       const query = { page: 1, size: 20, cookTimeMin: 12 };
       await controller.getList(query, undefined);
 
-      expect(recipeQueryService.getList).toHaveBeenCalledWith({
-        page: 1,
-        size: 20,
-        difficulty: undefined,
-        cookTimeMin: 12,
-        cookTimeMax: undefined,
-        sort: 'latest',
-      }, undefined);
+      expect(recipeQueryService.getList).toHaveBeenCalledWith(
+        {
+          page: 1,
+          size: 20,
+          difficulty: undefined,
+          cookTimeMin: 12,
+          cookTimeMax: undefined,
+          sort: 'latest',
+        },
+        undefined,
+      );
     });
   });
 
@@ -142,16 +151,20 @@ describe('RecipesController', () => {
       const query = { q: '김치', page: 1, size: 20 };
       const result = await controller.search(query, undefined);
 
-      expect(recipeQueryService.search).toHaveBeenCalledWith({
-        q: '김치',
-        page: 1,
-        size: 20,
-        difficulty: undefined,
-        cookTimeMin: undefined,
-        cookTimeMax: undefined,
-        categoryId: undefined,
-        sort: 'latest',
-      }, undefined, undefined);
+      expect(recipeQueryService.search).toHaveBeenCalledWith(
+        {
+          q: '김치',
+          page: 1,
+          size: 20,
+          difficulty: undefined,
+          cookTimeMin: undefined,
+          cookTimeMax: undefined,
+          categoryId: undefined,
+          sort: 'latest',
+        },
+        undefined,
+        undefined,
+      );
       expect(result.data).toHaveLength(1);
       expect(result.pagination).toEqual(mockPagination);
     });
@@ -160,32 +173,40 @@ describe('RecipesController', () => {
       const query = { page: 2, size: 10, sort: 'cookTime' as const };
       await controller.search(query, undefined);
 
-      expect(recipeQueryService.search).toHaveBeenCalledWith({
-        q: undefined,
-        page: 2,
-        size: 10,
-        difficulty: undefined,
-        cookTimeMin: undefined,
-        cookTimeMax: undefined,
-        categoryId: undefined,
-        sort: 'cookTime',
-      }, undefined, undefined);
+      expect(recipeQueryService.search).toHaveBeenCalledWith(
+        {
+          q: undefined,
+          page: 2,
+          size: 10,
+          difficulty: undefined,
+          cookTimeMin: undefined,
+          cookTimeMax: undefined,
+          categoryId: undefined,
+          sort: 'cookTime',
+        },
+        undefined,
+        undefined,
+      );
     });
 
     it('cookTimeMax만 전달하면 max 필터만 전달한다', async () => {
       const query = { q: '김치', page: 1, size: 20, cookTimeMax: 25 };
       await controller.search(query, undefined);
 
-      expect(recipeQueryService.search).toHaveBeenCalledWith({
-        q: '김치',
-        page: 1,
-        size: 20,
-        difficulty: undefined,
-        cookTimeMin: undefined,
-        cookTimeMax: 25,
-        categoryId: undefined,
-        sort: 'latest',
-      }, undefined, undefined);
+      expect(recipeQueryService.search).toHaveBeenCalledWith(
+        {
+          q: '김치',
+          page: 1,
+          size: 20,
+          difficulty: undefined,
+          cookTimeMin: undefined,
+          cookTimeMax: 25,
+          categoryId: undefined,
+          sort: 'latest',
+        },
+        undefined,
+        undefined,
+      );
     });
 
     it('사용자 컨텍스트가 있으면 userId를 서비스에 전달한다', async () => {
@@ -245,7 +266,11 @@ describe('RecipesController', () => {
     it('recipeId로 상세 레시피를 반환한다', async () => {
       const result = await controller.getById(1, undefined);
 
-      expect(recipeQueryService.getById).toHaveBeenCalledWith(1, undefined, undefined);
+      expect(recipeQueryService.getById).toHaveBeenCalledWith(
+        1,
+        undefined,
+        undefined,
+      );
       expect(result).toEqual(mockDetail);
       expect(result.instructions).toHaveLength(1);
       expect(result.ingredients).toHaveLength(1);
@@ -256,8 +281,12 @@ describe('RecipesController', () => {
         new NotFoundException('Recipe not found'),
       );
 
-      await expect(controller.getById(999, undefined)).rejects.toThrow(NotFoundException);
-      await expect(controller.getById(999, undefined)).rejects.toThrow('Recipe not found');
+      await expect(controller.getById(999, undefined)).rejects.toThrow(
+        NotFoundException,
+      );
+      await expect(controller.getById(999, undefined)).rejects.toThrow(
+        'Recipe not found',
+      );
     });
 
     it('사용자 컨텍스트가 있으면 userId를 서비스에 전달한다', async () => {

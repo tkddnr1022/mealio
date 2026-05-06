@@ -1,9 +1,12 @@
-import type { HTMLAttributes, ReactNode } from "react";
-import { cn } from "@/lib/utils/cn";
-import { Button } from "@/components/ui/Button";
-import { IconShell } from "@/components/ui/IconShell";
+import type { HTMLAttributes, ReactNode } from 'react';
+import { cn } from '@/lib/utils/cn';
+import { Button } from '@/components/ui/Button';
+import { IconShell } from '@/components/ui/IconShell';
 
-export interface InfoScreenProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
+export interface InfoScreenProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'children'
+> {
   className?: string;
   title?: string;
   message?: string;
@@ -17,19 +20,19 @@ function slugifyHeadingId(raw: string): string {
   const base = raw
     .trim()
     .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9가-힣-]/gi, "");
-  return base.length > 0 ? base : "info-screen-heading";
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9가-힣-]/gi, '');
+  return base.length > 0 ? base : 'info-screen-heading';
 }
 
 export function InfoScreen({
-  className = "",
+  className = '',
   title,
   message,
   icon,
   showButton = true,
   buttonLabel,
-  buttonHref = "/",
+  buttonHref = '/',
   ...rest
 }: InfoScreenProps) {
   const headingId =
@@ -40,7 +43,7 @@ export function InfoScreen({
   return (
     <section
       className={cn(
-        "flex w-full flex-col items-center justify-center gap-4 p-4 text-center",
+        'flex w-full flex-col items-center justify-center gap-4 p-4 text-center',
         className,
       )}
       role="region"

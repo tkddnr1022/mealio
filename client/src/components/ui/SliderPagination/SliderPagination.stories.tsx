@@ -1,7 +1,7 @@
-import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
-import type { ComponentProps } from "react";
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
+import type { ComponentProps } from 'react';
 
-import { SliderPagination } from "@/components/ui/SliderPagination";
+import { SliderPagination } from '@/components/ui/SliderPagination';
 
 const paddedRow: Decorator = (Story) => (
   <div className="w-full max-w-[400px] py-4">
@@ -10,11 +10,11 @@ const paddedRow: Decorator = (Story) => (
 );
 
 const meta = {
-  title: "UI/SliderPagination",
+  title: 'UI/SliderPagination',
   component: SliderPagination,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
+    layout: 'centered',
   },
   decorators: [paddedRow],
   args: {
@@ -29,7 +29,7 @@ type Story = StoryObj<typeof meta>;
 type SliderPaginationStoryArgs = ComponentProps<typeof SliderPagination>;
 
 export const FirstActive = {
-  name: "첫 번째 활성",
+  name: '첫 번째 활성',
   args: {
     total: 3,
     activeIndex: 0,
@@ -37,7 +37,7 @@ export const FirstActive = {
 } satisfies Story;
 
 export const SecondActive = {
-  name: "두 번째 활성",
+  name: '두 번째 활성',
   args: {
     total: 3,
     activeIndex: 1,
@@ -45,7 +45,7 @@ export const SecondActive = {
 } satisfies Story;
 
 export const ThirdActive = {
-  name: "세 번째 활성",
+  name: '세 번째 활성',
   args: {
     total: 3,
     activeIndex: 2,
@@ -53,7 +53,7 @@ export const ThirdActive = {
 } satisfies Story;
 
 export const FiveSlides = {
-  name: "슬라이드 5개",
+  name: '슬라이드 5개',
   args: {
     total: 5,
     activeIndex: 2,
@@ -61,7 +61,7 @@ export const FiveSlides = {
 } satisfies Story;
 
 export const SingleSlide = {
-  name: "슬라이드 1개",
+  name: '슬라이드 1개',
   args: {
     total: 1,
     activeIndex: 0,
@@ -70,7 +70,7 @@ export const SingleSlide = {
 
 /** total이 0이면 아무것도 렌더하지 않음 */
 export const EmptyTotal = {
-  name: "total 0 (미렌더)",
+  name: 'total 0 (미렌더)',
   args: {
     total: 0,
     activeIndex: 0,

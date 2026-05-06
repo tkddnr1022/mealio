@@ -1,18 +1,21 @@
-import type { HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
-import { BackButton } from "@/components/ui/buttons/BackButton";
-import { SearchBar, type SearchBarProps } from "@/components/ui/SearchBar";
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
+import { BackButton } from '@/components/ui/buttons/BackButton';
+import { SearchBar, type SearchBarProps } from '@/components/ui/SearchBar';
 
-export interface SearchResultTopProps extends Omit<HTMLAttributes<HTMLElement>, "className" | "children"> {
-className?: string;
-query?: string;
-onBackClick?: () => void;
-searchBarProps?: Omit<SearchBarProps, "readOnly" | "tabIndex">;
+export interface SearchResultTopProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'className' | 'children'
+> {
+  className?: string;
+  query?: string;
+  onBackClick?: () => void;
+  searchBarProps?: Omit<SearchBarProps, 'readOnly' | 'tabIndex'>;
 }
 
 export function SearchResultTop({
-  className = "",
-  query = "Text",
+  className = '',
+  query = 'Text',
   onBackClick,
   searchBarProps,
   ...rest
@@ -20,7 +23,7 @@ export function SearchResultTop({
   return (
     <section
       className={cn(
-        "flex w-full items-center gap-4 overflow-hidden bg-background-surface",
+        'flex w-full items-center gap-4 overflow-hidden bg-background-surface',
         className,
       )}
       data-name="SearchResultTop"
@@ -34,7 +37,7 @@ export function SearchResultTop({
           tabIndex={-1}
           {...searchBarProps}
           wrapperClassName={cn(
-            "bg-background-primary",
+            'bg-background-primary',
             searchBarProps?.wrapperClassName,
           )}
         />

@@ -1,29 +1,32 @@
-import type { HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
-import { CardTagsRow, type CardTagItem } from "@/components/ui/CardTagsRow";
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
+import { CardTagsRow, type CardTagItem } from '@/components/ui/CardTagsRow';
 import {
   RecipeDetailHeader,
   type RecipeDetailHeaderProps,
-} from "@/components/recipe/detail/RecipeDetailHeader";
+} from '@/components/recipe/detail/RecipeDetailHeader';
 import {
   RecipeIngredientsCard,
   type RecipeIngredientsCardProps,
-} from "@/components/recipe/detail/RecipeIngredientsCard";
+} from '@/components/recipe/detail/RecipeIngredientsCard';
 import {
   RecipeStepsCard,
   type RecipeStepsCardProps,
-} from "@/components/recipe/detail/RecipeStepsCard";
+} from '@/components/recipe/detail/RecipeStepsCard';
 
-export interface RecipeDetailContentProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
-className?: string;
-headerProps?: RecipeDetailHeaderProps;
-tags?: readonly CardTagItem[];
-ingredientsCardProps?: RecipeIngredientsCardProps;
-stepsCardProps?: RecipeStepsCardProps;
+export interface RecipeDetailContentProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'children'
+> {
+  className?: string;
+  headerProps?: RecipeDetailHeaderProps;
+  tags?: readonly CardTagItem[];
+  ingredientsCardProps?: RecipeIngredientsCardProps;
+  stepsCardProps?: RecipeStepsCardProps;
 }
 
 export function RecipeDetailContent({
-  className = "",
+  className = '',
   headerProps,
   tags = [],
   ingredientsCardProps,
@@ -32,7 +35,10 @@ export function RecipeDetailContent({
 }: RecipeDetailContentProps) {
   return (
     <section
-      className={cn("flex w-full flex-col items-start gap-6 overflow-hidden px-4 py-6", className)}
+      className={cn(
+        'flex w-full flex-col items-start gap-6 overflow-hidden px-4 py-6',
+        className,
+      )}
       data-name="RecipeDetailContent"
       {...rest}
     >

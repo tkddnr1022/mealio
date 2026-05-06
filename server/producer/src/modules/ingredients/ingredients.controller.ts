@@ -42,7 +42,10 @@ export class IngredientsController {
     },
   })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async getList(
     @Query() query: IngredientListQueryDto,
   ): Promise<{ data: IngredientDto[]; pagination: PaginationDto }> {
@@ -71,7 +74,10 @@ export class IngredientsController {
     },
   })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async getCategories(): Promise<{ data: IngredientCategoryDto[] }> {
     return this.ingredientQueryService.getCategories();
   }
@@ -94,7 +100,10 @@ export class IngredientsController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async search(
     @Query() query: IngredientSearchQueryDto,
   ): Promise<{ data: IngredientDto[]; pagination: PaginationDto }> {

@@ -1,6 +1,6 @@
-import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
 
-import { SearchBarCard } from "@/components/recipe/cards/SearchBarCard";
+import { SearchBarCard } from '@/components/recipe/cards/SearchBarCard';
 
 const figmaWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,25rem)]">
@@ -9,16 +9,16 @@ const figmaWidth: Decorator = (Story) => (
 );
 
 const meta = {
-  title: "Recipe/Cards/SearchBarCard",
+  title: 'Recipe/Cards/SearchBarCard',
   component: SearchBarCard,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
-    viewport: { defaultViewport: "mobile1" },
+    layout: 'centered',
+    viewport: { defaultViewport: 'mobile1' },
   },
   decorators: [figmaWidth],
   args: {
-    heading: "검색어",
+    heading: '검색어',
   },
 } satisfies Meta<typeof SearchBarCard>;
 
@@ -28,10 +28,10 @@ type Story = StoryObj<typeof meta>;
 export const Default = {} satisfies Story;
 
 export const Filled = {
-  name: "입력값 있음",
+  name: '입력값 있음',
   args: {
     searchBarProps: {
-      defaultValue: "김치찌개",
+      defaultValue: '김치찌개',
     },
   },
 } satisfies Story;

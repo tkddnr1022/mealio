@@ -1,5 +1,5 @@
-import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
-import { DropdownButton } from "@/components/ui/dropdown/DropdownButton";
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
+import { DropdownButton } from '@/components/ui/dropdown/DropdownButton';
 
 const figmaWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,10rem)]">
@@ -8,21 +8,21 @@ const figmaWidth: Decorator = (Story) => (
 );
 
 const meta = {
-  title: "UI/Dropdown/DropdownButton",
+  title: 'UI/Dropdown/DropdownButton',
   component: DropdownButton,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
-    viewport: { defaultViewport: "mobile1" },
+    layout: 'centered',
+    viewport: { defaultViewport: 'mobile1' },
   },
   decorators: [figmaWidth],
   args: {
-    label: "Label",
+    label: 'Label',
     open: false,
   },
   argTypes: {
     open: {
-      control: "boolean",
+      control: 'boolean',
     },
   },
 } satisfies Meta<typeof DropdownButton>;

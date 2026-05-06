@@ -1,21 +1,20 @@
-"use client";
+'use client';
 
-import type { HTMLAttributes } from "react";
+import type { HTMLAttributes } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import type { Swiper as SwiperType } from 'swiper';
+import { A11y, Keyboard } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { cn } from '@/lib/utils/cn';
+
+import 'swiper/css';
+import 'swiper/css/a11y';
+
 import {
-  useCallback,
-  useMemo,
-  useState,
-} from "react";
-import type { Swiper as SwiperType } from "swiper";
-import { A11y, Keyboard } from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { cn } from "@/lib/utils/cn";
-
-import "swiper/css";
-import "swiper/css/a11y";
-
-import { RecipeGrid, type RecipeGridItem } from "@/components/recipe/lists/RecipeGrid";
-import { SliderPagination } from "@/components/ui/SliderPagination";
+  RecipeGrid,
+  type RecipeGridItem,
+} from '@/components/recipe/lists/RecipeGrid';
+import { SliderPagination } from '@/components/ui/SliderPagination';
 
 const CARDS_PER_PAGE = 4;
 
@@ -38,10 +37,13 @@ function chunkRecipes(
   return out;
 }
 
-export interface RecipeSliderProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
-recipes: readonly RecipeGridItem[];
-cardClassName?: string;
-peekPx?: number;
+export interface RecipeSliderProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'children'
+> {
+  recipes: readonly RecipeGridItem[];
+  cardClassName?: string;
+  peekPx?: number;
 }
 
 /**
@@ -49,16 +51,13 @@ peekPx?: number;
  * `peekPx`는 고정이고, 슬라이드 폭은 컨테이너 측정값으로 결정된다.
  */
 export function RecipeSlider({
-  className = "",
+  className = '',
   recipes,
-  cardClassName = "",
+  cardClassName = '',
   peekPx = DEFAULT_PEEK_PX,
   ...rest
 }: RecipeSliderProps) {
-  const pages = useMemo(
-    () => chunkRecipes(recipes, CARDS_PER_PAGE),
-    [recipes],
-  );
+  const pages = useMemo(() => chunkRecipes(recipes, CARDS_PER_PAGE), [recipes]);
   const [activeIndex, setActiveIndex] = useState(0);
   const slideWidthStyle = useMemo(
     () => ({
@@ -77,7 +76,7 @@ export function RecipeSlider({
   // TODO: CLS 최적화를 위한 SSR placeholder 추가
   return (
     <div
-      className={cn("flex w-full flex-col gap-4", className)}
+      className={cn('flex w-full flex-col gap-4', className)}
       data-name="RecipeSlider"
       {...rest}
     >

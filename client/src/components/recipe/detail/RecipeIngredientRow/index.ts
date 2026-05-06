@@ -1,2 +1,2 @@
-export { RecipeIngredientRow } from "./RecipeIngredientRow";
-export type { RecipeIngredientRowProps } from "./RecipeIngredientRow";
+export { RecipeIngredientRow } from './RecipeIngredientRow';
+export type { RecipeIngredientRowProps } from './RecipeIngredientRow';

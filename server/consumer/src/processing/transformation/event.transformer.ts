@@ -83,4 +83,3 @@ export class EventTransformer<TInput, TOutput> {
     }
   }
 }
-

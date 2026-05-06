@@ -1,5 +1,5 @@
-import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
-import { MiniTagsRow } from "@/components/ui/MiniTagsRow";
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
+import { MiniTagsRow } from '@/components/ui/MiniTagsRow';
 
 const rowWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,15rem)]">
@@ -8,12 +8,12 @@ const rowWidth: Decorator = (Story) => (
 );
 
 const meta = {
-  title: "UI/MiniTagsRow",
+  title: 'UI/MiniTagsRow',
   component: MiniTagsRow,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
-    viewport: { defaultViewport: "mobile1" },
+    layout: 'centered',
+    viewport: { defaultViewport: 'mobile1' },
   },
   decorators: [rowWidth],
 } satisfies Meta<typeof MiniTagsRow>;
@@ -23,6 +23,6 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    items: [{ label: "15분" }, { label: "쉬움" }, { label: "2인분" }],
+    items: [{ label: '15분' }, { label: '쉬움' }, { label: '2인분' }],
   },
 };

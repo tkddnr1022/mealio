@@ -14,9 +14,7 @@ function isRecipeGenerationEvent(obj: unknown): obj is RecipeGenerationEvent {
 
 /** recipe-generation 토픽 전용 processor (파싱·비즈니스·DLQ). 추후 GenerateRecipeHandler 등 연동. */
 @Injectable()
-export class RecipeGenerationProcessor extends BaseTopicProcessor<
-  RecipeGenerationEvent
-> {
+export class RecipeGenerationProcessor extends BaseTopicProcessor<RecipeGenerationEvent> {
   private readonly schemaValidator = new SchemaValidator({
     name: RecipeGenerationProcessor.name,
   });

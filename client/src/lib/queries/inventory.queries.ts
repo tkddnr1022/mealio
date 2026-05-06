@@ -43,9 +43,7 @@ type QueryOpts<TData> = Omit<
   'queryKey' | 'queryFn'
 >;
 
-export function useMyInventory(
-  options?: QueryOpts<InventoryResponse>,
-) {
+export function useMyInventory(options?: QueryOpts<InventoryResponse>) {
   return useQuery<InventoryResponse, Error>({
     queryKey: inventoryQueries.overview(),
     queryFn: () => getMyInventory(),

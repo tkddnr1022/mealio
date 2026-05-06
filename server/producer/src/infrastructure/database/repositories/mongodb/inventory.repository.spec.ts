@@ -29,9 +29,7 @@ describe('InventoryRepository', () => {
     }).compile();
 
     repository = module.get<InventoryRepository>(InventoryRepository);
-    model = module.get<Model<InventoryDocument>>(
-      getModelToken(Inventory.name),
-    );
+    model = module.get<Model<InventoryDocument>>(getModelToken(Inventory.name));
   });
 
   it('should be defined', () => {

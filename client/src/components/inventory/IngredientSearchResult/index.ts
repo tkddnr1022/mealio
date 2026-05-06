@@ -1,2 +1,2 @@
-export { IngredientSearchResult } from "./IngredientSearchResult";
-export type { IngredientSearchResultProps } from "./IngredientSearchResult";
+export { IngredientSearchResult } from './IngredientSearchResult';
+export type { IngredientSearchResultProps } from './IngredientSearchResult';

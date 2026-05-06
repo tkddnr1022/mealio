@@ -1,2 +1,2 @@
-export { InfoScreen } from "./InfoScreen";
-export type { InfoScreenProps } from "./InfoScreen";
+export { InfoScreen } from './InfoScreen';
+export type { InfoScreenProps } from './InfoScreen';

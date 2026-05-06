@@ -39,7 +39,10 @@ export class KakaoStrategy extends PassportStrategy(
     });
   }
 
-  userProfile(accessToken: string, done: (err?: Error | null, profile?: KakaoUserMeResponse) => void): void {
+  userProfile(
+    accessToken: string,
+    done: (err?: Error | null, profile?: KakaoUserMeResponse) => void,
+  ): void {
     fetch('https://kapi.kakao.com/v2/user/me', {
       headers: { Authorization: `Bearer ${accessToken}` },
     })
@@ -61,8 +64,7 @@ export class KakaoStrategy extends PassportStrategy(
     profile: KakaoUserMeResponse,
   ): OAuthProfile {
     const providerId = String(profile?.id ?? '');
-    const email =
-      profile?.kakao_account?.email ?? `${providerId}@kakao.user`;
+    const email = profile?.kakao_account?.email ?? `${providerId}@kakao.user`;
     const nickname =
       profile?.kakao_account?.profile?.nickname?.trim() ??
       email.split('@')[0] ??

@@ -1,6 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HealthController } from '../../health.controller';
-import { HealthService, LivenessResponse, ReadinessResponse } from '../../health.service';
+import {
+  HealthService,
+  LivenessResponse,
+  ReadinessResponse,
+} from '../../health.service';
 
 describe('HealthController', () => {
   let controller: HealthController;
@@ -59,4 +63,3 @@ describe('HealthController', () => {
     expect(healthService.getReadiness).toHaveBeenCalled();
   });
 });
-

@@ -46,8 +46,8 @@ export class TrackUserActivityHandler {
       'recipeId' in event && typeof event.recipeId === 'number'
         ? { type: 'recipe', id: event.recipeId }
         : 'ingredientId' in event && typeof event.ingredientId === 'number'
-        ? { type: 'ingredient', id: event.ingredientId }
-        : undefined;
+          ? { type: 'ingredient', id: event.ingredientId }
+          : undefined;
 
     const input: CreateEventLogInput = {
       type: event.type,

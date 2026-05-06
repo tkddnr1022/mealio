@@ -1,25 +1,28 @@
-import type { HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
 import {
   FilterDropdown,
   type FilterDropdownProps,
-} from "@/components/ui/dropdown/FilterDropdown";
+} from '@/components/ui/dropdown/FilterDropdown';
 
-export interface SearchResultMetaProps extends Omit<HTMLAttributes<HTMLElement>, "className" | "children"> {
-className?: string;
-totalCount?: number;
-filterDropdownProps?: FilterDropdownProps;
+export interface SearchResultMetaProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'className' | 'children'
+> {
+  className?: string;
+  totalCount?: number;
+  filterDropdownProps?: FilterDropdownProps;
 }
 
 export function SearchResultMeta({
-  className = "",
+  className = '',
   totalCount = 1,
   filterDropdownProps,
   ...rest
 }: SearchResultMetaProps) {
   return (
     <section
-      className={cn("flex w-full items-center justify-between", className)}
+      className={cn('flex w-full items-center justify-between', className)}
       data-name="SearchResultMeta"
       {...rest}
     >

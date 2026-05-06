@@ -1,15 +1,18 @@
-import type { HTMLAttributes, ReactNode } from "react";
-import { cn } from "@/lib/utils/cn";
+import type { HTMLAttributes, ReactNode } from 'react';
+import { cn } from '@/lib/utils/cn';
 
-export interface CardTagProps extends Omit<HTMLAttributes<HTMLDivElement>, "className" | "children"> {
-className?: string;
-label?: string;
-leftIcon?: ReactNode;
-trailing?: ReactNode;
+export interface CardTagProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'className' | 'children'
+> {
+  className?: string;
+  label?: string;
+  leftIcon?: ReactNode;
+  trailing?: ReactNode;
 }
 
 export function CardTag({
-  className = "",
+  className = '',
   label,
   leftIcon,
   trailing,
@@ -18,7 +21,7 @@ export function CardTag({
   return (
     <div
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-full bg-background-surface px-4 py-2 shadow-[var(--semantic-shadow-sm)]",
+        'inline-flex items-center justify-center gap-2 rounded-full bg-background-surface px-4 py-2 shadow-[var(--semantic-shadow-sm)]',
         className,
       )}
       data-name="CardTag"

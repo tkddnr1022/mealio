@@ -1,6 +1,6 @@
-import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
-import { fn } from "storybook/test";
-import { ChatComposer } from "@/components/chatbot/conversation/ChatComposer";
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
+import { fn } from 'storybook/test';
+import { ChatComposer } from '@/components/chatbot/conversation/ChatComposer';
 
 const figmaWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,25rem)]">
@@ -9,12 +9,12 @@ const figmaWidth: Decorator = (Story) => (
 );
 
 const meta = {
-  title: "Chatbot/Conversation/ChatComposer",
+  title: 'Chatbot/Conversation/ChatComposer',
   component: ChatComposer,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
-    viewport: { defaultViewport: "mobile1" },
+    layout: 'centered',
+    viewport: { defaultViewport: 'mobile1' },
   },
   decorators: [figmaWidth],
   args: {
@@ -28,12 +28,12 @@ type Story = StoryObj<typeof meta>;
 
 export const Empty = {
   args: {
-    value: "",
+    value: '',
   },
 } satisfies Story;
 
 export const Filled = {
   args: {
-    value: "한식 레시피 추천해줘",
+    value: '한식 레시피 추천해줘',
   },
 } satisfies Story;

@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from "react";
-import { DropdownButton } from "@/components/ui/dropdown/DropdownButton";
+import { useState } from 'react';
+import { DropdownButton } from '@/components/ui/dropdown/DropdownButton';
 import {
   DropdownList,
   type DropdownOption,
-} from "@/components/ui/dropdown/DropdownList";
-import { cn } from "@/lib/utils/cn";
+} from '@/components/ui/dropdown/DropdownList';
+import { cn } from '@/lib/utils/cn';
 
 export interface FilterDropdownProps {
   className?: string;
@@ -22,7 +22,7 @@ export interface FilterDropdownProps {
 }
 
 export function FilterDropdown({
-  className = "",
+  className = '',
   open: openProp,
   onOpenChange,
   defaultOpen = false,
@@ -52,7 +52,7 @@ export function FilterDropdown({
   };
 
   return (
-    <div className={cn("relative flex flex-col items-end", className)}>
+    <div className={cn('relative flex flex-col items-end', className)}>
       <DropdownButton label={label} open={isOpen} onClick={handleToggle} />
       {isOpen ? (
         <DropdownList

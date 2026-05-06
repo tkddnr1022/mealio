@@ -1,2 +1,2 @@
-export { RecipeSlider } from "./RecipeSlider";
-export type { RecipeSliderProps } from "./RecipeSlider";
+export { RecipeSlider } from './RecipeSlider';
+export type { RecipeSliderProps } from './RecipeSlider';

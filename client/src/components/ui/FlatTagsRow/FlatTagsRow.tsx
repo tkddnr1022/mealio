@@ -1,6 +1,6 @@
-import type { HTMLAttributes, ReactNode } from "react";
-import { cn } from "@/lib/utils/cn";
-import { FlatTag } from "@/components/ui/FlatTag";
+import type { HTMLAttributes, ReactNode } from 'react';
+import { cn } from '@/lib/utils/cn';
+import { FlatTag } from '@/components/ui/FlatTag';
 
 export type FlatTagItem = Readonly<{
   label: string;
@@ -8,20 +8,23 @@ export type FlatTagItem = Readonly<{
   accent?: boolean;
 }>;
 
-export interface FlatTagsRowProps extends Omit<HTMLAttributes<HTMLDivElement>, "className" | "children"> {
-className?: string;
-items?: readonly FlatTagItem[];
+export interface FlatTagsRowProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'className' | 'children'
+> {
+  className?: string;
+  items?: readonly FlatTagItem[];
 }
 
 export function FlatTagsRow({
-  className = "",
+  className = '',
   items = [],
   ...rest
 }: FlatTagsRowProps) {
   return (
     <div
       className={cn(
-        "hide-native-scrollbar flex w-full items-center gap-2 overflow-x-auto",
+        'hide-native-scrollbar flex w-full items-center gap-2 overflow-x-auto',
         className,
       )}
       data-name="FlatTagsRow"

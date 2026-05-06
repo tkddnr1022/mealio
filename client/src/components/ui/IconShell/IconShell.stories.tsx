@@ -1,43 +1,43 @@
-import { Flame } from "lucide-react";
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { Flame } from 'lucide-react';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import {
   IconShell,
   type IconShellSize,
   type IconShellVariant,
-} from "@/components/ui/IconShell";
+} from '@/components/ui/IconShell';
 
 const variantOptions = [
-  "primary",
-  "accent",
-  "muted",
-  "secondary",
+  'primary',
+  'accent',
+  'muted',
+  'secondary',
 ] as const satisfies readonly IconShellVariant[];
 const sizeOptions = [
-  "small",
-  "medium",
-  "large",
-  "xlarge",
+  'small',
+  'medium',
+  'large',
+  'xlarge',
 ] as const satisfies readonly IconShellSize[];
 
 const meta = {
-  title: "UI/IconShell",
+  title: 'UI/IconShell',
   component: IconShell,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
-    viewport: { defaultViewport: "mobile1" },
+    layout: 'centered',
+    viewport: { defaultViewport: 'mobile1' },
   },
   args: {
-    variant: "primary",
-    size: "small",
+    variant: 'primary',
+    size: 'small',
   },
   argTypes: {
     variant: {
-      control: "select",
+      control: 'select',
       options: variantOptions,
     },
     size: {
-      control: "select",
+      control: 'select',
       options: sizeOptions,
     },
   },
@@ -62,8 +62,8 @@ export const VariantSizeMatrix = {
 
 export const CustomIconSlot = {
   args: {
-    variant: "accent",
-    size: "large",
+    variant: 'accent',
+    size: 'large',
     icon: <Flame className="size-6" strokeWidth={2} aria-hidden />,
   },
 } satisfies Story;

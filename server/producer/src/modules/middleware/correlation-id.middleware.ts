@@ -18,12 +18,14 @@ export class CorrelationIdMiddleware implements NestMiddleware {
     next: NextFunction,
   ): void {
     const existingId =
-      (req.headers[CorrelationIdMiddleware.HEADER_NAME] as string | undefined) ??
-      undefined;
+      (req.headers[CorrelationIdMiddleware.HEADER_NAME] as
+        | string
+        | undefined) ?? undefined;
 
-    const correlationId = existingId && existingId.length > 0
-      ? existingId
-      : randomUUID().replace(/-/g, '');
+    const correlationId =
+      existingId && existingId.length > 0
+        ? existingId
+        : randomUUID().replace(/-/g, '');
 
     req.correlationId = correlationId;
     res.setHeader('X-Correlation-Id', correlationId);
@@ -31,4 +33,3 @@ export class CorrelationIdMiddleware implements NestMiddleware {
     next();
   }
 }
-

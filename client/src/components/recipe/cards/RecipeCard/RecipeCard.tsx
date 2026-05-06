@@ -1,13 +1,16 @@
-import { Clock3, Flame, UsersRound } from "lucide-react";
-import Link from "next/link";
-import type { HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
-import { FlatTagsRow } from "@/components/ui/FlatTagsRow";
-import { Thumbnail } from "@/components/ui/Thumbnail";
-import { LikeButton } from "@/components/ui/buttons/LikeButton";
-import { formatCookingTime } from "@/lib/utils/date";
+import { Clock3, Flame, UsersRound } from 'lucide-react';
+import Link from 'next/link';
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
+import { FlatTagsRow } from '@/components/ui/FlatTagsRow';
+import { Thumbnail } from '@/components/ui/Thumbnail';
+import { LikeButton } from '@/components/ui/buttons/LikeButton';
+import { formatCookingTime } from '@/lib/utils/date';
 
-export interface RecipeCardProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
+export interface RecipeCardProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'children'
+> {
   className?: string;
   /** `/recipe/{recipeId}` 상세로 이동 (좋아요 버튼은 링크 밖) */
   recipeId: string;
@@ -24,7 +27,7 @@ export interface RecipeCardProps extends Omit<HTMLAttributes<HTMLElement>, "chil
 }
 
 export function RecipeCard({
-  className = "",
+  className = '',
   recipeId,
   imageUrl,
   imageAlt,
@@ -40,7 +43,7 @@ export function RecipeCard({
 }: RecipeCardProps) {
   const cookingTimeLabel =
     cookingTimeMinutes !== undefined
-      ? (formatCookingTime(cookingTimeMinutes) || cookingTime)
+      ? formatCookingTime(cookingTimeMinutes) || cookingTime
       : cookingTime;
   const tagItems = [
     cookingTimeLabel
@@ -72,7 +75,7 @@ export function RecipeCard({
   const detailHref = `/recipe/${encodeURIComponent(recipeId)}`;
 
   const linkClassName =
-    "flex w-full flex-col overflow-hidden rounded-(--card-radius) bg-background-surface shadow-(--card-elevation) text-inherit no-underline outline-none transition-[opacity,colors] focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default";
+    'flex w-full flex-col overflow-hidden rounded-(--card-radius) bg-background-surface shadow-(--card-elevation) text-inherit no-underline outline-none transition-[opacity,colors] focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default';
 
   return (
     <div className="relative w-full">
@@ -95,7 +98,9 @@ export function RecipeCard({
             <FlatTagsRow items={tagItems} />
             <div className="flex w-full flex-col gap-1">
               <h3 className="typo-card-heading style-text-primary">{title}</h3>
-              <p className="typo-card-body style-text-secondary">{summary ?? ""}</p>
+              <p className="typo-card-body style-text-secondary">
+                {summary ?? ''}
+              </p>
             </div>
           </div>
         </article>

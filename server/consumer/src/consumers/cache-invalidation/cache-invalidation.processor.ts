@@ -29,9 +29,11 @@ function isValidCacheInvalidationPayload(
     return false;
   if (o.type === CacheInvalidationEventType.RECIPE) {
     if (!Array.isArray((o as { recipeIds?: unknown }).recipeIds)) return false;
-    return (o as { recipeIds?: unknown[] }).recipeIds?.every(
-      (id) => typeof id === 'number',
-    ) === true;
+    return (
+      (o as { recipeIds?: unknown[] }).recipeIds?.every(
+        (id) => typeof id === 'number',
+      ) === true
+    );
   }
   if (typeof (o as { userId?: unknown }).userId !== 'number') return false;
   return true;

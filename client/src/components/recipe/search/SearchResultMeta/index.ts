@@ -1,2 +1,2 @@
-export { SearchResultMeta } from "./SearchResultMeta";
-export type { SearchResultMetaProps } from "./SearchResultMeta";
+export { SearchResultMeta } from './SearchResultMeta';
+export type { SearchResultMetaProps } from './SearchResultMeta';

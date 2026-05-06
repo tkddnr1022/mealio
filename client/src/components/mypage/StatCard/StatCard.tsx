@@ -1,15 +1,18 @@
-import type { HTMLAttributes, ReactNode } from "react";
-import { cn } from "@/lib/utils/cn";
+import type { HTMLAttributes, ReactNode } from 'react';
+import { cn } from '@/lib/utils/cn';
 
-export interface StatCardProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
-className?: string;
-icon?: ReactNode;
-value?: string;
-label?: string;
+export interface StatCardProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'children'
+> {
+  className?: string;
+  icon?: ReactNode;
+  value?: string;
+  label?: string;
 }
 
 export function StatCard({
-  className = "",
+  className = '',
   icon,
   value,
   label,
@@ -18,7 +21,7 @@ export function StatCard({
   return (
     <article
       className={cn(
-        "flex flex-col items-center justify-center gap-2 rounded-(--card-radius) bg-background-surface p-(--card-padding) shadow-(--card-elevation)",
+        'flex flex-col items-center justify-center gap-2 rounded-(--card-radius) bg-background-surface p-(--card-padding) shadow-(--card-elevation)',
         className,
       )}
       data-name="StatCard"

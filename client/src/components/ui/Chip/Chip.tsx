@@ -1,25 +1,28 @@
-import { X } from "lucide-react";
-import type { HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
-import { buildAriaLabel } from "@/lib/utils/a11y";
+import { X } from 'lucide-react';
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
+import { buildAriaLabel } from '@/lib/utils/a11y';
 
-export interface ChipProps extends Omit<HTMLAttributes<HTMLDivElement>, "className" | "children"> {
+export interface ChipProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'className' | 'children'
+> {
   className?: string;
   label?: string;
   onRemove?: () => void;
 }
 
-export function Chip({ className = "", label, onRemove, ...rest }: ChipProps) {
-  const labelText = (label ?? "").trim();
+export function Chip({ className = '', label, onRemove, ...rest }: ChipProps) {
+  const labelText = (label ?? '').trim();
   const removeButtonAriaLabel =
     onRemove !== undefined
-      ? buildAriaLabel("button", labelText ? `${labelText} 제거` : "")
+      ? buildAriaLabel('button', labelText ? `${labelText} 제거` : '')
       : undefined;
 
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2 rounded-full bg-chip-default px-4 py-2 transition-colors hover:bg-chip-hover",
+        'inline-flex items-center gap-2 rounded-full bg-chip-default px-4 py-2 transition-colors hover:bg-chip-hover',
         className,
       )}
       data-name="Chip"

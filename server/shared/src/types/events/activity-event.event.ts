@@ -86,9 +86,7 @@ export type ActivityEvent =
 /** @deprecated ActivityEvent 사용 권장 */
 export type ActivityEventPayload = ActivityEvent;
 
-export function isActivityEventType(
-  type: string,
-): type is ActivityEventType {
+export function isActivityEventType(type: string): type is ActivityEventType {
   return (ACTIVITY_EVENT_TYPES as readonly string[]).includes(
     type as ActivityEventType,
   );

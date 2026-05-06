@@ -1,5 +1,5 @@
-import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
-import { RecipeIngredientRow } from "@/components/recipe";
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
+import { RecipeIngredientRow } from '@/components/recipe';
 
 const figmaWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,20.5rem)]">
@@ -8,17 +8,17 @@ const figmaWidth: Decorator = (Story) => (
 );
 
 const meta = {
-  title: "Recipe/Detail/RecipeIngredientRow",
+  title: 'Recipe/Detail/RecipeIngredientRow',
   component: RecipeIngredientRow,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
-    viewport: { defaultViewport: "mobile1" },
+    layout: 'centered',
+    viewport: { defaultViewport: 'mobile1' },
   },
   decorators: [figmaWidth],
   args: {
-    name: "밥",
-    quantity: "2공기",
+    name: '밥',
+    quantity: '2공기',
   },
 } satisfies Meta<typeof RecipeIngredientRow>;
 

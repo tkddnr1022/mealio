@@ -40,4 +40,3 @@ export class LoggingMiddleware implements NestMiddleware {
     next();
   }
 }
-

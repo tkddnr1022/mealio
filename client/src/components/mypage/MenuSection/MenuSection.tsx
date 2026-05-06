@@ -1,23 +1,29 @@
-import type { HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
-import { MenuItem, type MenuItemProps } from "@/components/mypage/MenuItem";
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
+import { MenuItem, type MenuItemProps } from '@/components/mypage/MenuItem';
 
 /** `MenuSection`은 항목 사이 구분선을 index로만 결정하므로 `border`는 제외한다. */
-export type MenuSectionItem = Omit<MenuItemProps, "border">;
+export type MenuSectionItem = Omit<MenuItemProps, 'border'>;
 
-export interface MenuSectionProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+export interface MenuSectionProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'children'
+> {
   className?: string;
   items?: readonly MenuSectionItem[];
 }
 
 export function MenuSection({
-  className = "",
+  className = '',
   items = [],
   ...rest
 }: MenuSectionProps) {
   return (
     <section
-      className={cn("w-full bg-background-surface px-4 shadow-(--semantic-shadow-sm)", className)}
+      className={cn(
+        'w-full bg-background-surface px-4 shadow-(--semantic-shadow-sm)',
+        className,
+      )}
       data-name="MenuSection"
       {...rest}
     >

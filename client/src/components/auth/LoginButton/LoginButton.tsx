@@ -66,8 +66,12 @@ export function LoginButton(props: LoginButtonProps) {
   );
 
   if ('href' in props && props.href !== undefined) {
-    const { href, provider: omitProvider, className: omitClassName, ...anchorRest } =
-      props as Extract<LoginButtonProps, { href: string }>;
+    const {
+      href,
+      provider: omitProvider,
+      className: omitClassName,
+      ...anchorRest
+    } = props as Extract<LoginButtonProps, { href: string }>;
     void omitProvider;
     void omitClassName;
     return (
@@ -82,8 +86,12 @@ export function LoginButton(props: LoginButtonProps) {
     );
   }
 
-  const { type = 'button', provider: omitProvider2, className: omitClassName2, ...buttonRest } =
-    props as Extract<LoginButtonProps, { href?: undefined }>;
+  const {
+    type = 'button',
+    provider: omitProvider2,
+    className: omitClassName2,
+    ...buttonRest
+  } = props as Extract<LoginButtonProps, { href?: undefined }>;
   void omitProvider2;
   void omitClassName2;
   return (

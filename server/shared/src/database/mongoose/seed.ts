@@ -250,9 +250,7 @@ async function main() {
     );
   }
 
-  console.log(
-    `✅ inventory 시드 완료 (${SEED_INVENTORY.length}명)`,
-  );
+  console.log(`✅ inventory 시드 완료 (${SEED_INVENTORY.length}명)`);
 
   console.log('🌱 chatbot_logs 시드 데이터 삽입 시작...');
   await ChatbotLogModel.deleteMany({});

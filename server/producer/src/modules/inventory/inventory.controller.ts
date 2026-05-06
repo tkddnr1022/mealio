@@ -35,7 +35,10 @@ export class InventoryController {
     type: InventoryListDto,
   })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async getMyInventory(
     @CurrentUser() user: AuthUser,
   ): Promise<InventoryListDto> {
@@ -51,7 +54,10 @@ export class InventoryController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async updateOwnedIngredients(
     @CurrentUser() user: AuthUser,
     @Body() dto: OwnedIngredientIdsDto,
@@ -69,7 +75,10 @@ export class InventoryController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async addOwnedIngredients(
     @CurrentUser() user: AuthUser,
     @Body() dto: OwnedIngredientIdsDto,
@@ -83,7 +92,10 @@ export class InventoryController {
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: '삭제 성공' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '사용자 없음' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async removeOwnedIngredient(
     @CurrentUser() user: AuthUser,
     @Param('ingredientId', ParseIntPipe) ingredientId: number,
@@ -100,7 +112,10 @@ export class InventoryController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async updateFavoriteIngredients(
     @CurrentUser() user: AuthUser,
     @Body() dto: FavoriteIngredientIdsDto,
@@ -118,7 +133,10 @@ export class InventoryController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async addFavoriteIngredients(
     @CurrentUser() user: AuthUser,
     @Body() dto: FavoriteIngredientIdsDto,
@@ -132,7 +150,10 @@ export class InventoryController {
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: '삭제 성공' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '사용자 없음' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async removeFavoriteIngredient(
     @CurrentUser() user: AuthUser,
     @Param('ingredientId', ParseIntPipe) ingredientId: number,
@@ -150,7 +171,10 @@ export class InventoryController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async addFavoriteRecipes(
     @CurrentUser() user: AuthUser,
     @Body() dto: FavoriteRecipeIdsDto,
@@ -164,7 +188,10 @@ export class InventoryController {
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: '삭제 성공' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '사용자 없음' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async removeFavoriteRecipe(
     @CurrentUser() user: AuthUser,
     @Param('recipeId', ParseIntPipe) recipeId: number,

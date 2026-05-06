@@ -1,8 +1,11 @@
-import type { HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
 
-export interface PaginationDotProps extends Omit<HTMLAttributes<HTMLSpanElement>, "children"> {
-active?: boolean;
+export interface PaginationDotProps extends Omit<
+  HTMLAttributes<HTMLSpanElement>,
+  'children'
+> {
+  active?: boolean;
 }
 
 /**
@@ -10,19 +13,19 @@ active?: boolean;
  * 비활성: 8px 원 (`indicator-inactive`) / 활성: 8×24px pill, primary 색.
  */
 export function PaginationDot({
-  className = "",
+  className = '',
   active = false,
   ...rest
 }: PaginationDotProps) {
   return (
     <span
       className={cn(
-        "inline-block shrink-0 rounded-full transition-[width,background-color] duration-200 ease-out",
-        active ? "h-2 w-6 bg-primary-default" : "size-2 bg-indicator-inactive",
+        'inline-block shrink-0 rounded-full transition-[width,background-color] duration-200 ease-out',
+        active ? 'h-2 w-6 bg-primary-default' : 'size-2 bg-indicator-inactive',
         className,
       )}
       data-name="PaginationDot"
-      data-active={active ? "true" : "false"}
+      data-active={active ? 'true' : 'false'}
       {...rest}
     />
   );

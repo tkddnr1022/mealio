@@ -1,6 +1,6 @@
-import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
-import { Flame, UsersRound } from "lucide-react";
-import { FlatTag } from "@/components/ui/FlatTag";
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
+import { Flame, UsersRound } from 'lucide-react';
+import { FlatTag } from '@/components/ui/FlatTag';
 
 const figmaWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,8rem)]">
@@ -9,16 +9,16 @@ const figmaWidth: Decorator = (Story) => (
 );
 
 const meta = {
-  title: "UI/FlatTag",
+  title: 'UI/FlatTag',
   component: FlatTag,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
-    viewport: { defaultViewport: "mobile1" },
+    layout: 'centered',
+    viewport: { defaultViewport: 'mobile1' },
   },
   decorators: [figmaWidth],
   args: {
-    label: "Label",
+    label: 'Label',
     accent: false,
   },
 } satisfies Meta<typeof FlatTag>;

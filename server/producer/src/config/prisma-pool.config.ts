@@ -15,4 +15,3 @@ export const prismaConnectionPoolConfig: PrismaPoolConfig = {
   // 커넥션 최대 수명 (초) - 0이면 제한 없음
   maxLifetimeSeconds: 0,
 };
-

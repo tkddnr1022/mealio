@@ -1,2 +1,2 @@
-export { IngredientGridHeader } from "./IngredientGridHeader";
-export type { IngredientGridHeaderProps } from "./IngredientGridHeader";
+export { IngredientGridHeader } from './IngredientGridHeader';
+export type { IngredientGridHeaderProps } from './IngredientGridHeader';

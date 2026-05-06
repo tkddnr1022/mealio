@@ -76,4 +76,3 @@ export function getRecipeSummaries(ids: number[]): Promise<RecipeSummary[]> {
     ids,
   });
 }
-

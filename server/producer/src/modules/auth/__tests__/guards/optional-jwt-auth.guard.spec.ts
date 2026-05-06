@@ -2,7 +2,10 @@ import { UnauthorizedException } from '@nestjs/common';
 import { OptionalJwtAuthGuard } from '../../guards/optional-jwt-auth.guard';
 
 describe('OptionalJwtAuthGuard', () => {
-  const makeContext = (request: { cookies?: { accessToken?: string }; user?: { id: number } }) =>
+  const makeContext = (request: {
+    cookies?: { accessToken?: string };
+    user?: { id: number };
+  }) =>
     ({
       switchToHttp: () => ({
         getRequest: () => request,
@@ -34,12 +37,16 @@ describe('OptionalJwtAuthGuard', () => {
   });
 
   it('유효하지 않은 accessToken이면 UnauthorizedException을 던진다', () => {
-    const jwt = { verify: jest.fn().mockImplementation(() => {
-      throw new Error('invalid');
-    }) };
+    const jwt = {
+      verify: jest.fn().mockImplementation(() => {
+        throw new Error('invalid');
+      }),
+    };
     const guard = new OptionalJwtAuthGuard(jwt as never);
     const req = { cookies: { accessToken: 'invalid-token' } };
 
-    expect(() => guard.canActivate(makeContext(req))).toThrow(UnauthorizedException);
+    expect(() => guard.canActivate(makeContext(req))).toThrow(
+      UnauthorizedException,
+    );
   });
 });

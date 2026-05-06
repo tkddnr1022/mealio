@@ -1,2 +1,2 @@
-export { MiniTag } from "./MiniTag";
-export type { MiniTagProps } from "./MiniTag";
+export { MiniTag } from './MiniTag';
+export type { MiniTagProps } from './MiniTag';

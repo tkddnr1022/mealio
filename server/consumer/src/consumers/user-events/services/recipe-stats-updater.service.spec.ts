@@ -57,4 +57,3 @@ describe('RecipeStatsUpdaterService', () => {
     expect(recipeRepository.decrementLikeCount).toHaveBeenCalledWith(11);
   });
 });
-

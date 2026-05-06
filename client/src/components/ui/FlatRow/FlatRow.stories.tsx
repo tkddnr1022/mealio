@@ -1,8 +1,8 @@
-import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
-import type { ComponentProps } from "react";
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
+import type { ComponentProps } from 'react';
 
-import { FlatRow } from "@/components/ui/FlatRow";
-import { Toggle } from "@/components/ui/Toggle";
+import { FlatRow } from '@/components/ui/FlatRow';
+import { Toggle } from '@/components/ui/Toggle';
 
 const figmaWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,24rem)]">
@@ -11,12 +11,12 @@ const figmaWidth: Decorator = (Story) => (
 );
 
 const meta = {
-  title: "UI/FlatRow",
+  title: 'UI/FlatRow',
   component: FlatRow,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
-    viewport: { defaultViewport: "mobile1" },
+    layout: 'centered',
+    viewport: { defaultViewport: 'mobile1' },
   },
   decorators: [figmaWidth],
 } satisfies Meta<typeof FlatRow>;
@@ -26,7 +26,7 @@ type Story = StoryObj<typeof meta>;
 type FlatRowStoryArgs = ComponentProps<typeof FlatRow>;
 
 export const WithToggles = {
-  name: "Toggle 배치",
+  name: 'Toggle 배치',
   render: (args: FlatRowStoryArgs) => (
     <FlatRow {...args}>
       <Toggle selected label="Label" />

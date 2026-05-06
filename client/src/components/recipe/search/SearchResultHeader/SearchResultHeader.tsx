@@ -1,24 +1,27 @@
-import type { HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
-import { ChipsRow, type ChipsRowProps } from "@/components/ui/ChipsRow";
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
+import { ChipsRow, type ChipsRowProps } from '@/components/ui/ChipsRow';
 import {
   SearchResultMeta,
   type SearchResultMetaProps,
-} from "@/components/recipe/search/SearchResultMeta";
+} from '@/components/recipe/search/SearchResultMeta';
 import {
   SearchResultTop,
   type SearchResultTopProps,
-} from "@/components/recipe/search/SearchResultTop";
+} from '@/components/recipe/search/SearchResultTop';
 
-export interface SearchResultHeaderProps extends Omit<HTMLAttributes<HTMLElement>, "className" | "children"> {
-className?: string;
-searchResultTopProps?: SearchResultTopProps;
-searchResultMetaProps?: SearchResultMetaProps;
-chipsRowProps?: ChipsRowProps;
+export interface SearchResultHeaderProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'className' | 'children'
+> {
+  className?: string;
+  searchResultTopProps?: SearchResultTopProps;
+  searchResultMetaProps?: SearchResultMetaProps;
+  chipsRowProps?: ChipsRowProps;
 }
 
 export function SearchResultHeader({
-  className = "",
+  className = '',
   searchResultTopProps,
   searchResultMetaProps,
   chipsRowProps,
@@ -27,7 +30,7 @@ export function SearchResultHeader({
   return (
     <header
       className={cn(
-        "flex w-full flex-col items-start gap-4 overflow-hidden bg-background-surface p-4",
+        'flex w-full flex-col items-start gap-4 overflow-hidden bg-background-surface p-4',
         className,
       )}
       data-name="SearchResultHeader"

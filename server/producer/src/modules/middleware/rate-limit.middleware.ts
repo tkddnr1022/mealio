@@ -61,14 +61,11 @@ export class RateLimitMiddleware implements NestMiddleware {
           res.setHeader('Retry-After', ttl.toString());
         }
 
-        res
-          .status(HttpStatus.TOO_MANY_REQUESTS)
-          .json({
-            statusCode: HttpStatus.TOO_MANY_REQUESTS,
-            message:
-              '요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요.',
-            error: 'Too Many Requests',
-          });
+        res.status(HttpStatus.TOO_MANY_REQUESTS).json({
+          statusCode: HttpStatus.TOO_MANY_REQUESTS,
+          message: '요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요.',
+          error: 'Too Many Requests',
+        });
         return;
       }
 
@@ -93,4 +90,3 @@ export class RateLimitMiddleware implements NestMiddleware {
     return ip.replace(/[:.]/g, '_');
   }
 }
-

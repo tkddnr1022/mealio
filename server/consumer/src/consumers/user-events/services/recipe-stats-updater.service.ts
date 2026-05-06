@@ -1,15 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import {
-  InventoryEventType,
-  type InventoryEvent,
-} from '@cook/shared';
+import { InventoryEventType, type InventoryEvent } from '@cook/shared';
 import { RecipeRepository } from 'src/persistence/repositories/postgresql/recipe.repository';
 // TODO: likeCount 중복 증가 방지 로직 검토
 @Injectable()
 export class RecipeStatsUpdaterService {
-  constructor(
-    private readonly recipeRepository: RecipeRepository,
-  ) {}
+  constructor(private readonly recipeRepository: RecipeRepository) {}
 
   async apply(event: InventoryEvent): Promise<void> {
     switch (event.type) {
@@ -29,4 +24,3 @@ export class RecipeStatsUpdaterService {
     }
   }
 }
-

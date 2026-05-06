@@ -1,16 +1,19 @@
-import type { HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
 
-import { Button, type ButtonAsButtonProps } from "@/components/ui/Button";
+import { Button, type ButtonAsButtonProps } from '@/components/ui/Button';
 
-export interface ActionGroupProps extends Omit<HTMLAttributes<HTMLElement>, "className"> {
+export interface ActionGroupProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'className'
+> {
   className?: string;
-  leftButtonProps?: Omit<ButtonAsButtonProps, "className" | "size">;
-  rightButtonProps?: Omit<ButtonAsButtonProps, "className" | "size">;
+  leftButtonProps?: Omit<ButtonAsButtonProps, 'className' | 'size'>;
+  rightButtonProps?: Omit<ButtonAsButtonProps, 'className' | 'size'>;
 }
 
 export function ActionGroup({
-  className = "",
+  className = '',
   leftButtonProps,
   rightButtonProps,
   ...rest
@@ -18,7 +21,7 @@ export function ActionGroup({
   return (
     <section
       className={cn(
-        "flex w-full items-start gap-4 border-t border-border-subtle bg-background-surface px-4 py-3",
+        'flex w-full items-start gap-4 border-t border-border-subtle bg-background-surface px-4 py-3',
         className,
       )}
       data-name="ActionGroup"

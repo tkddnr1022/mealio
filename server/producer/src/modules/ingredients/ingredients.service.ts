@@ -21,8 +21,7 @@ export class IngredientQueryService {
     page: number;
     size: number;
   }): Promise<{ data: IngredientDto[]; pagination: PaginationDto }> {
-    const categoryKey =
-      params.categoryId ?? CACHE_KEY_SEGMENT.ALL;
+    const categoryKey = params.categoryId ?? CACHE_KEY_SEGMENT.ALL;
 
     return this.cacheService.getOrSet(
       this.ingredientCacheStrategy,
@@ -60,19 +59,19 @@ export class IngredientQueryService {
     const raw = params.q?.trim() ?? '';
     const keyword = raw.length > 0 ? raw : undefined;
     const cacheKeyKeyword = keyword ?? CACHE_KEY_SEGMENT.ALL;
-    const cacheKeyCategory =
-      params.categoryId ?? CACHE_KEY_SEGMENT.ALL;
+    const cacheKeyCategory = params.categoryId ?? CACHE_KEY_SEGMENT.ALL;
 
     const result = await this.cacheService.getOrSet(
       this.ingredientCacheStrategy,
       async () => {
-        const { data, total } =
-          await this.ingredientRepository.searchByKeyword({
+        const { data, total } = await this.ingredientRepository.searchByKeyword(
+          {
             keyword,
             categoryId: params.categoryId,
             page: params.page,
             size: params.size,
-          });
+          },
+        );
         const totalPages = Math.ceil(total / params.size) || 1;
         return {
           data: data.map((i) => this.toDto(i)),
@@ -98,7 +97,8 @@ export class IngredientQueryService {
     const data = await this.cacheService.getOrSet(
       this.ingredientCacheStrategy,
       async () => {
-        const categories = await this.ingredientRepository.findActiveCategories();
+        const categories =
+          await this.ingredientRepository.findActiveCategories();
         return categories.map((category) => ({
           id: category.id,
           key: category.key,

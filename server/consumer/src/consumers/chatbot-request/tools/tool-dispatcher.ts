@@ -23,9 +23,7 @@ export class ToolDispatcher {
   ): Promise<string> {
     switch (functionName) {
       case 'get_user_inventory': {
-        const result = await this.inventoryHandler.execute(
-          context.userId,
-        );
+        const result = await this.inventoryHandler.execute(context.userId);
         return JSON.stringify(result);
       }
       case 'get_food_categories': {

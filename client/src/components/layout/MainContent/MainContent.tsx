@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import type { ReactNode } from "react";
-import { cn } from "@/lib/utils/cn";
-import { CustomScrollbar } from "@/components/ui/CustomScrollbar";
+import type { ReactNode } from 'react';
+import { cn } from '@/lib/utils/cn';
+import { CustomScrollbar } from '@/components/ui/CustomScrollbar';
 
 /**
  * Figma `MainContent` (node 166:1227): Background/Primary → `bg-background-primary`, 세로 플렉스 영역.
@@ -26,8 +26,8 @@ export interface MainContentProps {
 }
 
 export function MainContent({
-  className = "",
-  innerClassName = "",
+  className = '',
+  innerClassName = '',
   centered = false,
   paddingX = true,
   paddingY = true,
@@ -35,19 +35,24 @@ export function MainContent({
   children,
 }: MainContentProps) {
   const innerClasses = cn(
-    "flex flex-col gap-8",
-    centered && "items-center justify-center",
-    paddingX && "px-4",
-    paddingY && "py-6",
+    'flex flex-col gap-8',
+    centered && 'items-center justify-center',
+    paddingX && 'px-4',
+    paddingY && 'py-6',
     innerClassName,
   );
 
   return (
-    <main className={cn("flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-background-primary", className)}>
+    <main
+      className={cn(
+        'flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-background-primary',
+        className,
+      )}
+    >
       {scroll ? (
         <CustomScrollbar className={innerClasses}>{children}</CustomScrollbar>
       ) : (
-        <div className={cn("min-h-0 flex-1 overflow-y-auto", innerClasses)}>
+        <div className={cn('min-h-0 flex-1 overflow-y-auto', innerClasses)}>
           {children}
         </div>
       )}

@@ -26,10 +26,9 @@ import type {
 export function getConversationList(
   params: ConversationListQuery = {},
 ): Promise<ConversationList> {
-  return httpClient.get<ConversationList>(
-    API_ENDPOINTS.chatbot.conversations,
-    { query: objectToQuery(params) },
-  );
+  return httpClient.get<ConversationList>(API_ENDPOINTS.chatbot.conversations, {
+    query: objectToQuery(params),
+  });
 }
 
 /**

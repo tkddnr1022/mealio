@@ -1,12 +1,12 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { IngredientGridHeader } from "@/components/inventory/IngredientGridHeader";
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { IngredientGridHeader } from '@/components/inventory/IngredientGridHeader';
 
 const meta = {
-  title: "Inventory/IngredientGridHeader",
+  title: 'Inventory/IngredientGridHeader',
   component: IngredientGridHeader,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
+    layout: 'centered',
   },
   decorators: [
     (Story) => (
@@ -23,7 +23,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default = {
   args: {
-    title: "재료 선택",
-    countText: "6개의 재료",
+    title: '재료 선택',
+    countText: '6개의 재료',
   },
 } satisfies Story;

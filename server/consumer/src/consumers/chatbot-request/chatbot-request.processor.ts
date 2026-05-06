@@ -18,9 +18,7 @@ import {
   type BusinessRule,
 } from 'src/processing/validation/business-rule.validator';
 
-function isValidChatbotRequestEvent(
-  obj: unknown,
-): obj is ChatbotRequestEvent {
+function isValidChatbotRequestEvent(obj: unknown): obj is ChatbotRequestEvent {
   if (!obj || typeof obj !== 'object') return false;
   const e = obj as ChatbotRequestEvent;
   if (typeof e.userId !== 'number') return false;

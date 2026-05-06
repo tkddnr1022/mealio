@@ -1,2 +1,2 @@
-export { PaginationDot } from "./PaginationDot";
-export type { PaginationDotProps } from "./PaginationDot";
+export { PaginationDot } from './PaginationDot';
+export type { PaginationDotProps } from './PaginationDot';

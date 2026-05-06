@@ -106,7 +106,10 @@ export class InventoryService {
   /**
    * 보유 재료 삭제 - Command는 이벤트만 발행
    */
-  async removeOwnedIngredient(userId: number, ingredientId: number): Promise<void> {
+  async removeOwnedIngredient(
+    userId: number,
+    ingredientId: number,
+  ): Promise<void> {
     await this.ensureUserExists(userId);
 
     const event: InventoryRemoveEvent = {

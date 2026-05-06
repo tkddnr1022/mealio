@@ -1,2 +1,2 @@
-export { SearchResultHeader } from "./SearchResultHeader";
-export type { SearchResultHeaderProps } from "./SearchResultHeader";
+export { SearchResultHeader } from './SearchResultHeader';
+export type { SearchResultHeaderProps } from './SearchResultHeader';

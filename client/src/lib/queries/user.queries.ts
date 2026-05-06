@@ -68,9 +68,8 @@ export function useUpdateNickname(
     onSuccess: (...args) => {
       const [data] = args;
       // 변경된 닉네임을 즉시 반영하고, 서버 상태 재동기화를 트리거한다.
-      queryClient.setQueryData<UserProfile | null>(
-        userQueries.me(),
-        (prev) => (prev ? { ...prev, nickname: data.nickname } : prev),
+      queryClient.setQueryData<UserProfile | null>(userQueries.me(), (prev) =>
+        prev ? { ...prev, nickname: data.nickname } : prev,
       );
       void queryClient.invalidateQueries({ queryKey: userQueries.me() });
       options?.onSuccess?.(...args);

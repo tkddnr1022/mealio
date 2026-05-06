@@ -50,7 +50,9 @@ export class AuthService {
 
   /** 프론트 앱 베이스 URL (트레일링 슬래시 제거). */
   private getFrontendAppBaseUrl(): string {
-    return this.config.getOrThrow<string>('FRONTEND_APP_BASE_URL').replace(/\/$/, '');
+    return this.config
+      .getOrThrow<string>('FRONTEND_APP_BASE_URL')
+      .replace(/\/$/, '');
   }
 
   /**
@@ -59,7 +61,8 @@ export class AuthService {
   buildLoginSuccessRedirectUrl(safeNext: string | null): string {
     const base = this.getFrontendAppBaseUrl();
     const defaultPath =
-      this.config.get<string>('FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH')?.trim() || '/recipe';
+      this.config.get<string>('FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH')?.trim() ||
+      '/recipe';
     const path = safeNext ?? defaultPath;
     return new URL(path, `${base}/`).toString();
   }
@@ -79,10 +82,15 @@ export class AuthService {
     next?: string | null;
   }): string {
     const base = this.getFrontendAppBaseUrl();
-    const errorPath = this.config.getOrThrow<string>('FRONTEND_OAUTH_ERROR_PATH');
+    const errorPath = this.config.getOrThrow<string>(
+      'FRONTEND_OAUTH_ERROR_PATH',
+    );
     const redirectUrl = new URL(errorPath, `${base}/`);
     redirectUrl.searchParams.set(OAUTH_FAILURE_QUERY_KEYS.errorCode, errorCode);
-    redirectUrl.searchParams.set(OAUTH_FAILURE_QUERY_KEYS.errorMessage, errorMessage);
+    redirectUrl.searchParams.set(
+      OAUTH_FAILURE_QUERY_KEYS.errorMessage,
+      errorMessage,
+    );
     const safeNext = this.resolveSafeNextPath(next);
     if (safeNext) {
       redirectUrl.searchParams.set(OAUTH_FAILURE_QUERY_KEYS.next, safeNext);
@@ -237,7 +245,9 @@ export class AuthService {
 
   /** 백엔드 콜백 URL (Provider 개발자 콘솔에 등록할 URL). */
   getCallbackUrl(provider: AuthProvider): string {
-    const base = this.config.getOrThrow<string>('OAUTH_CALLBACK_BASE_URL').replace(/\/$/, '');
+    const base = this.config
+      .getOrThrow<string>('OAUTH_CALLBACK_BASE_URL')
+      .replace(/\/$/, '');
     return `${base}/api/v1/auth/${provider}/callback`;
   }
 }

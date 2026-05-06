@@ -1,31 +1,37 @@
-import type { HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
-import { RecipeStepRow, type RecipeStepRowProps } from "@/components/recipe/detail/RecipeStepRow";
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
+import {
+  RecipeStepRow,
+  type RecipeStepRowProps,
+} from '@/components/recipe/detail/RecipeStepRow';
 
 export type RecipeStepItem = Readonly<{
   step: string;
   instruction: string;
 }>;
 
-export interface RecipeStepsCardProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
-className?: string;
-title?: string;
-steps?: readonly RecipeStepItem[];
-rowClassName?: string;
-rowProps?: Omit<RecipeStepRowProps, "step" | "instruction" | "className">;
+export interface RecipeStepsCardProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'children'
+> {
+  className?: string;
+  title?: string;
+  steps?: readonly RecipeStepItem[];
+  rowClassName?: string;
+  rowProps?: Omit<RecipeStepRowProps, 'step' | 'instruction' | 'className'>;
 }
 
 export function RecipeStepsCard({
-  className = "",
-  title = "조리 순서",
+  className = '',
+  title = '조리 순서',
   steps = [],
-  rowClassName = "",
+  rowClassName = '',
   rowProps,
   ...rest
 }: RecipeStepsCardProps) {
   return (
     <section
-      className={cn("card flex w-full flex-col", className)}
+      className={cn('card flex w-full flex-col', className)}
       data-name="RecipeStepsCard"
       {...rest}
     >

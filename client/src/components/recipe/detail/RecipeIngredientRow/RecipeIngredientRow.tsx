@@ -1,22 +1,25 @@
-import type { HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
 
-export interface RecipeIngredientRowProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
-className?: string;
-name?: string;
-quantity?: string;
+export interface RecipeIngredientRowProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'children'
+> {
+  className?: string;
+  name?: string;
+  quantity?: string;
 }
 
 export function RecipeIngredientRow({
-  className = "",
-  name = "Name",
-  quantity = "Amount",
+  className = '',
+  name = 'Name',
+  quantity = 'Amount',
   ...rest
 }: RecipeIngredientRowProps) {
   return (
     <div
       className={cn(
-        "flex w-full items-center justify-between border-b border-border-subtle py-3",
+        'flex w-full items-center justify-between border-b border-border-subtle py-3',
         className,
       )}
       data-name="RecipeIngredientRow"

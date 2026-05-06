@@ -1,6 +1,6 @@
-import { Flame, UsersRound } from "lucide-react";
-import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
-import { CardTag } from "@/components/ui/CardTag";
+import { Flame, UsersRound } from 'lucide-react';
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
+import { CardTag } from '@/components/ui/CardTag';
 
 const figmaWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,7rem)]">
@@ -9,16 +9,16 @@ const figmaWidth: Decorator = (Story) => (
 );
 
 const meta = {
-  title: "UI/CardTag",
+  title: 'UI/CardTag',
   component: CardTag,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
-    viewport: { defaultViewport: "mobile1" },
+    layout: 'centered',
+    viewport: { defaultViewport: 'mobile1' },
   },
   decorators: [figmaWidth],
   args: {
-    label: "Label",
+    label: 'Label',
   },
 } satisfies Meta<typeof CardTag>;
 
@@ -29,16 +29,26 @@ export const Default = {} satisfies Story;
 
 export const FlameIcon = {
   args: {
-    label: "Difficulty",
-    leftIcon: <Flame className="size-5 p-0.5 style-text-accent" strokeWidth={2} aria-hidden />,
+    label: 'Difficulty',
+    leftIcon: (
+      <Flame
+        className="size-5 p-0.5 style-text-accent"
+        strokeWidth={2}
+        aria-hidden
+      />
+    ),
   },
 } satisfies Story;
 
 export const UsersIcon = {
   args: {
-    label: "Servings",
+    label: 'Servings',
     leftIcon: (
-      <UsersRound className="size-5 p-0.5 style-text-accent" strokeWidth={2} aria-hidden />
+      <UsersRound
+        className="size-5 p-0.5 style-text-accent"
+        strokeWidth={2}
+        aria-hidden
+      />
     ),
   },
 } satisfies Story;

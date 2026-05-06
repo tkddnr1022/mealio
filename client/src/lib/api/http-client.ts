@@ -179,8 +179,7 @@ export class HttpClient {
     body: unknown,
     options: RequestOptions = {},
   ): Promise<T> {
-    const correlationId =
-      options.correlationId ?? this.generateCorrelationId();
+    const correlationId = options.correlationId ?? this.generateCorrelationId();
     const url = this.buildUrl(path, options.query);
 
     const headers = new Headers(options.headers);

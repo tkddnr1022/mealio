@@ -1,2 +1,2 @@
-export { CardTagsRow } from "./CardTagsRow";
-export type { CardTagsRowProps, CardTagItem } from "./CardTagsRow";
+export { CardTagsRow } from './CardTagsRow';
+export type { CardTagsRowProps, CardTagItem } from './CardTagsRow';

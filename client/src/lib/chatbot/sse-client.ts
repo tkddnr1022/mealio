@@ -54,18 +54,14 @@ export async function* streamChatbotMessage(
 ): AsyncGenerator<ChatbotStreamEvent, void, void> {
   const client = options.client ?? httpClient;
 
-  const response = await client.raw(
-    'POST',
-    API_ENDPOINTS.chatbot.messages,
-    {
-      body: JSON.stringify(params),
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'text/event-stream',
-      },
-      signal: options.signal,
+  const response = await client.raw('POST', API_ENDPOINTS.chatbot.messages, {
+    body: JSON.stringify(params),
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'text/event-stream',
     },
-  );
+    signal: options.signal,
+  });
 
   if (!response.ok) {
     throw await parseErrorResponse(

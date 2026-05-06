@@ -61,9 +61,7 @@ export function AppQueryClientProvider({
   return (
     <QueryClientProvider client={client}>
       {children}
-      {env.isProduction ? null : (
-        <ReactQueryDevtools initialIsOpen={false} />
-      )}
+      {env.isProduction ? null : <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   );
 }

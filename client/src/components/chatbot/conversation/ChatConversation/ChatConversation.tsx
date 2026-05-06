@@ -1,30 +1,36 @@
-import type { HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
-import { ChatConversationRow } from "@/components/chatbot/conversation/ChatConversationRow";
-import { SuggestedRecipeSlider, type SuggestedRecipeSliderItem } from "@/components/chatbot/conversation/SuggestedRecipeSlider";
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
+import { ChatConversationRow } from '@/components/chatbot/conversation/ChatConversationRow';
+import {
+  SuggestedRecipeSlider,
+  type SuggestedRecipeSliderItem,
+} from '@/components/chatbot/conversation/SuggestedRecipeSlider';
 
 export type ChatConversationMessage = Readonly<{
   id: string;
-  role: "assistant" | "user";
+  role: 'assistant' | 'user';
   message: string;
   timestamp: Date | string | number;
   /** 이 assistant/응답 메시지 직후에 추천 레시피 슬라이더를 붙일 때(스트림 done·RAG 결과 등) */
   suggestedRecipes?: readonly SuggestedRecipeSliderItem[];
 }>;
 
-export interface ChatConversationProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+export interface ChatConversationProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'children'
+> {
   className?: string;
   messages?: readonly ChatConversationMessage[];
 }
 
 export function ChatConversation({
-  className = "",
+  className = '',
   messages = [],
   ...rest
 }: ChatConversationProps) {
   return (
     <section
-      className={cn("flex w-full flex-col gap-4 overflow-hidden", className)}
+      className={cn('flex w-full flex-col gap-4 overflow-hidden', className)}
       data-name="ChatConversation"
       {...rest}
     >

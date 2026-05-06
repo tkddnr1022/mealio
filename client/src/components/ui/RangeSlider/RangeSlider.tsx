@@ -1,42 +1,45 @@
-import type { HTMLAttributes, KeyboardEvent, PointerEvent } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { cn } from "@/lib/utils/cn";
-import { buildAriaLabel } from "@/lib/utils/a11y";
-import { formatCookingTime } from "@/lib/utils/date";
+import type { HTMLAttributes, KeyboardEvent, PointerEvent } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { cn } from '@/lib/utils/cn';
+import { buildAriaLabel } from '@/lib/utils/a11y';
+import { formatCookingTime } from '@/lib/utils/date';
 
-export type RangeSliderUnit = string | "time";
+export type RangeSliderUnit = string | 'time';
 
-export interface RangeSliderProps extends Omit<HTMLAttributes<HTMLDivElement>, "className"> {
-className?: string;
-min?: number;
-max?: number;
-step?: number;
-unit?: RangeSliderUnit;
-defaultMinValue?: number;
-defaultMaxValue?: number;
-onValueChange?: (next: { minValue: number; maxValue: number }) => void;
+export interface RangeSliderProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'className'
+> {
+  className?: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  unit?: RangeSliderUnit;
+  defaultMinValue?: number;
+  defaultMaxValue?: number;
+  onValueChange?: (next: { minValue: number; maxValue: number }) => void;
 }
 
 function getSurfaceStyle(minPercent: number, maxPercent: number) {
   if (minPercent === maxPercent) {
     return {
-      left: "50%",
-      width: "0px",
-      transform: "translateX(-50%)",
+      left: '50%',
+      width: '0px',
+      transform: 'translateX(-50%)',
     } as const;
   }
 
   return {
     left: `calc(${minPercent}% - 12px)`,
     width: `calc(${maxPercent - minPercent}% + 24px)`,
-    transform: "none",
+    transform: 'none',
   } as const;
 }
 
 function getThumbStyle(percent: number) {
   return {
     left: `calc(${percent}% - 12px)`,
-    top: "-8px",
+    top: '-8px',
   } as const;
 }
 
@@ -62,11 +65,11 @@ function toPercent(value: number, min: number, max: number) {
 }
 
 export function RangeSlider({
-  className = "",
+  className = '',
   min = 0,
   max = 100,
   step = 1,
-  unit = "",
+  unit = '',
   defaultMinValue,
   defaultMaxValue,
   onValueChange,
@@ -87,7 +90,9 @@ export function RangeSlider({
   );
 
   useEffect(() => {
-    setMaxValue((prev) => clamp(Math.max(prev, minValue), normalizedMin, normalizedMax));
+    setMaxValue((prev) =>
+      clamp(Math.max(prev, minValue), normalizedMin, normalizedMax),
+    );
   }, [minValue, normalizedMin, normalizedMax]);
 
   useEffect(() => {
@@ -107,14 +112,14 @@ export function RangeSlider({
   const roundedMin = Math.round(minValue);
   const roundedMax = Math.round(maxValue);
   const formatValue = (value: number) =>
-    unit === "time" ? formatCookingTime(value) : `${value}${unit}`;
+    unit === 'time' ? formatCookingTime(value) : `${value}${unit}`;
   const isFull = roundedMin === normalizedMin && roundedMax === normalizedMax;
   const isEqual = roundedMin === roundedMax;
   const isLte = roundedMin === normalizedMin;
   const isGte = roundedMax === normalizedMax;
 
   const label = isFull
-    ? "전체"
+    ? '전체'
     : isEqual
       ? formatValue(roundedMin)
       : isLte
@@ -131,7 +136,11 @@ export function RangeSlider({
 
     const ratio = clamp((clientX - rect.left) / rect.width, 0, 1);
     const rawValue = normalizedMin + ratio * (normalizedMax - normalizedMin);
-    return clamp(snapToStep(rawValue, normalizedMin, step), normalizedMin, normalizedMax);
+    return clamp(
+      snapToStep(rawValue, normalizedMin, step),
+      normalizedMin,
+      normalizedMax,
+    );
   };
 
   const updateMinValue = (next: number) => {
@@ -171,19 +180,19 @@ export function RangeSlider({
   };
 
   const handleThumbPointerDown =
-    (thumb: "min" | "max") => (event: PointerEvent<HTMLButtonElement>) => {
+    (thumb: 'min' | 'max') => (event: PointerEvent<HTMLButtonElement>) => {
       event.preventDefault();
       event.currentTarget.setPointerCapture(event.pointerId);
     };
 
   const handleThumbPointerMove =
-    (thumb: "min" | "max") => (event: PointerEvent<HTMLButtonElement>) => {
+    (thumb: 'min' | 'max') => (event: PointerEvent<HTMLButtonElement>) => {
       if (!event.currentTarget.hasPointerCapture(event.pointerId)) {
         return;
       }
 
       const next = getValueFromClientX(event.clientX);
-      if (thumb === "min") {
+      if (thumb === 'min') {
         updateMinValue(next);
         return;
       }
@@ -197,43 +206,52 @@ export function RangeSlider({
   };
 
   const handleThumbKeyDown =
-    (thumb: "min" | "max") => (event: KeyboardEvent<HTMLButtonElement>) => {
-      const multiplier = event.key === "PageUp" || event.key === "PageDown" ? 10 : 1;
+    (thumb: 'min' | 'max') => (event: KeyboardEvent<HTMLButtonElement>) => {
+      const multiplier =
+        event.key === 'PageUp' || event.key === 'PageDown' ? 10 : 1;
       const delta = step * multiplier;
-      const currentValue = thumb === "min" ? minValue : maxValue;
+      const currentValue = thumb === 'min' ? minValue : maxValue;
 
-      if (event.key === "ArrowLeft" || event.key === "ArrowDown" || event.key === "PageDown") {
+      if (
+        event.key === 'ArrowLeft' ||
+        event.key === 'ArrowDown' ||
+        event.key === 'PageDown'
+      ) {
         event.preventDefault();
         const next = clamp(currentValue - delta, normalizedMin, normalizedMax);
-        if (thumb === "min") {
+        if (thumb === 'min') {
           updateMinValue(next);
           return;
         }
         updateMaxValue(next);
       }
 
-      if (event.key === "ArrowRight" || event.key === "ArrowUp" || event.key === "PageUp") {
+      if (
+        event.key === 'ArrowRight' ||
+        event.key === 'ArrowUp' ||
+        event.key === 'PageUp'
+      ) {
         event.preventDefault();
         const next = clamp(currentValue + delta, normalizedMin, normalizedMax);
-        if (thumb === "min") {
+        if (thumb === 'min') {
           updateMinValue(next);
           return;
         }
         updateMaxValue(next);
       }
 
-      if (event.key === "Home") {
+      if (event.key === 'Home') {
         event.preventDefault();
-        if (thumb === "min") {
+        if (thumb === 'min') {
           updateMinValue(normalizedMin);
           return;
         }
         updateMaxValue(minValue);
       }
 
-      if (event.key === "End") {
+      if (event.key === 'End') {
         event.preventDefault();
-        if (thumb === "min") {
+        if (thumb === 'min') {
           updateMinValue(maxValue);
           return;
         }
@@ -243,9 +261,9 @@ export function RangeSlider({
 
   return (
     <div
-      className={cn("flex w-full flex-col items-center gap-4 pb-8", className)}
+      className={cn('flex w-full flex-col items-center gap-4 pb-8', className)}
       data-name="RangeSlider"
-      aria-label={buildAriaLabel("section", "범위 슬라이더")}
+      aria-label={buildAriaLabel('section', '범위 슬라이더')}
       {...rest}
     >
       <p className="typo-label-dropdown style-text-accent">{label}</p>
@@ -265,15 +283,15 @@ export function RangeSlider({
             className="absolute z-20 size-6 rounded-full bg-background-surface p-0.5 shadow-(--semantic-shadow-md) outline-none focus-visible:ring-2 focus-visible:ring-primary-default"
             style={getThumbStyle(minPercent)}
             role="slider"
-            aria-label={buildAriaLabel("button", "최소 값")}
+            aria-label={buildAriaLabel('button', '최소 값')}
             aria-valuemin={normalizedMin}
             aria-valuemax={showSecondThumb ? maxValue : normalizedMax}
             aria-valuenow={Math.round(minValue)}
-            onPointerDown={handleThumbPointerDown("min")}
-            onPointerMove={handleThumbPointerMove("min")}
+            onPointerDown={handleThumbPointerDown('min')}
+            onPointerMove={handleThumbPointerMove('min')}
             onPointerUp={handleThumbPointerUp}
             onPointerCancel={handleThumbPointerUp}
-            onKeyDown={handleThumbKeyDown("min")}
+            onKeyDown={handleThumbKeyDown('min')}
           >
             <span className="block size-full rounded-full bg-primary-default shadow-(--semantic-shadow-sm)" />
           </button>
@@ -283,15 +301,15 @@ export function RangeSlider({
               className="absolute z-30 size-6 rounded-full bg-background-surface p-0.5 shadow-(--semantic-shadow-md) outline-none focus-visible:ring-2 focus-visible:ring-primary-default"
               style={getThumbStyle(maxPercent)}
               role="slider"
-              aria-label={buildAriaLabel("button", "최대 값")}
+              aria-label={buildAriaLabel('button', '최대 값')}
               aria-valuemin={minValue}
               aria-valuemax={normalizedMax}
               aria-valuenow={Math.round(maxValue)}
-              onPointerDown={handleThumbPointerDown("max")}
-              onPointerMove={handleThumbPointerMove("max")}
+              onPointerDown={handleThumbPointerDown('max')}
+              onPointerMove={handleThumbPointerMove('max')}
               onPointerUp={handleThumbPointerUp}
               onPointerCancel={handleThumbPointerUp}
-              onKeyDown={handleThumbKeyDown("max")}
+              onKeyDown={handleThumbKeyDown('max')}
             >
               <span className="block size-full rounded-full bg-primary-default shadow-(--semantic-shadow-sm)" />
             </button>

@@ -11,7 +11,11 @@ export class IngredientCategoryDto {
   })
   key: string;
 
-  @ApiProperty({ example: '채소', maxLength: 100, description: '카테고리 표시명' })
+  @ApiProperty({
+    example: '채소',
+    maxLength: 100,
+    description: '카테고리 표시명',
+  })
   name: string;
 
   @ApiProperty({ example: 1, description: '카테고리 노출 정렬 순서' })

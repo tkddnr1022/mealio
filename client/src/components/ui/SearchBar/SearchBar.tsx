@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { Search, X } from "lucide-react";
+import { Search, X } from 'lucide-react';
 import {
   forwardRef,
   useCallback,
@@ -9,29 +9,29 @@ import {
   useState,
   type ChangeEvent,
   type InputHTMLAttributes,
-} from "react";
-import { cn } from "@/lib/utils/cn";
-import { buildAriaLabel } from "@/lib/utils/a11y";
+} from 'react';
+import { cn } from '@/lib/utils/cn';
+import { buildAriaLabel } from '@/lib/utils/a11y';
 
-import { Input } from "@/components/ui/Input";
+import { Input } from '@/components/ui/Input';
 
 export interface SearchBarProps extends Omit<
   InputHTMLAttributes<HTMLInputElement>,
-  "type" | "className" | "aria-label"
+  'type' | 'className' | 'aria-label'
 > {
-className?: string;
-wrapperClassName?: string;
+  className?: string;
+  wrapperClassName?: string;
 }
 
 /** 편집 필드는 기본 사용. 헤더 트리거는 `readOnly` + `tabIndex={-1}` (`SearchBarHeader` 참고). */
 export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
   function SearchBar(
     {
-      className = "",
-      wrapperClassName = "",
+      className = '',
+      wrapperClassName = '',
       readOnly,
       disabled,
-      placeholder = "검색어를 입력해 주세요",
+      placeholder = '검색어를 입력해 주세요',
       id: idProp,
       value: valueProp,
       defaultValue,
@@ -42,21 +42,21 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
   ) {
     const uid = useId();
     const id = idProp ?? uid;
-    const label = buildAriaLabel("input", placeholder);
+    const label = buildAriaLabel('input', placeholder);
     const innerRef = useRef<HTMLInputElement>(null);
     const isControlled = valueProp !== undefined;
-    const [internalValue, setInternalValue] = useState(
-      () => (defaultValue != null ? String(defaultValue) : ""),
+    const [internalValue, setInternalValue] = useState(() =>
+      defaultValue != null ? String(defaultValue) : '',
     );
 
-    const valueStr = isControlled ? String(valueProp ?? "") : internalValue;
+    const valueStr = isControlled ? String(valueProp ?? '') : internalValue;
     const hasText = valueStr.length > 0;
     const isEditable = !readOnly;
 
     const setRefs = useCallback(
       (el: HTMLInputElement | null) => {
         innerRef.current = el;
-        if (typeof ref === "function") ref(el);
+        if (typeof ref === 'function') ref(el);
         else if (ref) ref.current = el;
       },
       [ref],
@@ -76,11 +76,11 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
 
       const valueSetter = Object.getOwnPropertyDescriptor(
         HTMLInputElement.prototype,
-        "value",
+        'value',
       )?.set;
-      valueSetter?.call(input, "");
+      valueSetter?.call(input, '');
 
-      if (!isControlled) setInternalValue("");
+      if (!isControlled) setInternalValue('');
 
       onChange?.({
         target: input,
@@ -115,19 +115,21 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
               type="button"
               tabIndex={hasText && !disabled ? 0 : -1}
               aria-hidden={!hasText}
-              aria-label={hasText ? buildAriaLabel("button", "검색어 지우기") : undefined}
+              aria-label={
+                hasText ? buildAriaLabel('button', '검색어 지우기') : undefined
+              }
               disabled={!hasText || disabled}
               onClick={handleClear}
               className={cn(
-                "inline-flex size-5 shrink-0 items-center justify-center overflow-hidden style-text-placeholder transition-colors focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default disabled:pointer-events-none",
-                !hasText && "invisible pointer-events-none",
+                'inline-flex size-5 shrink-0 items-center justify-center overflow-hidden style-text-placeholder transition-colors focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default disabled:pointer-events-none',
+                !hasText && 'invisible pointer-events-none',
               )}
             >
               <X className="size-full" strokeWidth={2} aria-hidden />
             </button>
           ) : null
         }
-        className={cn(!isEditable && "cursor-pointer", className)}
+        className={cn(!isEditable && 'cursor-pointer', className)}
       />
     );
   },

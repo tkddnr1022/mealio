@@ -1,5 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ActivityEventType, CACHE_KEY_SEGMENT, KAFKA_TOPICS } from '@cook/shared';
+import {
+  ActivityEventType,
+  CACHE_KEY_SEGMENT,
+  KAFKA_TOPICS,
+} from '@cook/shared';
 import {
   RecipeRepository,
   RecipeSearchParams,
@@ -53,14 +57,17 @@ export class RecipeQueryService {
     private readonly kafkaProducerService: KafkaProducerService,
   ) {}
 
-  async getList(params: {
-    page: number;
-    size: number;
-    difficulty?: number[];
-    cookTimeMin?: number;
-    cookTimeMax?: number;
-    sort?: RecipeListOrder;
-  }, userId?: number): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
+  async getList(
+    params: {
+      page: number;
+      size: number;
+      difficulty?: number[];
+      cookTimeMin?: number;
+      cookTimeMax?: number;
+      sort?: RecipeListOrder;
+    },
+    userId?: number,
+  ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
     const difficultyKey =
       params.difficulty && params.difficulty.length > 0
         ? [...params.difficulty].sort((a, b) => a - b).join(',')
@@ -170,7 +177,8 @@ export class RecipeQueryService {
     const result = await this.cacheService.getOrSet(
       this.recipeCacheStrategy,
       async () => {
-        const { data, total } = await this.recipeRepository.searchByKeyword(payload);
+        const { data, total } =
+          await this.recipeRepository.searchByKeyword(payload);
         const totalPages = Math.ceil(total / params.size) || 1;
         return {
           data: data.map((r) => this.toSummaryDto(r)),
@@ -311,9 +319,10 @@ export class RecipeQueryService {
   }
   // TODO: 기존 캐시 활용 검토
   private async getFavoriteRecipeIdSet(userId: number): Promise<Set<number>> {
-    const inventory = (await this.inventoryRepository.findFavoriteRecipeIdsByUserId(
-      userId,
-    )) as FavoriteRecipeInventoryShape | null;
+    const inventory =
+      (await this.inventoryRepository.findFavoriteRecipeIdsByUserId(
+        userId,
+      )) as FavoriteRecipeInventoryShape | null;
     const favoriteIds = inventory?.recipes?.favoriteIds ?? [];
     return new Set(favoriteIds);
   }

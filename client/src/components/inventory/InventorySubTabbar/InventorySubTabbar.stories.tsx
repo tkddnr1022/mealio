@@ -1,12 +1,12 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { InventorySubTabbar } from "@/components/inventory/InventorySubTabbar";
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { InventorySubTabbar } from '@/components/inventory/InventorySubTabbar';
 
 const meta = {
-  title: "Inventory/InventorySubTabbar",
+  title: 'Inventory/InventorySubTabbar',
   component: InventorySubTabbar,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
+    layout: 'centered',
   },
   args: {
     preventLinkNavigation: true,
@@ -24,31 +24,39 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 const defaultItems = [
-  { id: "owned", label: "보유 재료", href: "/inventory/ingredients/owned" },
-  { id: "favorite", label: "관심 재료", href: "/inventory/ingredients/favorite" },
-  { id: "favorite-recipe", label: "관심 레시피", href: "/inventory/recipes/favorite" },
+  { id: 'owned', label: '보유 재료', href: '/inventory/ingredients/owned' },
+  {
+    id: 'favorite',
+    label: '관심 재료',
+    href: '/inventory/ingredients/favorite',
+  },
+  {
+    id: 'favorite-recipe',
+    label: '관심 레시피',
+    href: '/inventory/recipes/favorite',
+  },
 ] as const;
 
 export const SelectedOwned: Story = {
-  name: "selected=owned",
+  name: 'selected=owned',
   args: {
-    selected: "owned",
+    selected: 'owned',
     items: defaultItems,
   },
 };
 
 export const SelectedFavorite: Story = {
-  name: "selected=favorite",
+  name: 'selected=favorite',
   args: {
-    selected: "favorite",
+    selected: 'favorite',
     items: defaultItems,
   },
 };
 
 export const SelectedFavoriteRecipe: Story = {
-  name: "selected=favorite-recipe",
+  name: 'selected=favorite-recipe',
   args: {
-    selected: "favorite-recipe",
+    selected: 'favorite-recipe',
     items: defaultItems,
   },
 };

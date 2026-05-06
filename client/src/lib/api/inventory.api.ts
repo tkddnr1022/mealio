@@ -66,7 +66,9 @@ export function addMyFavoriteIngredients(
   );
 }
 
-export function removeMyFavoriteIngredient(ingredientId: number): Promise<void> {
+export function removeMyFavoriteIngredient(
+  ingredientId: number,
+): Promise<void> {
   return httpClient.delete<void>(
     API_ENDPOINTS.users.meInventoryFavoriteDetail(ingredientId),
   );

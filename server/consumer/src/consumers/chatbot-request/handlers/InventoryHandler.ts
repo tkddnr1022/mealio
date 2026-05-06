@@ -65,10 +65,7 @@ export class InventoryHandler {
   ) {}
 
   async execute(userId: number): Promise<UserInventoryResult> {
-    const doc = await this.inventoryModel
-      .findOne({ userId })
-      .lean()
-      .exec();
+    const doc = await this.inventoryModel.findOne({ userId }).lean().exec();
 
     if (!doc) {
       return {
@@ -86,9 +83,8 @@ export class InventoryHandler {
     const allIds = [...new Set([...ingredientIds, ...favoriteIngredientIds])];
 
     if (allIds.length === 0) {
-      const favoriteRecipes = await this.fetchFavoriteRecipes(
-        favoriteRecipeIds,
-      );
+      const favoriteRecipes =
+        await this.fetchFavoriteRecipes(favoriteRecipeIds);
       return {
         ownedIngredients: [],
         favoriteIngredients: [],

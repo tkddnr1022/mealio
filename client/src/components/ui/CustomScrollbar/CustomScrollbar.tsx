@@ -1,7 +1,13 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { cn } from "@/lib/utils/cn";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import { cn } from '@/lib/utils/cn';
 
 const SCROLLBAR_THUMB_HEIGHT_SCALE = 1;
 const SCROLLBAR_VISIBLE_DURATION_MS = 500;
@@ -13,7 +19,7 @@ export interface CustomScrollbarProps {
 }
 
 export function CustomScrollbar({
-  className = "",
+  className = '',
   children,
 }: CustomScrollbarProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -41,7 +47,10 @@ export function CustomScrollbar({
     }
 
     const ratio = clientHeight / scrollHeight;
-    const trackHeight = Math.max(clientHeight - SCROLLBAR_TRACK_INSET_PX * 2, 0);
+    const trackHeight = Math.max(
+      clientHeight - SCROLLBAR_TRACK_INSET_PX * 2,
+      0,
+    );
     const nextThumbHeight = Math.min(
       trackHeight,
       trackHeight * ratio * SCROLLBAR_THUMB_HEIGHT_SCALE,
@@ -81,15 +90,15 @@ export function CustomScrollbar({
     };
 
     frameId = window.requestAnimationFrame(updateThumb);
-    el.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleResize);
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize);
 
     return () => {
       if (frameId !== null) {
         window.cancelAnimationFrame(frameId);
       }
-      el.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleResize);
+      el.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
       clearHideTimer();
     };
   }, [clearHideTimer, showScrollbarTemporarily, updateThumb]);
@@ -98,15 +107,18 @@ export function CustomScrollbar({
     <div className="relative min-h-0 w-full flex-1">
       <div
         ref={scrollRef}
-        className={cn("hide-native-scrollbar h-full overflow-y-auto", className)}
+        className={cn(
+          'hide-native-scrollbar h-full overflow-y-auto',
+          className,
+        )}
       >
         {children}
       </div>
       <div
         aria-hidden
         className={cn(
-          "pointer-events-none absolute inset-y-2 right-1 z-50 w-2 transition-opacity duration-300",
-          isVisible && thumbHeight > 0 ? "opacity-100" : "opacity-0",
+          'pointer-events-none absolute inset-y-2 right-1 z-50 w-2 transition-opacity duration-300',
+          isVisible && thumbHeight > 0 ? 'opacity-100' : 'opacity-0',
         )}
       >
         <div

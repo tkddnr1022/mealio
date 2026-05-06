@@ -1,20 +1,19 @@
-import type { HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
 
-export interface MiniTagProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
-className?: string;
-label?: string;
+export interface MiniTagProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'children'
+> {
+  className?: string;
+  label?: string;
 }
 
-export function MiniTag({
-  className = "",
-  label,
-  ...rest
-}: MiniTagProps) {
+export function MiniTag({ className = '', label, ...rest }: MiniTagProps) {
   return (
     <div
       className={cn(
-        "inline-flex items-center rounded-lg bg-background-primary px-2 py-1",
+        'inline-flex items-center rounded-lg bg-background-primary px-2 py-1',
         className,
       )}
       data-name="MiniTag"

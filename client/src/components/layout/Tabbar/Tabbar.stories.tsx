@@ -1,20 +1,20 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { type ComponentProps, useState } from "react";
-import { fn } from "storybook/test";
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { type ComponentProps, useState } from 'react';
+import { fn } from 'storybook/test';
 
-import { Tabbar, type TabbarTabId } from "@/components/layout/Tabbar";
+import { Tabbar, type TabbarTabId } from '@/components/layout/Tabbar';
 
 const meta = {
-  title: "Layout/Tabbar",
+  title: 'Layout/Tabbar',
   component: Tabbar,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "fullscreen",
-    viewport: { defaultViewport: "mobile1" },
+    layout: 'fullscreen',
+    viewport: { defaultViewport: 'mobile1' },
     nextjs: {
       appDirectory: true,
       navigation: {
-        pathname: "/recipe",
+        pathname: '/recipe',
       },
     },
   },
@@ -30,10 +30,12 @@ type TabbarStoryArgs = ComponentProps<typeof Tabbar>;
 
 export const Interactive = {
   args: {
-    activeId: "recipe" as TabbarTabId,
+    activeId: 'recipe' as TabbarTabId,
   },
   render: function Render(args: TabbarStoryArgs) {
-    const [activeId, setActiveId] = useState<TabbarTabId>(args.activeId ?? "recipe");
+    const [activeId, setActiveId] = useState<TabbarTabId>(
+      args.activeId ?? 'recipe',
+    );
     return (
       <div className="flex min-h-[200px] flex-col bg-background-primary">
         <div className="flex flex-1 items-center justify-center style-text-secondary">
@@ -54,37 +56,37 @@ export const Interactive = {
 } satisfies Story;
 
 export const ActiveRecipe = {
-  args: { activeId: "recipe" },
+  args: { activeId: 'recipe' },
   parameters: {
     nextjs: {
-      navigation: { pathname: "/recipe" },
+      navigation: { pathname: '/recipe' },
     },
   },
 } satisfies Story;
 
 export const ActiveChatbot = {
-  args: { activeId: "chatbot" },
+  args: { activeId: 'chatbot' },
   parameters: {
     nextjs: {
-      navigation: { pathname: "/chatbot" },
+      navigation: { pathname: '/chatbot' },
     },
   },
 } satisfies Story;
 
 export const ActiveInventory = {
-  args: { activeId: "inventory" },
+  args: { activeId: 'inventory' },
   parameters: {
     nextjs: {
-      navigation: { pathname: "/inventory" },
+      navigation: { pathname: '/inventory' },
     },
   },
 } satisfies Story;
 
 export const ActiveMypage = {
-  args: { activeId: "mypage" },
+  args: { activeId: 'mypage' },
   parameters: {
     nextjs: {
-      navigation: { pathname: "/mypage" },
+      navigation: { pathname: '/mypage' },
     },
   },
 } satisfies Story;

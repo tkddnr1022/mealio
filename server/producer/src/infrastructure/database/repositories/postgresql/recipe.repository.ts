@@ -100,7 +100,10 @@ export class RecipeRepository {
         createdAt: true,
       },
     });
-    return this.attachStats(rows as Recipe[], rows.map((row) => row.id));
+    return this.attachStats(
+      rows as Recipe[],
+      rows.map((row) => row.id),
+    );
   }
 
   async findManyPaginated(params: RecipeListParams): Promise<{
@@ -261,7 +264,9 @@ export class RecipeRepository {
     `;
   }
 
-  private async findStatsMap(recipeIds: number[]): Promise<Map<number, RecipeStatsRow>> {
+  private async findStatsMap(
+    recipeIds: number[],
+  ): Promise<Map<number, RecipeStatsRow>> {
     if (recipeIds.length === 0) {
       return new Map();
     }

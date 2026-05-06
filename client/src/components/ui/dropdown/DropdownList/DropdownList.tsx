@@ -1,5 +1,5 @@
-import { DropdownItem } from "@/components/ui/dropdown/DropdownItem";
-import { cn } from "@/lib/utils/cn";
+import { DropdownItem } from '@/components/ui/dropdown/DropdownItem';
+import { cn } from '@/lib/utils/cn';
 
 export type DropdownOption = Readonly<{
   value: string;
@@ -14,7 +14,7 @@ export interface DropdownListProps {
 }
 
 export function DropdownList({
-  className = "",
+  className = '',
   options = [],
   selectedValue = options[0]?.value,
   onSelect,
@@ -22,7 +22,7 @@ export function DropdownList({
   return (
     <ul
       className={cn(
-        "overflow-hidden rounded-xl bg-background-surface shadow-md",
+        'overflow-hidden rounded-xl bg-background-surface shadow-md',
         className,
       )}
     >

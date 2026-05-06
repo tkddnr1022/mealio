@@ -1,26 +1,29 @@
-import { User } from "lucide-react";
-import type { HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
+import { User } from 'lucide-react';
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
 
-export interface UserProfileProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
-className?: string;
-loggedIn?: boolean;
-nickname?: string;
-email?: string;
-message?: string;
+export interface UserProfileProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'children'
+> {
+  className?: string;
+  loggedIn?: boolean;
+  nickname?: string;
+  email?: string;
+  message?: string;
 }
 
 export function UserProfile({
-  className = "",
+  className = '',
   loggedIn = true,
-  nickname = "Nickname",
-  email = "recipe@example.com",
-  message = "로그인이 필요합니다",
+  nickname = 'Nickname',
+  email = 'recipe@example.com',
+  message = '로그인이 필요합니다',
   ...rest
 }: UserProfileProps) {
   return (
     <section
-      className={cn("flex w-full items-center gap-4", className)}
+      className={cn('flex w-full items-center gap-4', className)}
       data-name="UserProfile"
       {...rest}
     >
@@ -34,7 +37,9 @@ export function UserProfile({
         {loggedIn ? (
           <>
             <h2 className="truncate typo-h2 style-text-primary">{nickname}</h2>
-            <p className="truncate typo-caption-regular style-text-secondary">{email}</p>
+            <p className="truncate typo-caption-regular style-text-secondary">
+              {email}
+            </p>
           </>
         ) : (
           <h2 className="truncate typo-h2 style-text-primary">{message}</h2>

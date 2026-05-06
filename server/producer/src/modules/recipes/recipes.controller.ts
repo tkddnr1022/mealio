@@ -51,7 +51,10 @@ export class RecipesController {
     },
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async getList(
     @Query() query: RecipeListQueryDto,
     @CurrentUserOptional() user?: AuthUser,
@@ -59,14 +62,17 @@ export class RecipesController {
     const page = query.page ?? 1;
     const size = query.size ?? 20;
     const sort = query.sort ?? DEFAULT_RECIPE_SORT;
-    return this.recipeQueryService.getList({
-      page,
-      size,
-      difficulty: query.difficulty,
-      cookTimeMin: query.cookTimeMin,
-      cookTimeMax: query.cookTimeMax,
-      sort,
-    }, user?.id);
+    return this.recipeQueryService.getList(
+      {
+        page,
+        size,
+        difficulty: query.difficulty,
+        cookTimeMin: query.cookTimeMin,
+        cookTimeMax: query.cookTimeMax,
+        sort,
+      },
+      user?.id,
+    );
   }
 
   @Post('summaries') // Body 사용을 위해 POST 사용
@@ -81,7 +87,10 @@ export class RecipesController {
     },
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async getSummaries(@Body() dto: RecipeIdsDto): Promise<RecipeSummaryDto[]> {
     return this.recipeQueryService.getSummariesByIds(dto.ids);
   }
@@ -101,7 +110,10 @@ export class RecipesController {
       },
     },
   })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async getCategories(): Promise<{ data: RecipeCategoryDto[] }> {
     return this.recipeQueryService.getCategories();
   }
@@ -123,11 +135,18 @@ export class RecipesController {
     },
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async search(
     @Query() query: RecipeSearchQueryDto,
     @CurrentUserOptional() user?: AuthUser,
-    @Req() req?: { ip?: string; headers: { [key: string]: string | string[] | undefined } },
+    @Req()
+    req?: {
+      ip?: string;
+      headers: { [key: string]: string | string[] | undefined };
+    },
   ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
     const page = query.page ?? 1;
     const size = query.size ?? 20;
@@ -164,12 +183,22 @@ export class RecipesController {
     description: '레시피 상세 조회 성공',
     type: RecipeDetailDto,
   })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: '레시피를 찾을 수 없음' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: '서버 내부 오류' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: '레시피를 찾을 수 없음',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
   async getById(
     @Param('recipeId', ParseIntPipe) recipeId: number,
     @CurrentUserOptional() user?: AuthUser,
-    @Req() req?: { ip?: string; headers: { [key: string]: string | string[] | undefined } },
+    @Req()
+    req?: {
+      ip?: string;
+      headers: { [key: string]: string | string[] | undefined };
+    },
   ): Promise<RecipeDetailDto> {
     if (!req) {
       return this.recipeQueryService.getById(recipeId, undefined, user?.id);

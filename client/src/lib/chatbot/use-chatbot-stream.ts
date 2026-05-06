@@ -11,10 +11,7 @@ import type {
 } from '@/lib/types/chatbot';
 import { CHATBOT_STREAM_EVENT_TYPES } from '@/lib/types/chatbot';
 
-import {
-  streamChatbotMessage,
-  type ChatbotStreamOptions,
-} from './sse-client';
+import { streamChatbotMessage, type ChatbotStreamOptions } from './sse-client';
 
 /**
  * 챗봇 스트리밍 훅.
@@ -139,8 +136,7 @@ export function useChatbotStream(
       const controller = new AbortController();
       abortRef.current = controller;
 
-      const startConversationId =
-        stateConversationIdRef.current ?? undefined;
+      const startConversationId = stateConversationIdRef.current ?? undefined;
 
       safeSet((prev) => ({
         ...prev,

@@ -1,8 +1,8 @@
-import type { Decorator, Meta, StoryObj } from "@storybook/nextjs-vite";
-import type { ComponentProps } from "react";
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
+import type { ComponentProps } from 'react';
 
-import { ToggleCard } from "@/components/ui/ToggleCard";
-import { Toggle } from "@/components/ui/Toggle";
+import { ToggleCard } from '@/components/ui/ToggleCard';
+import { Toggle } from '@/components/ui/Toggle';
 
 const figmaWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,24rem)]">
@@ -11,16 +11,16 @@ const figmaWidth: Decorator = (Story) => (
 );
 
 const meta = {
-  title: "UI/ToggleCard",
+  title: 'UI/ToggleCard',
   component: ToggleCard,
-  tags: ["autodocs"],
+  tags: ['autodocs'],
   parameters: {
-    layout: "centered",
-    viewport: { defaultViewport: "mobile1" },
+    layout: 'centered',
+    viewport: { defaultViewport: 'mobile1' },
   },
   decorators: [figmaWidth],
   args: {
-    heading: "Heading",
+    heading: 'Heading',
   },
 } satisfies Meta<typeof ToggleCard>;
 
@@ -42,7 +42,7 @@ export const Default = {
 } satisfies Story;
 
 export const CustomItems = {
-  name: "커스텀 토글 목록",
+  name: '커스텀 토글 목록',
   render: (args: ToggleCardStoryArgs) => (
     <ToggleCard {...args}>
       <Toggle selected label="한식" />

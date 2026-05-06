@@ -141,7 +141,10 @@ const RECIPES: RecipeSeed[] = [
     instructions: [
       { step: 1, content: '김치는 적당히 잘라 준비한다.' },
       { step: 2, content: '팬에 기름을 두르고 김치를 넣어 중불로 2분 볶는다.' },
-      { step: 3, content: '밥을 넣고 간장, 참기름으로 간한 뒤 잘 섞어 볶는다.' },
+      {
+        step: 3,
+        content: '밥을 넣고 간장, 참기름으로 간한 뒤 잘 섞어 볶는다.',
+      },
       { step: 4, content: '달걀을 프라이해 올리거나 그대로 섞어 완성한다.' },
     ],
   },
@@ -157,8 +160,14 @@ const RECIPES: RecipeSeed[] = [
       'https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=800&q=80',
     instructions: [
       { step: 1, content: '김치는 먹기 좋게 썰고, 두부는 한입 크기로 자른다.' },
-      { step: 2, content: '냄비에 김치, 돼지고기, 고춧가루, 마늘을 넣고 볶는다.' },
-      { step: 3, content: '물을 붓고 끓인 뒤 두부, 대파를 넣고 간장으로 간한다.' },
+      {
+        step: 2,
+        content: '냄비에 김치, 돼지고기, 고춧가루, 마늘을 넣고 볶는다.',
+      },
+      {
+        step: 3,
+        content: '물을 붓고 끓인 뒤 두부, 대파를 넣고 간장으로 간한다.',
+      },
     ],
   },
   {
@@ -196,7 +205,8 @@ const RECIPES: RecipeSeed[] = [
       { step: 2, content: '팬에 기름을 두르고 감자를 넣어 중불로 볶는다.' },
       {
         step: 3,
-        content: '간장, 설탕, 물을 넣고 뚜껑을 덮어 익힌 뒤 참기름으로 마무리한다.',
+        content:
+          '간장, 설탕, 물을 넣고 뚜껑을 덮어 익힌 뒤 참기름으로 마무리한다.',
       },
     ],
   },
@@ -464,7 +474,13 @@ async function seed(): Promise<void> {
       );
     }
 
-    for (const [recipeId, ingredientId, amount, unit, isOptional] of RECIPE_INGREDIENTS) {
+    for (const [
+      recipeId,
+      ingredientId,
+      amount,
+      unit,
+      isOptional,
+    ] of RECIPE_INGREDIENTS) {
       await client.query(
         `INSERT INTO "RecipeIngredient" ("recipe_id","ingredient_id","amount","unit","is_optional")
          VALUES ($1,$2,$3,$4,$5)
@@ -501,4 +517,3 @@ seed().catch((error) => {
   console.error('❌ Prisma seed failed (top-level):', error);
   process.exit(1);
 });
-

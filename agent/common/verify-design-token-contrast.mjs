@@ -4,15 +4,15 @@
  * - largeUI: 테두리(비텍스트 UI) → 3:1
  * - `variables.color.*` 리프의 `{ aliasOf: "variables...." }`는 canonical까지 따라가 hex를 해석한다.
  */
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const root = join(__dirname, "..", "..");
+const root = join(__dirname, '..', '..');
 
 function parseHex(hex) {
-  const s = hex.replace(/^#/, "");
+  const s = hex.replace(/^#/, '');
   if (s.length === 8) {
     return [
       parseInt(s.slice(0, 2), 16) / 255,
@@ -51,17 +51,22 @@ function contrastRatio(fgHex, bgHex) {
 }
 
 function loadJson(rel) {
-  return JSON.parse(readFileSync(join(root, rel), "utf8"));
+  return JSON.parse(readFileSync(join(root, rel), 'utf8'));
 }
 
-const principle = loadJson("agent/design/spec/design_principle.json");
-const tokens = loadJson("agent/design/spec/design_tokens.json");
+const principle = loadJson('agent/design/spec/design_principle.json');
+const tokens = loadJson('agent/design/spec/design_tokens.json');
 
 const colors = tokens.variables?.color ?? tokens.color;
 
-const NORMAL = parseFloat(String(principle.accessibility.colorContrast.bodyText).replace(":1", ""));
+const NORMAL = parseFloat(
+  String(principle.accessibility.colorContrast.bodyText).replace(':1', ''),
+);
 const LARGE_UI = parseFloat(
-  String(principle.accessibility.colorContrast.largeTextAndUI).replace(":1", ""),
+  String(principle.accessibility.colorContrast.largeTextAndUI).replace(
+    ':1',
+    '',
+  ),
 );
 
 /** @param {string} pathStr e.g. variables.color.light.primary.default */
@@ -70,7 +75,7 @@ function resolvePath(tokens, pathStr, visited = new Set()) {
     throw new Error(`alias 순환: ${pathStr}`);
   }
   visited.add(pathStr);
-  const parts = pathStr.replace(/^variables\./, "").split(".");
+  const parts = pathStr.replace(/^variables\./, '').split('.');
   let cur = tokens.variables;
   for (const p of parts) {
     if (cur == null) return undefined;
@@ -81,10 +86,13 @@ function resolvePath(tokens, pathStr, visited = new Set()) {
 
 function resolveValue(tokens, v, visited = new Set()) {
   if (v == null) return undefined;
-  if (typeof v === "string" && /^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/i.test(v)) {
+  if (
+    typeof v === 'string' &&
+    /^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/i.test(v)
+  ) {
     return v;
   }
-  if (typeof v === "object" && v.aliasOf && typeof v.aliasOf === "string") {
+  if (typeof v === 'object' && v.aliasOf && typeof v.aliasOf === 'string') {
     return resolvePath(tokens, v.aliasOf, visited);
   }
   return undefined;
@@ -98,7 +106,10 @@ function collectChecks(theme) {
   const textSecondary = resolveValue(tokens, c.text?.secondary);
   const textCaption = resolveValue(tokens, c.text?.caption);
   const textLink = resolveValue(tokens, c.extensions?.text?.link);
-  const textLinkHover = resolveValue(tokens, c.extensions?.text?.["link-hover"]);
+  const textLinkHover = resolveValue(
+    tokens,
+    c.extensions?.text?.['link-hover'],
+  );
   const success = resolveValue(tokens, c.extensions?.state?.success);
   const error = resolveValue(tokens, c.extensions?.state?.error);
   const warning = resolveValue(tokens, c.extensions?.state?.warning);
@@ -108,31 +119,31 @@ function collectChecks(theme) {
   const bgSurface = resolveValue(tokens, c.background?.surface);
 
   const textKeys = [
-    ["text-primary", textPrimary],
-    ["text-secondary", textSecondary],
-    ["text-caption", textCaption],
-    ["text-link", textLink],
-    ["text-link-hover", textLinkHover],
-    ["success", success],
-    ["error", error],
-    ["warning", warning],
-    ["info", info],
+    ['text-primary', textPrimary],
+    ['text-secondary', textSecondary],
+    ['text-caption', textCaption],
+    ['text-link', textLink],
+    ['text-link-hover', textLinkHover],
+    ['success', success],
+    ['error', error],
+    ['warning', warning],
+    ['info', info],
   ];
   const bgKeys = [
-    ["background", bgPrimary],
-    ["surface", bgSurface],
+    ['background', bgPrimary],
+    ['surface', bgSurface],
   ];
 
   for (const [tk, fg] of textKeys) {
-    if (!fg || typeof fg !== "string") continue;
+    if (!fg || typeof fg !== 'string') continue;
     for (const [bk, bg] of bgKeys) {
-      if (!bg || typeof bg !== "string") continue;
+      if (!bg || typeof bg !== 'string') continue;
       checks.push({
         id: `${theme}.${tk}-on-${bk}`,
         fg,
         bg,
         min: NORMAL,
-        kind: "normal",
+        kind: 'normal',
       });
     }
   }
@@ -143,46 +154,52 @@ function collectChecks(theme) {
       fg: resolveValue(tokens, c.on?.primary),
       bg: resolveValue(tokens, c.primary?.default),
       min: NORMAL,
-      kind: "normal",
+      kind: 'normal',
     },
     {
       id: `${theme}.on-primary-on-primary-hover`,
       fg: resolveValue(tokens, c.on?.primary),
       bg: resolveValue(tokens, c.primary?.hover),
       min: NORMAL,
-      kind: "normal",
+      kind: 'normal',
     },
     {
       id: `${theme}.on-secondary-on-secondary`,
       fg: resolveValue(tokens, c.on?.secondary),
       bg: resolveValue(tokens, c.secondary?.default),
       min: NORMAL,
-      kind: "normal",
+      kind: 'normal',
     },
     {
       id: `${theme}.border-on-background`,
       fg: resolveValue(tokens, c.extensions?.border),
       bg: bgPrimary,
       min: LARGE_UI,
-      kind: "largeUI",
+      kind: 'largeUI',
     },
     {
       id: `${theme}.border-on-surface`,
       fg: resolveValue(tokens, c.extensions?.border),
       bg: bgSurface,
       min: LARGE_UI,
-      kind: "largeUI",
+      kind: 'largeUI',
     },
   );
 
   return checks;
 }
 
-const allChecks = [...collectChecks("light"), ...collectChecks("dark")];
+const allChecks = [...collectChecks('light'), ...collectChecks('dark')];
 const failures = [];
 
 for (const ch of allChecks) {
-  if (!ch.fg || !ch.bg || typeof ch.fg !== "string" || typeof ch.bg !== "string") continue;
+  if (
+    !ch.fg ||
+    !ch.bg ||
+    typeof ch.fg !== 'string' ||
+    typeof ch.bg !== 'string'
+  )
+    continue;
   const ratio = contrastRatio(ch.fg, ch.bg);
   if (ratio + 1e-6 < ch.min) {
     failures.push({ ...ch, ratio: Math.round(ratio * 1000) / 1000 });
@@ -190,7 +207,7 @@ for (const ch of allChecks) {
 }
 
 if (failures.length) {
-  console.error("대비 미달:\n");
+  console.error('대비 미달:\n');
   for (const f of failures) {
     console.error(
       `  ${f.id}: ${f.fg} on ${f.bg} → ${f.ratio}:1 (필요 ≥ ${f.min}:1, ${f.kind})`,

@@ -1,9 +1,19 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsString, Max, Min, MinLength } from 'class-validator';
+import {
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+  MinLength,
+} from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 
 export class IngredientSearchQueryDto {
-  @ApiPropertyOptional({ description: '검색 키워드 (생략 시 이름 필터 없음)', minLength: 1 })
+  @ApiPropertyOptional({
+    description: '검색 키워드 (생략 시 이름 필터 없음)',
+    minLength: 1,
+  })
   @IsOptional()
   @Transform(({ value }) => {
     if (value === undefined || value === null || value === '') return undefined;

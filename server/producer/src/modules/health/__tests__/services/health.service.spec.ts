@@ -73,4 +73,3 @@ describe('HealthService', () => {
     expect(result.details.mongodb).toBe('ok');
   });
 });
-

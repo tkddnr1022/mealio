@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --color-background-primary: var(--ref-color-background-primary);
@@ -22,7 +22,9 @@
   --color-chip-hover: var(--ref-color-chip-hover);
   --color-dropdown-selected-default: var(--ref-color-dropdown-selected-default);
   --color-dropdown-selected-hover: var(--ref-color-dropdown-selected-hover);
-  --color-dropdown-unselected-default: var(--ref-color-dropdown-unselected-default);
+  --color-dropdown-unselected-default: var(
+    --ref-color-dropdown-unselected-default
+  );
   --color-dropdown-unselected-hover: var(--ref-color-dropdown-unselected-hover);
   --color-indicator-inactive: var(--ref-color-indicator-inactive);
   --color-on-primary: var(--ref-color-on-primary);
@@ -37,7 +39,9 @@
   --color-toggle-unselected-hover: var(--ref-color-toggle-unselected-hover);
   --color-scrollbar-thumb: var(--ref-color-scrollbar-thumb);
   --color-provider-google-primary: var(--ref-color-provider-google-primary);
-  --color-provider-google-on-primary: var(--ref-color-provider-google-on-primary);
+  --color-provider-google-on-primary: var(
+    --ref-color-provider-google-on-primary
+  );
   --color-provider-kakao-primary: var(--ref-color-provider-kakao-primary);
   --color-provider-kakao-on-primary: var(--ref-color-provider-kakao-on-primary);
   --color-provider-naver-primary: var(--ref-color-provider-naver-primary);
@@ -94,8 +98,10 @@
   --font-size-caption: var(--text-caption);
   --font-size-small: var(--text-small);
 
-  --font-family-body: var(--font-noto-sans-kr), ui-sans-serif, system-ui, sans-serif;
-  --font-family-logo: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-family-body:
+    var(--font-noto-sans-kr), ui-sans-serif, system-ui, sans-serif;
+  --font-family-logo:
+    var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
@@ -120,8 +126,10 @@
   --semantic-action-secondary-hover: var(--color-secondary-hover);
   --semantic-border-default: var(--color-border-subtle);
   --semantic-border-accent: var(--color-border-accent);
-  --semantic-shadow-sm: var(--elevation-sm-x) var(--elevation-sm-y) var(--elevation-sm-blur) var(--elevation-sm-color);
-  --semantic-shadow-md: var(--elevation-md-x) var(--elevation-md-y) var(--elevation-md-blur) var(--elevation-md-color);
+  --semantic-shadow-sm: var(--elevation-sm-x) var(--elevation-sm-y)
+    var(--elevation-sm-blur) var(--elevation-sm-color);
+  --semantic-shadow-md: var(--elevation-md-x) var(--elevation-md-y)
+    var(--elevation-md-blur) var(--elevation-md-color);
 
   --layout-content-max-width: 1200px;
   --card-gap: 12px;

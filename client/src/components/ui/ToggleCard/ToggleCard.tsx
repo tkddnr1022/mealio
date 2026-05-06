@@ -1,25 +1,25 @@
-import type { HTMLAttributes } from "react";
-import { cn } from "@/lib/utils/cn";
+import type { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils/cn';
 
-import { FlatRow } from "@/components/ui/FlatRow";
+import { FlatRow } from '@/components/ui/FlatRow';
 
-export interface ToggleCardProps extends Omit<HTMLAttributes<HTMLElement>, "className"> {
-className?: string;
-heading?: string;
+export interface ToggleCardProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'className'
+> {
+  className?: string;
+  heading?: string;
 }
 
 export function ToggleCard({
-  className = "",
-  heading = "Heading",
+  className = '',
+  heading = 'Heading',
   children,
   ...rest
 }: ToggleCardProps) {
   return (
     <section
-      className={cn(
-        "card flex w-full flex-col",
-        className,
-      )}
+      className={cn('card flex w-full flex-col', className)}
       data-name="ToggleCard"
       {...rest}
     >
