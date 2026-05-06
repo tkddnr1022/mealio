@@ -1,6 +1,6 @@
 import type { HTMLAttributes, ReactNode } from 'react';
-import { cn } from '@/lib/utils/cn';
 import { CardTag } from '@/components/ui/CardTag';
+import { BaseRow } from '@/components/ui/BaseRow';
 
 export type CardTagItem = Readonly<{
   label: string;
@@ -21,8 +21,8 @@ export function CardTagsRow({
   ...rest
 }: CardTagsRowProps) {
   return (
-    <div
-      className={cn('flex w-full flex-wrap items-start gap-3', className)}
+    <BaseRow
+      className={className}
       data-name="CardTagsRow"
       {...rest}
     >
@@ -33,6 +33,6 @@ export function CardTagsRow({
           leftIcon={item.leftIcon}
         />
       ))}
-    </div>
+    </BaseRow>
   );
 }

@@ -1,7 +1,7 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
 import type { ComponentProps } from 'react';
 
-import { FlatRow } from '@/components/ui/FlatRow';
+import { BaseRow } from '@/components/ui/BaseRow';
 import { Toggle } from '@/components/ui/Toggle';
 
 const figmaWidth: Decorator = (Story) => (
@@ -11,30 +11,30 @@ const figmaWidth: Decorator = (Story) => (
 );
 
 const meta = {
-  title: 'UI/FlatRow',
-  component: FlatRow,
+  title: 'UI/BaseRow',
+  component: BaseRow,
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
     viewport: { defaultViewport: 'mobile1' },
   },
   decorators: [figmaWidth],
-} satisfies Meta<typeof FlatRow>;
+} satisfies Meta<typeof BaseRow>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
-type FlatRowStoryArgs = ComponentProps<typeof FlatRow>;
+type BaseRowStoryArgs = ComponentProps<typeof BaseRow>;
 
 export const WithToggles = {
   name: 'Toggle 배치',
-  render: (args: FlatRowStoryArgs) => (
-    <FlatRow {...args}>
+  render: (args: BaseRowStoryArgs) => (
+    <BaseRow {...args}>
       <Toggle selected label="Label" />
       <Toggle selected={false} label="Label" />
       <Toggle selected={false} label="Label" />
       <Toggle selected={false} label="Label" />
       <Toggle selected={false} label="Label" />
       <Toggle selected label="Label" />
-    </FlatRow>
+    </BaseRow>
   ),
 } satisfies Story;

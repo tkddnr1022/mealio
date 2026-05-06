@@ -45,7 +45,7 @@
 | client/src/components/ui/MiniTagsRow/ | 미니 태그 행 조합 컴포넌트 |
 | client/src/components/ui/CardTag/ | 카드 내부 태그 UI |
 | client/src/components/ui/CardTagsRow/ | 카드 태그 행 조합 컴포넌트 |
-| client/src/components/ui/FlatRow/ | 단일 행 조합 UI |
+| client/src/components/ui/BaseRow/ | 단일 행 조합 UI |
 | client/src/components/ui/ActionGroup/ | 액션 버튼 그룹 |
 | client/src/components/ui/Thumbnail/ | 썸네일 세트(`square`) |
 | client/src/components/ui/IconShell/ | 아이콘 래퍼 세트(`variant` × `size`) |

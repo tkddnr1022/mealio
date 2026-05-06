@@ -52,7 +52,7 @@
 |------|-----------|------|
 | 카드 면 | `Background/Surface` → `color/background/surface` | SearchBarHeader·Tabbar 등과 동일 **흰 면** 축 — 필터 카드(SearchBarCard 등)와 시각적으로 한 팔레트 |
 | 섹션 제목 | `Card/Heading` + `color/text/primary` + `typography/font-size-h3` | 필터 카드 섹션 제목과 **동일 텍스트 스타일** — H3 Bold(그리드 카드)와는 역할이 다름 |
-| 내부 간격 | `card/gap`, `card/padding`, `spacing/3`(FlatRow), `spacing/2`·`spacing/4`(칩) | 12px 축이 `card/gap`과 `spacing/3`에 **겹쳐 서술** — 변수 하나로만 바인딩했는지 확인 |
+| 내부 간격 | `card/gap`, `card/padding`, `spacing/3`(BaseRow), `spacing/2`·`spacing/4`(칩) | 12px 축이 `card/gap`과 `spacing/3`에 **겹쳐 서술** — 변수 하나로만 바인딩했는지 확인 |
 | 토글 칩 | `Toggle/*`, `Text/Toggle/*`, `Label/Toggle`, `radius/full`, `color/text/on-primary` / `color/text/secondary` | 단독 **Toggle** 행과 **동일 스타일 세트** — 컴포넌트 간 복제만 한 경우 SSOT 유지에 유리 |
 | 그림자 | `Elevation/Card`(`card/elevation/*`) + 표에 **`Elevation/Medium`에도 ToggleCard** | 수치는 `elevation/md/*`와 동일; **스타일 이름은 한 가지**로 통일할지 결정(권장 수정사항 11) |
 
@@ -82,7 +82,7 @@
 
 ## 참고
 
-- **`ToggleCard`** (`233:1857`): MCP 생성 코드 기준으로 카드 루트는 `background/surface`·`card/gap`·`card/padding`·`card/radius`·`card/elevation/*`·`Elevation/Card`; 제목은 `Card/Heading`·`Text/Primary`; 본문은 **FlatRow** 안에 **Toggle** 인스턴스(선택/비선택·`Label/Toggle`·토글 면/텍스트 스타일)가 배치된다.
+- **`ToggleCard`** (`233:1857`): MCP 생성 코드 기준으로 카드 루트는 `background/surface`·`card/gap`·`card/padding`·`card/radius`·`card/elevation/*`·`Elevation/Card`; 제목은 `Card/Heading`·`Text/Primary`; 본문은 **BaseRow** 안에 **Toggle** 인스턴스(선택/비선택·`Label/Toggle`·토글 면/텍스트 스타일)가 배치된다.
 - **Component descriptions (Figma)**: `SearchBar` — `transition-shadow`; focus 시 `outline-none`, `ring-2`, `ring-offset-2` 등. 필터·검색 결과 등 동일 컴포넌트 인스턴스에 적용될 수 있음.
 - 아이콘·이미지는 MCP 자산 URL로만 제공되며 토큰 표와 별개이다.
 - 스타일 **이름**은 Figma 텍스트·색·이펙트 스타일명, **값** 열은 연결 변수 위주로 기술했다.

@@ -1,6 +1,6 @@
 import type { HTMLAttributes, ReactNode } from 'react';
-import { cn } from '@/lib/utils/cn';
 import { FlatTag } from '@/components/ui/FlatTag';
+import { BaseRow } from '@/components/ui/BaseRow';
 
 export type FlatTagItem = Readonly<{
   label: string;
@@ -22,11 +22,8 @@ export function FlatTagsRow({
   ...rest
 }: FlatTagsRowProps) {
   return (
-    <div
-      className={cn(
-        'hide-native-scrollbar flex w-full items-center gap-2 overflow-x-auto',
-        className,
-      )}
+    <BaseRow
+      className={className}
       data-name="FlatTagsRow"
       {...rest}
     >
@@ -39,6 +36,6 @@ export function FlatTagsRow({
           className="shrink-0"
         />
       ))}
-    </div>
+    </BaseRow>
   );
 }

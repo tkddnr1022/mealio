@@ -37,7 +37,7 @@
 - [x] `RangeSliderCard`
 - [ ] `Button` 세트 (`variant` × `state` × `size`, primary에만 `inactive`)
 - [ ] `Toggle` 세트 (`selected` × `state` × `size`)
-- [ ] `FlatRow`
+- [ ] `BaseRow`
 - [ ] `ToggleCard`
 - [ ] `ActionGroup`
 

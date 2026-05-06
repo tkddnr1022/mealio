@@ -1,6 +1,6 @@
 import type { HTMLAttributes } from 'react';
-import { cn } from '@/lib/utils/cn';
 import { MiniTag } from '@/components/ui/MiniTag';
+import { BaseRow } from '@/components/ui/BaseRow';
 
 export type MiniTagItem = Readonly<{
   label: string;
@@ -20,11 +20,8 @@ export function MiniTagsRow({
   ...rest
 }: MiniTagsRowProps) {
   return (
-    <div
-      className={cn(
-        'hide-native-scrollbar flex w-full items-center gap-3 overflow-x-auto',
-        className,
-      )}
+    <BaseRow
+      className={className}
       data-name="MiniTagsRow"
       {...rest}
     >
@@ -35,6 +32,6 @@ export function MiniTagsRow({
           className="shrink-0"
         />
       ))}
-    </div>
+    </BaseRow>
   );
 }

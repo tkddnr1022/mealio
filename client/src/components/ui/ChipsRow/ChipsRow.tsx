@@ -1,6 +1,6 @@
 import type { HTMLAttributes } from 'react';
-import { cn } from '@/lib/utils/cn';
 import { Chip } from '@/components/ui/Chip';
+import { BaseRow } from '@/components/ui/BaseRow';
 
 export interface ChipsRowProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
@@ -18,11 +18,8 @@ export function ChipsRow({
   ...rest
 }: ChipsRowProps) {
   return (
-    <div
-      className={cn(
-        'hide-native-scrollbar flex w-full items-center gap-2 overflow-x-auto',
-        className,
-      )}
+    <BaseRow
+      className={className}
       data-name="ChipsRow"
       {...rest}
     >
@@ -34,6 +31,6 @@ export function ChipsRow({
           onRemove={onRemoveChip ? () => onRemoveChip(index, label) : undefined}
         />
       ))}
-    </div>
+    </BaseRow>
   );
 }

@@ -1,7 +1,7 @@
 import type { HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils/cn';
 
-import { FlatRow } from '@/components/ui/FlatRow';
+import { BaseRow } from '@/components/ui/BaseRow';
 
 export interface ToggleCardProps extends Omit<
   HTMLAttributes<HTMLElement>,
@@ -24,7 +24,7 @@ export function ToggleCard({
       {...rest}
     >
       <h3 className="typo-card-heading style-text-primary">{heading}</h3>
-      <FlatRow>{children}</FlatRow>
+      <BaseRow>{children}</BaseRow>
     </section>
   );
 }
