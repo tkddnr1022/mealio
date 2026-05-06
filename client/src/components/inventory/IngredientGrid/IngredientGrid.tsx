@@ -13,8 +13,12 @@ export interface IngredientGridProps extends Omit<
   className?: string;
   items: readonly InventoryIngredient[];
   selectedIngredientIds?: readonly number[];
-  getLeadingIcon?: (ingredient: InventoryIngredient) => IngredientCardProps['leadingIcon'];
-  getTrailing?: (ingredient: InventoryIngredient) => IngredientCardProps['trailing'];
+  getLeadingIcon?: (
+    ingredient: InventoryIngredient,
+  ) => IngredientCardProps['leadingIcon'];
+  getTrailing?: (
+    ingredient: InventoryIngredient,
+  ) => IngredientCardProps['trailing'];
   onRemoveIngredient?: (ingredient: InventoryIngredient) => void;
   cardClassName?: string;
 }
@@ -44,9 +48,7 @@ export function IngredientGrid({
             leadingIcon={getLeadingIcon?.(item)}
             trailing={getTrailing?.(item)}
             onRemove={
-              onRemoveIngredient
-                ? () => onRemoveIngredient(item)
-                : undefined
+              onRemoveIngredient ? () => onRemoveIngredient(item) : undefined
             }
             className={cn(cardClassName)}
           />

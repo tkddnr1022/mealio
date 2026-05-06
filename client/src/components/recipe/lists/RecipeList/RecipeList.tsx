@@ -1,9 +1,7 @@
 import type { HTMLAttributes } from 'react';
 import type { RecipeSummary } from '@/lib/types/recipe';
 import { cn } from '@/lib/utils/cn';
-import {
-  RecipeCard,
-} from '@/components/recipe/cards/RecipeCard';
+import { RecipeCard } from '@/components/recipe/cards/RecipeCard';
 
 export interface RecipeListProps extends Omit<
   HTMLAttributes<HTMLDivElement>,

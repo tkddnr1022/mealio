@@ -26,7 +26,9 @@ export function ChatCard({
   lastMessage,
   ...rest
 }: ChatCardProps) {
-  const formattedTimestamp = toChatListTimestampLabel(conversation.lastMessageAt);
+  const formattedTimestamp = toChatListTimestampLabel(
+    conversation.lastMessageAt,
+  );
   const conversationHref = toConversationHref(conversation.conversationId);
 
   const linkClassName =

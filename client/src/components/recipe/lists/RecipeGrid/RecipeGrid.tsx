@@ -2,9 +2,7 @@ import type { HTMLAttributes } from 'react';
 import type { RecipeSummary } from '@/lib/types/recipe';
 import { cn } from '@/lib/utils/cn';
 
-import {
-  RecipeGridCard,
-} from '@/components/recipe/cards/RecipeGridCard';
+import { RecipeGridCard } from '@/components/recipe/cards/RecipeGridCard';
 
 export interface RecipeGridProps extends Omit<
   HTMLAttributes<HTMLDivElement>,

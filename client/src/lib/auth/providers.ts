@@ -54,4 +54,3 @@ export function buildOAuthEntryUrl(
   if (!env.apiBaseUrl) return path;
   return `${env.apiBaseUrl}${path}`;
 }
-

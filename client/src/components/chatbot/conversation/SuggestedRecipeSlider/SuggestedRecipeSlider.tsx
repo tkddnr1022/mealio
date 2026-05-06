@@ -8,9 +8,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import type { SuggestedRecipe } from '@/lib/types/chatbot';
 import { cn } from '@/lib/utils/cn';
 import { SliderPagination } from '@/components/ui/SliderPagination';
-import {
-  SuggestedRecipeCard,
-} from '@/components/chatbot/conversation/SuggestedRecipeCard';
+import { SuggestedRecipeCard } from '@/components/chatbot/conversation/SuggestedRecipeCard';
 import { isValidSuggestedRecipe } from '@/components/chatbot/utils/chatbot-format';
 
 import 'swiper/css';

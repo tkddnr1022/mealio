@@ -21,11 +21,7 @@ export function CardTagsRow({
   ...rest
 }: CardTagsRowProps) {
   return (
-    <BaseRow
-      className={className}
-      data-name="CardTagsRow"
-      {...rest}
-    >
+    <BaseRow className={className} data-name="CardTagsRow" {...rest}>
       {items.map((item, index) => (
         <CardTag
           key={`${item.label}-${index}`}

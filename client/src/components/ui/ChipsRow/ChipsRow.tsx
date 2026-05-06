@@ -18,11 +18,7 @@ export function ChipsRow({
   ...rest
 }: ChipsRowProps) {
   return (
-    <BaseRow
-      className={className}
-      data-name="ChipsRow"
-      {...rest}
-    >
+    <BaseRow className={className} data-name="ChipsRow" {...rest}>
       {labels.map((label, index) => (
         <Chip
           key={`${label}-${index}`}

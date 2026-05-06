@@ -13,7 +13,10 @@ import { Toggle } from '@/components/ui/Toggle';
 import { buildQueryString, objectToQuery } from '@/lib/api/query';
 import type { RecipeCategory, RecipeSearchQuery } from '@/lib/types/recipe';
 
-const DEFAULT_COOK_TIME_RANGE: RangeSliderValue = { minValue: 0, maxValue: 120 };
+const DEFAULT_COOK_TIME_RANGE: RangeSliderValue = {
+  minValue: 0,
+  maxValue: 120,
+};
 const DIFFICULTY_OPTIONS = [
   { value: 1, label: '쉬움' },
   { value: 3, label: '보통' },
@@ -31,12 +34,15 @@ export function RecipeFilterClientPage({
 }: RecipeFilterClientPageProps) {
   const router = useRouter();
   const [keyword, setKeyword] = useState('');
-  const [selectedDifficulties, setSelectedDifficulties] = useState<number[]>([]);
+  const [selectedDifficulties, setSelectedDifficulties] = useState<number[]>(
+    [],
+  );
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
     null,
   );
-  const [cookTimeRange, setCookTimeRange] =
-    useState<RangeSliderValue>(DEFAULT_COOK_TIME_RANGE);
+  const [cookTimeRange, setCookTimeRange] = useState<RangeSliderValue>(
+    DEFAULT_COOK_TIME_RANGE,
+  );
   const [sliderResetKey, setSliderResetKey] = useState(0);
 
   const toggleDifficulty = (difficulty: number) => {
@@ -79,9 +85,7 @@ export function RecipeFilterClientPage({
 
     const queryString = buildQueryString(objectToQuery(params));
     router.push(
-      queryString
-        ? `${RECIPE_SEARCH_PATH}?${queryString}`
-        : RECIPE_SEARCH_PATH,
+      queryString ? `${RECIPE_SEARCH_PATH}?${queryString}` : RECIPE_SEARCH_PATH,
     );
   };
 

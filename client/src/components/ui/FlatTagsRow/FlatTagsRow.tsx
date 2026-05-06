@@ -22,11 +22,7 @@ export function FlatTagsRow({
   ...rest
 }: FlatTagsRowProps) {
   return (
-    <BaseRow
-      className={className}
-      data-name="FlatTagsRow"
-      {...rest}
-    >
+    <BaseRow className={className} data-name="FlatTagsRow" {...rest}>
       {items.map((item, index) => (
         <FlatTag
           key={`${item.label}-${index}`}

@@ -1,9 +1,7 @@
 import type { HTMLAttributes } from 'react';
 import type { ConversationListItem } from '@/lib/types/chatbot';
 import { cn } from '@/lib/utils/cn';
-import {
-  ChatCard,
-} from '@/components/chatbot/list/ChatCard';
+import { ChatCard } from '@/components/chatbot/list/ChatCard';
 
 export interface ChatListProps extends Omit<
   HTMLAttributes<HTMLDivElement>,

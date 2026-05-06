@@ -11,9 +11,7 @@ import { cn } from '@/lib/utils/cn';
 import 'swiper/css';
 import 'swiper/css/a11y';
 
-import {
-  RecipeGrid,
-} from '@/components/recipe/lists/RecipeGrid';
+import { RecipeGrid } from '@/components/recipe/lists/RecipeGrid';
 import { SliderPagination } from '@/components/ui/SliderPagination';
 
 const CARDS_PER_PAGE = 4;

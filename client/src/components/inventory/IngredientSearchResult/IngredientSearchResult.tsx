@@ -1,9 +1,7 @@
 import type { HTMLAttributes } from 'react';
 import type { InventoryIngredient } from '@/lib/types/inventory';
 import { cn } from '@/lib/utils/cn';
-import {
-  IngredientGrid,
-} from '@/components/inventory/IngredientGrid';
+import { IngredientGrid } from '@/components/inventory/IngredientGrid';
 import {
   IngredientGridHeader,
   type IngredientGridHeaderProps,
@@ -21,7 +19,9 @@ export interface IngredientSearchResultProps extends Omit<
   selectedIngredientIds?: readonly number[];
   getLeadingIcon?: Parameters<typeof IngredientGrid>[0]['getLeadingIcon'];
   getTrailing?: Parameters<typeof IngredientGrid>[0]['getTrailing'];
-  onRemoveIngredient?: Parameters<typeof IngredientGrid>[0]['onRemoveIngredient'];
+  onRemoveIngredient?: Parameters<
+    typeof IngredientGrid
+  >[0]['onRemoveIngredient'];
   cardClassName?: string;
 }
 
@@ -37,7 +37,8 @@ export function IngredientSearchResult({
   cardClassName = '',
   ...rest
 }: IngredientSearchResultProps) {
-  const resolvedCountText = countText ?? toInventoryIngredientCountText(items.length);
+  const resolvedCountText =
+    countText ?? toInventoryIngredientCountText(items.length);
 
   return (
     <section

@@ -20,11 +20,7 @@ export function MiniTagsRow({
   ...rest
 }: MiniTagsRowProps) {
   return (
-    <BaseRow
-      className={className}
-      data-name="MiniTagsRow"
-      {...rest}
-    >
+    <BaseRow className={className} data-name="MiniTagsRow" {...rest}>
       {items.map((item, index) => (
         <MiniTag
           key={`${item.label}-${index}`}

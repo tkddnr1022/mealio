@@ -35,7 +35,8 @@ export function joinRecipeMetaLine(
   ...parts: ReadonlyArray<string | null | undefined>
 ): string | null {
   const filtered = parts.filter(
-    (part): part is string => typeof part === 'string' && part.trim().length > 0,
+    (part): part is string =>
+      typeof part === 'string' && part.trim().length > 0,
   );
   return filtered.length > 0 ? filtered.join(' · ') : null;
 }

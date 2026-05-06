@@ -8,7 +8,9 @@ export async function resolveSearchParams(
   return searchParams ? await searchParams : undefined;
 }
 
-export function getSingleSearchParam(value: SearchParamValue): string | undefined {
+export function getSingleSearchParam(
+  value: SearchParamValue,
+): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
@@ -19,7 +21,9 @@ export function getMultiSearchParam(value: SearchParamValue): string[] {
   return value ? [value] : [];
 }
 
-export function getTrimmedSearchParam(value: SearchParamValue): string | undefined {
+export function getTrimmedSearchParam(
+  value: SearchParamValue,
+): string | undefined {
   const normalized = getSingleSearchParam(value);
   const trimmed = normalized?.trim();
   return trimmed && trimmed.length > 0 ? trimmed : undefined;
