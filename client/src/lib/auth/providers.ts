@@ -5,12 +5,11 @@
  * 프론트엔드는 `GET /api/v1/auth/{provider}`로 브라우저를 이동(리다이렉트)시키기만 하면 된다.
  * Authorization Code 처리·토큰 교환·JWT 쿠키 설정은 백엔드에서 전담한다.
  *
- * 지원 Provider 목록은 `env.enabledOAuthProviders` 플래그로 노출 여부를 제어한다.
- * 실제 UI에서는 {@link isOAuthProviderEnabled}와 함께 사용해 비활성 Provider 버튼을 숨긴다.
+ * 지원 Provider 목록은 타입 상수 `OAUTH_PROVIDERS` 기준으로 고정한다.
  */
 
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
-import { env, isOAuthProviderEnabled } from '@/lib/config/env';
+import { env } from '@/lib/config/env';
 import { OAUTH_PROVIDERS } from '@/lib/types/auth';
 import type { OAuthProvider } from '@/lib/types/auth';
 
@@ -56,13 +55,3 @@ export function buildOAuthEntryUrl(
   return `${env.apiBaseUrl}${path}`;
 }
 
-/**
- * 현재 환경에서 사용자가 실제로 클릭 가능한 Provider 목록을 반환한다.
- * 명세상의 정렬 순서(`OAUTH_PROVIDERS`)를 유지하고, 환경 변수 플래그로 비활성화된
- * Provider는 제외된다.
- */
-export function getEnabledOAuthProviders(): readonly OAuthProvider[] {
-  return env.enabledOAuthProviders;
-}
-
-export { isOAuthProviderEnabled };

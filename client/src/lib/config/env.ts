@@ -12,10 +12,7 @@
  *
  * 값을 소비하는 곳:
  * - API base URL: `client/src/lib/config/api.config.ts`
- * - OAuth Provider 노출 플래그: 로그인 페이지 소셜 로그인 버튼 가시성 제어
  */
-
-import type { OAuthProvider } from '@/lib/types/auth';
 
 export type RuntimeEnv = 'development' | 'production' | 'test';
 
@@ -41,8 +38,6 @@ export interface AppEnv {
    * 기본값: `accessToken`
    */
   readonly authCookieName: string;
-  /** 로그인 화면에 노출할 OAuth Provider 목록 (순서 유지) */
-  readonly enabledOAuthProviders: readonly OAuthProvider[];
   /** Web Vitals·로그 수집 엔드포인트(선택). 비어 있으면 수집을 비활성화한다. */
   readonly observabilityEndpoint: string;
   /**
@@ -51,12 +46,6 @@ export interface AppEnv {
    */
   readonly validationErrors: readonly EnvValidationError[];
 }
-
-const ALL_OAUTH_PROVIDERS: readonly OAuthProvider[] = [
-  'google',
-  'kakao',
-  'naver',
-] as const;
 
 const DEFAULTS = {
   apiBaseUrl: '',
@@ -69,10 +58,6 @@ const RAW_ENV_MAP: Record<string, string | undefined> = {
   NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   NEXT_PUBLIC_API_PREFIX: process.env.NEXT_PUBLIC_API_PREFIX,
   NEXT_PUBLIC_AUTH_COOKIE_NAME: process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME,
-  NEXT_PUBLIC_OAUTH_GOOGLE_ENABLED:
-    process.env.NEXT_PUBLIC_OAUTH_GOOGLE_ENABLED,
-  NEXT_PUBLIC_OAUTH_KAKAO_ENABLED: process.env.NEXT_PUBLIC_OAUTH_KAKAO_ENABLED,
-  NEXT_PUBLIC_OAUTH_NAVER_ENABLED: process.env.NEXT_PUBLIC_OAUTH_NAVER_ENABLED,
   NEXT_PUBLIC_OBSERVABILITY_ENDPOINT:
     process.env.NEXT_PUBLIC_OBSERVABILITY_ENDPOINT,
 };
@@ -137,27 +122,6 @@ function parseAuthCookieName(): string {
   }
 
   return raw;
-}
-
-function parseBoolean(name: string, fallback: boolean): boolean {
-  const raw = readRaw(name);
-  if (raw === undefined) return fallback;
-  const lowered = raw.toLowerCase();
-  if (lowered === 'true' || lowered === '1') return true;
-  if (lowered === 'false' || lowered === '0') return false;
-  throw new EnvValidationError(
-    `Invalid boolean for ${name}: "${raw}". "true"/"false" 또는 "1"/"0"이어야 합니다.`,
-  );
-}
-
-function parseEnabledOAuthProviders(): readonly OAuthProvider[] {
-  return ALL_OAUTH_PROVIDERS.filter((provider) =>
-    parseBoolean(envNameForProvider(provider), true),
-  );
-}
-
-function envNameForProvider(provider: OAuthProvider): string {
-  return `NEXT_PUBLIC_OAUTH_${provider.toUpperCase()}_ENABLED`;
 }
 
 function parseObservabilityEndpoint(): string {
@@ -249,12 +213,6 @@ function buildEnv(): AppEnv {
     errors,
     runtime,
   );
-  const enabledOAuthProviders = safeParse(
-    parseEnabledOAuthProviders,
-    ALL_OAUTH_PROVIDERS,
-    errors,
-    runtime,
-  );
   const observabilityEndpoint = safeParse(
     parseObservabilityEndpoint,
     DEFAULTS.observabilityEndpoint,
@@ -269,18 +227,12 @@ function buildEnv(): AppEnv {
     apiBaseUrl,
     apiPrefix,
     authCookieName,
-    enabledOAuthProviders: Object.freeze(enabledOAuthProviders),
     observabilityEndpoint,
     validationErrors: Object.freeze(errors),
   });
 }
 
 export const env: AppEnv = buildEnv();
-
-/** OAuth Provider 노출 여부 조회 헬퍼 */
-export function isOAuthProviderEnabled(provider: OAuthProvider): boolean {
-  return env.enabledOAuthProviders.includes(provider);
-}
 
 /**
  * 수집된 환경 변수 검증 오류 배열을 반환한다.
