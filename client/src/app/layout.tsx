@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist_Mono, Noto_Sans_KR, Plus_Jakarta_Sans } from 'next/font/google';
 import { AppRootFrame } from '@/components/layout/AppRootFrame';
 import './globals.css';
+import { RootProviders } from '@/lib/providers/root-providers';
 
 const notoSansKr = Noto_Sans_KR({
   variable: '--font-noto-sans-kr',
@@ -38,7 +39,9 @@ export default function RootLayout({
       className={`${notoSansKr.variable} ${geistMono.variable} ${plusJakartaSans.variable}`}
     >
       <body className="antialiased">
-        <AppRootFrame>{children}</AppRootFrame>
+        <RootProviders>
+          <AppRootFrame>{children}</AppRootFrame>
+        </RootProviders>
       </body>
     </html>
   );
