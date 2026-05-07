@@ -1,11 +1,10 @@
 import { Clock3, Flame, UsersRound } from 'lucide-react';
 import Link from 'next/link';
-import type { HTMLAttributes } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
 import type { RecipeSummary } from '@/lib/types/recipe';
 import { cn } from '@/lib/utils/cn';
 import { FlatTagsRow } from '@/components/ui/FlatTagsRow';
 import { Thumbnail } from '@/components/ui/Thumbnail';
-import { LikeButton } from '@/components/ui/buttons/LikeButton';
 import {
   toRecipeCookingTimeLabel,
   toRecipeDetailHref,
@@ -21,13 +20,13 @@ export interface RecipeCardProps extends Omit<
   className?: string;
   /** `/recipe/{recipeId}` 상세로 이동 (좋아요 버튼은 링크 밖) */
   recipe: RecipeSummary;
-  onFavoriteClick?: () => void;
+  favoriteButtonRenderer?: (recipe: RecipeSummary) => ReactNode;
 }
 
 export function RecipeCard({
   className = '',
   recipe,
-  onFavoriteClick,
+  favoriteButtonRenderer,
   ...rest
 }: RecipeCardProps) {
   const imageUrl = toRecipeImageUrl(recipe.imageUrl);
@@ -37,7 +36,6 @@ export function RecipeCard({
   const cookingTimeLabel = toRecipeCookingTimeLabel(recipe.cookTime);
   const difficulty = toRecipeDifficultyLabel(recipe.difficulty);
   const servings = toRecipeServingsLabel(recipe.servings);
-  const isFavorite = recipe.isFavorite ?? false;
   const tagItems = [
     cookingTimeLabel
       ? {
@@ -99,7 +97,7 @@ export function RecipeCard({
         </article>
       </Link>
       <div className="absolute right-4 top-4 z-10 rounded-full bg-background-surface shadow-(--semantic-shadow-sm)">
-        <LikeButton isFavorite={isFavorite} onClick={onFavoriteClick} />
+        {favoriteButtonRenderer?.(recipe)}
       </div>
     </div>
   );

@@ -7,6 +7,9 @@ export type { SearchBarCardProps } from './cards/SearchBarCard';
 export { RecipeCard } from './cards/RecipeCard';
 export type { RecipeCardProps } from './cards/RecipeCard';
 
+export { RecipeFavoriteButton } from './cards/RecipeFavoriteButton';
+export type { RecipeFavoriteButtonProps } from './cards/RecipeFavoriteButton';
+
 export { RecipeGrid } from './lists/RecipeGrid';
 export type { RecipeGridProps } from './lists/RecipeGrid';
 

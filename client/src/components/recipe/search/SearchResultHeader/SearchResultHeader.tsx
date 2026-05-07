@@ -5,24 +5,18 @@ import {
   SearchResultMeta,
   type SearchResultMetaProps,
 } from '@/components/recipe/search/SearchResultMeta';
-import {
-  SearchResultTop,
-  type SearchResultTopProps,
-} from '@/components/recipe/search/SearchResultTop';
 
 export interface SearchResultHeaderProps extends Omit<
   HTMLAttributes<HTMLElement>,
   'className' | 'children'
 > {
   className?: string;
-  searchResultTopProps?: SearchResultTopProps;
   searchResultMetaProps?: SearchResultMetaProps;
   chipsRowProps?: ChipsRowProps;
 }
 
 export function SearchResultHeader({
   className = '',
-  searchResultTopProps,
   searchResultMetaProps,
   chipsRowProps,
   ...rest
@@ -36,7 +30,6 @@ export function SearchResultHeader({
       data-name="SearchResultHeader"
       {...rest}
     >
-      <SearchResultTop {...searchResultTopProps} />
       <SearchResultMeta {...searchResultMetaProps} />
       <ChipsRow {...chipsRowProps} />
     </header>

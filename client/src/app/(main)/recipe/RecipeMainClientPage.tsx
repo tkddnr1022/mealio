@@ -17,7 +17,7 @@ export function RecipeMainClientPage({
 }: RecipeMainClientPageProps) {
   return (
     <>
-      <Navbar variant="Empty" />
+      <Navbar />
 
       <SearchBarHeader href="/recipe/filter" />
 

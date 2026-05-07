@@ -18,10 +18,6 @@ const meta = {
   },
   decorators: [rowWidth],
   args: {
-    searchResultTopProps: {
-      query: 'Text',
-      onBackClick: fn(),
-    },
     searchResultMetaProps: {
       totalCount: 1,
       filterDropdownProps: {

@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { RecipeFilterClientPage } from './RecipeFilterClientPage';
 import { getRecipeCategories } from '@/lib/api/domains';
 
@@ -10,5 +11,9 @@ export default async function RecipeFilterPage() {
       ? categoriesResult[0].value.data
       : [];
 
-  return <RecipeFilterClientPage categoryOptions={categories} />;
+  return (
+    <Suspense fallback={null}>
+      <RecipeFilterClientPage categoryOptions={categories} />
+    </Suspense>
+  );
 }

@@ -8,13 +8,17 @@ import { Navbar } from '@/components/layout/Navbar';
 import { NEXT_QUERY_PARAM } from '@/lib/auth/routes';
 
 function LoginPageContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const oauthNext = searchParams.get(NEXT_QUERY_PARAM);
+  const router = useRouter();
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-background-primary-default">
-      <Navbar variant="BackOnly" onBack={() => router.back()} />
+      <Navbar
+        displayBackButton
+        displayTitle={false}
+        onBack={() => router.back()}
+      />
 
       <main className="flex min-h-0 flex-1 flex-col px-4 py-6">
         <div className="flex min-h-0 flex-1 flex-col items-center gap-8">

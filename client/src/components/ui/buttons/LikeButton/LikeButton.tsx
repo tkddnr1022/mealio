@@ -6,6 +6,7 @@ import { buildAriaLabel } from '@/lib/utils/a11y';
 export interface LikeButtonProps {
   className?: string;
   onClick?: () => void;
+  disabled?: boolean;
   /** true면 primary 채움(찜) 상태 */
   isFavorite?: boolean;
 }
@@ -13,6 +14,7 @@ export interface LikeButtonProps {
 export function LikeButton({
   className = '',
   onClick,
+  disabled = false,
   isFavorite = false,
 }: LikeButtonProps) {
   const actionName = isFavorite ? '찜 해제' : '찜하기';
@@ -22,6 +24,7 @@ export function LikeButton({
       className={cn('touch-target-icon', className)}
       aria-label={buildAriaLabel('button', actionName)}
       aria-pressed={isFavorite}
+      disabled={disabled}
       onClick={onClick}
     >
       <Heart

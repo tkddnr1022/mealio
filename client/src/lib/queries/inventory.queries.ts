@@ -32,6 +32,7 @@ import {
 import { QUERY_CACHE } from '@/lib/config/cache.config';
 import type { MutationResult } from '@/lib/types/api';
 import type { InventoryResponse } from '@/lib/types/inventory';
+import { recipeQueries } from './recipe.queries';
 
 export const inventoryQueries = {
   all: ['inventory'] as const,
@@ -110,3 +111,31 @@ export const useRemoveMyFavoriteRecipe = createInvalidatingMutationHook<
   void,
   number
 >(removeMyFavoriteRecipe, inventoryQueries.all);
+
+export interface ToggleMyFavoriteRecipeVariables {
+  recipeId: number;
+  isFavorite: boolean;
+}
+
+export function useToggleMyFavoriteRecipe(
+  options?: UseMutationOptions<void, Error, ToggleMyFavoriteRecipeVariables>,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, ToggleMyFavoriteRecipeVariables>({
+    mutationFn: async ({ recipeId, isFavorite }) => {
+      if (isFavorite) {
+        await removeMyFavoriteRecipe(recipeId);
+        return;
+      }
+
+      await addMyFavoriteRecipes([recipeId]);
+    },
+    ...options,
+    onSuccess: (...args) => {
+      void queryClient.invalidateQueries({ queryKey: inventoryQueries.all });
+      void queryClient.invalidateQueries({ queryKey: recipeQueries.all });
+      options?.onSuccess?.(...args);
+    },
+  });
+}

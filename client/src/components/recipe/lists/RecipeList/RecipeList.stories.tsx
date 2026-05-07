@@ -1,6 +1,7 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
 import type { RecipeSummary } from '@/lib/types/recipe';
 import { RecipeList } from '@/components/recipe';
+import { LikeButton } from '@/components/ui/buttons/LikeButton';
 
 const figmaWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,22.5rem)]">
@@ -23,6 +24,7 @@ const sampleRecipes: readonly RecipeSummary[] = [
     viewCount: 100,
     likeCount: 20,
     isPublished: true,
+    isFavorite: false,
     createdAt: new Date().toISOString(),
   },
   {
@@ -36,6 +38,7 @@ const sampleRecipes: readonly RecipeSummary[] = [
     viewCount: 120,
     likeCount: 30,
     isPublished: true,
+    isFavorite: false,
     createdAt: new Date().toISOString(),
   },
 ];
@@ -51,6 +54,9 @@ const meta = {
   decorators: [figmaWidth],
   args: {
     recipes: sampleRecipes,
+    favoriteButtonRenderer: (recipe) => (
+      <LikeButton isFavorite={recipe.isFavorite ?? false} />
+    ),
   },
 } satisfies Meta<typeof RecipeList>;
 

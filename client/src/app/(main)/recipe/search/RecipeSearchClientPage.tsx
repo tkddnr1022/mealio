@@ -3,9 +3,14 @@
 import { Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { MainContent } from '@/components/layout/MainContent';
+import { Navbar } from '@/components/layout/Navbar';
 import { Tabbar } from '@/components/layout/Tabbar';
 import { InfoScreen } from '@/components/layout/InfoScreen';
-import { RecipeList, SearchResultHeader } from '@/components/recipe';
+import {
+  RecipeFavoriteButton,
+  RecipeList,
+  SearchResultHeader,
+} from '@/components/recipe';
 import type { DropdownOption } from '@/components/ui/dropdown/DropdownList';
 import { buildQueryString, objectToQuery } from '@/lib/api/query';
 import {
@@ -15,6 +20,12 @@ import {
   type RecipeSummary,
 } from '@/lib/types/recipe';
 import { toRecipeDifficultyLabel } from '@/components/recipe/utils/recipe-format';
+import { FilterButton } from '@/components/ui/buttons/FilterButton';
+import {
+  buildRecipeFilterHref,
+  DEFAULT_RECIPE_COOK_TIME_MAX,
+  DEFAULT_RECIPE_COOK_TIME_MIN,
+} from '@/components/recipe/utils/recipe-search-filters';
 
 const FILTER_PAGE_PATH = '/recipe/filter' as const;
 const SEARCH_PAGE_PATH = '/recipe/search' as const;
@@ -29,8 +40,6 @@ const SORT_OPTIONS: readonly DropdownOption[] = [
 ] as const;
 
 const DEFAULT_SORT: RecipeSortKey = 'latest';
-const DEFAULT_COOK_TIME_MIN = 0;
-const DEFAULT_COOK_TIME_MAX = 120;
 
 interface RecipeSearchClientPageProps {
   query: string;
@@ -55,8 +64,8 @@ function getSortLabel(sort: RecipeSortKey): string {
 }
 
 function toCookTimeChipLabel(min?: number, max?: number): string | null {
-  const hasMin = typeof min === 'number' && min > DEFAULT_COOK_TIME_MIN;
-  const hasMax = typeof max === 'number' && max < DEFAULT_COOK_TIME_MAX;
+  const hasMin = typeof min === 'number' && min > DEFAULT_RECIPE_COOK_TIME_MIN;
+  const hasMax = typeof max === 'number' && max < DEFAULT_RECIPE_COOK_TIME_MAX;
 
   if (hasMin && hasMax) return `${min}~${max}분`;
   if (hasMin && typeof min === 'number') return `${min}분 이상`;
@@ -83,9 +92,11 @@ export function RecipeSearchClientPage({
   const difficultyLabels = difficulty.map((value) =>
     toRecipeDifficultyLabel(value),
   );
+  const queryChipLabel = query.trim() ? `'${query.trim()}'` : null;
   const cookTimeChipLabel = toCookTimeChipLabel(cookTimeMin, cookTimeMax);
 
   const chips: string[] = [
+    ...(queryChipLabel ? [queryChipLabel] : []),
     ...difficultyLabels,
     ...(cookTimeChipLabel ? [cookTimeChipLabel] : []),
     ...(categoryName ? [categoryName] : []),
@@ -109,6 +120,14 @@ export function RecipeSearchClientPage({
 
   const handleRemoveChip = (_index: number, label: string) => {
     const current = buildCurrentQuery();
+
+    if (queryChipLabel === label) {
+      pushSearch({
+        ...current,
+        q: undefined,
+      });
+      return;
+    }
 
     if (difficultyLabels.includes(label)) {
       const removeIndex = difficultyLabels.indexOf(label);
@@ -140,26 +159,22 @@ export function RecipeSearchClientPage({
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-background-primary">
-      <SearchResultHeader
-        searchResultTopProps={{
-          query,
-          onBackClick: () => {
-            if (window.history.length > 1) {
-              router.back();
-              return;
+      <Navbar
+        displayBackButton
+        displayTitle={false}
+        onBack={() => router.push(RECIPE_PATH)}
+        additionalButtons={
+          <FilterButton
+            onClick={() =>
+              router.push(
+                buildRecipeFilterHref(FILTER_PAGE_PATH, buildCurrentQuery()),
+              )
             }
-            router.push(RECIPE_PATH);
-          },
-          searchBarProps: {
-            onClick: () => router.push(FILTER_PAGE_PATH),
-            onKeyDown: (event) => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                router.push(FILTER_PAGE_PATH);
-              }
-            },
-          },
-        }}
+          />
+        }
+      />
+
+      <SearchResultHeader
         searchResultMetaProps={{
           totalCount,
           filterDropdownProps: {
@@ -183,7 +198,15 @@ export function RecipeSearchClientPage({
 
       <MainContent innerClassName="py-4 px-4" scroll={recipes.length > 0}>
         {recipes.length > 0 ? (
-          <RecipeList recipes={recipes} />
+          <RecipeList
+            recipes={recipes}
+            favoriteButtonRenderer={(recipe) => (
+              <RecipeFavoriteButton
+                recipeId={recipe.id}
+                isFavorite={recipe.isFavorite ?? false}
+              />
+            )}
+          />
         ) : (
           <InfoScreen
             className="h-full justify-center gap-6"
@@ -191,7 +214,10 @@ export function RecipeSearchClientPage({
             message="다른 검색 조건을 시도해 보세요"
             icon={<Search className="size-8" strokeWidth={2} aria-hidden />}
             buttonLabel="검색 조건 변경"
-            buttonHref={FILTER_PAGE_PATH}
+            buttonHref={buildRecipeFilterHref(
+              FILTER_PAGE_PATH,
+              buildCurrentQuery(),
+            )}
           />
         )}
       </MainContent>

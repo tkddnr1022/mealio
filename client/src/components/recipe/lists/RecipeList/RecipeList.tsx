@@ -1,4 +1,4 @@
-import type { HTMLAttributes } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
 import type { RecipeSummary } from '@/lib/types/recipe';
 import { cn } from '@/lib/utils/cn';
 import { RecipeCard } from '@/components/recipe/cards/RecipeCard';
@@ -10,12 +10,14 @@ export interface RecipeListProps extends Omit<
   className?: string;
   recipes: readonly RecipeSummary[];
   cardClassName?: string;
+  favoriteButtonRenderer?: (recipe: RecipeSummary) => ReactNode;
 }
 
 export function RecipeList({
   className = '',
   recipes,
   cardClassName = '',
+  favoriteButtonRenderer,
   ...rest
 }: RecipeListProps) {
   return (
@@ -30,6 +32,7 @@ export function RecipeList({
             key={recipe.id}
             recipe={recipe}
             className={cardClassName}
+            favoriteButtonRenderer={favoriteButtonRenderer}
           />
         );
       })}

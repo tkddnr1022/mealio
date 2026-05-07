@@ -76,7 +76,7 @@ export const InsideNavbar = {
   decorators: [
     ((Story) => (
       <div className="min-h-screen bg-background-primary">
-        <Navbar variant="Empty" />
+        <Navbar />
         <div className="mx-auto w-full max-w-[1200px] px-2 py-4">
           <div className="max-w-md">
             <Story />

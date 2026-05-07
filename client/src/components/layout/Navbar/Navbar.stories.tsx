@@ -1,15 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { fn } from 'storybook/test';
 
-import { Navbar, type NavbarVariant } from '@/components/layout/Navbar';
-
-const variantOrder = [
-  'Empty',
-  'AddOnly',
-  'BackOnly',
-  'AddWithBack',
-  'EngageWithBack',
-] as const satisfies readonly NavbarVariant[];
+import { Navbar } from '@/components/layout/Navbar';
+import { AddButton } from '@/components/ui/buttons/AddButton';
+import { LikeButton } from '@/components/ui/buttons/LikeButton';
+import { ShareButton } from '@/components/ui/buttons/ShareButton';
 
 const meta = {
   title: 'Layout/Navbar',
@@ -19,47 +13,50 @@ const meta = {
     layout: 'fullscreen',
     viewport: { defaultViewport: 'mobile1' },
   },
-  args: {
-    variant: 'Empty',
-    onBack: fn(),
-    onAdd: fn(),
-    onLike: fn(),
-    onShare: fn(),
-  },
-  argTypes: {
-    variant: {
-      control: 'select',
-      options: [...variantOrder],
-      description: 'Empty → AddOnly → BackOnly → AddWithBack → EngageWithBack',
-    },
-  },
 } satisfies Meta<typeof Navbar>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const VariantEmpty = {
-  name: 'Variant / Empty',
-  args: { variant: 'Empty' },
+export const TitleOnly = {
+  name: 'Title Only',
 } satisfies Story;
 
-export const VariantAddOnly = {
-  name: 'Variant / AddOnly',
-  args: { variant: 'AddOnly' },
+export const AddOnly = {
+  name: 'Add Only',
+  args: {
+    additionalButtons: <AddButton />,
+  },
 } satisfies Story;
 
-export const VariantBackOnly = {
-  name: 'Variant / BackOnly',
-  args: { variant: 'BackOnly' },
+export const BackOnly = {
+  name: 'Back Only',
+  args: {
+    displayBackButton: true,
+    displayTitle: false,
+  },
 } satisfies Story;
 
-export const VariantAddWithBack = {
-  name: 'Variant / AddWithBack',
-  args: { variant: 'AddWithBack' },
+export const AddWithBack = {
+  name: 'Add With Back',
+  args: {
+    displayBackButton: true,
+    displayTitle: false,
+    additionalButtons: <AddButton />,
+  },
 } satisfies Story;
 
-export const VariantEngageWithBack = {
-  name: 'Variant / EngageWithBack',
-  args: { variant: 'EngageWithBack' },
+export const EngageWithBack = {
+  name: 'Engage With Back',
+  args: {
+    displayBackButton: true,
+    displayTitle: false,
+    additionalButtons: (
+      <div className="flex items-center gap-2">
+        <LikeButton />
+        <ShareButton />
+      </div>
+    ),
+  },
 } satisfies Story;

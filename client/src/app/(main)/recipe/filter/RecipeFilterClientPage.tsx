@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
 import { SearchBarCard } from '@/components/recipe';
@@ -12,17 +12,22 @@ import { ToggleCard } from '@/components/ui/ToggleCard';
 import { Toggle } from '@/components/ui/Toggle';
 import { buildQueryString, objectToQuery } from '@/lib/api/query';
 import type { RecipeCategory, RecipeSearchQuery } from '@/lib/types/recipe';
+import {
+  buildRecipeSearchQueryFromDraft,
+  DEFAULT_RECIPE_COOK_TIME_MAX,
+  DEFAULT_RECIPE_COOK_TIME_MIN,
+  parseRecipeFilterDraftState,
+} from '@/components/recipe/utils/recipe-search-filters';
 
 const DEFAULT_COOK_TIME_RANGE: RangeSliderValue = {
-  minValue: 0,
-  maxValue: 120,
+  minValue: DEFAULT_RECIPE_COOK_TIME_MIN,
+  maxValue: DEFAULT_RECIPE_COOK_TIME_MAX,
 };
 const DIFFICULTY_OPTIONS = [
   { value: 1, label: '쉬움' },
   { value: 3, label: '보통' },
   { value: 5, label: '어려움' },
 ] as const;
-const RECIPE_PATH = '/recipe' as const;
 const RECIPE_SEARCH_PATH = '/recipe/search' as const;
 
 interface RecipeFilterClientPageProps {
@@ -33,17 +38,30 @@ export function RecipeFilterClientPage({
   categoryOptions,
 }: RecipeFilterClientPageProps) {
   const router = useRouter();
-  const [keyword, setKeyword] = useState('');
+  const searchParams = useSearchParams();
+  const initialDraftState = useMemo(
+    () => parseRecipeFilterDraftState(new URLSearchParams(searchParams.toString())),
+    [searchParams],
+  );
+  const [keyword, setKeyword] = useState(initialDraftState.keyword);
   const [selectedDifficulties, setSelectedDifficulties] = useState<number[]>(
-    [],
+    initialDraftState.selectedDifficulties,
   );
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
-    null,
+    initialDraftState.selectedCategoryId,
   );
   const [cookTimeRange, setCookTimeRange] = useState<RangeSliderValue>(
-    DEFAULT_COOK_TIME_RANGE,
+    initialDraftState.cookTimeRange,
   );
   const [sliderResetKey, setSliderResetKey] = useState(0);
+
+  useEffect(() => {
+    setKeyword(initialDraftState.keyword);
+    setSelectedDifficulties(initialDraftState.selectedDifficulties);
+    setSelectedCategoryId(initialDraftState.selectedCategoryId);
+    setCookTimeRange(initialDraftState.cookTimeRange);
+    setSliderResetKey((prev) => prev + 1);
+  }, [initialDraftState]);
 
   const toggleDifficulty = (difficulty: number) => {
     setSelectedDifficulties((prev) => {
@@ -67,21 +85,12 @@ export function RecipeFilterClientPage({
   };
 
   const runSearch = () => {
-    const trimmedKeyword = keyword.trim();
-    const params: RecipeSearchQuery = {
-      q: trimmedKeyword || undefined,
-      difficulty:
-        selectedDifficulties.length > 0 ? selectedDifficulties : undefined,
-      categoryId: selectedCategoryId ?? undefined,
-      cookTimeMin:
-        cookTimeRange.minValue > DEFAULT_COOK_TIME_RANGE.minValue
-          ? cookTimeRange.minValue
-          : undefined,
-      cookTimeMax:
-        cookTimeRange.maxValue < DEFAULT_COOK_TIME_RANGE.maxValue
-          ? cookTimeRange.maxValue
-          : undefined,
-    };
+    const params: RecipeSearchQuery = buildRecipeSearchQueryFromDraft({
+      keyword,
+      selectedDifficulties,
+      selectedCategoryId,
+      cookTimeRange,
+    });
 
     const queryString = buildQueryString(objectToQuery(params));
     router.push(
@@ -92,14 +101,9 @@ export function RecipeFilterClientPage({
   return (
     <>
       <Navbar
-        variant="BackOnly"
-        onBack={() => {
-          if (window.history.length > 1) {
-            router.back();
-            return;
-          }
-          router.push(RECIPE_PATH);
-        }}
+        displayBackButton
+        displayTitle={false}
+        onBack={() => router.back()}
       />
 
       <MainContent innerClassName="gap-4 py-4">
