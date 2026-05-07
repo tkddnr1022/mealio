@@ -27,7 +27,11 @@ import { buildOAuthEntryUrl } from './providers';
 import type { SessionUser } from './session';
 import type { OAuthProvider } from './providers';
 
-export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
+export enum AuthStatus {
+  Loading,
+  Authenticated,
+  Unauthenticated,
+}
 
 export interface AuthContextValue {
   user: SessionUser | null;
@@ -67,13 +71,13 @@ export function AuthProvider({
     });
   }
 
-  const status: AuthStatus = query.isSuccess
+  const status = query.isSuccess
     ? query.data
-      ? 'authenticated'
-      : 'unauthenticated'
+      ? AuthStatus.Authenticated
+      : AuthStatus.Unauthenticated
     : query.isError
-      ? 'unauthenticated'
-      : 'loading';
+      ? AuthStatus.Unauthenticated
+      : AuthStatus.Loading;
 
   const refresh = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: userQueries.me() });
@@ -109,5 +113,5 @@ export function useAuth(): AuthContextValue {
 
 /** 편의 훅: 로그인 상태 boolean만 필요할 때 */
 export function useIsAuthenticated(): boolean {
-  return useAuth().status === 'authenticated';
+  return useAuth().status === AuthStatus.Authenticated;
 }

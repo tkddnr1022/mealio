@@ -166,7 +166,7 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 
 ### 5.2 인증 (`client/src/lib/auth/`, `client/src/proxy.ts`)
 
-OAuth는 **백엔드 주도** 흐름을 따른다(§3.1, `../../backend/guidelines/oauth_implementation_guidelines.md`). 프론트엔드는 JWT 쿠키 존재 여부 확인·세션 상태 관리·보호 라우트 리다이렉트만 담당하며, Authorization Code·토큰 교환은 처리하지 않는다.
+OAuth는 **백엔드 주도** 흐름을 따른다(§3.1, `../../backend/guidelines/oauth_implementation_guidelines.md`). 프론트엔드는 JWT 쿠키 존재 여부 확인·세션 상태 관리·보호 라우트 리다이렉트만 담당하며, Authorization Code·토큰 교환은 처리하지 않는다. 페이지 단위 보호는 `protected-route`, 사용자 액션 단위 보호(예: 즐겨찾기 클릭)는 `protected-action`으로 분리한다.
 
 | 경로 | 역할 |
 |------|------|
@@ -176,6 +176,7 @@ OAuth는 **백엔드 주도** 흐름을 따른다(§3.1, `../../backend/guidelin
 | client/src/lib/auth/session.ts | 세션 조회 유틸. 서버 컴포넌트에서는 `cookies()`로 JWT 존재 확인, 클라이언트에서는 `GET /api/v1/users/me`로 검증 |
 | client/src/lib/auth/auth-context.tsx | `AuthProvider`(Client Component), `useAuth()` 훅 — 현재 유저·로그인 상태 제공 |
 | client/src/lib/auth/protected-route.tsx | 보호 라우트 래퍼 컴포넌트(비로그인 시 `/login` 리다이렉트) |
+| client/src/lib/auth/protected-action.ts | 액션 단위 인증 가드 훅(`useProtectedAction`). 비로그인 시 `buildLoginUrl(pathname+search)`로 로그인 이동, 인증 시 전달한 액션 실행 |
 | **client/src/proxy.ts** | Next.js 미들웨어. `(main)` 그룹(`/recipe`·`/chatbot`·`/inventory`·`/mypage`) 접근 시 JWT 쿠키 검사, 미인증 시 `/login` 리다이렉트. `matcher`로 `(auth)`·`(marketing)`·정적 자산 제외 |
 
 ### 5.3 데이터 페칭 / React Query (`client/src/lib/providers/`, `client/src/lib/queries/`)
