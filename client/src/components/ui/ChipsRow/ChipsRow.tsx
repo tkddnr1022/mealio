@@ -13,11 +13,11 @@ export interface ChipsRowProps extends Omit<
 
 export function ChipsRow({
   className = '',
-  labels = ['Label', 'Label', 'Label'],
+  labels,
   onRemoveChip,
   ...rest
 }: ChipsRowProps) {
-  return (
+  return labels && labels.length > 0 ? (
     <BaseRow className={className} data-name="ChipsRow" {...rest}>
       {labels.map((label, index) => (
         <Chip
@@ -28,5 +28,5 @@ export function ChipsRow({
         />
       ))}
     </BaseRow>
-  );
+  ) : null;
 }
