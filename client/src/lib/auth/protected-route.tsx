@@ -15,7 +15,7 @@
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, type ReactNode } from 'react';
 
-import { useAuth } from './auth-context';
+import { AuthStatus, useAuth } from './auth-context';
 import { LOGIN_PATH, NEXT_QUERY_PARAM } from './routes';
 
 export interface ProtectedRouteProps {
@@ -37,7 +37,7 @@ export function ProtectedRoute({
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (status !== 'unauthenticated') return;
+    if (status !== AuthStatus.Unauthenticated) return;
 
     const currentUrl = buildCurrentUrl(pathname, searchParams);
     const target = currentUrl
@@ -46,7 +46,7 @@ export function ProtectedRoute({
     router.replace(target);
   }, [status, pathname, searchParams, router, redirectTo]);
 
-  if (status === 'authenticated') {
+  if (status === AuthStatus.Authenticated) {
     return <>{children}</>;
   }
   return <>{fallback}</>;
