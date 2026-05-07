@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 
-import { getRecipeListPublicForPage } from '@/lib/api/recipes.server';
-
 import { RecipeMainClientPage } from './RecipeMainClientPage';
+import { getRecipeList } from '@/lib/api/domains';
 
 export const metadata: Metadata = {
   title: '레시피',
@@ -19,8 +18,8 @@ export default async function RecipeMainPage() {
   } as const;
 
   const [viewedResult, likedResult] = await Promise.allSettled([
-    getRecipeListPublicForPage({ ...listParams, sort: 'viewCount' }),
-    getRecipeListPublicForPage({ ...listParams, sort: 'likeCount' }),
+    getRecipeList({ ...listParams, sort: 'viewCount' }),
+    getRecipeList({ ...listParams, sort: 'likeCount' }),
   ]);
 
   const mostViewedRecipes =

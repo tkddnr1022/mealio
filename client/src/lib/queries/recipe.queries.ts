@@ -4,7 +4,7 @@
  * 레시피 React Query 훅 모음.
  *
  * 규칙: `agent/frontend/guidelines/frontend_development_guidelines.md` §5
- * 엔드포인트: `client/src/lib/api/recipes.api`
+ * 엔드포인트: `client/src/lib/api/domains`
  *
  * - 쿼리 키는 계층적으로 구성하여 부분 무효화를 쉽게 한다.
  *   (`['recipes']` → `['recipes','list',{...}]` → `['recipes','detail', id]` 등)
@@ -19,7 +19,7 @@ import {
   getRecipeSummaries,
   searchRecipes,
   type RecipeListResult,
-} from '@/lib/api/recipes.api';
+} from '@/lib/api/domains';
 import { QUERY_CACHE } from '@/lib/config/cache.config';
 import type {
   RecipeDetail,

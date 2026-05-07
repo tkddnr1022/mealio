@@ -18,7 +18,7 @@ import {
   type UseQueryOptions,
 } from '@tanstack/react-query';
 
-import { updateMyNickname } from '@/lib/api/users.api';
+import { updateMyNickname } from '@/lib/api/domains';
 import { fetchCurrentUser } from '@/lib/auth/session.client';
 import { QUERY_CACHE } from '@/lib/config/cache.config';
 import type {

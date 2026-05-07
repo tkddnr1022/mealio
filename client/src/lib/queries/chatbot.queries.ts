@@ -22,7 +22,7 @@ import {
 import {
   getConversationHistory,
   getConversationList,
-} from '@/lib/api/chatbot.api';
+} from '@/lib/api/domains';
 import { QUERY_CACHE } from '@/lib/config/cache.config';
 import type {
   Conversation,

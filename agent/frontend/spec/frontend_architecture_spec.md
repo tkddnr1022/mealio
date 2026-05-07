@@ -34,7 +34,7 @@
 | **(main)** | — | `(main)/layout.tsx` | — | 공통 레이아웃 (하단 탭: 레시피 / 챗봇 / 보관함 / 마이페이지) |
 | (main) · 레시피 탭 | `/recipe` | `(main)/recipe/page.tsx` | ISR | RecipeMainPage — 레시피 메인 |
 | (main) · 레시피 탭 | `/recipe/filter` | `(main)/recipe/filter/page.tsx` | ISR | RecipeFilterPage — 레시피 검색 필터 |
-| (main) · 레시피 탭 | `/recipe/search` | `(main)/recipe/search/page.tsx` | ISR | RecipeListPage — 레시피 검색 결과 |
+| (main) · 레시피 탭 | `/recipe/search` | `(main)/recipe/search/page.tsx` | SSR | RecipeListPage — 레시피 검색 결과 |
 | (main) · 레시피 탭 | `/recipe/[id]` | `(main)/recipe/[id]/page.tsx` | ISR | RecipeDetailPage — 레시피 상세 |
 | (main) · 챗봇 탭 | `/chatbot/list` | `(main)/chatbot/list/page.tsx` | CSR | ChatbotConversationListPage — 대화 목록 |
 | (main) · 챗봇 탭 | `/chatbot/[id]` | `(main)/chatbot/[id]/page.tsx` | CSR | ChatbotConversationPage — 대화 |
@@ -144,19 +144,25 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 
 ### 5.1 API 클라이언트 (`client/src/lib/api/`)
 
-백엔드 REST API 호출용 클라이언트. fetch 래퍼 위에 도메인별 API 함수를 둔다. JWT는 HttpOnly 쿠키로 전달되므로 `credentials: 'include'`를 기본으로 사용한다.
+백엔드 REST API 호출용 클라이언트. 저수준 fetch 래퍼·공통 인프라는 `client/src/lib/api/` 직속에, 도메인별 API 래퍼는 `client/src/lib/api/domains/`에, SSR 시 들어오는 요청 헤더(쿠키·Correlation-Id·Accept-Language 등) 전파 유틸은 `client/src/lib/api/server/`에 둔다. JWT는 HttpOnly 쿠키로 전달되므로 `credentials: 'include'`를 기본으로 사용한다. 도메인 API 함수는 모두 마지막 인자로 `fetchOptions?: RequestOptions`를 받아 헤더·`signal`·`timeoutMs`·`retry`·`correlationId`를 호출 단위로 제어할 수 있다.
 
 | 경로 | 역할 |
 |------|------|
-| **client/src/lib/api/** | 백엔드 REST API 호출 클라이언트 묶음 |
-| client/src/lib/api/http-client.ts | fetch 래퍼. baseURL, `credentials: 'include'`(JWT 쿠키 자동 포함), Content-Type, 공통 에러 변환·Correlation-Id 헤더 주입 |
+| **client/src/lib/api/** | 백엔드 REST API 호출 클라이언트 묶음 (저수준 인프라) |
+| client/src/lib/api/http-client.ts | fetch 래퍼. baseURL, `credentials: 'include'`(JWT 쿠키 자동 포함), Content-Type, 공통 에러 변환·Correlation-Id 헤더 주입, 인터셉터·타임아웃·재시도. `RequestOptions`·`HttpClient`·`createHttpClient`·기본 `httpClient` export |
 | client/src/lib/api/endpoints.ts | 엔드포인트 상수·경로 빌더 (예: `/api/v1/recipes`, `/api/v1/recipes/:id`, `/api/v1/chatbot/messages`) |
 | client/src/lib/api/error.ts | `ApiError` 클래스, HTTP 상태 → 에러 타입 매핑, 사용자 노출 메시지 변환 |
-| client/src/lib/api/users.api.ts | 유저 프로필 조회·닉네임 수정 (`GET /api/v1/users/me`, `PATCH /api/v1/users/me/nickname`) |
-| client/src/lib/api/recipes.api.ts | 레시피 목록·상세·검색·요약 (`GET /api/v1/recipes`, `GET /api/v1/recipes/:recipeId`, `GET /api/v1/recipes/search`, `POST /api/v1/recipes/summaries`) |
-| client/src/lib/api/ingredients.api.ts | 재료 목록·검색 (`GET /api/v1/ingredients`, `GET /api/v1/ingredients/search`) |
-| client/src/lib/api/inventory.api.ts | 유저 보관함 조회(보유/관심 재료 + 관심 레시피) + 보유/관심 재료 변경 + 관심 레시피 추가/삭제 (`GET /api/v1/users/me/inventory`, `PUT/POST/DELETE /api/v1/users/me/inventory/ingredients/{owned\|favorites}`, `POST/DELETE /api/v1/users/me/inventory/recipes/favorites`) |
-| client/src/lib/api/chatbot.api.ts | 챗봇 대화 목록·상세 조회 (`GET /api/v1/chatbot/conversations`, `GET /api/v1/chatbot/conversations/:id`). SSE 전송은 §5.4 sse-client 사용 |
+| **client/src/lib/api/domains/** | 도메인별 API 래퍼 묶음. 모든 함수는 `fetchOptions?: RequestOptions`를 옵셔널로 받음 |
+| client/src/lib/api/domains/index.ts | 도메인 API 배럴 export(`@/lib/api/domains` 단축 import 제공) |
+| client/src/lib/api/domains/users.api.ts | 유저 프로필 조회·닉네임 수정 (`GET /api/v1/users/me`, `PATCH /api/v1/users/me/nickname`) |
+| client/src/lib/api/domains/recipes.api.ts | 레시피 목록·상세·검색·요약·카테고리 (`GET /api/v1/recipes`, `GET /api/v1/recipes/categories`, `GET /api/v1/recipes/search`, `GET /api/v1/recipes/:recipeId`, `POST /api/v1/recipes/summaries`) |
+| client/src/lib/api/domains/ingredients.api.ts | 재료 목록·검색 (`GET /api/v1/ingredients`, `GET /api/v1/ingredients/search`) |
+| client/src/lib/api/domains/inventory.api.ts | 유저 보관함 조회(보유/관심 재료 + 관심 레시피) + 보유/관심 재료 변경 + 관심 레시피 추가/삭제 (`GET /api/v1/users/me/inventory`, `PUT/POST/DELETE /api/v1/users/me/inventory/ingredients/{owned\|favorites}`, `POST/DELETE /api/v1/users/me/inventory/recipes/favorites`) |
+| client/src/lib/api/domains/chatbot.api.ts | 챗봇 대화 목록·상세 조회 (`GET /api/v1/chatbot/conversations`, `GET /api/v1/chatbot/conversations/:id`). SSE 전송은 §5.4 sse-client 사용 |
+| **client/src/lib/api/server/** | SSR 전용. `'server-only'`로 잠긴 헤더 전달 유틸. 도메인 API 함수에 합쳐 들어오는 요청의 쿠키·Correlation-Id·Accept-Language를 백엔드로 그대로 전파 |
+| client/src/lib/api/server/index.ts | 서버 전용 유틸 배럴 export(`@/lib/api/server`) |
+| client/src/lib/api/server/forward-headers.ts | 저수준 빌더: `buildForwardCookieHeader()`(들어오는 쿠키 → `Cookie` 헤더 직렬화), `getInboundCorrelationId()`(`X-Correlation-Id` 패스스루), `getInboundAcceptLanguage()`(로케일 패스스루) |
+| client/src/lib/api/server/with-forwarded-headers.ts | `withForwardedHeaders<T extends RequestOptions>(options?, forward?)` — `RequestOptions`에 SSR 헤더를 병합한 옵션을 반환. 호출자 헤더 우선, 기본 forward는 `['cookie', 'correlationId']`, 옵트인으로 `'acceptLanguage'`. 사용 예: `await searchRecipes(query, await withForwardedHeaders())` |
 
 ### 5.2 인증 (`client/src/lib/auth/`, `client/src/proxy.ts`)
 

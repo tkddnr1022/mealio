@@ -1,9 +1,9 @@
 import { RecipeFilterClientPage } from './RecipeFilterClientPage';
-import { getRecipeCategoriesPublicForPage } from '@/lib/api/recipes.server';
+import { getRecipeCategories } from '@/lib/api/domains';
 
 export const revalidate = 300;
 
 export default async function RecipeFilterPage() {
-  const categoryOptions = await getRecipeCategoriesPublicForPage();
-  return <RecipeFilterClientPage categoryOptions={categoryOptions} />;
+  const { data: categories } = await getRecipeCategories();
+  return <RecipeFilterClientPage categoryOptions={categories} />;
 }

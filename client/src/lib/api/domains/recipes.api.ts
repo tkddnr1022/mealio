@@ -11,9 +11,9 @@
  * 도메인 타입은 `@/lib/types/recipe`에서 정의한다.
  */
 
-import { httpClient, type RequestOptions } from './http-client';
-import { objectToQuery } from './query';
-import { API_ENDPOINTS } from './endpoints';
+import { httpClient, type RequestOptions } from '../http-client';
+import { objectToQuery } from '../query';
+import { API_ENDPOINTS } from '../endpoints';
 import type { Paginated } from '@/lib/types/api';
 import type {
   RecipeCategory,
@@ -31,20 +31,23 @@ export type RecipeListResult = Paginated<RecipeSummary>;
  */
 export function getRecipeList(
   params: RecipeListQuery = {},
-  fetchOptions?: Pick<RequestOptions, 'headers' | 'signal'>,
+  fetchOptions?: RequestOptions,
 ): Promise<RecipeListResult> {
   return httpClient.get<RecipeListResult>(API_ENDPOINTS.recipes.list, {
-    query: objectToQuery(params),
     ...fetchOptions,
+    query: objectToQuery(params),
   });
 }
 
 /**
  * 레시피 카테고리 목록 조회.
  */
-export function getRecipeCategories(): Promise<{ data: RecipeCategory[] }> {
+export function getRecipeCategories(
+  fetchOptions?: RequestOptions,
+): Promise<{ data: RecipeCategory[] }> {
   return httpClient.get<{ data: RecipeCategory[] }>(
     API_ENDPOINTS.recipes.categories,
+    fetchOptions,
   );
 }
 
@@ -53,8 +56,10 @@ export function getRecipeCategories(): Promise<{ data: RecipeCategory[] }> {
  */
 export function searchRecipes(
   params: RecipeSearchQuery = {},
+  fetchOptions?: RequestOptions,
 ): Promise<RecipeListResult> {
   return httpClient.get<RecipeListResult>(API_ENDPOINTS.recipes.search, {
+    ...fetchOptions,
     query: objectToQuery(params),
   });
 }
@@ -63,16 +68,27 @@ export function searchRecipes(
  * 레시피 단건 상세 조회.
  * 존재하지 않는 ID는 백엔드에서 404를 반환하며 `ApiError`로 throw된다.
  */
-export function getRecipeById(recipeId: number): Promise<RecipeDetail> {
-  return httpClient.get<RecipeDetail>(API_ENDPOINTS.recipes.detail(recipeId));
+export function getRecipeById(
+  recipeId: number,
+  fetchOptions?: RequestOptions,
+): Promise<RecipeDetail> {
+  return httpClient.get<RecipeDetail>(
+    API_ENDPOINTS.recipes.detail(recipeId),
+    fetchOptions,
+  );
 }
 
 /**
  * 레시피 요약 정보 벌크 조회 (최대 100개).
  * 존재하지 않거나 비공개인 ID는 응답에서 제외된다.
  */
-export function getRecipeSummaries(ids: number[]): Promise<RecipeSummary[]> {
-  return httpClient.post<RecipeSummary[]>(API_ENDPOINTS.recipes.summaries, {
-    ids,
-  });
+export function getRecipeSummaries(
+  ids: number[],
+  fetchOptions?: RequestOptions,
+): Promise<RecipeSummary[]> {
+  return httpClient.post<RecipeSummary[]>(
+    API_ENDPOINTS.recipes.summaries,
+    { ids },
+    fetchOptions,
+  );
 }

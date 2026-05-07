@@ -110,6 +110,7 @@ export class AuthController {
       httpOnly: true,
       secure: this.config.getOrThrow<string>('NODE_ENV') !== 'development',
       sameSite: 'lax',
+      // domain: this.config.getOrThrow<string>('COOKIE_DOMAIN'),
       maxAge: COOKIE_MAX_AGE_MS,
       path: '/',
     });

@@ -11,9 +11,9 @@
  * 도메인 타입은 `@/lib/types/chatbot`에서 정의한다.
  */
 
-import { httpClient } from './http-client';
-import { objectToQuery } from './query';
-import { API_ENDPOINTS } from './endpoints';
+import { httpClient, type RequestOptions } from '../http-client';
+import { objectToQuery } from '../query';
+import { API_ENDPOINTS } from '../endpoints';
 import type {
   Conversation,
   ConversationList,
@@ -25,8 +25,10 @@ import type {
  */
 export function getConversationList(
   params: ConversationListQuery = {},
+  fetchOptions?: RequestOptions,
 ): Promise<ConversationList> {
   return httpClient.get<ConversationList>(API_ENDPOINTS.chatbot.conversations, {
+    ...fetchOptions,
     query: objectToQuery(params),
   });
 }
@@ -37,8 +39,10 @@ export function getConversationList(
  */
 export function getConversationHistory(
   conversationId: string,
+  fetchOptions?: RequestOptions,
 ): Promise<Conversation> {
   return httpClient.get<Conversation>(
     API_ENDPOINTS.chatbot.conversationDetail(conversationId),
+    fetchOptions,
   );
 }

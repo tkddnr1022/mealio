@@ -28,7 +28,7 @@ import {
   removeMyOwnedIngredient,
   updateMyOwnedIngredients,
   updateMyFavoriteIngredients,
-} from '@/lib/api/inventory.api';
+} from '@/lib/api/domains';
 import { QUERY_CACHE } from '@/lib/config/cache.config';
 import type { MutationResult } from '@/lib/types/api';
 import type { InventoryResponse } from '@/lib/types/inventory';

@@ -8,8 +8,8 @@
  * 응답·요청 타입은 `@/lib/types/user`에서 정의한다.
  */
 
-import { httpClient } from './http-client';
-import { API_ENDPOINTS } from './endpoints';
+import { httpClient, type RequestOptions } from '../http-client';
+import { API_ENDPOINTS } from '../endpoints';
 import type {
   UpdateNicknameRequest,
   UpdateNicknameResponse,
@@ -20,8 +20,10 @@ import type {
  * 현재 로그인한 유저의 프로필을 조회한다.
  * JWT 쿠키가 없으면 백엔드에서 401을 반환하며 `ApiError`로 throw된다.
  */
-export function getMyProfile(): Promise<UserProfile> {
-  return httpClient.get<UserProfile>(API_ENDPOINTS.users.me);
+export function getMyProfile(
+  fetchOptions?: RequestOptions,
+): Promise<UserProfile> {
+  return httpClient.get<UserProfile>(API_ENDPOINTS.users.me, fetchOptions);
 }
 
 /**
@@ -30,9 +32,11 @@ export function getMyProfile(): Promise<UserProfile> {
  */
 export function updateMyNickname(
   params: UpdateNicknameRequest,
+  fetchOptions?: RequestOptions,
 ): Promise<UpdateNicknameResponse> {
   return httpClient.patch<UpdateNicknameResponse>(
     API_ENDPOINTS.users.meNickname,
     params,
+    fetchOptions,
   );
 }

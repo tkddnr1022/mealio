@@ -8,9 +8,9 @@
  * 도메인 타입은 `@/lib/types/ingredient`에서 정의한다.
  */
 
-import { httpClient } from './http-client';
-import { objectToQuery } from './query';
-import { API_ENDPOINTS } from './endpoints';
+import { httpClient, type RequestOptions } from '../http-client';
+import { objectToQuery } from '../query';
+import { API_ENDPOINTS } from '../endpoints';
 import type { Paginated } from '@/lib/types/api';
 import type {
   Ingredient,
@@ -26,8 +26,10 @@ export type IngredientListResult = Paginated<Ingredient>;
  */
 export function getIngredientList(
   params: IngredientListQuery = {},
+  fetchOptions?: RequestOptions,
 ): Promise<IngredientListResult> {
   return httpClient.get<IngredientListResult>(API_ENDPOINTS.ingredients.list, {
+    ...fetchOptions,
     query: objectToQuery(params),
   });
 }
@@ -37,9 +39,13 @@ export function getIngredientList(
  */
 export function searchIngredients(
   params: IngredientSearchQuery = {},
+  fetchOptions?: RequestOptions,
 ): Promise<IngredientListResult> {
   return httpClient.get<IngredientListResult>(
     API_ENDPOINTS.ingredients.search,
-    { query: objectToQuery(params) },
+    {
+      ...fetchOptions,
+      query: objectToQuery(params),
+    },
   );
 }
