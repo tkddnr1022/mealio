@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { LikeButton } from '@/components/ui/buttons/LikeButton';
 import { useProtectedAction } from '@/lib/auth/protected-action';
 import { useToggleMyFavoriteRecipe } from '@/lib/queries/inventory.queries';
@@ -15,6 +15,32 @@ export interface RecipeFavoriteButtonProps {
 const SOFT_LOCK_DEBOUNCE_MS = 200;
 
 export function RecipeFavoriteButton({
+  recipeId,
+  isFavorite = false,
+  className = '',
+  onToggled,
+}: RecipeFavoriteButtonProps) {
+  return (
+    <Suspense
+      fallback={
+        <LikeButton
+          className={className}
+          isFavorite={isFavorite}
+          disabled
+        />
+      }
+    >
+      <RecipeFavoriteButtonInner
+        recipeId={recipeId}
+        isFavorite={isFavorite}
+        className={className}
+        onToggled={onToggled}
+      />
+    </Suspense>
+  );
+}
+
+function RecipeFavoriteButtonInner({
   recipeId,
   isFavorite = false,
   className = '',
