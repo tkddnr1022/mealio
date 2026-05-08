@@ -1,6 +1,7 @@
 'use client';
 
 import { Clock3, Flame, Users } from 'lucide-react';
+import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
@@ -11,7 +12,7 @@ import { Thumbnail } from '@/components/ui/Thumbnail';
 import type { CardTagItem } from '@/components/ui/CardTagsRow';
 import { buildAriaLabel } from '@/lib/utils/a11y';
 import { useIsAuthenticated } from '@/lib/auth/auth-context';
-import { useRecipeDetail } from '@/lib/queries/recipe.queries';
+import { useMyFavoriteRecipeIds } from '@/lib/queries/inventory.queries';
 import type { RecipeDetail } from '@/lib/types/recipe';
 import {
   toRecipeCookingTimeLabel,
@@ -19,8 +20,6 @@ import {
   toRecipeImageUrl,
   toRecipeServingsLabel,
 } from '@/components/recipe/utils/recipe-format';
-
-const RECIPE_LIST_PATH = '/recipe' as const;
 
 interface RecipeDetailClientPageProps {
   recipe: RecipeDetail;
@@ -69,21 +68,21 @@ export function RecipeDetailClientPage({
   const router = useRouter();
   const isAuthenticated = useIsAuthenticated();
 
-  // SSG/ISR로 prefetch된 recipe는 쿠키 미포함 응답이라 `isFavorite`이 항상 undefined이다.
-  // 인증된 사용자에 한해 클라이언트에서 한 번 더 조회하여 `isFavorite` 값만 보강한다.
-  // 다른 필드는 SSG 데이터를 그대로 사용해 렌더링에 영향을 주지 않는다.
-  const { data: refreshedRecipe } = useRecipeDetail(recipe.id, {
+  const { data: favoriteIdsData } = useMyFavoriteRecipeIds({
     enabled: isAuthenticated,
   });
 
-  const isFavorite = refreshedRecipe?.isFavorite ?? recipe.isFavorite ?? false;
+  const isFavorite = useMemo(() => {
+    if (!isAuthenticated || !favoriteIdsData) return false;
+    return new Set(favoriteIdsData.favoriteRecipeIds).has(recipe.id);
+  }, [isAuthenticated, favoriteIdsData, recipe.id]);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
       <Navbar
         displayBackButton
         displayTitle={false}
-        onBack={() => router.push(RECIPE_LIST_PATH)}
+        onBack={() => router.back()}
         additionalButtons={
           <div className="flex items-center gap-2">
             <RecipeFavoriteButton

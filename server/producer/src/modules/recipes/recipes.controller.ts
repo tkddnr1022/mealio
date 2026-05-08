@@ -57,22 +57,18 @@ export class RecipesController {
   })
   async getList(
     @Query() query: RecipeListQueryDto,
-    @CurrentUserOptional() user?: AuthUser,
   ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
     const page = query.page ?? 1;
     const size = query.size ?? 20;
     const sort = query.sort ?? DEFAULT_RECIPE_SORT;
-    return this.recipeQueryService.getList(
-      {
-        page,
-        size,
-        difficulty: query.difficulty,
-        cookTimeMin: query.cookTimeMin,
-        cookTimeMax: query.cookTimeMax,
-        sort,
-      },
-      user?.id,
-    );
+    return this.recipeQueryService.getList({
+      page,
+      size,
+      difficulty: query.difficulty,
+      cookTimeMin: query.cookTimeMin,
+      cookTimeMax: query.cookTimeMax,
+      sort,
+    });
   }
 
   @Post('summaries') // Body 사용을 위해 POST 사용
@@ -163,7 +159,7 @@ export class RecipesController {
     };
 
     if (!req) {
-      return this.recipeQueryService.search(params, undefined, user?.id);
+      return this.recipeQueryService.search(params, undefined);
     }
 
     const ua = req.headers?.['user-agent'];
@@ -172,7 +168,7 @@ export class RecipesController {
       ipAddress: req.ip,
       userAgent: Array.isArray(ua) ? ua[0] : ua,
     };
-    return this.recipeQueryService.search(params, context, user?.id);
+    return this.recipeQueryService.search(params, context);
   }
 
   @Get(':recipeId')
@@ -201,7 +197,7 @@ export class RecipesController {
     },
   ): Promise<RecipeDetailDto> {
     if (!req) {
-      return this.recipeQueryService.getById(recipeId, undefined, user?.id);
+      return this.recipeQueryService.getById(recipeId, undefined);
     }
 
     const ua = req.headers?.['user-agent'];
@@ -210,6 +206,6 @@ export class RecipesController {
       ipAddress: req.ip,
       userAgent: Array.isArray(ua) ? ua[0] : ua,
     };
-    return this.recipeQueryService.getById(recipeId, context, user?.id);
+    return this.recipeQueryService.getById(recipeId, context);
   }
 }

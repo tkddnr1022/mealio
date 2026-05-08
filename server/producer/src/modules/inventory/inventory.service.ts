@@ -64,6 +64,18 @@ export class InventoryService {
   }
 
   /**
+   * 내 관심 레시피 ID만 조회 (`getMyInventory`와 동일 Redis 캐시 경로 재사용).
+   */
+  async getFavoriteRecipeIds(
+    userId: number,
+  ): Promise<{ favoriteRecipeIds: number[] }> {
+    const snapshot = await this.getCachedInventorySnapshot(userId);
+    return {
+      favoriteRecipeIds: snapshot.favoriteRecipes.map((r) => r.id),
+    };
+  }
+
+  /**
    * 보유 재료 업데이트 (전체 교체) - Command는 이벤트만 발행
    */
   async updateOwnedIngredients(
@@ -239,10 +251,7 @@ export class InventoryService {
       .filter((row): row is RecipeSummaryDto => row !== undefined);
   }
 
-  private toRecipeSummaryDto(
-    recipe: RecipeWithStats,
-    isFavorite = true,
-  ): RecipeSummaryDto {
+  private toRecipeSummaryDto(recipe: RecipeWithStats): RecipeSummaryDto {
     return {
       id: recipe.id,
       title: recipe.title,
@@ -254,7 +263,6 @@ export class InventoryService {
       viewCount: recipe.viewCount,
       likeCount: recipe.likeCount,
       isPublished: recipe.isPublished,
-      isFavorite,
       createdAt: recipe.createdAt,
     };
   }

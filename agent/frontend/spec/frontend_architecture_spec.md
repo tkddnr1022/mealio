@@ -157,7 +157,7 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 | client/src/lib/api/domains/users.api.ts | 유저 프로필 조회·닉네임 수정 (`GET /api/v1/users/me`, `PATCH /api/v1/users/me/nickname`) |
 | client/src/lib/api/domains/recipes.api.ts | 레시피 목록·상세·검색·요약·카테고리 (`GET /api/v1/recipes`, `GET /api/v1/recipes/categories`, `GET /api/v1/recipes/search`, `GET /api/v1/recipes/:recipeId`, `POST /api/v1/recipes/summaries`) |
 | client/src/lib/api/domains/ingredients.api.ts | 재료 목록·검색 (`GET /api/v1/ingredients`, `GET /api/v1/ingredients/search`) |
-| client/src/lib/api/domains/inventory.api.ts | 유저 보관함 조회(보유/관심 재료 + 관심 레시피) + 보유/관심 재료 변경 + 관심 레시피 추가/삭제 (`GET /api/v1/users/me/inventory`, `PUT/POST/DELETE /api/v1/users/me/inventory/ingredients/{owned\|favorites}`, `POST/DELETE /api/v1/users/me/inventory/recipes/favorites`) |
+| client/src/lib/api/domains/inventory.api.ts | 유저 보관함 조회(보유/관심 재료 + 관심 레시피) + 관심 레시피 ID 전용 조회 + 보유/관심 재료 변경 + 관심 레시피 추가/삭제 (`GET /api/v1/users/me/inventory`, `GET /api/v1/users/me/favorite-recipes/ids`, `PUT/POST/DELETE /api/v1/users/me/inventory/ingredients/{owned\|favorites}`, `POST/DELETE /api/v1/users/me/inventory/recipes/favorites`) |
 | client/src/lib/api/domains/chatbot.api.ts | 챗봇 대화 목록·상세 조회 (`GET /api/v1/chatbot/conversations`, `GET /api/v1/chatbot/conversations/:id`). SSE 전송은 §5.4 sse-client 사용 |
 | **client/src/lib/api/server/** | SSR 전용. `'server-only'`로 잠긴 헤더 전달 유틸. 도메인 API 함수에 합쳐 들어오는 요청의 쿠키·Correlation-Id·Accept-Language를 백엔드로 그대로 전파 |
 | client/src/lib/api/server/index.ts | 서버 전용 유틸 배럴 export(`@/lib/api/server`) |
@@ -192,7 +192,7 @@ React Query(TanStack Query) 기반. 쿼리 키 계층화·`staleTime`·`cacheTim
 | client/src/lib/queries/recipe.queries.ts | `recipeQueries` 키, `useRecipeList` / `useRecipeDetail` / `useRecipeSearch` / `useRecipeSummaries` |
 | client/src/lib/queries/ingredient.queries.ts | `ingredientQueries` 키, `useIngredientList` / `useIngredientSearch` |
 | client/src/lib/queries/user.queries.ts | `userQueries` 키, `useCurrentUser` / `useUpdateNickname` |
-| client/src/lib/queries/inventory.queries.ts | `inventoryQueries` 키, 보유·관심 재료 조회/변경 + 관심 레시피 추가/삭제 훅 |
+| client/src/lib/queries/inventory.queries.ts | `inventoryQueries`·`favoriteRecipeQueries` 키, `useMyInventory` / `useMyFavoriteRecipeIds` + 보유·관심 재료·관심 레시피 변경 훅 |
 | client/src/lib/queries/chatbot.queries.ts | `chatbotQueries` 키, `useConversationList` / `useConversationDetail` |
 
 ### 5.4 챗봇 SSE 클라이언트 (`client/src/lib/chatbot/`)

@@ -42,6 +42,9 @@ describe('InventoryController', () => {
   beforeEach(async () => {
     const mockService = {
       getMyInventory: jest.fn().mockResolvedValue(mockInventoryList),
+      getFavoriteRecipeIds: jest
+        .fn()
+        .mockResolvedValue({ favoriteRecipeIds: [101] }),
       updateOwnedIngredients: jest.fn().mockResolvedValue({ success: true }),
       addOwnedIngredients: jest.fn().mockResolvedValue({ success: true }),
       removeOwnedIngredient: jest.fn().mockResolvedValue(undefined),
@@ -92,6 +95,15 @@ describe('InventoryController', () => {
         favoriteIngredients: [],
         favoriteRecipes: [],
       });
+    });
+  });
+
+  describe('getFavoriteRecipeIds', () => {
+    it('관심 레시피 ID 목록을 반환한다', async () => {
+      const result = await controller.getFavoriteRecipeIds(mockAuthUser);
+
+      expect(inventoryService.getFavoriteRecipeIds).toHaveBeenCalledWith(1);
+      expect(result).toEqual({ favoriteRecipeIds: [101] });
     });
   });
 

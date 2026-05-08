@@ -13,6 +13,7 @@
  * - DELETE /api/v1/users/me/inventory/ingredients/favorites/:id      -> {@link removeMyFavoriteIngredient}
  * - POST /api/v1/users/me/inventory/recipes/favorites                 -> {@link addMyFavoriteRecipes}
  * - DELETE /api/v1/users/me/inventory/recipes/favorites/:id          -> {@link removeMyFavoriteRecipe}
+ * - GET  /api/v1/users/me/favorite-recipes/ids                       -> {@link getMyFavoriteRecipeIds}
  *
  * 도메인 타입은 `@/lib/types/inventory`에서 정의한다.
  */
@@ -20,13 +21,28 @@
 import { httpClient, type RequestOptions } from '../http-client';
 import { API_ENDPOINTS } from '../endpoints';
 import type { MutationResult } from '@/lib/types/api';
-import type { InventoryResponse } from '@/lib/types/inventory';
+import type {
+  FavoriteRecipeIdsResponse,
+  InventoryResponse,
+} from '@/lib/types/inventory';
 
 export function getMyInventory(
   fetchOptions?: RequestOptions,
 ): Promise<InventoryResponse> {
   return httpClient.get<InventoryResponse>(
     API_ENDPOINTS.users.meInventory,
+    fetchOptions,
+  );
+}
+
+/**
+ * 내 관심 레시피 ID 목록만 조회 (`RecipeSummary`와 분리된 개인화 데이터).
+ */
+export function getMyFavoriteRecipeIds(
+  fetchOptions?: RequestOptions,
+): Promise<FavoriteRecipeIdsResponse> {
+  return httpClient.get<FavoriteRecipeIdsResponse>(
+    API_ENDPOINTS.users.meFavoriteRecipeIds,
     fetchOptions,
   );
 }

@@ -73,10 +73,11 @@
 | **server/producer/src/modules/inventory/** | 유저 보관함 모듈 |
 | server/producer/src/modules/inventory/inventory.module.ts | InventoryModule 정의 |
 | server/producer/src/modules/inventory/inventory.service.ts | InventoryService (MongoDB 저장, 캐시 관리) |
-| server/producer/src/modules/inventory/inventory.controller.ts | `GET /api/v1/users/me/inventory`, `PUT/POST/DELETE /api/v1/users/me/inventory/ingredients/{owned\|favorites}`, `POST/DELETE /api/v1/users/me/inventory/recipes/favorites` |
+| server/producer/src/modules/inventory/inventory.controller.ts | `GET /api/v1/users/me/inventory`, `GET /api/v1/users/me/favorite-recipes/ids`, `PUT/POST/DELETE /api/v1/users/me/inventory/ingredients/{owned\|favorites}`, `POST/DELETE /api/v1/users/me/inventory/recipes/favorites` |
 | server/producer/src/modules/inventory/dto/owned-ingredient-ids.dto.ts | 보유 재료 ID 리스트 DTO (`ownedIngredientIds`) |
 | server/producer/src/modules/inventory/dto/favorite-ingredient-ids.dto.ts | 관심 재료 ID 리스트 DTO (`favoriteIngredientIds`) |
 | server/producer/src/modules/inventory/dto/favorite-recipe-ids.dto.ts | 관심 레시피 ID 리스트 DTO (`favoriteRecipeIds`) |
+| server/producer/src/modules/inventory/dto/favorite-recipe-ids-response.dto.ts | 관심 레시피 ID 목록 응답 DTO (`favoriteRecipeIds`) |
 | server/producer/src/modules/inventory/dto/inventory-list.dto.ts | 보관함 조회 응답 DTO (`ownedIngredients`, `favoriteIngredients`) |
 | **server/producer/src/modules/chatbot/** | 챗봇 SSE·대화 모듈 |
 | server/producer/src/modules/chatbot/chatbot.module.ts | ChatbotModule 정의 |
@@ -105,7 +106,7 @@
 | server/producer/src/infrastructure/cache/cache.decorator.ts | @Cacheable 데코레이터 |
 | server/producer/src/infrastructure/cache/strategies/cache-strategy.interface.ts | 캐시 전략 인터페이스 |
 | server/producer/src/infrastructure/cache/strategies/index.ts | 전략 export |
-| server/producer/src/infrastructure/cache/strategies/recipe-cache-strategy.ts | TTL 1시간. 상세(`recipe:{id}`), 목록(`recipe:list:*`), 검색(`recipe:search:*`) 키 세그먼트 사용 |
+| server/producer/src/infrastructure/cache/strategies/recipe-cache-strategy.ts | TTL 30분. 상세(`recipe:{id}`), 목록(`recipe:list:*`), 검색(`recipe:search:*`) 키 세그먼트 사용 |
 | server/producer/src/infrastructure/cache/strategies/ingredient-cache-strategy.ts | TTL 24시간 |
 | server/producer/src/infrastructure/cache/strategies/user-cache-strategy.ts | TTL 30분. 캐시 키 prefix는 @cook/shared CACHE_KEY_PREFIX.USER 사용 |
 | server/producer/src/infrastructure/cache/strategies/inventory-cache-strategy.ts | TTL 30분. 캐시 키 prefix는 @cook/shared CACHE_KEY_PREFIX.INVENTORY 사용 |

@@ -24,7 +24,6 @@ const sampleRecipes: readonly RecipeSummary[] = [
     viewCount: 100,
     likeCount: 20,
     isPublished: true,
-    isFavorite: false,
     createdAt: new Date().toISOString(),
   },
   {
@@ -38,7 +37,6 @@ const sampleRecipes: readonly RecipeSummary[] = [
     viewCount: 120,
     likeCount: 30,
     isPublished: true,
-    isFavorite: false,
     createdAt: new Date().toISOString(),
   },
 ];
@@ -55,7 +53,7 @@ const meta = {
   args: {
     recipes: sampleRecipes,
     favoriteButtonRenderer: (recipe) => (
-      <LikeButton isFavorite={recipe.isFavorite ?? false} />
+      <LikeButton isFavorite={recipe.id === 2} />
     ),
   },
 } satisfies Meta<typeof RecipeList>;

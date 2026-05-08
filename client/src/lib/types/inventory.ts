@@ -43,3 +43,8 @@ export interface InventoryResponse {
 export interface FavoriteRecipeIdsPayload {
   favoriteRecipeIds: number[];
 }
+
+/** `GET /users/me/favorite-recipes/ids` 응답 */
+export interface FavoriteRecipeIdsResponse {
+  favoriteRecipeIds: number[];
+}

@@ -23,7 +23,6 @@ const sampleRecipe: RecipeSummary = {
   viewCount: 120,
   likeCount: 28,
   isPublished: true,
-  isFavorite: false,
   createdAt: new Date().toISOString(),
 };
 
@@ -39,7 +38,7 @@ const meta = {
   args: {
     recipe: sampleRecipe,
     favoriteButtonRenderer: (recipe) => (
-      <LikeButton isFavorite={recipe.isFavorite ?? false} />
+      <LikeButton isFavorite={false} />
     ),
   },
 } satisfies Meta<typeof RecipeCard>;
@@ -51,9 +50,6 @@ export const Default = {} satisfies Story;
 
 export const Favorite = {
   args: {
-    recipe: {
-      ...sampleRecipe,
-      isFavorite: true,
-    },
+    favoriteButtonRenderer: () => <LikeButton isFavorite />,
   },
 } satisfies Story;

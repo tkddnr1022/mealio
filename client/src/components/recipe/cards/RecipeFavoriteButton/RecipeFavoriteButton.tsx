@@ -77,7 +77,7 @@ function RecipeFavoriteButtonInner({
     try {
       await toggleFavorite.mutateAsync({
         recipeId,
-        // API 계약: isFavorite은 "현재 서버 상태"를 의미한다.
+        // mutation 변수 isFavorite: 서버에 반영된 찜 상태(토글 전 기준)
         isFavorite: !intent,
       });
       serverConfirmedFavoriteRef.current = intent;

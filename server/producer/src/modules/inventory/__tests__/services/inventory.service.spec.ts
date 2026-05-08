@@ -216,6 +216,23 @@ describe('InventoryService', () => {
     });
   });
 
+  describe('getFavoriteRecipeIds', () => {
+    it('관심 레시피 ID 목록만 반환한다', async () => {
+      const result = await service.getFavoriteRecipeIds(1);
+
+      expect(result).toEqual({ favoriteRecipeIds: [101] });
+      expect(cacheService.getOrSet).toHaveBeenCalled();
+    });
+
+    it('문서가 없으면 빈 ID 배열을 반환한다', async () => {
+      inventoryRepository.findByUserId.mockResolvedValueOnce(null);
+
+      const result = await service.getFavoriteRecipeIds(1);
+
+      expect(result).toEqual({ favoriteRecipeIds: [] });
+    });
+  });
+
   describe('updateOwnedIngredients', () => {
     it('사용자 존재 여부 확인 후 Kafka 이벤트를 발행하고 { success: true }를 반환한다', async () => {
       const dto: OwnedIngredientIdsDto = { ownedIngredientIds: [1, 2, 3] };

@@ -3,7 +3,7 @@
 /**
  * 인벤토리(보유/관심) React Query 훅 모음.
  *
- * - 조회: `useMyInventory()`
+ * - 조회: `useMyInventory()`, `useMyFavoriteRecipeIds()` (관심 레시피 ID만, 레시피 본문과 분리)
  * - 변경 훅: 보유/즐겨찾기 각각 전체 교체·추가·단건 삭제 제공. 성공 시
  *   관련 리소스 쿼리를 invalidate하여 즉시 재조회한다.
  *
@@ -20,6 +20,7 @@ import {
 
 import {
   getMyInventory,
+  getMyFavoriteRecipeIds,
   addMyOwnedIngredients,
   addMyFavoriteIngredients,
   addMyFavoriteRecipes,
@@ -31,12 +32,20 @@ import {
 } from '@/lib/api/domains';
 import { QUERY_CACHE } from '@/lib/config/cache.config';
 import type { MutationResult } from '@/lib/types/api';
-import type { InventoryResponse } from '@/lib/types/inventory';
-import { recipeQueries } from './recipe.queries';
+import type {
+  FavoriteRecipeIdsResponse,
+  InventoryResponse,
+} from '@/lib/types/inventory';
 
 export const inventoryQueries = {
   all: ['inventory'] as const,
   overview: () => [...inventoryQueries.all, 'overview'] as const,
+} as const;
+
+/** 관심 레시피 ID 전용 쿼리 키 (`GET .../favorite-recipes/ids`) */
+export const favoriteRecipeQueries = {
+  all: ['favoriteRecipes'] as const,
+  ids: () => [...favoriteRecipeQueries.all, 'ids'] as const,
 } as const;
 
 type QueryOpts<TData> = Omit<
@@ -48,6 +57,17 @@ export function useMyInventory(options?: QueryOpts<InventoryResponse>) {
   return useQuery<InventoryResponse, Error>({
     queryKey: inventoryQueries.overview(),
     queryFn: () => getMyInventory(),
+    ...QUERY_CACHE.inventory,
+    ...options,
+  });
+}
+
+export function useMyFavoriteRecipeIds(
+  options?: QueryOpts<FavoriteRecipeIdsResponse>,
+) {
+  return useQuery<FavoriteRecipeIdsResponse, Error>({
+    queryKey: favoriteRecipeQueries.ids(),
+    queryFn: () => getMyFavoriteRecipeIds(),
     ...QUERY_CACHE.inventory,
     ...options,
   });
@@ -102,15 +122,40 @@ export const useRemoveMyFavoriteIngredient = createInvalidatingMutationHook<
   number
 >(removeMyFavoriteIngredient, inventoryQueries.all);
 
-export const useAddMyFavoriteRecipes = createInvalidatingMutationHook<
-  MutationResult,
-  number[]
->(addMyFavoriteRecipes, inventoryQueries.all);
+export function useAddMyFavoriteRecipes(
+  options?: UseMutationOptions<MutationResult, Error, number[]>,
+) {
+  const queryClient = useQueryClient();
+  return useMutation<MutationResult, Error, number[]>({
+    mutationFn: (favoriteRecipeIds: number[]) =>
+      addMyFavoriteRecipes(favoriteRecipeIds),
+    ...options,
+    onSuccess: (...args) => {
+      void queryClient.invalidateQueries({ queryKey: inventoryQueries.all });
+      void queryClient.invalidateQueries({
+        queryKey: favoriteRecipeQueries.all,
+      });
+      options?.onSuccess?.(...args);
+    },
+  });
+}
 
-export const useRemoveMyFavoriteRecipe = createInvalidatingMutationHook<
-  void,
-  number
->(removeMyFavoriteRecipe, inventoryQueries.all);
+export function useRemoveMyFavoriteRecipe(
+  options?: UseMutationOptions<void, Error, number>,
+) {
+  const queryClient = useQueryClient();
+  return useMutation<void, Error, number>({
+    mutationFn: (recipeId: number) => removeMyFavoriteRecipe(recipeId),
+    ...options,
+    onSuccess: (...args) => {
+      void queryClient.invalidateQueries({ queryKey: inventoryQueries.all });
+      void queryClient.invalidateQueries({
+        queryKey: favoriteRecipeQueries.all,
+      });
+      options?.onSuccess?.(...args);
+    },
+  });
+}
 
 export interface ToggleMyFavoriteRecipeVariables {
   recipeId: number;
@@ -134,7 +179,9 @@ export function useToggleMyFavoriteRecipe(
     ...options,
     onSuccess: (...args) => {
       void queryClient.invalidateQueries({ queryKey: inventoryQueries.all });
-      void queryClient.invalidateQueries({ queryKey: recipeQueries.all });
+      void queryClient.invalidateQueries({
+        queryKey: favoriteRecipeQueries.all,
+      });
       options?.onSuccess?.(...args);
     },
   });

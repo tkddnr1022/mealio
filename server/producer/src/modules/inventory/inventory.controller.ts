@@ -17,17 +17,18 @@ import { InventoryListDto } from './dto/inventory-list.dto';
 import { OwnedIngredientIdsDto } from './dto/owned-ingredient-ids.dto';
 import { FavoriteIngredientIdsDto } from './dto/favorite-ingredient-ids.dto';
 import { FavoriteRecipeIdsDto } from './dto/favorite-recipe-ids.dto';
+import { FavoriteRecipeIdsResponseDto } from './dto/favorite-recipe-ids-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthUser } from '../auth/types/request.types';
 
 @ApiTags('Inventory')
-@Controller('api/v1/users/me/inventory')
+@Controller('api/v1/users/me')
 @UseGuards(JwtAuthGuard)
 export class InventoryController {
   constructor(private readonly inventoryService: InventoryService) {}
 
-  @Get()
+  @Get('inventory')
   @ApiOperation({ summary: '내 보관함 조회' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -45,7 +46,25 @@ export class InventoryController {
     return this.inventoryService.getMyInventory(user.id);
   }
 
-  @Put('ingredients/owned')
+  @Get('favorite-recipes/ids')
+  @ApiOperation({ summary: '내 관심 레시피 ID 목록 조회' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '조회 성공',
+    type: FavoriteRecipeIdsResponseDto,
+  })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
+  async getFavoriteRecipeIds(
+    @CurrentUser() user: AuthUser,
+  ): Promise<FavoriteRecipeIdsResponseDto> {
+    return this.inventoryService.getFavoriteRecipeIds(user.id);
+  }
+
+  @Put('inventory/ingredients/owned')
   @ApiOperation({ summary: '내 보유 재료 업데이트 (전체 교체)' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -65,7 +84,7 @@ export class InventoryController {
     return this.inventoryService.updateOwnedIngredients(user.id, dto);
   }
 
-  @Post('ingredients/owned')
+  @Post('inventory/ingredients/owned')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: '내 보유 재료 추가' })
   @ApiResponse({
@@ -86,7 +105,7 @@ export class InventoryController {
     return this.inventoryService.addOwnedIngredients(user.id, dto);
   }
 
-  @Delete('ingredients/owned/:ingredientId')
+  @Delete('inventory/ingredients/owned/:ingredientId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: '내 보유 재료 삭제' })
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: '삭제 성공' })
@@ -103,7 +122,7 @@ export class InventoryController {
     await this.inventoryService.removeOwnedIngredient(user.id, ingredientId);
   }
 
-  @Put('ingredients/favorites')
+  @Put('inventory/ingredients/favorites')
   @ApiOperation({ summary: '내 관심 재료 업데이트 (전체 교체)' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -123,7 +142,7 @@ export class InventoryController {
     return this.inventoryService.updateFavoriteIngredients(user.id, dto);
   }
 
-  @Post('ingredients/favorites')
+  @Post('inventory/ingredients/favorites')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: '내 관심 재료 추가' })
   @ApiResponse({
@@ -144,7 +163,7 @@ export class InventoryController {
     return this.inventoryService.addFavoriteIngredients(user.id, dto);
   }
 
-  @Delete('ingredients/favorites/:ingredientId')
+  @Delete('inventory/ingredients/favorites/:ingredientId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: '내 관심 재료 삭제' })
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: '삭제 성공' })
@@ -161,7 +180,7 @@ export class InventoryController {
     await this.inventoryService.removeFavoriteIngredient(user.id, ingredientId);
   }
 
-  @Post('recipes/favorites')
+  @Post('inventory/recipes/favorites')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: '내 관심 레시피 추가' })
   @ApiResponse({
@@ -182,7 +201,7 @@ export class InventoryController {
     return this.inventoryService.addFavoriteRecipes(user.id, dto);
   }
 
-  @Delete('recipes/favorites/:recipeId')
+  @Delete('inventory/recipes/favorites/:recipeId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: '내 관심 레시피 삭제' })
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: '삭제 성공' })

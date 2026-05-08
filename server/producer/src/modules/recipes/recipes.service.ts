@@ -9,7 +9,6 @@ import {
   RecipeSearchParams,
   RecipeWithStats,
 } from '../../infrastructure/database/repositories/postgresql/recipe.repository';
-import { InventoryRepository } from '../../infrastructure/database/repositories/mongodb/inventory.repository';
 import { CacheService } from '../../infrastructure/cache/cache.service';
 import { RecipeCacheStrategy } from '../../infrastructure/cache/strategies/recipe-cache-strategy';
 import { KafkaProducerService } from '../../infrastructure/kafka/producer.service';
@@ -32,10 +31,6 @@ export interface ActivityContext {
   userAgent?: string;
 }
 
-interface FavoriteRecipeInventoryShape {
-  recipes?: { favoriteIds?: number[] };
-}
-
 type RecipeWithIngredients = RecipeWithStats & {
   categoryMeta: { id: number; key: string; name: string };
   recipeIngredients: Array<{
@@ -51,23 +46,19 @@ type RecipeWithIngredients = RecipeWithStats & {
 export class RecipeQueryService {
   constructor(
     private readonly recipeRepository: RecipeRepository,
-    private readonly inventoryRepository: InventoryRepository,
     private readonly cacheService: CacheService,
     private readonly recipeCacheStrategy: RecipeCacheStrategy,
     private readonly kafkaProducerService: KafkaProducerService,
   ) {}
 
-  async getList(
-    params: {
-      page: number;
-      size: number;
-      difficulty?: number[];
-      cookTimeMin?: number;
-      cookTimeMax?: number;
-      sort?: RecipeListOrder;
-    },
-    userId?: number,
-  ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
+  async getList(params: {
+    page: number;
+    size: number;
+    difficulty?: number[];
+    cookTimeMin?: number;
+    cookTimeMax?: number;
+    sort?: RecipeListOrder;
+  }): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
     const difficultyKey =
       params.difficulty && params.difficulty.length > 0
         ? [...params.difficulty].sort((a, b) => a - b).join(',')
@@ -75,7 +66,7 @@ export class RecipeQueryService {
     const cookTimeRangeKey = `${params.cookTimeMin ?? CACHE_KEY_SEGMENT.ALL}-${params.cookTimeMax ?? CACHE_KEY_SEGMENT.ALL}`;
     const sortKey = params.sort ?? DEFAULT_RECIPE_SORT;
 
-    const result = await this.cacheService.getOrSet(
+    return this.cacheService.getOrSet(
       this.recipeCacheStrategy,
       async () => {
         const { data, total } = await this.recipeRepository.findManyPaginated({
@@ -106,14 +97,11 @@ export class RecipeQueryService {
       params.page,
       params.size,
     );
-
-    return this.withFavoriteFlags(result, userId);
   }
 
   async getById(
     recipeId: number,
     context?: ActivityContext,
-    userId?: number,
   ): Promise<RecipeDetailDto> {
     const recipe = await this.cacheService.getOrSet(
       this.recipeCacheStrategy,
@@ -131,11 +119,7 @@ export class RecipeQueryService {
       /* fire-and-forget */
     });
 
-    if (userId) {
-      const isFavorite = await this.isFavoriteRecipe(recipe.id, userId);
-      return { ...recipe, isFavorite };
-    }
-    return { ...recipe };
+    return recipe;
   }
 
   // TODO: 조인 비용 및 캐시 정책(Write Behind) 검토
@@ -152,7 +136,6 @@ export class RecipeQueryService {
       sort?: RecipeListOrder;
     },
     context?: ActivityContext,
-    userId?: number,
   ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
     const raw = params.q?.trim() ?? '';
     const keyword = raw.length > 0 ? raw : undefined;
@@ -203,7 +186,7 @@ export class RecipeQueryService {
     this.emitSearchQuery(payload, context).catch(() => {
       /* fire-and-forget */
     });
-    return this.withFavoriteFlags(result, userId);
+    return result;
   }
 
   /**
@@ -234,15 +217,8 @@ export class RecipeQueryService {
     return { data };
   }
 
-  /**
-   * 공개 요약 DTO. `includeIsFavorite`가 주어질 때만 `isFavorite` 키를 넣는다
-   * (비로그인·ISR·공용 캐시 응답과의 정합).
-   */
-  private toSummaryDto(
-    recipe: RecipeWithStats,
-    includeIsFavorite?: boolean,
-  ): RecipeSummaryDto {
-    const base: RecipeSummaryDto = {
+  private toSummaryDto(recipe: RecipeWithStats): RecipeSummaryDto {
+    return {
       id: recipe.id,
       title: recipe.title,
       description: recipe.description ?? null,
@@ -255,10 +231,6 @@ export class RecipeQueryService {
       isPublished: recipe.isPublished,
       createdAt: recipe.createdAt,
     };
-    if (includeIsFavorite !== undefined) {
-      return { ...base, isFavorite: includeIsFavorite };
-    }
-    return base;
   }
 
   private toDetailDto(recipe: RecipeWithIngredients): RecipeDetailDto {
@@ -280,51 +252,6 @@ export class RecipeQueryService {
       instructions,
       ingredients,
     };
-  }
-
-  private async withFavoriteFlags(
-    result: { data: RecipeSummaryDto[]; pagination: PaginationDto },
-    userId?: number,
-  ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
-    if (!userId || result.data.length === 0) {
-      return {
-        ...result,
-        data: result.data.map((recipe) => {
-          const { isFavorite: _removed, ...rest } = recipe;
-          return rest;
-        }),
-      };
-    }
-
-    const favoriteSet = await this.getFavoriteRecipeIdSet(userId);
-    return {
-      ...result,
-      data: result.data.map((recipe) => ({
-        ...recipe,
-        isFavorite: favoriteSet.has(recipe.id),
-      })),
-    };
-  }
-
-  private async isFavoriteRecipe(
-    recipeId: number,
-    userId?: number,
-  ): Promise<boolean> {
-    if (!userId) {
-      return false;
-    }
-
-    const favoriteSet = await this.getFavoriteRecipeIdSet(userId);
-    return favoriteSet.has(recipeId);
-  }
-  // TODO: 기존 캐시 활용 검토
-  private async getFavoriteRecipeIdSet(userId: number): Promise<Set<number>> {
-    const inventory =
-      (await this.inventoryRepository.findFavoriteRecipeIdsByUserId(
-        userId,
-      )) as FavoriteRecipeInventoryShape | null;
-    const favoriteIds = inventory?.recipes?.favoriteIds ?? [];
-    return new Set(favoriteIds);
   }
 
   private parseInstructions(instructions: unknown): RecipeInstructionStepDto[] {

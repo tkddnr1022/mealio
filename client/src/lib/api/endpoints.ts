@@ -34,6 +34,8 @@ export const API_ENDPOINTS = {
     meInventoryRecipeFavorites: `${API_PREFIX}/users/me/inventory/recipes/favorites`,
     meInventoryRecipeFavoritesDetail: (recipeId: number) =>
       `${API_PREFIX}/users/me/inventory/recipes/favorites/${encodeURIComponent(recipeId)}`,
+    /** 내 관심 레시피 ID 목록 전용 (레시피 응답과 분리) */
+    meFavoriteRecipeIds: `${API_PREFIX}/users/me/favorite-recipes/ids`,
   },
   recipes: {
     list: `${API_PREFIX}/recipes`,

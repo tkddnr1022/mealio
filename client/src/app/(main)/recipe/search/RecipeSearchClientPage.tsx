@@ -1,6 +1,7 @@
 'use client';
 
 import { Search } from 'lucide-react';
+import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
@@ -26,6 +27,8 @@ import {
   DEFAULT_RECIPE_COOK_TIME_MAX,
   DEFAULT_RECIPE_COOK_TIME_MIN,
 } from '@/components/recipe/utils/recipe-search-filters';
+import { useIsAuthenticated } from '@/lib/auth/auth-context';
+import { useMyFavoriteRecipeIds } from '@/lib/queries/inventory.queries';
 
 const FILTER_PAGE_PATH = '/recipe/filter' as const;
 const SEARCH_PAGE_PATH = '/recipe/search' as const;
@@ -85,6 +88,15 @@ export function RecipeSearchClientPage({
   totalCount,
 }: RecipeSearchClientPageProps) {
   const router = useRouter();
+  const isAuthenticated = useIsAuthenticated();
+  const { data: favoriteIdsData } = useMyFavoriteRecipeIds({
+    enabled: isAuthenticated,
+  });
+
+  const favoriteIdSet = useMemo(
+    () => new Set(favoriteIdsData?.favoriteRecipeIds ?? []),
+    [favoriteIdsData?.favoriteRecipeIds],
+  );
 
   const selectedSort = isRecipeSortKey(sort) ? sort : DEFAULT_SORT;
   const selectedSortLabel = getSortLabel(selectedSort);
@@ -203,7 +215,7 @@ export function RecipeSearchClientPage({
             favoriteButtonRenderer={(recipe) => (
               <RecipeFavoriteButton
                 recipeId={recipe.id}
-                isFavorite={recipe.isFavorite ?? false}
+                isFavorite={favoriteIdSet.has(recipe.id)}
               />
             )}
           />
