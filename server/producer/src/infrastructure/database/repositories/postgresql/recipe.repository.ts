@@ -16,6 +16,10 @@ export interface RecipeListParams {
   sort?: RecipeListOrder;
 }
 
+export interface RecipeStaticIdsParams {
+  size: number;
+}
+
 export interface RecipeSearchParams {
   /** 비어 있거나 생략이면 제목·설명 contains 조건 없음 */
   keyword?: string;
@@ -151,6 +155,17 @@ export class RecipeRepository {
       rows.map((row) => row.id),
     );
     return { data, total };
+  }
+
+  async findPublishedIdsLatest(params: RecipeStaticIdsParams): Promise<number[]> {
+    const rows = await this.prisma.recipe.findMany({
+      where: { isPublished: true },
+      select: { id: true },
+      orderBy: { createdAt: 'desc' },
+      take: params.size,
+    });
+
+    return rows.map((row) => row.id);
   }
 
   async searchByKeyword(params: RecipeSearchParams): Promise<{

@@ -91,3 +91,8 @@ export interface RecipeSearchQuery extends RecipeListQuery {
   q?: string;
   categoryId?: number;
 }
+
+/** `GET /recipes/static-ids` 쿼리 파라미터 */
+export interface RecipeStaticIdsQuery {
+  size?: number;
+}

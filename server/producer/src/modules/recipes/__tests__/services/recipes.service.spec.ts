@@ -72,6 +72,7 @@ describe('RecipeQueryService', () => {
         data: [mockRecipe],
         total: 1,
       }),
+      findPublishedIdsLatest: jest.fn().mockResolvedValue([3, 2, 1]),
       searchByKeyword: jest.fn().mockResolvedValue({
         data: [mockRecipe],
         total: 1,
@@ -328,6 +329,33 @@ describe('RecipeQueryService', () => {
       expect(recipeRepository.findById).not.toHaveBeenCalled();
     });
 
+  });
+
+  describe('getStaticIds', () => {
+    it('정적 경로 생성용 레시피 ID 목록을 반환한다', async () => {
+      const result = await service.getStaticIds(100);
+
+      expect(cacheService.getOrSet).toHaveBeenCalledWith(
+        recipeCacheStrategy,
+        expect.any(Function),
+        CACHE_KEY_SEGMENT.LIST,
+        'static-ids',
+        100,
+      );
+      expect(recipeRepository.findPublishedIdsLatest).toHaveBeenCalledWith({
+        size: 100,
+      });
+      expect(result).toEqual({ data: [3, 2, 1] });
+    });
+
+    it('캐시 히트 시 repository를 호출하지 않는다', async () => {
+      cacheService.getOrSet.mockResolvedValue([10, 9, 8]);
+
+      const result = await service.getStaticIds(3);
+
+      expect(result).toEqual({ data: [10, 9, 8] });
+      expect(recipeRepository.findPublishedIdsLatest).not.toHaveBeenCalled();
+    });
   });
 
   describe('getSummariesByIds', () => {

@@ -57,6 +57,7 @@ describe('RecipesController', () => {
         pagination: mockPagination,
       }),
       getById: jest.fn().mockResolvedValue(mockDetail),
+      getStaticIds: jest.fn().mockResolvedValue({ data: [5, 4, 3] }),
       search: jest.fn().mockResolvedValue({
         data: [mockSummary],
         pagination: mockPagination,
@@ -86,7 +87,7 @@ describe('RecipesController', () => {
   describe('getList', () => {
     it('쿼리로 레시피 목록과 페이지네이션을 반환한다', async () => {
       const query = { page: 1, size: 20, sort: 'latest' as const };
-      const result = await controller.getList(query, undefined);
+      const result = await controller.getList(query);
 
       expect(recipeQueryService.getList).toHaveBeenCalledWith(
         {
@@ -97,7 +98,6 @@ describe('RecipesController', () => {
           cookTimeMax: undefined,
           sort: 'latest',
         },
-        undefined,
       );
       expect(result.data).toHaveLength(1);
       expect(result.data[0].title).toBe('김치볶음밥');
@@ -113,7 +113,7 @@ describe('RecipesController', () => {
         cookTimeMax: 30,
         sort: 'cookTime' as const,
       };
-      await controller.getList(query, undefined);
+      await controller.getList(query);
 
       expect(recipeQueryService.getList).toHaveBeenCalledWith(
         {
@@ -124,13 +124,12 @@ describe('RecipesController', () => {
           cookTimeMax: 30,
           sort: 'cookTime',
         },
-        undefined,
       );
     });
 
     it('cookTimeMin만 전달하면 min 필터만 전달한다', async () => {
       const query = { page: 1, size: 20, cookTimeMin: 12 };
-      await controller.getList(query, undefined);
+      await controller.getList(query);
 
       expect(recipeQueryService.getList).toHaveBeenCalledWith(
         {
@@ -141,7 +140,6 @@ describe('RecipesController', () => {
           cookTimeMax: undefined,
           sort: 'latest',
         },
-        undefined,
       );
     });
   });
@@ -162,7 +160,6 @@ describe('RecipesController', () => {
           categoryId: undefined,
           sort: 'latest',
         },
-        undefined,
         undefined,
       );
       expect(result.data).toHaveLength(1);
@@ -185,7 +182,6 @@ describe('RecipesController', () => {
           sort: 'cookTime',
         },
         undefined,
-        undefined,
       );
     });
 
@@ -205,7 +201,6 @@ describe('RecipesController', () => {
           sort: 'latest',
         },
         undefined,
-        undefined,
       );
     });
 
@@ -221,7 +216,6 @@ describe('RecipesController', () => {
           size: 20,
         }),
         undefined,
-        42,
       );
     });
 
@@ -244,7 +238,6 @@ describe('RecipesController', () => {
           ipAddress: '127.0.0.1',
           userAgent: 'jest-agent',
         },
-        42,
       );
     });
   });
@@ -262,13 +255,21 @@ describe('RecipesController', () => {
     });
   });
 
+  describe('getStaticIds', () => {
+    it('size 파라미터로 정적 경로용 ID 목록을 조회한다', async () => {
+      const result = await controller.getStaticIds({ size: 50 });
+
+      expect(recipeQueryService.getStaticIds).toHaveBeenCalledWith(50);
+      expect(result).toEqual({ data: [5, 4, 3] });
+    });
+  });
+
   describe('getById', () => {
     it('recipeId로 상세 레시피를 반환한다', async () => {
       const result = await controller.getById(1, undefined);
 
       expect(recipeQueryService.getById).toHaveBeenCalledWith(
         1,
-        undefined,
         undefined,
       );
       expect(result).toEqual(mockDetail);
@@ -292,7 +293,7 @@ describe('RecipesController', () => {
     it('사용자 컨텍스트가 있으면 userId를 서비스에 전달한다', async () => {
       await controller.getById(1, { id: 7 });
 
-      expect(recipeQueryService.getById).toHaveBeenCalledWith(1, undefined, 7);
+      expect(recipeQueryService.getById).toHaveBeenCalledWith(1, undefined);
     });
 
     it('요청 컨텍스트가 있으면 userId/ip/userAgent를 함께 전달한다', async () => {
@@ -309,7 +310,6 @@ describe('RecipesController', () => {
           ipAddress: '127.0.0.1',
           userAgent: 'jest-agent',
         },
-        7,
       );
     });
   });

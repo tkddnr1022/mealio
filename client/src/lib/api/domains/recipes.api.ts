@@ -3,6 +3,7 @@
  *
  * 엔드포인트: `agent/backend/spec/backend_architecture_spec_producer.md` §1.1
  * - GET  /api/v1/recipes              → {@link getRecipeList}
+ * - GET  /api/v1/recipes/static-ids   → {@link getRecipeStaticIds}
  * - GET  /api/v1/recipes/categories   → {@link getRecipeCategories}
  * - GET  /api/v1/recipes/search       → {@link searchRecipes}
  * - GET  /api/v1/recipes/:recipeId    → {@link getRecipeById}
@@ -20,6 +21,7 @@ import type {
   RecipeDetail,
   RecipeListQuery,
   RecipeSearchQuery,
+  RecipeStaticIdsQuery,
   RecipeSummary,
 } from '@/lib/types/recipe';
 
@@ -34,6 +36,19 @@ export function getRecipeList(
   fetchOptions?: RequestOptions,
 ): Promise<RecipeListResult> {
   return httpClient.get<RecipeListResult>(API_ENDPOINTS.recipes.list, {
+    ...fetchOptions,
+    query: objectToQuery(params),
+  });
+}
+
+/**
+ * 정적 경로 생성용 레시피 ID 목록 조회.
+ */
+export function getRecipeStaticIds(
+  params: RecipeStaticIdsQuery = {},
+  fetchOptions?: RequestOptions,
+): Promise<{ data: number[] }> {
+  return httpClient.get<{ data: number[] }>(API_ENDPOINTS.recipes.staticIds, {
     ...fetchOptions,
     query: objectToQuery(params),
   });

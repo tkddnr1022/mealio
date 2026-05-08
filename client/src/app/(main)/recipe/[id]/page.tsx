@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { RecipeDetailClientPage } from './RecipeDetailClientPage';
-import { getRecipeById, getRecipeList } from '@/lib/api/domains';
+import { getRecipeById, getRecipeStaticIds } from '@/lib/api/domains';
 import { isApiError } from '@/lib/api/error';
 
 interface RecipeDetailPageProps {
@@ -11,17 +11,15 @@ interface RecipeDetailPageProps {
 }
 
 export const revalidate = 300;
-const STATIC_PARAMS_SIZE = 100;
+const STATIC_PARAMS_SIZE = 100; // TODO: 레시피 개수 증가 대응 계획 수립
 
 export async function generateStaticParams(): Promise<{ id: string }[]> {
   try {
-    const result = await getRecipeList({
-      page: 1,
+    const result = await getRecipeStaticIds({
       size: STATIC_PARAMS_SIZE,
-      sort: 'latest',
     });
 
-    return result.data.map((recipe) => ({ id: String(recipe.id) }));
+    return result.data.map((id) => ({ id: String(id) }));
   } catch {
     return [];
   }

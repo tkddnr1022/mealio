@@ -99,6 +99,21 @@ export class RecipeQueryService {
     );
   }
 
+  async getStaticIds(size: number): Promise<{ data: number[] }> {
+    const data = await this.cacheService.getOrSet(
+      this.recipeCacheStrategy,
+      async () =>
+        this.recipeRepository.findPublishedIdsLatest({
+          size,
+        }),
+      CACHE_KEY_SEGMENT.LIST,
+      'static-ids',
+      size,
+    );
+
+    return { data };
+  }
+
   async getById(
     recipeId: number,
     context?: ActivityContext,

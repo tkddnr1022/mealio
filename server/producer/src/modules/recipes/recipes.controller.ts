@@ -22,6 +22,7 @@ import { RecipeListQueryDto } from './dto/recipe-list-query.dto';
 import { RecipeSearchQueryDto } from './dto/recipe-search-query.dto';
 import { RecipeIdsDto } from './dto/recipe-ids.dto';
 import { RecipeCategoryDto } from './dto/recipe-category.dto';
+import { RecipeStaticIdsQueryDto } from './dto/recipe-static-ids-query.dto';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { CurrentUserOptional } from '../auth/decorators/current-user-optional.decorator';
 import type { AuthUser } from '../auth/types/request.types';
@@ -69,6 +70,33 @@ export class RecipesController {
       cookTimeMax: query.cookTimeMax,
       sort,
     });
+  }
+
+  @Get('static-ids')
+  @ApiOperation({ summary: '정적 경로 생성용 레시피 ID 목록 조회' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '정적 경로 생성용 ID 목록 조회 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: { type: 'integer' },
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
+  async getStaticIds(
+    @Query() query: RecipeStaticIdsQueryDto,
+  ): Promise<{ data: number[] }> {
+    const size = query.size ?? 100;
+    return this.recipeQueryService.getStaticIds(size);
   }
 
   @Post('summaries') // Body 사용을 위해 POST 사용

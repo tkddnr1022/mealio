@@ -54,12 +54,13 @@
 | **server/producer/src/modules/recipes/** | 레시피 조회 모듈 |
 | server/producer/src/modules/recipes/recipes.module.ts | RecipesModule 정의 |
 | server/producer/src/modules/recipes/recipes.service.ts | RecipeQueryService 등, 읽기 전용·캐시 활용 |
-| server/producer/src/modules/recipes/recipes.controller.ts | GET /api/v1/recipes, GET /api/v1/recipes/:recipeId, GET /api/v1/recipes/search, POST /api/v1/recipes/summaries |
+| server/producer/src/modules/recipes/recipes.controller.ts | GET /api/v1/recipes, GET /api/v1/recipes/static-ids, GET /api/v1/recipes/:recipeId, GET /api/v1/recipes/search, POST /api/v1/recipes/summaries |
 | server/producer/src/modules/recipes/dto/pagination.dto.ts | 페이지네이션 공통 DTO |
 | server/producer/src/modules/recipes/dto/recipe-detail.dto.ts | 레시피 상세 응답 DTO |
 | server/producer/src/modules/recipes/dto/recipe-ids.dto.ts | 레시피 ID 리스트 DTO |
 | server/producer/src/modules/recipes/dto/recipe-list-query.dto.ts | 리스트 조회 쿼리 DTO |
 | server/producer/src/modules/recipes/dto/recipe-search-query.dto.ts | 검색 쿼리 DTO |
+| server/producer/src/modules/recipes/dto/recipe-static-ids-query.dto.ts | 정적 경로 생성용 ID 목록 조회 쿼리 DTO |
 | server/producer/src/modules/recipes/dto/recipe-summary.dto.ts | 레시피 요약 응답 DTO |
 | server/producer/src/modules/recipes/policies/recipe-sort.policy.ts | 레시피 정렬 정책 (latest/cookTime/difficulty/viewCount/likeCount) 및 Prisma orderBy 규칙 |
 | **server/producer/src/modules/ingredients/** | 재료 조회 모듈 |
