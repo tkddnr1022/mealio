@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { LikeButton } from '@/components/ui/buttons/LikeButton';
 import { useProtectedAction } from '@/lib/auth/protected-action';
 import { useToggleMyFavoriteRecipe } from '@/lib/queries/inventory.queries';
@@ -12,6 +12,8 @@ export interface RecipeFavoriteButtonProps {
   onToggled?: (nextIsFavorite: boolean) => void;
 }
 
+const SOFT_LOCK_DEBOUNCE_MS = 200;
+
 export function RecipeFavoriteButton({
   recipeId,
   isFavorite = false,
@@ -21,32 +23,75 @@ export function RecipeFavoriteButton({
   const [localFavorite, setLocalFavorite] = useState(isFavorite);
   const toggleFavorite = useToggleMyFavoriteRecipe();
   const { runProtectedAction, isAuthenticating } = useProtectedAction();
+  const serverConfirmedFavoriteRef = useRef(isFavorite);
+  const inFlightRef = useRef(false);
+  const queuedIntentRef = useRef<boolean | null>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setLocalFavorite(isFavorite);
+    serverConfirmedFavoriteRef.current = isFavorite;
   }, [isFavorite]);
 
-  const handleClick = async () => {
-    if (toggleFavorite.isPending) return;
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
-    await toggleFavorite.mutateAsync({
-      recipeId,
-      isFavorite: localFavorite,
-    });
+  const flushQueuedIntent = async () => {
+    const intent = queuedIntentRef.current;
+    if (intent === null || inFlightRef.current) return;
 
+    queuedIntentRef.current = null;
+    inFlightRef.current = true;
+
+    try {
+      await toggleFavorite.mutateAsync({
+        recipeId,
+        // API 계약: isFavorite은 "현재 서버 상태"를 의미한다.
+        isFavorite: !intent,
+      });
+      serverConfirmedFavoriteRef.current = intent;
+    } catch {
+      const rollbackValue = serverConfirmedFavoriteRef.current;
+      setLocalFavorite(rollbackValue);
+      onToggled?.(rollbackValue);
+    } finally {
+      inFlightRef.current = false;
+      if (queuedIntentRef.current !== null) {
+        flushQueuedIntent();
+      }
+    }
+  };
+
+  const scheduleFlush = () => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      debounceTimerRef.current = null;
+      flushQueuedIntent();
+    }, SOFT_LOCK_DEBOUNCE_MS);
+  };
+
+  const handleClick = () => {
     const nextValue = !localFavorite;
     setLocalFavorite(nextValue);
     onToggled?.(nextValue);
+    queuedIntentRef.current = nextValue;
+    scheduleFlush();
   };
 
   return (
     <LikeButton
       className={className}
       isFavorite={localFavorite}
-      disabled={toggleFavorite.isPending || isAuthenticating}
-      onClick={() => {
-        void runProtectedAction(handleClick);
-      }}
+      disabled={isAuthenticating}
+      onClick={() => runProtectedAction(handleClick)}
     />
   );
 }
