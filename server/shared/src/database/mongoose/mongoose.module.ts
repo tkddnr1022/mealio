@@ -2,6 +2,8 @@ import { DynamicModule, Global, Module } from '@nestjs/common';
 import { MongooseModule, type MongooseModuleOptions } from '@nestjs/mongoose';
 import type { MongoosePoolConfig } from './mongoose-pool.config';
 import {
+  ChatbotConversation,
+  ChatbotConversationSchema,
   ChatbotLog,
   ChatbotLogSchema,
   EventLog,
@@ -50,6 +52,10 @@ export class MongooseSchemasModule {
         MongooseModule.forFeature([
           { name: EventLog.name, schema: EventLogSchema },
           { name: ChatbotLog.name, schema: ChatbotLogSchema },
+          {
+            name: ChatbotConversation.name,
+            schema: ChatbotConversationSchema,
+          },
           { name: Inventory.name, schema: InventorySchema },
         ]),
       ],
@@ -79,6 +85,10 @@ export class MongooseSchemasModule {
         MongooseModule.forFeature([
           { name: EventLog.name, schema: EventLogSchema },
           { name: ChatbotLog.name, schema: ChatbotLogSchema },
+          {
+            name: ChatbotConversation.name,
+            schema: ChatbotConversationSchema,
+          },
           { name: Inventory.name, schema: InventorySchema },
         ]),
       ],

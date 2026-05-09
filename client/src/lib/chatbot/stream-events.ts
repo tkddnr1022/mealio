@@ -93,6 +93,9 @@ function isDoneEventShape(
   if (!data || typeof data !== 'object') return false;
   const d = data as Record<string, unknown>;
   if (typeof d.conversationId !== 'string') return false;
+  if (d.message !== undefined && typeof d.message !== 'string') {
+    return false;
+  }
   if (d.suggestedRecipes !== undefined && !Array.isArray(d.suggestedRecipes)) {
     return false;
   }

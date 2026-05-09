@@ -14,6 +14,7 @@ describe('ChatbotController', () => {
 
   const mockConversationHistory = {
     conversationId: 'conv_abc123',
+    title: null as string | null,
     messages: [
       {
         role: 'user' as const,
@@ -34,7 +35,8 @@ describe('ChatbotController', () => {
     items: [
       {
         conversationId: 'conv_abc123',
-        lastMessageAt: '2025-01-25T12:00:00.000Z',
+        title: null as string | null,
+        updatedAt: '2025-01-25T12:00:00.000Z',
       },
     ],
     nextCursor: null,

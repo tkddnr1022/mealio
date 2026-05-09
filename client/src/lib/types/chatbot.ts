@@ -27,8 +27,10 @@ export interface SuggestedRecipe {
 /** 대화 목록 1건 */
 export interface ConversationListItem {
   conversationId: string;
-  /** ISO 8601 */
-  lastMessageAt: string;
+  /** 대화 제목 (메타). 없으면 null — UI는 첫 사용자 메시지 등으로 보조 표시 가능 */
+  title: string | null;
+  /** 대화 메타 최종 갱신 시각 (ISO 8601) */
+  updatedAt: string;
 }
 
 /** `GET /chatbot/conversations` 응답 */
@@ -56,9 +58,11 @@ export interface ConversationMessage {
   createdAt: string;
 }
 
-/** `GET /chatbot/conversations/:conversationId` 응답 */
-export interface Conversation {
+/** `GET /chatbot/conversations/:conversationId` 응답 (`ConversationHistory` 스키마) */
+export interface ConversationHistory {
   conversationId: string;
+  /** 대화 제목 (메타). 없으면 null */
+  title: string | null;
   messages: ConversationMessage[];
 }
 
@@ -95,6 +99,8 @@ export interface ChatbotStreamDoneEvent {
   type: typeof CHATBOT_STREAM_EVENT_TYPES.DONE;
   data: {
     conversationId: string;
+    /** 최종 assistant 메시지 전체(선택). 청크만으로 구성된 경우와 중복될 수 있음 */
+    message?: string;
     suggestedRecipes?: SuggestedRecipe[];
   };
 }

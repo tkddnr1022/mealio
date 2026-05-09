@@ -200,6 +200,7 @@ function applyEvent(
         ...prev,
         status: 'done',
         conversationId: event.data.conversationId,
+        text: prev.text || event.data.message || '',
         suggestedRecipes: event.data.suggestedRecipes ?? [],
       }));
       return;

@@ -25,7 +25,7 @@ import {
 } from '@/lib/api/domains';
 import { QUERY_CACHE } from '@/lib/config/cache.config';
 import type {
-  Conversation,
+  ConversationHistory,
   ConversationList,
   ConversationListQuery,
 } from '@/lib/types/chatbot';
@@ -94,12 +94,12 @@ export function useConversationListInfinite(
 
 export function useConversationDetail(
   conversationId: string | null | undefined,
-  options?: QueryOpts<Conversation>,
+  options?: QueryOpts<ConversationHistory>,
 ) {
   const enabled =
     options?.enabled ??
     (typeof conversationId === 'string' && conversationId.length > 0);
-  return useQuery<Conversation, Error>({
+  return useQuery<ConversationHistory, Error>({
     queryKey: chatbotQueries.conversationDetail(conversationId ?? ''),
     queryFn: () => getConversationHistory(conversationId as string),
     ...QUERY_CACHE.chatbot,

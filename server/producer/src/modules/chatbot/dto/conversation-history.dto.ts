@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ChatbotMessageItemDto } from './chatbot-message-item.dto';
 
 /**
@@ -11,6 +11,13 @@ export class ConversationHistoryDto {
     example: 'conv_abc123',
   })
   conversationId: string;
+
+  @ApiPropertyOptional({
+    description: '대화 제목 (메타). 없으면 null',
+    nullable: true,
+    example: '저녁 메뉴 추천',
+  })
+  title: string | null;
 
   @ApiProperty({
     description: '대화 메시지 목록 (시간순, message + suggestedRecipes 형식)',

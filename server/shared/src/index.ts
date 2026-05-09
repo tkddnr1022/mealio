@@ -49,6 +49,8 @@ export {
 export { MongooseSchemasModule } from './database/mongoose/mongoose.module';
 export type { MongoosePoolConfig } from './database/mongoose/mongoose-pool.config';
 export {
+  ChatbotConversation,
+  ChatbotConversationSchema,
   ChatbotLog,
   ChatbotLogSchema,
   EventLog,
@@ -57,6 +59,7 @@ export {
   InventorySchema,
 } from './database/mongoose/schemas';
 export type {
+  ChatbotConversationDocument,
   ChatbotLogDocument,
   EventLogDocument,
   InventoryDocument,

@@ -57,6 +57,7 @@ export class OpenAIService {
     messages: ChatCompletionMessageParam[],
     options?: {
       temperature?: number;
+      maxTokens?: number;
       responseFormat?: { type: 'json_object' };
     },
   ): Promise<ChatCompletionResult> {
@@ -67,6 +68,7 @@ export class OpenAIService {
         model: this.model,
         messages,
         temperature: options?.temperature ?? 1,
+        ...(options?.maxTokens != null && { max_completion_tokens: options.maxTokens }),
         ...(options?.responseFormat && {
           response_format: options.responseFormat,
         }),

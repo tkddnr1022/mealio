@@ -100,6 +100,7 @@
 | **server/producer/src/infrastructure/database/repositories/mongodb/** | |
 | server/producer/src/infrastructure/database/repositories/mongodb/event-log.repository.ts | EventLog (스키마·타입 @cook/shared) |
 | server/producer/src/infrastructure/database/repositories/mongodb/chatbot-log.repository.ts | ChatbotLog (스키마·타입 @cook/shared) |
+| server/producer/src/infrastructure/database/repositories/mongodb/chatbot-conversation.repository.ts | ChatbotConversation 메타 목록·제목 조회 (`updatedAt` 정렬·커서) (스키마·타입 @cook/shared) |
 | server/producer/src/infrastructure/database/repositories/mongodb/inventory.repository.ts | Inventory (스키마·타입 @cook/shared) |
 | **server/producer/src/infrastructure/cache/** | |
 | server/producer/src/infrastructure/cache/cache.service.ts | 캐시 서비스 (Redis는 @cook/shared 사용) |

@@ -36,6 +36,8 @@
 | server/consumer/src/consumers/chatbot-request/handlers/InventoryHandler.ts | get_user_inventory — Inventory 조회(`ingredients.owned`, `ingredients.favorite`, `recipes.favorite`), Ingredient id→name(Redis 캐시) 반환 |
 | server/consumer/src/consumers/chatbot-request/handlers/SearchRecipesHandler.ts | search_recipes — Prisma 레시피 검색, ingredientIds optional, RecipeSummary[] 반환 |
 | server/consumer/src/consumers/chatbot-request/handlers/SaveChatLogHandler.ts | 스트림 종료 후 ChatbotLog 저장 |
+| server/consumer/src/consumers/chatbot-request/handlers/SyncConversationMetaHandler.ts | 성공 턴 후 `chatbot_conversations` 동기화: `chatbot.start`면 LLM 제목·메타 생성, `chatbot.message`면 `updatedAt` 갱신 |
+| server/consumer/src/persistence/repositories/mongodb/chatbot-conversation.repository.ts | ChatbotConversation 메타 (`createWithTitle` 생성·제목 없는 스텁 보정, `chatbot.message` 시 `touchUpdatedAt`) |
 | server/consumer/src/consumers/chatbot-request/tools/chatbot-tools.definition.ts | OpenAI tools 배열 (search_recipes, get_user_inventory 등) |
 | server/consumer/src/consumers/chatbot-request/tools/tool-dispatcher.ts | function name → Handler 매핑·실행 |
 | server/consumer/src/consumers/chatbot-request/context/conversation.manager.ts | 대화 히스토리 — buildMessagesForGpt, PreviousTurn, 시스템 프롬프트. 상세 §2.3 |
@@ -127,7 +129,7 @@
 | 토픽 (메인) | DLQ 토픽 | Consumer 그룹 | 발행 주체 | 용도·페이로드 개요 |
 |-------------|-----------|----------------|-----------|---------------------|
 | **recipe-generation** | recipe-generation-dlq | recipe-generation-group | Producer (API 연동 시) | 레시피 생성 요청. 추후 이미지·재료 기반 생성 요청 payload. Processor: stub → GenerateRecipeHandler 등 연동 예정. |
-| **chatbot-requests** | chatbot-requests-dlq | chatbot-group | Producer (POST /api/v1/chatbot/messages 등) | 챗봇 메시지 요청. payload: userId, message, conversationId?, streamChannelId. Consumer: ProcessChatHandler(GPT·tool call), SaveChatLogHandler(ChatbotLog 저장), Redis 스트림 이벤트 발행. |
+| **chatbot-requests** | chatbot-requests-dlq | chatbot-group | Producer (POST /api/v1/chatbot/messages 등) | 챗봇 메시지 요청. payload: userId, message, conversationId?, streamChannelId. Consumer: ProcessChatHandler(GPT·tool call), SaveChatLogHandler(ChatbotLog 저장), `chatbot.start`·`chatbot.message` 성공 후 SyncConversationMetaHandler(대화 메타 동기화), Redis 스트림 이벤트 발행. |
 | **activity-events** | activity-events-dlq | activity-events-group | Producer (레시피 조회/좋아요/공유, 검색 API 등) | 비로그인 포함 활동 이벤트. payload: type(recipe.view \| recipe.like \| recipe.share \| search.query \| search.click), actor(type, userId?, ipAddress?, userAgent?), entity?, payload?, metadata?. Consumer: EventLog 저장. |
 | **user-events** | user-events-dlq | analytics-group | Producer (닉네임 변경, 재료 CRUD, 관심 레시피 추가/삭제 등) | 로그인 유저 도메인 이벤트. payload: UserEvent \| InventoryEvent. Consumer: UpdateUserProfileHandler, UpdateInventoryHandler, TrackUserActivityHandler(EventLog), RecommendationHandler, 캐시 무효화 요청(CacheInvalidationRequestService). |
 | **cache-invalidation** | cache-invalidation-dlq | cache-invalidation-group | Consumer 내부 (CacheInvalidationRequestService) | 캐시 무효화 지시. payload: type(USER_PROFILE \| INVENTORY \| RECIPE), userId 또는 recipeIds[]. Handler가 직접 발행하지 않고 RequestService가 발행. Consumer: RedisInvalidationHandler로 Redis 키/패턴 삭제. |

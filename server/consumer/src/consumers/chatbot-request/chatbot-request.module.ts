@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
+  ChatbotConversation,
+  ChatbotConversationSchema,
   ChatbotLog,
   ChatbotLogSchema,
   EventLog,
@@ -18,6 +20,8 @@ import { ChatbotRequestProcessor } from './chatbot-request.processor';
 import { ChatbotRequestConsumer } from './chatbot-request.consumer';
 import { ProcessChatHandler } from './handlers/ProcessChatHandler';
 import { SaveChatLogHandler } from './handlers/SaveChatLogHandler';
+import { SyncConversationMetaHandler } from './handlers/SyncConversationMetaHandler';
+import { ChatbotConversationRepository } from 'src/persistence/repositories/mongodb/chatbot-conversation.repository';
 import { SearchRecipesHandler } from './handlers/SearchRecipesHandler';
 import { InventoryHandler } from './handlers/InventoryHandler';
 import { ToolDispatcher } from './tools/tool-dispatcher';
@@ -28,6 +32,10 @@ import { ToolDispatcher } from './tools/tool-dispatcher';
     OpenAIModule,
     MongooseModule.forFeature([
       { name: ChatbotLog.name, schema: ChatbotLogSchema },
+      {
+        name: ChatbotConversation.name,
+        schema: ChatbotConversationSchema,
+      },
       { name: EventLog.name, schema: EventLogSchema },
       { name: Inventory.name, schema: InventorySchema },
     ]),
@@ -42,6 +50,8 @@ import { ToolDispatcher } from './tools/tool-dispatcher';
     ToolDispatcher,
     ProcessChatHandler,
     SaveChatLogHandler,
+    ChatbotConversationRepository,
+    SyncConversationMetaHandler,
     ChatbotRequestProcessor,
     ChatbotRequestConsumer,
   ],

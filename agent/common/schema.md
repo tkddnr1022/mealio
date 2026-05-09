@@ -333,6 +333,31 @@
 
 ---
 
+### 3.2.1 ChatbotConversation (대화 메타)
+
+**컬렉션**: `chatbot_conversations`  
+**TTL**: 없음 (대화 목록·메타는 메시지 로그 TTL과 별도로 유지)  
+**의미**
+
+* `conversationId` 단위 **대화 메타데이터**(제목·활동 시각 등). 메시지 본문은 `chatbot_logs`에만 둔다.
+* 신규 대화 첫 턴(`chatbot.start`) 성공 후 LLM으로 `title`을 채운다.
+* 이어쓰기(`chatbot.message`)마다 `updatedAt`을 갱신한다. **REST 대화 목록의 정렬·커서·표시 시각은 이 `updatedAt`를 사용**한다(로그의 마지막 메시지 시각과 별개).
+
+**필드 설명** (Mongoose `ChatbotConversation`)
+
+| 필드           | 타입   | 의미 |
+| -------------- | ------ | ---- |
+| userId         | Number | 사용자 ID (required, index) |
+| conversationId | String | 대화 ID (required, index) |
+| title          | String | 표시용 제목 (optional, max 120). MESSAGE만 오고 제목 없을 수 있음 |
+| titleSource    | String | `'llm'` \| `'manual'` (optional, default `llm`) |
+| createdAt      | Date   | 생성 시각 (timestamps) |
+| updatedAt      | Date   | 마지막 활동 갱신 시각 (timestamps). 목록 정렬 기준 |
+
+**인덱스**: `(userId, conversationId)` unique, `(userId, updatedAt DESC)`
+
+---
+
 ### 3.3 EventLog
 
 **컬렉션**: `event_logs`  

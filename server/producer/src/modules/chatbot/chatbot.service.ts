@@ -12,6 +12,7 @@ import {
 } from '@cook/shared';
 import type { SendMessageDto } from './dto/send-message.dto';
 import { ChatbotLogRepository } from '../../infrastructure/database/repositories/mongodb/chatbot-log.repository';
+import { ChatbotConversationRepository } from '../../infrastructure/database/repositories/mongodb/chatbot-conversation.repository';
 import type { ConversationHistoryDto } from './dto/conversation-history.dto';
 import type { ConversationListDto } from './dto/conversation-list.dto';
 
@@ -42,6 +43,7 @@ export class ChatbotService {
     private readonly kafkaProducer: KafkaProducerService,
     private readonly redisService: RedisService,
     private readonly chatbotLogRepository: ChatbotLogRepository,
+    private readonly chatbotConversationRepository: ChatbotConversationRepository,
   ) {}
 
   /**
@@ -124,7 +126,7 @@ export class ChatbotService {
   }
 
   /**
-   * 해당 유저의 대화 목록을 조회한다 (conversationId + lastMessageAt, 최신 순, 커서 페이지네이션).
+   * 해당 유저의 대화 목록을 조회한다 (메타 `updatedAt` 기준 최신 순, 커서 페이지네이션).
    */
   async getConversationList(
     userId: number,
@@ -132,14 +134,18 @@ export class ChatbotService {
     cursor?: string,
   ): Promise<ConversationListDto> {
     const { items, nextCursor } =
-      await this.chatbotLogRepository.findConversationListByUserId(userId, {
-        limit,
-        cursor,
-      });
+      await this.chatbotConversationRepository.findConversationListByUserId(
+        userId,
+        {
+          limit,
+          cursor,
+        },
+      );
     return {
       items: items.map((item) => ({
         conversationId: item.conversationId,
-        lastMessageAt: new Date(item.lastMessageAt).toISOString(),
+        title: item.title,
+        updatedAt: item.updatedAt.toISOString(),
       })),
       nextCursor,
     };
@@ -161,6 +167,13 @@ export class ChatbotService {
       return null;
     }
 
+    const meta =
+      await this.chatbotConversationRepository.findMetaByConversationId(
+        userId,
+        conversationId,
+      );
+    const title = meta?.title ?? null;
+
     const messages = logs.map((log) => {
       const raw = log as {
         role: string;
@@ -180,6 +193,7 @@ export class ChatbotService {
 
     return {
       conversationId,
+      title,
       messages,
     };
   }

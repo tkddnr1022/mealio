@@ -12,6 +12,7 @@ import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
 import { EventLogRepository } from 'src/persistence/repositories/mongodb/event-log.repository';
 import { ProcessChatHandler } from './handlers/ProcessChatHandler';
 import { SaveChatLogHandler } from './handlers/SaveChatLogHandler';
+import { SyncConversationMetaHandler } from './handlers/SyncConversationMetaHandler';
 import { SchemaValidator } from 'src/processing/validation/schema.validator';
 import {
   BusinessRuleValidator,
@@ -71,6 +72,7 @@ export class ChatbotRequestProcessor extends BaseTopicProcessor<ChatbotRequestEv
     private readonly eventLogRepository: EventLogRepository,
     private readonly processChatHandler: ProcessChatHandler,
     private readonly saveChatLogHandler: SaveChatLogHandler,
+    private readonly syncConversationMetaHandler: SyncConversationMetaHandler,
   ) {
     super(ChatbotRequestProcessor.name, retryStrategy, deadLetterHandler);
   }
@@ -140,6 +142,17 @@ export class ChatbotRequestProcessor extends BaseTopicProcessor<ChatbotRequestEv
       suggestedRecipeIds: result.suggestedRecipes.map((r) => r.id),
       usage: result.usage,
       model: result.model,
+    });
+
+    if (!event.conversationId) {
+      return;
+    }
+
+    await this.syncConversationMetaHandler.execute({
+      userId: event.userId,
+      conversationId: event.conversationId,
+      userMessage: event.message,
+      eventType: event.type,
     });
   }
 }

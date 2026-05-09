@@ -15,7 +15,7 @@ import { httpClient, type RequestOptions } from '../http-client';
 import { objectToQuery } from '../query';
 import { API_ENDPOINTS } from '../endpoints';
 import type {
-  Conversation,
+  ConversationHistory,
   ConversationList,
   ConversationListQuery,
 } from '@/lib/types/chatbot';
@@ -40,8 +40,8 @@ export function getConversationList(
 export function getConversationHistory(
   conversationId: string,
   fetchOptions?: RequestOptions,
-): Promise<Conversation> {
-  return httpClient.get<Conversation>(
+): Promise<ConversationHistory> {
+  return httpClient.get<ConversationHistory>(
     API_ENDPOINTS.chatbot.conversationDetail(conversationId),
     fetchOptions,
   );

@@ -1754,6 +1754,10 @@ components:
       properties:
         conversationId:
           type: string
+        title:
+          type: string
+          nullable: true
+          description: 대화 제목 (메타 컬렉션). 없으면 null
         messages:
           type: array
           items:
@@ -1787,10 +1791,14 @@ components:
               conversationId:
                 type: string
                 description: 대화 ID
-              lastMessageAt:
+              title:
+                type: string
+                nullable: true
+                description: 대화 제목 (메타 컬렉션). 없으면 null
+              updatedAt:
                 type: string
                 format: date-time
-                description: 해당 대화의 마지막 메시지 시각
+                description: 대화 메타 최종 갱신 시각
         nextCursor:
           type: string
           nullable: true

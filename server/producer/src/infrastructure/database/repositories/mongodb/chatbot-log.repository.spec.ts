@@ -21,8 +21,6 @@ const mockModel = jest.fn().mockImplementation((doc) => ({
 // Assign static methods to the function object
 mockModel.find = jest.fn().mockReturnValue(mockQuery);
 mockModel.findById = jest.fn().mockReturnValue(mockQuery);
-const mockAggregateExec = jest.fn();
-mockModel.aggregate = jest.fn().mockReturnValue({ exec: mockAggregateExec });
 
 describe('ChatbotLogRepository', () => {
   let repository: ChatbotLogRepository;
@@ -129,47 +127,4 @@ describe('ChatbotLogRepository', () => {
     });
   });
 
-  describe('findConversationListByUserId', () => {
-    it('should return conversation list with lastMessageAt and nextCursor', async () => {
-      const userId = 1;
-      const rawAggregate = [
-        { _id: 'conv_a', lastMessageAt: new Date('2025-01-25T12:00:00.000Z') },
-        { _id: 'conv_b', lastMessageAt: new Date('2025-01-24T00:00:00.000Z') },
-      ];
-      mockAggregateExec.mockResolvedValue(rawAggregate);
-
-      const result = await repository.findConversationListByUserId(userId, {
-        limit: 20,
-      });
-
-      expect(model.aggregate).toHaveBeenCalled();
-      expect(result.items).toHaveLength(2);
-      expect(result.items[0]).toEqual({
-        conversationId: 'conv_a',
-        lastMessageAt: new Date('2025-01-25T12:00:00.000Z'),
-      });
-      expect(result.nextCursor).toBeNull();
-    });
-
-    it('should include cursor match in pipeline when cursor provided', async () => {
-      mockAggregateExec.mockResolvedValue([]);
-
-      await repository.findConversationListByUserId(1, {
-        limit: 10,
-        cursor: '2025-01-25T00:00:00.000Z',
-      });
-
-      const pipeline = (model.aggregate as jest.Mock).mock.calls[0][0];
-      const cursorMatch = pipeline.find(
-        (s: Record<string, unknown>) =>
-          s.$match && (s.$match as Record<string, unknown>).lastMessageAt,
-      );
-      expect(cursorMatch).toBeDefined();
-      expect(
-        (cursorMatch.$match as Record<string, unknown>).lastMessageAt,
-      ).toEqual({
-        $lt: new Date('2025-01-25T00:00:00.000Z'),
-      });
-    });
-  });
 });

@@ -3,25 +3,24 @@ import type { ConversationListItem } from '@/lib/types/chatbot';
 import { cn } from '@/lib/utils/cn';
 import { ChatCard } from '@/components/chatbot/list/ChatCard';
 
-export interface ChatListProps extends Omit<
-  HTMLAttributes<HTMLDivElement>,
-  'children'
-> {
+export interface ChatListProps<
+  TChat extends ConversationListItem = ConversationListItem,
+> extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   className?: string;
-  chats: readonly ConversationListItem[];
-  getTitle?: (chat: ConversationListItem) => string | undefined;
-  getLastMessage?: (chat: ConversationListItem) => string | undefined;
+  chats: readonly TChat[];
+  getTitle?: (chat: TChat) => string | undefined;
+  getLastMessage?: (chat: TChat) => string | undefined;
   cardClassName?: string;
 }
 
-export function ChatList({
+export function ChatList<TChat extends ConversationListItem>({
   className = '',
   chats,
   getTitle,
   getLastMessage,
   cardClassName = '',
   ...rest
-}: ChatListProps) {
+}: ChatListProps<TChat>) {
   return (
     <div
       className={cn('flex w-full flex-col gap-4', className)}

@@ -7,6 +7,7 @@ import {
   CHATBOT_STREAM_EVENT_TYPES,
 } from '@cook/shared';
 import { ChatbotLogRepository } from '../../../../infrastructure/database/repositories/mongodb/chatbot-log.repository';
+import { ChatbotConversationRepository } from '../../../../infrastructure/database/repositories/mongodb/chatbot-conversation.repository';
 import type { SendMessageDto } from '../../dto/send-message.dto';
 
 describe('ChatbotService', () => {
@@ -14,6 +15,7 @@ describe('ChatbotService', () => {
   let kafkaProducer: jest.Mocked<KafkaProducerService>;
   let redisService: jest.Mocked<RedisService>;
   let chatbotLogRepository: jest.Mocked<ChatbotLogRepository>;
+  let chatbotConversationRepository: jest.Mocked<ChatbotConversationRepository>;
 
   beforeEach(async () => {
     const mockKafkaProducer = {
@@ -34,10 +36,14 @@ describe('ChatbotService', () => {
 
     const mockChatbotLogRepository = {
       findByConversationId: jest.fn().mockResolvedValue([]),
+    };
+
+    const mockChatbotConversationRepository = {
       findConversationListByUserId: jest.fn().mockResolvedValue({
         items: [],
         nextCursor: null,
       }),
+      findMetaByConversationId: jest.fn().mockResolvedValue(null),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -48,6 +54,10 @@ describe('ChatbotService', () => {
         {
           provide: ChatbotLogRepository,
           useValue: mockChatbotLogRepository,
+        },
+        {
+          provide: ChatbotConversationRepository,
+          useValue: mockChatbotConversationRepository,
         },
       ],
     }).compile();
@@ -60,6 +70,9 @@ describe('ChatbotService', () => {
     chatbotLogRepository = module.get(
       ChatbotLogRepository,
     ) as jest.Mocked<ChatbotLogRepository>;
+    chatbotConversationRepository = module.get(
+      ChatbotConversationRepository,
+    ) as jest.Mocked<ChatbotConversationRepository>;
   });
 
   it('should be defined', () => {
@@ -121,38 +134,44 @@ describe('ChatbotService', () => {
   describe('getConversationList', () => {
     it('대화 목록을 반환한다', async () => {
       const userId = 1;
-      const items = [
+      chatbotConversationRepository.findConversationListByUserId.mockResolvedValue(
         {
-          conversationId: 'conv_a',
-          lastMessageAt: new Date('2025-01-25T12:00:00.000Z'),
+          items: [
+            {
+              conversationId: 'conv_a',
+              title: '저녁 메뉴',
+              updatedAt: new Date('2025-01-25T12:00:00.000Z'),
+            },
+          ],
+          nextCursor: null,
         },
-      ];
-      chatbotLogRepository.findConversationListByUserId.mockResolvedValue({
-        items,
-        nextCursor: null,
-      });
+      );
 
       const result = await service.getConversationList(userId, 20);
 
       expect(
-        chatbotLogRepository.findConversationListByUserId,
+        chatbotConversationRepository.findConversationListByUserId,
       ).toHaveBeenCalledWith(userId, { limit: 20, cursor: undefined });
       expect(result.items).toHaveLength(1);
       expect(result.items[0].conversationId).toBe('conv_a');
-      expect(result.items[0].lastMessageAt).toBe('2025-01-25T12:00:00.000Z');
+      expect(result.items[0].title).toBe('저녁 메뉴');
+      expect(result.items[0].updatedAt).toBe('2025-01-25T12:00:00.000Z');
       expect(result.nextCursor).toBeNull();
     });
 
     it('nextCursor가 있으면 그대로 반환한다', async () => {
-      chatbotLogRepository.findConversationListByUserId.mockResolvedValue({
-        items: [
-          {
-            conversationId: 'conv_b',
-            lastMessageAt: new Date('2025-01-24T00:00:00.000Z'),
-          },
-        ],
-        nextCursor: '2025-01-24T00:00:00.000Z',
-      });
+      chatbotConversationRepository.findConversationListByUserId.mockResolvedValue(
+        {
+          items: [
+            {
+              conversationId: 'conv_b',
+              title: null,
+              updatedAt: new Date('2025-01-24T00:00:00.000Z'),
+            },
+          ],
+          nextCursor: '2025-01-24T00:00:00.000Z',
+        },
+      );
 
       const result = await service.getConversationList(
         1,
@@ -161,11 +180,12 @@ describe('ChatbotService', () => {
       );
 
       expect(
-        chatbotLogRepository.findConversationListByUserId,
+        chatbotConversationRepository.findConversationListByUserId,
       ).toHaveBeenCalledWith(1, {
         limit: 1,
         cursor: '2025-01-25T00:00:00.000Z',
       });
+      expect(result.items[0].title).toBeNull();
       expect(result.nextCursor).toBe('2025-01-24T00:00:00.000Z');
     });
   });
@@ -192,6 +212,12 @@ describe('ChatbotService', () => {
       chatbotLogRepository.findByConversationId.mockResolvedValue(
         logs as never,
       );
+      chatbotConversationRepository.findMetaByConversationId.mockResolvedValue({
+        conversationId,
+        title: '인사',
+        updatedAt: new Date('2025-01-25T00:00:00.000Z'),
+        titleSource: 'llm',
+      });
 
       const result = await service.getConversationHistory(
         userId,
@@ -202,8 +228,12 @@ describe('ChatbotService', () => {
         conversationId,
         userId,
       );
+      expect(
+        chatbotConversationRepository.findMetaByConversationId,
+      ).toHaveBeenCalledWith(userId, conversationId);
       expect(result).toEqual({
         conversationId,
+        title: '인사',
         messages: [
           {
             role: 'user',

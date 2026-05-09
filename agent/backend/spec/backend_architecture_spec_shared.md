@@ -28,7 +28,7 @@
 | server/shared/src/database/prisma/migrations/ | PostgreSQL 마이그레이션 |
 | server/shared/src/database/mongoose/mongoose-pool.config.ts | MongoosePoolConfig 타입 (커넥션 풀 설정). 앱에서는 풀만 정의, URI·retry·readPreference 등은 shared 공용 |
 | server/shared/src/database/mongoose/mongoose.module.ts | MongooseSchemasModule. forRoot(poolConfig) / forRootAsync 로 풀 config 주입. URI·스키마(EventLog, ChatbotLog, Inventory)는 shared에서 공용 관리 |
-| server/shared/src/database/mongoose/schemas/* | ChatbotLog, EventLog, Inventory 스키마 (`ingredients.ownedIds`, `ingredients.favoriteIds`, `recipes.favoriteIds` 포함) |
+| server/shared/src/database/mongoose/schemas/* | ChatbotLog, ChatbotConversation, EventLog, Inventory 스키마 (`ingredients.ownedIds`, `ingredients.favoriteIds`, `recipes.favoriteIds` 포함) |
 | server/shared/src/redis/redis.service.ts | RedisService (NestJS). get/set/setex/del/exists/expire/ttl, 구독 채널 관리 |
 | server/shared/src/redis/redis.module.ts | RedisModule |
 | server/shared/src/types/events/* | ChatbotRequestEvent, ChatbotStreamEvent, UserEvent, InventoryEvent(ingredient/recipe favorites 포함), CacheInvalidationPayload·CacheInvalidationEventType 등 |
