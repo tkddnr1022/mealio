@@ -17,7 +17,7 @@ export interface FindRecentTurnsOptions {
 }
 
 /**
- * ChatbotLog 조회: 동일 대화(conversationId) 내 최근 턴을 createdAt 순으로 반환.
+ * ChatbotLog 조회: 동일 대화(conversationId) 내 최근 턴을 createdAt·_id 순으로 반환.
  * ProcessChatHandler에서 buildMessagesForGpt의 previousTurns 공급용.
  */
 @Injectable()
@@ -44,7 +44,7 @@ export class ChatbotLogRepository {
 
     const docs = await this.chatbotLogModel
       .find(filter)
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: 1, _id: 1 })
       .limit(limit)
       .select('role message')
       .lean()

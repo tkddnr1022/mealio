@@ -303,7 +303,7 @@
 | temperature      | Number  | (optional)    |
 | maxTokens        | Number  | (optional)    |
 
-**인덱스**: `(userId, createdAt DESC)`, `(userId, context.conversationId, createdAt)`, `(success, createdAt DESC)`, `(llm.model, createdAt DESC)`, TTL `(createdAt, 30일)`
+**인덱스**: `(userId, createdAt DESC)`, `(userId, context.conversationId, createdAt ASC, _id ASC)` — 동일 `createdAt`(예: 한 번의 `insertMany`) 시 삽입 순서 타이브레이크, `(success, createdAt DESC)`, `(llm.model, createdAt DESC)`, TTL `(createdAt, 30일)`
 
 **문서 구조 예시**
 

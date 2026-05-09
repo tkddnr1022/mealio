@@ -66,7 +66,7 @@ export class ChatbotLogRepository {
     return this.chatbotLogModel
       .find(filter)
       .select('role message context createdAt')
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: 1, _id: 1 })
       .lean()
       .exec();
   }
