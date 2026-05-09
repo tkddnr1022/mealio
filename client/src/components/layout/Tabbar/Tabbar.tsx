@@ -33,7 +33,7 @@ const TABS: readonly {
   Icon: LucideIcon;
 }[] = [
   { id: 'recipe', href: '/recipe', label: '레시피', Icon: CookingPot },
-  { id: 'chatbot', href: '/chatbot', label: '챗봇', Icon: MessageCircle },
+  { id: 'chatbot', href: '/chatbot/list', label: '챗봇', Icon: MessageCircle },
   { id: 'inventory', href: '/inventory', label: '보관함', Icon: Package },
   { id: 'mypage', href: '/mypage', label: '마이페이지', Icon: User },
 ] as const;
