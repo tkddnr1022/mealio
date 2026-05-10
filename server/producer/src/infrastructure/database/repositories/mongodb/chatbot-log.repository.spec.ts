@@ -109,7 +109,7 @@ describe('ChatbotLogRepository', () => {
       expect(model.find).toHaveBeenCalledWith({
         'context.conversationId': conversationId,
       });
-      expect(mockQuery.sort).toHaveBeenCalledWith({ createdAt: 1 });
+      expect(mockQuery.sort).toHaveBeenCalledWith({ createdAt: 1, _id: 1 });
       expect(result).toEqual(logs);
     });
 

@@ -11,14 +11,17 @@ const figmaWidth: Decorator = (Story) => (
 const sampleChats: readonly ConversationListItem[] = [
   {
     conversationId: 'chat-1',
+    title: null,
     updatedAt: '2026-04-23T10:00:00+09:00',
   },
   {
     conversationId: 'chat-2',
+    title: null,
     updatedAt: '2026-04-22T08:30:00+09:00',
   },
   {
     conversationId: 'chat-3',
+    title: null,
     updatedAt: '2026-04-21T12:00:00+09:00',
   },
 ];
