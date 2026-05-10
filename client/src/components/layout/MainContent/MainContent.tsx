@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import type { ReactNode, Ref } from 'react';
 import { cn } from '@/lib/utils/cn';
 import { CustomScrollbar } from '@/components/ui/CustomScrollbar';
 
@@ -22,6 +22,11 @@ export interface MainContentProps {
    * `false`면 네이티브 세로 스크롤만(오버레이 트랙 없음).
    */
   scroll?: boolean;
+  /**
+   * 스크롤 트랙의 맨 아래(본문 `padding` 바깥)에 두는 앵커.
+   * 부모에서 `scrollIntoView`로 스크롤을 끝까지 맞출 때 사용한다.
+   */
+  scrollEndRef?: Ref<HTMLDivElement>;
   children?: ReactNode;
 }
 
@@ -32,15 +37,35 @@ export function MainContent({
   paddingX = true,
   paddingY = true,
   scroll = true,
+  scrollEndRef,
   children,
 }: MainContentProps) {
-  const innerClasses = cn(
-    'flex flex-col gap-8',
+  const paddedInnerClasses = cn(
+    'flex w-full flex-col',
     centered && 'items-center justify-center',
     paddingX && 'px-4',
     paddingY && 'py-6',
     innerClassName,
   );
+
+  const scrollTrackClasses =
+    scrollEndRef != null
+      ? 'flex min-h-0 flex-col'
+      : paddedInnerClasses;
+
+  const paddedBodyClass =
+    scrollEndRef != null
+      ? cn(paddedInnerClasses, centered && 'min-h-0 flex-1')
+      : paddedInnerClasses;
+
+  const scrollEndAnchor =
+    scrollEndRef != null ? (
+      <div
+        ref={scrollEndRef}
+        className="h-px w-full shrink-0"
+        aria-hidden
+      />
+    ) : null;
 
   return (
     <main
@@ -50,10 +75,31 @@ export function MainContent({
       )}
     >
       {scroll ? (
-        <CustomScrollbar className={innerClasses}>{children}</CustomScrollbar>
+        <CustomScrollbar className={scrollTrackClasses}>
+          {scrollEndRef != null ? (
+            <>
+              <div className={paddedBodyClass}>{children}</div>
+              {scrollEndAnchor}
+            </>
+          ) : (
+            children
+          )}
+        </CustomScrollbar>
       ) : (
-        <div className={cn('min-h-0 flex-1 overflow-y-auto', innerClasses)}>
-          {children}
+        <div
+          className={cn(
+            'min-h-0 flex-1 overflow-y-auto',
+            scrollTrackClasses,
+          )}
+        >
+          {scrollEndRef != null ? (
+            <>
+              <div className={paddedBodyClass}>{children}</div>
+              {scrollEndAnchor}
+            </>
+          ) : (
+            children
+          )}
         </div>
       )}
     </main>

@@ -1,7 +1,7 @@
 'use client';
 
 import { Send } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChatComposer } from '@/components/chatbot/conversation/ChatComposer';
@@ -18,10 +18,7 @@ import {
   chatbotQueries,
   useConversationDetail,
 } from '@/lib/queries/chatbot.queries';
-import type {
-  ConversationMessage,
-  SuggestedRecipe,
-} from '@/lib/types/chatbot';
+import type { ConversationMessage, SuggestedRecipe } from '@/lib/types/chatbot';
 
 const EMPTY_TITLE = '챗봇에게 물어보세요';
 const EMPTY_MESSAGE =
@@ -102,6 +99,25 @@ export default function ChatbotConversationPage() {
   const [composerValue, setComposerValue] = useState('');
   const [pendingUserMessage, setPendingUserMessage] =
     useState<PendingUserMessage | null>(null);
+  const conversationEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollConversationToBottom = useCallback(() => {
+    const el = conversationEndRef.current;
+    if (!el) return;
+    requestAnimationFrame(() => {
+      el.scrollIntoView({ block: 'end', behavior: 'smooth' });
+    });
+  }, []);
+
+  const scrollConversationToBottomAfterLayout = useCallback(() => {
+    const el = conversationEndRef.current;
+    if (!el) return;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        el.scrollIntoView({ block: 'end', behavior: 'smooth' });
+      });
+    });
+  }, []);
 
   const isStreaming = stream.status === 'streaming';
   const isDone = stream.status === 'done';
@@ -163,8 +179,7 @@ export default function ChatbotConversationPage() {
           role: 'assistant',
           message: assistantMessage,
           timestamp: visiblePendingUserMessage.timestamp,
-          pendingPlaceholder:
-            isStreaming && streamedAssistantText.length === 0,
+          pendingPlaceholder: isStreaming && streamedAssistantText.length === 0,
           assistantStreamAnimating:
             isStreaming && streamedAssistantText.length > 0,
           suggestedRecipes:
@@ -188,6 +203,8 @@ export default function ChatbotConversationPage() {
     stream.suggestedRecipes,
   ]);
 
+  const hasConversation = messages.length > 0;
+
   // 스트리밍 종료 후 새 conversationId가 발급되면 URL을 동기화한다.
   useEffect(() => {
     if (!isDone) return;
@@ -206,6 +223,24 @@ export default function ChatbotConversationPage() {
     });
   }, [isDone, conversationId, queryClient]);
 
+  // 기존 대화 상세 진입 시(마운트·라우트 id 변경 후 히스토리가 있을 때) 최하단으로 스크롤
+  useEffect(() => {
+    if (!conversationId || !hasConversation) return;
+    scrollConversationToBottomAfterLayout();
+  }, [conversationId, hasConversation, scrollConversationToBottomAfterLayout]);
+
+  // 메시지 전송 직후(낙관적 UI 반영 뒤) 대화 영역 최하단으로 스크롤
+  useEffect(() => {
+    if (!pendingUserMessage) return;
+    scrollConversationToBottom();
+  }, [pendingUserMessage?.timestamp, scrollConversationToBottom]);
+
+  // 스트림 완료 시(추천 레시피 등 레이아웃 확정 후) 최하단으로 스크롤
+  useEffect(() => {
+    if (stream.status !== 'done') return;
+    scrollConversationToBottomAfterLayout();
+  }, [stream.status, scrollConversationToBottomAfterLayout]);
+
   const handleSubmitMessage = useCallback(
     (value: string) => {
       const trimmed = value.trim();
@@ -220,8 +255,6 @@ export default function ChatbotConversationPage() {
     [isStreaming, stream],
   );
 
-  const hasConversation = messages.length > 0;
-
   return (
     <div className="flex h-full min-h-0 flex-col">
       <Navbar
@@ -233,6 +266,7 @@ export default function ChatbotConversationPage() {
       <MainContent
         paddingX={!hasConversation}
         centered={!hasConversation}
+        scrollEndRef={hasConversation ? conversationEndRef : undefined}
       >
         {hasConversation ? (
           <ChatConversation messages={messages} />
