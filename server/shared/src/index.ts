@@ -53,6 +53,7 @@ export {
   ChatbotConversationSchema,
   ChatbotLog,
   ChatbotLogSchema,
+  SuggestedRecipeSummary,
   EventLog,
   EventLogSchema,
   Inventory,

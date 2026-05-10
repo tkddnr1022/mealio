@@ -21,6 +21,25 @@ class LLMMetadata {
   maxTokens?: number;
 }
 
+/** 스트림·로그에 저장하는 레시피 요약 (검색 도구 결과의 부분 집합) */
+export class SuggestedRecipeSummary {
+  @Prop({ required: true, type: Number })
+  id: number;
+
+  @Prop({ required: true, type: String })
+  title: string;
+
+  @Prop({ required: true, type: Number })
+  categoryId: number;
+
+  @Prop({ required: true, type: String })
+  categoryName: string;
+
+  /** 레시피 대표 이미지 URL (없으면 null) */
+  @Prop({ type: String, default: null })
+  imageUrl: string | null;
+}
+
 class ConversationContext {
   @Prop({ type: String })
   conversationId?: string;
@@ -34,8 +53,8 @@ class ConversationContext {
   @Prop({ type: [Number] })
   mentionedIngredientIds?: number[];
 
-  @Prop({ type: [Number] })
-  suggestedRecipeIds?: number[];
+  @Prop({ type: [SuggestedRecipeSummary] })
+  suggestedRecipes?: SuggestedRecipeSummary[];
 }
 
 @Schema({

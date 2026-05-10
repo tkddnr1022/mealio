@@ -139,7 +139,13 @@ export class ChatbotRequestProcessor extends BaseTopicProcessor<ChatbotRequestEv
       userMessage: event.message,
       assistantMessage: result.fullContent,
       success: true,
-      suggestedRecipeIds: result.suggestedRecipes.map((r) => r.id),
+      suggestedRecipes: result.suggestedRecipes.map((r) => ({
+        id: r.id,
+        title: r.title,
+        categoryId: r.categoryId,
+        categoryName: r.categoryName,
+        imageUrl: r.imageUrl,
+      })),
       usage: result.usage,
       model: result.model,
     });

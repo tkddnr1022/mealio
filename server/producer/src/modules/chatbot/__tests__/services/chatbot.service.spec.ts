@@ -191,7 +191,7 @@ describe('ChatbotService', () => {
   });
 
   describe('getConversationHistory', () => {
-    it('conversationId와 userId로 대화 히스토리를 조회한다 (추천 레시피는 ID 배열만)', async () => {
+    it('conversationId와 userId로 대화 히스토리를 조회한다 (추천 레시피는 요약 배열)', async () => {
       const userId = 1;
       const conversationId = 'conv_abc';
       const logs = [
@@ -205,7 +205,24 @@ describe('ChatbotService', () => {
           userId: 1,
           role: 'assistant',
           message: '안녕하세요',
-          context: { suggestedRecipeIds: [1, 2] },
+          context: {
+            suggestedRecipes: [
+              {
+                id: 1,
+                title: '레시피1',
+                categoryId: 1,
+                categoryName: '밥',
+                imageUrl: null,
+              },
+              {
+                id: 2,
+                title: '레시피2',
+                categoryId: 1,
+                categoryName: '밥',
+                imageUrl: 'https://cdn.example.com/2.jpg',
+              },
+            ],
+          },
           createdAt: new Date('2025-01-25T00:00:01.000Z'),
         },
       ];
@@ -238,13 +255,28 @@ describe('ChatbotService', () => {
           {
             role: 'user',
             message: '안녕',
-            suggestedRecipeIds: null,
+            suggestedRecipes: null,
             createdAt: '2025-01-25T00:00:00.000Z',
           },
           {
             role: 'assistant',
             message: '안녕하세요',
-            suggestedRecipeIds: [1, 2],
+            suggestedRecipes: [
+              {
+                id: 1,
+                title: '레시피1',
+                categoryId: 1,
+                categoryName: '밥',
+                imageUrl: null,
+              },
+              {
+                id: 2,
+                title: '레시피2',
+                categoryId: 1,
+                categoryName: '밥',
+                imageUrl: 'https://cdn.example.com/2.jpg',
+              },
+            ],
             createdAt: '2025-01-25T00:00:01.000Z',
           },
         ],

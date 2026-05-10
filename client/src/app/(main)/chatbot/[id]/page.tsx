@@ -46,7 +46,7 @@ interface PendingUserMessage {
 function toDisplayMessages(
   conversationId: string | null,
   messages: readonly ConversationMessage[],
-  suggestedRecipes: readonly SuggestedRecipe[],
+  streamSuggestedRecipes: readonly SuggestedRecipe[],
 ): ChatConversationMessage[] {
   const visible = messages.filter((message) => message.role !== 'system');
   // 마지막 assistant 응답에만 추천 레시피 슬라이더를 노출한다.
@@ -57,16 +57,27 @@ function toDisplayMessages(
     return -1;
   })();
 
-  return visible.map((message, index) => ({
-    id: `${conversationId ?? 'conversation'}-history-${index}`,
-    role: message.role as 'assistant' | 'user',
-    message: message.message,
-    timestamp: message.createdAt,
-    suggestedRecipes:
-      index === lastAssistantIndex && suggestedRecipes.length > 0
-        ? suggestedRecipes
-        : undefined,
-  }));
+  return visible.map((message, index) => {
+    const fromHistory =
+      index === lastAssistantIndex &&
+      message.role === 'assistant' &&
+      message.suggestedRecipes &&
+      message.suggestedRecipes.length > 0
+        ? message.suggestedRecipes
+        : undefined;
+    const fromStream =
+      index === lastAssistantIndex && streamSuggestedRecipes.length > 0
+        ? streamSuggestedRecipes
+        : undefined;
+
+    return {
+      id: `${conversationId ?? 'conversation'}-history-${index}`,
+      role: message.role as 'assistant' | 'user',
+      message: message.message,
+      timestamp: message.createdAt,
+      suggestedRecipes: fromHistory ?? fromStream,
+    };
+  });
 }
 
 export default function ChatbotConversationPage() {

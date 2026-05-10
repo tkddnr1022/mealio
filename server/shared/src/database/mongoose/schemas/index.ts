@@ -1,4 +1,8 @@
-export { ChatbotLog, ChatbotLogSchema } from './chatbot-log.schema';
+export {
+  ChatbotLog,
+  ChatbotLogSchema,
+  SuggestedRecipeSummary,
+} from './chatbot-log.schema';
 export type { ChatbotLogDocument } from './chatbot-log.schema';
 export {
   ChatbotConversation,

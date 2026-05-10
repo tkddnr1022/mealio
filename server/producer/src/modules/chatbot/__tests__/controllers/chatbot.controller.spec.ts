@@ -19,13 +19,28 @@ describe('ChatbotController', () => {
       {
         role: 'user' as const,
         message: '안녕',
-        suggestedRecipeIds: null as const,
+        suggestedRecipes: null,
         createdAt: '2025-01-25T00:00:00.000Z',
       },
       {
         role: 'assistant' as const,
         message: '안녕하세요',
-        suggestedRecipeIds: [1, 2],
+        suggestedRecipes: [
+          {
+            id: 1,
+            title: '레시피1',
+            categoryId: 1,
+            categoryName: '밥',
+            imageUrl: null,
+          },
+          {
+            id: 2,
+            title: '레시피2',
+            categoryId: 1,
+            categoryName: '밥',
+            imageUrl: null,
+          },
+        ],
         createdAt: '2025-01-25T00:00:01.000Z',
       },
     ],

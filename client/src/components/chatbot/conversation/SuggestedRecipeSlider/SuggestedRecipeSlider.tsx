@@ -90,7 +90,7 @@ export function SuggestedRecipeSlider({
             >
               <SuggestedRecipeCard
                 recipe={item}
-                imageUrl={getImageUrl?.(item)}
+                imageUrl={getImageUrl?.(item) ?? item.imageUrl ?? undefined}
                 imageAlt={getImageAlt?.(item)}
                 className={cardClassName}
               />

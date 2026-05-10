@@ -18,6 +18,8 @@ export interface SuggestedRecipe {
   title: string;
   categoryId: number;
   categoryName: string;
+  /** 대표 이미지 URL (없으면 null) */
+  imageUrl?: string | null;
 }
 
 // ─── 대화 REST 응답 ────────────────────────────────────────────────────────────
@@ -50,8 +52,8 @@ export interface ConversationListQuery {
 export interface ConversationMessage {
   role: 'user' | 'assistant' | 'system';
   message: string;
-  /** assistant 메시지의 추천 레시피 ID 목록. 상세는 `getRecipeSummaries`로 조회 */
-  suggestedRecipeIds: number[] | null;
+  /** assistant 메시지에 저장된 추천 레시피 요약 (없으면 null) */
+  suggestedRecipes: SuggestedRecipe[] | null;
   /** ISO 8601 */
   createdAt: string;
 }

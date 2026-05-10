@@ -509,7 +509,7 @@ paths:
       tags:
         - Recipe
       summary: 레시피 요약 정보 벌크 조회
-      description: ID 목록으로 레시피 요약 정보(RecipeSummary)를 한 번에 조회. 챗봇 대화 히스토리의 suggestedRecipeIds 상세 표시 등에 사용.
+      description: ID 목록으로 레시피 요약 정보(RecipeSummary)를 한 번에 조회. 목록·검색 등에서 벌크로 카드 정보를 채울 때 사용.
       security:
         - cookieAuth: []
         - {}
@@ -1709,6 +1709,28 @@ components:
           items:
             $ref: '#/components/schemas/RecipeSummary'
 
+    SuggestedRecipeSummary:
+      type: object
+      description: 챗봇이 제안하는 레시피 요약 (스트림 done·대화 히스토리 메시지 등)
+      required: [id, title, categoryId, categoryName]
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        categoryId:
+          type: integer
+          format: int64
+          description: 레시피 카테고리 ID
+        categoryName:
+          type: string
+          description: 레시피 카테고리 표시명
+        imageUrl:
+          type: string
+          nullable: true
+          description: 대표 이미지 URL
+
     ChatbotResponse:
       type: object
       properties:
@@ -1720,20 +1742,7 @@ components:
           type: array
           nullable: true
           items:
-            type: object
-            properties:
-              id:
-                type: integer
-                format: int64
-              title:
-                type: string
-              categoryId:
-                type: integer
-                format: int64
-                description: 레시피 카테고리 ID
-              categoryName:
-                type: string
-                description: 레시피 카테고리 표시명
+            $ref: '#/components/schemas/SuggestedRecipeSummary'
       example:
         conversationId: conv_abc123
         message: 김치볶음밥은 어떠세요? 집에 있는 재료로 15분이면 완성할 수 있습니다.
@@ -1742,10 +1751,11 @@ components:
             title: 김치볶음밥
             categoryId: 1
             categoryName: 한식
+            imageUrl: https://cdn.example.com/recipes/456.jpg
 
     ConversationHistory:
       type: object
-      description: 대화 히스토리 (추천 레시피는 ID 배열만 반환, 상세는 POST /api/v1/recipes/summaries 벌크 조회)
+      description: 대화 히스토리 (assistant 메시지에 추천이 있으면 suggestedRecipes 요약 배열 포함)
       properties:
         conversationId:
           type: string
@@ -1763,13 +1773,12 @@ components:
                 enum: [user, assistant, system]
               message:
                 type: string
-              suggestedRecipeIds:
+              suggestedRecipes:
                 type: array
                 nullable: true
-                description: 추천 레시피 ID 목록 (assistant 메시지). 상세는 POST /api/v1/recipes/summaries 벌크 조회
+                description: 추천 레시피 요약 (assistant 메시지, Mongo context.suggestedRecipes와 동일 형태)
                 items:
-                  type: integer
-                  format: int64
+                  $ref: '#/components/schemas/SuggestedRecipeSummary'
               createdAt:
                 type: string
                 format: date-time

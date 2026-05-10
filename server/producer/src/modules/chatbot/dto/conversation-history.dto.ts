@@ -3,7 +3,7 @@ import { ChatbotMessageItemDto } from './chatbot-message-item.dto';
 
 /**
  * GET /api/v1/chatbot/conversations/:conversationId 200 응답
- * 추천 레시피는 ID 배열만 반환 (상세는 GET /api/v1/recipes/summaries 벌크 조회)
+ * 메시지별 추천 레시피는 요약 객체 배열(`suggestedRecipes`)로 반환
  */
 export class ConversationHistoryDto {
   @ApiProperty({

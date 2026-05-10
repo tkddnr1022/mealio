@@ -230,6 +230,7 @@ export class ProcessChatHandler {
                       title: r.title,
                       categoryId: r.categoryId,
                       categoryName: r.categoryName,
+                      imageUrl: r.imageUrl,
                     }))
                   : undefined,
             },
@@ -256,6 +257,7 @@ export class ProcessChatHandler {
                   title: r.title,
                   categoryId: r.categoryId,
                   categoryName: r.categoryName,
+                  imageUrl: r.imageUrl,
                 }))
               : undefined,
         },

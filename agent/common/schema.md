@@ -290,7 +290,17 @@
 | previousMessageIds   | [String]       | 이전 메시지 ID 목록  |
 | userPreferences      | Mixed          | 사용자 선호          |
 | mentionedIngredientIds | [Number]    | 언급된 재료 ID       |
-| suggestedRecipeIds   | [Number]       | 추천된 레시피 ID     |
+| suggestedRecipes     | [SuggestedRecipeSummary] | 추천 레시피 요약 (검색 결과 부분 집합) |
+
+**SuggestedRecipeSummary** (`context.suggestedRecipes[]` 항목)
+
+| 필드         | 타입    | 의미                    |
+| ------------ | ------- | ----------------------- |
+| id           | Number  | 레시피 ID               |
+| title        | String  | 제목                    |
+| categoryId   | Number  | 레시피 카테고리 ID      |
+| categoryName | String  | 카테고리 표시명         |
+| imageUrl     | String \| null | 대표 이미지 URL (없으면 null) |
 
 **LLMMetadata**
 

@@ -81,7 +81,22 @@ const SEED_CHATBOT_LOGS = [
       conversationId: 'conv_user1_1',
       previousMessageIds: ['msg_conv_user1_1_1'],
       mentionedIngredientIds: [1, 2, 3, 4, 5, 6, 7],
-      suggestedRecipeIds: [1, 2],
+      suggestedRecipes: [
+        {
+          id: 1,
+          title: '김치볶음밥',
+          categoryId: 1,
+          categoryName: '밥류',
+          imageUrl: null,
+        },
+        {
+          id: 2,
+          title: '김치계란밥',
+          categoryId: 1,
+          categoryName: '밥류',
+          imageUrl: null,
+        },
+      ],
       userPreferences: {
         maxCookTime: 30,
         difficulty: 2,
@@ -123,7 +138,22 @@ const SEED_CHATBOT_LOGS = [
       conversationId: 'conv_user1_2',
       previousMessageIds: ['msg_conv_user1_2_1'],
       mentionedIngredientIds: [1, 2, 3, 4, 6, 7],
-      suggestedRecipeIds: [3, 4],
+      suggestedRecipes: [
+        {
+          id: 3,
+          title: '김치찌개',
+          categoryId: 2,
+          categoryName: '찌개·국',
+          imageUrl: null,
+        },
+        {
+          id: 4,
+          title: '된장찌개',
+          categoryId: 2,
+          categoryName: '찌개·국',
+          imageUrl: null,
+        },
+      ],
       userPreferences: {
         excludeIngredientIds: [5],
         maxCookTime: 25,
@@ -164,7 +194,22 @@ const SEED_CHATBOT_LOGS = [
       conversationId: 'conv_user2_1',
       previousMessageIds: ['msg_conv_user2_1_1'],
       mentionedIngredientIds: [2, 3, 5, 8, 9, 10],
-      suggestedRecipeIds: [5, 6],
+      suggestedRecipes: [
+        {
+          id: 5,
+          title: '달걀후라이',
+          categoryId: 3,
+          categoryName: '반찬',
+          imageUrl: null,
+        },
+        {
+          id: 6,
+          title: '계란말이',
+          categoryId: 3,
+          categoryName: '반찬',
+          imageUrl: null,
+        },
+      ],
       userPreferences: {
         maxCookTime: 5,
         quickMeal: true,
@@ -205,7 +250,22 @@ const SEED_CHATBOT_LOGS = [
       conversationId: 'conv_user3_1',
       previousMessageIds: ['msg_conv_user3_1_1'],
       mentionedIngredientIds: [1, 5, 6],
-      suggestedRecipeIds: [7, 8],
+      suggestedRecipes: [
+        {
+          id: 7,
+          title: '간장계란밥',
+          categoryId: 1,
+          categoryName: '밥류',
+          imageUrl: null,
+        },
+        {
+          id: 8,
+          title: '달걀밥',
+          categoryId: 1,
+          categoryName: '밥류',
+          imageUrl: null,
+        },
+      ],
       userPreferences: {
         maxCookTime: 15,
         preferredIngredients: [1, 5, 6],

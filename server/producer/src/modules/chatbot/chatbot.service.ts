@@ -14,6 +14,7 @@ import type { SendMessageDto } from './dto/send-message.dto';
 import { ChatbotLogRepository } from '../../infrastructure/database/repositories/mongodb/chatbot-log.repository';
 import { ChatbotConversationRepository } from '../../infrastructure/database/repositories/mongodb/chatbot-conversation.repository';
 import type { ConversationHistoryDto } from './dto/conversation-history.dto';
+import type { SuggestedRecipeSummary } from '@cook/shared';
 import type { ConversationListDto } from './dto/conversation-list.dto';
 
 /** SSE 스트림 대기 최대 시간 (ms). 이 시간 내에 done/error가 오지 않으면 연결 종료 */
@@ -33,7 +34,7 @@ export interface StreamMessageCallbacks {
  * - POST /chatbot/messages: Kafka로 요청 전달 (Consumer에서 GPT 호출·ChatbotLog 저장)
  *   - SSE 스트리밍: Kafka 발행 후 Redis 구독으로 Consumer가 보낸 청크/종료를 클라이언트에 전달
  * - GET /chatbot/conversations: 해당 유저의 대화 목록(conversationId) 조회
- * - GET /chatbot/conversations/:id: MongoDB에서 대화 히스토리 조회 (추천 레시피는 ID 배열만 반환)
+ * - GET /chatbot/conversations/:id: MongoDB에서 대화 히스토리 조회 (추천 레시피는 요약 배열 반환)
  */
 @Injectable()
 export class ChatbotService {
@@ -153,7 +154,7 @@ export class ChatbotService {
 
   /**
    * conversationId로 대화 히스토리를 조회한다 (MongoDB ChatbotLog). 본인 대화만 조회.
-   * 추천 레시피는 ID 배열만 반환 (상세는 GET /api/v1/recipes/summaries 벌크 조회).
+   * 추천 레시피는 `SuggestedRecipeSummary` 형태의 배열로 반환한다.
    */
   async getConversationHistory(
     userId: number,
@@ -179,14 +180,22 @@ export class ChatbotService {
         role: string;
         message: string;
         createdAt?: Date;
-        context?: { suggestedRecipeIds?: number[] };
+        context?: { suggestedRecipes?: SuggestedRecipeSummary[] };
       };
-      const suggestedRecipeIds = raw.context?.suggestedRecipeIds ?? [];
+      const suggestedRecipes = raw.context?.suggestedRecipes;
       return {
         role: raw.role as 'user' | 'assistant' | 'system',
         message: raw.message,
-        suggestedRecipeIds:
-          suggestedRecipeIds.length > 0 ? suggestedRecipeIds : null,
+        suggestedRecipes:
+          suggestedRecipes && suggestedRecipes.length > 0
+            ? suggestedRecipes.map((r) => ({
+                id: r.id,
+                title: r.title,
+                categoryId: r.categoryId,
+                categoryName: r.categoryName,
+                imageUrl: r.imageUrl ?? null,
+              }))
+            : null,
         createdAt: raw.createdAt ? new Date(raw.createdAt).toISOString() : '',
       };
     });

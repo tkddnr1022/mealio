@@ -1,7 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 /**
- * ChatbotResponse 내 추천 레시피 항목 (OpenAPI ChatbotResponse.suggestedRecipes)
+ * 챗봇이 제안하는 레시피 요약 (Mongo `SuggestedRecipeSummary`·OpenAPI `SuggestedRecipeSummary`와 동일 필드)
+ * — ChatbotResponse.suggestedRecipes, 대화 히스토리 메시지의 suggestedRecipes에 사용
  */
 export class SuggestedRecipeDto {
   @ApiProperty({ description: '레시피 ID', example: 456 })
@@ -15,4 +16,11 @@ export class SuggestedRecipeDto {
 
   @ApiProperty({ description: '레시피 카테고리 표시명', example: '한식' })
   categoryName: string;
+
+  @ApiPropertyOptional({
+    description: '대표 이미지 URL',
+    nullable: true,
+    example: 'https://cdn.example.com/recipes/456.jpg',
+  })
+  imageUrl: string | null;
 }

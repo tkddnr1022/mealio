@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ChatbotLog } from '@cook/shared';
-import type { ChatbotLogDocument } from '@cook/shared';
+import {
+  ChatbotLog,
+  SuggestedRecipeSummary,
+  type ChatbotLogDocument,
+} from '@cook/shared';
 
 export interface SaveChatLogPayload {
   userId: number;
@@ -11,7 +14,7 @@ export interface SaveChatLogPayload {
   assistantMessage: string;
   success: boolean;
   error?: string;
-  suggestedRecipeIds?: number[];
+  suggestedRecipes?: SuggestedRecipeSummary[];
   usage?: {
     promptTokens: number;
     completionTokens: number;
@@ -38,14 +41,14 @@ export class SaveChatLogHandler {
       assistantMessage,
       success,
       error,
-      suggestedRecipeIds,
+      suggestedRecipes,
       usage,
       model,
     } = payload;
 
     const baseContext = {
       conversationId,
-      suggestedRecipeIds: suggestedRecipeIds ?? [],
+      suggestedRecipes: suggestedRecipes ?? [],
     };
 
     await this.chatbotLogModel.insertMany([

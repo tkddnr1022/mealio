@@ -1,8 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { SuggestedRecipeDto } from './suggested-recipe.dto';
 
 /**
  * 대화 히스토리 내 단일 메시지
- * GET /api/v1/chatbot/conversations/:id 응답의 messages[] 항목 (추천 레시피는 ID 배열만 반환)
+ * GET /api/v1/chatbot/conversations/:id 응답의 messages[] 항목
  */
 export class ChatbotMessageItemDto {
   @ApiProperty({
@@ -16,12 +17,11 @@ export class ChatbotMessageItemDto {
 
   @ApiPropertyOptional({
     description:
-      '추천 레시피 ID 목록 (assistant 메시지에서만 사용). 상세는 GET /api/v1/recipes/summaries 로 벌크 조회',
-    type: [Number],
+      '추천 레시피 요약 목록 (assistant 메시지·저장된 context.suggestedRecipes가 있을 때만)',
+    type: [SuggestedRecipeDto],
     nullable: true,
-    example: [1, 2],
   })
-  suggestedRecipeIds: number[] | null;
+  suggestedRecipes: SuggestedRecipeDto[] | null;
 
   @ApiProperty({
     description: '생성 시각',

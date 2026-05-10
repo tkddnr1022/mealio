@@ -14,12 +14,14 @@ const sampleSuggestedRecipes: readonly SuggestedRecipe[] = [
     title: '비빔밥',
     categoryId: 10,
     categoryName: '한식',
+    imageUrl: null,
   },
   {
     id: 2,
     title: '김치볶음밥',
     categoryId: 10,
     categoryName: '한식',
+    imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200',
   },
 ];
 
