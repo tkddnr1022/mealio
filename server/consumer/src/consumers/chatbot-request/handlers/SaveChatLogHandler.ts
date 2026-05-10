@@ -46,7 +46,8 @@ export class SaveChatLogHandler {
       model,
     } = payload;
 
-    const baseContext = {
+    const userContext = { conversationId };
+    const assistantContext = {
       conversationId,
       suggestedRecipes: suggestedRecipes ?? [],
     };
@@ -56,14 +57,14 @@ export class SaveChatLogHandler {
         userId,
         role: 'user',
         message: userMessage.slice(0, 10000),
-        context: baseContext,
+        context: userContext,
         success: true,
       },
       {
         userId,
         role: 'assistant',
         message: assistantMessage.slice(0, 10000),
-        context: baseContext,
+        context: assistantContext,
         llm: {
           model,
           ...usage,
