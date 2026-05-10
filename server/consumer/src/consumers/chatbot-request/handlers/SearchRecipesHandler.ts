@@ -6,7 +6,8 @@ import {
   cacheKeyChatbotFoodCategories,
 } from '@cook/shared';
 
-export interface SuggestedRecipe {
+/** `search_recipes` 도구가 반환하는 레시피 요약(검색 결과). 추천·랭킹 점수는 포함하지 않는다. */
+export interface SearchedRecipe {
   id: number;
   title: string;
   description: string | null;
@@ -17,7 +18,6 @@ export interface SuggestedRecipe {
   /** RecipeCategory.id */
   categoryId: number;
   categoryName: string;
-  matchScore: number;
 }
 
 export interface SearchRecipesPayload {
@@ -46,13 +46,12 @@ export interface FoodCategoriesResult {
 
 const DEFAULT_LIMIT = 5;
 const MAX_LIMIT = 20;
-const SCORE_INGREDIENT_MATCH = 10;
-const SCORE_INGREDIENT_CATEGORY_MATCH = 3;
 /** Producer RecipeCacheStrategy·레시피 카테고리 API와 동일하게 1시간 */
 const FOOD_CATEGORIES_CACHE_TTL_SECONDS = 3600;
 
 /**
- * search_recipes 함수 실행 — Prisma 레시피 검색, 재료·카테고리 필터 및 가산점, SuggestedRecipe[] 반환
+ * search_recipes 함수 실행 — Prisma로 레시피를 조건 필터·키워드 필터 후,
+ * DB 정렬(최신 생성 순)을 유지한 채 상한만 적용해 SearchedRecipe[] 반환.
  */
 @Injectable()
 export class SearchRecipesHandler {
@@ -105,9 +104,8 @@ export class SearchRecipesHandler {
     return result;
   }
 
-  async execute(payload: SearchRecipesPayload): Promise<SuggestedRecipe[]> {
+  async execute(payload: SearchRecipesPayload): Promise<SearchedRecipe[]> {
     const limit = Math.min(payload.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
-    const ingredientIds = payload.ingredientIds ?? [];
     const recipeCategoryIds = payload.recipeCategoryIds ?? [];
     const ingredientCategoryIds = payload.ingredientCategoryIds ?? [];
 
@@ -119,7 +117,12 @@ export class SearchRecipesHandler {
       ...(recipeCategoryIds.length > 0 && {
         categoryId: { in: recipeCategoryIds },
       }),
-      ...(ingredientCategoryIds.length > 0 && {
+    };
+
+    const ingredientIds = payload.ingredientIds ?? [];
+    const relationAnd: Prisma.RecipeWhereInput[] = [];
+    if (ingredientCategoryIds.length > 0) {
+      relationAnd.push({
         recipeIngredients: {
           some: {
             ingredient: {
@@ -127,65 +130,48 @@ export class SearchRecipesHandler {
             },
           },
         },
-      }),
-    };
+      });
+    }
+    if (ingredientIds.length > 0) {
+      relationAnd.push({
+        recipeIngredients: {
+          some: { ingredientId: { in: ingredientIds } },
+        },
+      });
+    }
+    if (relationAnd.length > 0) {
+      where.AND = relationAnd;
+    }
 
     const recipes = await this.prisma.recipe.findMany({
       where,
       include: {
         categoryMeta: { select: { id: true, name: true } },
-        recipeIngredients: {
-          select: {
-            ingredientId: true,
-            ingredient: { select: { categoryId: true } },
-          },
-        },
       },
       take: 50,
       orderBy: { createdAt: 'desc' },
     });
 
     const keywordLower = payload.keywords?.map((k) => k.toLowerCase()) ?? [];
-    const scored = recipes
-      .filter((r) => {
-        if (keywordLower.length === 0) return true;
-        const title = (r.title ?? '').toLowerCase();
-        const desc = ((r.description as string) ?? '').toLowerCase();
-        return keywordLower.some((k) => title.includes(k) || desc.includes(k));
-      })
-      .map((r) => {
-        const recipeIngredientIds = r.recipeIngredients.map(
-          (ri) => ri.ingredientId,
-        );
-        let score = 0;
-        if (ingredientIds.length > 0) {
-          for (const id of recipeIngredientIds) {
-            if (ingredientIds.includes(id)) score += SCORE_INGREDIENT_MATCH;
-          }
-        }
-        if (ingredientCategoryIds.length > 0) {
-          for (const ri of r.recipeIngredients) {
-            if (ingredientCategoryIds.includes(ri.ingredient.categoryId)) {
-              score += SCORE_INGREDIENT_CATEGORY_MATCH;
-            }
-          }
-        }
-        return {
-          id: r.id,
-          title: r.title,
-          description: r.description,
-          difficulty: r.difficulty,
-          cookTime: r.cookTime,
-          imageUrl: r.imageUrl,
-          servings: r.servings,
-          categoryId: r.categoryId,
-          categoryName: r.categoryMeta.name,
-          matchScore: score,
-        };
-      })
-      .sort((a, b) => b.matchScore - a.matchScore)
-      .slice(0, limit);
+    const filtered =
+      keywordLower.length === 0
+        ? recipes
+        : recipes.filter((r) => {
+            const title = (r.title ?? '').toLowerCase();
+            const desc = ((r.description as string) ?? '').toLowerCase();
+            return keywordLower.some((k) => title.includes(k) || desc.includes(k));
+          });
 
-    return scored;
+    return filtered.slice(0, limit).map((r) => ({
+      id: r.id,
+      title: r.title,
+      description: r.description,
+      difficulty: r.difficulty,
+      cookTime: r.cookTime,
+      imageUrl: r.imageUrl,
+      servings: r.servings,
+      categoryId: r.categoryId,
+      categoryName: r.categoryMeta.name,
+    }));
   }
 }

@@ -14,14 +14,12 @@ const sampleSuggestedRecipes: readonly SuggestedRecipe[] = [
     title: '비빔밥',
     categoryId: 10,
     categoryName: '한식',
-    matchScore: 93,
   },
   {
     id: 2,
     title: '김치볶음밥',
     categoryId: 10,
     categoryName: '한식',
-    matchScore: 88,
   },
 ];
 

@@ -12,14 +12,12 @@
 
 // ─── 추천 레시피 ───────────────────────────────────────────────────────────────
 
-/** SSE `done` 이벤트가 포함하는 추천 레시피 레코드 */
+/** SSE `done` 이벤트에 포함되는 레시피 요약(검색·도구 결과를 챗봇이 제안할 때 사용) */
 export interface SuggestedRecipe {
   id: number;
   title: string;
   categoryId: number;
   categoryName: string;
-  /** 매칭 점수 (0~100) */
-  matchScore: number;
 }
 
 // ─── 대화 REST 응답 ────────────────────────────────────────────────────────────

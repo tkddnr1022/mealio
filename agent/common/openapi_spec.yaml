@@ -1734,10 +1734,6 @@ components:
               categoryName:
                 type: string
                 description: 레시피 카테고리 표시명
-              matchScore:
-                type: integer
-                minimum: 0
-                maximum: 100
       example:
         conversationId: conv_abc123
         message: 김치볶음밥은 어떠세요? 집에 있는 재료로 15분이면 완성할 수 있습니다.
@@ -1746,7 +1742,6 @@ components:
             title: 김치볶음밥
             categoryId: 1
             categoryName: 한식
-            matchScore: 95
 
     ConversationHistory:
       type: object

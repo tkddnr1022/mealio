@@ -20,14 +20,12 @@ const baseItems = [
     title: '비빔밥',
     categoryId: 10,
     categoryName: '한식',
-    matchScore: 93,
   },
   {
     id: 2,
     title: '김치볶음밥',
     categoryId: 10,
     categoryName: '한식',
-    matchScore: 88,
   },
 ] satisfies readonly SuggestedRecipe[];
 
@@ -67,7 +65,6 @@ export const ThreeCards = {
         title: '닭갈비',
         categoryId: 10,
         categoryName: '한식',
-        matchScore: 84,
       },
     ],
     getImageUrl: (item: SuggestedRecipe) => imageMap.get(item.id),

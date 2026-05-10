@@ -15,12 +15,4 @@ export class SuggestedRecipeDto {
 
   @ApiProperty({ description: '레시피 카테고리 표시명', example: '한식' })
   categoryName: string;
-
-  @ApiProperty({
-    description: '매칭 점수 (0~100)',
-    minimum: 0,
-    maximum: 100,
-    example: 95,
-  })
-  matchScore: number;
 }

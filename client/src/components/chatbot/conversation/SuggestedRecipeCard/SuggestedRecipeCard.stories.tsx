@@ -15,7 +15,6 @@ const sampleRecipe: SuggestedRecipe = {
   title: '비빔밥',
   categoryId: 10,
   categoryName: '한식',
-  matchScore: 92,
 };
 
 const meta = {

@@ -22,10 +22,7 @@ export function toChatBubbleTimestampLabel(timestamp: DateInput): string {
 export function toSuggestedRecipeTagItems(
   recipe: SuggestedRecipe,
 ): readonly MiniTagItem[] {
-  return [
-    { label: recipe.categoryName },
-    { label: `매칭 ${Math.round(recipe.matchScore)}%` },
-  ];
+  return [{ label: recipe.categoryName }];
 }
 
 export function isValidSuggestedRecipe(recipe: SuggestedRecipe): boolean {

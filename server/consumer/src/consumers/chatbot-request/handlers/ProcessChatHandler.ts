@@ -18,7 +18,7 @@ import {
 import { ToolDispatcher } from '../tools/tool-dispatcher';
 import { CHATBOT_TOOLS } from '../tools/chatbot-tools.definition';
 import { buildMessagesForGpt } from '../context/conversation.manager';
-import type { SuggestedRecipe } from './SearchRecipesHandler';
+import type { SearchedRecipe } from './SearchRecipesHandler';
 
 export interface ProcessChatPayload {
   userId: number;
@@ -41,7 +41,7 @@ export class ProcessChatHandler {
   async execute(payload: ProcessChatPayload): Promise<
     | {
         fullContent: string;
-        suggestedRecipes: SuggestedRecipe[];
+        suggestedRecipes: SearchedRecipe[];
         usage?: {
           promptTokens: number;
           completionTokens: number;
@@ -83,7 +83,7 @@ export class ProcessChatHandler {
     conversationId: string,
   ): Promise<{
     fullContent: string;
-    suggestedRecipes: SuggestedRecipe[];
+    suggestedRecipes: SearchedRecipe[];
     model?: string;
     usage?: {
       promptTokens: number;
@@ -104,7 +104,7 @@ export class ProcessChatHandler {
       payload.message,
     );
     let fullContent = '';
-    let lastSuggestedRecipes: SuggestedRecipe[] = [];
+    let lastSearchedRecipes: SearchedRecipe[] = [];
     let usage:
       | { promptTokens: number; completionTokens: number; totalTokens: number }
       | undefined;
@@ -208,9 +208,10 @@ export class ProcessChatHandler {
               parsed[0] !== null &&
               'id' in parsed[0] &&
               'title' in parsed[0] &&
-              'matchScore' in parsed[0]
+              'categoryId' in parsed[0] &&
+              'categoryName' in parsed[0]
             ) {
-              lastSuggestedRecipes = parsed as SuggestedRecipe[];
+              lastSearchedRecipes = parsed as SearchedRecipe[];
             }
           } catch {
             // ignore
@@ -223,13 +224,12 @@ export class ProcessChatHandler {
             data: {
               conversationId,
               suggestedRecipes:
-                lastSuggestedRecipes.length > 0
-                  ? lastSuggestedRecipes.map((r) => ({
+                lastSearchedRecipes.length > 0
+                  ? lastSearchedRecipes.map((r) => ({
                       id: r.id,
                       title: r.title,
                       categoryId: r.categoryId,
                       categoryName: r.categoryName,
-                      matchScore: r.matchScore,
                     }))
                   : undefined,
             },
@@ -237,7 +237,7 @@ export class ProcessChatHandler {
         }
         return {
           fullContent,
-          suggestedRecipes: lastSuggestedRecipes,
+          suggestedRecipes: lastSearchedRecipes,
           usage,
           model,
         };
@@ -250,13 +250,12 @@ export class ProcessChatHandler {
         data: {
           conversationId,
           suggestedRecipes:
-            lastSuggestedRecipes.length > 0
-              ? lastSuggestedRecipes.map((r) => ({
+            lastSearchedRecipes.length > 0
+              ? lastSearchedRecipes.map((r) => ({
                   id: r.id,
                   title: r.title,
                   categoryId: r.categoryId,
                   categoryName: r.categoryName,
-                  matchScore: r.matchScore,
                 }))
               : undefined,
         },
@@ -264,7 +263,7 @@ export class ProcessChatHandler {
     }
     return {
       fullContent,
-      suggestedRecipes: lastSuggestedRecipes,
+      suggestedRecipes: lastSearchedRecipes,
       model,
       usage,
     };
