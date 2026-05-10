@@ -41,7 +41,7 @@ export function MainContent({
   children,
 }: MainContentProps) {
   const paddedInnerClasses = cn(
-    'flex w-full flex-col',
+    'flex w-full flex-col gap-8',
     centered && 'items-center justify-center',
     paddingX && 'px-4',
     paddingY && 'py-6',
