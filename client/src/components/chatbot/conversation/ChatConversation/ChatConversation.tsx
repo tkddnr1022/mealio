@@ -11,6 +11,10 @@ export type ChatConversationMessage = Readonly<{
   timestamp: ConversationMessage['createdAt'];
   /** 이 assistant/응답 메시지 직후에 추천 레시피 슬라이더를 붙일 때(스트림 done·RAG 결과 등) */
   suggestedRecipes?: readonly SuggestedRecipe[];
+  /** 스트리밍 진행 문구(답변 생성 중·도구 실행 중) 표시용 */
+  pendingPlaceholder?: boolean;
+  /** assistant 본문 토큰 스트리밍 중(Streamdown `isAnimating`) */
+  assistantStreamAnimating?: boolean;
 }>;
 
 export interface ChatConversationProps extends Omit<
@@ -28,7 +32,7 @@ export function ChatConversation({
 }: ChatConversationProps) {
   return (
     <section
-      className={cn('flex w-full flex-col gap-4 overflow-hidden', className)}
+      className={cn('flex w-full flex-col gap-4', className)}
       data-name="ChatConversation"
       {...rest}
     >
@@ -39,6 +43,8 @@ export function ChatConversation({
             bubbleProps={{
               message: message.message,
               timestamp: message.timestamp,
+              pendingPlaceholder: message.pendingPlaceholder,
+              assistantStreamAnimating: message.assistantStreamAnimating,
             }}
           />
           {message.suggestedRecipes && message.suggestedRecipes.length > 0 ? (

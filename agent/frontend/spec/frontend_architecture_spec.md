@@ -96,7 +96,7 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 | 경로 | 컴포넌트 | 렌더링 | 설명 |
 |------|----------|--------|------|
 | `/chatbot/list` | ChatbotConversationListPage | CSR | 대화 목록 페이지 |
-| `/chatbot/[id]` | ChatbotConversationPage | CSR | 대화 페이지 (SSE/WebSocket) |
+| `/chatbot/[id]` | ChatbotConversationPage | CSR | 대화 페이지 (메시지 전송·응답 스트림은 SSE, §5.4) |
 
 #### 보관함 탭 (`/inventory`)
 
@@ -197,14 +197,16 @@ React Query(TanStack Query) 기반. 쿼리 키 계층화·`staleTime`·`cacheTim
 
 ### 5.4 챗봇 SSE 클라이언트 (`client/src/lib/chatbot/`)
 
-SSE 구독·이벤트 파싱 담당. `ChatbotStreamEvent` 타입·Redis 채널·Kafka 토픽 계약은 `../../backend/spec/backend_architecture_spec_producer.md` §1.2에 정의되어 있다.
+SSE 구독·이벤트 파싱·스트림 UI용 진행 문구 파생까지 담당한다. `ChatbotStreamEvent` 등 DTO·이벤트 `type` 문자열의 계약은 `client/src/lib/types/chatbot.ts`에 두고, 백엔드·Redis 발행 형식은 `../../backend/spec/backend_architecture_spec_producer.md` §1.2 및 저장소 `server/shared/src/types/events/chatbot-stream-event.event.ts`와 맞춘다. OpenAI Function `function.name`과 동기화되는 도구 식별자는 서버 `server/consumer/.../chatbot-tools.definition.ts`와 클라이언트 `chatbot-tool-progress.ts`가 동일한 문자열을 쓴다.
 
 | 경로 | 역할 |
 |------|------|
-| **client/src/lib/chatbot/** | 챗봇 SSE 구독·스트림 상태 관리 |
+| **client/src/lib/chatbot/** | 챗봇 SSE 구독·스트림 상태·진행 문구(placeholder) 파생 |
 | client/src/lib/chatbot/sse-client.ts | `POST /api/v1/chatbot/messages` fetch + `ReadableStream` 파서. SSE `data:` 라인 → JSON 디코딩, 재연결·취소 지원 |
-| client/src/lib/chatbot/stream-events.ts | `ChatbotStreamEvent` 타입(`intent` \| `chunk` \| `done` \| `error`)·타입 가드·이벤트 파서 |
-| client/src/lib/chatbot/use-chatbot-stream.ts | `useChatbotStream` 훅 — 메시지 전송·스트림 구독·부분 응답 상태 관리, 컴포넌트 언마운트 시 abort |
+| client/src/lib/chatbot/stream-events.ts | `ChatbotStreamEvent`의 타입 가드(`isChunkEvent` 등)·`parseStreamEvent`·SSE 프레임 파서. **타입 정의 본문은 `@/lib/types/chatbot`**, 이벤트 `type`은 `chunk` \| `done` \| `error` \| `tool_call` |
+| client/src/lib/chatbot/use-chatbot-stream.ts | `useChatbotStream` 훅 — `sendMessage` 시 SSE 구독, `chunk` 누적 텍스트, `done`에서 `conversationId`·`suggestedRecipes`, `tool_call`을 `activeToolCalls`에 병합, `hasReceivedFirstStreamEvent`(첫 유효 이벤트 수신 여부·요청 직후 placeholder 구간 판별), 언마운트·`cancel` 시 abort |
+| client/src/lib/chatbot/chatbot-tool-progress.ts | 도구 `function.name` 상수(`CHATBOT_TOOL_FUNCTION_NAME`)·`getChatbotToolProgressLabel` — 스트림 `tool_call` 수신 시 사용자용 한국어 진행 문구(예: 레시피 검색 중). 서버 tools 정의와 **문자열 동기화 필수** |
+| client/src/lib/chatbot/stream-progress-label.ts | `getStreamProgressLabel`·`GENERATING_REPLY_LABEL` — 스트리밍 중·본문 비어 있을 때: 첫 이벤트 전「답변 생성 중」, 이후 `activeToolCalls`의 `start`/`complete` 우선순위로 도구 라벨 또는 동일 생성 중 문구. 대화 페이지(`app/(main)/chatbot/[id]/page.tsx`)의 assistant placeholder와 동일 규칙 |
 
 ### 5.5 설정·환경 변수 (`client/src/lib/config/`)
 

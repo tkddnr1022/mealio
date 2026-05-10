@@ -42,6 +42,8 @@ export interface ChatbotStreamState {
   suggestedRecipes: SuggestedRecipe[];
   /** 진행 중인 function call 상태(도구 호출 UI 표시용) */
   activeToolCalls: ToolCallState[];
+  /** 이번 send 이후 첫 SSE 이벤트(chunk/tool_call/done/error) 수신 여부 */
+  hasReceivedFirstStreamEvent: boolean;
   error: ApiError | null;
 }
 
@@ -71,6 +73,7 @@ const INITIAL_STATE: ChatbotStreamState = {
   conversationId: null,
   suggestedRecipes: [],
   activeToolCalls: [],
+  hasReceivedFirstStreamEvent: false,
   error: null,
 };
 
@@ -117,7 +120,13 @@ export function useChatbotStream(
     abortRef.current?.abort();
     abortRef.current = null;
     safeSet((prev) =>
-      prev.status === 'streaming' ? { ...prev, status: 'idle' } : prev,
+      prev.status === 'streaming'
+        ? {
+            ...prev,
+            status: 'idle',
+            hasReceivedFirstStreamEvent: false,
+          }
+        : prev,
     );
   }, [safeSet]);
 
@@ -144,6 +153,7 @@ export function useChatbotStream(
         text: '',
         suggestedRecipes: [],
         activeToolCalls: [],
+        hasReceivedFirstStreamEvent: false,
         error: null,
       }));
 
@@ -187,17 +197,23 @@ function applyEvent(
 ): void {
   switch (event.type) {
     case CHATBOT_STREAM_EVENT_TYPES.CHUNK:
-      setState((prev) => ({ ...prev, text: prev.text + event.data }));
+      setState((prev) => ({
+        ...prev,
+        hasReceivedFirstStreamEvent: true,
+        text: prev.text + event.data,
+      }));
       return;
     case CHATBOT_STREAM_EVENT_TYPES.TOOL_CALL:
       setState((prev) => ({
         ...prev,
+        hasReceivedFirstStreamEvent: true,
         activeToolCalls: mergeToolCall(prev.activeToolCalls, event.data),
       }));
       return;
     case CHATBOT_STREAM_EVENT_TYPES.DONE:
       setState((prev) => ({
         ...prev,
+        hasReceivedFirstStreamEvent: true,
         status: 'done',
         conversationId: event.data.conversationId,
         text: prev.text || event.data.message || '',
@@ -207,6 +223,7 @@ function applyEvent(
     case CHATBOT_STREAM_EVENT_TYPES.ERROR:
       setState((prev) => ({
         ...prev,
+        hasReceivedFirstStreamEvent: true,
         status: 'error',
         error: new ApiError({
           status: 0,
