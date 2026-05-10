@@ -55,15 +55,18 @@ function toDisplayMessages(
   })();
 
   return visible.map((message, index) => {
+    // 히스토리: 각 assistant 턴마다 서버가 내려준 suggestedRecipes를 그 메시지에 붙인다.
+    // (마지막 assistant만 허용하면, 그 뒤에 후속 user/assistant 턴이 있을 때 추천이 UI에서 사라진다.)
     const fromHistory =
-      index === lastAssistantIndex &&
       message.role === 'assistant' &&
       message.suggestedRecipes &&
       message.suggestedRecipes.length > 0
         ? message.suggestedRecipes
         : undefined;
     const fromStream =
-      index === lastAssistantIndex && streamSuggestedRecipes.length > 0
+      index === lastAssistantIndex &&
+      message.role === 'assistant' &&
+      streamSuggestedRecipes.length > 0
         ? streamSuggestedRecipes
         : undefined;
 
