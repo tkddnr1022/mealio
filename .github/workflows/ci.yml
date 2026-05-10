@@ -30,13 +30,10 @@ jobs:
           cache: "pnpm"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm run ci:install
 
-      - name: Build @cook/shared
-        run: pnpm --filter @cook/shared build
-
-      - name: Build server/producer
-        run: pnpm --filter @cook/producer build
+      - name: Build server (shared → producer)
+        run: pnpm run ci:build:server
 
   test-producer:
     name: Test producer
@@ -62,10 +59,10 @@ jobs:
           cache: "pnpm"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm run ci:install
 
       - name: Build @cook/shared
-        run: pnpm --filter @cook/shared build
+        run: pnpm run ci:build:shared
 
       - name: Run producer tests
-        run: pnpm --filter @cook/producer test -- --passWithNoTests
+        run: pnpm run ci:test:producer
