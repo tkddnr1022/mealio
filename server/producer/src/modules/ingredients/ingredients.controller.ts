@@ -2,13 +2,11 @@ import {
   Controller,
   Get,
   Query,
-  UseGuards,
   UsePipes,
   ValidationPipe,
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { IngredientQueryService } from './ingredients.service';
 import { IngredientDto } from './dto/ingredient.dto';
 import { IngredientCategoryDto } from './dto/ingredient-category.dto';
@@ -18,7 +16,6 @@ import { IngredientSearchQueryDto } from './dto/ingredient-search-query.dto';
 
 @ApiTags('Ingredient')
 @Controller('api/v1/ingredients')
-@UseGuards(JwtAuthGuard)
 @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
 export class IngredientsController {
   constructor(
@@ -41,7 +38,6 @@ export class IngredientsController {
       },
     },
   })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: '서버 내부 오류',
@@ -73,7 +69,6 @@ export class IngredientsController {
       },
     },
   })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: '서버 내부 오류',
@@ -99,7 +94,6 @@ export class IngredientsController {
     },
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: '서버 내부 오류',
