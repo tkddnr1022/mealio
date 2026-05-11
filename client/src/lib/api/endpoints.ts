@@ -48,6 +48,7 @@ export const API_ENDPOINTS = {
   },
   ingredients: {
     list: `${API_PREFIX}/ingredients`,
+    categories: `${API_PREFIX}/ingredients/categories`,
     search: `${API_PREFIX}/ingredients/search`,
   },
   chatbot: {

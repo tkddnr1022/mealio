@@ -13,7 +13,7 @@ export default function InventoryFavoriteIngredientsPage() {
 
   const items = data?.favoriteIngredients ?? [];
 
-  const addHref = '/';
+  const addHref = '/ingredient/filter?type=favorites';
 
   return (
     <InventoryPageShell

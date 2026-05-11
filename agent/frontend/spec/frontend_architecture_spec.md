@@ -38,6 +38,7 @@
 | (main) · 레시피 탭 | `/recipe/[id]` | `(main)/recipe/[id]/page.tsx` | ISR | RecipeDetailPage — 레시피 상세 |
 | (main) · 챗봇 탭 | `/chatbot/list` | `(main)/chatbot/list/page.tsx` | CSR | ChatbotConversationListPage — 대화 목록 |
 | (main) · 챗봇 탭 | `/chatbot/[id]` | `(main)/chatbot/[id]/page.tsx` | CSR | ChatbotConversationPage — 대화 |
+| (main) · 재료 | `/ingredient/filter` | `(main)/ingredient/filter/page.tsx` | ISR | IngredientFilterPage — 재료 필터/선택 (보관함 재료 추가 시 진입) |
 | (main) · 보관함 탭 | `/inventory/ingredients/favorite` | `(main)/inventory/ingredients/favorite/page.tsx` | CSR | InventoryFavoriteListPage — 관심 재료 목록 |
 | (main) · 보관함 탭 | `/inventory/ingredients/owned` | `(main)/inventory/ingredients/owned/page.tsx` | CSR | InventoryOwnedListPage — 보유 재료 목록 |
 | (main) · 보관함 탭 | `/inventory/recipes/favorite` | `(main)/inventory/recipes/favorite/page.tsx` | CSR | InventoryFavoriteListPage — 관심 레시피 목록 |
@@ -53,7 +54,7 @@
 | ---- | ---- | -------------- |
 | (auth) | 인증 (로그인·회원가입·OAuth 실패 안내) | `/login`, `/signup`, `/oauth/error` |
 | (marketing) | 마케팅 (랜딩·소개·요금제) | `/`, `/about`, `/pricing` |
-| (main) | 앱 본체 (하단 탭 네비게이션) | `/recipe`·하위, `/chatbot`·하위, `/inventory`·하위, `/mypage` |
+| (main) | 앱 본체 (하단 탭 네비게이션) | `/recipe`·하위, `/ingredient`·하위, `/chatbot`·하위, `/inventory`·하위, `/mypage` |
 | api | API 라우트 | `/api/revalidate`, `/api/health` |
 | (error) | 전역 에러·404 | `not-found.tsx`, `error.tsx` |
 
@@ -97,6 +98,12 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 |------|----------|--------|------|
 | `/chatbot/list` | ChatbotConversationListPage | CSR | 대화 목록 페이지 |
 | `/chatbot/[id]` | ChatbotConversationPage | CSR | 대화 페이지 (메시지 전송·응답 스트림은 SSE, §5.4) |
+
+#### 재료 (`/ingredient`)
+
+| 경로 | 컴포넌트 | 렌더링 | 설명 |
+|------|----------|--------|------|
+| `/ingredient/filter` | IngredientFilterPage | ISR | 재료 필터/선택 페이지 (보관함 재료 추가 시 진입, `?type=owned\|favorites`) |
 
 #### 보관함 탭 (`/inventory`)
 

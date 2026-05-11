@@ -13,7 +13,7 @@ export default function InventoryOwnedIngredientsPage() {
 
   const items = data?.ownedIngredients ?? [];
 
-  const addHref = '/';
+  const addHref = '/ingredient/filter?type=owned';
 
   return (
     <InventoryPageShell

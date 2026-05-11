@@ -21,6 +21,9 @@ export interface IngredientSearchResultProps extends Omit<
   onRemoveIngredient?: Parameters<
     typeof IngredientGrid
   >[0]['onRemoveIngredient'];
+  onClickIngredient?: Parameters<
+    typeof IngredientGrid
+  >[0]['onClickIngredient'];
   cardClassName?: string;
 }
 
@@ -32,6 +35,7 @@ export function IngredientSearchResult({
   selectedIngredientIds = [],
   getTrailing,
   onRemoveIngredient,
+  onClickIngredient,
   cardClassName = '',
   ...rest
 }: IngredientSearchResultProps) {
@@ -50,6 +54,7 @@ export function IngredientSearchResult({
         selectedIngredientIds={selectedIngredientIds}
         getTrailing={getTrailing}
         onRemoveIngredient={onRemoveIngredient}
+        onClickIngredient={onClickIngredient}
         cardClassName={cardClassName}
       />
     </section>

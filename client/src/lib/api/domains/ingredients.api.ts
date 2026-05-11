@@ -2,8 +2,9 @@
  * 재료 API.
  *
  * 엔드포인트: `agent/backend/spec/backend_architecture_spec_producer.md` §1.1
- * - GET /api/v1/ingredients        → {@link getIngredientList}
- * - GET /api/v1/ingredients/search → {@link searchIngredients}
+ * - GET /api/v1/ingredients              → {@link getIngredientList}
+ * - GET /api/v1/ingredients/categories   → {@link getIngredientCategories}
+ * - GET /api/v1/ingredients/search       → {@link searchIngredients}
  *
  * 도메인 타입은 `@/lib/types/ingredient`에서 정의한다.
  */
@@ -14,12 +15,25 @@ import { API_ENDPOINTS } from '../endpoints';
 import type { Paginated } from '@/lib/types/api';
 import type {
   Ingredient,
+  IngredientCategory,
   IngredientListQuery,
   IngredientSearchQuery,
 } from '@/lib/types/ingredient';
 
 /** 재료 목록/검색 응답 shape (`Paginated<Ingredient>`) */
 export type IngredientListResult = Paginated<Ingredient>;
+
+/**
+ * 활성화된 재료 카테고리 목록 조회.
+ */
+export function getIngredientCategories(
+  fetchOptions?: RequestOptions,
+): Promise<{ data: IngredientCategory[] }> {
+  return httpClient.get<{ data: IngredientCategory[] }>(
+    API_ENDPOINTS.ingredients.categories,
+    fetchOptions,
+  );
+}
 
 /**
  * 재료 목록 조회 (카테고리 필터·페이지네이션).

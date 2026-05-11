@@ -9,12 +9,14 @@
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 
 import {
+  getIngredientCategories,
   getIngredientList,
   searchIngredients,
   type IngredientListResult,
   } from '@/lib/api/domains';
 import { QUERY_CACHE } from '@/lib/config/cache.config';
 import type {
+  IngredientCategory,
   IngredientListQuery,
   IngredientSearchQuery,
 } from '@/lib/types/ingredient';
@@ -23,6 +25,7 @@ import type {
 
 export const ingredientQueries = {
   all: ['ingredients'] as const,
+  categories: () => [...ingredientQueries.all, 'categories'] as const,
   lists: () => [...ingredientQueries.all, 'list'] as const,
   list: (params: IngredientListQuery) =>
     [...ingredientQueries.lists(), params] as const,
@@ -39,6 +42,20 @@ type QueryOpts<TData> = Omit<
 >;
 
 // ─── 훅 ───────────────────────────────────────────────────────────────────────
+
+export function useIngredientCategories(
+  options?: QueryOpts<IngredientCategory[]>,
+) {
+  return useQuery<IngredientCategory[], Error>({
+    queryKey: ingredientQueries.categories(),
+    queryFn: async () => {
+      const result = await getIngredientCategories();
+      return result.data;
+    },
+    ...QUERY_CACHE.ingredient,
+    ...options,
+  });
+}
 
 export function useIngredientList(
   params: IngredientListQuery = {},
