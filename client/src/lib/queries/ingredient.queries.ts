@@ -13,7 +13,7 @@ import {
   getIngredientList,
   searchIngredients,
   type IngredientListResult,
-  } from '@/lib/api/domains';
+} from '@/lib/api/domains';
 import { QUERY_CACHE } from '@/lib/config/cache.config';
 import type {
   IngredientCategory,

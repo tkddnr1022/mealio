@@ -157,7 +157,9 @@ export class RecipeRepository {
     return { data, total };
   }
 
-  async findPublishedIdsLatest(params: RecipeStaticIdsParams): Promise<number[]> {
+  async findPublishedIdsLatest(
+    params: RecipeStaticIdsParams,
+  ): Promise<number[]> {
     const rows = await this.prisma.recipe.findMany({
       where: { isPublished: true },
       select: { id: true },

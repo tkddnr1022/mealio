@@ -40,7 +40,8 @@ export function RecipeFilterClientPage({
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialDraftState = useMemo(
-    () => parseRecipeFilterDraftState(new URLSearchParams(searchParams.toString())),
+    () =>
+      parseRecipeFilterDraftState(new URLSearchParams(searchParams.toString())),
     [searchParams],
   );
   const [keyword, setKeyword] = useState(initialDraftState.keyword);

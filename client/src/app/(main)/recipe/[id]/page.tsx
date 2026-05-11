@@ -43,7 +43,9 @@ export async function generateMetadata({
   }
 }
 
-export default async function RecipeDetailPage({ params }: RecipeDetailPageProps) {
+export default async function RecipeDetailPage({
+  params,
+}: RecipeDetailPageProps) {
   const resolvedParams = await params;
   const recipeId = Number.parseInt(resolvedParams.id, 10);
 

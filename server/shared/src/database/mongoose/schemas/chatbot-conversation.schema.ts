@@ -31,5 +31,8 @@ export type ChatbotConversationDocument = HydratedDocument<ChatbotConversation>;
 export const ChatbotConversationSchema =
   SchemaFactory.createForClass(ChatbotConversation);
 
-ChatbotConversationSchema.index({ userId: 1, conversationId: 1 }, { unique: true });
+ChatbotConversationSchema.index(
+  { userId: 1, conversationId: 1 },
+  { unique: true },
+);
 ChatbotConversationSchema.index({ userId: 1, updatedAt: -1 });

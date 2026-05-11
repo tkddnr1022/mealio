@@ -1,9 +1,6 @@
 import type { Metadata } from 'next';
 import { RecipeSearchClientPage } from './RecipeSearchClientPage';
-import {
-  getRecipeCategories,
-  searchRecipes,
-} from '@/lib/api/domains';
+import { getRecipeCategories, searchRecipes } from '@/lib/api/domains';
 import { withForwardedHeaders } from '@/lib/api/server';
 import {
   RECIPE_SORT_KEYS,

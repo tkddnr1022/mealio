@@ -89,16 +89,14 @@ describe('RecipesController', () => {
       const query = { page: 1, size: 20, sort: 'latest' as const };
       const result = await controller.getList(query);
 
-      expect(recipeQueryService.getList).toHaveBeenCalledWith(
-        {
-          page: 1,
-          size: 20,
-          difficulty: undefined,
-          cookTimeMin: undefined,
-          cookTimeMax: undefined,
-          sort: 'latest',
-        },
-      );
+      expect(recipeQueryService.getList).toHaveBeenCalledWith({
+        page: 1,
+        size: 20,
+        difficulty: undefined,
+        cookTimeMin: undefined,
+        cookTimeMax: undefined,
+        sort: 'latest',
+      });
       expect(result.data).toHaveLength(1);
       expect(result.data[0].title).toBe('김치볶음밥');
       expect(result.pagination).toEqual(mockPagination);
@@ -115,32 +113,28 @@ describe('RecipesController', () => {
       };
       await controller.getList(query);
 
-      expect(recipeQueryService.getList).toHaveBeenCalledWith(
-        {
-          page: 2,
-          size: 10,
-          difficulty: [1, 2],
-          cookTimeMin: 10,
-          cookTimeMax: 30,
-          sort: 'cookTime',
-        },
-      );
+      expect(recipeQueryService.getList).toHaveBeenCalledWith({
+        page: 2,
+        size: 10,
+        difficulty: [1, 2],
+        cookTimeMin: 10,
+        cookTimeMax: 30,
+        sort: 'cookTime',
+      });
     });
 
     it('cookTimeMin만 전달하면 min 필터만 전달한다', async () => {
       const query = { page: 1, size: 20, cookTimeMin: 12 };
       await controller.getList(query);
 
-      expect(recipeQueryService.getList).toHaveBeenCalledWith(
-        {
-          page: 1,
-          size: 20,
-          difficulty: undefined,
-          cookTimeMin: 12,
-          cookTimeMax: undefined,
-          sort: 'latest',
-        },
-      );
+      expect(recipeQueryService.getList).toHaveBeenCalledWith({
+        page: 1,
+        size: 20,
+        difficulty: undefined,
+        cookTimeMin: 12,
+        cookTimeMax: undefined,
+        sort: 'latest',
+      });
     });
   });
 
@@ -268,10 +262,7 @@ describe('RecipesController', () => {
     it('recipeId로 상세 레시피를 반환한다', async () => {
       const result = await controller.getById(1, undefined);
 
-      expect(recipeQueryService.getById).toHaveBeenCalledWith(
-        1,
-        undefined,
-      );
+      expect(recipeQueryService.getById).toHaveBeenCalledWith(1, undefined);
       expect(result).toEqual(mockDetail);
       expect(result.instructions).toHaveLength(1);
       expect(result.ingredients).toHaveLength(1);
@@ -303,14 +294,11 @@ describe('RecipesController', () => {
         { ip: '127.0.0.1', headers: { 'user-agent': 'jest-agent' } },
       );
 
-      expect(recipeQueryService.getById).toHaveBeenCalledWith(
-        1,
-        {
-          userId: 7,
-          ipAddress: '127.0.0.1',
-          userAgent: 'jest-agent',
-        },
-      );
+      expect(recipeQueryService.getById).toHaveBeenCalledWith(1, {
+        userId: 7,
+        ipAddress: '127.0.0.1',
+        userAgent: 'jest-agent',
+      });
     });
   });
 

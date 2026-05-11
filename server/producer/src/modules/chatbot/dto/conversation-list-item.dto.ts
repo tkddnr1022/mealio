@@ -18,8 +18,7 @@ export class ConversationListItemDto {
   title: string | null;
 
   @ApiProperty({
-    description:
-      '대화 메타 최종 갱신 시각',
+    description: '대화 메타 최종 갱신 시각',
     format: 'date-time',
     example: '2025-01-25T12:00:00.000Z',
   })

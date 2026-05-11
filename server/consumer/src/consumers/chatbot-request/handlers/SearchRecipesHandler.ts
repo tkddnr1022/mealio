@@ -159,7 +159,9 @@ export class SearchRecipesHandler {
         : recipes.filter((r) => {
             const title = (r.title ?? '').toLowerCase();
             const desc = ((r.description as string) ?? '').toLowerCase();
-            return keywordLower.some((k) => title.includes(k) || desc.includes(k));
+            return keywordLower.some(
+              (k) => title.includes(k) || desc.includes(k),
+            );
           });
 
     return filtered.slice(0, limit).map((r) => ({

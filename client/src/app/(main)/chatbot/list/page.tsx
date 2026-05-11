@@ -32,7 +32,9 @@ function createFallbackTitle(conversationId: string): string {
 
 export default function ChatbotConversationListPage() {
   const router = useRouter();
-  const { data: listData } = useConversationList({ limit: CONVERSATION_LIST_LIMIT });
+  const { data: listData } = useConversationList({
+    limit: CONVERSATION_LIST_LIMIT,
+  });
   const items = useMemo(() => listData?.items ?? [], [listData?.items]);
 
   const detailQueries = useQueries({
@@ -47,7 +49,9 @@ export default function ChatbotConversationListPage() {
     return items.map((item, index) => {
       const messages = detailQueries[index]?.data?.messages ?? [];
       const lastMessage = messages[messages.length - 1];
-      const firstUserMessage = messages.find((message) => message.role === 'user');
+      const firstUserMessage = messages.find(
+        (message) => message.role === 'user',
+      );
       const titleSource = firstUserMessage?.message?.trim();
       const previewSource = lastMessage?.message?.trim();
 

@@ -37,9 +37,7 @@ const meta = {
   decorators: [figmaWidth],
   args: {
     recipe: sampleRecipe,
-    favoriteButtonRenderer: (recipe) => (
-      <LikeButton isFavorite={false} />
-    ),
+    favoriteButtonRenderer: (recipe) => <LikeButton isFavorite={false} />,
   },
 } satisfies Meta<typeof RecipeCard>;
 

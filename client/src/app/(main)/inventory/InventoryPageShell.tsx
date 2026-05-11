@@ -62,17 +62,11 @@ export function InventoryPageShell({
   return (
     <>
       <Navbar
-        additionalButtons={
-          <AddButton onClick={() => router.push(addHref)} />
-        }
+        additionalButtons={<AddButton onClick={() => router.push(addHref)} />}
       />
       <InventorySubTabbar selected={tab} items={INVENTORY_SUB_TABS} />
       <MainContent centered={isEmpty}>
-        {isEmpty ? (
-          <InfoScreen {...infoScreenProps} />
-        ) : (
-          children
-        )}
+        {isEmpty ? <InfoScreen {...infoScreenProps} /> : children}
       </MainContent>
       <Tabbar activeId="inventory" />
     </>

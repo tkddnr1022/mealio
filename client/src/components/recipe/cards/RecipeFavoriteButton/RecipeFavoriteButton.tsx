@@ -21,11 +21,7 @@ export function RecipeFavoriteButton({
   return (
     <Suspense
       fallback={
-        <LikeButton
-          className={className}
-          isFavorite={isFavorite}
-          disabled
-        />
+        <LikeButton className={className} isFavorite={isFavorite} disabled />
       }
     >
       <RecipeFavoriteButtonInner

@@ -5,7 +5,8 @@ import { ApiProperty } from '@nestjs/swagger';
  */
 export class FavoriteRecipeIdsResponseDto {
   @ApiProperty({
-    description: '관심 레시피 ID 목록 (Mongo inventory recipes.favoriteIds 순서 유지)',
+    description:
+      '관심 레시피 ID 목록 (Mongo inventory recipes.favoriteIds 순서 유지)',
     type: [Number],
     example: [101, 202],
   })

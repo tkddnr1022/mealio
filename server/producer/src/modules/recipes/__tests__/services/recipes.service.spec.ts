@@ -274,7 +274,6 @@ describe('RecipeQueryService', () => {
       expect(result).toEqual(cached);
       expect(recipeRepository.findManyPaginated).not.toHaveBeenCalled();
     });
-
   });
 
   describe('getById', () => {
@@ -328,7 +327,6 @@ describe('RecipeQueryService', () => {
       expect(result.title).toBe('캐시된 레시피');
       expect(recipeRepository.findById).not.toHaveBeenCalled();
     });
-
   });
 
   describe('getStaticIds', () => {

@@ -72,7 +72,8 @@ export function IngredientFilterClientPage({
     if (selectedCategoryIds.length === 0) return mapped;
     return mapped.filter(
       (item) =>
-        item.categoryId != null && selectedCategoryIds.includes(item.categoryId),
+        item.categoryId != null &&
+        selectedCategoryIds.includes(item.categoryId),
     );
   }, [ingredientResult, selectedCategoryIds]);
 
@@ -120,8 +121,7 @@ export function IngredientFilterClientPage({
     router,
   ]);
 
-  const isPending =
-    addOwnedMutation.isPending || addFavoriteMutation.isPending;
+  const isPending = addOwnedMutation.isPending || addFavoriteMutation.isPending;
 
   return (
     <>

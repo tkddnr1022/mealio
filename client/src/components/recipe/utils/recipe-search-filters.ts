@@ -39,7 +39,8 @@ export function parseRecipeFilterDraftState(
   const selectedDifficulties = parseRecipeDifficulty(
     searchParams.getAll('difficulty'),
   );
-  const selectedCategoryId = toPositiveInt(searchParams.get('categoryId')) ?? null;
+  const selectedCategoryId =
+    toPositiveInt(searchParams.get('categoryId')) ?? null;
   const parsedCookTimeMin = toPositiveInt(searchParams.get('cookTimeMin'));
   const parsedCookTimeMax = toPositiveInt(searchParams.get('cookTimeMax'));
   const cookTimeRange = {

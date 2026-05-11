@@ -19,10 +19,7 @@ import {
   type UseQueryOptions,
 } from '@tanstack/react-query';
 
-import {
-  getConversationHistory,
-  getConversationList,
-} from '@/lib/api/domains';
+import { getConversationHistory, getConversationList } from '@/lib/api/domains';
 import { QUERY_CACHE } from '@/lib/config/cache.config';
 import type {
   ConversationHistory,

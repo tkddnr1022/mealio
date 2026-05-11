@@ -49,9 +49,7 @@ export function MainContent({
   );
 
   const scrollTrackClasses =
-    scrollEndRef != null
-      ? 'flex min-h-0 flex-col'
-      : paddedInnerClasses;
+    scrollEndRef != null ? 'flex min-h-0 flex-col' : paddedInnerClasses;
 
   const paddedBodyClass =
     scrollEndRef != null
@@ -60,11 +58,7 @@ export function MainContent({
 
   const scrollEndAnchor =
     scrollEndRef != null ? (
-      <div
-        ref={scrollEndRef}
-        className="h-px w-full shrink-0"
-        aria-hidden
-      />
+      <div ref={scrollEndRef} className="h-px w-full shrink-0" aria-hidden />
     ) : null;
 
   return (
@@ -87,10 +81,7 @@ export function MainContent({
         </CustomScrollbar>
       ) : (
         <div
-          className={cn(
-            'min-h-0 flex-1 overflow-y-auto',
-            scrollTrackClasses,
-          )}
+          className={cn('min-h-0 flex-1 overflow-y-auto', scrollTrackClasses)}
         >
           {scrollEndRef != null ? (
             <>

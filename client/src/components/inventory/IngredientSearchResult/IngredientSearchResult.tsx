@@ -21,9 +21,7 @@ export interface IngredientSearchResultProps extends Omit<
   onRemoveIngredient?: Parameters<
     typeof IngredientGrid
   >[0]['onRemoveIngredient'];
-  onClickIngredient?: Parameters<
-    typeof IngredientGrid
-  >[0]['onClickIngredient'];
+  onClickIngredient?: Parameters<typeof IngredientGrid>[0]['onClickIngredient'];
   cardClassName?: string;
 }
 

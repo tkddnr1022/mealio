@@ -68,7 +68,9 @@ export class OpenAIService {
         model: this.model,
         messages,
         temperature: options?.temperature ?? 1,
-        ...(options?.maxTokens != null && { max_completion_tokens: options.maxTokens }),
+        ...(options?.maxTokens != null && {
+          max_completion_tokens: options.maxTokens,
+        }),
         ...(options?.responseFormat && {
           response_format: options.responseFormat,
         }),
