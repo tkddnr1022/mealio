@@ -148,9 +148,13 @@ export function useRemoveMyFavoriteRecipe(
     mutationFn: (recipeId: number) => removeMyFavoriteRecipe(recipeId),
     ...options,
     onSuccess: (...args) => {
-      void queryClient.invalidateQueries({ queryKey: inventoryQueries.all });
+      void queryClient.invalidateQueries({
+        queryKey: inventoryQueries.all,
+        refetchType: 'none',
+      });
       void queryClient.invalidateQueries({
         queryKey: favoriteRecipeQueries.all,
+        refetchType: 'none',
       });
       options?.onSuccess?.(...args);
     },
@@ -178,9 +182,13 @@ export function useToggleMyFavoriteRecipe(
     },
     ...options,
     onSuccess: (...args) => {
-      void queryClient.invalidateQueries({ queryKey: inventoryQueries.all });
+      void queryClient.invalidateQueries({
+        queryKey: inventoryQueries.all,
+        refetchType: 'none',
+      });
       void queryClient.invalidateQueries({
         queryKey: favoriteRecipeQueries.all,
+        refetchType: 'none',
       });
       options?.onSuccess?.(...args);
     },

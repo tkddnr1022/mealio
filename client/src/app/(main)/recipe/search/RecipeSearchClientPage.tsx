@@ -1,7 +1,7 @@
 'use client';
 
 import { Search } from 'lucide-react';
-import { useMemo } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
@@ -93,9 +93,26 @@ export function RecipeSearchClientPage({
     enabled: isAuthenticated,
   });
 
-  const favoriteIdSet = useMemo(
-    () => new Set(favoriteIdsData?.favoriteRecipeIds ?? []),
-    [favoriteIdsData?.favoriteRecipeIds],
+  const [favoriteIdSet, setFavoriteIdSet] = useState(() => new Set<number>());
+  const initializedRef = useRef(false);
+
+  useEffect(() => {
+    if (favoriteIdsData && !initializedRef.current) {
+      setFavoriteIdSet(new Set(favoriteIdsData.favoriteRecipeIds));
+      initializedRef.current = true;
+    }
+  }, [favoriteIdsData]);
+
+  const handleFavoriteToggled = useCallback(
+    (recipeId: number, nextIsFavorite: boolean) => {
+      setFavoriteIdSet((prev) => {
+        const next = new Set(prev);
+        if (nextIsFavorite) next.add(recipeId);
+        else next.delete(recipeId);
+        return next;
+      });
+    },
+    [],
   );
 
   const selectedSort = isRecipeSortKey(sort) ? sort : DEFAULT_SORT;
@@ -216,6 +233,9 @@ export function RecipeSearchClientPage({
               <RecipeFavoriteButton
                 recipeId={recipe.id}
                 isFavorite={favoriteIdSet.has(recipe.id)}
+                onToggled={(next) =>
+                  handleFavoriteToggled(recipe.id, next)
+                }
               />
             )}
           />

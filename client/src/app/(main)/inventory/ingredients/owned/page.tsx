@@ -1,18 +1,59 @@
 'use client';
 
-import { IngredientGrid } from '@/components/inventory';
+import { useEffect, useRef, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { IngredientGrid, IngredientRemoveButton } from '@/components/inventory';
 import {
+  inventoryQueries,
   useMyInventory,
-  useRemoveMyOwnedIngredient,
 } from '@/lib/queries/inventory.queries';
+import { removeMyOwnedIngredient } from '@/lib/api/domains';
+import type { InventoryIngredient } from '@/lib/types/inventory';
 import { InventoryPageShell } from '../../InventoryPageShell';
 
 export default function InventoryOwnedIngredientsPage() {
   const { data } = useMyInventory();
-  const removeMutation = useRemoveMyOwnedIngredient();
+  const queryClient = useQueryClient();
 
-  const items = data?.ownedIngredients ?? [];
+  const [localItems, setLocalItems] = useState<InventoryIngredient[]>([]);
+  const localItemsRef = useRef<InventoryIngredient[]>([]);
+  const initializedRef = useRef(false);
+  localItemsRef.current = localItems;
 
+  useEffect(() => {
+    if (data && !initializedRef.current) {
+      setLocalItems(data.ownedIngredients);
+      initializedRef.current = true;
+    }
+  }, [data]);
+
+  const removeMutation = useMutation<
+    void,
+    Error,
+    number,
+    { removedItem: InventoryIngredient | undefined }
+  >({
+    mutationFn: (id: number) => removeMyOwnedIngredient(id),
+    onMutate: (ingredientId) => {
+      const items = localItemsRef.current;
+      const removedItem = items.find((i) => i.id === ingredientId);
+      setLocalItems(items.filter((i) => i.id !== ingredientId));
+      return { removedItem };
+    },
+    onError: (_err, _id, context) => {
+      if (context?.removedItem) {
+        setLocalItems((prev) => [...prev, context.removedItem!]);
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: inventoryQueries.all,
+        refetchType: 'none',
+      });
+    },
+  });
+
+  const items = localItems;
   const addHref = '/ingredient/filter?type=owned';
 
   return (
@@ -29,9 +70,12 @@ export default function InventoryOwnedIngredientsPage() {
     >
       <IngredientGrid
         items={items}
-        onRemoveIngredient={(ingredient) => {
-          removeMutation.mutate(ingredient.id);
-        }}
+        getTrailing={(ingredient) => (
+          <IngredientRemoveButton
+            ingredientName={ingredient.name}
+            onRemove={() => removeMutation.mutate(ingredient.id)}
+          />
+        )}
       />
     </InventoryPageShell>
   );
