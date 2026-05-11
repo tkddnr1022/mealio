@@ -1,0 +1,38 @@
+'use client';
+
+import { IngredientSearchResult } from '@/components/inventory';
+import {
+  useMyInventory,
+  useRemoveMyOwnedIngredient,
+} from '@/lib/queries/inventory.queries';
+import { InventoryPageShell } from '../../InventoryPageShell';
+
+export default function InventoryOwnedIngredientsPage() {
+  const { data } = useMyInventory();
+  const removeMutation = useRemoveMyOwnedIngredient();
+
+  const items = data?.ownedIngredients ?? [];
+
+  const addHref = '/';
+
+  return (
+    <InventoryPageShell
+      tab="ownedIngredients"
+      isEmpty={items.length === 0}
+      infoScreenProps={{
+        title: '보유 재료가 없습니다',
+        message: '가지고 있는 재료를 추가해 보세요',
+        buttonLabel: '재료 추가',
+        buttonHref: addHref,
+      }}
+      addHref={addHref}
+    >
+      <IngredientSearchResult
+        items={items}
+        onRemoveIngredient={(ingredient) => {
+          removeMutation.mutate(ingredient.id);
+        }}
+      />
+    </InventoryPageShell>
+  );
+}

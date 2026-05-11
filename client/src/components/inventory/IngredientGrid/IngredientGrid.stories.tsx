@@ -1,6 +1,4 @@
-import { Apple, Beef, Egg, Fish, Milk, Wheat } from 'lucide-react';
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
-import type { ReactNode } from 'react';
 import type { InventoryIngredient } from '@/lib/types/inventory';
 import { IngredientGrid } from '@/components/inventory/IngredientGrid/index';
 
@@ -57,19 +55,9 @@ const sampleItems: readonly InventoryIngredient[] = [
   },
 ];
 
-const iconMap = new Map<number, ReactNode>([
-  [1, <Apple className="size-5" strokeWidth={2} />],
-  [2, <Beef className="size-5" strokeWidth={2} />],
-  [3, <Egg className="size-5" strokeWidth={2} />],
-  [4, <Fish className="size-5" strokeWidth={2} />],
-  [5, <Milk className="size-5" strokeWidth={2} />],
-  [6, <Wheat className="size-5" strokeWidth={2} />],
-]);
-
 export const Default = {
   args: {
     items: sampleItems,
-    getLeadingIcon: (ingredient) => iconMap.get(ingredient.id),
     onRemoveIngredient: () => undefined,
   },
 } satisfies Story;
@@ -78,7 +66,6 @@ export const WithSelectedItem = {
   args: {
     items: sampleItems,
     selectedIngredientIds: [1],
-    getLeadingIcon: (ingredient) => iconMap.get(ingredient.id),
     onRemoveIngredient: () => undefined,
   },
 } satisfies Story;

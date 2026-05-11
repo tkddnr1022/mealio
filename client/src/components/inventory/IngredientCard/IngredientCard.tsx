@@ -2,7 +2,10 @@ import { Check, X } from 'lucide-react';
 import type { HTMLAttributes, ReactNode } from 'react';
 import type { InventoryIngredient } from '@/lib/types/inventory';
 import { cn } from '@/lib/utils/cn';
-import { toInventoryIngredientRemoveAriaLabel } from '@/components/inventory/utils/inventory-format';
+import {
+  getIngredientCategoryIcon,
+  toInventoryIngredientRemoveAriaLabel,
+} from '@/components/inventory/utils/inventory-format';
 
 export interface IngredientCardProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
@@ -11,7 +14,6 @@ export interface IngredientCardProps extends Omit<
   className?: string;
   ingredient: InventoryIngredient;
   selected?: boolean;
-  leadingIcon?: ReactNode;
   trailing?: ReactNode;
   onRemove?: () => void;
 }
@@ -20,7 +22,6 @@ export function IngredientCard({
   className = '',
   ingredient,
   selected = false,
-  leadingIcon,
   trailing,
   onRemove,
   ...rest
@@ -29,6 +30,8 @@ export function IngredientCard({
     onRemove !== undefined
       ? toInventoryIngredientRemoveAriaLabel(ingredient)
       : undefined;
+
+  const CategoryIcon = getIngredientCategoryIcon(ingredient.categoryId);
 
   const defaultTrailing = selected ? (
     <span
@@ -66,7 +69,7 @@ export function IngredientCard({
             : 'bg-dropdown-selected-default style-text-accent',
         )}
       >
-        {leadingIcon}
+        <CategoryIcon className="size-5" strokeWidth={2} aria-hidden />
       </span>
       <p className="w-full truncate text-center typo-card-body style-text-primary">
         {ingredient.name}

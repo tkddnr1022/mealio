@@ -17,7 +17,6 @@ export interface IngredientSearchResultProps extends Omit<
   headerProps?: Omit<IngredientGridHeaderProps, 'countText'>;
   countText?: string;
   selectedIngredientIds?: readonly number[];
-  getLeadingIcon?: Parameters<typeof IngredientGrid>[0]['getLeadingIcon'];
   getTrailing?: Parameters<typeof IngredientGrid>[0]['getTrailing'];
   onRemoveIngredient?: Parameters<
     typeof IngredientGrid
@@ -31,7 +30,6 @@ export function IngredientSearchResult({
   headerProps,
   countText,
   selectedIngredientIds = [],
-  getLeadingIcon,
   getTrailing,
   onRemoveIngredient,
   cardClassName = '',
@@ -50,7 +48,6 @@ export function IngredientSearchResult({
       <IngredientGrid
         items={items}
         selectedIngredientIds={selectedIngredientIds}
-        getLeadingIcon={getLeadingIcon}
         getTrailing={getTrailing}
         onRemoveIngredient={onRemoveIngredient}
         cardClassName={cardClassName}
