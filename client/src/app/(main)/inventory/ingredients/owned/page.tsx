@@ -1,59 +1,17 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { IngredientGrid, IngredientRemoveButton } from '@/components/inventory';
 import {
-  inventoryQueries,
   useMyInventory,
+  useRemoveMyOwnedIngredient,
 } from '@/lib/queries/inventory.queries';
-import { removeMyOwnedIngredient } from '@/lib/api/domains';
-import type { InventoryIngredient } from '@/lib/types/inventory';
 import { InventoryPageShell } from '../../InventoryPageShell';
 
 export default function InventoryOwnedIngredientsPage() {
   const { data } = useMyInventory();
-  const queryClient = useQueryClient();
+  const removeMutation = useRemoveMyOwnedIngredient();
 
-  const [localItems, setLocalItems] = useState<InventoryIngredient[]>([]);
-  const localItemsRef = useRef<InventoryIngredient[]>([]);
-  const initializedRef = useRef(false);
-  localItemsRef.current = localItems;
-
-  useEffect(() => {
-    if (data && !initializedRef.current) {
-      setLocalItems(data.ownedIngredients);
-      initializedRef.current = true;
-    }
-  }, [data]);
-
-  const removeMutation = useMutation<
-    void,
-    Error,
-    number,
-    { removedItem: InventoryIngredient | undefined }
-  >({
-    mutationFn: (id: number) => removeMyOwnedIngredient(id),
-    onMutate: (ingredientId) => {
-      const items = localItemsRef.current;
-      const removedItem = items.find((i) => i.id === ingredientId);
-      setLocalItems(items.filter((i) => i.id !== ingredientId));
-      return { removedItem };
-    },
-    onError: (_err, _id, context) => {
-      if (context?.removedItem) {
-        setLocalItems((prev) => [...prev, context.removedItem!]);
-      }
-    },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: inventoryQueries.all,
-        refetchType: 'none',
-      });
-    },
-  });
-
-  const items = localItems;
+  const items = data?.ownedIngredients ?? [];
   const addHref = '/ingredient/filter?type=owned';
 
   return (

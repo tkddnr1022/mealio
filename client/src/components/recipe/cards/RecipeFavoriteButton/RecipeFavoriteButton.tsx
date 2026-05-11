@@ -9,7 +9,6 @@ export interface RecipeFavoriteButtonProps {
   recipeId: number;
   isFavorite?: boolean;
   className?: string;
-  onToggled?: (nextIsFavorite: boolean) => void;
 }
 
 const SOFT_LOCK_DEBOUNCE_MS = 200;
@@ -18,7 +17,6 @@ export function RecipeFavoriteButton({
   recipeId,
   isFavorite = false,
   className = '',
-  onToggled,
 }: RecipeFavoriteButtonProps) {
   return (
     <Suspense
@@ -34,7 +32,6 @@ export function RecipeFavoriteButton({
         recipeId={recipeId}
         isFavorite={isFavorite}
         className={className}
-        onToggled={onToggled}
       />
     </Suspense>
   );
@@ -44,19 +41,16 @@ function RecipeFavoriteButtonInner({
   recipeId,
   isFavorite = false,
   className = '',
-  onToggled,
 }: RecipeFavoriteButtonProps) {
   const [localFavorite, setLocalFavorite] = useState(isFavorite);
   const toggleFavorite = useToggleMyFavoriteRecipe();
   const { runProtectedAction, isAuthenticating } = useProtectedAction();
-  const serverConfirmedFavoriteRef = useRef(isFavorite);
   const inFlightRef = useRef(false);
   const queuedIntentRef = useRef<boolean | null>(null);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setLocalFavorite(isFavorite);
-    serverConfirmedFavoriteRef.current = isFavorite;
   }, [isFavorite]);
 
   useEffect(() => {
@@ -77,14 +71,10 @@ function RecipeFavoriteButtonInner({
     try {
       await toggleFavorite.mutateAsync({
         recipeId,
-        // mutation 변수 isFavorite: 서버에 반영된 찜 상태(토글 전 기준)
         isFavorite: !intent,
       });
-      serverConfirmedFavoriteRef.current = intent;
     } catch {
-      const rollbackValue = serverConfirmedFavoriteRef.current;
-      setLocalFavorite(rollbackValue);
-      onToggled?.(rollbackValue);
+      setLocalFavorite(isFavorite);
     } finally {
       inFlightRef.current = false;
       if (queuedIntentRef.current !== null) {
@@ -107,7 +97,6 @@ function RecipeFavoriteButtonInner({
   const handleClick = () => {
     const nextValue = !localFavorite;
     setLocalFavorite(nextValue);
-    onToggled?.(nextValue);
     queuedIntentRef.current = nextValue;
     scheduleFlush();
   };

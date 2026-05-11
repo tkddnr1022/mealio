@@ -176,6 +176,23 @@ const { data, isLoading } = useQuery({
 });
 ```
 
+### 5.1 Command API Optimistic Update 전략
+
+Producer-Consumer 아키텍처에서 command API(POST/PUT/DELETE)의 HTTP 200은 **Kafka 이벤트 발행 성공**을 의미하며, **Consumer의 DB 반영 완료를 보장하지 않는다.** 따라서 뮤테이션 성공 후 즉시 재조회(refetch)하면 아직 반영되지 않은 이전 상태가 돌아올 수 있다. 이를 해결하기 위해 다음 전략을 적용한다.
+
+#### 원칙
+
+1. **캐시가 단일 진실 공급원이다.** 화면은 쿼리 캐시를 직접 구독하여 렌더링한다. 쿼리 데이터를 복사한 별도의 로컬 상태(`useState`)를 두지 않는다.
+2. **예측 가능한 command는 캐시를 직접 업데이트한다.** 인터랙션 시 `setQueryData`로 쿼리 캐시를 optimistic update하고, 에러 시 롤백한다. 성공 시 재조회하지 않는다.
+3. **성공 시에는 stale 마킹만 한다.** `invalidateQueries({ refetchType: 'none' })`으로 캐시를 stale 상태로 표시하되 즉시 refetch를 트리거하지 않는다. 다음 자연스러운 refetch 시점(페이지 이동·마운트 등)에 Consumer 처리가 완료된 실제 데이터를 받아 최종 일관성을 보장한다.
+4. 이 전략은 **쿼리의 결과를 예측할 수 있고, 실패 가능성이 낮은 command API**에 한정한다.
+5. `onMutate`에서 **`cancelQueries`를 반드시 호출**하여 진행 중인 refetch와의 경합을 방지한다.
+
+#### 로컬 상태와의 관계
+
+- 화면은 `useQuery().data`를 직접 렌더링한다. `useState`로 쿼리 데이터를 복사하여 관리하지 않는다.
+- **예외**: 디바운스·큐 등 뮤테이션 발화 전에 즉각적인 시각 피드백이 필요한 컴포넌트(예: 빠른 연속 클릭을 지원하는 토글 버튼)는 컴포넌트 내부에 한정된 `localState`를 둘 수 있다. 이 경우에도 뮤테이션 훅은 캐시를 직접 업데이트하며, 에러 시 prop(캐시 롤백 값)과 동기화한다.
+
 ---
 
 ## 6. 코드 스플리팅

@@ -3,17 +3,22 @@
 /**
  * 인벤토리(보유/관심) React Query 훅 모음.
  *
- * - 조회: `useMyInventory()`, `useMyFavoriteRecipeIds()` (관심 레시피 ID만, 레시피 본문과 분리)
- * - 변경 훅: 보유/즐겨찾기 각각 전체 교체·추가·단건 삭제 제공. 성공 시
- *   관련 리소스 쿼리를 invalidate하여 즉시 재조회한다.
+ * 조회: `useMyInventory()`, `useMyFavoriteRecipeIds()`
  *
- * 캐시 정책은 짧게(`QUERY_CACHE.inventory`, 30초 fresh) 유지해 변경 반영이 빠르도록 한다.
+ * 변경(command):
+ * - 결과가 예측 가능한 command(삭제·토글)는 캐시를 직접 optimistic update하고,
+ *   성공 시 stale 마킹만 수행한다(`refetchType: 'none'`).
+ * - 결과를 예측하기 어려운 command(추가·전체 교체)는 성공 시 stale 마킹만 한다.
+ *
+ * Producer-Consumer 구조상 command API 성공이 DB 반영 완료를 보장하지 않으므로,
+ * 성공 시 즉시 재조회(refetch)를 하지 않는다.
  */
 
 import {
   useMutation,
   useQuery,
   useQueryClient,
+  type QueryClient,
   type UseMutationOptions,
   type UseQueryOptions,
 } from '@tanstack/react-query';
@@ -53,6 +58,8 @@ type QueryOpts<TData> = Omit<
   'queryKey' | 'queryFn'
 >;
 
+// ─── 조회 ─────────────────────────────────────────────
+
 export function useMyInventory(options?: QueryOpts<InventoryResponse>) {
   return useQuery<InventoryResponse, Error>({
     queryKey: inventoryQueries.overview(),
@@ -73,124 +80,251 @@ export function useMyFavoriteRecipeIds(
   });
 }
 
-function createInvalidatingMutationHook<TData, TVars>(
-  mutationFn: (vars: TVars) => Promise<TData>,
-  queryKey: readonly unknown[],
+// ─── 캐시 stale 마킹 헬퍼 ─────────────────────────────
+
+function staleInventory(qc: QueryClient) {
+  void qc.invalidateQueries({
+    queryKey: inventoryQueries.all,
+    refetchType: 'none',
+  });
+}
+
+function staleInventoryAndFavoriteRecipes(qc: QueryClient) {
+  staleInventory(qc);
+  void qc.invalidateQueries({
+    queryKey: favoriteRecipeQueries.all,
+    refetchType: 'none',
+  });
+}
+
+// ─── Optimistic update 뮤테이션 (예측 가능한 command) ──
+
+export function useRemoveMyOwnedIngredient() {
+  const qc = useQueryClient();
+
+  return useMutation<void, Error, number, { previous?: InventoryResponse }>({
+    mutationFn: (id) => removeMyOwnedIngredient(id),
+    onMutate: async (ingredientId) => {
+      await qc.cancelQueries({ queryKey: inventoryQueries.overview() });
+      const previous = qc.getQueryData<InventoryResponse>(
+        inventoryQueries.overview(),
+      );
+      qc.setQueryData<InventoryResponse>(inventoryQueries.overview(), (old) =>
+        old
+          ? {
+              ...old,
+              ownedIngredients: old.ownedIngredients.filter(
+                (i) => i.id !== ingredientId,
+              ),
+            }
+          : old,
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous)
+        qc.setQueryData(inventoryQueries.overview(), ctx.previous);
+    },
+    onSuccess: () => staleInventory(qc),
+  });
+}
+
+export function useRemoveMyFavoriteIngredient() {
+  const qc = useQueryClient();
+
+  return useMutation<void, Error, number, { previous?: InventoryResponse }>({
+    mutationFn: (id) => removeMyFavoriteIngredient(id),
+    onMutate: async (ingredientId) => {
+      await qc.cancelQueries({ queryKey: inventoryQueries.overview() });
+      const previous = qc.getQueryData<InventoryResponse>(
+        inventoryQueries.overview(),
+      );
+      qc.setQueryData<InventoryResponse>(inventoryQueries.overview(), (old) =>
+        old
+          ? {
+              ...old,
+              favoriteIngredients: old.favoriteIngredients.filter(
+                (i) => i.id !== ingredientId,
+              ),
+            }
+          : old,
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous)
+        qc.setQueryData(inventoryQueries.overview(), ctx.previous);
+    },
+    onSuccess: () => staleInventory(qc),
+  });
+}
+
+export function useRemoveMyFavoriteRecipe() {
+  const qc = useQueryClient();
+
+  return useMutation<
+    void,
+    Error,
+    number,
+    { prevInventory?: InventoryResponse; prevIds?: FavoriteRecipeIdsResponse }
+  >({
+    mutationFn: (id) => removeMyFavoriteRecipe(id),
+    onMutate: async (recipeId) => {
+      await qc.cancelQueries({ queryKey: inventoryQueries.overview() });
+      await qc.cancelQueries({ queryKey: favoriteRecipeQueries.ids() });
+
+      const prevInventory = qc.getQueryData<InventoryResponse>(
+        inventoryQueries.overview(),
+      );
+      const prevIds = qc.getQueryData<FavoriteRecipeIdsResponse>(
+        favoriteRecipeQueries.ids(),
+      );
+
+      qc.setQueryData<InventoryResponse>(inventoryQueries.overview(), (old) =>
+        old
+          ? {
+              ...old,
+              favoriteRecipes: old.favoriteRecipes.filter(
+                (r) => r.id !== recipeId,
+              ),
+            }
+          : old,
+      );
+      qc.setQueryData<FavoriteRecipeIdsResponse>(
+        favoriteRecipeQueries.ids(),
+        (old) =>
+          old
+            ? {
+                favoriteRecipeIds: old.favoriteRecipeIds.filter(
+                  (id) => id !== recipeId,
+                ),
+              }
+            : old,
+      );
+
+      return { prevInventory, prevIds };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prevInventory)
+        qc.setQueryData(inventoryQueries.overview(), ctx.prevInventory);
+      if (ctx?.prevIds)
+        qc.setQueryData(favoriteRecipeQueries.ids(), ctx.prevIds);
+    },
+    onSuccess: () => staleInventoryAndFavoriteRecipes(qc),
+  });
+}
+
+export interface ToggleMyFavoriteRecipeVariables {
+  recipeId: number;
+  /** 토글 전 현재 찜 상태. `true`이면 찜 해제, `false`이면 찜 추가. */
+  isFavorite: boolean;
+}
+
+export function useToggleMyFavoriteRecipe() {
+  const qc = useQueryClient();
+
+  return useMutation<
+    void,
+    Error,
+    ToggleMyFavoriteRecipeVariables,
+    { prevInventory?: InventoryResponse; prevIds?: FavoriteRecipeIdsResponse }
+  >({
+    mutationFn: async ({ recipeId, isFavorite }) => {
+      if (isFavorite) {
+        await removeMyFavoriteRecipe(recipeId);
+        return;
+      }
+      await addMyFavoriteRecipes([recipeId]);
+    },
+    onMutate: async ({ recipeId, isFavorite }) => {
+      await qc.cancelQueries({ queryKey: inventoryQueries.overview() });
+      await qc.cancelQueries({ queryKey: favoriteRecipeQueries.ids() });
+
+      const prevInventory = qc.getQueryData<InventoryResponse>(
+        inventoryQueries.overview(),
+      );
+      const prevIds = qc.getQueryData<FavoriteRecipeIdsResponse>(
+        favoriteRecipeQueries.ids(),
+      );
+
+      qc.setQueryData<FavoriteRecipeIdsResponse>(
+        favoriteRecipeQueries.ids(),
+        (old) => {
+          if (!old) return old;
+          const ids = isFavorite
+            ? old.favoriteRecipeIds.filter((id) => id !== recipeId)
+            : [...old.favoriteRecipeIds, recipeId];
+          return { favoriteRecipeIds: ids };
+        },
+      );
+
+      if (isFavorite && prevInventory) {
+        qc.setQueryData<InventoryResponse>(
+          inventoryQueries.overview(),
+          (old) =>
+            old
+              ? {
+                  ...old,
+                  favoriteRecipes: old.favoriteRecipes.filter(
+                    (r) => r.id !== recipeId,
+                  ),
+                }
+              : old,
+        );
+      }
+
+      return { prevInventory, prevIds };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prevInventory)
+        qc.setQueryData(inventoryQueries.overview(), ctx.prevInventory);
+      if (ctx?.prevIds)
+        qc.setQueryData(favoriteRecipeQueries.ids(), ctx.prevIds);
+    },
+    onSuccess: () => staleInventoryAndFavoriteRecipes(qc),
+  });
+}
+
+// ─── Stale-only 뮤테이션 (예측 불가 command) ──────────
+
+function createStalingMutationHook<TData, TVars>(
+  mutFn: (vars: TVars) => Promise<TData>,
+  markStale: (qc: QueryClient) => void,
 ) {
   return (options?: UseMutationOptions<TData, Error, TVars>) => {
-    const queryClient = useQueryClient();
+    const qc = useQueryClient();
     return useMutation<TData, Error, TVars>({
-      mutationFn,
+      mutationFn: mutFn,
       ...options,
       onSuccess: (...args) => {
-        void queryClient.invalidateQueries({
-          queryKey,
-        });
+        markStale(qc);
         options?.onSuccess?.(...args);
       },
     });
   };
 }
 
-export const useUpdateMyOwnedIngredients = createInvalidatingMutationHook<
+export const useUpdateMyOwnedIngredients = createStalingMutationHook<
   MutationResult,
   number[]
->(updateMyOwnedIngredients, inventoryQueries.all);
+>(updateMyOwnedIngredients, staleInventory);
 
-export const useAddMyOwnedIngredients = createInvalidatingMutationHook<
+export const useAddMyOwnedIngredients = createStalingMutationHook<
   MutationResult,
   number[]
->(addMyOwnedIngredients, inventoryQueries.all);
+>(addMyOwnedIngredients, staleInventory);
 
-export const useRemoveMyOwnedIngredient = createInvalidatingMutationHook<
-  void,
-  number
->(removeMyOwnedIngredient, inventoryQueries.all);
-
-export const useUpdateMyFavoriteIngredients = createInvalidatingMutationHook<
+export const useUpdateMyFavoriteIngredients = createStalingMutationHook<
   MutationResult,
   number[]
->(updateMyFavoriteIngredients, inventoryQueries.all);
+>(updateMyFavoriteIngredients, staleInventory);
 
-export const useAddMyFavoriteIngredients = createInvalidatingMutationHook<
+export const useAddMyFavoriteIngredients = createStalingMutationHook<
   MutationResult,
   number[]
->(addMyFavoriteIngredients, inventoryQueries.all);
+>(addMyFavoriteIngredients, staleInventory);
 
-export const useRemoveMyFavoriteIngredient = createInvalidatingMutationHook<
-  void,
-  number
->(removeMyFavoriteIngredient, inventoryQueries.all);
-
-export function useAddMyFavoriteRecipes(
-  options?: UseMutationOptions<MutationResult, Error, number[]>,
-) {
-  const queryClient = useQueryClient();
-  return useMutation<MutationResult, Error, number[]>({
-    mutationFn: (favoriteRecipeIds: number[]) =>
-      addMyFavoriteRecipes(favoriteRecipeIds),
-    ...options,
-    onSuccess: (...args) => {
-      void queryClient.invalidateQueries({ queryKey: inventoryQueries.all });
-      void queryClient.invalidateQueries({
-        queryKey: favoriteRecipeQueries.all,
-      });
-      options?.onSuccess?.(...args);
-    },
-  });
-}
-
-export function useRemoveMyFavoriteRecipe(
-  options?: UseMutationOptions<void, Error, number>,
-) {
-  const queryClient = useQueryClient();
-  return useMutation<void, Error, number>({
-    mutationFn: (recipeId: number) => removeMyFavoriteRecipe(recipeId),
-    ...options,
-    onSuccess: (...args) => {
-      void queryClient.invalidateQueries({
-        queryKey: inventoryQueries.all,
-        refetchType: 'none',
-      });
-      void queryClient.invalidateQueries({
-        queryKey: favoriteRecipeQueries.all,
-        refetchType: 'none',
-      });
-      options?.onSuccess?.(...args);
-    },
-  });
-}
-
-export interface ToggleMyFavoriteRecipeVariables {
-  recipeId: number;
-  isFavorite: boolean;
-}
-
-export function useToggleMyFavoriteRecipe(
-  options?: UseMutationOptions<void, Error, ToggleMyFavoriteRecipeVariables>,
-) {
-  const queryClient = useQueryClient();
-
-  return useMutation<void, Error, ToggleMyFavoriteRecipeVariables>({
-    mutationFn: async ({ recipeId, isFavorite }) => {
-      if (isFavorite) {
-        await removeMyFavoriteRecipe(recipeId);
-        return;
-      }
-
-      await addMyFavoriteRecipes([recipeId]);
-    },
-    ...options,
-    onSuccess: (...args) => {
-      void queryClient.invalidateQueries({
-        queryKey: inventoryQueries.all,
-        refetchType: 'none',
-      });
-      void queryClient.invalidateQueries({
-        queryKey: favoriteRecipeQueries.all,
-        refetchType: 'none',
-      });
-      options?.onSuccess?.(...args);
-    },
-  });
-}
+export const useAddMyFavoriteRecipes = createStalingMutationHook<
+  MutationResult,
+  number[]
+>(addMyFavoriteRecipes, staleInventoryAndFavoriteRecipes);

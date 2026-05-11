@@ -1,59 +1,17 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { IngredientGrid, IngredientRemoveButton } from '@/components/inventory';
 import {
-  inventoryQueries,
   useMyInventory,
+  useRemoveMyFavoriteIngredient,
 } from '@/lib/queries/inventory.queries';
-import { removeMyFavoriteIngredient } from '@/lib/api/domains';
-import type { InventoryIngredient } from '@/lib/types/inventory';
 import { InventoryPageShell } from '../../InventoryPageShell';
 
 export default function InventoryFavoriteIngredientsPage() {
   const { data } = useMyInventory();
-  const queryClient = useQueryClient();
+  const removeMutation = useRemoveMyFavoriteIngredient();
 
-  const [localItems, setLocalItems] = useState<InventoryIngredient[]>([]);
-  const localItemsRef = useRef<InventoryIngredient[]>([]);
-  const initializedRef = useRef(false);
-  localItemsRef.current = localItems;
-
-  useEffect(() => {
-    if (data && !initializedRef.current) {
-      setLocalItems(data.favoriteIngredients);
-      initializedRef.current = true;
-    }
-  }, [data]);
-
-  const removeMutation = useMutation<
-    void,
-    Error,
-    number,
-    { removedItem: InventoryIngredient | undefined }
-  >({
-    mutationFn: (id: number) => removeMyFavoriteIngredient(id),
-    onMutate: (ingredientId) => {
-      const items = localItemsRef.current;
-      const removedItem = items.find((i) => i.id === ingredientId);
-      setLocalItems(items.filter((i) => i.id !== ingredientId));
-      return { removedItem };
-    },
-    onError: (_err, _id, context) => {
-      if (context?.removedItem) {
-        setLocalItems((prev) => [...prev, context.removedItem!]);
-      }
-    },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: inventoryQueries.all,
-        refetchType: 'none',
-      });
-    },
-  });
-
-  const items = localItems;
+  const items = data?.favoriteIngredients ?? [];
   const addHref = '/ingredient/filter?type=favorites';
 
   return (
