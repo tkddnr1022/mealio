@@ -1,6 +1,6 @@
 'use client';
 
-import { IngredientSearchResult } from '@/components/inventory';
+import { IngredientGrid } from '@/components/inventory';
 import {
   useMyInventory,
   useRemoveMyOwnedIngredient,
@@ -27,7 +27,7 @@ export default function InventoryOwnedIngredientsPage() {
       }}
       addHref={addHref}
     >
-      <IngredientSearchResult
+      <IngredientGrid
         items={items}
         onRemoveIngredient={(ingredient) => {
           removeMutation.mutate(ingredient.id);
