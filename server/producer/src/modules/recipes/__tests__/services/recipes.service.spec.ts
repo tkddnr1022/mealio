@@ -5,7 +5,7 @@ import {
   CACHE_KEY_SEGMENT,
   KAFKA_TOPICS,
   buildCacheKey,
-} from '@cook/shared';
+} from '@mealio/shared';
 import { RecipeQueryService } from '../../recipes.service';
 import { RecipeRepository } from '../../../../infrastructure/database/repositories/postgresql/recipe.repository';
 import { CacheService } from '../../../../infrastructure/cache/cache.service';

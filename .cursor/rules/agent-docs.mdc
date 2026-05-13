@@ -64,7 +64,7 @@ alwaysApply: true
 | **backend_architecture_spec.md** | 백엔드 아키텍처 모듈 명세 (인덱스) | Producer/Consumer/Shared 패키지별 명세 링크, 공통 경로·표기 규칙을 확인할 때 |
 | **backend_architecture_spec_producer.md** | Producer 패키지 명세 | Producer(NestJS) 모듈 구조, API 경로, 파일·디렉터리 명세, 챗봇 SSE 계약을 구현·수정할 때 |
 | **backend_architecture_spec_consumer.md** | Consumer 패키지 명세 | Consumer·Kafka 토픽, 핸들러·리포지토리 구조를 구현·수정할 때 |
-| **backend_architecture_spec_shared.md** | Shared 패키지 명세 | @cook/shared(server/shared), Prisma·Mongoose·Redis·타입 제공, 스키마 위치를 구현·수정할 때 |
+| **backend_architecture_spec_shared.md** | Shared 패키지 명세 | @mealio/shared(server/shared), Prisma·Mongoose·Redis·타입 제공, 스키마 위치를 구현·수정할 때 |
 
 ### 디자인 — 지침 (`agent/design/guidelines/`)
 

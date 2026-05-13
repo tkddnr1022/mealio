@@ -1,4 +1,5 @@
 import type { HTMLAttributes } from 'react';
+import { APP_BRAND_NAME } from '@/lib/config/env';
 import { cn } from '@/lib/utils/cn';
 
 export interface LoginHeaderProps extends Omit<
@@ -12,7 +13,7 @@ export interface LoginHeaderProps extends Omit<
 
 export function LoginHeader({
   className = '',
-  title = 'Coop',
+  title = APP_BRAND_NAME,
   subtitle = '나에게 딱 맞는 레시피를 찾아보세요!',
   ...rest
 }: LoginHeaderProps) {

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ChatbotLog } from '@cook/shared';
-import type { ChatbotLogDocument } from '@cook/shared';
+import { ChatbotLog } from '@mealio/shared';
+import type { ChatbotLogDocument } from '@mealio/shared';
 
 /** 대화 히스토리 컨텍스트에 넣을 최근 메시지 수(상한). 토큰/윈도우 제한 고려. */
 export const DEFAULT_RECENT_TURNS_LIMIT = 20;

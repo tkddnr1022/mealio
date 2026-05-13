@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { InventoryEventType } from '@cook/shared';
+import { InventoryEventType } from '@mealio/shared';
 import { RecipeRepository } from 'src/persistence/repositories/postgresql/recipe.repository';
 import { RecipeStatsUpdaterService } from './recipe-stats-updater.service';
 

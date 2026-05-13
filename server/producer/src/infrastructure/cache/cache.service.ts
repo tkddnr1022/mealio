@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { RedisService } from '@cook/shared';
+import { RedisService } from '@mealio/shared';
 import { CacheStrategy } from './strategies/cache-strategy.interface';
 
 /**

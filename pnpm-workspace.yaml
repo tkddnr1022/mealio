@@ -3,3 +3,7 @@ packages:
   - "server/shared"
   - "server/producer"
   - "server/consumer"
+
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver

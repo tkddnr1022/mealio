@@ -12,7 +12,9 @@
  *
  * 값을 소비하는 곳:
  * - API base URL: `client/src/lib/config/api.config.ts`
+ * - 앱 UI 워드마크: `APP_BRAND_NAME` — 네비·로그인 헤더 등
  */
+export const APP_BRAND_NAME = 'Mealio' as const;
 
 export type RuntimeEnv = 'development' | 'production' | 'test';
 

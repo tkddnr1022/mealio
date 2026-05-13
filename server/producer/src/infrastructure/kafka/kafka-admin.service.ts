@@ -6,7 +6,7 @@ import {
   KAFKA_DLQ_TOPICS,
   createKafkaConfig,
   LOCAL_TOPIC_CONFIG,
-} from '@cook/shared';
+} from '@mealio/shared';
 
 /**
  * Kafka Admin 서비스

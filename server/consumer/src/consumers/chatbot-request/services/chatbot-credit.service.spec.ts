@@ -1,4 +1,4 @@
-import { computeChatbotCreditCost, PrismaService } from '@cook/shared';
+import { computeChatbotCreditCost, PrismaService } from '@mealio/shared';
 import { KafkaProducerService } from 'src/integrations/kafka/kafka-producer.service';
 import { ChatbotCreditService } from './chatbot-credit.service';
 

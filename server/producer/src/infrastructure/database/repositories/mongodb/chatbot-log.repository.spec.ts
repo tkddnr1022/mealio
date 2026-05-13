@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ChatbotLogRepository } from './chatbot-log.repository';
-import { ChatbotLog, ChatbotLogDocument } from '@cook/shared';
+import { ChatbotLog, ChatbotLogDocument } from '@mealio/shared';
 
 // Mock chainable query (find/findById 공통: select, lean, sort, limit, exec)
 const mockQuery = {

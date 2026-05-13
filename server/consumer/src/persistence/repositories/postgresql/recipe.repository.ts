@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@cook/shared';
+import { PrismaService } from '@mealio/shared';
 
 /**
  * Consumer 전용 Recipe 리포지토리 — activity-events(recipe.view) 처리 시 조회수 증가 등

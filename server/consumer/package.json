@@ -1,5 +1,5 @@
 {
-  "name": "@cook/consumer",
+  "name": "@mealio/consumer",
   "version": "0.0.1",
   "description": "Kafka consumer worker for chatbot requests and background processing",
   "author": "",
@@ -19,7 +19,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand"
   },
   "dependencies": {
-    "@cook/shared": "workspace:*",
+    "@mealio/shared": "workspace:*",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",

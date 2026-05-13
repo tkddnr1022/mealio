@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@cook/shared/prisma-client';
+import { Prisma } from '@mealio/shared/prisma-client';
 import {
   PrismaService,
   RedisService,
   cacheKeyChatbotFoodCategories,
-} from '@cook/shared';
+} from '@mealio/shared';
 
 /** `search_recipes` 도구가 반환하는 레시피 요약(검색 결과). 추천·랭킹 점수는 포함하지 않는다. */
 export interface SearchedRecipe {

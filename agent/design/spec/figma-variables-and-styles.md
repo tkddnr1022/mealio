@@ -1,6 +1,6 @@
 # Figma — 통합 변수·스타일 목록
 
-- **소스**: `https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook` — `fileKey` `r9bdZPeswvPR1ncezzt4ri`, 스테이징 섹션 **UI** 루트 노드 `36:333` + 추가 수집 노드 `492:2935`(`SubTab`), `492:2955`(`InventorySubTabbar`).
+- **소스**: `https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Mealio` — `fileKey` `r9bdZPeswvPR1ncezzt4ri`, 스테이징 섹션 **UI** 루트 노드 `36:333` + 추가 수집 노드 `492:2935`(`SubTab`), `492:2955`(`InventorySubTabbar`).
 - **수집 방법**: Figma MCP `get_variable_defs`를 위 루트에 **한 번** 호출해 스테이징 하위 전 컴포넌트 서브트리에 등장하는 변수·스타일 정의를 평탄 맵으로 수집 후 표로 정리했다. 동일 노드에 대한 `get_design_context`는 섹션 노드라 **희소 메타(XML 구조)만** 반환되어, 본 표는 **변수 맵이 단일 근거**다. 보조 `search_design_system`은 사용하지 않았다.
 - **수집 시점**: 2026-05-01 (변수 표 보완: 2026-05-14 — **Alert** 노드 `590:4481`, MCP `get_design_context` 기준 `color/state/*` 값 반영)
 - **주의**: MCP 응답 시점 스냅샷이다. Figma 수정 후 재수집할 것.
@@ -81,7 +81,7 @@
 | 변수 | `elevation/sm/color` | `#0f172a` @ 약 6% 불투명 (`#0f172a0f`) | Elevation/Small 색 |
 | 변수 | `elevation/sm/x` | `0` (px) | Elevation/Small X |
 | 변수 | `elevation/sm/y` | `1` (px) | Elevation/Small Y |
-| 변수 | `logo` | `Coop` (문자열) | **Navbar** 브랜드 텍스트 — 클라이언트 `Navbar`에서 동일 문자열로 고정 |
+| 변수 | `logo` | `Mealio` (문자열) | **Navbar** 브랜드 텍스트 — 클라이언트 `Navbar`에서 동일 문자열로 고정 |
 | 변수 | `opacity/disabled` | `50` (MCP 맵; UI 비활성 불투명도) | **Input** `disabled` 등 |
 | 변수 | `radius/2xl` | `16` (px) | 큰 라운드(챗 버블·일부 셸) |
 | 변수 | `radius/full` | `9999` (px) | 칩·버튼·필드 pill |

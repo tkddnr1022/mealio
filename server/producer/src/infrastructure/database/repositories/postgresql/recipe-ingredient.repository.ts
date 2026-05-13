@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { RecipeIngredient, Prisma } from '@cook/shared/prisma-client';
-import { PrismaService } from '@cook/shared';
+import { RecipeIngredient, Prisma } from '@mealio/shared/prisma-client';
+import { PrismaService } from '@mealio/shared';
 
 @Injectable()
 export class RecipeIngredientRepository {

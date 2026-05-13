@@ -1,5 +1,5 @@
 {
-  "name": "@cook/shared",
+  "name": "@mealio/shared",
   "version": "0.0.1",
   "description": "Shared configs, constants, database (Prisma/Mongoose), Redis, types for Producer/Consumer",
   "private": true,

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, Recipe } from '@cook/shared/prisma-client';
-import { PrismaService } from '@cook/shared';
+import { Prisma, Recipe } from '@mealio/shared/prisma-client';
+import { PrismaService } from '@mealio/shared';
 import {
   DEFAULT_RECIPE_SORT,
   RecipeListOrder,

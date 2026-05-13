@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { type UserEvent, type InventoryEvent } from '@cook/shared';
+import { type UserEvent, type InventoryEvent } from '@mealio/shared';
 import {
   EventLogRepository,
   type CreateEventLogInput,

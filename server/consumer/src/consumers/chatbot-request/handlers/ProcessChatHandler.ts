@@ -9,7 +9,7 @@ import {
   CHATBOT_TOOL_CALL_STATUS,
   type ChatbotStreamEvent,
   type ChatbotStreamToolCallEvent,
-} from '@cook/shared';
+} from '@mealio/shared';
 import { OpenAIService } from 'src/integrations/openai/openai.service';
 import {
   ChatbotLogRepository,

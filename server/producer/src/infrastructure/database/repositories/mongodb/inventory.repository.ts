@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Inventory, InventoryDocument } from '@cook/shared';
+import { Inventory, InventoryDocument } from '@mealio/shared';
 
 @Injectable()
 export class InventoryRepository {

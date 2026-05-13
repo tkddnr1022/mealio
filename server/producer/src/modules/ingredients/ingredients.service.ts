@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { CACHE_KEY_SEGMENT } from '@cook/shared';
+import { CACHE_KEY_SEGMENT } from '@mealio/shared';
 import { IngredientRepository } from '../../infrastructure/database/repositories/postgresql/ingredient.repository';
 import { CacheService } from '../../infrastructure/cache/cache.service';
 import { IngredientCacheStrategy } from '../../infrastructure/cache/strategies/ingredient-cache-strategy';
 import { IngredientDto } from './dto/ingredient.dto';
 import { IngredientCategoryDto } from './dto/ingredient-category.dto';
 import { PaginationDto } from './dto/pagination.dto';
-import { Ingredient } from '@cook/shared/prisma-client';
+import { Ingredient } from '@mealio/shared/prisma-client';
 
 @Injectable()
 export class IngredientQueryService {

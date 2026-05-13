@@ -1,4 +1,4 @@
-# Consumer 패키지 명세 (@cook/consumer)
+# Consumer 패키지 명세 (@mealio/consumer)
 
 백엔드 아키텍처 명세의 일부이다. 공통 규칙·경로 표기·다른 패키지 명세는 `backend_architecture_spec.md`에 정의되어 있다.
 
@@ -33,7 +33,7 @@
 | server/consumer/src/consumers/chatbot-request/chatbot-request.module.ts | 그룹 모듈 정의 |
 | server/consumer/src/consumers/chatbot-request/chatbot-request.consumer.ts | 해당 토픽 구독. 토픽 §2.2 |
 | server/consumer/src/consumers/chatbot-request/handlers/ProcessChatHandler.ts | GPT Function Calling·스트리밍, tool_calls 디스패치, Redis ChatbotStreamEvent 발행. 턴 성공 종료 직전 `ChatbotCreditService.debitForCompletedChatbotTurn`으로 멱등 크레딧 차감 후 `done` 이벤트에 `isCreditDepleted` 포함 |
-| server/consumer/src/consumers/chatbot-request/services/chatbot-credit.service.ts | 챗봇 턴 완료 시 Prisma 트랜잭션으로 `chatbot_credit_deductions`(streamChannelId PK) 멱등 삽입·`User.creditBalance` 차감·차감 크레딧 기록. `@cook/shared`의 `computeChatbotCreditCost` 사용. 신규 차감 시 `cache-invalidation`(USER_PROFILE) 토픽 발행 |
+| server/consumer/src/consumers/chatbot-request/services/chatbot-credit.service.ts | 챗봇 턴 완료 시 Prisma 트랜잭션으로 `chatbot_credit_deductions`(streamChannelId PK) 멱등 삽입·`User.creditBalance` 차감·차감 크레딧 기록. `@mealio/shared`의 `computeChatbotCreditCost` 사용. 신규 차감 시 `cache-invalidation`(USER_PROFILE) 토픽 발행 |
 | server/consumer/src/consumers/chatbot-request/services/chatbot-credit.service.spec.ts | ChatbotCreditService 단위 테스트 |
 | server/consumer/src/consumers/chatbot-request/handlers/InventoryHandler.ts | get_user_inventory — Inventory 조회(`ingredients.owned`, `ingredients.favorite`, `recipes.favorite`), Ingredient id→name(Redis 캐시) 반환 |
 | server/consumer/src/consumers/chatbot-request/handlers/SearchRecipesHandler.ts | search_recipes — Prisma 레시피 검색, ingredientIds optional, RecipeSummary[] 반환 |
@@ -126,7 +126,7 @@
 
 ## 2.2 Kafka 토픽 명세
 
-토픽·DLQ 상수는 `@cook/shared`의 `KAFKA_TOPICS`, `KAFKA_DLQ_TOPICS`에 정의되어 있으며, Producer의 KafkaAdminService가 로컬 환경에서 메인·DLQ 토픽을 생성한다.
+토픽·DLQ 상수는 `@mealio/shared`의 `KAFKA_TOPICS`, `KAFKA_DLQ_TOPICS`에 정의되어 있으며, Producer의 KafkaAdminService가 로컬 환경에서 메인·DLQ 토픽을 생성한다.
 
 | 토픽 (메인) | DLQ 토픽 | Consumer 그룹 | 발행 주체 | 용도·페이로드 개요 |
 |-------------|-----------|----------------|-----------|---------------------|
@@ -153,9 +153,9 @@
 
 ## 2.4 챗봇 크레딧 멱등 차감 및 스트림 `done` 계약
 
-- **모델·상수**: `@cook/shared` Prisma `User.creditBalance` / `User.creditMonthlyLimit`, `ChatbotCreditDeduction`(테이블 `chatbot_credit_deductions`, PK `stream_channel_id`). 비용 계산·기본 정책 상수는 `server/shared/src/constants/user-credits.ts`(`computeChatbotCreditCost`, `DEFAULT_USER_CREDIT_*` 등).
+- **모델·상수**: `@mealio/shared` Prisma `User.creditBalance` / `User.creditMonthlyLimit`, `ChatbotCreditDeduction`(테이블 `chatbot_credit_deductions`, PK `stream_channel_id`). 비용 계산·기본 정책 상수는 `server/shared/src/constants/user-credits.ts`(`computeChatbotCreditCost`, `DEFAULT_USER_CREDIT_*` 등).
 - **ChatbotCreditService** (`consumers/chatbot-request/services/chatbot-credit.service.ts`): 동일 `streamChannelId`에 대해 `createMany` + `skipDuplicates`로 멱등 슬롯 확보 후, `usage.totalTokens` 기반 비용만큼 `creditBalance`를 감소(잔액 상한 클램프). 재처리 시 이중 차감 없음. 신규 차감이 발생한 경우에만 `KafkaProducerService`로 **cache-invalidation** 토픽(USER_PROFILE)을 발행해 Producer 캐시와 정합을 맞춘다.
-- **ProcessChatHandler**: Redis `done` 이벤트(`@cook/shared` 타입 `ChatbotStreamDoneEvent`)의 `data.isCreditDepleted`에 차감 결과를 넣어 클라이언트가 잔액 소진 여부를 알 수 있게 한다.
+- **ProcessChatHandler**: Redis `done` 이벤트(`@mealio/shared` 타입 `ChatbotStreamDoneEvent`)의 `data.isCreditDepleted`에 차감 결과를 넣어 클라이언트가 잔액 소진 여부를 알 수 있게 한다.
 
 ---
 

@@ -1,6 +1,6 @@
 # Design to Code — 컴포넌트 순차 작업 프로그레스
 
-- **소스**: `https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook` — `fileKey` `r9bdZPeswvPR1ncezzt4ri`, 스테이징 섹션 **UI** 루트 노드 `36:333`.
+- **소스**: `https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Mealio` — `fileKey` `r9bdZPeswvPR1ncezzt4ri`, 스테이징 섹션 **UI** 루트 노드 `36:333`.
 
 ## 전체 컴포넌트 목록 및 순차 작업 프로그레스
 

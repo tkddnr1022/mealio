@@ -6,7 +6,7 @@ import { UserRepository } from '../../infrastructure/database/repositories/postg
 import { KafkaProducerService } from '../../infrastructure/kafka/producer.service';
 import { CacheService } from '../../infrastructure/cache/cache.service';
 import { InventoryCacheStrategy } from '../../infrastructure/cache/strategies/inventory-cache-strategy';
-import { KAFKA_TOPICS } from '@cook/shared';
+import { KAFKA_TOPICS } from '@mealio/shared';
 import {
   InventoryEventType,
   InventoryUpdateEvent,
@@ -17,13 +17,13 @@ import {
   InventoryFavoritesRemoveEvent,
   InventoryRecipeFavoritesAddEvent,
   InventoryRecipeFavoritesRemoveEvent,
-} from '@cook/shared';
+} from '@mealio/shared';
 import { InventoryListDto } from './dto/inventory-list.dto';
 import type { InventoryEntryDto } from './dto/inventory-entry.dto';
 import { OwnedIngredientIdsDto } from './dto/owned-ingredient-ids.dto';
 import { FavoriteIngredientIdsDto } from './dto/favorite-ingredient-ids.dto';
 import { FavoriteRecipeIdsDto } from './dto/favorite-recipe-ids.dto';
-import type { Ingredient } from '@cook/shared/prisma-client';
+import type { Ingredient } from '@mealio/shared/prisma-client';
 import type { RecipeWithStats } from '../../infrastructure/database/repositories/postgresql/recipe.repository';
 import type { RecipeSummaryDto } from '../recipes/dto/recipe-summary.dto';
 

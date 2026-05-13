@@ -5,7 +5,7 @@
  */
 import 'dotenv/config';
 import mongoose from 'mongoose';
-import { InventorySchema, ChatbotLogSchema } from '@cook/shared';
+import { InventorySchema, ChatbotLogSchema } from '@mealio/shared';
 
 const InventoryModel = mongoose.model(
   'Inventory',

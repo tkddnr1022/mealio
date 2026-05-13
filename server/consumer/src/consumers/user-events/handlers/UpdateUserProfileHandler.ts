@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserEventType, type UserEvent } from '@cook/shared';
+import { UserEventType, type UserEvent } from '@mealio/shared';
 import { UserRepository } from 'src/persistence/repositories/postgresql/user.repository';
 import { CacheInvalidationRequestService } from 'src/consumers/cache-invalidation/cache-invalidation-request.service';
 

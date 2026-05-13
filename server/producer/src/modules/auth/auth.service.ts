@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { KAFKA_TOPICS, UserEventType } from '@cook/shared';
-import { User } from '@cook/shared/prisma-client';
+import { KAFKA_TOPICS, UserEventType } from '@mealio/shared';
+import { User } from '@mealio/shared/prisma-client';
 import { UserRepository } from '../../infrastructure/database/repositories/postgresql/user.repository';
 import { KafkaProducerService } from '../../infrastructure/kafka/producer.service';
 import { OAuthProfile } from './types/oauth.types';

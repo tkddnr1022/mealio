@@ -1,10 +1,10 @@
-# Shared 패키지 명세 (@cook/shared)
+# Shared 패키지 명세 (@mealio/shared)
 
 백엔드 아키텍처 명세의 일부이다. 공통 규칙·경로 표기·다른 패키지 명세는 `backend_architecture_spec.md`에 정의되어 있다.
 
 ---
 
-**패키지명**: `@cook/shared`. **위치**: `server/shared`. **역할**: Producer/Consumer 공통 설정·상수·DB(Prisma/Mongoose)·Redis·타입 제공.
+**패키지명**: `@mealio/shared`. **위치**: `server/shared`. **역할**: Producer/Consumer 공통 설정·상수·DB(Prisma/Mongoose)·Redis·타입 제공.
 
 ## 3.1 파일·디렉터리 명세 (server/shared/)
 
@@ -12,7 +12,7 @@
 
 | 경로 | 역할 |
 |------|------|
-| server/shared/package.json | name: "@cook/shared", exports: ".", "./prisma-client" |
+| server/shared/package.json | name: "@mealio/shared", exports: ".", "./prisma-client" |
 | server/shared/src/index.ts | 공개 API re-export |
 | server/shared/src/configs/kafka.config.ts | createKafkaConfig, LOCAL_TOPIC_CONFIG |
 | server/shared/src/configs/redis.config.ts | createRedisConfig |
@@ -20,7 +20,7 @@
 | server/shared/src/constants/redis-channels.ts | getChatbotStreamChannel, CHATBOT_STREAM_CHANNEL_PREFIX |
 | server/shared/src/constants/cache-keys.ts | CACHE_KEY_PREFIX. Producer 캐시 전략·Consumer 캐시 무효화에서 공통 사용 |
 | server/shared/src/constants/asset-url-prefixes.ts | ASSET_URL_PREFIX (RECIPE_IMAGE, INGREDIENT_CATEGORY_ICON). 레시피 이미지/재료 카테고리 아이콘 URL prefix 공통 사용 |
-| server/shared/src/constants/user-credits.ts | 챗봇 크레딧 정책: `DEFAULT_USER_CREDIT_BALANCE`, `DEFAULT_USER_CREDIT_MONTHLY_LIMIT`, `TOKENS_PER_CREDIT`, `computeChatbotCreditCost`. 신규 `User` 초기 잔액·시드·Producer `UserRepository.create`와 동일 기준. `@cook/shared`의 `index.ts`에서 re-export |
+| server/shared/src/constants/user-credits.ts | 챗봇 크레딧 정책: `DEFAULT_USER_CREDIT_BALANCE`, `DEFAULT_USER_CREDIT_MONTHLY_LIMIT`, `TOKENS_PER_CREDIT`, `computeChatbotCreditCost`. 신규 `User` 초기 잔액·시드·Producer `UserRepository.create`와 동일 기준. `@mealio/shared`의 `index.ts`에서 re-export |
 | server/shared/src/database/prisma/schema.prisma | PostgreSQL 스키마 (User·크레딧 필드·ChatbotCreditDeduction, RecipeCategory, Recipe, RecipeStats, IngredientCategory, Ingredient, RecipeIngredient) |
 | server/shared/src/database/prisma/seed.ts | 로컬/개발용 시드 스크립트. `User` 삽입 시 `user-credits` 상수로 `credit_balance`·`credit_monthly_limit` 설정 |
 | server/shared/src/database/prisma/prisma-pool.config.ts | PrismaPoolConfig 타입, PRISMA_POOL_CONFIG DI 토큰 (커넥션 풀 설정용). PrismaService·PrismaModule에서 참조 |
@@ -54,8 +54,8 @@ datasource: `postgresql`. generator: `prisma-client`, output `generated`.
 
 ## 3.3 사용 방식 (정형)
 
-- **Producer/Consumer import**: `import { PrismaModule, MongooseSchemasModule, RedisService, KAFKA_TOPICS, computeChatbotCreditCost, DEFAULT_USER_CREDIT_BALANCE, ... } from '@cook/shared'`
-- **Prisma 타입/클라이언트**: `import { Recipe, Prisma } from '@cook/shared/prisma-client'`
+- **Producer/Consumer import**: `import { PrismaModule, MongooseSchemasModule, RedisService, KAFKA_TOPICS, computeChatbotCreditCost, DEFAULT_USER_CREDIT_BALANCE, ... } from '@mealio/shared'`
+- **Prisma 타입/클라이언트**: `import { Recipe, Prisma } from '@mealio/shared/prisma-client'`
 - **빌드 순서**: shared 빌드(`prisma generate` + `tsc`) → Producer/Consumer 빌드
 - **환경 변수·모노레포·빌드·데이터소스 주의사항**: `../guidelines/backend_development_guidelines.md` §6(환경 변수), §8(모노레포·빌드), §9(데이터베이스별 주의사항)에 정의되어 있다.
 

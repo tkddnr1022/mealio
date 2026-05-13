@@ -3,7 +3,7 @@ import {
   ActivityEventType,
   CACHE_KEY_SEGMENT,
   KAFKA_TOPICS,
-} from '@cook/shared';
+} from '@mealio/shared';
 import {
   RecipeRepository,
   RecipeSearchParams,

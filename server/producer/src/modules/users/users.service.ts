@@ -3,8 +3,8 @@ import { UserRepository } from '../../infrastructure/database/repositories/postg
 import { UserProfileDto } from './dto/user-profile.dto';
 import { UpdateNicknameDto } from './dto/update-nickname.dto';
 import { KafkaProducerService } from '../../infrastructure/kafka/producer.service';
-import { KAFKA_TOPICS } from '@cook/shared';
-import { UserEventType, UserNicknameUpdateEvent } from '@cook/shared';
+import { KAFKA_TOPICS } from '@mealio/shared';
+import { UserEventType, UserNicknameUpdateEvent } from '@mealio/shared';
 import { CacheService } from '../../infrastructure/cache/cache.service';
 import { UserCacheStrategy } from '../../infrastructure/cache/strategies/user-cache-strategy';
 

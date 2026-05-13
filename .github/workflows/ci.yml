@@ -61,7 +61,7 @@ jobs:
       - name: Install dependencies
         run: pnpm run ci:install
 
-      - name: Build @cook/shared
+      - name: Build @mealio/shared
         run: pnpm run ci:build:shared
 
       - name: Run producer tests

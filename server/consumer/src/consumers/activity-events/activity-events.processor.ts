@@ -6,7 +6,7 @@ import {
   ActivityEventType,
   type ActivityEventPayload,
   isActivityEventType,
-} from '@cook/shared';
+} from '@mealio/shared';
 import { BaseTopicProcessor } from '../base/base.processor';
 import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';

@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { InventoryRepository } from './inventory.repository';
-import { Inventory, InventoryDocument } from '@cook/shared';
+import { Inventory, InventoryDocument } from '@mealio/shared';
 
 describe('InventoryRepository', () => {
   let repository: InventoryRepository;

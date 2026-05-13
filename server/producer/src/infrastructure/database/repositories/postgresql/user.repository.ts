@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { User, Prisma } from '@cook/shared/prisma-client';
+import { User, Prisma } from '@mealio/shared/prisma-client';
 import {
   DEFAULT_USER_CREDIT_BALANCE,
   DEFAULT_USER_CREDIT_MONTHLY_LIMIT,
   PrismaService,
-} from '@cook/shared';
+} from '@mealio/shared';
 
 @Injectable()
 export class UserRepository {

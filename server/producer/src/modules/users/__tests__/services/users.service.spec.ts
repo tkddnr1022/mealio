@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
-import { CACHE_KEY_PREFIX, buildCacheKey } from '@cook/shared';
+import { CACHE_KEY_PREFIX, buildCacheKey } from '@mealio/shared';
 import { UsersService } from '../../users.service';
 import { UserRepository } from '../../../../infrastructure/database/repositories/postgresql/user.repository';
 import { UpdateNicknameDto } from '../../dto/update-nickname.dto';

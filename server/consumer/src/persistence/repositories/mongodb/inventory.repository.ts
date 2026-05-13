@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Inventory, type InventoryDocument } from '@cook/shared';
+import { Inventory, type InventoryDocument } from '@mealio/shared';
 
 /**
  * Consumer 전용 Inventory 리포지토리 - 유저 재료 이벤트 처리 시 MongoDB inventory 갱신

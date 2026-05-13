@@ -1,4 +1,4 @@
-# Producer 패키지 명세 (@cook/producer)
+# Producer 패키지 명세 (@mealio/producer)
 
 백엔드 아키텍처 명세의 일부이다. 공통 규칙·경로 표기·다른 패키지 명세는 `backend_architecture_spec.md`에 정의되어 있다.
 
@@ -93,29 +93,29 @@
 | server/producer/src/modules/chatbot/dto/conversation-list.dto.ts | 대화 리스트 응답 DTO |
 | server/producer/src/modules/chatbot/dto/suggested-recipe.dto.ts | 챗봇이 제안하는 레시피 DTO |
 | **server/producer/src/infrastructure/database/repositories/postgresql/** | |
-| server/producer/src/infrastructure/database/repositories/postgresql/user.repository.ts | User 조회·생성(OAuth 로그인용)·갱신 (PrismaService, @cook/shared/prisma-client) |
+| server/producer/src/infrastructure/database/repositories/postgresql/user.repository.ts | User 조회·생성(OAuth 로그인용)·갱신 (PrismaService, @mealio/shared/prisma-client) |
 | server/producer/src/infrastructure/database/repositories/postgresql/recipe.repository.ts | Recipe 조회/검색 리포지토리. RecipeStats 조인(attach) 및 통계 기반 정렬(viewCount/likeCount) 지원 |
 | server/producer/src/infrastructure/database/repositories/postgresql/ingredient.repository.ts | Ingredient 조회 |
 | server/producer/src/infrastructure/database/repositories/postgresql/recipe-ingredient.repository.ts | RecipeIngredient 조회/생성 |
 | **server/producer/src/infrastructure/database/repositories/mongodb/** | |
-| server/producer/src/infrastructure/database/repositories/mongodb/event-log.repository.ts | EventLog (스키마·타입 @cook/shared) |
-| server/producer/src/infrastructure/database/repositories/mongodb/chatbot-log.repository.ts | ChatbotLog (스키마·타입 @cook/shared) |
-| server/producer/src/infrastructure/database/repositories/mongodb/chatbot-conversation.repository.ts | ChatbotConversation 메타 목록·제목 조회 (`updatedAt` 정렬·커서) (스키마·타입 @cook/shared) |
-| server/producer/src/infrastructure/database/repositories/mongodb/inventory.repository.ts | Inventory (스키마·타입 @cook/shared) |
+| server/producer/src/infrastructure/database/repositories/mongodb/event-log.repository.ts | EventLog (스키마·타입 @mealio/shared) |
+| server/producer/src/infrastructure/database/repositories/mongodb/chatbot-log.repository.ts | ChatbotLog (스키마·타입 @mealio/shared) |
+| server/producer/src/infrastructure/database/repositories/mongodb/chatbot-conversation.repository.ts | ChatbotConversation 메타 목록·제목 조회 (`updatedAt` 정렬·커서) (스키마·타입 @mealio/shared) |
+| server/producer/src/infrastructure/database/repositories/mongodb/inventory.repository.ts | Inventory (스키마·타입 @mealio/shared) |
 | **server/producer/src/infrastructure/cache/** | |
-| server/producer/src/infrastructure/cache/cache.service.ts | 캐시 서비스 (Redis는 @cook/shared 사용) |
+| server/producer/src/infrastructure/cache/cache.service.ts | 캐시 서비스 (Redis는 @mealio/shared 사용) |
 | server/producer/src/infrastructure/cache/cache.module.ts | 캐시 모듈 |
 | server/producer/src/infrastructure/cache/cache.decorator.ts | @Cacheable 데코레이터 |
 | server/producer/src/infrastructure/cache/strategies/cache-strategy.interface.ts | 캐시 전략 인터페이스 |
 | server/producer/src/infrastructure/cache/strategies/index.ts | 전략 export |
 | server/producer/src/infrastructure/cache/strategies/recipe-cache-strategy.ts | TTL 30분. 상세(`recipe:{id}`), 목록(`recipe:list:*`), 검색(`recipe:search:*`) 키 세그먼트 사용 |
 | server/producer/src/infrastructure/cache/strategies/ingredient-cache-strategy.ts | TTL 24시간 |
-| server/producer/src/infrastructure/cache/strategies/user-cache-strategy.ts | TTL 30분. 캐시 키 prefix는 @cook/shared CACHE_KEY_PREFIX.USER 사용 |
-| server/producer/src/infrastructure/cache/strategies/inventory-cache-strategy.ts | TTL 30분. 캐시 키 prefix는 @cook/shared CACHE_KEY_PREFIX.INVENTORY 사용 |
+| server/producer/src/infrastructure/cache/strategies/user-cache-strategy.ts | TTL 30분. 캐시 키 prefix는 @mealio/shared CACHE_KEY_PREFIX.USER 사용 |
+| server/producer/src/infrastructure/cache/strategies/inventory-cache-strategy.ts | TTL 30분. 캐시 키 prefix는 @mealio/shared CACHE_KEY_PREFIX.INVENTORY 사용 |
 | **server/producer/src/infrastructure/kafka/** | |
 | server/producer/src/infrastructure/kafka/kafka.module.ts | Kafka 모듈 |
 | server/producer/src/infrastructure/kafka/kafka-admin.service.ts | 토픽 생성·확인 등 |
-| server/producer/src/infrastructure/kafka/producer.service.ts | createKafkaConfig 등 @cook/shared |
+| server/producer/src/infrastructure/kafka/producer.service.ts | createKafkaConfig 등 @mealio/shared |
 | server/producer/src/infrastructure/kafka/serializers/* | (선택: Avro/JSON 직렬화 구현 시 해당 경로 사용, 구현하지 않을 경우 디렉터리·파일 생략 가능) |
 | **server/producer/src/infrastructure/storage/** | |
 | server/producer/src/infrastructure/storage/s3.service.ts | 이미지 Presigned URL 생성 |
@@ -141,9 +141,9 @@
 
 | 항목 | 명세 |
 |------|------|
-| Redis 채널 | `chatbot:stream:{streamChannelId}` (@cook/shared `getChatbotStreamChannel`) |
-| 이벤트 타입 | `ChatbotStreamEvent`: `type: 'chunk' \| 'done' \| 'error' \| 'tool_call'` (@cook/shared `types/events`). `done.data`에는 `conversationId`, `isCreditDepleted`(크레딧 소진 여부), 선택 `suggestedRecipes`가 포함된다. |
-| Kafka 토픽 | CHATBOT_REQUESTS (@cook/shared `KAFKA_TOPICS`) |
+| Redis 채널 | `chatbot:stream:{streamChannelId}` (@mealio/shared `getChatbotStreamChannel`) |
+| 이벤트 타입 | `ChatbotStreamEvent`: `type: 'chunk' \| 'done' \| 'error' \| 'tool_call'` (@mealio/shared `types/events`). `done.data`에는 `conversationId`, `isCreditDepleted`(크레딧 소진 여부), 선택 `suggestedRecipes`가 포함된다. |
+| Kafka 토픽 | CHATBOT_REQUESTS (@mealio/shared `KAFKA_TOPICS`) |
 
 챗봇 6단계 흐름·설계 원칙은 `../guidelines/backend_development_guidelines.md` §5에 정의되어 있다.
 

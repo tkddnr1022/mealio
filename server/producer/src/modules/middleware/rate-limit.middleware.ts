@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware, HttpStatus } from '@nestjs/common';
 import type { Request, Response, NextFunction } from 'express';
-import { RedisService, cacheKeyRateLimitApi } from '@cook/shared';
+import { RedisService, cacheKeyRateLimitApi } from '@mealio/shared';
 
 /**
  * API 레이트 리밋 미들웨어 (Redis 기반)

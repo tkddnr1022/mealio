@@ -1,6 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { MongooseSchemasModule, PrismaModule, RedisModule } from '@cook/shared';
+import {
+  MongooseSchemasModule,
+  PrismaModule,
+  RedisModule,
+} from '@mealio/shared';
 import {
   envValidationOptions,
   envValidationSchema,

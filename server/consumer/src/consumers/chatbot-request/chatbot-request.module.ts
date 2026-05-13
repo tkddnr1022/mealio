@@ -9,7 +9,7 @@ import {
   EventLogSchema,
   Inventory,
   InventorySchema,
-} from '@cook/shared';
+} from '@mealio/shared';
 import { KafkaModule } from 'src/integrations/kafka/kafka.module';
 import { OpenAIModule } from 'src/integrations/openai/openai.module';
 import { RetryStrategy } from '../base/retry.strategy';

@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import {
   ChatbotConversation,
   type ChatbotConversationDocument,
-} from '@cook/shared';
+} from '@mealio/shared';
 
 const TITLE_MAX_LENGTH = 120;
 

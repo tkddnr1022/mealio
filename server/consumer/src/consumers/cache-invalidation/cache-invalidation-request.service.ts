@@ -5,7 +5,7 @@ import {
   type CacheInvalidationUserProfilePayload,
   type CacheInvalidationInventoryPayload,
   type CacheInvalidationRecipePayload,
-} from '@cook/shared';
+} from '@mealio/shared';
 import { KafkaProducerService } from 'src/integrations/kafka/kafka-producer.service';
 
 /**

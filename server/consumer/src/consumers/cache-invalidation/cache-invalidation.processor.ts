@@ -5,7 +5,7 @@ import {
   KAFKA_TOPICS,
   CacheInvalidationEventType,
   type CacheInvalidationPayload,
-} from '@cook/shared';
+} from '@mealio/shared';
 import { BaseTopicProcessor } from '../base/base.processor';
 import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getConnectionToken } from '@nestjs/mongoose';
-import { PrismaService } from '@cook/shared';
+import { PrismaService } from '@mealio/shared';
 import { HealthService } from '../../health.service';
 
 describe('HealthService', () => {

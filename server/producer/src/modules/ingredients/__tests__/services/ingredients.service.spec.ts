@@ -3,7 +3,7 @@ import {
   CACHE_KEY_PREFIX,
   CACHE_KEY_SEGMENT,
   buildCacheKey,
-} from '@cook/shared';
+} from '@mealio/shared';
 import { IngredientQueryService } from '../../ingredients.service';
 import { IngredientRepository } from '../../../../infrastructure/database/repositories/postgresql/ingredient.repository';
 import { CacheService } from '../../../../infrastructure/cache/cache.service';

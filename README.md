@@ -1,4 +1,4 @@
-# AI 기반 맞춤형 레시피 추천 서비스
+# Mealio — AI 기반 맞춤형 레시피 추천 서비스
 
 ## 개발 환경
 
@@ -52,5 +52,6 @@ pnpm run db:mongoose:seed
 | 경로 | 패키지명 | 설명 |
 |------|----------|------|
 | client | (Next.js) | 프론트엔드 |
-| server/shared | @cook/shared | Producer/Consumer 공용 (config, DB, Redis, types) |
-| server/producer | @cook/producer | NestJS API 서버 |
+| server/shared | @mealio/shared | Producer/Consumer 공용 (config, DB, Redis, types) |
+| server/producer | @mealio/producer | NestJS API 서버 |
+| server/consumer | @mealio/consumer | Kafka Consumer 워커 |

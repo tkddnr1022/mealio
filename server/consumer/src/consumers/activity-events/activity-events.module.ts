@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { EventLog, EventLogSchema } from '@cook/shared';
+import { EventLog, EventLogSchema } from '@mealio/shared';
 import { KafkaModule } from 'src/integrations/kafka/kafka.module';
 import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';

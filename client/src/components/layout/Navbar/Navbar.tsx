@@ -3,10 +3,9 @@
 import { type ReactNode } from 'react';
 import { BackButton } from '@/components/ui/buttons/BackButton';
 import { NavLink } from '@/components/ui/NavLink';
+import { APP_BRAND_NAME } from '@/lib/config/env';
 import { cn } from '@/lib/utils/cn';
 
-/** 상단 워드마크 — Figma 변수 `logo`와 동일하게 코드에서 고정 */
-const NAVBAR_LOGO_TEXT = 'Coop' as const;
 /** 로고 탭 시 앱 메인(레시피 탭)으로 이동 — 루트 `/` 리다이렉트와 동일 */
 const NAVBAR_LOGO_HREF = '/recipe' as const;
 
@@ -54,7 +53,7 @@ export function Navbar({
                 href={NAVBAR_LOGO_HREF}
                 className="block truncate style-text-primary no-underline outline-none transition-colors focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default"
               >
-                {NAVBAR_LOGO_TEXT}
+                {APP_BRAND_NAME}
               </NavLink>
             </h1>
           ) : null}

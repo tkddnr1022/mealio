@@ -13,11 +13,11 @@ import {
   KAFKA_TOPICS,
   InventoryEventType,
   buildCacheKey,
-} from '@cook/shared';
+} from '@mealio/shared';
 import { OwnedIngredientIdsDto } from '../../dto/owned-ingredient-ids.dto';
 import { FavoriteIngredientIdsDto } from '../../dto/favorite-ingredient-ids.dto';
 import { FavoriteRecipeIdsDto } from '../../dto/favorite-recipe-ids.dto';
-import type { Recipe } from '@cook/shared/prisma-client';
+import type { Recipe } from '@mealio/shared/prisma-client';
 
 describe('InventoryService', () => {
   let service: InventoryService;

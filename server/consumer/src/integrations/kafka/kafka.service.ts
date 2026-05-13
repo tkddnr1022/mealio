@@ -1,6 +1,6 @@
 import { Kafka, type Consumer, type ConsumerConfig } from 'kafkajs';
 import { Injectable } from '@nestjs/common';
-import { createKafkaConfig } from '@cook/shared';
+import { createKafkaConfig } from '@mealio/shared';
 
 /**
  * Consumer 패키지 전용 Kafka 연결.

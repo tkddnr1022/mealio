@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ChatbotEventType } from '@cook/shared';
+import { ChatbotEventType } from '@mealio/shared';
 import { OpenAIService } from 'src/integrations/openai/openai.service';
 import { ChatbotConversationRepository } from 'src/persistence/repositories/mongodb/chatbot-conversation.repository';
 import { SyncConversationMetaHandler } from './SyncConversationMetaHandler';

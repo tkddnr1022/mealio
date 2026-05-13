@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Kafka, Producer } from 'kafkajs';
-import { createKafkaConfig } from '@cook/shared';
+import { createKafkaConfig } from '@mealio/shared';
 
 export interface DlqPayload {
   topic: string;

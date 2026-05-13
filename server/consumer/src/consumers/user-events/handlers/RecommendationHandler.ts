@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import type { UserEvent } from '@cook/shared';
-import type { InventoryEvent } from '@cook/shared';
+import type { UserEvent } from '@mealio/shared';
+import type { InventoryEvent } from '@mealio/shared';
 
 export type UserEventPayload = UserEvent | InventoryEvent;
 

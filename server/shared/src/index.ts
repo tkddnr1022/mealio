@@ -1,5 +1,5 @@
 /**
- * @cook/shared - Producer/Consumer 공용 패키지
+ * @mealio/shared - Producer/Consumer 공용 패키지
  * Configs, constants, database (Prisma/Mongoose), Redis, types
  */
 

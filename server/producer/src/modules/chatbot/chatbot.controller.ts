@@ -21,7 +21,7 @@ import { ConversationListQueryDto } from './dto/conversation-list-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthUser } from '../auth/types/request.types';
-import { CHATBOT_STREAM_EVENT_TYPES } from '@cook/shared';
+import { CHATBOT_STREAM_EVENT_TYPES } from '@mealio/shared';
 
 /** SSE 이벤트 형식: data: {JSON}\n\n */
 function formatSSE(data: string): string {

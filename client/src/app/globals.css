@@ -153,7 +153,7 @@
 
 .theme-light,
 :root {
-  /* Streamdown / shadcn-aligned tokens (mapped to Cook refs) */
+  /* Streamdown / shadcn-aligned tokens (mapped to design token refs) */
   --background: var(--ref-color-background-surface);
   --foreground: var(--ref-color-text-primary);
   --card: var(--ref-color-background-surface);

@@ -5,7 +5,7 @@ import {
   RedisService,
   KAFKA_TOPICS,
   CHATBOT_STREAM_EVENT_TYPES,
-} from '@cook/shared';
+} from '@mealio/shared';
 import { ChatbotLogRepository } from '../../../../infrastructure/database/repositories/mongodb/chatbot-log.repository';
 import { ChatbotConversationRepository } from '../../../../infrastructure/database/repositories/mongodb/chatbot-conversation.repository';
 import { UserRepository } from '../../../../infrastructure/database/repositories/postgresql/user.repository';

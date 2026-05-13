@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { EventLog } from '@cook/shared';
-import type { EventLogDocument } from '@cook/shared';
+import { EventLog } from '@mealio/shared';
+import type { EventLogDocument } from '@mealio/shared';
 
 export interface CreateEventLogInput {
   type: string;

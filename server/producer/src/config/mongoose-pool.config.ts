@@ -1,4 +1,4 @@
-import type { MongoosePoolConfig } from '@cook/shared';
+import type { MongoosePoolConfig } from '@mealio/shared';
 
 /**
  * Mongoose(MongoDB) 커넥션 풀 설정 (Producer 전용)

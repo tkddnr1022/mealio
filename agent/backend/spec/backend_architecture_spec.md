@@ -10,8 +10,8 @@
 
 | 패키지 | 문서 |
 |--------|------|
-| **Producer** (@cook/producer) | [backend_architecture_spec_producer.md](backend_architecture_spec_producer.md) |
-| **Consumer** (@cook/consumer) | [backend_architecture_spec_consumer.md](backend_architecture_spec_consumer.md) |
-| **Shared** (@cook/shared) | [backend_architecture_spec_shared.md](backend_architecture_spec_shared.md) |
+| **Producer** (@mealio/producer) | [backend_architecture_spec_producer.md](backend_architecture_spec_producer.md) |
+| **Consumer** (@mealio/consumer) | [backend_architecture_spec_consumer.md](backend_architecture_spec_consumer.md) |
+| **Shared** (@mealio/shared) | [backend_architecture_spec_shared.md](backend_architecture_spec_shared.md) |
 
 각 문서에서 공통 규칙·경로 표기는 위 내용을 따르며, 패키지별 파일·디렉터리 명세와 계약·스키마는 해당 링크 문서에 정의되어 있다.

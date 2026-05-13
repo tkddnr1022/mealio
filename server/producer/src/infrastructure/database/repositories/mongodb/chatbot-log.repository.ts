@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ChatbotLog, ChatbotLogDocument } from '@cook/shared';
+import { ChatbotLog, ChatbotLogDocument } from '@mealio/shared';
 
 @Injectable()
 export class ChatbotLogRepository {

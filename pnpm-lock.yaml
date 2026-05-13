@@ -111,7 +111,7 @@ importers:
 
   server/consumer:
     dependencies:
-      '@cook/shared':
+      '@mealio/shared':
         specifier: workspace:*
         version: link:../shared
       '@nestjs/common':
@@ -220,7 +220,7 @@ importers:
 
   server/producer:
     dependencies:
-      '@cook/shared':
+      '@mealio/shared':
         specifier: workspace:*
         version: link:../shared
       '@nestjs/common':

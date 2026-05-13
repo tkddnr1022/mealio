@@ -6,7 +6,7 @@ import {
   envValidationOptions,
   envValidationSchema,
 } from './config/env.validation';
-import { MongooseSchemasModule, PrismaModule } from '@cook/shared';
+import { MongooseSchemasModule, PrismaModule } from '@mealio/shared';
 import { mongooseConnectionPoolConfig } from './config/mongoose-pool.config';
 import { prismaConnectionPoolConfig } from './config/prisma-pool.config';
 import { AuthModule } from './modules/auth/auth.module';

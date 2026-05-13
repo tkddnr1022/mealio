@@ -1,4 +1,4 @@
-import { Prisma } from '@cook/shared/prisma-client';
+import { Prisma } from '@mealio/shared/prisma-client';
 
 export const RECIPE_SORT_KEYS = [
   'latest',

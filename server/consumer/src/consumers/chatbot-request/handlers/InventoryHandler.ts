@@ -7,7 +7,7 @@ import {
   Inventory,
   InventoryDocument,
   cacheKeyIngredientById,
-} from '@cook/shared';
+} from '@mealio/shared';
 
 const INGREDIENT_BY_ID_CACHE_TTL_SECONDS = 3600;
 

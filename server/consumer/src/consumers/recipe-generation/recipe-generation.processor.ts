@@ -1,6 +1,6 @@
 import type { EachMessagePayload } from 'kafkajs';
 import { Injectable } from '@nestjs/common';
-import { KAFKA_DLQ_TOPICS, KAFKA_TOPICS } from '@cook/shared';
+import { KAFKA_DLQ_TOPICS, KAFKA_TOPICS } from '@mealio/shared';
 import { BaseTopicProcessor } from '../base/base.processor';
 import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';

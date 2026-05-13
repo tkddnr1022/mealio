@@ -4,7 +4,7 @@ import { ChatbotController } from '../../chatbot.controller';
 import { ChatbotService } from '../../chatbot.service';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import type { AuthUser } from '../../../auth/types/request.types';
-import { CHATBOT_STREAM_EVENT_TYPES } from '@cook/shared';
+import { CHATBOT_STREAM_EVENT_TYPES } from '@mealio/shared';
 
 describe('ChatbotController', () => {
   let controller: ChatbotController;

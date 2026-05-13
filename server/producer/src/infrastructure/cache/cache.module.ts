@@ -1,5 +1,5 @@
 import { Module, Global } from '@nestjs/common';
-import { RedisModule } from '@cook/shared';
+import { RedisModule } from '@mealio/shared';
 import { CacheService } from './cache.service';
 import { RecipeCacheStrategy } from './strategies/recipe-cache-strategy';
 import { IngredientCacheStrategy } from './strategies/ingredient-cache-strategy';

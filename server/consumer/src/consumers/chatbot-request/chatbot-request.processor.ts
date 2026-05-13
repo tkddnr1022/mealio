@@ -4,8 +4,8 @@ import {
   CHATBOT_EVENT_TYPES,
   KAFKA_DLQ_TOPICS,
   KAFKA_TOPICS,
-} from '@cook/shared';
-import type { ChatbotRequestEvent } from '@cook/shared';
+} from '@mealio/shared';
+import type { ChatbotRequestEvent } from '@mealio/shared';
 import { BaseTopicProcessor } from '../base/base.processor';
 import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';

@@ -5,7 +5,7 @@ import {
   ChatbotLog,
   SuggestedRecipeSummary,
   type ChatbotLogDocument,
-} from '@cook/shared';
+} from '@mealio/shared';
 
 export interface SaveChatLogPayload {
   userId: number;

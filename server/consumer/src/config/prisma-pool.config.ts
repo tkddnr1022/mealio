@@ -1,4 +1,4 @@
-import type { PrismaPoolConfig } from '@cook/shared';
+import type { PrismaPoolConfig } from '@mealio/shared';
 
 /**
  * Prisma(PostgreSQL) 커넥션 풀 설정

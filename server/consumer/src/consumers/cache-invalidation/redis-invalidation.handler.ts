@@ -7,11 +7,11 @@ import {
   cachePatternRecipeListAndSearch,
   CacheInvalidationEventType,
   type CacheInvalidationPayload,
-} from '@cook/shared';
+} from '@mealio/shared';
 // TODO: 배치 위치 검토(cache-invalidation/handler 레이어 생성)
 /**
  * cache-invalidation 토픽 페이로드에 따라 Producer가 사용하는 Redis 캐시 키를 삭제한다.
- * 키는 `@cook/shared`의 `cacheKeyUserProfile` / `cacheKeyInventory`와 동일 규칙.
+ * 키는 `@mealio/shared`의 `cacheKeyUserProfile` / `cacheKeyInventory`와 동일 규칙.
  */
 @Injectable()
 export class RedisInvalidationHandler {

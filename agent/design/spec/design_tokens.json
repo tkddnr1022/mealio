@@ -45,7 +45,7 @@
       "variables.card.elevation": "variables.elevation.md"
     },
     "content": {
-      "logo": "Coop",
+      "logo": "Mealio",
       "figma-note": "Figma 변수 `logo`(문자열). Navbar 브랜드 텍스트."
     },
     "border": {
@@ -936,7 +936,7 @@
       "message-color-dark-token": "variables.color.dark.text.secondary",
       "icon-size-token": "variables.size.md",
       "figma-node": "590:4481",
-      "figma-url": "https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook?node-id=590-4481"
+      "figma-url": "https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Mealio?node-id=590-4481"
     },
     "form-field": {
       "gap-y-token": "variables.spacing.2",

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CACHE_KEY_PREFIX, buildCacheKey } from '@cook/shared';
+import { CACHE_KEY_PREFIX, buildCacheKey } from '@mealio/shared';
 import { CacheStrategy } from './cache-strategy.interface';
 
 /**
