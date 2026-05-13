@@ -1,7 +1,6 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   CookingPot,
@@ -10,6 +9,7 @@ import {
   User,
   type LucideIcon,
 } from 'lucide-react';
+import { NavLink } from '@/components/ui/NavLink';
 import { cn } from '@/lib/utils/cn';
 import { buildAriaLabel } from '@/lib/utils/a11y';
 
@@ -147,7 +147,7 @@ export function Tabbar({
           const selected = activeId === id;
           return (
             <TabButtonWrapper key={id}>
-              <Link
+              <NavLink
                 href={href}
                 className={tabLinkClassName}
                 aria-current={selected ? 'page' : undefined}
@@ -157,7 +157,7 @@ export function Tabbar({
                 }}
               >
                 <TabButton selected={selected} label={label} Icon={Icon} />
-              </Link>
+              </NavLink>
             </TabButtonWrapper>
           );
         })}

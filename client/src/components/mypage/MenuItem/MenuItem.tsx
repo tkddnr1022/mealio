@@ -1,7 +1,6 @@
 'use client';
 
 import { ChevronRight } from 'lucide-react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type {
@@ -10,9 +9,9 @@ import type {
   MouseEventHandler,
   ReactNode,
 } from 'react';
+import { NavLink } from '@/components/ui/NavLink';
 import { buildAriaLabel } from '@/lib/utils/a11y';
 import { cn } from '@/lib/utils/cn';
-import { isInternalNavHref } from '@/lib/utils/isInternalNavHref';
 import { logout } from '@/lib/api/domains/auth.api';
 import { isApiError } from '@/lib/api/error';
 
@@ -99,27 +98,15 @@ export function MenuItem(props: MenuItemProps) {
       leadingIcon: _leadingIcon,
       ...anchorDomProps
     } = props;
-    if (isInternalNavHref(href)) {
-      return (
-        <Link
-          href={href}
-          className={surfaceClass}
-          data-name="MenuItem"
-          {...anchorDomProps}
-        >
-          {inner}
-        </Link>
-      );
-    }
     return (
-      <a
+      <NavLink
         href={href}
         className={surfaceClass}
         data-name="MenuItem"
         {...anchorDomProps}
       >
         {inner}
-      </a>
+      </NavLink>
     );
   }
 

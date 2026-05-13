@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import type { HTMLAttributes } from 'react';
+import { NavLink } from '@/components/ui/NavLink';
 import type { SuggestedRecipe } from '@/lib/types/chatbot';
 import { cn } from '@/lib/utils/cn';
 import { MiniTagsRow, type MiniTagItem } from '@/components/ui/MiniTagsRow';
@@ -40,7 +40,7 @@ export function SuggestedRecipeCard({
     'block w-full shrink-0 py-2 text-inherit no-underline outline-none transition-[opacity,colors] focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default select-none';
 
   return (
-    <Link
+    <NavLink
       href={detailHref}
       className={cn(linkClassName, className)}
       data-name="SuggestedRecipeCard"
@@ -67,6 +67,6 @@ export function SuggestedRecipeCard({
           </div>
         </div>
       </article>
-    </Link>
+    </NavLink>
   );
 }

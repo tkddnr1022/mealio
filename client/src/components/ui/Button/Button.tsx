@@ -1,12 +1,11 @@
-import Link from 'next/link';
 import type {
   AnchorHTMLAttributes,
   ButtonHTMLAttributes,
   ReactNode,
 } from 'react';
+import { NavLink } from '@/components/ui/NavLink';
 import { buildAriaLabel } from '@/lib/utils/a11y';
 import { cn } from '@/lib/utils/cn';
-import { isInternalNavHref } from '@/lib/utils/isInternalNavHref';
 
 export type ButtonVariant = 'primary' | 'secondary';
 export type ButtonSize = 'large' | 'medium';
@@ -138,28 +137,15 @@ export function Button(props: ButtonProps) {
 
     const linkClassName = cn(surfaceClassName, 'no-underline');
 
-    if (isInternalNavHref(href)) {
-      return (
-        <Link
-          href={href}
-          className={linkClassName}
-          {...anchorRest}
-          aria-label={ariaLabelForLink}
-        >
-          {content}
-        </Link>
-      );
-    }
-
     return (
-      <a
+      <NavLink
         href={href}
         className={linkClassName}
         {...anchorRest}
         aria-label={ariaLabelForLink}
       >
         {content}
-      </a>
+      </NavLink>
     );
   }
 

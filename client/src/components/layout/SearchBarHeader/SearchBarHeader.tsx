@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import { forwardRef, type HTMLAttributes } from 'react';
+import { NavLink } from '@/components/ui/NavLink';
 import { cn } from '@/lib/utils/cn';
 import { buildAriaLabel } from '@/lib/utils/a11y';
 import { SearchBarProps, SearchBar } from '@/components/ui/SearchBar';
@@ -51,7 +51,7 @@ export const SearchBarHeader = forwardRef<HTMLDivElement, SearchBarHeaderProps>(
         )}
         {...rest}
       >
-        <Link
+        <NavLink
           href={href}
           aria-label={openSearchLabel}
           aria-disabled={isDisabled || undefined}
@@ -69,7 +69,7 @@ export const SearchBarHeader = forwardRef<HTMLDivElement, SearchBarHeaderProps>(
             disabled={isDisabled}
             wrapperClassName={headerSearchBarSurfaceClassName}
           />
-        </Link>
+        </NavLink>
       </div>
     );
   },

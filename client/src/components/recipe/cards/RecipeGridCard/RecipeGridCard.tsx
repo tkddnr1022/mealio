@@ -1,6 +1,6 @@
 import Image from 'next/image';
-import Link from 'next/link';
 import type { HTMLAttributes } from 'react';
+import { NavLink } from '@/components/ui/NavLink';
 import type { RecipeSummary } from '@/lib/types/recipe';
 import { cn } from '@/lib/utils/cn';
 import {
@@ -43,7 +43,7 @@ export function RecipeGridCard({
     'flex w-full min-w-0 flex-col items-start gap-2 text-inherit no-underline outline-none transition-[opacity,colors] focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default select-none';
 
   return (
-    <Link
+    <NavLink
       href={detailHref}
       className={cn(linkClassName, className)}
       data-name="RecipeGridCard"
@@ -73,6 +73,6 @@ export function RecipeGridCard({
           ) : null}
         </div>
       </article>
-    </Link>
+    </NavLink>
   );
 }

@@ -1,6 +1,6 @@
 import { Clock3, Flame, UsersRound } from 'lucide-react';
-import Link from 'next/link';
 import type { HTMLAttributes, ReactNode } from 'react';
+import { NavLink } from '@/components/ui/NavLink';
 import type { RecipeSummary } from '@/lib/types/recipe';
 import { cn } from '@/lib/utils/cn';
 import { FlatTagsRow } from '@/components/ui/FlatTagsRow';
@@ -70,7 +70,7 @@ export function RecipeCard({
 
   return (
     <div className="relative w-full">
-      <Link
+      <NavLink
         href={detailHref}
         className={cn(linkClassName, className)}
         data-name="RecipeCard"
@@ -95,7 +95,7 @@ export function RecipeCard({
             </div>
           </div>
         </article>
-      </Link>
+      </NavLink>
       <div className="absolute right-4 top-4 z-10 rounded-full bg-background-surface shadow-(--semantic-shadow-sm)">
         {favoriteButtonRenderer?.(recipe)}
       </div>

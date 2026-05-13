@@ -1,11 +1,10 @@
-import Link from 'next/link';
 import type {
   ButtonHTMLAttributes,
   MouseEvent,
   MouseEventHandler,
 } from 'react';
+import { NavLink } from '@/components/ui/NavLink';
 import { cn } from '@/lib/utils/cn';
-import { isInternalNavHref } from '@/lib/utils/isInternalNavHref';
 
 export interface SubTabProps extends Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
@@ -14,7 +13,7 @@ export interface SubTabProps extends Omit<
   className?: string;
   label?: string;
   selected?: boolean;
-  /** 설정 시 앱 내 경로는 `Link`, 그 외는 `<a>`로 렌더 */
+  /** 설정 시 `NavLink`로 앱 내는 Next `Link`, 그 외는 `<a>`로 렌더 */
   href?: string;
   /**
    * true면 클릭 시 라우팅을 막고 `onClick`만 실행 (Storybook 등)
@@ -48,28 +47,15 @@ export function SubTab({
       onClick?.(e as unknown as MouseEvent<HTMLButtonElement>);
     };
 
-    if (isInternalNavHref(href)) {
-      return (
-        <Link
-          href={href}
-          className={sharedClass}
-          aria-current={selected ? 'page' : undefined}
-          onClick={anchorClick}
-        >
-          {content}
-        </Link>
-      );
-    }
-
     return (
-      <a
+      <NavLink
         href={href}
         className={sharedClass}
         aria-current={selected ? 'page' : undefined}
         onClick={anchorClick}
       >
         {content}
-      </a>
+      </NavLink>
     );
   }
 

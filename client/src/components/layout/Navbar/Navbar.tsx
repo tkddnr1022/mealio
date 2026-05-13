@@ -1,8 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { type ReactNode } from 'react';
 import { BackButton } from '@/components/ui/buttons/BackButton';
+import { NavLink } from '@/components/ui/NavLink';
 import { cn } from '@/lib/utils/cn';
 
 /** 상단 워드마크 — Figma 변수 `logo`와 동일하게 코드에서 고정 */
@@ -50,12 +50,12 @@ export function Navbar({
 
           {showTitle ? (
             <h1 className="typo-logo-small m-0 min-w-0 max-w-[min(100vw-8rem,28rem)] text-center">
-              <Link
+              <NavLink
                 href={NAVBAR_LOGO_HREF}
                 className="block truncate style-text-primary no-underline outline-none transition-colors focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default"
               >
                 {NAVBAR_LOGO_TEXT}
-              </Link>
+              </NavLink>
             </h1>
           ) : null}
 

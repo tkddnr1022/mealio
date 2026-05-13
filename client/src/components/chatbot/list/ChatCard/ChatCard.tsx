@@ -1,6 +1,6 @@
 import { MessageCircle } from 'lucide-react';
-import Link from 'next/link';
 import type { HTMLAttributes } from 'react';
+import { NavLink } from '@/components/ui/NavLink';
 import type { ConversationListItem } from '@/lib/types/chatbot';
 import { cn } from '@/lib/utils/cn';
 import { IconShell } from '@/components/ui/IconShell';
@@ -33,7 +33,7 @@ export function ChatCard({
     'card flex w-full flex-col gap-0 text-inherit no-underline outline-none transition-[opacity,colors] focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default';
 
   return (
-    <Link
+    <NavLink
       href={conversationHref}
       className={cn(linkClassName, className)}
       data-name="ChatCard"
@@ -63,6 +63,6 @@ export function ChatCard({
           </div>
         </div>
       </article>
-    </Link>
+    </NavLink>
   );
 }
