@@ -2,7 +2,7 @@
 
 에이전트가 **무엇을** 개발할지 **페이지·라우팅·파일 단위**로 정의하는 정형 명세이다. 원칙·방법론·구현 가이드는 `../guidelines/frontend_development_guidelines.md`, 스펙 주도 개발 원칙은 `../../common/spec_driven_development_guidelines.md`에 정의되어 있다.
 
-아래 경로는 **저장소 루트 기준**이며, Next.js App Router 기준으로 `app/` 루트를 전제로 한다.
+아래 경로는 **저장소 루트 기준**이며, Next.js App Router의 앱 디렉터리는 **`client/src/app/`** 이다.
 
 ---
 
@@ -10,53 +10,49 @@
 
 | 전략 | 적용 대상 |
 |------|------------|
-| **SSG** | SEO 중요 페이지, 자주 변하지 않는 콘텐츠 (랜딩, about, pricing) |
-| **ISR** | 레시피 메인·카테고리·검색/필터 목록·상세 |
-| **SSR** | 마이페이지 메인 등 개인화·실시간성 필요 페이지 |
-| **CSR** | 챗봇(대화 목록·대화), 보관함(관심/보유 재료), 로그인/회원가입 등 인터랙티브 기능 |
+| **SSG** | (도입 시) SEO 중요·정적 마케팅 페이지 등 — 현재 `client/src/app`에는 독립 랜딩·about·pricing 라우트 없음 |
+| **ISR** | `export const revalidate`가 있는 레시피 메인·필터·상세, 재료 필터 (`/recipe`, `/recipe/filter`, `/recipe/[id]`, `/ingredient/filter`) |
+| **SSR** | `searchParams` 등 요청마다 달라지는 데이터를 서버에서 가져오는 페이지(예: `/recipe/search`), 루트 `/`의 `redirect` 처리 |
+| **CSR** | 챗봇(대화 목록·대화), 보관함(관심 재료·보유 재료·관심 레시피), 로그인, 마이페이지 등 `'use client'` 페이지 |
 
 ---
 
 ## 2. 페이지 구조 및 라우팅 맵
 
-아래 표는 **레이아웃 그룹 → URL 경로 → 파일·렌더링·역할** 순으로 정리한 라우팅 맵이다. `app/` 루트 기준이며, 레이아웃 그룹은 Next.js Route Groups `(폴더명)` 규칙을 따른다.
+아래 표는 **레이아웃 그룹 → URL 경로 → 파일·렌더링·역할** 순으로 정리한 라우팅 맵이다. 파일 열은 **저장소 기준** `client/src/app/` 이하 경로이며, 레이아웃 그룹은 Next.js Route Groups `(폴더명)` 규칙을 따른다(그룹명은 URL에 포함되지 않음).
 
 ### 2.1 페이지·라우트 일람
 
-| 레이아웃 그룹 | URL 경로 | 파일 (`app/` 기준) | 렌더링 | 설명 |
-| ------------- | -------- | ------------------- | ------ | ---- |
+| 레이아웃 그룹 | URL 경로 | 파일 (`client/src/app/` 기준) | 렌더링 | 설명 |
+| ------------- | -------- | ------------------------------ | ------ | ---- |
+| **(루트)** | `/` | `page.tsx` | SSR | `redirect('/recipe')`만 수행. 별도 랜딩 UI 없음 |
 | **(auth)** | `/login` | `(auth)/login/page.tsx` | CSR | 로그인 |
-| (auth) | `/signup` | `(auth)/signup/page.tsx` | CSR | 회원가입 |
 | (auth) | `/oauth/error` | `(auth)/oauth/error/page.tsx` | CSR | OAuth **실패** 시 백엔드가 `FRONTEND_OAUTH_ERROR_PATH`로 302. 쿼리: `errorCode`/`errorMessage` 또는 OAuth 표준 `error`/`error_description`, 선택 `next`. `InfoScreen`·로그인 복귀 링크. **성공** 시 백엔드가 `next` 또는 기본 성공 경로로 직접 302하며 이 페이지를 거치지 않음 |
-| **(marketing)** | `/` | `(marketing)/page.tsx` | SSG | 랜딩 |
-| (marketing) | `/about` | `(marketing)/about/page.tsx` | SSG | 서비스 소개 |
-| (marketing) | `/pricing` | `(marketing)/pricing/page.tsx` | SSG | 요금제 (필요시) |
-| **(main)** | — | `(main)/layout.tsx` | — | 공통 레이아웃 (하단 탭: 레시피 / 챗봇 / 보관함 / 마이페이지) |
-| (main) · 레시피 탭 | `/recipe` | `(main)/recipe/page.tsx` | ISR | RecipeMainPage — 레시피 메인 |
-| (main) · 레시피 탭 | `/recipe/filter` | `(main)/recipe/filter/page.tsx` | ISR | RecipeFilterPage — 레시피 검색 필터 |
-| (main) · 레시피 탭 | `/recipe/search` | `(main)/recipe/search/page.tsx` | SSR | RecipeListPage — 레시피 검색 결과 |
-| (main) · 레시피 탭 | `/recipe/[id]` | `(main)/recipe/[id]/page.tsx` | ISR | RecipeDetailPage — 레시피 상세 |
-| (main) · 챗봇 탭 | `/chatbot/list` | `(main)/chatbot/list/page.tsx` | CSR | ChatbotConversationListPage — 대화 목록 |
-| (main) · 챗봇 탭 | `/chatbot/[id]` | `(main)/chatbot/[id]/page.tsx` | CSR | ChatbotConversationPage — 대화 |
-| (main) · 재료 | `/ingredient/filter` | `(main)/ingredient/filter/page.tsx` | ISR | IngredientFilterPage — 재료 필터/선택 (보관함 재료 추가 시 진입) |
-| (main) · 보관함 탭 | `/inventory/ingredients/favorite` | `(main)/inventory/ingredients/favorite/page.tsx` | CSR | InventoryFavoriteListPage — 관심 재료 목록 |
-| (main) · 보관함 탭 | `/inventory/ingredients/owned` | `(main)/inventory/ingredients/owned/page.tsx` | CSR | InventoryOwnedListPage — 보유 재료 목록 |
-| (main) · 보관함 탭 | `/inventory/recipes/favorite` | `(main)/inventory/recipes/favorite/page.tsx` | CSR | InventoryFavoriteListPage — 관심 레시피 목록 |
-| (main) · 마이페이지 탭 | `/mypage` | `(main)/mypage/page.tsx` | SSR | MypageMainPage — 마이페이지 메인 |
-| **api** | `/api/revalidate` | `api/revalidate/route.ts` | — | ISR 재검증 웹훅 |
-| api | `/api/health` | `api/health/route.ts` | — | 헬스체크 |
-| **(error)** | — | `(error)/not-found.tsx` | — | 404 페이지 |
-| (error) | — | `(error)/error.tsx` | — | 에러 페이지 |
+| **(main)** | — | — | — | 라우트 그룹. **전용 `layout.tsx`는 없음** — 하단 탭·`Navbar` 등은 각 `page.tsx`에서 `Tabbar`·레이아웃 컴포넌트로 조합 (`layout.tsx`는 루트 `layout.tsx`만 존재) |
+| (main) · 레시피 탭 | `/recipe` | `(main)/recipe/page.tsx` | ISR | `revalidate = 300`. 레시피 메인 |
+| (main) · 레시피 탭 | `/recipe/filter` | `(main)/recipe/filter/page.tsx` | ISR | `revalidate = 300`. 레시피 카테고리·필터 UI |
+| (main) · 레시피 탭 | `/recipe/search` | `(main)/recipe/search/page.tsx` | SSR | `searchParams` 기반 서버에서 `searchRecipes` 등 호출 후 클라이언트 위젯에 전달(동적 렌더링, `revalidate` 없음) |
+| (main) · 레시피 탭 | `/recipe/[id]` | `(main)/recipe/[id]/page.tsx` | ISR | `revalidate = 300`, `generateStaticParams`로 일부 id 사전 생성 |
+| (main) · 챗봇 탭 | `/chatbot/list` | `(main)/chatbot/list/page.tsx` | CSR | 대화 목록 |
+| (main) · 챗봇 탭 | `/chatbot/[id]` | `(main)/chatbot/[id]/page.tsx` | CSR | 대화 |
+| (main) · 재료 | `/ingredient/filter` | `(main)/ingredient/filter/page.tsx` | ISR | `revalidate = 300`. 재료 필터/선택(보관함 재료 추가 시 `?type=owned\|favorites` 등) |
+| (main) · 보관함 탭 | `/inventory/ingredients/favorite` | `(main)/inventory/ingredients/favorite/page.tsx` | CSR | 관심 재료 목록 |
+| (main) · 보관함 탭 | `/inventory/ingredients/owned` | `(main)/inventory/ingredients/owned/page.tsx` | CSR | 보유 재료 목록 |
+| (main) · 보관함 탭 | `/inventory/recipes/favorite` | `(main)/inventory/recipes/favorite/page.tsx` | CSR | 관심 레시피 목록 |
+| (main) · 마이페이지 탭 | `/mypage` | `(main)/mypage/page.tsx` | CSR | `'use client'`, `useAuth`로 로딩·비로그인·로그인 상태 분기 |
+| **(error)** | — | `(error)/not-found.tsx` | — | 404 UI |
+| (error) | — | `(error)/error.tsx` | — | 세그먼트 에러 UI |
+
+**참고(현재 `client/src/app`에 없는 경로·파일)**: `/signup`, `(marketing)` 그룹 및 `/about`, `/pricing`, `api/revalidate/route.ts`, `api/health/route.ts` — OpenAPI·기획과 별도로 도입 시 본 표를 갱신한다.
 
 ### 2.2 그룹·탭별 요약
 
 | 그룹 | 역할 | 하위 URL/경로 |
 | ---- | ---- | -------------- |
-| (auth) | 인증 (로그인·회원가입·OAuth 실패 안내) | `/login`, `/signup`, `/oauth/error` |
-| (marketing) | 마케팅 (랜딩·소개·요금제) | `/`, `/about`, `/pricing` |
+| (루트) | 진입 리다이렉트 | `/` → `/recipe` |
+| (auth) | 인증 (로그인·OAuth 실패 안내) | `/login`, `/oauth/error` |
 | (main) | 앱 본체 (하단 탭 네비게이션) | `/recipe`·하위, `/ingredient`·하위, `/chatbot`·하위, `/inventory`·하위, `/mypage` |
-| api | API 라우트 | `/api/revalidate`, `/api/health` |
-| (error) | 전역 에러·404 | `not-found.tsx`, `error.tsx` |
+| (error) | 에러·404 UI | `(error)` 세그먼트의 `not-found.tsx`, `error.tsx` |
 
 ---
 
@@ -69,16 +65,17 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 | 경로 | 렌더링 | 설명 | 주요 기능 |
 |------|--------|------|-----------|
 | `/login` | CSR | 로그인 | OAuth: 소셜 로그인 버튼이 백엔드 `GET /api/v1/auth/{provider}`(또는 동일 계약)로 이동. URL에 `?next=`가 있으면 진입 링크에 전달; **안전 여부는 백엔드**가 `resolveSafeNextPath`로 검증. Provider 설정은 백엔드에만 둠. 이메일 로그인(해당 시) |
-| `/signup` | CSR | 회원가입 | 약관 동의, 초기 선호도 설정 |
 | `/oauth/error` | CSR | OAuth 실패 안내 | 백엔드가 `FRONTEND_OAUTH_ERROR_PATH`로 302. `errorCode`/`errorMessage` 또는 `error`/`error_description`, 선택 `next` → `InfoScreen`, `로그인으로 돌아가기`에 `next` 유지. **성공** 플로우는 백엔드가 JWT `Set-Cookie` 후 최종 앱 경로로 직접 302 |
 
-### 3.2 마케팅 (SSG)
+회원가입 `/signup`은 명세·OpenAPI에 따라 추가될 수 있으나, 현재 `client/src/app`에는 해당 `page.tsx`가 없다.
+
+### 3.2 루트·마케팅
 
 | 경로 | 렌더링 | 설명 |
 |------|--------|------|
-| `/` | SSG | 랜딩 페이지 |
-| `/about` | SSG | 서비스 소개 |
-| `/pricing` | SSG | 요금제 (필요시) |
+| `/` | SSR | `client/src/app/page.tsx`에서 `redirect('/recipe')`만 수행한다. 별도 랜딩·마케팅 페이지는 없다. |
+
+독립 마케팅 경로(`/about`, `/pricing` 등)는 도입 시 SSG 등으로 정의할 수 있으며, 현재 라우트 파일은 없다.
 
 ### 3.3 핵심 기능
 
@@ -86,11 +83,10 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 
 | 경로 | 컴포넌트 | 렌더링 | 설명 |
 |------|----------|--------|------|
-| `/recipe` | RecipeMainPage | ISR | 레시피 메인 페이지 |
-| `/recipe/category` | RecipeCategoryPage | ISR | 레시피 카테고리 목록 페이지 |
-| `/recipe/search` | RecipeListPage | ISR | 레시피 목록 페이지 (검색 결과) |
-| `/recipe/filter` | RecipeFilterListPage | ISR | 레시피 목록 페이지 (필터 결과) |
-| `/recipe/[id]` | RecipeDetailPage | ISR | 레시피 상세 페이지 (동적 OG 이미지) |
+| `/recipe` | RecipeMainPage | ISR | `revalidate = 300`. 레시피 메인 |
+| `/recipe/search` | RecipeListPage | SSR | `searchParams`에 따라 서버에서 목록·카테고리 조회 후 하이드레이션 |
+| `/recipe/filter` | RecipeFilterPage | ISR | `revalidate = 300`. 카테고리 필터 UI(별도 `/recipe/category` 라우트는 없음) |
+| `/recipe/[id]` | RecipeDetailPage | ISR | `revalidate = 300`, `generateStaticParams` |
 
 #### 챗봇 탭 (`/chatbot`)
 
@@ -109,14 +105,15 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 
 | 경로 | 컴포넌트 | 렌더링 | 설명 |
 |------|----------|--------|------|
-| `/inventory/favorite` | InventoryFavoriteListPage | CSR | 관심 재료 목록 페이지 |
-| `/inventory/owned` | InventoryOwnedListPage | CSR | 보유 재료 목록 페이지 |
+| `/inventory/ingredients/favorite` | InventoryFavoriteIngredientsPage | CSR | 관심 재료 목록 |
+| `/inventory/ingredients/owned` | InventoryOwnedIngredientsPage | CSR | 보유 재료 목록 |
+| `/inventory/recipes/favorite` | InventoryFavoriteRecipesPage | CSR | 관심 레시피 목록 |
 
 #### 마이페이지 탭 (`/mypage`)
 
 | 경로 | 컴포넌트 | 렌더링 | 설명 |
 |------|----------|--------|------|
-| `/mypage` | MypageMainPage | SSR | 마이페이지 메인 페이지 |
+| `/mypage` | MypageMainPage | CSR | `'use client'`, `useAuth` 기반 마이페이지 |
 
 ---
 
@@ -184,7 +181,7 @@ OAuth는 **백엔드 주도** 흐름을 따른다(§3.1, `../../backend/guidelin
 | client/src/lib/auth/auth-context.tsx | `AuthProvider`(Client Component), `useAuth()` 훅 — 현재 유저·로그인 상태 제공 |
 | client/src/lib/auth/protected-route.tsx | 보호 라우트 래퍼 컴포넌트(비로그인 시 `/login` 리다이렉트) |
 | client/src/lib/auth/protected-action.ts | 액션 단위 인증 가드 훅(`useProtectedAction`). 비로그인 시 `buildLoginUrl(pathname+search)`로 로그인 이동, 인증 시 전달한 액션 실행 |
-| **client/src/proxy.ts** | Next.js 미들웨어. `(main)` 그룹(`/recipe`·`/chatbot`·`/inventory`·`/mypage`) 접근 시 JWT 쿠키 검사, 미인증 시 `/login` 리다이렉트. `matcher`로 `(auth)`·`(marketing)`·정적 자산 제외 |
+| **client/src/proxy.ts** | Next에서 미들웨어로 연결할 때 사용하는 프록시 핸들러 정의. `isProtectedPath` 기준으로 **`/chatbot`·`/inventory`·`/mypage/...`(루트 `/mypage` 제외)** 만 쿠키 검사 대상이며 **`/recipe`는 제외**. `config.matcher`는 해당 경로와 동기화(리터럴 배열). 현재 리포지토리에 `middleware.ts`가 없으면 런타임에 자동 적용되지 않을 수 있음 |
 
 ### 5.3 데이터 페칭 / React Query (`client/src/lib/providers/`, `client/src/lib/queries/`)
 
@@ -194,7 +191,7 @@ React Query(TanStack Query) 기반. 쿼리 키 계층화·`staleTime`·`cacheTim
 |------|------|
 | **client/src/lib/providers/** | 클라이언트 전역 Provider 묶음 |
 | client/src/lib/providers/query-client.provider.tsx | `QueryClientProvider` + devtools, SSR-safe `QueryClient` 생성 |
-| client/src/lib/providers/root-providers.tsx | React Query·Auth 등 Provider 합성. `app/layout.tsx`에서 사용 |
+| client/src/lib/providers/root-providers.tsx | React Query·Auth 등 Provider 합성. `client/src/app/layout.tsx`에서 사용 |
 | **client/src/lib/queries/** | React Query 쿼리 키·훅 |
 | client/src/lib/queries/recipe.queries.ts | `recipeQueries` 키, `useRecipeList` / `useRecipeDetail` / `useRecipeSearch` / `useRecipeSummaries` |
 | client/src/lib/queries/ingredient.queries.ts | `ingredientQueries` 키, `useIngredientList` / `useIngredientSearch` |
