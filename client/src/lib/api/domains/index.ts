@@ -1,3 +1,4 @@
+export * from './auth.api';
 export * from './chatbot.api';
 export * from './ingredients.api';
 export * from './inventory.api';

@@ -1,0 +1,162 @@
+'use client';
+
+import {
+  Activity,
+  CircleHelp,
+  FileText,
+  LogIn,
+  LogOut,
+  Settings,
+  Shield,
+  SquarePen,
+} from 'lucide-react';
+
+import { MainContent } from '@/components/layout/MainContent';
+import { Navbar } from '@/components/layout/Navbar';
+import { Tabbar } from '@/components/layout/Tabbar';
+import { MenuSection, MypageHeader } from '@/components/mypage';
+import { AuthStatus, useAuth } from '@/lib/auth/auth-context';
+import { buildLoginUrl } from '@/lib/auth/routes';
+
+export default function MypagePage() {
+  const { status, user } = useAuth();
+  const loginHref = buildLoginUrl('/mypage');
+
+  if (status === AuthStatus.Loading) {
+    return (
+      <div className="flex h-full min-h-0 w-full flex-col bg-background-primary">
+        <Navbar />
+        <MainContent centered innerClassName="gap-4">
+          <p className="typo-body-regular style-text-secondary">불러오는 중…</p>
+        </MainContent>
+        <Tabbar activeId="mypage" />
+      </div>
+    );
+  }
+
+  const loggedIn = status === AuthStatus.Authenticated && user != null;
+  const nickname = user?.nickname;
+  const email = user?.email;
+
+  return (
+    <div className="flex h-full min-h-0 w-full flex-col bg-background-primary">
+      <Navbar />
+      <MainContent paddingX={false} paddingY={false} innerClassName="gap-4">
+        <MypageHeader
+          loggedIn={loggedIn}
+          userProfileProps={
+            loggedIn ? { nickname, email } : { message: '로그인이 필요합니다' }
+          }
+        />
+
+        {loggedIn ? (
+          <>
+            <MenuSection
+              items={[
+                {
+                  href: '#profile',
+                  label: '프로필 수정',
+                  leadingIcon: (
+                    <SquarePen className="size-5" strokeWidth={2} aria-hidden />
+                  ),
+                },
+                {
+                  href: '#activity',
+                  label: '활동 내역',
+                  leadingIcon: (
+                    <Activity className="size-5" strokeWidth={2} aria-hidden />
+                  ),
+                },
+              ]}
+            />
+            <MenuSection
+              items={[
+                {
+                  href: '#settings',
+                  label: '설정',
+                  leadingIcon: (
+                    <Settings className="size-5" strokeWidth={2} aria-hidden />
+                  ),
+                },
+                {
+                  href: '#help',
+                  label: '도움말',
+                  leadingIcon: (
+                    <CircleHelp
+                      className="size-5"
+                      strokeWidth={2}
+                      aria-hidden
+                    />
+                  ),
+                },
+              ]}
+            />
+            <MenuSection
+              items={[
+                {
+                  href: '/terms',
+                  label: '이용약관',
+                  leadingIcon: (
+                    <FileText className="size-5" strokeWidth={2} aria-hidden />
+                  ),
+                },
+                {
+                  href: '/privacy',
+                  label: '개인정보 처리방침',
+                  leadingIcon: (
+                    <Shield className="size-5" strokeWidth={2} aria-hidden />
+                  ),
+                },
+              ]}
+            />
+            <MenuSection
+              items={[
+                {
+                  menuAction: 'logout',
+                  label: '로그아웃',
+                  labelClassName: 'style-text-accent',
+                  leadingIcon: (
+                    <LogOut className="size-5" strokeWidth={2} aria-hidden />
+                  ),
+                },
+              ]}
+            />
+          </>
+        ) : (
+          <>
+            <MenuSection
+              items={[
+                {
+                  href: loginHref,
+                  label: '로그인',
+                  leadingIcon: (
+                    <LogIn className="size-5" strokeWidth={2} aria-hidden />
+                  ),
+                },
+              ]}
+            />
+            <MenuSection
+              items={[
+                {
+                  href: '/terms',
+                  label: '이용약관',
+                  leadingIcon: (
+                    <FileText className="size-5" strokeWidth={2} aria-hidden />
+                  ),
+                },
+                {
+                  href: '/privacy',
+                  label: '개인정보 처리방침',
+                  leadingIcon: (
+                    <Shield className="size-5" strokeWidth={2} aria-hidden />
+                  ),
+                },
+              ]}
+            />
+          </>
+        )}
+      </MainContent>
+      <Tabbar activeId="mypage" />
+    </div>
+  );
+}

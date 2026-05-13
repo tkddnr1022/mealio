@@ -7,20 +7,22 @@
  * - 로그인 경로 및 리다이렉트 쿼리 파라미터도 함께 관리한다.
  *
  * 값을 바꿀 때는 `app/` 라우트 그룹 구조(`(main)` 그룹 vs `(auth)` 그룹)를
- * 함께 검토해야 한다. `proxy.ts`의 `config.matcher`는 Next.js 정적 분석 제약으로
+ * 함께 검토해야 한다. `proxy.ts`의 `config.matcher`는 Next.js 빌드 타임 정적 분석 요구로
  * import 공유가 불가해, 동일 경로 집합을 수동으로 맞춰야 한다.
+ *
+ * `/mypage` 루트만 비인증 허용(SSR에서 세션 분기). `/mypage/...` 하위는 보호 대상이다.
  */
 
 /**
  * 인증이 필요한 라우트의 path prefix 목록.
  *
- * `(main)` 그룹(`/chatbot`·`/inventory`·`/mypage`)을 커버한다.
+ * `(main)` 중 `/chatbot`·`/inventory` 하위를 커버한다. `/mypage` 루트는 목록에 넣지 않고
+ * `isProtectedPath`에서 `/mypage/...`만 별도로 보호한다.
  * 각 항목은 정확 일치 또는 `/{prefix}/...` 형태의 하위 경로까지 보호 대상이다.
  */
 export const PROTECTED_PATH_PREFIXES: readonly string[] = [
   '/chatbot',
   '/inventory',
-  '/mypage',
 ] as const;
 
 /** 비인증 리다이렉트 목적지 */
@@ -31,9 +33,16 @@ export const NEXT_QUERY_PARAM = 'next';
 
 /**
  * 주어진 pathname이 보호 대상인지 판별한다.
- * prefix 완전 일치 또는 `/{prefix}/`로 시작하는 하위 경로를 포함한다.
+ * `/mypage`·`/mypage/` 루트만 비보호, `/mypage/...` 하위는 보호(쿠키 검사 대상).
+ * 그 외는 `PROTECTED_PATH_PREFIXES`에 대해 prefix 완전 일치 또는 `/{prefix}/`로 시작하면 true.
  */
 export function isProtectedPath(pathname: string): boolean {
+  if (pathname === '/mypage' || pathname === '/mypage/') {
+    return false;
+  }
+  if (pathname.startsWith('/mypage/')) {
+    return true;
+  }
   return PROTECTED_PATH_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );

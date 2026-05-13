@@ -20,6 +20,8 @@ export const API_ENDPOINTS = {
     /** OAuth 콜백 (Provider → 백엔드). 프론트엔드에서는 직접 호출하지 않음 */
     providerCallback: (provider: OAuthProvider) =>
       `${API_PREFIX}/auth/${provider}/callback`,
+    /** 로그아웃 (JWT 쿠키 삭제). POST */
+    logout: `${API_PREFIX}/auth/logout`,
   },
   users: {
     me: `${API_PREFIX}/users/me`,
