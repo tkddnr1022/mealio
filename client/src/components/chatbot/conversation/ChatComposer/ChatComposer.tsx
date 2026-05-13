@@ -30,7 +30,7 @@ export function ChatComposer({
 }: ChatComposerProps) {
   const inputValue = value ?? '';
   const isFilled = inputValue.trim().length > 0;
-  const effectivePlaceholder = disabled ? '크레딧이 소진되어 전송할 수 없습니다' : placeholder;
+  const effectivePlaceholder = disabled ? '채팅을 전송할 수 없어요' : placeholder;
 
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();

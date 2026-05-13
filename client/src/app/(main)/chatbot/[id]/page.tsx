@@ -12,6 +12,7 @@ import {
 import { InfoScreen } from '@/components/layout/InfoScreen';
 import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
+import { Alert } from '@/components/ui/Alert';
 import { AuthStatus, useAuth } from '@/lib/auth/auth-context';
 import { getStreamProgressLabel } from '@/lib/chatbot/stream-progress-label';
 import { useChatbotStream } from '@/lib/chatbot/use-chatbot-stream';
@@ -127,12 +128,13 @@ export default function ChatbotConversationPage() {
   const isStreaming = stream.status === 'streaming';
   const isDone = stream.status === 'done';
   const streamedAssistantText = stream.text;
-  const composerDisabled =
-    stream.status !== 'streaming' &&
-    (stream.isCreditDepleted ||
-      (status === AuthStatus.Authenticated &&
-        user !== null &&
-        user.creditBalance <= 0));
+  const isCreditExhausted =
+    stream.isCreditDepleted ||
+    (status === AuthStatus.Authenticated &&
+      user !== null &&
+      user.creditBalance <= 0);
+
+  const composerDisabled = stream.status !== 'streaming' && isCreditExhausted;
 
   // 서버 히스토리에 이미 같은 user 메시지가 반영되었다면 낙관적 pending은 숨긴다.
   // (effect로 setState하지 않고 렌더 시점에 파생값으로 결정해 cascading render를 피한다.)
@@ -296,6 +298,14 @@ export default function ChatbotConversationPage() {
           />
         )}
       </MainContent>
+
+      {isCreditExhausted ? (
+        <Alert
+          variant="warning"
+          title="크레딧이 소진되었어요"
+          message="남은 크레딧이 없어 메시지를 보낼 수 없어요."
+        />
+      ) : null}
 
       <ChatComposer
         value={composerValue}
