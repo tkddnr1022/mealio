@@ -8,7 +8,12 @@ export { MypageHeader } from './MypageHeader';
 export type { MypageHeaderProps } from './MypageHeader';
 
 export { MenuItem } from './MenuItem';
-export type { MenuItemProps } from './MenuItem';
+export type {
+  MenuItemProps,
+  MenuItemLinkProps,
+  MenuItemButtonProps,
+  MenuItemShared,
+} from './MenuItem';
 
 export { MenuSection } from './MenuSection';
 export type { MenuSectionProps } from './MenuSection';

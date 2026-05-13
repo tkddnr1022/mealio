@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { SquarePen } from 'lucide-react';
+import { LogOut, SquarePen } from 'lucide-react';
 import { MenuItem } from '@/components/mypage/MenuItem';
+import type {
+  MenuItemButtonProps,
+  MenuItemLinkProps,
+} from '@/components/mypage/MenuItem';
 
 const meta = {
   title: 'Mypage/MenuItem',
@@ -21,11 +25,11 @@ const meta = {
     label: '내 레시피 관리',
     leadingIcon: <SquarePen className="size-5" strokeWidth={2} />,
   },
-} satisfies Meta<typeof MenuItem>;
+} satisfies Meta<MenuItemLinkProps>;
 
 export default meta;
 
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<MenuItemLinkProps>;
 
 export const BorderFalse = {
   name: 'border=false',
@@ -48,3 +52,28 @@ export const ExternalAnchor = {
     border: false,
   },
 } satisfies Story;
+
+type ButtonStory = StoryObj<MenuItemButtonProps>;
+
+export const AsButton = {
+  name: '버튼(onClick)',
+  render: () => (
+    <MenuItem
+      label="동작"
+      leadingIcon={<SquarePen className="size-5" strokeWidth={2} />}
+      onClick={() => {}}
+    />
+  ),
+} satisfies ButtonStory;
+
+export const MenuActionLogout = {
+  name: '버튼(menuAction=logout)',
+  render: () => (
+    <MenuItem
+      menuAction="logout"
+      label="로그아웃"
+      labelClassName="style-text-accent"
+      leadingIcon={<LogOut className="size-5" strokeWidth={2} />}
+    />
+  ),
+} satisfies ButtonStory;

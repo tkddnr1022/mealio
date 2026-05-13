@@ -1,6 +1,5 @@
 import type { HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils/cn';
-import { StatCard, type StatCardProps } from '@/components/mypage/StatCard';
 import {
   UserProfile,
   type UserProfileProps,
@@ -13,14 +12,12 @@ export interface MypageHeaderProps extends Omit<
   className?: string;
   loggedIn?: boolean;
   userProfileProps?: Omit<UserProfileProps, 'loggedIn'>;
-  statCards?: readonly StatCardProps[];
 }
 
 export function MypageHeader({
   className = '',
   loggedIn = true,
   userProfileProps,
-  statCards = [],
   ...rest
 }: MypageHeaderProps) {
   return (
@@ -37,17 +34,6 @@ export function MypageHeader({
         {...userProfileProps}
         message={userProfileProps?.message ?? '로그인이 필요합니다'}
       />
-      {loggedIn && (
-        <div className="flex w-full items-center gap-4">
-          {statCards.map((stat, index) => (
-            <StatCard
-              key={stat.label ?? `mypage-stat-${index}`}
-              {...stat}
-              className={cn('min-w-px flex-1', stat.className)}
-            />
-          ))}
-        </div>
-      )}
     </header>
   );
 }

@@ -1,9 +1,11 @@
 import type { HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils/cn';
-import { MenuItem, type MenuItemProps } from '@/components/mypage/MenuItem';
+import { MenuItem, type MenuItemLinkProps, type MenuItemButtonProps } from '@/components/mypage/MenuItem';
 
 /** `MenuSection`은 항목 사이 구분선을 index로만 결정하므로 `border`는 제외한다. */
-export type MenuSectionItem = Omit<MenuItemProps, 'border'>;
+export type MenuSectionItem =
+  | Omit<MenuItemLinkProps, 'border'>
+  | Omit<MenuItemButtonProps, 'border'>;
 
 export interface MenuSectionProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
