@@ -56,6 +56,16 @@
   --color-ext-error: var(--ref-color-ext-error);
   --color-ext-warning: var(--ref-color-ext-warning);
   --color-ext-info: var(--ref-color-ext-info);
+  --color-alert-error-subtle: var(--ref-color-alert-error-subtle);
+  --color-alert-error-border: var(--ref-color-alert-error-border);
+  --color-alert-error-strong: var(--ref-color-alert-error-strong);
+  --color-alert-error-icon-fill: var(--ref-color-alert-error-icon-fill);
+  --color-alert-warning-subtle: var(--ref-color-alert-warning-subtle);
+  --color-alert-warning-border: var(--ref-color-alert-warning-border);
+  --color-alert-warning-strong: var(--ref-color-alert-warning-strong);
+  --color-alert-info-subtle: var(--ref-color-alert-info-subtle);
+  --color-alert-info-border: var(--ref-color-alert-info-border);
+  --color-alert-info-strong: var(--ref-color-alert-info-strong);
 
   --border-width-default: 1px;
   --border-width-focus: 2px;
@@ -204,6 +214,16 @@
   --ref-color-ext-error: #b91c1c;
   --ref-color-ext-warning: #92400e;
   --ref-color-ext-info: #2b6ba3;
+  --ref-color-alert-error-subtle: #fee2e2;
+  --ref-color-alert-error-border: #fca5a5;
+  --ref-color-alert-error-strong: #b91c1c;
+  --ref-color-alert-error-icon-fill: #b91c1c;
+  --ref-color-alert-warning-subtle: #fff7ed;
+  --ref-color-alert-warning-border: #fed7aa;
+  --ref-color-alert-warning-strong: #c2410c;
+  --ref-color-alert-info-subtle: #eff6ff;
+  --ref-color-alert-info-border: #bfdbfe;
+  --ref-color-alert-info-strong: #2b6ba3;
   --ref-elevation-sm-blur: 2px;
   --ref-elevation-sm-color: rgba(15, 23, 42, 0.06);
   --ref-elevation-md-blur: 8px;
@@ -271,6 +291,16 @@
   --ref-color-ext-error: #f97373;
   --ref-color-ext-warning: #fbbf24;
   --ref-color-ext-info: #60a5fa;
+  --ref-color-alert-error-subtle: #450a0a;
+  --ref-color-alert-error-border: #991b1b;
+  --ref-color-alert-error-strong: #fecaca;
+  --ref-color-alert-error-icon-fill: #991b1b;
+  --ref-color-alert-warning-subtle: #451a03;
+  --ref-color-alert-warning-border: #9a3412;
+  --ref-color-alert-warning-strong: #fdba74;
+  --ref-color-alert-info-subtle: #172554;
+  --ref-color-alert-info-border: #1e40af;
+  --ref-color-alert-info-strong: #bfdbfe;
   --ref-elevation-sm-blur: 3px;
   --ref-elevation-sm-color: rgba(0, 0, 0, 0.45);
   --ref-elevation-md-blur: 12px;
@@ -361,6 +391,14 @@
     font-size: var(--text-caption);
     line-height: 21px;
     font-weight: var(--font-weight-regular);
+  }
+
+  .typo-caption-medium,
+  .typography-caption-medium {
+    font-family: var(--font-family-body);
+    font-size: var(--text-caption);
+    line-height: 21px;
+    font-weight: var(--font-weight-medium);
   }
 
   .typo-card-body,

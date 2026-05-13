@@ -267,6 +267,27 @@
             "secondary": "#6B7250",
             "secondary-usage": "브랜드 2차색. Figma `color/secondary`는 `secondary.default` 면과 별개."
           }
+        },
+        "alert": {
+          "error": {
+            "subtle": "#FEE2E2",
+            "border": "#FCA5A5",
+            "strong": "#B91C1C",
+            "iconFill": "#B91C1C",
+            "figma-note": "Figma `color/state/error/*` — **Alert** `variant=error`."
+          },
+          "warning": {
+            "subtle": "#FFF7ED",
+            "border": "#FED7AA",
+            "strong": "#C2410C",
+            "figma-note": "Figma `color/state/warning/*` — **Alert** `variant=warning`."
+          },
+          "info": {
+            "subtle": "#EFF6FF",
+            "border": "#BFDBFE",
+            "strong": "#2B6BA3",
+            "figma-note": "Figma `color/state/info/*` — **Alert** `variant=info`."
+          }
         }
       },
       "dark": {
@@ -392,6 +413,25 @@
           "brand": {
             "secondary": "#84CC16",
             "secondary-usage": "다크 브랜드 2차색."
+          }
+        },
+        "alert": {
+          "error": {
+            "subtle": "#450A0A",
+            "border": "#991B1B",
+            "strong": "#FECACA",
+            "iconFill": "#991B1B",
+            "theme-note": "라이트 대비 — 제목은 밝은 톤, 아이콘 원은 진한 면."
+          },
+          "warning": {
+            "subtle": "#451A03",
+            "border": "#9A3412",
+            "strong": "#FDBA74"
+          },
+          "info": {
+            "subtle": "#172554",
+            "border": "#1E40AF",
+            "strong": "#BFDBFE"
           }
         }
       }
@@ -692,6 +732,12 @@
           "font-size-token": "variables.typography.fontSize.caption",
           "line-height": 21,
           "font-weight-token": "variables.typography.fontWeight.regular"
+        },
+        "medium": {
+          "figma": "Caption/Medium",
+          "font-size-token": "variables.typography.fontSize.caption",
+          "line-height": 21,
+          "font-weight-token": "variables.typography.fontWeight.medium"
         }
       },
       "card": {
@@ -880,6 +926,17 @@
       "background-hover-token": "variables.color.light.chip.hover",
       "background-dark-token": "variables.color.dark.chip.default",
       "background-hover-dark-token": "variables.color.dark.chip.hover"
+    },
+    "alert": {
+      "padding-token": "variables.spacing.4",
+      "gap-row-token": "variables.spacing.4",
+      "title-typography-token": "styles.typography.caption.medium",
+      "message-typography-token": "styles.typography.small",
+      "message-color-token": "variables.color.light.text.secondary",
+      "message-color-dark-token": "variables.color.dark.text.secondary",
+      "icon-size-token": "variables.size.md",
+      "figma-node": "590:4481",
+      "figma-url": "https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Cook?node-id=590-4481"
     },
     "form-field": {
       "gap-y-token": "variables.spacing.2",

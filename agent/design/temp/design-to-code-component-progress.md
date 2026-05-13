@@ -96,6 +96,10 @@
 - [x] `IngredientGridHeader`
 - [x] `IngredientSearchResult`
 
+### 피드백 배너
+
+- [x] `Alert` 세트 (`variant=error` / `warning` / `info`)
+
 ### 마이페이지 · 메뉴
 
 - [x] `CreditUsageCard`
