@@ -98,6 +98,7 @@
 
 ### 마이페이지 · 메뉴
 
+- [ ] `CreditUsageCard`
 - [ ] `UserProfile` 세트 (`loggedIn=true` / `false`)
 - [ ] `StatCard`
 - [ ] `MypageHeader` 세트 (`loggedIn=true` / `false`)

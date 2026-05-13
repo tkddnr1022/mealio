@@ -1,6 +1,6 @@
 {
-  "version": "2.3",
-  "lastReviewed": "2026-04-21",
+  "version": "2.4",
+  "lastReviewed": "2026-05-14",
   "variables": {
     "figmaVariableAliases": {
       "figma-note": "Figma 변수명(slug) 기준. 값이 다른 변수를 가리키는 alias(= 동일 토큰 체인). canonical은 오른쪽.",
@@ -461,6 +461,11 @@
           "figma": "Border/Subtle",
           "color-token": "variables.color.light.border.subtle",
           "border-width-token": "variables.border.width.default"
+        }
+      },
+      "gradation": {
+        "primary": {
+          "figma": "Gradation/Primary"
         }
       },
       "chip": {

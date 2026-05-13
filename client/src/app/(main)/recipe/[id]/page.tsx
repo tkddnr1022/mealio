@@ -13,6 +13,7 @@ interface RecipeDetailPageProps {
 export const revalidate = 300;
 const STATIC_PARAMS_SIZE = 100; // TODO: 레시피 개수 증가 대응 계획 수립
 
+// TODO: on-demand ISR
 export async function generateStaticParams(): Promise<{ id: string }[]> {
   try {
     const result = await getRecipeStaticIds({
