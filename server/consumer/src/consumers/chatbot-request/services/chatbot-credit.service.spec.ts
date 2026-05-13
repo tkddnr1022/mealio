@@ -22,16 +22,18 @@ describe('ChatbotCreditService', () => {
   });
 
   it('멱등 재호출 시 skippedDuplicate이고 잔액 기준 isCreditDepleted를 반환한다', async () => {
-    prisma.$transaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => {
-      return fn({
-        chatbotCreditDeduction: {
-          createMany: jest.fn().mockResolvedValue({ count: 0 }),
-        },
-        user: {
-          findUnique: jest.fn().mockResolvedValue({ creditBalance: 0 }),
-        },
-      });
-    });
+    prisma.$transaction.mockImplementation(
+      async (fn: (tx: unknown) => Promise<unknown>) => {
+        return fn({
+          chatbotCreditDeduction: {
+            createMany: jest.fn().mockResolvedValue({ count: 0 }),
+          },
+          user: {
+            findUnique: jest.fn().mockResolvedValue({ creditBalance: 0 }),
+          },
+        });
+      },
+    );
 
     const r = await service.debitForCompletedChatbotTurn({
       userId: 1,
@@ -45,22 +47,24 @@ describe('ChatbotCreditService', () => {
   });
 
   it('신규 차감 시 잔액이 0이면 isCreditDepleted true', async () => {
-    prisma.$transaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => {
-      const cost = computeChatbotCreditCost({ totalTokens: 100 });
-      return fn({
-        chatbotCreditDeduction: {
-          createMany: jest.fn().mockResolvedValue({ count: 1 }),
-          update: jest.fn().mockResolvedValue(undefined),
-        },
-        user: {
-          findUniqueOrThrow: jest
-            .fn()
-            .mockResolvedValueOnce({ creditBalance: cost })
-            .mockResolvedValueOnce({ creditBalance: 0 }),
-          update: jest.fn().mockResolvedValue(undefined),
-        },
-      });
-    });
+    prisma.$transaction.mockImplementation(
+      async (fn: (tx: unknown) => Promise<unknown>) => {
+        const cost = computeChatbotCreditCost({ totalTokens: 100 });
+        return fn({
+          chatbotCreditDeduction: {
+            createMany: jest.fn().mockResolvedValue({ count: 1 }),
+            update: jest.fn().mockResolvedValue(undefined),
+          },
+          user: {
+            findUniqueOrThrow: jest
+              .fn()
+              .mockResolvedValueOnce({ creditBalance: cost })
+              .mockResolvedValueOnce({ creditBalance: 0 }),
+            update: jest.fn().mockResolvedValue(undefined),
+          },
+        });
+      },
+    );
 
     const r = await service.debitForCompletedChatbotTurn({
       userId: 2,

@@ -1,10 +1,6 @@
 import Link from 'next/link';
 import type { LinkProps } from 'next/link';
-import {
-  forwardRef,
-  type AnchorHTMLAttributes,
-  type ReactNode,
-} from 'react';
+import { forwardRef, type AnchorHTMLAttributes, type ReactNode } from 'react';
 
 import { isInternalNavHref } from '@/lib/utils/isInternalNavHref';
 

@@ -27,9 +27,9 @@ export interface MenuItemShared {
 export type MenuItemLinkProps = MenuItemShared & {
   href: string;
 } & Omit<
-  AnchorHTMLAttributes<HTMLAnchorElement>,
-  keyof MenuItemShared | 'children'
->;
+    AnchorHTMLAttributes<HTMLAnchorElement>,
+    keyof MenuItemShared | 'children'
+  >;
 
 export type MenuItemButtonProps = MenuItemShared & {
   href?: never;
@@ -39,9 +39,9 @@ export type MenuItemButtonProps = MenuItemShared & {
    */
   menuAction?: 'logout';
 } & Omit<
-  ButtonHTMLAttributes<HTMLButtonElement>,
-  keyof MenuItemShared | 'children'
->;
+    ButtonHTMLAttributes<HTMLButtonElement>,
+    keyof MenuItemShared | 'children'
+  >;
 
 export type MenuItemProps = MenuItemLinkProps | MenuItemButtonProps;
 
@@ -182,7 +182,9 @@ function MenuItemButtonInner({
       )}
       data-name="MenuItem"
       aria-label={
-        isLogout ? buildAriaLabel('button', label?.trim() || '로그아웃') : undefined
+        isLogout
+          ? buildAriaLabel('button', label?.trim() || '로그아웃')
+          : undefined
       }
       onClick={handleClick}
       {...buttonRest}

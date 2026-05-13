@@ -65,10 +65,7 @@ export class ChatbotCreditService {
 
       const before = await tx.user.findUniqueOrThrow({ where: { id: userId } });
       const rawCost = computeChatbotCreditCost(usage);
-      const applied = Math.min(
-        rawCost,
-        Math.max(0, before.creditBalance),
-      );
+      const applied = Math.min(rawCost, Math.max(0, before.creditBalance));
 
       if (applied > 0) {
         await tx.user.update({

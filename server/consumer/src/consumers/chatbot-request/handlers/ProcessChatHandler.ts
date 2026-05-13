@@ -115,13 +115,12 @@ export class ProcessChatHandler {
     const publishDoneWithCredits = async () => {
       let isCreditDepleted = false;
       if (payload.streamChannelId) {
-        const debit = await this.chatbotCreditService.debitForCompletedChatbotTurn(
-          {
+        const debit =
+          await this.chatbotCreditService.debitForCompletedChatbotTurn({
             userId: payload.userId,
             streamChannelId: payload.streamChannelId,
             usage,
-          },
-        );
+          });
         isCreditDepleted = debit.isCreditDepleted;
       }
       if (channel) {

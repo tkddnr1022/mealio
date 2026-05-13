@@ -37,7 +37,8 @@ export function CreditUsageCard({
   const safeUsed = Number.isFinite(used) ? Math.max(0, used) : 0;
   const percent = cap > 0 ? clampPercent(safeUsed, cap) : 0;
   const usedStr = numberFormatter.format(safeUsed);
-  const maxStr = cap > 0 ? numberFormatter.format(cap) : numberFormatter.format(0);
+  const maxStr =
+    cap > 0 ? numberFormatter.format(cap) : numberFormatter.format(0);
 
   return (
     <section
@@ -86,9 +87,7 @@ export function CreditUsageCard({
       </div>
 
       <div className="flex w-full items-center justify-between">
-        <p className="typo-small style-text-disabled">
-          {percent}% 사용
-        </p>
+        <p className="typo-small style-text-disabled">{percent}% 사용</p>
       </div>
     </section>
   );

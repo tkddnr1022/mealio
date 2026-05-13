@@ -1,9 +1,4 @@
-import {
-  CircleX,
-  Info,
-  TriangleAlert,
-  type LucideIcon,
-} from 'lucide-react';
+import { CircleX, Info, TriangleAlert, type LucideIcon } from 'lucide-react';
 import type { HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils/cn';
 import { buildAriaLabel } from '@/lib/utils/a11y';
@@ -21,10 +16,8 @@ export interface AlertProps extends Omit<
 }
 
 const rootClassMap: Record<AlertVariant, string> = {
-  error:
-    'border-t border-alert-error-border bg-alert-error-subtle',
-  warning:
-    'border-t border-alert-warning-border bg-alert-warning-subtle',
+  error: 'border-t border-alert-error-border bg-alert-error-subtle',
+  warning: 'border-t border-alert-warning-border bg-alert-warning-subtle',
   info: 'border-t border-alert-info-border bg-alert-info-subtle',
 };
 
@@ -53,9 +46,7 @@ export function Alert({
   message,
   ...rest
 }: AlertProps) {
-  const label = message?.trim()
-    ? `${title}. ${message}`
-    : title;
+  const label = message?.trim() ? `${title}. ${message}` : title;
 
   const Icon = variantIcon[variant];
 
