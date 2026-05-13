@@ -32,7 +32,9 @@
 | server/consumer/src/consumers/chatbot-request/chatbot-request.processor.ts | 해당 토픽 processor |
 | server/consumer/src/consumers/chatbot-request/chatbot-request.module.ts | 그룹 모듈 정의 |
 | server/consumer/src/consumers/chatbot-request/chatbot-request.consumer.ts | 해당 토픽 구독. 토픽 §2.2 |
-| server/consumer/src/consumers/chatbot-request/handlers/ProcessChatHandler.ts | GPT Function Calling·스트리밍, tool_calls 디스패치, Redis ChatbotStreamEvent 발행 |
+| server/consumer/src/consumers/chatbot-request/handlers/ProcessChatHandler.ts | GPT Function Calling·스트리밍, tool_calls 디스패치, Redis ChatbotStreamEvent 발행. 턴 성공 종료 직전 `ChatbotCreditService.debitForCompletedChatbotTurn`으로 멱등 크레딧 차감 후 `done` 이벤트에 `isCreditDepleted` 포함 |
+| server/consumer/src/consumers/chatbot-request/services/chatbot-credit.service.ts | 챗봇 턴 완료 시 Prisma 트랜잭션으로 `chatbot_credit_deductions`(streamChannelId PK) 멱등 삽입·`User.creditBalance` 차감·차감 크레딧 기록. `@cook/shared`의 `computeChatbotCreditCost` 사용. 신규 차감 시 `cache-invalidation`(USER_PROFILE) 토픽 발행 |
+| server/consumer/src/consumers/chatbot-request/services/chatbot-credit.service.spec.ts | ChatbotCreditService 단위 테스트 |
 | server/consumer/src/consumers/chatbot-request/handlers/InventoryHandler.ts | get_user_inventory — Inventory 조회(`ingredients.owned`, `ingredients.favorite`, `recipes.favorite`), Ingredient id→name(Redis 캐시) 반환 |
 | server/consumer/src/consumers/chatbot-request/handlers/SearchRecipesHandler.ts | search_recipes — Prisma 레시피 검색, ingredientIds optional, RecipeSummary[] 반환 |
 | server/consumer/src/consumers/chatbot-request/handlers/SaveChatLogHandler.ts | 스트림 종료 후 ChatbotLog 저장 |
@@ -129,7 +131,7 @@
 | 토픽 (메인) | DLQ 토픽 | Consumer 그룹 | 발행 주체 | 용도·페이로드 개요 |
 |-------------|-----------|----------------|-----------|---------------------|
 | **recipe-generation** | recipe-generation-dlq | recipe-generation-group | Producer (API 연동 시) | 레시피 생성 요청. 추후 이미지·재료 기반 생성 요청 payload. Processor: stub → GenerateRecipeHandler 등 연동 예정. |
-| **chatbot-requests** | chatbot-requests-dlq | chatbot-group | Producer (POST /api/v1/chatbot/messages 등) | 챗봇 메시지 요청. payload: userId, message, conversationId?, streamChannelId. Consumer: ProcessChatHandler(GPT·tool call), SaveChatLogHandler(ChatbotLog 저장), `chatbot.start`·`chatbot.message` 성공 후 SyncConversationMetaHandler(대화 메타 동기화), Redis 스트림 이벤트 발행. |
+| **chatbot-requests** | chatbot-requests-dlq | chatbot-group | Producer (POST /api/v1/chatbot/messages 등) | 챗봇 메시지 요청. payload: userId, message, conversationId?, streamChannelId. Consumer: ProcessChatHandler(GPT·tool call), SaveChatLogHandler(ChatbotLog 저장), `chatbot.start`·`chatbot.message` 성공 후 SyncConversationMetaHandler(대화 메타 동기화), Redis 스트림 이벤트 발행. 성공 턴 완료 시 ChatbotCreditService로 멱등 크레딧 차감·`done.data.isCreditDepleted` 반영, 차감 시 내부적으로 **cache-invalidation**(USER_PROFILE) 발행. |
 | **activity-events** | activity-events-dlq | activity-events-group | Producer (레시피 조회/좋아요/공유, 검색 API 등) | 비로그인 포함 활동 이벤트. payload: type(recipe.view \| recipe.like \| recipe.share \| search.query \| search.click), actor(type, userId?, ipAddress?, userAgent?), entity?, payload?, metadata?. Consumer: EventLog 저장. |
 | **user-events** | user-events-dlq | analytics-group | Producer (닉네임 변경, 재료 CRUD, 관심 레시피 추가/삭제 등) | 로그인 유저 도메인 이벤트. payload: UserEvent \| InventoryEvent. Consumer: UpdateUserProfileHandler, UpdateInventoryHandler, TrackUserActivityHandler(EventLog), RecommendationHandler, 캐시 무효화 요청(CacheInvalidationRequestService). |
 | **cache-invalidation** | cache-invalidation-dlq | cache-invalidation-group | Consumer 내부 (CacheInvalidationRequestService) | 캐시 무효화 지시. payload: type(USER_PROFILE \| INVENTORY \| RECIPE), userId 또는 recipeIds[]. Handler가 직접 발행하지 않고 RequestService가 발행. Consumer: RedisInvalidationHandler로 Redis 키/패턴 삭제. |
@@ -149,10 +151,19 @@
 
 ---
 
-## 2.4 캐시 무효화 흐름 (user-events → cache-invalidation)
+## 2.4 챗봇 크레딧 멱등 차감 및 스트림 `done` 계약
+
+- **모델·상수**: `@cook/shared` Prisma `User.creditBalance` / `User.creditMonthlyLimit`, `ChatbotCreditDeduction`(테이블 `chatbot_credit_deductions`, PK `stream_channel_id`). 비용 계산·기본 정책 상수는 `server/shared/src/constants/user-credits.ts`(`computeChatbotCreditCost`, `DEFAULT_USER_CREDIT_*` 등).
+- **ChatbotCreditService** (`consumers/chatbot-request/services/chatbot-credit.service.ts`): 동일 `streamChannelId`에 대해 `createMany` + `skipDuplicates`로 멱등 슬롯 확보 후, `usage.totalTokens` 기반 비용만큼 `creditBalance`를 감소(잔액 상한 클램프). 재처리 시 이중 차감 없음. 신규 차감이 발생한 경우에만 `KafkaProducerService`로 **cache-invalidation** 토픽(USER_PROFILE)을 발행해 Producer 캐시와 정합을 맞춘다.
+- **ProcessChatHandler**: Redis `done` 이벤트(`@cook/shared` 타입 `ChatbotStreamDoneEvent`)의 `data.isCreditDepleted`에 차감 결과를 넣어 클라이언트가 잔액 소진 여부를 알 수 있게 한다.
+
+---
+
+## 2.5 캐시 무효화 흐름 (user-events → cache-invalidation)
 
 - 토픽·발행 주체·수신·Redis 삭제 동작은 §2.2 표의 **cache-invalidation** 행과 동일하다.
 - **모듈 의존성**: UserEventsModule이 CacheInvalidationModule을 import하여 Handler에서 CacheInvalidationRequestService를 주입받는다.
+- **챗봇 크레딧 차감**: UserEvents 경로 외에, `ChatbotCreditService`가 크레딧이 실제로 차감된 경우 동일 토픽으로 USER_PROFILE 무효화를 발행할 수 있다(§2.4).
 - **일관성**: Producer의 Cache-Aside 캐시와 동일 Redis를 사용하므로, 무효화 후 다음 조회 시 DB 폴백이 이루어진다.
 
 ---

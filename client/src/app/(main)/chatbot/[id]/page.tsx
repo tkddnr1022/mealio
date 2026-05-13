@@ -12,6 +12,7 @@ import {
 import { InfoScreen } from '@/components/layout/InfoScreen';
 import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
+import { AuthStatus, useAuth } from '@/lib/auth/auth-context';
 import { getStreamProgressLabel } from '@/lib/chatbot/stream-progress-label';
 import { useChatbotStream } from '@/lib/chatbot/use-chatbot-stream';
 import {
@@ -84,6 +85,7 @@ export default function ChatbotConversationPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { user, status, refresh } = useAuth();
 
   const rawConversationId = params?.id;
   // sentinel('new') 또는 빈 값은 "아직 conversationId가 없는 상태"로 정규화한다.
@@ -125,6 +127,12 @@ export default function ChatbotConversationPage() {
   const isStreaming = stream.status === 'streaming';
   const isDone = stream.status === 'done';
   const streamedAssistantText = stream.text;
+  const composerDisabled =
+    stream.status !== 'streaming' &&
+    (stream.isCreditDepleted ||
+      (status === AuthStatus.Authenticated &&
+        user !== null &&
+        user.creditBalance <= 0));
 
   // 서버 히스토리에 이미 같은 user 메시지가 반영되었다면 낙관적 pending은 숨긴다.
   // (effect로 setState하지 않고 렌더 시점에 파생값으로 결정해 cascading render를 피한다.)
@@ -226,6 +234,12 @@ export default function ChatbotConversationPage() {
     });
   }, [isDone, conversationId, queryClient]);
 
+  // 스트림 완료 후 세션 유저(크레딧) 갱신 — composerDisabled의 profileCreditDepleted와 동일 소스
+  useEffect(() => {
+    if (stream.status !== 'done') return;
+    void refresh();
+  }, [stream.status, refresh]);
+
   // 기존 대화 상세 진입 시(마운트·라우트 id 변경 후 히스토리가 있을 때) 최하단으로 스크롤
   useEffect(() => {
     if (!conversationId || !hasConversation) return;
@@ -247,7 +261,7 @@ export default function ChatbotConversationPage() {
   const handleSubmitMessage = useCallback(
     (value: string) => {
       const trimmed = value.trim();
-      if (trimmed.length === 0 || isStreaming) return;
+      if (trimmed.length === 0 || isStreaming || composerDisabled) return;
       setPendingUserMessage({
         text: trimmed,
         timestamp: new Date().toISOString(),
@@ -255,7 +269,7 @@ export default function ChatbotConversationPage() {
       setComposerValue('');
       void stream.sendMessage(trimmed);
     },
-    [isStreaming, stream],
+    [isStreaming, stream, composerDisabled],
   );
 
   return (
@@ -287,6 +301,7 @@ export default function ChatbotConversationPage() {
         value={composerValue}
         onValueChange={setComposerValue}
         onSubmitMessage={handleSubmitMessage}
+        disabled={composerDisabled}
       />
     </div>
   );

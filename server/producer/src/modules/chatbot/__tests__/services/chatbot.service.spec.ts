@@ -8,6 +8,7 @@ import {
 } from '@cook/shared';
 import { ChatbotLogRepository } from '../../../../infrastructure/database/repositories/mongodb/chatbot-log.repository';
 import { ChatbotConversationRepository } from '../../../../infrastructure/database/repositories/mongodb/chatbot-conversation.repository';
+import { UserRepository } from '../../../../infrastructure/database/repositories/postgresql/user.repository';
 import type { SendMessageDto } from '../../dto/send-message.dto';
 
 describe('ChatbotService', () => {
@@ -16,10 +17,19 @@ describe('ChatbotService', () => {
   let redisService: jest.Mocked<RedisService>;
   let chatbotLogRepository: jest.Mocked<ChatbotLogRepository>;
   let chatbotConversationRepository: jest.Mocked<ChatbotConversationRepository>;
+  let userRepository: jest.Mocked<UserRepository>;
 
   beforeEach(async () => {
     const mockKafkaProducer = {
       emit: jest.fn().mockResolvedValue(undefined),
+    };
+
+    const mockUserRepository = {
+      findById: jest.fn().mockResolvedValue({
+        id: 1,
+        creditBalance: 100,
+        creditMonthlyLimit: 1000,
+      }),
     };
 
     const mockRedisService = {
@@ -27,7 +37,7 @@ describe('ChatbotService', () => {
         onMessage(
           JSON.stringify({
             type: CHATBOT_STREAM_EVENT_TYPES.DONE,
-            data: { conversationId: 'conv_abc' },
+            data: { conversationId: 'conv_abc', isCreditDepleted: false },
           }),
         );
         return Promise.resolve(() => Promise.resolve());
@@ -59,6 +69,7 @@ describe('ChatbotService', () => {
           provide: ChatbotConversationRepository,
           useValue: mockChatbotConversationRepository,
         },
+        { provide: UserRepository, useValue: mockUserRepository },
       ],
     }).compile();
 
@@ -73,6 +84,7 @@ describe('ChatbotService', () => {
     chatbotConversationRepository = module.get(
       ChatbotConversationRepository,
     ) as jest.Mocked<ChatbotConversationRepository>;
+    userRepository = module.get(UserRepository) as jest.Mocked<UserRepository>;
   });
 
   it('should be defined', () => {
@@ -108,6 +120,23 @@ describe('ChatbotService', () => {
       expect(write).toHaveBeenCalled();
       expect(end).toHaveBeenCalled();
       expect(error).not.toHaveBeenCalled();
+    });
+
+    it('크레딧이 0이면 Kafka를 호출하지 않고 error 콜백을 호출한다', async () => {
+      userRepository.findById.mockResolvedValue({
+        id: 1,
+        creditBalance: 0,
+        creditMonthlyLimit: 1000,
+      } as never);
+      const write = jest.fn();
+      const end = jest.fn();
+      const error = jest.fn();
+
+      await service.streamMessage(1, { message: 'hi' }, { write, end, error });
+
+      expect(kafkaProducer.emit).not.toHaveBeenCalled();
+      expect(error).toHaveBeenCalledWith(expect.any(Error));
+      expect(write).not.toHaveBeenCalled();
     });
 
     it('Redis에서 error 이벤트를 받으면 error 콜백을 호출한다', async () => {

@@ -10,18 +10,37 @@ generator client {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  email        String   @unique @db.VarChar(100)
-  nickname     String   @db.VarChar(50)
-  platformName String   @map("platform_name") @db.VarChar(20)
-  platformId   String   @map("platform_id") @db.VarChar(100)
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+  id                 Int      @id @default(autoincrement())
+  email              String   @unique @db.VarChar(100)
+  nickname           String   @db.VarChar(50)
+  platformName       String   @map("platform_name") @db.VarChar(20)
+  platformId         String   @map("platform_id") @db.VarChar(100)
+  /** 남은 챗봇 크레딧 (0이면 신규 메시지 전송 불가). 신규 행 값은 앱에서 `DEFAULT_USER_CREDIT_*`로 주입 */
+  creditBalance      Int      @default(0) @map("credit_balance")
+  /** UI 상한·월간 기준 등에 사용하는 한도(남은 잔액과 별도). 신규 행 값은 앱에서 `DEFAULT_USER_CREDIT_*`로 주입 */
+  creditMonthlyLimit Int      @default(0) @map("credit_monthly_limit")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
+
+  chatbotCreditDeductions ChatbotCreditDeduction[]
 
   @@index([platformName, platformId])
   @@index([email])
   @@index([createdAt])
   @@map("User")
+}
+
+/** 챗봇 요청당 1회 차감 멱등 (Kafka 재시도 시 이중 차감 방지) */
+model ChatbotCreditDeduction {
+  streamChannelId String   @id @map("stream_channel_id") @db.VarChar(80)
+  userId          Int      @map("user_id")
+  credits         Int      @map("credits")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("chatbot_credit_deductions")
 }
 
 model Recipe {

@@ -25,6 +25,8 @@ export const LoggedIn: Story = {
   name: 'loggedIn=true',
   args: {
     loggedIn: true,
+    creditUsed: 250,
+    creditMax: 1000,
     userProfileProps: {
       nickname: '김레시피',
       email: 'recipe@example.com',

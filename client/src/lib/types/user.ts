@@ -11,6 +11,10 @@ export interface UserProfile {
   nickname: string;
   /** ISO 8601 */
   createdAt: string;
+  /** 남은 챗봇 크레딧 */
+  creditBalance: number;
+  /** 월간 상한(표시용) */
+  creditMonthlyLimit: number;
 }
 
 /** `PATCH /api/v1/users/me/nickname` 요청 body */

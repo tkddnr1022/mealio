@@ -13,6 +13,7 @@ import {
 import type { SendMessageDto } from './dto/send-message.dto';
 import { ChatbotLogRepository } from '../../infrastructure/database/repositories/mongodb/chatbot-log.repository';
 import { ChatbotConversationRepository } from '../../infrastructure/database/repositories/mongodb/chatbot-conversation.repository';
+import { UserRepository } from '../../infrastructure/database/repositories/postgresql/user.repository';
 import type { ConversationHistoryDto } from './dto/conversation-history.dto';
 import type { SuggestedRecipeSummary } from '@cook/shared';
 import type { ConversationListDto } from './dto/conversation-list.dto';
@@ -45,6 +46,7 @@ export class ChatbotService {
     private readonly redisService: RedisService,
     private readonly chatbotLogRepository: ChatbotLogRepository,
     private readonly chatbotConversationRepository: ChatbotConversationRepository,
+    private readonly userRepository: UserRepository,
   ) {}
 
   /**
@@ -56,6 +58,16 @@ export class ChatbotService {
     dto: SendMessageDto,
     callbacks: StreamMessageCallbacks,
   ): Promise<void> {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      callbacks.error(new Error('사용자를 찾을 수 없습니다.'));
+      return;
+    }
+    if (user.creditBalance <= 0) {
+      callbacks.error(new Error('크레딧이 부족합니다.'));
+      return;
+    }
+
     const streamChannelId = `stream_${randomUUID().replace(/-/g, '').slice(0, 16)}`;
     const conversationId =
       dto.conversationId ??

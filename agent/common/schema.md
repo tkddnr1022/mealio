@@ -51,10 +51,21 @@
 | platformId      | platform_id   | VARCHAR(100)   | 플랫폼 내 사용자 ID            |
 | createdAt       | created_at    | TIMESTAMP      | 계정 생성 시각                 |
 | updatedAt       | updated_at    | TIMESTAMP      | 계정 수정 시각                 |
+| creditBalance      | credit_balance       | INT            | 남은 챗봇 크레딧 (기본 1000)   |
+| creditMonthlyLimit | credit_monthly_limit | INT            | 월간 크레딧 상한(표시용, 기본 1000) |
 
 **인덱스**: `(platform_name, platform_id)`, `(email)`, `(created_at)`
 
----
+#### `chatbot_credit_deductions` (PostgreSQL)
+
+챗봇 SSE 요청(`stream_channel_id`)당 크레딧 차감 1회를 보장하는 멱등 테이블. Prisma 모델 `ChatbotCreditDeduction`.
+
+| 컬럼 | 타입 | 의미 |
+| --- | --- | --- |
+| stream_channel_id | VARCHAR(80) PK | Producer가 발급한 스트림 채널 ID |
+| user_id | INT FK → User | 사용자 |
+| credits | INT | 실제 차감한 크레딧 |
+| created_at | TIMESTAMP | 기록 시각 |
 
 ### 2.2 RecipeCategory
 

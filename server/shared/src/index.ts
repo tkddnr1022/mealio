@@ -32,6 +32,11 @@ export {
   cachePatternRecipeListAndSearch,
 } from './constants/cache-keys';
 export { ASSET_URL_PREFIX } from './constants/asset-url-prefixes';
+export {
+  DEFAULT_USER_CREDIT_BALANCE,
+  DEFAULT_USER_CREDIT_MONTHLY_LIMIT,
+  computeChatbotCreditCost,
+} from './constants/user-credits';
 
 // Redis
 export { RedisModule } from './redis/redis.module';

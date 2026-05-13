@@ -30,6 +30,8 @@ export interface ChatbotStreamDoneEvent {
   type: typeof CHATBOT_STREAM_EVENT_TYPES.DONE;
   data: {
     conversationId: string;
+    /** 차감 후 크레딧 잔액이 0 이하이면 true */
+    isCreditDepleted: boolean;
     suggestedRecipes?: Array<unknown>;
   };
 }

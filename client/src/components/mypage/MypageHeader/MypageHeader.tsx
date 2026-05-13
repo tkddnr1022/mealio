@@ -13,12 +13,18 @@ export interface MypageHeaderProps extends Omit<
   className?: string;
   loggedIn?: boolean;
   userProfileProps?: Omit<UserProfileProps, 'loggedIn'>;
+  /** 로그인 시 표시: 사용한 크레딧(월간 한도 − 잔액) */
+  creditUsed?: number;
+  /** 로그인 시 표시: 월간 크레딧 상한 */
+  creditMax?: number;
 }
 
 export function MypageHeader({
   className = '',
   loggedIn = true,
   userProfileProps,
+  creditUsed = 0,
+  creditMax = 0,
   ...rest
 }: MypageHeaderProps) {
   return (
@@ -35,7 +41,13 @@ export function MypageHeader({
         {...userProfileProps}
         message={userProfileProps?.message ?? '로그인이 필요합니다'}
       />
-      <CreditUsageCard used={250} max={1000} label="크레딧 사용량" />
+      {loggedIn && creditMax > 0 ? (
+        <CreditUsageCard
+          used={creditUsed}
+          max={creditMax}
+          label="크레딧 사용량"
+        />
+      ) : null}
     </header>
   );
 }

@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { User, Prisma } from '@cook/shared/prisma-client';
-import { PrismaService } from '@cook/shared';
+import {
+  DEFAULT_USER_CREDIT_BALANCE,
+  DEFAULT_USER_CREDIT_MONTHLY_LIMIT,
+  PrismaService,
+} from '@cook/shared';
 
 @Injectable()
 export class UserRepository {
@@ -27,7 +31,14 @@ export class UserRepository {
    * 로그인 플로우는 producer에서 즉시 생성 후 JWT 발급이 필요해 여기서만 사용.
    */
   async create(data: Prisma.UserCreateInput): Promise<User> {
-    return this.prisma.user.create({ data });
+    return this.prisma.user.create({
+      data: {
+        ...data,
+        creditBalance: data.creditBalance ?? DEFAULT_USER_CREDIT_BALANCE,
+        creditMonthlyLimit:
+          data.creditMonthlyLimit ?? DEFAULT_USER_CREDIT_MONTHLY_LIMIT,
+      },
+    });
   }
 
   // async update(id: number, data: Prisma.UserUpdateInput): Promise<User> {

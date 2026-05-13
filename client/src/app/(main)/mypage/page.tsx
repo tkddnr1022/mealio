@@ -37,6 +37,10 @@ export default function MypagePage() {
   const loggedIn = status === AuthStatus.Authenticated && user != null;
   const nickname = user?.nickname;
   const email = user?.email;
+  const creditMax = user?.creditMonthlyLimit ?? 0;
+  const creditBalance = user?.creditBalance ?? 0;
+  const creditUsed =
+    creditMax > 0 ? Math.max(0, Math.min(creditMax, creditMax - creditBalance)) : 0;
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col bg-background-primary">
@@ -44,6 +48,8 @@ export default function MypagePage() {
       <MainContent paddingX={false} paddingY={false} innerClassName="gap-4">
         <MypageHeader
           loggedIn={loggedIn}
+          creditUsed={creditUsed}
+          creditMax={creditMax}
           userProfileProps={
             loggedIn ? { nickname, email } : { message: '로그인이 필요합니다' }
           }

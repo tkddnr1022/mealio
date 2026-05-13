@@ -33,6 +33,8 @@ export class UsersService {
           email: user.email,
           nickname: user.nickname,
           createdAt: user.createdAt,
+          creditBalance: user.creditBalance,
+          creditMonthlyLimit: user.creditMonthlyLimit,
         };
       },
       userId,

@@ -19,6 +19,7 @@ import { ToolDispatcher } from '../tools/tool-dispatcher';
 import { CHATBOT_TOOLS } from '../tools/chatbot-tools.definition';
 import { buildMessagesForGpt } from '../context/conversation.manager';
 import type { SearchedRecipe } from './SearchRecipesHandler';
+import { ChatbotCreditService } from '../services/chatbot-credit.service';
 
 export interface ProcessChatPayload {
   userId: number;
@@ -36,6 +37,7 @@ export class ProcessChatHandler {
     private readonly redis: RedisService,
     private readonly toolDispatcher: ToolDispatcher,
     private readonly chatbotLogRepository: ChatbotLogRepository,
+    private readonly chatbotCreditService: ChatbotCreditService,
   ) {}
 
   async execute(payload: ProcessChatPayload): Promise<
@@ -109,6 +111,39 @@ export class ProcessChatHandler {
       | { promptTokens: number; completionTokens: number; totalTokens: number }
       | undefined;
     let model: string | undefined;
+
+    const publishDoneWithCredits = async () => {
+      let isCreditDepleted = false;
+      if (payload.streamChannelId) {
+        const debit = await this.chatbotCreditService.debitForCompletedChatbotTurn(
+          {
+            userId: payload.userId,
+            streamChannelId: payload.streamChannelId,
+            usage,
+          },
+        );
+        isCreditDepleted = debit.isCreditDepleted;
+      }
+      if (channel) {
+        publish({
+          type: CHATBOT_STREAM_EVENT_TYPES.DONE,
+          data: {
+            conversationId,
+            isCreditDepleted,
+            suggestedRecipes:
+              lastSearchedRecipes.length > 0
+                ? lastSearchedRecipes.map((r) => ({
+                    id: r.id,
+                    title: r.title,
+                    categoryId: r.categoryId,
+                    categoryName: r.categoryName,
+                    imageUrl: r.imageUrl,
+                  }))
+                : undefined,
+          },
+        });
+      }
+    };
 
     const maxToolRounds = 5;
     for (let round = 0; round < maxToolRounds; round++) {
@@ -218,24 +253,7 @@ export class ProcessChatHandler {
           }
         }
       } else {
-        if (channel) {
-          publish({
-            type: CHATBOT_STREAM_EVENT_TYPES.DONE,
-            data: {
-              conversationId,
-              suggestedRecipes:
-                lastSearchedRecipes.length > 0
-                  ? lastSearchedRecipes.map((r) => ({
-                      id: r.id,
-                      title: r.title,
-                      categoryId: r.categoryId,
-                      categoryName: r.categoryName,
-                      imageUrl: r.imageUrl,
-                    }))
-                  : undefined,
-            },
-          });
-        }
+        await publishDoneWithCredits();
         return {
           fullContent,
           suggestedRecipes: lastSearchedRecipes,
@@ -245,24 +263,7 @@ export class ProcessChatHandler {
       }
     }
 
-    if (channel) {
-      publish({
-        type: CHATBOT_STREAM_EVENT_TYPES.DONE,
-        data: {
-          conversationId,
-          suggestedRecipes:
-            lastSearchedRecipes.length > 0
-              ? lastSearchedRecipes.map((r) => ({
-                  id: r.id,
-                  title: r.title,
-                  categoryId: r.categoryId,
-                  categoryName: r.categoryName,
-                  imageUrl: r.imageUrl,
-                }))
-              : undefined,
-        },
-      });
-    }
+    await publishDoneWithCredits();
     return {
       fullContent,
       suggestedRecipes: lastSearchedRecipes,

@@ -23,6 +23,8 @@ describe('UsersService', () => {
     platformId: 'id',
     createdAt: new Date('2025-01-01T00:00:00.000Z'),
     updatedAt: new Date('2025-01-01T00:00:00.000Z'),
+    creditBalance: 500,
+    creditMonthlyLimit: 1000,
   };
 
   const mockProfile = {
@@ -30,6 +32,8 @@ describe('UsersService', () => {
     email: 'test@example.com',
     nickname: 'TestUser',
     createdAt: mockUser.createdAt,
+    creditBalance: 500,
+    creditMonthlyLimit: 1000,
   };
 
   beforeEach(async () => {
@@ -104,6 +108,8 @@ describe('UsersService', () => {
       expect(result.email).toBe('test@example.com');
       expect(result.nickname).toBe('TestUser');
       expect(result.createdAt).toEqual(mockUser.createdAt);
+      expect(result.creditBalance).toBe(500);
+      expect(result.creditMonthlyLimit).toBe(1000);
     });
 
     it('사용자가 없으면 NotFoundException을 던진다', async () => {

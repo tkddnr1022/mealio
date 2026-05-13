@@ -99,6 +99,8 @@ export interface ChatbotStreamDoneEvent {
   type: typeof CHATBOT_STREAM_EVENT_TYPES.DONE;
   data: {
     conversationId: string;
+    /** 차감 후 크레딧이 0 이하면 true */
+    isCreditDepleted: boolean;
     /** 최종 assistant 메시지 전체(선택). 청크만으로 구성된 경우와 중복될 수 있음 */
     message?: string;
     suggestedRecipes?: SuggestedRecipe[];

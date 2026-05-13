@@ -142,7 +142,7 @@
 | 항목 | 명세 |
 |------|------|
 | Redis 채널 | `chatbot:stream:{streamChannelId}` (@cook/shared `getChatbotStreamChannel`) |
-| 이벤트 타입 | `ChatbotStreamEvent`: `type: 'intent' \| 'chunk' \| 'done' \| 'error'` (@cook/shared `types/events`) |
+| 이벤트 타입 | `ChatbotStreamEvent`: `type: 'chunk' \| 'done' \| 'error' \| 'tool_call'` (@cook/shared `types/events`). `done.data`에는 `conversationId`, `isCreditDepleted`(크레딧 소진 여부), 선택 `suggestedRecipes`가 포함된다. |
 | Kafka 토픽 | CHATBOT_REQUESTS (@cook/shared `KAFKA_TOPICS`) |
 
 챗봇 6단계 흐름·설계 원칙은 `../guidelines/backend_development_guidelines.md` §5에 정의되어 있다.

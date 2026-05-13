@@ -1190,7 +1190,7 @@ paths:
 
         **SSE 이벤트 형식** (Content-Type: text/event-stream)
         - data: { "type": "chunk", "data": "텍스트 조각" }
-        - data: { "type": "done", "data": { "conversationId", "message?", "suggestedRecipes?" } }
+        - data: { "type": "done", "data": { "conversationId", "isCreditDepleted", "message?", "suggestedRecipes?" } }
         - data: { "type": "error", "data": { "message": "오류 메시지" } }
       parameters:
         - name: accessToken
@@ -1240,7 +1240,7 @@ paths:
                 type: string
                 description: |
                   각 줄은 "data: {JSON}\n\n" 형식.
-                  type=chunk(텍스트 조각), type=done(최종 결과), type=error(오류) 중 하나.
+                  type=chunk(텍스트 조각), type=done(최종 결과: conversationId, isCreditDepleted 등), type=error(오류) 중 하나.
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1445,10 +1445,18 @@ components:
         nickname:
           type: string
           description: 닉네임
+        creditBalance:
+          type: integer
+          description: 남은 챗봇 크레딧
+        creditMonthlyLimit:
+          type: integer
+          description: 월간 크레딧 상한(표시·정책용)
       example:
         id: 123
         email: user@example.com
         nickname: 요리왕
+        creditBalance: 750
+        creditMonthlyLimit: 1000
 
     UserProfile:
       allOf:

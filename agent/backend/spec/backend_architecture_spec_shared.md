@@ -20,7 +20,9 @@
 | server/shared/src/constants/redis-channels.ts | getChatbotStreamChannel, CHATBOT_STREAM_CHANNEL_PREFIX |
 | server/shared/src/constants/cache-keys.ts | CACHE_KEY_PREFIX. Producer 캐시 전략·Consumer 캐시 무효화에서 공통 사용 |
 | server/shared/src/constants/asset-url-prefixes.ts | ASSET_URL_PREFIX (RECIPE_IMAGE, INGREDIENT_CATEGORY_ICON). 레시피 이미지/재료 카테고리 아이콘 URL prefix 공통 사용 |
-| server/shared/src/database/prisma/schema.prisma | PostgreSQL 스키마 (User, RecipeCategory, Recipe, RecipeStats, IngredientCategory, Ingredient, RecipeIngredient) |
+| server/shared/src/constants/user-credits.ts | 챗봇 크레딧 정책: `DEFAULT_USER_CREDIT_BALANCE`, `DEFAULT_USER_CREDIT_MONTHLY_LIMIT`, `TOKENS_PER_CREDIT`, `computeChatbotCreditCost`. 신규 `User` 초기 잔액·시드·Producer `UserRepository.create`와 동일 기준. `@cook/shared`의 `index.ts`에서 re-export |
+| server/shared/src/database/prisma/schema.prisma | PostgreSQL 스키마 (User·크레딧 필드·ChatbotCreditDeduction, RecipeCategory, Recipe, RecipeStats, IngredientCategory, Ingredient, RecipeIngredient) |
+| server/shared/src/database/prisma/seed.ts | 로컬/개발용 시드 스크립트. `User` 삽입 시 `user-credits` 상수로 `credit_balance`·`credit_monthly_limit` 설정 |
 | server/shared/src/database/prisma/prisma-pool.config.ts | PrismaPoolConfig 타입, PRISMA_POOL_CONFIG DI 토큰 (커넥션 풀 설정용). PrismaService·PrismaModule에서 참조 |
 | server/shared/src/database/prisma/prisma.service.ts | PrismaService (NestJS, OnModuleInit/OnModuleDestroy, PrismaPg 어댑터. PRISMA_POOL_CONFIG 주입) |
 | server/shared/src/database/prisma/prisma.module.ts | PrismaModule. forRoot(config) / forRootAsync({ useFactory }) 로 connection pool config 주입. Producer/Consumer에서 import 시 config 전달 |
@@ -31,7 +33,7 @@
 | server/shared/src/database/mongoose/schemas/* | ChatbotLog, ChatbotConversation, EventLog, Inventory 스키마 (`ingredients.ownedIds`, `ingredients.favoriteIds`, `recipes.favoriteIds` 포함) |
 | server/shared/src/redis/redis.service.ts | RedisService (NestJS). get/set/setex/del/exists/expire/ttl, 구독 채널 관리 |
 | server/shared/src/redis/redis.module.ts | RedisModule |
-| server/shared/src/types/events/* | ChatbotRequestEvent, ChatbotStreamEvent, UserEvent, InventoryEvent(ingredient/recipe favorites 포함), CacheInvalidationPayload·CacheInvalidationEventType 등 |
+| server/shared/src/types/events/* | ChatbotRequestEvent, ChatbotStreamEvent(`done`에 `isCreditDepleted` 포함), UserEvent, InventoryEvent(ingredient/recipe favorites 포함), CacheInvalidationPayload·CacheInvalidationEventType 등 |
 
 ## 3.2 Prisma 스키마 (schema.prisma) — 모델·필드 명세
 
@@ -39,7 +41,8 @@
 
 | 모델 | 필드 | 비고 |
 |------|------|------|
-| User | id, email, nickname, platformName, platformId, createdAt, updatedAt | @@index(platformName, platformId), (email), (createdAt) |
+| User | id, email, nickname, platformName, platformId, creditBalance(@map credit_balance), creditMonthlyLimit(@map credit_monthly_limit), createdAt, updatedAt | Prisma/DB 기본값은 0(보조). 비즈니스 초기 잔액·한도는 행 생성 시 `DEFAULT_USER_CREDIT_*`로 주입(Producer `UserRepository.create`, 시드). @@index(platformName, platformId), (email), (createdAt) |
+| ChatbotCreditDeduction | streamChannelId(@map stream_channel_id, PK), userId, credits, createdAt | 테이블 `chatbot_credit_deductions`. 스트림(요청)당 1행으로 Consumer에서 멱등 차감. `user` 관계(onDelete: Cascade), @@index(userId) |
 | RecipeCategory | id, key, name, displayOrder, isActive, createdAt, updatedAt | recipes 관계. @@index(isActive, displayOrder), @unique(key) |
 | Recipe | id, categoryId(@map category), title, description?, instructions(Json), difficulty, cookTime, imageUrl?, servings, isPublished, createdAt, updatedAt | categoryMeta(RecipeCategory), recipeIngredients, stats(RecipeStats, 1:1 optional) 관계. @@index(categoryId, difficulty, cookTime, createdAt), @@index(difficulty, cookTime, createdAt), (createdAt Desc) |
 | RecipeStats | recipeId(@map recipe_id, PK), viewCount(@map view_count), likeCount(@map like_count), updatedAt(@map updated_at) | recipe(Recipe, onDelete: Cascade). @@index(viewCount desc, recipeId desc), @@index(likeCount desc, recipeId desc) |
@@ -51,7 +54,7 @@ datasource: `postgresql`. generator: `prisma-client`, output `generated`.
 
 ## 3.3 사용 방식 (정형)
 
-- **Producer/Consumer import**: `import { PrismaModule, MongooseSchemasModule, RedisService, KAFKA_TOPICS, ... } from '@cook/shared'`
+- **Producer/Consumer import**: `import { PrismaModule, MongooseSchemasModule, RedisService, KAFKA_TOPICS, computeChatbotCreditCost, DEFAULT_USER_CREDIT_BALANCE, ... } from '@cook/shared'`
 - **Prisma 타입/클라이언트**: `import { Recipe, Prisma } from '@cook/shared/prisma-client'`
 - **빌드 순서**: shared 빌드(`prisma generate` + `tsc`) → Producer/Consumer 빌드
 - **환경 변수·모노레포·빌드·데이터소스 주의사항**: `../guidelines/backend_development_guidelines.md` §6(환경 변수), §8(모노레포·빌드), §9(데이터베이스별 주의사항)에 정의되어 있다.
@@ -61,5 +64,5 @@ datasource: `postgresql`. generator: `prisma-client`, output `generated`.
 | 경로 | 역할 |
 |------|------------|
 | server/shared/src/utils/ | logger, error-handler, prisma-helpers, mongoose-helpers, validator |
-| server/shared/src/constants/ | cache-keys.ts (CACHE_KEY_PREFIX), asset-url-prefixes.ts (ASSET_URL_PREFIX), error-codes.ts (3.1의 kafka-topics, redis-channels 외 추가) |
+| server/shared/src/constants/ | cache-keys.ts, asset-url-prefixes.ts, **user-credits.ts**(챗봇 크레딧 기본값·비용 계산), error-codes.ts (3.1의 kafka-topics, redis-channels 외 추가) |
 | server/shared/src/configs/ | observability.config.ts (3.1의 kafka, redis 외 추가) |

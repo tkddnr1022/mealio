@@ -17,7 +17,7 @@ import { streamChatbotMessage, type ChatbotStreamOptions } from './sse-client';
  * 챗봇 스트리밍 훅.
  *
  * - `sendMessage(message)` 호출 시 SSE 구독을 시작하고, 부분 응답(`chunk`)을 누적해 `text`로 노출한다.
- * - `done` 이벤트에서 `conversationId`·`suggestedRecipes`를 업데이트하고 상태를 `done`으로 전환한다.
+ * - `done` 이벤트에서 `conversationId`·`suggestedRecipes`·`isCreditDepleted`를 업데이트하고 상태를 `done`으로 전환한다.
  * - `error` 이벤트 또는 네트워크 예외는 `error` 상태로 전환하며 {@link ApiError}를 보관한다.
  * - 컴포넌트 언마운트 시 진행 중인 스트림을 abort하여 메모리·커넥션 누수를 방지한다.
  * - 동일 인스턴스에서 메시지를 연속 전송하면 이전 스트림을 abort하고 새로 시작한다.
@@ -40,6 +40,8 @@ export interface ChatbotStreamState {
   text: string;
   conversationId: string | null;
   suggestedRecipes: SuggestedRecipe[];
+  /** 마지막 `done` 이벤트 기준 크레딧 소진 여부 */
+  isCreditDepleted: boolean;
   /** 진행 중인 function call 상태(도구 호출 UI 표시용) */
   activeToolCalls: ToolCallState[];
   /** 이번 send 이후 첫 SSE 이벤트(chunk/tool_call/done/error) 수신 여부 */
@@ -72,6 +74,7 @@ const INITIAL_STATE: ChatbotStreamState = {
   text: '',
   conversationId: null,
   suggestedRecipes: [],
+  isCreditDepleted: false,
   activeToolCalls: [],
   hasReceivedFirstStreamEvent: false,
   error: null,
@@ -98,6 +101,15 @@ export function useChatbotStream(
   useEffect(() => {
     stateConversationIdRef.current = state.conversationId;
   }, [state.conversationId]);
+
+  /** 라우트의 `conversationId`가 바뀌면 동기화하고 크레딧 소진 플래그를 초기화한다. */
+  useEffect(() => {
+    setState((prev) => ({
+      ...prev,
+      conversationId: initialConversationId ?? prev.conversationId,
+      isCreditDepleted: false,
+    }));
+  }, [initialConversationId]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -154,6 +166,7 @@ export function useChatbotStream(
         suggestedRecipes: [],
         activeToolCalls: [],
         hasReceivedFirstStreamEvent: false,
+        isCreditDepleted: false,
         error: null,
       }));
 
@@ -218,6 +231,7 @@ function applyEvent(
         conversationId: event.data.conversationId,
         text: prev.text || event.data.message || '',
         suggestedRecipes: event.data.suggestedRecipes ?? [],
+        isCreditDepleted: event.data.isCreditDepleted,
       }));
       return;
     case CHATBOT_STREAM_EVENT_TYPES.ERROR:

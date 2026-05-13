@@ -93,6 +93,7 @@ function isDoneEventShape(
   if (!data || typeof data !== 'object') return false;
   const d = data as Record<string, unknown>;
   if (typeof d.conversationId !== 'string') return false;
+  if (typeof d.isCreditDepleted !== 'boolean') return false;
   if (d.message !== undefined && typeof d.message !== 'string') {
     return false;
   }

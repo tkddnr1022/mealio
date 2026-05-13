@@ -1,6 +1,10 @@
 /* eslint-disable no-console */
 import 'dotenv/config';
 import { Client } from 'pg';
+import {
+  DEFAULT_USER_CREDIT_BALANCE,
+  DEFAULT_USER_CREDIT_MONTHLY_LIMIT,
+} from '../../constants/user-credits';
 
 type RecipeCategorySeed = {
   id: number;
@@ -408,10 +412,17 @@ async function seed(): Promise<void> {
 
     for (const user of USERS) {
       await client.query(
-        `INSERT INTO "User" ("email","nickname","platform_name","platform_id")
-         VALUES ($1,$2,$3,$4)
+        `INSERT INTO "User" ("email","nickname","platform_name","platform_id","credit_balance","credit_monthly_limit")
+         VALUES ($1,$2,$3,$4,$5,$6)
          ON CONFLICT ("email") DO NOTHING`,
-        [user.email, user.nickname, user.platformName, user.platformId],
+        [
+          user.email,
+          user.nickname,
+          user.platformName,
+          user.platformId,
+          DEFAULT_USER_CREDIT_BALANCE,
+          DEFAULT_USER_CREDIT_MONTHLY_LIMIT,
+        ],
       );
     }
 

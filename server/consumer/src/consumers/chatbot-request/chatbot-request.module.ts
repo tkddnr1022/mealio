@@ -25,6 +25,7 @@ import { ChatbotConversationRepository } from 'src/persistence/repositories/mong
 import { SearchRecipesHandler } from './handlers/SearchRecipesHandler';
 import { InventoryHandler } from './handlers/InventoryHandler';
 import { ToolDispatcher } from './tools/tool-dispatcher';
+import { ChatbotCreditService } from './services/chatbot-credit.service';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { ToolDispatcher } from './tools/tool-dispatcher';
     SyncConversationMetaHandler,
     ChatbotRequestProcessor,
     ChatbotRequestConsumer,
+    ChatbotCreditService,
   ],
   exports: [ChatbotRequestProcessor],
 })

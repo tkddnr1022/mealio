@@ -13,6 +13,8 @@ export interface ChatComposerProps extends Omit<
   className?: string;
   value?: string;
   placeholder?: string;
+  /** true면 입력·전송 비활성화 */
+  disabled?: boolean;
   onValueChange?: (value: string) => void;
   onSubmitMessage?: (value: string) => void;
 }
@@ -21,16 +23,18 @@ export function ChatComposer({
   className = '',
   value,
   placeholder = '메시지를 입력하세요',
+  disabled = false,
   onValueChange,
   onSubmitMessage,
   ...rest
 }: ChatComposerProps) {
   const inputValue = value ?? '';
   const isFilled = inputValue.trim().length > 0;
+  const effectivePlaceholder = disabled ? '크레딧이 소진되어 전송할 수 없습니다' : placeholder;
 
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
-    if (!isFilled) return;
+    if (disabled || !isFilled) return;
     onSubmitMessage?.(inputValue);
   };
 
@@ -50,9 +54,10 @@ export function ChatComposer({
         <Input
           wrapperClassName="flex-1"
           focusWithinRing
-          placeholder={placeholder}
-          aria-label={buildAriaLabel('input', placeholder)}
+          placeholder={effectivePlaceholder}
+          aria-label={buildAriaLabel('input', effectivePlaceholder)}
           value={inputValue}
+          disabled={disabled}
           onChange={(event) => onValueChange?.(event.target.value)}
           className={cn(
             'typo-body-regular',
@@ -64,7 +69,7 @@ export function ChatComposer({
         <button
           type="submit"
           aria-label={buildAriaLabel('button', '메시지 전송')}
-          disabled={!isFilled}
+          disabled={disabled || !isFilled}
           className={cn(
             'inline-flex size-12 shrink-0 items-center justify-center rounded-full transition-colors',
             isFilled

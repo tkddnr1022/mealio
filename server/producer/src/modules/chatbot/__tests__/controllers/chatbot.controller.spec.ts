@@ -65,7 +65,7 @@ describe('ChatbotController', () => {
           callbacks.write(
             JSON.stringify({
               type: CHATBOT_STREAM_EVENT_TYPES.DONE,
-              data: { conversationId: 'conv_abc123' },
+              data: { conversationId: 'conv_abc123', isCreditDepleted: false },
             }),
           );
           callbacks.end();
