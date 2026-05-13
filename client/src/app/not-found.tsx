@@ -2,7 +2,7 @@ import { Info } from 'lucide-react';
 
 import { InfoScreen } from '@/components/layout/InfoScreen';
 
-export default function NotFoundPage() {
+export default function NotFound() {
   return (
     <main className="flex h-full min-h-0 flex-1 items-center justify-center bg-background-primary-default px-4">
       <div className="w-full max-w-(--layout-content-max-width)">
