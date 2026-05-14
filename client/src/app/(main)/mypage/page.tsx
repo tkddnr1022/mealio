@@ -10,6 +10,7 @@ import {
   Shield,
   SquarePen,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
@@ -17,8 +18,11 @@ import { Tabbar } from '@/components/layout/Tabbar';
 import { MenuSection, MypageHeader } from '@/components/mypage';
 import { AuthStatus, useAuth } from '@/lib/auth/auth-context';
 import { buildLoginUrl } from '@/lib/auth/routes';
+import { useLogoutMutation } from '@/lib/queries/auth.queries';
 
 export default function MypagePage() {
+  const router = useRouter();
+  const logoutMutation = useLogoutMutation();
   const { status, user } = useAuth();
   const loginHref = buildLoginUrl('/mypage');
 
@@ -120,12 +124,22 @@ export default function MypagePage() {
             <MenuSection
               items={[
                 {
-                  menuAction: 'logout',
                   label: '로그아웃',
                   labelClassName: 'style-text-accent',
                   leadingIcon: (
                     <LogOut className="size-5" strokeWidth={2} aria-hidden />
                   ),
+                  disabled: logoutMutation.isPending,
+                  className: logoutMutation.isPending
+                    ? 'pointer-events-none opacity-60'
+                    : undefined,
+                  onClick: () => {
+                    logoutMutation.mutate(undefined, {
+                      onSuccess: () => {
+                        router.push('/login');
+                      },
+                    });
+                  },
                 },
               ]}
             />

@@ -53,6 +53,7 @@
 | client/src/components/ui/SliderPagination/ | 슬라이더 페이지네이션 세트(`activeIndex`) |
 | client/src/components/ui/CustomScrollbar/ | 커스텀 스크롤바 프리미티브 |
 | client/src/components/ui/Alert/ | 알림 배너 세트(`variant` × 제목·메시지) |
+| client/src/components/ui/Toast/ | 전역 Toast 카드·뷰포트(`Alert` 토큰 재사용) |
 | **client/src/components/ui/buttons/** | 아이콘 액션 버튼 그룹 |
 | client/src/components/ui/buttons/BackButton/ | 뒤로 가기 버튼 |
 | client/src/components/ui/buttons/AddButton/ | 추가 버튼 |

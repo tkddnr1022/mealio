@@ -62,11 +62,16 @@ export function useRecipeList(
   params: RecipeListQuery = {},
   options?: QueryOpts<RecipeListResult>,
 ) {
+  const { meta: metaOption, ...rest } = options ?? {};
   return useQuery<RecipeListResult, Error>({
     queryKey: recipeQueries.list(params),
     queryFn: () => getRecipeList(params),
     ...QUERY_CACHE.recipeList,
-    ...options,
+    ...rest,
+    meta: {
+      errorToastTitle: '레시피 목록을 불러오지 못했어요',
+      ...metaOption,
+    },
   });
 }
 
@@ -74,11 +79,16 @@ export function useRecipeSearch(
   params: RecipeSearchQuery,
   options?: QueryOpts<RecipeListResult>,
 ) {
+  const { meta: metaOption, ...rest } = options ?? {};
   return useQuery<RecipeListResult, Error>({
     queryKey: recipeQueries.search(params),
     queryFn: () => searchRecipes(params),
     ...QUERY_CACHE.recipeList,
-    ...options,
+    ...rest,
+    meta: {
+      errorToastTitle: '레시피 검색 결과를 불러오지 못했어요',
+      ...metaOption,
+    },
   });
 }
 
@@ -86,14 +96,19 @@ export function useRecipeDetail(
   id: number | null | undefined,
   options?: QueryOpts<RecipeDetail>,
 ) {
+  const { meta: metaOption, ...rest } = options ?? {};
   const enabled =
-    options?.enabled ?? (typeof id === 'number' && Number.isFinite(id));
+    rest.enabled ?? (typeof id === 'number' && Number.isFinite(id));
   return useQuery<RecipeDetail, Error>({
     queryKey: recipeQueries.detail(id ?? 0),
     queryFn: () => getRecipeById(id as number),
     ...QUERY_CACHE.recipeDetail,
-    ...options,
+    ...rest,
     enabled,
+    meta: {
+      errorToastTitle: '레시피를 불러오지 못했어요',
+      ...metaOption,
+    },
   });
 }
 
@@ -101,11 +116,16 @@ export function useRecipeSummaries(
   ids: readonly number[],
   options?: QueryOpts<RecipeSummary[]>,
 ) {
+  const { meta: metaOption, ...rest } = options ?? {};
   return useQuery<RecipeSummary[], Error>({
     queryKey: recipeQueries.summaries(ids),
     queryFn: () => getRecipeSummaries([...ids]),
     ...QUERY_CACHE.recipeList,
-    ...options,
-    enabled: (options?.enabled ?? true) && ids.length > 0,
+    ...rest,
+    enabled: (rest.enabled ?? true) && ids.length > 0,
+    meta: {
+      errorToastTitle: '레시피 요약을 불러오지 못했어요',
+      ...metaOption,
+    },
   });
 }

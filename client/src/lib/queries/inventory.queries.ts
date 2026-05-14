@@ -61,22 +61,32 @@ type QueryOpts<TData> = Omit<
 // ─── 조회 ─────────────────────────────────────────────
 
 export function useMyInventory(options?: QueryOpts<InventoryResponse>) {
+  const { meta: metaOption, ...rest } = options ?? {};
   return useQuery<InventoryResponse, Error>({
     queryKey: inventoryQueries.overview(),
     queryFn: () => getMyInventory(),
     ...QUERY_CACHE.inventory,
-    ...options,
+    ...rest,
+    meta: {
+      errorToastTitle: '보관함을 불러오지 못했어요',
+      ...metaOption,
+    },
   });
 }
 
 export function useMyFavoriteRecipeIds(
   options?: QueryOpts<FavoriteRecipeIdsResponse>,
 ) {
+  const { meta: metaOption, ...rest } = options ?? {};
   return useQuery<FavoriteRecipeIdsResponse, Error>({
     queryKey: favoriteRecipeQueries.ids(),
     queryFn: () => getMyFavoriteRecipeIds(),
     ...QUERY_CACHE.inventory,
-    ...options,
+    ...rest,
+    meta: {
+      errorToastTitle: '관심 레시피를 불러오지 못했어요',
+      ...metaOption,
+    },
   });
 }
 
@@ -104,6 +114,9 @@ export function useRemoveMyOwnedIngredient() {
 
   return useMutation<void, Error, number, { previous?: InventoryResponse }>({
     mutationFn: (id) => removeMyOwnedIngredient(id),
+    meta: {
+      errorToastTitle: '보유 재료를 삭제하지 못했어요',
+    },
     onMutate: async (ingredientId) => {
       await qc.cancelQueries({ queryKey: inventoryQueries.overview() });
       const previous = qc.getQueryData<InventoryResponse>(
@@ -134,6 +147,9 @@ export function useRemoveMyFavoriteIngredient() {
 
   return useMutation<void, Error, number, { previous?: InventoryResponse }>({
     mutationFn: (id) => removeMyFavoriteIngredient(id),
+    meta: {
+      errorToastTitle: '관심 재료를 삭제하지 못했어요',
+    },
     onMutate: async (ingredientId) => {
       await qc.cancelQueries({ queryKey: inventoryQueries.overview() });
       const previous = qc.getQueryData<InventoryResponse>(
@@ -169,6 +185,9 @@ export function useRemoveMyFavoriteRecipe() {
     { prevInventory?: InventoryResponse; prevIds?: FavoriteRecipeIdsResponse }
   >({
     mutationFn: (id) => removeMyFavoriteRecipe(id),
+    meta: {
+      errorToastTitle: '관심 레시피를 삭제하지 못했어요',
+    },
     onMutate: async (recipeId) => {
       await qc.cancelQueries({ queryKey: inventoryQueries.overview() });
       await qc.cancelQueries({ queryKey: favoriteRecipeQueries.ids() });
@@ -236,6 +255,9 @@ export function useToggleMyFavoriteRecipe() {
       }
       await addMyFavoriteRecipes([recipeId]);
     },
+    meta: {
+      errorToastTitle: '관심 레시피를 변경하지 못했어요',
+    },
     onMutate: async ({ recipeId, isFavorite }) => {
       await qc.cancelQueries({ queryKey: inventoryQueries.overview() });
       await qc.cancelQueries({ queryKey: favoriteRecipeQueries.ids() });
@@ -290,15 +312,21 @@ export function useToggleMyFavoriteRecipe() {
 function createStalingMutationHook<TData, TVars>(
   mutFn: (vars: TVars) => Promise<TData>,
   markStale: (qc: QueryClient) => void,
+  errorMeta: { errorToastTitle: string },
 ) {
   return (options?: UseMutationOptions<TData, Error, TVars>) => {
     const qc = useQueryClient();
+    const { meta: metaOption, ...rest } = options ?? {};
     return useMutation<TData, Error, TVars>({
       mutationFn: mutFn,
-      ...options,
+      ...rest,
+      meta: {
+        ...errorMeta,
+        ...metaOption,
+      },
       onSuccess: (...args) => {
         markStale(qc);
-        options?.onSuccess?.(...args);
+        rest.onSuccess?.(...args);
       },
     });
   };
@@ -307,24 +335,34 @@ function createStalingMutationHook<TData, TVars>(
 export const useUpdateMyOwnedIngredients = createStalingMutationHook<
   MutationResult,
   number[]
->(updateMyOwnedIngredients, staleInventory);
+>(updateMyOwnedIngredients, staleInventory, {
+  errorToastTitle: '보유 재료를 저장하지 못했어요',
+});
 
 export const useAddMyOwnedIngredients = createStalingMutationHook<
   MutationResult,
   number[]
->(addMyOwnedIngredients, staleInventory);
+>(addMyOwnedIngredients, staleInventory, {
+  errorToastTitle: '보유 재료를 추가하지 못했어요',
+});
 
 export const useUpdateMyFavoriteIngredients = createStalingMutationHook<
   MutationResult,
   number[]
->(updateMyFavoriteIngredients, staleInventory);
+>(updateMyFavoriteIngredients, staleInventory, {
+  errorToastTitle: '관심 재료를 저장하지 못했어요',
+});
 
 export const useAddMyFavoriteIngredients = createStalingMutationHook<
   MutationResult,
   number[]
->(addMyFavoriteIngredients, staleInventory);
+>(addMyFavoriteIngredients, staleInventory, {
+  errorToastTitle: '관심 재료를 추가하지 못했어요',
+});
 
 export const useAddMyFavoriteRecipes = createStalingMutationHook<
   MutationResult,
   number[]
->(addMyFavoriteRecipes, staleInventoryAndFavoriteRecipes);
+>(addMyFavoriteRecipes, staleInventoryAndFavoriteRecipes, {
+  errorToastTitle: '관심 레시피를 추가하지 못했어요',
+});

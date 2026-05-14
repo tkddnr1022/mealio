@@ -20,6 +20,7 @@ import {
   chatbotQueries,
   useConversationDetail,
 } from '@/lib/queries/chatbot.queries';
+import { notifyApiError } from '@/lib/toast';
 import type { ConversationMessage, SuggestedRecipe } from '@/lib/types/chatbot';
 
 const EMPTY_TITLE = '챗봇에게 물어보세요';
@@ -106,6 +107,7 @@ export default function ChatbotConversationPage() {
   const [pendingUserMessage, setPendingUserMessage] =
     useState<PendingUserMessage | null>(null);
   const conversationEndRef = useRef<HTMLDivElement>(null);
+  const streamErrorToastSigRef = useRef<string | null>(null);
 
   const scrollConversationToBottom = useCallback(() => {
     const el = conversationEndRef.current;
@@ -252,7 +254,7 @@ export default function ChatbotConversationPage() {
   useEffect(() => {
     if (!pendingUserMessage) return;
     scrollConversationToBottom();
-  }, [pendingUserMessage?.timestamp, scrollConversationToBottom]);
+  }, [pendingUserMessage, scrollConversationToBottom]);
 
   // 스트림 완료 시(추천 레시피 등 레이아웃 확정 후) 최하단으로 스크롤
   useEffect(() => {
@@ -273,6 +275,32 @@ export default function ChatbotConversationPage() {
     },
     [isStreaming, stream, composerDisabled],
   );
+
+  useEffect(() => {
+    if (stream.status !== 'error' || !stream.error) {
+      streamErrorToastSigRef.current = null;
+      return;
+    }
+    const sig = `${stream.error.code ?? ''}:${stream.error.message}:${stream.error.status}`;
+    if (streamErrorToastSigRef.current === sig) return;
+    streamErrorToastSigRef.current = sig;
+
+    const retryText = visiblePendingUserMessage?.text;
+    notifyApiError(stream.error, {
+      title: '챗봇 응답을 받지 못했어요',
+      dedupeKey: `chatbot:stream:${conversationId ?? 'new'}:${retryText ?? ''}`,
+      action: retryText
+        ? {
+            label: '다시 시도',
+            onAction: () => {
+              streamErrorToastSigRef.current = null;
+              stream.reset();
+              void stream.sendMessage(retryText);
+            },
+          }
+        : undefined,
+    });
+  }, [stream, visiblePendingUserMessage?.text, conversationId]);
 
   return (
     <div className="flex h-full min-h-0 flex-col">

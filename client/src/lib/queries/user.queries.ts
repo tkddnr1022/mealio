@@ -46,11 +46,16 @@ type CurrentUserQueryOpts = Omit<
  * 401(비로그인)은 `null`로 정규화되므로 쿼리는 error 상태로 빠지지 않는다.
  */
 export function useCurrentUser(options?: CurrentUserQueryOpts) {
+  const { meta: metaOption, ...rest } = options ?? {};
   return useQuery<UserProfile | null, Error>({
     queryKey: userQueries.me(),
     queryFn: ({ signal }) => fetchCurrentUser({ signal }),
     ...QUERY_CACHE.user,
-    ...options,
+    ...rest,
+    meta: {
+      errorToastTitle: '세션을 불러오지 못했어요',
+      ...metaOption,
+    },
   });
 }
 
@@ -62,9 +67,14 @@ export function useUpdateNickname(
   >,
 ) {
   const queryClient = useQueryClient();
+  const { meta: metaOption, ...rest } = options ?? {};
   return useMutation<UpdateNicknameResponse, Error, UpdateNicknameRequest>({
     mutationFn: (params) => updateMyNickname(params),
-    ...options,
+    ...rest,
+    meta: {
+      errorToastTitle: '닉네임을 변경하지 못했어요',
+      ...metaOption,
+    },
     onSuccess: (...args) => {
       const [data] = args;
       // 변경된 닉네임을 즉시 반영하고, 서버 상태 재동기화를 트리거한다.
@@ -72,7 +82,7 @@ export function useUpdateNickname(
         prev ? { ...prev, nickname: data.nickname } : prev,
       );
       void queryClient.invalidateQueries({ queryKey: userQueries.me() });
-      options?.onSuccess?.(...args);
+      rest.onSuccess?.(...args);
     },
   });
 }

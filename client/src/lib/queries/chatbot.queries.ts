@@ -9,7 +9,7 @@
  *   `useChatbotStream`의 `done` 이벤트에서 이 쿼리를 invalidate하면 최신 메시지가
  *   자동으로 반영된다.
  *
- * SSE 스트리밍은 React Query 범위 밖으로 `useChatbotStream`(§5.4)에서 처리한다.
+ * SSE 스트리밍은 React Query 범위 밖으로 `useChatbotStream`(§5.5)에서 처리한다.
  */
 
 import {
@@ -53,12 +53,17 @@ export function useConversationList(
   params: ConversationListQuery = {},
   options?: QueryOpts<ConversationList>,
 ) {
-  const { cursor, ...rest } = params;
+  const { cursor, ...restParams } = params;
+  const { meta: metaOption, ...rest } = options ?? {};
   return useQuery<ConversationList, Error>({
-    queryKey: chatbotQueries.conversationList(rest),
-    queryFn: () => getConversationList({ ...rest, cursor }),
+    queryKey: chatbotQueries.conversationList(restParams),
+    queryFn: () => getConversationList({ ...restParams, cursor }),
     ...QUERY_CACHE.chatbot,
-    ...options,
+    ...rest,
+    meta: {
+      errorToastTitle: '대화 목록을 불러오지 못했어요',
+      ...metaOption,
+    },
   });
 }
 
@@ -78,6 +83,7 @@ export function useConversationListInfinite(
     'queryKey' | 'queryFn' | 'getNextPageParam' | 'initialPageParam' | 'select'
   >,
 ) {
+  const { meta: metaOption, ...rest } = options ?? {};
   return useInfiniteQuery({
     queryKey: chatbotQueries.conversationListInfinite(params),
     queryFn: ({ pageParam }) =>
@@ -85,7 +91,11 @@ export function useConversationListInfinite(
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     ...QUERY_CACHE.chatbot,
-    ...options,
+    ...rest,
+    meta: {
+      errorToastTitle: '대화 목록을 불러오지 못했어요',
+      ...metaOption,
+    },
   });
 }
 
@@ -93,14 +103,19 @@ export function useConversationDetail(
   conversationId: string | null | undefined,
   options?: QueryOpts<ConversationHistory>,
 ) {
+  const { meta: metaOption, ...rest } = options ?? {};
   const enabled =
-    options?.enabled ??
+    rest.enabled ??
     (typeof conversationId === 'string' && conversationId.length > 0);
   return useQuery<ConversationHistory, Error>({
     queryKey: chatbotQueries.conversationDetail(conversationId ?? ''),
     queryFn: () => getConversationHistory(conversationId as string),
     ...QUERY_CACHE.chatbot,
-    ...options,
+    ...rest,
     enabled,
+    meta: {
+      errorToastTitle: '대화를 불러오지 못했어요',
+      ...metaOption,
+    },
   });
 }

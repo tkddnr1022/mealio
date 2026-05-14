@@ -1,19 +1,13 @@
 'use client';
 
 import { ChevronRight } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import type {
   AnchorHTMLAttributes,
   ButtonHTMLAttributes,
-  MouseEventHandler,
   ReactNode,
 } from 'react';
 import { NavLink } from '@/components/ui/NavLink';
-import { buildAriaLabel } from '@/lib/utils/a11y';
 import { cn } from '@/lib/utils/cn';
-import { logout } from '@/lib/api/domains/auth.api';
-import { isApiError } from '@/lib/api/error';
 
 export interface MenuItemShared {
   className?: string;
@@ -31,22 +25,18 @@ export type MenuItemLinkProps = MenuItemShared & {
     keyof MenuItemShared | 'children'
   >;
 
+/** `href`가 없으면 `<button>`으로 렌더한다. (`Button`과 동일한 문자열 `href` 판별 규칙) */
 export type MenuItemButtonProps = MenuItemShared & {
-  href?: never;
-  /**
-   * `logout`: 내부에서 `POST /api/v1/auth/logout` 후 `/login`으로 이동.
-   * (`action`은 React `ButtonHTMLAttributes`와 충돌하므로 `menuAction` 사용)
-   */
-  menuAction?: 'logout';
+  href?: undefined;
 } & Omit<
     ButtonHTMLAttributes<HTMLButtonElement>,
-    keyof MenuItemShared | 'children'
+    keyof MenuItemShared | 'children' | 'href'
   >;
 
 export type MenuItemProps = MenuItemLinkProps | MenuItemButtonProps;
 
-function isLinkProps(props: MenuItemProps): props is MenuItemLinkProps {
-  return 'href' in props && typeof props.href === 'string';
+function isMenuItemLink(props: MenuItemProps): props is MenuItemLinkProps {
+  return typeof props.href === 'string' && props.href.length > 0;
 }
 
 export function MenuItem(props: MenuItemProps) {
@@ -88,16 +78,21 @@ export function MenuItem(props: MenuItemProps) {
     </>
   );
 
-  if (isLinkProps(props)) {
+  if (isMenuItemLink(props)) {
     const {
       href,
-      className: _linkClassName,
-      border: _border,
-      label: _label,
-      labelClassName: _labelClassName,
-      leadingIcon: _leadingIcon,
+      className: menuClassName,
+      border,
+      label,
+      labelClassName,
+      leadingIcon,
       ...anchorDomProps
     } = props;
+    void menuClassName;
+    void border;
+    void label;
+    void labelClassName;
+    void leadingIcon;
     return (
       <NavLink
         href={href}
@@ -110,83 +105,30 @@ export function MenuItem(props: MenuItemProps) {
     );
   }
 
-  return (
-    <MenuItemButtonInner
-      surfaceClass={surfaceClass}
-      inner={inner}
-      props={props}
-    />
-  );
-}
-
-function MenuItemButtonInner({
-  surfaceClass,
-  inner,
-  props,
-}: Readonly<{
-  surfaceClass: string;
-  inner: ReactNode;
-  props: MenuItemButtonProps;
-}>) {
-  const router = useRouter();
-  const [busy, setBusy] = useState(false);
-
   const {
-    menuAction,
     onClick,
     disabled,
     type = 'button',
-    className: _c,
-    border: _b,
-    label,
-    labelClassName: _lc,
-    leadingIcon: _li,
+    className: menuClassName,
+    border: stripBorder,
+    label: stripLabel,
+    labelClassName: stripLabelClassName,
+    leadingIcon: stripLeadingIcon,
     ...buttonRest
   } = props;
-
-  const isLogout = menuAction === 'logout';
-
-  const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
-    if (isLogout) {
-      e.preventDefault();
-      void (async () => {
-        if (busy || disabled) return;
-        setBusy(true);
-        try {
-          await logout();
-          router.replace('/login');
-          router.refresh();
-        } catch (err) {
-          if (isApiError(err) && typeof window !== 'undefined') {
-            window.alert(err.getUserMessage());
-          }
-        } finally {
-          setBusy(false);
-        }
-      })();
-      return;
-    }
-    onClick?.(e);
-  };
-
-  const effectiveDisabled = Boolean(disabled || (isLogout && busy));
-  const showBusyOpacity = isLogout && busy;
+  void menuClassName;
+  void stripBorder;
+  void stripLabel;
+  void stripLabelClassName;
+  void stripLeadingIcon;
 
   return (
     <button
       type={type}
-      disabled={effectiveDisabled}
-      className={cn(
-        surfaceClass,
-        showBusyOpacity && 'pointer-events-none opacity-60',
-      )}
+      disabled={disabled}
+      className={surfaceClass}
       data-name="MenuItem"
-      aria-label={
-        isLogout
-          ? buildAriaLabel('button', label?.trim() || '로그아웃')
-          : undefined
-      }
-      onClick={handleClick}
+      onClick={onClick}
       {...buttonRest}
     >
       {inner}

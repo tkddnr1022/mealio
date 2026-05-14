@@ -66,14 +66,14 @@ export const AsButton = {
   ),
 } satisfies ButtonStory;
 
-export const MenuActionLogout = {
-  name: '버튼(menuAction=logout)',
+export const LogoutStyledButton = {
+  name: '버튼(로그아웃 스타일)',
   render: () => (
     <MenuItem
-      menuAction="logout"
       label="로그아웃"
       labelClassName="style-text-accent"
       leadingIcon={<LogOut className="size-5" strokeWidth={2} />}
+      onClick={() => {}}
     />
   ),
 } satisfies ButtonStory;

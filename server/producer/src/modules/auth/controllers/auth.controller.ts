@@ -1,8 +1,10 @@
 import {
   Controller,
   Get,
+  HttpCode,
   HttpStatus,
   Param,
+  Post,
   Query,
   Req,
   Res,
@@ -13,10 +15,12 @@ import {
   ApiParam,
   ApiQuery,
   ApiResponse,
+  ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
 import * as express from 'express';
 import { AuthService } from '../auth.service';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { OAuthCallbackGuard } from '../guards/oauth-callback.guard';
 import { OAuthProfile } from '../types/oauth.types';
 import { ConfigService } from '@nestjs/config';
@@ -31,6 +35,33 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly config: ConfigService,
   ) {}
+
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('cookieAuth')
+  @ApiOperation({
+    summary: '로그아웃',
+    description: '로그아웃 및 accessToken 쿠키 삭제',
+  })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: '로그아웃 성공 (Set-Cookie로 accessToken 무효화)',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'accessToken 없음·만료·무효',
+  })
+  async logout(
+    @Res({ passthrough: true }) res: express.Response,
+  ): Promise<void> {
+    res.clearCookie('accessToken', {
+      httpOnly: true,
+      secure: this.config.getOrThrow<string>('NODE_ENV') !== 'development',
+      sameSite: 'lax',
+      path: '/',
+    });
+  }
 
   @Get(':provider')
   @ApiOperation({

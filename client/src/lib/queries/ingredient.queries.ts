@@ -46,6 +46,7 @@ type QueryOpts<TData> = Omit<
 export function useIngredientCategories(
   options?: QueryOpts<IngredientCategory[]>,
 ) {
+  const { meta: metaOption, ...rest } = options ?? {};
   return useQuery<IngredientCategory[], Error>({
     queryKey: ingredientQueries.categories(),
     queryFn: async () => {
@@ -53,7 +54,11 @@ export function useIngredientCategories(
       return result.data;
     },
     ...QUERY_CACHE.ingredient,
-    ...options,
+    ...rest,
+    meta: {
+      errorToastTitle: '재료 카테고리를 불러오지 못했어요',
+      ...metaOption,
+    },
   });
 }
 
@@ -61,11 +66,16 @@ export function useIngredientList(
   params: IngredientListQuery = {},
   options?: QueryOpts<IngredientListResult>,
 ) {
+  const { meta: metaOption, ...rest } = options ?? {};
   return useQuery<IngredientListResult, Error>({
     queryKey: ingredientQueries.list(params),
     queryFn: () => getIngredientList(params),
     ...QUERY_CACHE.ingredient,
-    ...options,
+    ...rest,
+    meta: {
+      errorToastTitle: '재료 목록을 불러오지 못했어요',
+      ...metaOption,
+    },
   });
 }
 
@@ -73,10 +83,15 @@ export function useIngredientSearch(
   params: IngredientSearchQuery,
   options?: QueryOpts<IngredientListResult>,
 ) {
+  const { meta: metaOption, ...rest } = options ?? {};
   return useQuery<IngredientListResult, Error>({
     queryKey: ingredientQueries.search(params),
     queryFn: () => searchIngredients(params),
     ...QUERY_CACHE.ingredient,
-    ...options,
+    ...rest,
+    meta: {
+      errorToastTitle: '재료 검색 결과를 불러오지 못했어요',
+      ...metaOption,
+    },
   });
 }
