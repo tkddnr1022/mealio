@@ -21,7 +21,7 @@ export default async function RecipeFilterPage() {
       : [];
 
   return (
-      <Suspense fallback={<FullPageSuspenseFallback />}>
+    <Suspense fallback={<FullPageSuspenseFallback />}>
       <RecipeFilterClientPage categoryOptions={categories} />
     </Suspense>
   );

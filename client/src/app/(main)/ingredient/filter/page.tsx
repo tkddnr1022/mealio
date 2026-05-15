@@ -23,7 +23,7 @@ export default async function IngredientFilterPage() {
       : [];
 
   return (
-      <Suspense fallback={<FullPageSuspenseFallback />}>
+    <Suspense fallback={<FullPageSuspenseFallback />}>
       <IngredientFilterClientPage categoryOptions={categories} />
     </Suspense>
   );

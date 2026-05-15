@@ -8,8 +8,6 @@ export function truncateForMeta(text: string, max: number): string {
   if (singleLine.length <= max) {
     return singleLine;
   }
-  const cut = singleLine
-    .slice(0, Math.max(0, max - ELLIPSIS.length))
-    .trimEnd();
+  const cut = singleLine.slice(0, Math.max(0, max - ELLIPSIS.length)).trimEnd();
   return `${cut}${ELLIPSIS}`;
 }
