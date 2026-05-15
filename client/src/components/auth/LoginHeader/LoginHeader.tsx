@@ -1,6 +1,7 @@
 import type { HTMLAttributes } from 'react';
 import { APP_BRAND_NAME } from '@/lib/config/env';
 import { cn } from '@/lib/utils/cn';
+import { NavLink } from '@/components/ui/NavLink';
 
 export interface LoginHeaderProps extends Omit<
   HTMLAttributes<HTMLElement>,
@@ -26,7 +27,9 @@ export function LoginHeader({
       data-name="LoginHeader"
       {...rest}
     >
-      <h1 className="typo-logo-large style-text-primary">{title}</h1>
+      <NavLink href={'/recipe'} className="typo-logo-large style-text-primary">
+        {title}
+      </NavLink>
       <p className="typo-body-medium style-text-secondary">{subtitle}</p>
     </header>
   );
