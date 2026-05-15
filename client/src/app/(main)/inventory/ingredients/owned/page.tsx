@@ -1,40 +1,14 @@
-'use client';
+import type { Metadata } from 'next';
 
-import { IngredientGrid, IngredientRemoveButton } from '@/components/inventory';
-import {
-  useMyInventory,
-  useRemoveMyOwnedIngredient,
-} from '@/lib/queries/inventory.queries';
-import { InventoryPageShell } from '../../InventoryPageShell';
+import { InventoryOwnedIngredientsClientPage } from './InventoryOwnedIngredientsClientPage';
+
+export const metadata: Metadata = {
+  title: '보유 재료',
+  description:
+    '집에 있는 재료 목록입니다. 보유 재료를 바탕으로 활용 가능한 레시피를 찾을 수 있습니다.',
+  robots: { index: false, follow: false },
+};
 
 export default function InventoryOwnedIngredientsPage() {
-  const { data } = useMyInventory();
-  const removeMutation = useRemoveMyOwnedIngredient();
-
-  const items = data?.ownedIngredients ?? [];
-  const addHref = '/ingredient/filter?type=owned';
-
-  return (
-    <InventoryPageShell
-      tab="ownedIngredients"
-      isEmpty={items.length === 0}
-      infoScreenProps={{
-        title: '보유 재료가 없습니다',
-        message: '가지고 있는 재료를 추가해 보세요',
-        buttonLabel: '재료 추가',
-        buttonHref: addHref,
-      }}
-      addHref={addHref}
-    >
-      <IngredientGrid
-        items={items}
-        getTrailing={(ingredient) => (
-          <IngredientRemoveButton
-            ingredientName={ingredient.name}
-            onRemove={() => removeMutation.mutate(ingredient.id)}
-          />
-        )}
-      />
-    </InventoryPageShell>
-  );
+  return <InventoryOwnedIngredientsClientPage />;
 }

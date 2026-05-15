@@ -5,6 +5,8 @@ import { getRecipeList } from '@/lib/api/domains';
 
 export const metadata: Metadata = {
   title: '레시피',
+  description:
+    '조회수·좋아요 기준 인기 레시피를 둘러보고, 맞춤 추천을 받을 수 있습니다.',
 };
 
 export const revalidate = 300;

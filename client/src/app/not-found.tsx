@@ -1,6 +1,13 @@
+import type { Metadata } from 'next';
 import { Info } from 'lucide-react';
 
 import { InfoScreen } from '@/components/layout/InfoScreen';
+
+export const metadata: Metadata = {
+  title: '페이지를 찾을 수 없습니다',
+  description: '요청하신 페이지가 없거나 이동되었습니다.',
+  robots: { index: false, follow: true },
+};
 
 export default function NotFound() {
   return (

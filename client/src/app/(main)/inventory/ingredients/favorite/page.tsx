@@ -1,40 +1,14 @@
-'use client';
+import type { Metadata } from 'next';
 
-import { IngredientGrid, IngredientRemoveButton } from '@/components/inventory';
-import {
-  useMyInventory,
-  useRemoveMyFavoriteIngredient,
-} from '@/lib/queries/inventory.queries';
-import { InventoryPageShell } from '../../InventoryPageShell';
+import { InventoryFavoriteIngredientsClientPage } from './InventoryFavoriteIngredientsClientPage';
+
+export const metadata: Metadata = {
+  title: '관심 재료',
+  description:
+    '관심 등록한 재료 목록입니다. 추천·검색에 반영되어 맞춤 레시피를 찾는 데 도움이 됩니다.',
+  robots: { index: false, follow: false },
+};
 
 export default function InventoryFavoriteIngredientsPage() {
-  const { data } = useMyInventory();
-  const removeMutation = useRemoveMyFavoriteIngredient();
-
-  const items = data?.favoriteIngredients ?? [];
-  const addHref = '/ingredient/filter?type=favorites';
-
-  return (
-    <InventoryPageShell
-      tab="favoriteIngredients"
-      isEmpty={items.length === 0}
-      infoScreenProps={{
-        title: '관심 재료가 없습니다',
-        message: '즐겨 찾는 재료를 추가해 보세요',
-        buttonLabel: '재료 추가',
-        buttonHref: addHref,
-      }}
-      addHref={addHref}
-    >
-      <IngredientGrid
-        items={items}
-        getTrailing={(ingredient) => (
-          <IngredientRemoveButton
-            ingredientName={ingredient.name}
-            onRemove={() => removeMutation.mutate(ingredient.id)}
-          />
-        )}
-      />
-    </InventoryPageShell>
-  );
+  return <InventoryFavoriteIngredientsClientPage />;
 }

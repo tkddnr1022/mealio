@@ -10,9 +10,11 @@ import {
 import {
   getMultiSearchParam,
   getSingleSearchParam,
+  getTrimmedSearchParam,
   resolveSearchParams,
   type SearchParamRecord,
 } from '@/lib/utils/search-params';
+import { truncateForMeta } from '@/lib/metadata/meta-text';
 
 interface RecipeSearchPageProps {
   searchParams?: Promise<SearchParamRecord>;
@@ -20,9 +22,31 @@ interface RecipeSearchPageProps {
 
 const DEFAULT_SORT: RecipeSortKey = 'latest';
 
-export const metadata: Metadata = {
-  title: '레시피 검색',
-};
+const SEARCH_PAGE_DESC =
+  '키워드·카테고리·조리 시간 등으로 레시피를 검색하고 결과를 확인하세요.';
+
+export async function generateMetadata({
+  searchParams,
+}: RecipeSearchPageProps): Promise<Metadata> {
+  const resolved = await resolveSearchParams(searchParams);
+  const q = getTrimmedSearchParam(resolved?.q);
+
+  if (q) {
+    const titleSnippet = truncateForMeta(q, 48);
+    return {
+      title: `${titleSnippet} 검색`,
+      description: truncateForMeta(
+        `'${q}'에 대한 레시피 검색 결과. ${SEARCH_PAGE_DESC}`,
+        160,
+      ),
+    };
+  }
+
+  return {
+    title: '레시피 검색',
+    description: SEARCH_PAGE_DESC,
+  };
+}
 
 function toInt(value: string | undefined): number | undefined {
   if (!value) return undefined;
