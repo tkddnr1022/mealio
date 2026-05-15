@@ -1,4 +1,6 @@
 import { Suspense } from 'react';
+
+import { FullPageSuspenseFallback } from '@/components/layout/FullPageSuspenseFallback';
 import { IngredientFilterClientPage } from './IngredientFilterClientPage';
 import { getIngredientCategories } from '@/lib/api/domains';
 
@@ -14,7 +16,7 @@ export default async function IngredientFilterPage() {
       : [];
 
   return (
-    <Suspense fallback={null}>
+      <Suspense fallback={<FullPageSuspenseFallback />}>
       <IngredientFilterClientPage categoryOptions={categories} />
     </Suspense>
   );

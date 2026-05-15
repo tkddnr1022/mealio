@@ -51,6 +51,7 @@
 | client/src/components/ui/IconShell/ | 아이콘 래퍼 세트(`variant` × `size`) |
 | client/src/components/ui/PaginationDot/ | 페이지네이션 점 세트(`active`/`inactive`) |
 | client/src/components/ui/SliderPagination/ | 슬라이더 페이지네이션 세트(`activeIndex`) |
+| client/src/components/ui/Spinner/ | 로딩 스피너(`Spinner`) |
 | client/src/components/ui/CustomScrollbar/ | 커스텀 스크롤바 프리미티브 |
 | client/src/components/ui/Alert/ | 알림 배너 세트(`variant` × 제목·메시지) |
 | client/src/components/ui/Toast/ | 전역 Toast 카드·뷰포트(`Alert` 토큰 재사용) |
@@ -72,6 +73,7 @@
 | **client/src/components/layout/** | 페이지 공통 골격·네비게이션 |
 | client/src/components/layout/AppRootFrame/ | 앱 루트 프레임 |
 | client/src/components/layout/MainContent/ | 스크롤 여부를 제어하는 본문 컨테이너 |
+| client/src/components/layout/FullPageSuspenseFallback/ | `<Suspense>` 풀페이지 폴백(`MainContent` + `Spinner`) |
 | client/src/components/layout/Navbar/ | 상단 내비게이션 바 세트 |
 | client/src/components/layout/Tabbar/ | 하단 탭바 세트(`activeIndex`) |
 | client/src/components/layout/SearchBarHeader/ | 검색 화면 상단 헤더 세트(`state`) |

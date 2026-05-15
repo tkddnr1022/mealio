@@ -9,8 +9,6 @@ import { RedisService, cacheKeyRateLimitApi } from '@mealio/shared';
  * - Redis INCR + EXPIRE를 사용하여 단순한 고정 윈도우 알고리즘을 구현한다.
  * - 제한 초과 시 429 Too Many Requests 응답과 함께 X-RateLimit-* 헤더를 반환한다.
  *
- * TODO:
- * - 필요 시 인증 유저 ID 기반 키 구성, 엔드포인트별 상이한 제한값 적용 등을 확장할 수 있다.
  */
 @Injectable()
 export class RateLimitMiddleware implements NestMiddleware {

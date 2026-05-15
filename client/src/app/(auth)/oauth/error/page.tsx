@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
 import { InfoScreen } from '@/components/layout/InfoScreen';
+import { FullPageSuspenseFallback } from '@/components/layout/FullPageSuspenseFallback';
 import {
   BACKEND_ERROR_CODE_QUERY_PARAMS,
   BACKEND_ERROR_MESSAGE_QUERY_PARAMS,
@@ -133,15 +134,7 @@ function OAuthErrorPageContent() {
 
 export default function OAuthErrorPage() {
   return (
-    <Suspense
-      fallback={
-        <main className="flex h-full min-h-0 flex-1 items-center justify-center bg-background-primary-default px-4">
-          <p className="typo-body-regular style-text-caption" aria-busy="true">
-            불러오는 중…
-          </p>
-        </main>
-      }
-    >
+    <Suspense fallback={<FullPageSuspenseFallback />}>
       <OAuthErrorPageContent />
     </Suspense>
   );

@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 
 import { LoginButtonList, LoginFooter, LoginHeader } from '@/components/auth';
 import { Navbar } from '@/components/layout/Navbar';
+import { FullPageSuspenseFallback } from '@/components/layout/FullPageSuspenseFallback';
 import { NEXT_QUERY_PARAM } from '@/lib/auth/routes';
 
 function LoginPageContent() {
@@ -39,18 +40,10 @@ function LoginPageContent() {
     </div>
   );
 }
-// TODO: 재사용 가능한 Suspense Fallback 컴포넌트 구현하기
+
 export default function LoginPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex h-full min-h-0 flex-1 items-center justify-center bg-background-primary-default px-4">
-          <p className="typo-body-regular style-text-caption" aria-busy="true">
-            불러오는 중…
-          </p>
-        </div>
-      }
-    >
+    <Suspense fallback={<FullPageSuspenseFallback />}>
       <LoginPageContent />
     </Suspense>
   );

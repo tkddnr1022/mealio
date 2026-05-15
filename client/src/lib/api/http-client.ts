@@ -12,7 +12,7 @@ import {
 import { ApiError } from './error';
 import { parseErrorResponse } from './error.parser';
 import { buildQueryString, type Query } from './query';
-// TODO: 예외 처리 및 캐시 구현(React Query 느낌으로)
+
 /**
  * 백엔드 REST/SSE API를 호출하는 fetch 래퍼.
  *
