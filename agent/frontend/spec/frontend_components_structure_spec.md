@@ -52,6 +52,7 @@
 | client/src/components/ui/PaginationDot/ | 페이지네이션 점 세트(`active`/`inactive`) |
 | client/src/components/ui/SliderPagination/ | 슬라이더 페이지네이션 세트(`activeIndex`) |
 | client/src/components/ui/Spinner/ | 로딩 스피너(`Spinner`) |
+| client/src/components/ui/ListLoadMore/ | 목록 하단「더 보기」버튼(무한 스크롤·페이지네이션 공용) |
 | client/src/components/ui/CustomScrollbar/ | 커스텀 스크롤바 프리미티브 |
 | client/src/components/ui/Alert/ | 알림 배너 세트(`variant` × 제목·메시지) |
 | client/src/components/ui/Toast/ | 전역 Toast 카드·뷰포트(`Alert` 토큰 재사용) |
@@ -118,7 +119,7 @@
 | client/src/components/chatbot/conversation/ChatConversationRow/ | 대화 행 세트(`role`) |
 | client/src/components/chatbot/conversation/ChatConversation/ | 대화 본문 |
 | client/src/components/chatbot/conversation/ChatComposer/ | 입력 컴포저 세트(`filled`) |
-| **client/src/components/chatbot/suggested/** | 추천 레시피 영역 |
+| **client/src/components/chatbot/suggested/** | 추천 레시피 영역(명세 경로; 구현·스토리북은 `conversation/`에 두고 `suggested/`는 re-export) |
 | client/src/components/chatbot/suggested/SuggestedRecipeCard/ | 추천 레시피 카드 |
 | client/src/components/chatbot/suggested/SuggestedRecipeSlider/ | 추천 레시피 슬라이더 |
 
