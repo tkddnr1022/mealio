@@ -76,6 +76,21 @@ export interface RecipeCategory {
   isActive: boolean;
 }
 
+/** `GET /recipes/recommended` 쿼리 파라미터 */
+export interface RecommendedRecipesQuery {
+  limit?: number;
+}
+
+/** `GET /recipes/recommended` 응답 item */
+export interface RecipeRecommendationItem {
+  recipe: RecipeSummary;
+  rank: number;
+  score: number;
+  reason: string | null;
+  /** ISO 8601 */
+  calculatedAt: string;
+}
+
 /** `GET /recipes` 쿼리 파라미터 */
 export interface RecipeListQuery {
   page?: number;

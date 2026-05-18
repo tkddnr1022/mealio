@@ -11,8 +11,10 @@ import {
 } from '../../infrastructure/database/repositories/postgresql/recipe.repository';
 import { CacheService } from '../../infrastructure/cache/cache.service';
 import { RecipeCacheStrategy } from '../../infrastructure/cache/strategies/recipe-cache-strategy';
+import { RecommendationCacheStrategy } from '../../infrastructure/cache/strategies/recommendation-cache-strategy';
 import { KafkaProducerService } from '../../infrastructure/kafka/producer.service';
 import { RecipeSummaryDto } from './dto/recipe-summary.dto';
+import { RecommendedRecipeItemDto } from './dto/recommended-recipe-item.dto';
 import {
   RecipeDetailDto,
   RecipeIngredientItemDto,
@@ -48,8 +50,39 @@ export class RecipeQueryService {
     private readonly recipeRepository: RecipeRepository,
     private readonly cacheService: CacheService,
     private readonly recipeCacheStrategy: RecipeCacheStrategy,
+    private readonly recommendationCacheStrategy: RecommendationCacheStrategy,
     private readonly kafkaProducerService: KafkaProducerService,
   ) {}
+
+  async getRecommended(
+    userId: number,
+    limit: number,
+  ): Promise<{ data: RecommendedRecipeItemDto[] }> {
+    const normalizedLimit = Math.min(Math.max(limit, 1), 30);
+
+    const cached = await this.cacheService.getOrSet(
+      this.recommendationCacheStrategy,
+      async () => {
+        const fromSsot = await this.recipeRepository.findRecommendedByUser(
+          userId,
+          30,
+        );
+
+        return fromSsot.map((item) => ({
+          recipe: this.toSummaryDto(item.recipe),
+          rank: item.rank,
+          score: item.score,
+          reason: item.reason,
+          calculatedAt: item.calculatedAt,
+        }));
+      },
+      userId,
+    );
+
+    return {
+      data: cached.slice(0, normalizedLimit),
+    };
+  }
 
   async getList(params: {
     page: number;

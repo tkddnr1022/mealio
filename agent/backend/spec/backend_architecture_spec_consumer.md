@@ -51,17 +51,19 @@
 | server/consumer/src/consumers/user-events/handlers/UpdateInventoryHandler.ts | Inventory 갱신(보유/관심 재료 + 관심 레시피), RecipeStats 좋아요 반영, 캐시 무효화 요청 |
 | server/consumer/src/consumers/user-events/services/recipe-stats-updater.service.ts | RECIPE_FAVORITES_ADD/REMOVE 이벤트를 RecipeStats upsert·증감으로 반영 |
 | server/consumer/src/consumers/user-events/handlers/TrackUserActivityHandler.ts | EventLog 저장 |
-| server/consumer/src/consumers/user-events/handlers/RecommendationHandler.ts | 추천 갱신 |
+| server/consumer/src/consumers/user-events/handlers/RecommendationHandler.ts | 추천 증분 갱신 트리거. 이벤트별 가중치 계산 후 PostgreSQL 추천 SSOT(UserRecipeRecommendation) upsert |
+| server/consumer/src/consumers/user-events/services/recommendation-score.service.ts | user-events 기반 추천 점수 계산·랭킹 갱신·top N 재정렬 |
 | **server/consumer/src/consumers/activity-events/** | 토픽 §2.2 activity-events |
-| server/consumer/src/consumers/activity-events/activity-events.processor.ts | 해당 토픽 processor, EventLog 저장 |
+| server/consumer/src/consumers/activity-events/activity-events.processor.ts | 해당 토픽 processor, EventLog 저장 + 추천 점수 보정 트리거(recipe.view/search.click 등) |
 | server/consumer/src/consumers/activity-events/activity-events.module.ts | 그룹 모듈 정의 (MongooseModule EventLog, EventLogRepository) |
 | server/consumer/src/consumers/activity-events/activity-events.consumer.ts | 해당 토픽 구독. 토픽 §2.2 |
+| server/consumer/src/consumers/activity-events/services/activity-recommendation.service.ts | activity-events 기반 추천 보정(조회/클릭/좋아요 가중치 반영) |
 | **server/consumer/src/consumers/cache-invalidation/** | 토픽 §2.2 cache-invalidation |
 | server/consumer/src/consumers/cache-invalidation/cache-invalidation.processor.ts | 해당 토픽 processor, RedisInvalidationHandler 실행 |
 | server/consumer/src/consumers/cache-invalidation/cache-invalidation.module.ts | 그룹 모듈 정의 (KafkaModule, RedisModule, RequestService·RedisHandler, RequestService export) |
 | server/consumer/src/consumers/cache-invalidation/cache-invalidation.consumer.ts | 해당 토픽 구독. 토픽 §2.2 |
-| server/consumer/src/consumers/cache-invalidation/cache-invalidation-request.service.ts | requestUserProfileInvalidation / requestInventoryInvalidation / requestRecipeInvalidation — 토픽 발행 |
-| server/consumer/src/consumers/cache-invalidation/redis-invalidation.handler.ts | Redis 키 삭제 (user:{userId}, inventory:{userId}, recipe:{id}) + recipe:list/search 패턴 삭제 |
+| server/consumer/src/consumers/cache-invalidation/cache-invalidation-request.service.ts | requestUserProfileInvalidation / requestInventoryInvalidation / requestRecipeInvalidation / requestRecommendationInvalidation — 토픽 발행 |
+| server/consumer/src/consumers/cache-invalidation/redis-invalidation.handler.ts | Redis 키 삭제 (user:{userId}, inventory:{userId}, recipe:{id}, recommendation:{userId}) + recipe:list/search 패턴 삭제 |
 | **server/consumer/src/integrations/kafka/** | |
 | server/consumer/src/integrations/kafka/kafka.service.ts | Consumer 인스턴스 생성 (getConsumer) |
 | server/consumer/src/integrations/kafka/kafka-producer.service.ts | Consumer 내부 토픽 발행 (connect/disconnect, emit). 토픽 §2.2 |
@@ -75,13 +77,6 @@
 | **server/consumer/src/integrations/analytics/** | |
 | server/consumer/src/integrations/analytics/google-analytics.service.ts | GA 연동 |
 | server/consumer/src/integrations/analytics/sentry.service.ts | 에러 리포팅 |
-| **server/consumer/src/processing/batch/** | |
-| server/consumer/src/processing/batch/recipe-enrichment/nutrition.calculator.ts | 영양 계산 |
-| server/consumer/src/processing/batch/recipe-enrichment/tag.generator.ts | 태그 생성 |
-| server/consumer/src/processing/batch/user-analytics/preference.analyzer.ts | 선호도 분석 |
-| server/consumer/src/processing/batch/user-analytics/activity.aggregator.ts | 활동 집계 |
-| server/consumer/src/processing/batch/recommendation/collaborative-filter.ts | 협업 필터 |
-| server/consumer/src/processing/batch/recommendation/content-based-filter.ts | 콘텐츠 기반 필터 |
 | **server/consumer/src/processing/validation/** | |
 | server/consumer/src/processing/validation/schema.validator.ts | 이벤트 스키마 검증 |
 | server/consumer/src/processing/validation/business-rule.validator.ts | 비즈니스 규칙 검증 |
@@ -92,6 +87,7 @@
 | server/consumer/src/persistence/repositories/postgresql/recipe.repository.ts | Recipe 쓰기 (Prisma) |
 | server/consumer/src/persistence/repositories/postgresql/user.repository.ts | User 업데이트 (Prisma) |
 | server/consumer/src/persistence/repositories/postgresql/recipe-ingredient.repository.ts | RecipeIngredient 쓰기 |
+| server/consumer/src/persistence/repositories/postgresql/recommendation.repository.ts | UserRecipeRecommendation upsert·랭크 재정렬·top N 조회 |
 | **server/consumer/src/persistence/repositories/mongodb/** | |
 | server/consumer/src/persistence/repositories/mongodb/event-log.repository.ts | EventLog 저장 (Mongoose) |
 | server/consumer/src/persistence/repositories/mongodb/chatbot-log.repository.ts | ChatbotLog 저장 (Mongoose) |
@@ -134,7 +130,7 @@
 | **chatbot-requests** | chatbot-requests-dlq | chatbot-group | Producer (POST /api/v1/chatbot/messages 등) | 챗봇 메시지 요청. payload: userId, message, conversationId?, streamChannelId. Consumer: ProcessChatHandler(GPT·tool call), SaveChatLogHandler(ChatbotLog 저장), `chatbot.start`·`chatbot.message` 성공 후 SyncConversationMetaHandler(대화 메타 동기화), Redis 스트림 이벤트 발행. 성공 턴 완료 시 ChatbotCreditService로 멱등 크레딧 차감·`done.data.isCreditDepleted` 반영, 차감 시 내부적으로 **cache-invalidation**(USER_PROFILE) 발행. |
 | **activity-events** | activity-events-dlq | activity-events-group | Producer (레시피 조회/좋아요/공유, 검색 API 등) | 비로그인 포함 활동 이벤트. payload: type(recipe.view \| recipe.like \| recipe.share \| search.query \| search.click), actor(type, userId?, ipAddress?, userAgent?), entity?, payload?, metadata?. Consumer: EventLog 저장. |
 | **user-events** | user-events-dlq | analytics-group | Producer (닉네임 변경, 재료 CRUD, 관심 레시피 추가/삭제 등) | 로그인 유저 도메인 이벤트. payload: UserEvent \| InventoryEvent. Consumer: UpdateUserProfileHandler, UpdateInventoryHandler, TrackUserActivityHandler(EventLog), RecommendationHandler, 캐시 무효화 요청(CacheInvalidationRequestService). |
-| **cache-invalidation** | cache-invalidation-dlq | cache-invalidation-group | Consumer 내부 (CacheInvalidationRequestService) | 캐시 무효화 지시. payload: type(USER_PROFILE \| INVENTORY \| RECIPE), userId 또는 recipeIds[]. Handler가 직접 발행하지 않고 RequestService가 발행. Consumer: RedisInvalidationHandler로 Redis 키/패턴 삭제. |
+| **cache-invalidation** | cache-invalidation-dlq | cache-invalidation-group | Consumer 내부 (CacheInvalidationRequestService) | 캐시 무효화 지시. payload: type(USER_PROFILE \| INVENTORY \| RECIPE \| RECOMMENDATION), userId 또는 recipeIds[]. Handler가 직접 발행하지 않고 RequestService가 발행. Consumer: RedisInvalidationHandler로 Redis 키/패턴 삭제. |
 
 **공통**
 
@@ -165,6 +161,65 @@
 - **모듈 의존성**: UserEventsModule이 CacheInvalidationModule을 import하여 Handler에서 CacheInvalidationRequestService를 주입받는다.
 - **챗봇 크레딧 차감**: UserEvents 경로 외에, `ChatbotCreditService`가 크레딧이 실제로 차감된 경우 동일 토픽으로 USER_PROFILE 무효화를 발행할 수 있다(§2.4).
 - **일관성**: Producer의 Cache-Aside 캐시와 동일 Redis를 사용하므로, 무효화 후 다음 조회 시 DB 폴백이 이루어진다.
+- **추천 무효화**: `requestRecommendationInvalidation(userId)` — Redis `recommendation:{userId}` 삭제. 상세 §2.6.
+
+---
+
+## 2.6 맞춤형 레시피 추천 (Consumer)
+
+크로스 패키지 개요·E2E·KPI는 `backend_architecture_spec.md` §4, Producer API·캐시는 `backend_architecture_spec_producer.md` §1.4를 따른다.
+
+### 2.6.1 진입점·책임 분리
+
+| 구성 요소 | 경로 | 역할 |
+|----------|------|------|
+| **트리거( user-events )** | `server/consumer/src/consumers/user-events/handlers/RecommendationHandler.ts` | 모든 `user-events` 도메인 처리 후 실행. 점수 갱신 + `requestRecommendationInvalidation` |
+| **점수 정책( user-events )** | `server/consumer/src/consumers/user-events/services/recommendation-score.service.ts` | 이벤트 타입별 delta·reason 매핑 |
+| **행동 보정( activity-events )** | `server/consumer/src/consumers/activity-events/services/activity-recommendation.service.ts` | `recipe.view` 등 활동 신호 반영 + 캐시 무효화 |
+| **저장소** | `server/consumer/src/persistence/repositories/postgresql/recommendation.repository.ts` | upsert·Top N 재정렬·트랜잭션 |
+
+- Handler는 Kafka를 직접 발행하지 않는다. 캐시 무효화는 **CacheInvalidationRequestService**만 호출한다(§2.5).
+- `activity-events.processor`에서 추천 보정 실패는 **warn 로그 후 swallow**하여 EventLog·조회수 처리를 막지 않는다.
+
+### 2.6.2 이벤트별 점수 가중치 (현행)
+
+**user-events (`RecommendationScoreService`)**
+
+| 이벤트 | delta | 비고 |
+|--------|-------|------|
+| `recipe.favorites_add` | +1.8 (레시피당) | 강한 선호 |
+| `recipe.favorites_remove` | -1.8 | |
+| `ingredient.favorites_add` | +0.8 (연관 레시피) | 재료→레시피 전파 |
+| `ingredient.favorites_remove` | -0.8 | |
+| `ingredient.favorites_update` | +0.5 | |
+| `ingredient.add` | +0.25 | |
+| `ingredient.update` | +0.15 | |
+| `ingredient.remove` | -0.2 | |
+| `signup`, `login`, `nickname.update` | 0 | 추천 미반영 |
+
+**activity-events (`ActivityRecommendationService`, 로그인 유저·recipe 엔티티 필요)**
+
+| 이벤트 | delta |
+|--------|-------|
+| `recipe.view` | +0.1 |
+| `recipe.like` | +0.7 |
+| `recipe.share` | +0.4 |
+| `search.click` | +0.25 |
+| `search.query` | 0 |
+
+가중치 변경 시 **서비스 상수·본 절·단위 테스트**(`recommendation-score.service.spec.ts`, `activity-recommendation.service.spec.ts`)를 함께 갱신한다.
+
+### 2.6.3 Top N 재정렬 알고리즘 (`RecommendationRepository`)
+
+1. 이벤트에서 전달된 `recipeId`별 delta를 **동일 트랜잭션**에서 upsert(`score` increment).
+2. `score > 0`인 행을 `score DESC`, `updatedAt DESC`, `recipeId ASC`로 정렬해 상위 N건 선택(`MAX_RECOMMENDATION_ROWS` = 30).
+3. 해당 유저의 기존 추천 행을 **deleteMany** 후 rank 1..N으로 **createMany** 재삽입.
+4. 재료 기반 이벤트는 `RecipeIngredient`로 연관 `recipeId`를 조회(최대 200건)한 뒤 동일 delta를 레시피에 전파한다.
+
+- Kafka **at-least-once** 전제: upsert·unique 제약으로 중복 이벤트에도 점수가 안정적으로 누적되도록 한다.
+- rank 전체 재작성 방식이므로 동시 이벤트가 많을 때 트랜잭션 경합을 모니터링한다(§2.2 `user-events`·`activity-events` KPI 연계).
+
+**확장**: 협업 필터·콘텐츠 기반 배치는 별도 job으로 SSOT를 갱신하고, 완료 후 `requestRecommendationInvalidation`을 호출한다.
 
 ---
 

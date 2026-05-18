@@ -1,9 +1,13 @@
+'use client';
+
 import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
 import { SearchBarHeader } from '@/components/layout/SearchBarHeader';
 import { Tabbar } from '@/components/layout/Tabbar';
 import { RecipeSection, RecipeSlider } from '@/components/recipe';
 
+import { AuthStatus, useAuth } from '@/lib/auth/auth-context';
+import { useRecommendedRecipes } from '@/lib/queries/recipe.queries';
 import type { RecipeSummary } from '@/lib/types/recipe';
 
 export interface RecipeMainClientPageProps {
@@ -15,11 +19,26 @@ export function RecipeMainClientPage({
   mostViewedRecipes,
   mostLikedRecipes,
 }: RecipeMainClientPageProps) {
+  const { status } = useAuth();
+  const isAuthenticated = status === AuthStatus.Authenticated;
+  const { data: recommendedData, isPending: isRecommendedPending } =
+    useRecommendedRecipes(undefined, { enabled: isAuthenticated });
+  const recommendedRecipes =
+    recommendedData?.data.map((item) => item.recipe) ?? [];
+  const showRecommendedSection =
+    isAuthenticated && !isRecommendedPending && recommendedRecipes.length > 0;
+
   return (
     <>
       <Navbar />
 
       <SearchBarHeader href="/recipe/filter" />
+
+      {showRecommendedSection ? (
+        <RecipeSection title="맞춤 레시피">
+          <RecipeSlider recipes={recommendedRecipes} />
+        </RecipeSection>
+      ) : null}
 
       <MainContent paddingX={false}>
         <RecipeSection title="많이 본 레시피">
@@ -41,10 +60,6 @@ export function RecipeMainClientPage({
             </p>
           )}
         </RecipeSection>
-
-        {/*
-        // TODO: 맞춤 레시피 추가 
-        */}
       </MainContent>
 
       <Tabbar />

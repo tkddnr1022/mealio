@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import {
   RedisService,
   cacheKeyInventory,
+  cacheKeyRecommendation,
   cacheKeyRecipeDetail,
   cacheKeyUserProfile,
   cachePatternRecipeListAndSearch,
@@ -47,6 +48,12 @@ export class RedisInvalidationHandler {
             `Redis invalidated by pattern: ${pattern} (deleted=${deleted})`,
           );
         }
+        break;
+      }
+      case CacheInvalidationEventType.RECOMMENDATION: {
+        const key = cacheKeyRecommendation(payload.userId);
+        await this.redisService.del(key);
+        this.logger.debug(`Redis invalidated: ${key}`);
         break;
       }
     }

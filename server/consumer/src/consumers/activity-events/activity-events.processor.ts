@@ -14,6 +14,7 @@ import { EventLogRepository } from 'src/persistence/repositories/mongodb/event-l
 import { RecipeRepository } from 'src/persistence/repositories/postgresql/recipe.repository';
 import { SchemaValidator } from 'src/processing/validation/schema.validator';
 import { normalizeNumericId } from 'src/processing/transformation/data.normalizer';
+import { ActivityRecommendationService } from './services/activity-recommendation.service';
 
 function isValidActivityEventPayload(
   obj: unknown,
@@ -50,6 +51,7 @@ export class ActivityEventsProcessor extends BaseTopicProcessor<ActivityEventPay
     deadLetterHandler: DeadLetterHandler,
     private readonly eventLogRepository: EventLogRepository,
     private readonly recipeRepository: RecipeRepository,
+    private readonly activityRecommendationService: ActivityRecommendationService,
   ) {
     super(ActivityEventsProcessor.name, retryStrategy, deadLetterHandler);
   }
@@ -104,5 +106,9 @@ export class ActivityEventsProcessor extends BaseTopicProcessor<ActivityEventPay
           });
       }
     }
+
+    await this.activityRecommendationService.apply(event).catch((err) => {
+      this.logger.warn('activity recommendation update failed', err);
+    });
   }
 }

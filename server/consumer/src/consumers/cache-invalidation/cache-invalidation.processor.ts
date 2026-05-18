@@ -24,7 +24,8 @@ function isValidCacheInvalidationPayload(
   if (
     o.type !== CacheInvalidationEventType.USER_PROFILE &&
     o.type !== CacheInvalidationEventType.INVENTORY &&
-    o.type !== CacheInvalidationEventType.RECIPE
+    o.type !== CacheInvalidationEventType.RECIPE &&
+    o.type !== CacheInvalidationEventType.RECOMMENDATION
   )
     return false;
   if (o.type === CacheInvalidationEventType.RECIPE) {

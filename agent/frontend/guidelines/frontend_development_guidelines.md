@@ -130,7 +130,7 @@ export default async function RecipesPage() {
 - `/home`: Redis `user:${id}:dashboard`, TTL 5분
 - `/recipes`: ISR revalidate 300초, Redis 쿼리 캐시
 - `/recipes/[id]`: ISR revalidate 600초, CDN 24시간
-- `/recipes/recommended`: SSR + Redis 결과 캐시 TTL 1시간
+- `/recipe` 개인화 추천 섹션: CSR(`GET /api/v1/recipes/recommended`) + Redis 결과 캐시 TTL 1시간
 
 ---
 

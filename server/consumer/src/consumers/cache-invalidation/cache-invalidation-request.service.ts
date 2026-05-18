@@ -5,6 +5,7 @@ import {
   type CacheInvalidationUserProfilePayload,
   type CacheInvalidationInventoryPayload,
   type CacheInvalidationRecipePayload,
+  type CacheInvalidationRecommendationPayload,
 } from '@mealio/shared';
 import { KafkaProducerService } from 'src/integrations/kafka/kafka-producer.service';
 
@@ -66,6 +67,21 @@ export class CacheInvalidationRequestService {
       KAFKA_TOPICS.CACHE_INVALIDATION,
       payload,
       `recipe:${uniqueRecipeIds.join(',')}`,
+    );
+  }
+
+  /**
+   * Producer의 개인화 추천 캐시(`cacheKeyRecommendation`) 무효화를 요청한다.
+   */
+  async requestRecommendationInvalidation(userId: number): Promise<void> {
+    const payload: CacheInvalidationRecommendationPayload = {
+      type: CacheInvalidationEventType.RECOMMENDATION,
+      userId,
+    };
+    await this.kafkaProducerService.emit(
+      KAFKA_TOPICS.CACHE_INVALIDATION,
+      payload,
+      `recommendation:${userId}`,
     );
   }
 }

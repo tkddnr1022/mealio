@@ -3,6 +3,7 @@
  *
  * 엔드포인트: `agent/backend/spec/backend_architecture_spec_producer.md` §1.1
  * - GET  /api/v1/recipes              → {@link getRecipeList}
+ * - GET  /api/v1/recipes/recommended  → {@link getRecommendedRecipes}
  * - GET  /api/v1/recipes/static-ids   → {@link getRecipeStaticIds}
  * - GET  /api/v1/recipes/categories   → {@link getRecipeCategories}
  * - GET  /api/v1/recipes/search       → {@link searchRecipes}
@@ -19,7 +20,9 @@ import type { Paginated } from '@/lib/types/api';
 import type {
   RecipeCategory,
   RecipeDetail,
+  RecipeRecommendationItem,
   RecipeListQuery,
+  RecommendedRecipesQuery,
   RecipeSearchQuery,
   RecipeStaticIdsQuery,
   RecipeSummary,
@@ -39,6 +42,23 @@ export function getRecipeList(
     ...fetchOptions,
     query: objectToQuery(params),
   });
+}
+
+/**
+ * 개인화 추천 레시피 조회.
+ * 인증 사용자 기준으로 rank 오름차순 추천 목록을 반환한다.
+ */
+export function getRecommendedRecipes(
+  params: RecommendedRecipesQuery = {},
+  fetchOptions?: RequestOptions,
+): Promise<{ data: RecipeRecommendationItem[] }> {
+  return httpClient.get<{ data: RecipeRecommendationItem[] }>(
+    API_ENDPOINTS.recipes.recommended,
+    {
+      ...fetchOptions,
+      query: objectToQuery(params),
+    },
+  );
 }
 
 /**

@@ -435,6 +435,51 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /api/v1/recipes/recommended:
+    get:
+      tags:
+        - Recipe
+      summary: 개인화 추천 레시피 조회
+      description: |
+        PostgreSQL 추천 SSOT를 기준으로 사용자 맞춤 레시피를 조회합니다.
+        응답은 rank 오름차순(1이 가장 높은 우선순위)으로 반환됩니다.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: accessToken
+          in: cookie
+          required: true
+          description: JWT 액세스 토큰 (필수)
+          schema:
+            type: string
+          example: "{{apiKey}}"
+        - name: limit
+          in: query
+          description: 반환할 추천 개수 (기본 12, 최대 30)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 30
+            default: 12
+      responses:
+        '200':
+          description: 추천 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RecipeRecommendationItem'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /api/v1/recipes/categories:
     get:
       tags:
@@ -1521,6 +1566,46 @@ components:
         viewCount: 1240
         likeCount: 180
         createdAt: "2025-01-10T10:30:00Z"
+
+    RecipeRecommendationItem:
+      type: object
+      required: [recipe, rank, score, calculatedAt]
+      properties:
+        recipe:
+          $ref: '#/components/schemas/RecipeSummary'
+        rank:
+          type: integer
+          minimum: 1
+          description: 사용자 추천 순위 (1이 최상위)
+        score:
+          type: number
+          format: float
+          description: 추천 종합 점수 (정규화 전 내부 점수)
+        reason:
+          type: string
+          nullable: true
+          description: 추천 근거 요약 (예 - 관심 재료 일치, 즐겨찾기 기반)
+        calculatedAt:
+          type: string
+          format: date-time
+          description: 추천 점수 계산 시각(SSOT 갱신 시각)
+      example:
+        recipe:
+          id: 456
+          title: 김치볶음밥
+          description: 간단하고 맛있는 김치볶음밥
+          difficulty: 1
+          cookTime: 15
+          imageUrl: https://example.com/images/recipe456.jpg
+          servings: 2
+          viewCount: 1240
+          likeCount: 180
+          isPublished: true
+          createdAt: "2025-01-10T10:30:00Z"
+        rank: 1
+        score: 0.92
+        reason: 관심 재료와 조리시간 선호가 일치합니다.
+        calculatedAt: "2026-05-19T00:00:00Z"
 
     FavoriteRecipeIdsResponse:
       type: object

@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import type { UserEvent } from '@mealio/shared';
 import type { InventoryEvent } from '@mealio/shared';
+import { CacheInvalidationRequestService } from 'src/consumers/cache-invalidation/cache-invalidation-request.service';
+import { RecommendationScoreService } from '../services/recommendation-score.service';
 
 export type UserEventPayload = UserEvent | InventoryEvent;
 
@@ -12,10 +14,18 @@ export type UserEventPayload = UserEvent | InventoryEvent;
 export class RecommendationHandler {
   private readonly logger = new Logger(RecommendationHandler.name);
 
+  constructor(
+    private readonly recommendationScoreService: RecommendationScoreService,
+    private readonly cacheInvalidationRequestService: CacheInvalidationRequestService,
+  ) {}
+
   async execute(event: UserEventPayload): Promise<void> {
-    this.logger.debug(
-      `RecommendationHandler received event type=${event.type} userId=${event.userId}`,
+    await this.recommendationScoreService.apply(event);
+    await this.cacheInvalidationRequestService.requestRecommendationInvalidation(
+      event.userId,
     );
-    // TODO: 선호도 분석·추천 캐시 갱신 연동 (processing/batch/user-analytics, recommendation)
+    this.logger.debug(
+      `Recommendation updated type=${event.type} userId=${event.userId}`,
+    );
   }
 }

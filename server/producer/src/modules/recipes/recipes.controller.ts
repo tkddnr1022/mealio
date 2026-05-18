@@ -24,9 +24,13 @@ import { RecipeIdsDto } from './dto/recipe-ids.dto';
 import { RecipeCategoryDto } from './dto/recipe-category.dto';
 import { RecipeStaticIdsQueryDto } from './dto/recipe-static-ids-query.dto';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CurrentUserOptional } from '../auth/decorators/current-user-optional.decorator';
 import type { AuthUser } from '../auth/types/request.types';
 import { DEFAULT_RECIPE_SORT } from './policies/recipe-sort.policy';
+import { RecommendedRecipesQueryDto } from './dto/recommended-recipes-query.dto';
+import { RecommendedRecipeItemDto } from './dto/recommended-recipe-item.dto';
 
 @ApiTags('Recipe')
 @Controller('api/v1/recipes')
@@ -70,6 +74,36 @@ export class RecipesController {
       cookTimeMax: query.cookTimeMax,
       sort,
     });
+  }
+
+  @Get('recommended')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: '개인화 추천 레시피 조회' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '추천 목록 조회 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/RecommendedRecipeItemDto' },
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
+  async getRecommended(
+    @CurrentUser() user: AuthUser,
+    @Query() query: RecommendedRecipesQueryDto,
+  ): Promise<{ data: RecommendedRecipeItemDto[] }> {
+    const limit = query.limit ?? 12;
+    return this.recipeQueryService.getRecommended(user.id, limit);
   }
 
   @Get('static-ids')

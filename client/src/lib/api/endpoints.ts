@@ -41,6 +41,7 @@ export const API_ENDPOINTS = {
   },
   recipes: {
     list: `${API_PREFIX}/recipes`,
+    recommended: `${API_PREFIX}/recipes/recommended`,
     staticIds: `${API_PREFIX}/recipes/static-ids`,
     categories: `${API_PREFIX}/recipes/categories`,
     detail: (recipeId: string | number) =>

@@ -22,6 +22,7 @@ import {
 import {
   getRecipeById,
   getRecipeList,
+  getRecommendedRecipes,
   getRecipeSummaries,
   searchRecipes,
   type RecipeListResult,
@@ -29,7 +30,9 @@ import {
 import { QUERY_CACHE } from '@/lib/config/cache.config';
 import type {
   RecipeDetail,
+  RecipeRecommendationItem,
   RecipeListQuery,
+  RecommendedRecipesQuery,
   RecipeSearchQuery,
   RecipeSummary,
 } from '@/lib/types/recipe';
@@ -55,6 +58,8 @@ export const recipeQueries = {
       // 배열 순서에 무관하게 같은 키를 생성하도록 정렬한다.
       [...ids].sort((a, b) => a - b),
     ] as const,
+  recommended: (params: RecommendedRecipesQuery) =>
+    [...recipeQueries.all, 'recommended', params] as const,
 } as const;
 
 // ─── 공통 타입 ────────────────────────────────────────────────────────────────
@@ -165,6 +170,23 @@ export function useRecipeSummaries(
     enabled: (rest.enabled ?? true) && ids.length > 0,
     meta: {
       errorToastTitle: '레시피 요약을 불러오지 못했어요',
+      ...metaOption,
+    },
+  });
+}
+
+export function useRecommendedRecipes(
+  params: RecommendedRecipesQuery = {},
+  options?: QueryOpts<{ data: RecipeRecommendationItem[] }>,
+) {
+  const { meta: metaOption, ...rest } = options ?? {};
+  return useQuery<{ data: RecipeRecommendationItem[] }, Error>({
+    queryKey: recipeQueries.recommended(params),
+    queryFn: () => getRecommendedRecipes(params),
+    ...QUERY_CACHE.recipeList,
+    ...rest,
+    meta: {
+      errorToastTitle: '맞춤 레시피를 불러오지 못했어요',
       ...metaOption,
     },
   });

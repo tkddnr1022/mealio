@@ -54,11 +54,13 @@
 | **server/producer/src/modules/recipes/** | 레시피 조회 모듈 |
 | server/producer/src/modules/recipes/recipes.module.ts | RecipesModule 정의 |
 | server/producer/src/modules/recipes/recipes.service.ts | RecipeQueryService 등, 읽기 전용·캐시 활용 |
-| server/producer/src/modules/recipes/recipes.controller.ts | GET /api/v1/recipes, GET /api/v1/recipes/static-ids, GET /api/v1/recipes/:recipeId, GET /api/v1/recipes/search, POST /api/v1/recipes/summaries |
+| server/producer/src/modules/recipes/recipes.controller.ts | GET /api/v1/recipes, GET /api/v1/recipes/recommended, GET /api/v1/recipes/static-ids, GET /api/v1/recipes/:recipeId, GET /api/v1/recipes/search, POST /api/v1/recipes/summaries |
 | server/producer/src/modules/recipes/dto/pagination.dto.ts | 페이지네이션 공통 DTO |
 | server/producer/src/modules/recipes/dto/recipe-detail.dto.ts | 레시피 상세 응답 DTO |
 | server/producer/src/modules/recipes/dto/recipe-ids.dto.ts | 레시피 ID 리스트 DTO |
 | server/producer/src/modules/recipes/dto/recipe-list-query.dto.ts | 리스트 조회 쿼리 DTO |
+| server/producer/src/modules/recipes/dto/recommended-recipes-query.dto.ts | 개인화 추천 조회 쿼리 DTO (`limit`) |
+| server/producer/src/modules/recipes/dto/recommended-recipe-item.dto.ts | 추천 아이템 DTO (`recipe`, `rank`, `score`, `reason`, `calculatedAt`) |
 | server/producer/src/modules/recipes/dto/recipe-search-query.dto.ts | 검색 쿼리 DTO |
 | server/producer/src/modules/recipes/dto/recipe-static-ids-query.dto.ts | 정적 경로 생성용 ID 목록 조회 쿼리 DTO |
 | server/producer/src/modules/recipes/dto/recipe-summary.dto.ts | 레시피 요약 응답 DTO |
@@ -112,6 +114,7 @@
 | server/producer/src/infrastructure/cache/strategies/ingredient-cache-strategy.ts | TTL 24시간 |
 | server/producer/src/infrastructure/cache/strategies/user-cache-strategy.ts | TTL 30분. 캐시 키 prefix는 @mealio/shared CACHE_KEY_PREFIX.USER 사용 |
 | server/producer/src/infrastructure/cache/strategies/inventory-cache-strategy.ts | TTL 30분. 캐시 키 prefix는 @mealio/shared CACHE_KEY_PREFIX.INVENTORY 사용 |
+| server/producer/src/infrastructure/cache/strategies/recommendation-cache-strategy.ts | TTL 1시간. 키 `recommendation:{userId}` (@mealio/shared `cacheKeyRecommendation`). §1.4 |
 | **server/producer/src/infrastructure/kafka/** | |
 | server/producer/src/infrastructure/kafka/kafka.module.ts | Kafka 모듈 |
 | server/producer/src/infrastructure/kafka/kafka-admin.service.ts | 토픽 생성·확인 등 |
@@ -157,3 +160,19 @@ OAuth 인증은 백엔드 주도 흐름을 따른다. 전략·API 계약·보안
 | **진입 라우트** | GET /api/v1/auth/{provider}. path parameter `provider`로 Provider 결정(google, kakao, naver). 해당 Provider 인증 URL 생성(client_id, redirect_uri, scope, state). 응답: 302 Redirect to Provider 인증 URL. |
 | **콜백 라우트** | GET /api/v1/auth/{provider}/callback. Query에서 code(필수), state(권장) 추출. state 검증(권장, CSRF 방지). Authorization Code로 Provider Token 엔드포인트 호출 → Access Token( 및 Refresh Token) 수신. Access Token으로 Provider 사용자 정보 API 호출. 수신 사용자 정보로 DB 사용자 생성 또는 조회. 자체 JWT 발급. 응답: 302 Redirect to 클라이언트 로그인 성공 URL + Set-Cookie: JWT (HttpOnly, Secure, SameSite=Lax, Max-Age). |
 | **적용 경로** | 진입/콜백: server/producer/src/modules/auth/controllers/*. 전략: server/producer/src/modules/auth/strategies/* (Passport Google, Kakao, Naver). 가드: server/producer/src/modules/auth/guards/* (JWT, OAuth 콜백). 데코레이터: server/producer/src/modules/auth/decorators/*. OpenAPI·프론트엔드와 경로 일치: /api/v1/auth/{provider}, /api/v1/auth/{provider}/callback. |
+
+## 1.4 맞춤형 레시피 추천 API (Producer)
+
+크로스 패키지 개요·E2E·KPI는 `backend_architecture_spec.md` §4, Consumer 갱신·가중치는 `backend_architecture_spec_consumer.md` §2.6을 따른다.
+
+| 항목 | 명세 |
+|------|------|
+| **API** | `GET /api/v1/recipes/recommended` — **JWT 필수**(`JwtAuthGuard`). 쿼리 `limit` 기본 12, 최소 1·최대 30 (`RecommendedRecipesQueryDto`). |
+| **컨트롤러·서비스** | `recipes.controller.ts` → `RecipeQueryService.getRecommended(userId, limit)` (`recipes.service.ts`). |
+| **응답 DTO** | `RecommendedRecipeItemDto[]` — `recipe`(RecipeSummary), `rank`, `score`, `reason`, `calculatedAt`. OpenAPI `RecipeRecommendationItem`과 동기화. |
+| **조회** | `RecipeRepository` 등에서 `UserRecipeRecommendation` SSOT 조회 후 RecipeSummary·RecipeStats 조인. 필요 필드만 select/include. |
+| **Fallback** | SSOT에 해당 `userId` 행이 없으면 `likeCount` DESC 인기 레시피로 `limit`건 채움. `reason`에 초기 추천 데이터 없음을 명시. |
+| **캐시 전략** | `server/producer/src/infrastructure/cache/strategies/recommendation-cache-strategy.ts` — Cache-Aside. 키 `recommendation:{userId}` (`@mealio/shared` `cacheKeyRecommendation`, `CACHE_KEY_PREFIX.RECOMMENDATION`). **TTL 3600초(1시간)**. |
+| **캐시 무효화** | Consumer가 `cache-invalidation` 토픽(`CacheInvalidationEventType.RECOMMENDATION`) 발행 시 동일 Redis 키 삭제. `backend_architecture_spec_consumer.md` §2.5·`backend_architecture_spec_shared.md` §3.5. |
+
+**확장 시 유의**: 챗봇 `SuggestedRecipe`와 추천 SSOT를 직접 동기화하지 않는다. 필요 시 챗봇이 본 API를 tool로 호출하는 식으로 계약을 확장한다.

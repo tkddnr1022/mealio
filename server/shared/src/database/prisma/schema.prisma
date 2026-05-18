@@ -23,6 +23,7 @@ model User {
   updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
 
   chatbotCreditDeductions ChatbotCreditDeduction[]
+  recommendations         UserRecipeRecommendation[]
 
   @@index([platformName, platformId])
   @@index([email])
@@ -60,6 +61,7 @@ model Recipe {
   categoryMeta      RecipeCategory     @relation(fields: [categoryId], references: [id])
   recipeIngredients RecipeIngredient[]
   stats             RecipeStats?
+  recommendedTo     UserRecipeRecommendation[]
 
   @@index([categoryId, difficulty, cookTime, createdAt])
   @@index([difficulty, cookTime, createdAt])
@@ -138,4 +140,25 @@ model RecipeIngredient {
   @@index([recipeId])
   @@index([ingredientId])
   @@map("RecipeIngredient")
+}
+
+model UserRecipeRecommendation {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  recipeId     Int      @map("recipe_id")
+  rank         Int      @map("rank")
+  score        Decimal  @db.Decimal(10, 4)
+  reason       String?  @db.VarChar(255)
+  calculatedAt DateTime @map("calculated_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, recipeId])
+  @@unique([userId, rank])
+  @@index([userId, score(sort: Desc)])
+  @@index([updatedAt(sort: Desc)])
+  @@map("UserRecipeRecommendation")
 }

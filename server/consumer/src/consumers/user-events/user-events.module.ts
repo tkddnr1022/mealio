@@ -11,6 +11,7 @@ import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
 import { UserRepository } from 'src/persistence/repositories/postgresql/user.repository';
 import { RecipeRepository } from 'src/persistence/repositories/postgresql/recipe.repository';
+import { RecommendationRepository } from 'src/persistence/repositories/postgresql/recommendation.repository';
 import { EventLogRepository } from 'src/persistence/repositories/mongodb/event-log.repository';
 import { InventoryRepository } from 'src/persistence/repositories/mongodb/inventory.repository';
 import { CacheInvalidationModule } from 'src/consumers/cache-invalidation/cache-invalidation.module';
@@ -21,6 +22,7 @@ import { TrackUserActivityHandler } from './handlers/TrackUserActivityHandler';
 import { RecommendationHandler } from './handlers/RecommendationHandler';
 import { UpdateInventoryHandler } from './handlers/UpdateInventoryHandler';
 import { RecipeStatsUpdaterService } from './services/recipe-stats-updater.service';
+import { RecommendationScoreService } from './services/recommendation-score.service';
 
 @Module({
   imports: [
@@ -36,11 +38,13 @@ import { RecipeStatsUpdaterService } from './services/recipe-stats-updater.servi
     DeadLetterHandler,
     UserRepository,
     RecipeRepository,
+    RecommendationRepository,
     EventLogRepository,
     InventoryRepository,
     UpdateUserProfileHandler,
     TrackUserActivityHandler,
     RecommendationHandler,
+    RecommendationScoreService,
     RecipeStatsUpdaterService,
     UpdateInventoryHandler,
     UserEventsProcessor,

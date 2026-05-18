@@ -9,6 +9,7 @@ export const CACHE_KEY_PREFIX = {
   USER: 'user',
   INVENTORY: 'inventory',
   RECIPE: 'recipe',
+  RECOMMENDATION: 'recommendation',
   INGREDIENT: 'ingredient',
   /** Producer API 레이트 리밋 카운터 (애플리케이션 데이터 캐시와 별도 네임스페이스) */
   RATE_LIMIT_API: 'rate_limit:api',
@@ -91,6 +92,11 @@ export function cacheKeyRateLimitApi(
 /** Producer 레시피 상세 캐시 — `recipe:{recipeId}` */
 export function cacheKeyRecipeDetail(recipeId: number): string {
   return buildCacheKey(CACHE_KEY_PREFIX.RECIPE, recipeId);
+}
+
+/** Producer 개인화 추천 캐시 — `recommendation:{userId}` */
+export function cacheKeyRecommendation(userId: number): string {
+  return buildCacheKey(CACHE_KEY_PREFIX.RECOMMENDATION, userId);
 }
 
 /** Producer 레시피 목록/검색 캐시 패턴 — `recipe:list:*`, `recipe:search:*` */

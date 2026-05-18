@@ -46,6 +46,14 @@ export type RecipeWithStats = Recipe & {
   likeCount: number;
 };
 
+export interface RecommendedRecipeWithMeta {
+  recipe: RecipeWithStats;
+  rank: number;
+  score: number;
+  reason: string | null;
+  calculatedAt: Date;
+}
+
 type RecipeStatsRow = {
   recipeId: number;
   viewCount: number;
@@ -279,6 +287,50 @@ export class RecipeRepository {
       WHERE "is_active" = true
       ORDER BY "display_order" ASC, "id" ASC
     `;
+  }
+
+  async findRecommendedByUser(
+    userId: number,
+    limit: number,
+  ): Promise<RecommendedRecipeWithMeta[]> {
+    const rows = await this.prisma.userRecipeRecommendation.findMany({
+      where: {
+        userId,
+        recipe: {
+          is: {
+            isPublished: true,
+          },
+        },
+      },
+      orderBy: [{ rank: 'asc' }],
+      take: limit,
+      include: {
+        recipe: true,
+      },
+    });
+
+    const recipeIds = rows.map((row) => row.recipeId);
+    const statsMap = await this.findStatsMap(recipeIds);
+
+    return rows.flatMap((row) => {
+      const stats = statsMap.get(row.recipeId);
+      if (!stats) {
+        return [];
+      }
+      return [
+        {
+          recipe: {
+            ...row.recipe,
+            viewCount: stats.viewCount,
+            likeCount: stats.likeCount,
+          },
+          rank: row.rank,
+          score: Number(row.score),
+          reason: row.reason,
+          calculatedAt: row.calculatedAt,
+        },
+      ];
+    });
   }
 
   private async findStatsMap(

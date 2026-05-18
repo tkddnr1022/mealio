@@ -22,6 +22,7 @@
 * **IngredientCategory**: 재료 카테고리 마스터 데이터
 * **Ingredient**: 재료 마스터 데이터
 * **RecipeIngredient**: 레시피와 재료 간의 다대다 관계
+* **UserRecipeRecommendation**: 사용자별 추천 결과 SSOT (랭크·점수·근거)
 
 ### 행동/상태/로그 도메인 (NoSQL / Mongoose)
 
@@ -206,6 +207,39 @@
 
 **제약**: `UNIQUE(recipe_id, ingredient_id)`  
 **인덱스**: `(recipe_id)`, `(ingredient_id)`
+
+---
+
+### 2.8 UserRecipeRecommendation
+
+**의미**
+
+* 사용자별 추천 결과를 PostgreSQL에 저장하는 SSOT 엔터티
+* Producer 추천 API는 이 테이블을 우선 조회하고, Redis는 서빙 캐시로만 사용
+
+**필드 설명** (Prisma `UserRecipeRecommendation` ↔ DB 컬럼)
+
+| 필드 (Prisma) | DB 컬럼 | 타입 | 의미 |
+| ------------- | ------- | ---- | ---- |
+| id | id | BIGINT / SERIAL | 추천 행 ID (PK) |
+| userId | user_id | INT | 사용자 ID (FK → `User.id`) |
+| recipeId | recipe_id | INT | 레시피 ID (FK → `Recipe.id`) |
+| rank | rank | INT | 사용자별 추천 순위 (1이 최상위) |
+| score | score | DECIMAL(8,4) | 추천 점수 |
+| reason | reason | VARCHAR(255) | 추천 근거 요약 (nullable) |
+| calculatedAt | calculated_at | TIMESTAMP | 점수 계산 시각 |
+| createdAt | created_at | TIMESTAMP | 생성 시각 |
+| updatedAt | updated_at | TIMESTAMP | 수정 시각 |
+
+**제약**
+
+* `UNIQUE(user_id, recipe_id)` — 동일 사용자/레시피 중복 방지
+* `UNIQUE(user_id, rank)` — 사용자별 순위 중복 방지
+
+**인덱스**
+
+* `(user_id, score DESC)` — 상위 점수 조회
+* `(updated_at DESC)` — 최근 재계산 대상/모니터링
 
 ---
 
@@ -484,7 +518,7 @@
 
 ### 추천 및 추론
 
-* Recipe + RecipeIngredient + Ingredient → 조합 추론
+* Recipe + RecipeIngredient + Ingredient + UserRecipeRecommendation → 개인화 결과 제공
 * Inventory → 필터링/개인화 조건
 
 ### 대화 및 행동 분석
@@ -496,6 +530,6 @@
 
 ## 5. 핵심 설계 의도 요약
 
-* **정형 데이터**: 무결성, 조인, 검색 최적화
+* **정형 데이터**: 무결성, 조인, 검색 최적화 + 추천 결과 SSOT
 * **비정형 데이터**: 유연성, 로그, LLM 친화적 컨텍스트
 * **LLM 중심 설계**: 상태 + 맥락 + 이벤트를 모두 설명 가능
