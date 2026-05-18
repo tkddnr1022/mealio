@@ -49,7 +49,7 @@
 | 변수 | `color/provider/naver/primary` | `#03a94d` | **LoginButton** 네이버 면 |
 | 변수 | `color/scrollbar/thumb` | `#d4d4d4` @ 80% 불투명 (`#d4d4d4cc`) | **CustomScrollbar**·스크롤 오버레이 |
 | 변수 | `color/secondary` | `#fafaf9` | Secondary(초기화) 버튼 면 |
-| 변수 | `color/secondary-hover` | `#ffffff` | Secondary 버튼 호버 |
+| 변수 | `color/secondary-hover` | `#f5f5f4` | Secondary 버튼 호버 |
 | 변수 | `color/tab/active` | `#c2410c` | 탭 활성 라벨(`SubTab`·`InventorySubTabbar`) |
 | 변수 | `color/tab/inactive` | `#737373` | 탭 비활성 라벨(`SubTab`·`InventorySubTabbar`) |
 | 변수 | `color/tag/accent` | `#fff7ed` | 강조 **FlatTag** 면 |

@@ -208,7 +208,7 @@
           "default": {
             "aliasOf": "variables.color.light.background.primary"
           },
-          "hover": "#FFFFFF"
+          "hover": "#F5F5F4"
         },
         "tab": {
           "active": {
