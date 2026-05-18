@@ -2,14 +2,11 @@
 
 import { useMemo } from 'react';
 import { RecipeList } from '@/components/recipe/lists/RecipeList';
-import { LikeButton } from '@/components/ui/buttons/LikeButton';
-import {
-  useMyInventory,
-  useRemoveMyFavoriteRecipe,
-} from '@/lib/queries/inventory.queries';
+import { useMyInventory } from '@/lib/queries/inventory.queries';
 import type { InventoryFavoriteRecipe } from '@/lib/types/inventory';
 import type { RecipeSummary } from '@/lib/types/recipe';
 import { InventoryPageShell } from '../../InventoryPageShell';
+import { RecipeFavoriteButton } from '@/components/recipe/cards/RecipeFavoriteButton/RecipeFavoriteButton';
 
 function toRecipeSummary(recipe: InventoryFavoriteRecipe): RecipeSummary {
   return {
@@ -21,7 +18,6 @@ function toRecipeSummary(recipe: InventoryFavoriteRecipe): RecipeSummary {
 
 export function InventoryFavoriteRecipesClientPage() {
   const { data } = useMyInventory();
-  const removeMutation = useRemoveMyFavoriteRecipe();
 
   const recipes = useMemo(() => {
     const favoriteRecipes = data?.favoriteRecipes ?? [];
@@ -45,10 +41,7 @@ export function InventoryFavoriteRecipesClientPage() {
       <RecipeList
         recipes={recipes}
         favoriteButtonRenderer={(recipe) => (
-          <LikeButton
-            isFavorite
-            onClick={() => removeMutation.mutate(recipe.id)}
-          />
+          <RecipeFavoriteButton recipeId={recipe.id} isFavorite={true} />
         )}
       />
     </InventoryPageShell>

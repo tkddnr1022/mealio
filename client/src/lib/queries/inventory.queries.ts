@@ -175,64 +175,6 @@ export function useRemoveMyFavoriteIngredient() {
   });
 }
 
-export function useRemoveMyFavoriteRecipe() {
-  const qc = useQueryClient();
-
-  return useMutation<
-    void,
-    Error,
-    number,
-    { prevInventory?: InventoryResponse; prevIds?: FavoriteRecipeIdsResponse }
-  >({
-    mutationFn: (id) => removeMyFavoriteRecipe(id),
-    meta: {
-      errorToastTitle: '관심 레시피를 삭제하지 못했어요',
-    },
-    onMutate: async (recipeId) => {
-      await qc.cancelQueries({ queryKey: inventoryQueries.overview() });
-      await qc.cancelQueries({ queryKey: favoriteRecipeQueries.ids() });
-
-      const prevInventory = qc.getQueryData<InventoryResponse>(
-        inventoryQueries.overview(),
-      );
-      const prevIds = qc.getQueryData<FavoriteRecipeIdsResponse>(
-        favoriteRecipeQueries.ids(),
-      );
-
-      qc.setQueryData<InventoryResponse>(inventoryQueries.overview(), (old) =>
-        old
-          ? {
-              ...old,
-              favoriteRecipes: old.favoriteRecipes.filter(
-                (r) => r.id !== recipeId,
-              ),
-            }
-          : old,
-      );
-      qc.setQueryData<FavoriteRecipeIdsResponse>(
-        favoriteRecipeQueries.ids(),
-        (old) =>
-          old
-            ? {
-                favoriteRecipeIds: old.favoriteRecipeIds.filter(
-                  (id) => id !== recipeId,
-                ),
-              }
-            : old,
-      );
-
-      return { prevInventory, prevIds };
-    },
-    onError: (_err, _vars, ctx) => {
-      if (ctx?.prevInventory)
-        qc.setQueryData(inventoryQueries.overview(), ctx.prevInventory);
-      if (ctx?.prevIds)
-        qc.setQueryData(favoriteRecipeQueries.ids(), ctx.prevIds);
-    },
-    onSuccess: () => staleInventoryAndFavoriteRecipes(qc),
-  });
-}
-
 export interface ToggleMyFavoriteRecipeVariables {
   recipeId: number;
   /** 토글 전 현재 찜 상태. `true`이면 찜 해제, `false`이면 찜 추가. */
@@ -246,7 +188,7 @@ export function useToggleMyFavoriteRecipe() {
     void,
     Error,
     ToggleMyFavoriteRecipeVariables,
-    { prevInventory?: InventoryResponse; prevIds?: FavoriteRecipeIdsResponse }
+    { previous?: FavoriteRecipeIdsResponse }
   >({
     mutationFn: async ({ recipeId, isFavorite }) => {
       if (isFavorite) {
@@ -262,10 +204,7 @@ export function useToggleMyFavoriteRecipe() {
       await qc.cancelQueries({ queryKey: inventoryQueries.overview() });
       await qc.cancelQueries({ queryKey: favoriteRecipeQueries.ids() });
 
-      const prevInventory = qc.getQueryData<InventoryResponse>(
-        inventoryQueries.overview(),
-      );
-      const prevIds = qc.getQueryData<FavoriteRecipeIdsResponse>(
+      const previous = qc.getQueryData<FavoriteRecipeIdsResponse>(
         favoriteRecipeQueries.ids(),
       );
 
@@ -280,28 +219,11 @@ export function useToggleMyFavoriteRecipe() {
         },
       );
 
-      if (isFavorite && prevInventory) {
-        qc.setQueryData<InventoryResponse>(
-          inventoryQueries.overview(),
-          (old) =>
-            old
-              ? {
-                  ...old,
-                  favoriteRecipes: old.favoriteRecipes.filter(
-                    (r) => r.id !== recipeId,
-                  ),
-                }
-              : old,
-        );
-      }
-
-      return { prevInventory, prevIds };
+      return { previous };
     },
     onError: (_err, _vars, ctx) => {
-      if (ctx?.prevInventory)
-        qc.setQueryData(inventoryQueries.overview(), ctx.prevInventory);
-      if (ctx?.prevIds)
-        qc.setQueryData(favoriteRecipeQueries.ids(), ctx.prevIds);
+      if (ctx?.previous)
+        qc.setQueryData(favoriteRecipeQueries.ids(), ctx.previous);
     },
     onSuccess: () => staleInventoryAndFavoriteRecipes(qc),
   });
