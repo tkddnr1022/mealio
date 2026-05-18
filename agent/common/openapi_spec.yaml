@@ -1276,9 +1276,12 @@ paths:
         - name: cursor
           in: query
           required: false
-          description: 이전 응답의 nextCursor. 다음 페이지 조회 시 사용
+          description: |
+            이전 응답의 nextCursor. 다음 페이지 조회 시 사용.
+            형식 `{updatedAt}::{conversationId}` (ISO 8601 + 대화 ID). 레거시 ISO 날짜만 커서도 허용.
           schema:
             type: string
+            maxLength: 128
       responses:
         '200':
           description: 조회 성공
@@ -1286,6 +1289,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConversationList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -1789,7 +1794,9 @@ components:
         nextCursor:
           type: string
           nullable: true
-          description: 다음 페이지가 있으면 값이 있으며, 다음 요청의 cursor 파라미터로 사용
+          description: |
+            다음 페이지가 있으면 값이 있으며, 다음 요청의 cursor 파라미터로 사용.
+            형식 `{updatedAt}::{conversationId}` (ISO 8601 + 대화 ID)
 
     EventLog:
       type: object

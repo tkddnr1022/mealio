@@ -198,7 +198,7 @@ describe('ChatbotService', () => {
               updatedAt: new Date('2025-01-24T00:00:00.000Z'),
             },
           ],
-          nextCursor: '2025-01-24T00:00:00.000Z',
+          nextCursor: '2025-01-24T00:00:00.000Z::conv_b',
         },
       );
 
@@ -215,7 +215,7 @@ describe('ChatbotService', () => {
         cursor: '2025-01-25T00:00:00.000Z',
       });
       expect(result.items[0].title).toBeNull();
-      expect(result.nextCursor).toBe('2025-01-24T00:00:00.000Z');
+      expect(result.nextCursor).toBe('2025-01-24T00:00:00.000Z::conv_b');
     });
   });
 

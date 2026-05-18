@@ -5,6 +5,10 @@ import {
   ChatbotConversation,
   type ChatbotConversationDocument,
 } from '@mealio/shared';
+import {
+  encodeConversationListCursor,
+  parseConversationListCursor,
+} from './conversation-list-cursor';
 
 export interface ConversationMetaListItem {
   conversationId: string;
@@ -28,7 +32,7 @@ export class ChatbotConversationRepository {
   ) {}
 
   /**
-   * 메타 컬렉션 기준 대화 목록 (정렬·커서는 updatedAt).
+   * 메타 컬렉션 기준 대화 목록 (정렬·커서: updatedAt + conversationId).
    * 과거 로그만 있고 메타가 없는 대화는 목록에 나오지 않는다.
    */
   async findConversationListByUserId(
@@ -38,20 +42,31 @@ export class ChatbotConversationRepository {
     items: ConversationMetaListItem[];
     nextCursor: string | null;
   }> {
-    const { limit, cursor } = params;
+    const limit = Number(params.limit);
+    const { cursor } = params;
     const take = Math.min(limit + 1, 101);
 
     const filter: Record<string, unknown> = { userId };
     if (cursor) {
-      const cursorDate = new Date(cursor);
-      if (!Number.isNaN(cursorDate.getTime())) {
-        filter.updatedAt = { $lt: cursorDate };
+      const parsed = parseConversationListCursor(cursor);
+      if (parsed) {
+        if (parsed.conversationId) {
+          filter.$or = [
+            { updatedAt: { $lt: parsed.updatedAt } },
+            {
+              updatedAt: parsed.updatedAt,
+              conversationId: { $lt: parsed.conversationId },
+            },
+          ];
+        } else {
+          filter.updatedAt = { $lt: parsed.updatedAt };
+        }
       }
     }
 
     const docs = await this.model
       .find(filter)
-      .sort({ updatedAt: -1 })
+      .sort({ updatedAt: -1, conversationId: -1 })
       .limit(take)
       .select('conversationId title updatedAt')
       .lean()
@@ -72,9 +87,13 @@ export class ChatbotConversationRepository {
       };
     });
 
+    const lastItem = items[items.length - 1];
     const nextCursor =
-      hasMore && items.length > 0
-        ? items[items.length - 1].updatedAt.toISOString()
+      hasMore && lastItem
+        ? encodeConversationListCursor(
+            lastItem.updatedAt,
+            lastItem.conversationId,
+          )
         : null;
 
     return { items, nextCursor };

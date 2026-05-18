@@ -1,13 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsOptional,
-  IsInt,
-  Min,
-  Max,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { IsOptional, IsInt, Min, Max, IsString, MaxLength } from 'class-validator';
 import { Type } from 'class-transformer';
+import { IsConversationListCursor } from './is-conversation-list-cursor.validator';
 
 /**
  * GET /api/v1/chatbot/conversations 쿼리 (대화 목록 조회)
@@ -27,10 +21,12 @@ export class ConversationListQueryDto {
   limit?: number = 20;
 
   @ApiPropertyOptional({
-    description: '다음 페이지 커서 (이전 응답의 nextCursor)',
+    description:
+      '다음 페이지 커서 (이전 응답의 nextCursor, `{updatedAt}::{conversationId}` 형식)',
   })
   @IsOptional()
   @IsString()
-  @MaxLength(64)
+  @MaxLength(128)
+  @IsConversationListCursor()
   cursor?: string;
 }

@@ -7,6 +7,8 @@ import {
   Query,
   Res,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
   HttpCode,
   HttpStatus,
   NotFoundException,
@@ -31,6 +33,7 @@ function formatSSE(data: string): string {
 @ApiTags('Chatbot')
 @Controller('api/v1/chatbot')
 @UseGuards(JwtAuthGuard)
+@UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
 export class ChatbotController {
   constructor(private readonly chatbotService: ChatbotService) {}
 
@@ -108,6 +111,7 @@ export class ChatbotController {
     description: '조회 성공',
     type: ConversationListDto,
   })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
