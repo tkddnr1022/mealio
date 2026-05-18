@@ -8,6 +8,7 @@
  * - GET  /api/v1/recipes/categories   → {@link getRecipeCategories}
  * - GET  /api/v1/recipes/search       → {@link searchRecipes}
  * - GET  /api/v1/recipes/:recipeId    → {@link getRecipeById}
+ * - POST /api/v1/recipes/:recipeId/views → {@link increaseRecipeViewCount}
  * - POST /api/v1/recipes/summaries    → {@link getRecipeSummaries}
  *
  * 도메인 타입은 `@/lib/types/recipe`에서 정의한다.
@@ -111,6 +112,16 @@ export function getRecipeById(
     API_ENDPOINTS.recipes.detail(recipeId),
     fetchOptions,
   );
+}
+
+/**
+ * 레시피 상세 페이지 진입 시 조회수 증가 이벤트를 기록한다.
+ */
+export function increaseRecipeViewCount(
+  recipeId: number,
+  fetchOptions?: RequestOptions,
+): Promise<void> {
+  return httpClient.post<void>(API_ENDPOINTS.recipes.view(recipeId), {}, fetchOptions);
 }
 
 /**

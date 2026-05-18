@@ -4,12 +4,14 @@ import {
   CACHE_KEY_PREFIX,
   CACHE_KEY_SEGMENT,
   KAFKA_TOPICS,
+  RedisService,
   buildCacheKey,
 } from '@mealio/shared';
 import { RecipeQueryService } from '../../recipes.service';
 import { RecipeRepository } from '../../../../infrastructure/database/repositories/postgresql/recipe.repository';
 import { CacheService } from '../../../../infrastructure/cache/cache.service';
 import { RecipeCacheStrategy } from '../../../../infrastructure/cache/strategies/recipe-cache-strategy';
+import { RecommendationCacheStrategy } from '../../../../infrastructure/cache/strategies/recommendation-cache-strategy';
 import { KafkaProducerService } from '../../../../infrastructure/kafka/producer.service';
 
 describe('RecipeQueryService', () => {
@@ -18,6 +20,7 @@ describe('RecipeQueryService', () => {
   let cacheService: jest.Mocked<CacheService>;
   let recipeCacheStrategy: jest.Mocked<RecipeCacheStrategy>;
   let kafkaProducer: { emit: jest.Mock };
+  let redisClient: { set: jest.Mock };
 
   const mockRecipe = {
     id: 1,
@@ -73,6 +76,7 @@ describe('RecipeQueryService', () => {
         total: 1,
       }),
       findPublishedIdsLatest: jest.fn().mockResolvedValue([3, 2, 1]),
+      existsPublishedById: jest.fn().mockResolvedValue(true),
       searchByKeyword: jest.fn().mockResolvedValue({
         data: [mockRecipe],
         total: 1,
@@ -98,8 +102,18 @@ describe('RecipeQueryService', () => {
         ),
       getTtl: jest.fn().mockReturnValue(60),
     };
+    const mockRecommendationCacheStrategy = {
+      generateKey: jest.fn().mockReturnValue('recommendation:1'),
+      getTtl: jest.fn().mockReturnValue(3600),
+    };
 
     const mockKafkaProducer = { emit: jest.fn().mockResolvedValue(undefined) };
+    const mockRedisClient = {
+      set: jest.fn().mockResolvedValue('OK'),
+    };
+    const mockRedisService = {
+      getClient: jest.fn().mockReturnValue(mockRedisClient),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -107,7 +121,12 @@ describe('RecipeQueryService', () => {
         { provide: RecipeRepository, useValue: mockRepo },
         { provide: CacheService, useValue: mockCacheService },
         { provide: RecipeCacheStrategy, useValue: mockCacheStrategy },
+        {
+          provide: RecommendationCacheStrategy,
+          useValue: mockRecommendationCacheStrategy,
+        },
         { provide: KafkaProducerService, useValue: mockKafkaProducer },
+        { provide: RedisService, useValue: mockRedisService },
       ],
     }).compile();
 
@@ -122,6 +141,7 @@ describe('RecipeQueryService', () => {
       RecipeCacheStrategy,
     ) as jest.Mocked<RecipeCacheStrategy>;
     kafkaProducer = module.get(KafkaProducerService);
+    redisClient = module.get(RedisService).getClient();
   });
 
   it('should be defined', () => {
@@ -326,6 +346,63 @@ describe('RecipeQueryService', () => {
       expect(cacheService.getOrSet).toHaveBeenCalled();
       expect(result.title).toBe('캐시된 레시피');
       expect(recipeRepository.findById).not.toHaveBeenCalled();
+    });
+
+    it('상세 조회에서는 recipe.view 이벤트를 발행하지 않는다', async () => {
+      await service.getById(1);
+
+      expect(kafkaProducer.emit).not.toHaveBeenCalledWith(
+        KAFKA_TOPICS.ACTIVITY_EVENTS,
+        expect.objectContaining({
+          type: 'recipe.view',
+        }),
+        expect.anything(),
+      );
+    });
+  });
+
+  describe('recordRecipeView', () => {
+    it('dedupe 선점에 성공하면 recipe.view 이벤트를 발행한다', async () => {
+      await service.recordRecipeView(1, {
+        userId: 7,
+        ipAddress: '127.0.0.1',
+        userAgent: 'jest-agent',
+      });
+
+      expect(recipeRepository.existsPublishedById).toHaveBeenCalledWith(1);
+      expect(redisClient.set).toHaveBeenCalledWith(
+        expect.stringContaining('recipe:view-dedupe:1:user:7'),
+        '1',
+        'EX',
+        1800,
+        'NX',
+      );
+      expect(kafkaProducer.emit).toHaveBeenCalledWith(
+        KAFKA_TOPICS.ACTIVITY_EVENTS,
+        expect.objectContaining({
+          type: 'recipe.view',
+          entity: expect.objectContaining({
+            type: 'recipe',
+            id: 1,
+          }),
+        }),
+        '1',
+      );
+    });
+
+    it('dedupe 선점에 실패하면 이벤트를 발행하지 않는다', async () => {
+      redisClient.set.mockResolvedValue(null);
+
+      await service.recordRecipeView(1, {});
+
+      expect(redisClient.set).toHaveBeenCalledWith(
+        expect.stringContaining('recipe:view-dedupe:1:ip:unknown-ip'),
+        '1',
+        'EX',
+        1800,
+        'NX',
+      );
+      expect(kafkaProducer.emit).not.toHaveBeenCalled();
     });
   });
 

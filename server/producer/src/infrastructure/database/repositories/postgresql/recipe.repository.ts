@@ -64,6 +64,13 @@ type RecipeStatsRow = {
 export class RecipeRepository {
   constructor(private prisma: PrismaService) {}
 
+  async existsPublishedById(id: number): Promise<boolean> {
+    const count = await this.prisma.recipe.count({
+      where: { id, isPublished: true },
+    });
+    return count > 0;
+  }
+
   async findById(id: number): Promise<RecipeWithStats | null> {
     const recipe = await this.prisma.recipe.findUnique({
       where: { id, isPublished: true },

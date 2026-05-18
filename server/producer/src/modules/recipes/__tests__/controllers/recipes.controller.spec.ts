@@ -6,6 +6,7 @@ import { RecipeSummaryDto } from '../../dto/recipe-summary.dto';
 import { RecipeDetailDto } from '../../dto/recipe-detail.dto';
 import { PaginationDto } from '../../dto/pagination.dto';
 import { OptionalJwtAuthGuard } from '../../../auth/guards/optional-jwt-auth.guard';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 
 describe('RecipesController', () => {
   let controller: RecipesController;
@@ -57,6 +58,7 @@ describe('RecipesController', () => {
         pagination: mockPagination,
       }),
       getById: jest.fn().mockResolvedValue(mockDetail),
+      recordRecipeView: jest.fn().mockResolvedValue(undefined),
       getStaticIds: jest.fn().mockResolvedValue({ data: [5, 4, 3] }),
       search: jest.fn().mockResolvedValue({
         data: [mockSummary],
@@ -71,6 +73,8 @@ describe('RecipesController', () => {
       providers: [{ provide: RecipeQueryService, useValue: mockService }],
     })
       .overrideGuard(OptionalJwtAuthGuard)
+      .useValue({ canActivate: () => true })
+      .overrideGuard(JwtAuthGuard)
       .useValue({ canActivate: () => true })
       .compile();
 
@@ -260,9 +264,9 @@ describe('RecipesController', () => {
 
   describe('getById', () => {
     it('recipeId로 상세 레시피를 반환한다', async () => {
-      const result = await controller.getById(1, undefined);
+      const result = await controller.getById(1);
 
-      expect(recipeQueryService.getById).toHaveBeenCalledWith(1, undefined);
+      expect(recipeQueryService.getById).toHaveBeenCalledWith(1);
       expect(result).toEqual(mockDetail);
       expect(result.instructions).toHaveLength(1);
       expect(result.ingredients).toHaveLength(1);
@@ -273,28 +277,27 @@ describe('RecipesController', () => {
         new NotFoundException('Recipe not found'),
       );
 
-      await expect(controller.getById(999, undefined)).rejects.toThrow(
-        NotFoundException,
-      );
-      await expect(controller.getById(999, undefined)).rejects.toThrow(
+      await expect(controller.getById(999)).rejects.toThrow(NotFoundException);
+      await expect(controller.getById(999)).rejects.toThrow(
         'Recipe not found',
       );
     });
 
-    it('사용자 컨텍스트가 있으면 userId를 서비스에 전달한다', async () => {
-      await controller.getById(1, { id: 7 });
-
-      expect(recipeQueryService.getById).toHaveBeenCalledWith(1, undefined);
+    it('레시피 상세 조회는 조회 전용 서비스 호출만 수행한다', async () => {
+      await controller.getById(1);
+      expect(recipeQueryService.getById).toHaveBeenCalledTimes(1);
     });
+  });
 
-    it('요청 컨텍스트가 있으면 userId/ip/userAgent를 함께 전달한다', async () => {
-      await controller.getById(
+  describe('recordView', () => {
+    it('view API는 user/ip/userAgent 컨텍스트를 전달한다', async () => {
+      await controller.recordView(
         1,
         { id: 7 },
         { ip: '127.0.0.1', headers: { 'user-agent': 'jest-agent' } },
       );
 
-      expect(recipeQueryService.getById).toHaveBeenCalledWith(1, {
+      expect(recipeQueryService.recordRecipeView).toHaveBeenCalledWith(1, {
         userId: 7,
         ipAddress: '127.0.0.1',
         userAgent: 'jest-agent',

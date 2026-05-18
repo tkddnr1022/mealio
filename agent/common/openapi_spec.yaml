@@ -592,7 +592,7 @@ paths:
       tags:
         - Recipe
       summary: 레시피 상세 조회
-      description: 특정 레시피의 상세 정보 조회
+      description: 특정 레시피의 상세 정보 조회(조회 전용, activity 이벤트 미발행)
       security:
         - cookieAuth: []
         - {}
@@ -620,6 +620,40 @@ paths:
                 $ref: '#/components/schemas/RecipeDetail'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/recipes/{recipeId}/views:
+    post:
+      tags:
+        - Recipe
+      summary: 레시피 조회수 증가 이벤트 기록
+      description: |
+        레시피 상세 페이지 진입 시 호출한다.
+        `recipe.view` activity 이벤트를 발행하며, 서버 dedupe 정책(로그인 사용자는 `userId`, 비로그인은 `ipAddress` 기준, IP 미확인 시 `unknown-ip`)의 30분 윈도우로 중복 이벤트를 차단한다.
+      security:
+        - cookieAuth: []
+        - {}
+      parameters:
+        - name: accessToken
+          in: cookie
+          required: false
+          description: JWT 액세스 토큰 (선택사항)
+          schema:
+            type: string
+          example: "{{apiKey}}"
+        - name: recipeId
+          in: path
+          required: true
+          description: 레시피 ID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '202':
+          description: 이벤트 수락(중복 요청은 무시될 수 있음)
         '404':
           $ref: '#/components/responses/NotFound'
         '500':

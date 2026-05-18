@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
   ActivityEventType,
   CACHE_KEY_SEGMENT,
   KAFKA_TOPICS,
+  RedisService,
 } from '@mealio/shared';
 import {
   RecipeRepository,
@@ -46,13 +47,18 @@ type RecipeWithIngredients = RecipeWithStats & {
 
 @Injectable()
 export class RecipeQueryService {
+  private readonly logger = new Logger(RecipeQueryService.name);
+
   constructor(
     private readonly recipeRepository: RecipeRepository,
     private readonly cacheService: CacheService,
     private readonly recipeCacheStrategy: RecipeCacheStrategy,
     private readonly recommendationCacheStrategy: RecommendationCacheStrategy,
     private readonly kafkaProducerService: KafkaProducerService,
+    private readonly redisService: RedisService,
   ) {}
+
+  private static readonly VIEW_DEDUPE_TTL_SECONDS = 60 * 30;
 
   async getRecommended(
     userId: number,
@@ -147,10 +153,7 @@ export class RecipeQueryService {
     return { data };
   }
 
-  async getById(
-    recipeId: number,
-    context?: ActivityContext,
-  ): Promise<RecipeDetailDto> {
+  async getById(recipeId: number): Promise<RecipeDetailDto> {
     const recipe = await this.cacheService.getOrSet(
       this.recipeCacheStrategy,
       async () => {
@@ -163,11 +166,51 @@ export class RecipeQueryService {
       recipeId,
     );
 
-    this.emitRecipeView(recipeId, recipe.title ?? null, context).catch(() => {
+    return recipe;
+  }
+
+  async recordRecipeView(
+    recipeId: number,
+    context: ActivityContext = {},
+  ): Promise<void> {
+    const exists = await this.recipeRepository.existsPublishedById(recipeId);
+    if (!exists) {
+      throw new NotFoundException('Recipe not found');
+    }
+
+    const normalizedIp = context.ipAddress?.trim() || 'unknown-ip';
+    const actorKey =
+      typeof context.userId === 'number' && context.userId > 0
+        ? `user:${context.userId}`
+        : `ip:${normalizedIp}`;
+    const dedupeKey = `recipe:view-dedupe:${recipeId}:${actorKey}`;
+
+    let shouldEmit = false;
+    try {
+      const setResult = await this.redisService.getClient().set(
+        dedupeKey,
+        '1',
+        'EX',
+        RecipeQueryService.VIEW_DEDUPE_TTL_SECONDS,
+        'NX',
+      );
+      shouldEmit = setResult === 'OK';
+    } catch (error) {
+      this.logger.warn(
+        `recipe.view dedupe failed, fallback emit recipeId=${recipeId}`,
+        error as Error,
+      );
+      // Redis 장애 시에도 조회 이벤트를 유실하지 않기 위해 fail-open 정책을 사용한다.
+      shouldEmit = true;
+    }
+
+    if (!shouldEmit) {
+      return;
+    }
+
+    this.emitRecipeView(recipeId, null, context).catch(() => {
       /* fire-and-forget */
     });
-
-    return recipe;
   }
 
   // TODO: 조인 비용 및 캐시 정책(Write Behind) 검토

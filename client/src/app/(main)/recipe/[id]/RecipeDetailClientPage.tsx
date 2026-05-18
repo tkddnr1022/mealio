@@ -1,7 +1,7 @@
 'use client';
 
 import { Clock3, Flame, Users } from 'lucide-react';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
@@ -13,7 +13,12 @@ import type { CardTagItem } from '@/components/ui/CardTagsRow';
 import { buildAriaLabel } from '@/lib/utils/a11y';
 import { useIsAuthenticated } from '@/lib/auth/auth-context';
 import { useMyFavoriteRecipeIds } from '@/lib/queries/inventory.queries';
+import { increaseRecipeViewCount } from '@/lib/api/domains';
 import type { RecipeDetail } from '@/lib/types/recipe';
+import {
+  hasSentRecipeView,
+  markRecipeViewSent,
+} from './recipe-view-tracking';
 import {
   toRecipeCookingTimeLabel,
   toRecipeDifficultyLabel,
@@ -76,6 +81,21 @@ export function RecipeDetailClientPage({
     if (!isAuthenticated || !favoriteIdsData) return false;
     return new Set(favoriteIdsData.favoriteRecipeIds).has(recipe.id);
   }, [isAuthenticated, favoriteIdsData, recipe.id]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      if (hasSentRecipeView(window.sessionStorage, recipe.id)) {
+        return;
+      }
+      markRecipeViewSent(window.sessionStorage, recipe.id);
+    } catch {
+      // sessionStorage 접근 불가 환경에서는 서버 dedupe 정책에 위임한다.
+    }
+
+    void increaseRecipeViewCount(recipe.id);
+  }, [recipe.id]);
 
   return (
     <div className="flex h-full min-h-0 flex-col">

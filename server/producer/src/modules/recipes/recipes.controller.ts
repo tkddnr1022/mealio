@@ -251,23 +251,41 @@ export class RecipesController {
   })
   async getById(
     @Param('recipeId', ParseIntPipe) recipeId: number,
+  ): Promise<RecipeDetailDto> {
+    return this.recipeQueryService.getById(recipeId);
+  }
+
+  @Post(':recipeId/views')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({ summary: '레시피 조회수 증가 이벤트 기록' })
+  @ApiParam({ name: 'recipeId', description: '레시피 ID' })
+  @ApiResponse({
+    status: HttpStatus.ACCEPTED,
+    description: '조회수 증가 이벤트 수락',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: '레시피를 찾을 수 없음',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
+  async recordView(
+    @Param('recipeId', ParseIntPipe) recipeId: number,
     @CurrentUserOptional() user?: AuthUser,
     @Req()
     req?: {
       ip?: string;
       headers: { [key: string]: string | string[] | undefined };
     },
-  ): Promise<RecipeDetailDto> {
-    if (!req) {
-      return this.recipeQueryService.getById(recipeId, undefined);
-    }
-
-    const ua = req.headers?.['user-agent'];
+  ): Promise<void> {
+    const ua = req?.headers?.['user-agent'];
     const context = {
       userId: user?.id,
-      ipAddress: req.ip,
+      ipAddress: req?.ip,
       userAgent: Array.isArray(ua) ? ua[0] : ua,
     };
-    return this.recipeQueryService.getById(recipeId, context);
+    await this.recipeQueryService.recordRecipeView(recipeId, context);
   }
 }

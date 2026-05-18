@@ -48,6 +48,8 @@ export const API_ENDPOINTS = {
       `${API_PREFIX}/recipes/${encodeURIComponent(String(recipeId))}`,
     search: `${API_PREFIX}/recipes/search`,
     summaries: `${API_PREFIX}/recipes/summaries`,
+    view: (recipeId: string | number) =>
+      `${API_PREFIX}/recipes/${encodeURIComponent(String(recipeId))}/views`,
   },
   ingredients: {
     list: `${API_PREFIX}/ingredients`,
