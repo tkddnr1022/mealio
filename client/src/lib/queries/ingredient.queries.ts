@@ -6,7 +6,13 @@
  * 재료 데이터는 거의 변하지 않으므로 `QUERY_CACHE.ingredient`(1시간 fresh)로 길게 캐싱한다.
  */
 
-import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useQuery,
+  type InfiniteData,
+  type UseInfiniteQueryOptions,
+  type UseQueryOptions,
+} from '@tanstack/react-query';
 
 import {
   getIngredientCategories,
@@ -32,6 +38,8 @@ export const ingredientQueries = {
   searches: () => [...ingredientQueries.all, 'search'] as const,
   search: (params: IngredientSearchQuery) =>
     [...ingredientQueries.searches(), params] as const,
+  searchInfinite: (params: Omit<IngredientSearchQuery, 'page'>) =>
+    [...ingredientQueries.searches(), 'infinite', params] as const,
 } as const;
 
 // ─── 공통 타입 ────────────────────────────────────────────────────────────────
@@ -74,6 +82,38 @@ export function useIngredientList(
     ...rest,
     meta: {
       errorToastTitle: '재료 목록을 불러오지 못했어요',
+      ...metaOption,
+    },
+  });
+}
+
+export function useIngredientSearchInfinite(
+  params: Omit<IngredientSearchQuery, 'page'>,
+  options?: Omit<
+    UseInfiniteQueryOptions<
+      IngredientListResult,
+      Error,
+      InfiniteData<IngredientListResult>,
+      ReturnType<typeof ingredientQueries.searchInfinite>,
+      number
+    >,
+    'queryKey' | 'queryFn' | 'getNextPageParam' | 'initialPageParam'
+  >,
+) {
+  const { meta: metaOption, ...rest } = options ?? {};
+  return useInfiniteQuery({
+    queryKey: ingredientQueries.searchInfinite(params),
+    queryFn: ({ pageParam }) =>
+      searchIngredients({ ...params, page: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const { page, totalPages } = lastPage.pagination;
+      return page < totalPages ? page + 1 : undefined;
+    },
+    ...QUERY_CACHE.ingredient,
+    ...rest,
+    meta: {
+      errorToastTitle: '재료 검색 결과를 불러오지 못했어요',
       ...metaOption,
     },
   });

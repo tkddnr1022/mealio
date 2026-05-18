@@ -11,7 +11,13 @@
  * - `staleTime`/`gcTime`은 `QUERY_CACHE.recipeList` / `QUERY_CACHE.recipeDetail`을 사용한다.
  */
 
-import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useQuery,
+  type InfiniteData,
+  type UseInfiniteQueryOptions,
+  type UseQueryOptions,
+} from '@tanstack/react-query';
 
 import {
   getRecipeById,
@@ -38,6 +44,8 @@ export const recipeQueries = {
   searches: () => [...recipeQueries.all, 'search'] as const,
   search: (params: RecipeSearchQuery) =>
     [...recipeQueries.searches(), params] as const,
+  searchInfinite: (params: Omit<RecipeSearchQuery, 'page'>) =>
+    [...recipeQueries.searches(), 'infinite', params] as const,
   details: () => [...recipeQueries.all, 'detail'] as const,
   detail: (id: number) => [...recipeQueries.details(), id] as const,
   summaries: (ids: readonly number[]) =>
@@ -70,6 +78,38 @@ export function useRecipeList(
     ...rest,
     meta: {
       errorToastTitle: '레시피 목록을 불러오지 못했어요',
+      ...metaOption,
+    },
+  });
+}
+
+export function useRecipeSearchInfinite(
+  params: Omit<RecipeSearchQuery, 'page'>,
+  options?: Omit<
+    UseInfiniteQueryOptions<
+      RecipeListResult,
+      Error,
+      InfiniteData<RecipeListResult>,
+      ReturnType<typeof recipeQueries.searchInfinite>,
+      number
+    >,
+    'queryKey' | 'queryFn' | 'getNextPageParam' | 'initialPageParam'
+  >,
+) {
+  const { meta: metaOption, ...rest } = options ?? {};
+  return useInfiniteQuery({
+    queryKey: recipeQueries.searchInfinite(params),
+    queryFn: ({ pageParam }) =>
+      searchRecipes({ ...params, page: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const { page, totalPages } = lastPage.pagination;
+      return page < totalPages ? page + 1 : undefined;
+    },
+    ...QUERY_CACHE.recipeList,
+    ...rest,
+    meta: {
+      errorToastTitle: '레시피 검색 결과를 불러오지 못했어요',
       ...metaOption,
     },
   });

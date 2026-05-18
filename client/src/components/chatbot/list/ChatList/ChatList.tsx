@@ -9,7 +9,6 @@ export interface ChatListProps<
   className?: string;
   chats: readonly TChat[];
   getTitle?: (chat: TChat) => string | undefined;
-  getLastMessage?: (chat: TChat) => string | undefined;
   cardClassName?: string;
 }
 
@@ -17,7 +16,6 @@ export function ChatList<TChat extends ConversationListItem>({
   className = '',
   chats,
   getTitle,
-  getLastMessage,
   cardClassName = '',
   ...rest
 }: ChatListProps<TChat>) {
@@ -33,7 +31,6 @@ export function ChatList<TChat extends ConversationListItem>({
             key={chat.conversationId}
             conversation={chat}
             title={getTitle?.(chat)}
-            lastMessage={getLastMessage?.(chat)}
             className={cardClassName}
           />
         );

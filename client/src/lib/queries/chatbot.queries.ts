@@ -15,6 +15,7 @@
 import {
   useInfiniteQuery,
   useQuery,
+  type InfiniteData,
   type UseInfiniteQueryOptions,
   type UseQueryOptions,
 } from '@tanstack/react-query';
@@ -76,7 +77,7 @@ export function useConversationListInfinite(
     UseInfiniteQueryOptions<
       ConversationList,
       Error,
-      ConversationList,
+      InfiniteData<ConversationList>,
       ReturnType<typeof chatbotQueries.conversationListInfinite>,
       string | undefined
     >,

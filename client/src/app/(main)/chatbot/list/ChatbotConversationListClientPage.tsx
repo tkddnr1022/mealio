@@ -3,22 +3,16 @@
 import { MessageCircle } from 'lucide-react';
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useQueries } from '@tanstack/react-query';
-import {
-  chatbotQueries,
-  useConversationList,
-} from '@/lib/queries/chatbot.queries';
-import { getConversationHistory } from '@/lib/api/domains';
-import { QUERY_CACHE } from '@/lib/config/cache.config';
+import { useConversationListInfinite } from '@/lib/queries/chatbot.queries';
+import { CHATBOT_CONVERSATION_LIST_LIMIT } from '@/lib/config/pagination.config';
 import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
 import { Tabbar } from '@/components/layout/Tabbar';
 import { ChatList } from '@/components/chatbot/list/ChatList';
 import { InfoScreen } from '@/components/layout/InfoScreen';
 import { AddButton } from '@/components/ui/buttons/AddButton';
+import { ListLoadMore } from '@/components/ui/ListLoadMore';
 
-const CONVERSATION_LIST_LIMIT = 20;
-const PREVIEW_TEXT_MAX = 54;
 const TITLE_TEXT_MAX = 20;
 
 function truncate(value: string, max: number): string {
@@ -32,49 +26,22 @@ function createFallbackTitle(conversationId: string): string {
 
 export function ChatbotConversationListClientPage() {
   const router = useRouter();
-  const { data: listData } = useConversationList({
-    limit: CONVERSATION_LIST_LIMIT,
-  });
-  const items = useMemo(() => listData?.items ?? [], [listData?.items]);
-
-  const detailQueries = useQueries({
-    queries: items.map((item) => ({
-      queryKey: chatbotQueries.conversationDetail(item.conversationId),
-      queryFn: () => getConversationHistory(item.conversationId),
-      ...QUERY_CACHE.chatbot,
-    })),
+  const {
+    data: listData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useConversationListInfinite({
+    limit: CHATBOT_CONVERSATION_LIST_LIMIT,
   });
 
-  const chats = useMemo(() => {
-    return items.map((item, index) => {
-      const messages = detailQueries[index]?.data?.messages ?? [];
-      const lastMessage = messages[messages.length - 1];
-      const firstUserMessage = messages.find(
-        (message) => message.role === 'user',
-      );
-      const titleSource = firstUserMessage?.message?.trim();
-      const previewSource = lastMessage?.message?.trim();
+  const items = useMemo(
+    () => listData?.pages.flatMap((page) => page.items) ?? [],
+    [listData?.pages],
+  );
 
-      return {
-        conversationId: item.conversationId,
-        updatedAt: item.updatedAt,
-        title: truncate(
-          titleSource && titleSource.length > 0
-            ? titleSource
-            : createFallbackTitle(item.conversationId),
-          TITLE_TEXT_MAX,
-        ),
-        lastMessage: truncate(
-          previewSource && previewSource.length > 0
-            ? previewSource
-            : '최근 대화 내용이 없습니다.',
-          PREVIEW_TEXT_MAX,
-        ),
-      };
-    });
-  }, [detailQueries, items]);
-
-  const hasChats = chats.length > 0;
+  const hasChats = items.length > 0;
 
   return (
     <>
@@ -84,13 +51,26 @@ export function ChatbotConversationListClientPage() {
         }
       />
 
-      <MainContent centered={!hasChats}>
-        {hasChats ? (
-          <ChatList
-            chats={chats}
-            getTitle={(chat) => chat.title}
-            getLastMessage={(chat) => chat.lastMessage}
-          />
+      <MainContent centered={!hasChats && !isLoading} scroll={hasChats}>
+        {isLoading && !hasChats ? (
+          <p className="typo-body-regular style-text-secondary">불러오는 중…</p>
+        ) : hasChats ? (
+          <>
+            <ChatList
+              chats={items}
+              getTitle={(chat) =>
+                truncate(
+                  chat.title?.trim() || createFallbackTitle(chat.conversationId),
+                  TITLE_TEXT_MAX,
+                )
+              }
+            />
+            <ListLoadMore
+              hasMore={hasNextPage ?? false}
+              isLoading={isFetchingNextPage}
+              onLoadMore={() => void fetchNextPage()}
+            />
+          </>
         ) : (
           <InfoScreen
             icon={<MessageCircle className="size-8" aria-hidden />}

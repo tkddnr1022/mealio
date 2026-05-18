@@ -8,18 +8,20 @@ import { SearchBarCard } from '@/components/recipe';
 import { ActionGroup } from '@/components/ui/ActionGroup';
 import { ToggleCard } from '@/components/ui/ToggleCard';
 import { Toggle } from '@/components/ui/Toggle';
+import { ListLoadMore } from '@/components/ui/ListLoadMore';
 import { IngredientSearchResult } from '@/components/inventory';
-import { useIngredientSearch } from '@/lib/queries/ingredient.queries';
+import { useIngredientSearchInfinite } from '@/lib/queries/ingredient.queries';
 import {
   useAddMyOwnedIngredients,
   useAddMyFavoriteIngredients,
 } from '@/lib/queries/inventory.queries';
+import { INGREDIENT_SEARCH_PAGE_SIZE } from '@/lib/config/pagination.config';
+import { toInventoryIngredientCountText } from '@/components/inventory/utils/inventory-format';
 import type { Ingredient, IngredientCategory } from '@/lib/types/ingredient';
 import type { InventoryIngredient } from '@/lib/types/inventory';
 
 type InventoryType = 'owned' | 'favorites';
 
-const INGREDIENT_PAGE_SIZE = 100;
 const SEARCH_DEBOUNCE_MS = 300;
 
 function toInventoryIngredient(item: Ingredient): InventoryIngredient {
@@ -41,7 +43,9 @@ export function IngredientFilterClientPage({
   const [keyword, setKeyword] = useState('');
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>(
+    [],
+  );
   const [selectedIngredientIds, setSelectedIngredientIds] = useState<number[]>(
     [],
   );
@@ -59,23 +63,41 @@ export function IngredientFilterClientPage({
   const searchQuery = useMemo(
     () => ({
       q: debouncedKeyword.trim() || undefined,
-      size: INGREDIENT_PAGE_SIZE,
+      size: INGREDIENT_SEARCH_PAGE_SIZE,
+      categoryId:
+        selectedCategoryIds.length === 1
+          ? selectedCategoryIds[0]
+          : undefined,
     }),
-    [debouncedKeyword],
+    [debouncedKeyword, selectedCategoryIds],
   );
 
-  const { data: ingredientResult } = useIngredientSearch(searchQuery);
+  const {
+    data: ingredientData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useIngredientSearchInfinite(searchQuery);
 
   const displayItems: InventoryIngredient[] = useMemo(() => {
-    const raw = ingredientResult?.data ?? [];
+    const raw = ingredientData?.pages.flatMap((page) => page.data) ?? [];
     const mapped = raw.map(toInventoryIngredient);
-    if (selectedCategoryIds.length === 0) return mapped;
+    // 다중 카테고리 선택 시에는 현재 로드된 페이지 안에서만 필터한다.
+    if (selectedCategoryIds.length <= 1) return mapped;
     return mapped.filter(
       (item) =>
         item.categoryId != null &&
         selectedCategoryIds.includes(item.categoryId),
     );
-  }, [ingredientResult, selectedCategoryIds]);
+  }, [ingredientData?.pages, selectedCategoryIds]);
+
+  const countText = useMemo(() => {
+    const total = ingredientData?.pages[0]?.pagination.total;
+    if (typeof total === 'number') {
+      return toInventoryIngredientCountText(total);
+    }
+    return toInventoryIngredientCountText(displayItems.length);
+  }, [ingredientData?.pages, displayItems.length]);
 
   const addOwnedMutation = useAddMyOwnedIngredients();
   const addFavoriteMutation = useAddMyFavoriteIngredients();
@@ -154,8 +176,15 @@ export function IngredientFilterClientPage({
 
         <IngredientSearchResult
           items={displayItems}
+          countText={countText}
           selectedIngredientIds={selectedIngredientIds}
           onClickIngredient={toggleIngredient}
+        />
+
+        <ListLoadMore
+          hasMore={hasNextPage ?? false}
+          isLoading={isFetchingNextPage}
+          onLoadMore={() => void fetchNextPage()}
         />
       </MainContent>
 

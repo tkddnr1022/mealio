@@ -16,17 +16,15 @@ export interface ChatCardProps extends Omit<
   className?: string;
   conversation: ConversationListItem;
   title?: string;
-  lastMessage?: string;
 }
 
 export function ChatCard({
   className = '',
   conversation,
   title,
-  lastMessage,
   ...rest
 }: ChatCardProps) {
-  const formattedTimestamp = toChatListTimestampLabel(conversation.updatedAt);
+  const updatedAtLabel = toChatListTimestampLabel(conversation.updatedAt);
   const conversationHref = toConversationHref(conversation.conversationId);
 
   const linkClassName =
@@ -48,18 +46,13 @@ export function ChatCard({
               <MessageCircle className="size-6" strokeWidth={2} aria-hidden />
             }
           />
-          <div className="flex min-w-0 flex-1 flex-col gap-2 overflow-hidden">
-            <div className="flex w-full items-center justify-between">
-              <h3 className="min-w-0 flex-1 truncate typo-card-heading style-text-primary">
-                {title ?? ''}
-              </h3>
-              <span className="ml-3 shrink-0 typo-card-caption style-text-caption">
-                {formattedTimestamp}
-              </span>
-            </div>
-            <p className="line-clamp-2 typo-card-body style-text-secondary">
-              {lastMessage ?? ''}
-            </p>
+          <div className="flex min-w-0 flex-1 flex-col gap-1 overflow-hidden">
+            <h3 className="min-w-0 flex-1 truncate typo-card-heading style-text-primary">
+              {title ?? ''}
+            </h3>
+            <span className="typo-card-caption style-text-caption">
+              {updatedAtLabel}
+            </span>
           </div>
         </div>
       </article>

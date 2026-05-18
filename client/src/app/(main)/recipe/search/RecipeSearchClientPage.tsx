@@ -13,13 +13,16 @@ import {
   SearchResultHeader,
 } from '@/components/recipe';
 import type { DropdownOption } from '@/components/ui/dropdown/DropdownList';
+import { ListLoadMore } from '@/components/ui/ListLoadMore';
 import { buildQueryString, objectToQuery } from '@/lib/api/query';
+import { RECIPE_SEARCH_PAGE_SIZE } from '@/lib/config/pagination.config';
 import {
   RECIPE_SORT_KEYS,
   type RecipeSearchQuery,
   type RecipeSortKey,
   type RecipeSummary,
 } from '@/lib/types/recipe';
+import type { Pagination } from '@/lib/types/api';
 import { toRecipeDifficultyLabel } from '@/components/recipe/utils/recipe-format';
 import { FilterButton } from '@/components/ui/buttons/FilterButton';
 import {
@@ -29,6 +32,7 @@ import {
 } from '@/components/recipe/utils/recipe-search-filters';
 import { useIsAuthenticated } from '@/lib/auth/auth-context';
 import { useMyFavoriteRecipeIds } from '@/lib/queries/inventory.queries';
+import { useRecipeSearchInfinite } from '@/lib/queries/recipe.queries';
 
 const FILTER_PAGE_PATH = '/recipe/filter' as const;
 const SEARCH_PAGE_PATH = '/recipe/search' as const;
@@ -53,6 +57,7 @@ interface RecipeSearchClientPageProps {
   categoryId?: number;
   categoryName?: string;
   recipes: RecipeSummary[];
+  initialPagination: Pagination;
   totalCount: number;
 }
 
@@ -84,7 +89,8 @@ export function RecipeSearchClientPage({
   cookTimeMax,
   categoryId,
   categoryName,
-  recipes,
+  recipes: initialRecipes,
+  initialPagination,
   totalCount,
 }: RecipeSearchClientPageProps) {
   const router = useRouter();
@@ -92,6 +98,36 @@ export function RecipeSearchClientPage({
   const { data: favoriteIdsData } = useMyFavoriteRecipeIds({
     enabled: isAuthenticated,
   });
+
+  const apiSearchParams = useMemo(
+    (): Omit<RecipeSearchQuery, 'page'> => ({
+      q: query || undefined,
+      sort: sort !== DEFAULT_SORT ? sort : undefined,
+      difficulty: difficulty.length > 0 ? difficulty : undefined,
+      cookTimeMin,
+      cookTimeMax,
+      categoryId,
+      size: RECIPE_SEARCH_PAGE_SIZE,
+    }),
+    [query, sort, difficulty, cookTimeMin, cookTimeMax, categoryId],
+  );
+
+  const {
+    data: searchData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useRecipeSearchInfinite(apiSearchParams, {
+    initialData: {
+      pages: [{ data: initialRecipes, pagination: initialPagination }],
+      pageParams: [1],
+    },
+  });
+
+  const recipes = useMemo(
+    () => searchData?.pages.flatMap((page) => page.data) ?? [],
+    [searchData?.pages],
+  );
 
   const favoriteIdSet = useMemo(
     () => new Set(favoriteIdsData?.favoriteRecipeIds ?? []),
@@ -210,15 +246,22 @@ export function RecipeSearchClientPage({
 
       <MainContent innerClassName="py-4 px-4" scroll={recipes.length > 0}>
         {recipes.length > 0 ? (
-          <RecipeList
-            recipes={recipes}
-            favoriteButtonRenderer={(recipe) => (
-              <RecipeFavoriteButton
-                recipeId={recipe.id}
-                isFavorite={favoriteIdSet.has(recipe.id)}
-              />
-            )}
-          />
+          <>
+            <RecipeList
+              recipes={recipes}
+              favoriteButtonRenderer={(recipe) => (
+                <RecipeFavoriteButton
+                  recipeId={recipe.id}
+                  isFavorite={favoriteIdSet.has(recipe.id)}
+                />
+              )}
+            />
+            <ListLoadMore
+              hasMore={hasNextPage ?? false}
+              isLoading={isFetchingNextPage}
+              onLoadMore={() => void fetchNextPage()}
+            />
+          </>
         ) : (
           <InfoScreen
             className="h-full justify-center gap-6"

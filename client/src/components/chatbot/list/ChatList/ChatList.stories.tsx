@@ -32,12 +32,6 @@ const titleMap = new Map<string, string>([
   ['chat-3', '아이 반찬 추천'],
 ]);
 
-const lastMessageMap = new Map<string, string>([
-  ['chat-1', '김치찌개를 맛있게 끓이려면 묵은지를 사용하는 것이 좋습니다.'],
-  ['chat-2', '단백질이 풍부한 닭가슴살 샐러드를 추천드립니다.'],
-  ['chat-3', '영양가 높은 계란말이와 시금치나물을 추천합니다.'],
-]);
-
 const meta = {
   title: 'Chatbot/List/ChatList',
   component: ChatList,
@@ -50,7 +44,6 @@ const meta = {
   args: {
     chats: sampleChats,
     getTitle: (chat) => titleMap.get(chat.conversationId),
-    getLastMessage: (chat) => lastMessageMap.get(chat.conversationId),
   },
 } satisfies Meta<typeof ChatList>;
 

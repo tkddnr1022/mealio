@@ -14,7 +14,9 @@ import {
   resolveSearchParams,
   type SearchParamRecord,
 } from '@/lib/utils/search-params';
+import { RECIPE_SEARCH_PAGE_SIZE } from '@/lib/config/pagination.config';
 import { truncateForMeta } from '@/lib/metadata/meta-text';
+import type { Pagination } from '@/lib/types/api';
 
 interface RecipeSearchPageProps {
   searchParams?: Promise<SearchParamRecord>;
@@ -133,18 +135,24 @@ export default async function RecipeSearchPage({
 }: RecipeSearchPageProps) {
   const resolvedSearchParams = await resolveSearchParams(searchParams);
   const { query, display } = parseSearchQuery(resolvedSearchParams);
+  const searchQuery = {
+    ...query,
+    page: query.page ?? 1,
+    size: query.size ?? RECIPE_SEARCH_PAGE_SIZE,
+  };
   const forwardedHeaders = await withForwardedHeaders();
   const [searchResult, categoriesResult] = await Promise.allSettled([
-    searchRecipes(query, forwardedHeaders),
+    searchRecipes(searchQuery, forwardedHeaders),
     getRecipeCategories(),
   ]);
 
   const recipes =
     searchResult.status === 'fulfilled' ? searchResult.value.data : [];
-  const totalCount =
+  const initialPagination: Pagination =
     searchResult.status === 'fulfilled'
-      ? searchResult.value.pagination.total
-      : 0;
+      ? searchResult.value.pagination
+      : { page: 1, size: RECIPE_SEARCH_PAGE_SIZE, total: 0, totalPages: 0 };
+  const totalCount = initialPagination.total;
   const categories =
     categoriesResult.status === 'fulfilled' ? categoriesResult.value.data : [];
 
@@ -163,6 +171,7 @@ export default async function RecipeSearchPage({
       categoryId={display.categoryId}
       categoryName={categoryName}
       recipes={recipes}
+      initialPagination={initialPagination}
       totalCount={totalCount}
     />
   );
