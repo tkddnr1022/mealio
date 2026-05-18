@@ -65,7 +65,11 @@ export class RecommendationRepository {
             gt: new Prisma.Decimal(0),
           },
         },
-        orderBy: [{ score: 'desc' }, { updatedAt: 'desc' }, { recipeId: 'asc' }],
+        orderBy: [
+          { score: 'desc' },
+          { updatedAt: 'desc' },
+          { recipeId: 'asc' },
+        ],
         take: maxRows,
       });
 
@@ -95,8 +99,14 @@ export class RecommendationRepository {
     reason: string,
     maxRows = MAX_RECOMMENDATION_ROWS,
   ): Promise<void> {
-    const uniqueIngredientIds = [...new Set(ingredientIds)].filter((id) => id > 0);
-    if (uniqueIngredientIds.length === 0 || !Number.isFinite(delta) || delta === 0) {
+    const uniqueIngredientIds = [...new Set(ingredientIds)].filter(
+      (id) => id > 0,
+    );
+    if (
+      uniqueIngredientIds.length === 0 ||
+      !Number.isFinite(delta) ||
+      delta === 0
+    ) {
       return;
     }
 
@@ -125,7 +135,11 @@ export class RecommendationRepository {
   ): RecipeScoreDeltaInput[] {
     const bucket = new Map<number, RecipeScoreDeltaInput>();
     for (const delta of deltas) {
-      if (delta.recipeId <= 0 || !Number.isFinite(delta.delta) || delta.delta === 0) {
+      if (
+        delta.recipeId <= 0 ||
+        !Number.isFinite(delta.delta) ||
+        delta.delta === 0
+      ) {
         continue;
       }
       const existing = bucket.get(delta.recipeId);

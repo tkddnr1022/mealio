@@ -187,13 +187,15 @@ export class RecipeQueryService {
 
     let shouldEmit = false;
     try {
-      const setResult = await this.redisService.getClient().set(
-        dedupeKey,
-        '1',
-        'EX',
-        RecipeQueryService.VIEW_DEDUPE_TTL_SECONDS,
-        'NX',
-      );
+      const setResult = await this.redisService
+        .getClient()
+        .set(
+          dedupeKey,
+          '1',
+          'EX',
+          RecipeQueryService.VIEW_DEDUPE_TTL_SECONDS,
+          'NX',
+        );
       shouldEmit = setResult === 'OK';
     } catch (error) {
       this.logger.warn(

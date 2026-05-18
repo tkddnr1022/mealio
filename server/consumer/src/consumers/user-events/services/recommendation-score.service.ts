@@ -20,7 +20,10 @@ export class RecommendationScoreService {
       return;
     }
 
-    if (event.type === UserEventType.SIGNUP || event.type === UserEventType.LOGIN) {
+    if (
+      event.type === UserEventType.SIGNUP ||
+      event.type === UserEventType.LOGIN
+    ) {
       return;
     }
 
@@ -86,13 +89,16 @@ export class RecommendationScoreService {
         );
         return;
       case InventoryEventType.RECIPE_FAVORITES_REMOVE:
-        await this.recommendationRepository.applyRecipeScoreDeltas(event.userId, [
-          {
-            recipeId: event.recipeId,
-            delta: -1.8,
-            reason: '관심 레시피 제거 신호 반영',
-          },
-        ]);
+        await this.recommendationRepository.applyRecipeScoreDeltas(
+          event.userId,
+          [
+            {
+              recipeId: event.recipeId,
+              delta: -1.8,
+              reason: '관심 레시피 제거 신호 반영',
+            },
+          ],
+        );
         return;
     }
   }

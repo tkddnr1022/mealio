@@ -121,7 +121,11 @@ export function increaseRecipeViewCount(
   recipeId: number,
   fetchOptions?: RequestOptions,
 ): Promise<void> {
-  return httpClient.post<void>(API_ENDPOINTS.recipes.view(recipeId), {}, fetchOptions);
+  return httpClient.post<void>(
+    API_ENDPOINTS.recipes.view(recipeId),
+    {},
+    fetchOptions,
+  );
 }
 
 /**

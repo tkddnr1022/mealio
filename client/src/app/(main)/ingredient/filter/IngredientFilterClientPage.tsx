@@ -43,9 +43,7 @@ export function IngredientFilterClientPage({
   const [keyword, setKeyword] = useState('');
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>(
-    [],
-  );
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
   const [selectedIngredientIds, setSelectedIngredientIds] = useState<number[]>(
     [],
   );
@@ -65,9 +63,7 @@ export function IngredientFilterClientPage({
       q: debouncedKeyword.trim() || undefined,
       size: INGREDIENT_SEARCH_PAGE_SIZE,
       categoryId:
-        selectedCategoryIds.length === 1
-          ? selectedCategoryIds[0]
-          : undefined,
+        selectedCategoryIds.length === 1 ? selectedCategoryIds[0] : undefined,
     }),
     [debouncedKeyword, selectedCategoryIds],
   );

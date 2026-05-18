@@ -278,9 +278,7 @@ describe('RecipesController', () => {
       );
 
       await expect(controller.getById(999)).rejects.toThrow(NotFoundException);
-      await expect(controller.getById(999)).rejects.toThrow(
-        'Recipe not found',
-      );
+      await expect(controller.getById(999)).rejects.toThrow('Recipe not found');
     });
 
     it('레시피 상세 조회는 조회 전용 서비스 호출만 수행한다', async () => {

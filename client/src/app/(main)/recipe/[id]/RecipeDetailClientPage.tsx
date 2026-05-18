@@ -15,10 +15,7 @@ import { useIsAuthenticated } from '@/lib/auth/auth-context';
 import { useMyFavoriteRecipeIds } from '@/lib/queries/inventory.queries';
 import { increaseRecipeViewCount } from '@/lib/api/domains';
 import type { RecipeDetail } from '@/lib/types/recipe';
-import {
-  hasSentRecipeView,
-  markRecipeViewSent,
-} from './recipe-view-tracking';
+import { hasSentRecipeView, markRecipeViewSent } from './recipe-view-tracking';
 import {
   toRecipeCookingTimeLabel,
   toRecipeDifficultyLabel,

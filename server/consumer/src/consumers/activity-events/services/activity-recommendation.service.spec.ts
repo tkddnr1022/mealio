@@ -16,7 +16,10 @@ describe('ActivityRecommendationService', () => {
     const module = await Test.createTestingModule({
       providers: [
         ActivityRecommendationService,
-        { provide: RecommendationRepository, useValue: recommendationRepository },
+        {
+          provide: RecommendationRepository,
+          useValue: recommendationRepository,
+        },
         {
           provide: CacheInvalidationRequestService,
           useValue: cacheInvalidationRequestService,
@@ -31,9 +34,9 @@ describe('ActivityRecommendationService', () => {
       entity: { type: 'recipe', id: 99 },
     });
 
-    expect(recommendationRepository.applyRecipeScoreDeltas).toHaveBeenCalledTimes(
-      1,
-    );
+    expect(
+      recommendationRepository.applyRecipeScoreDeltas,
+    ).toHaveBeenCalledTimes(1);
     expect(
       cacheInvalidationRequestService.requestRecommendationInvalidation,
     ).toHaveBeenCalledWith(12);
@@ -50,7 +53,10 @@ describe('ActivityRecommendationService', () => {
     const module = await Test.createTestingModule({
       providers: [
         ActivityRecommendationService,
-        { provide: RecommendationRepository, useValue: recommendationRepository },
+        {
+          provide: RecommendationRepository,
+          useValue: recommendationRepository,
+        },
         {
           provide: CacheInvalidationRequestService,
           useValue: cacheInvalidationRequestService,
@@ -65,7 +71,9 @@ describe('ActivityRecommendationService', () => {
       entity: { type: 'recipe', id: 99 },
     });
 
-    expect(recommendationRepository.applyRecipeScoreDeltas).not.toHaveBeenCalled();
+    expect(
+      recommendationRepository.applyRecipeScoreDeltas,
+    ).not.toHaveBeenCalled();
     expect(
       cacheInvalidationRequestService.requestRecommendationInvalidation,
     ).not.toHaveBeenCalled();

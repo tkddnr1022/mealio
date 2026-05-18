@@ -60,7 +60,8 @@ export function ChatbotConversationListClientPage() {
               chats={items}
               getTitle={(chat) =>
                 truncate(
-                  chat.title?.trim() || createFallbackTitle(chat.conversationId),
+                  chat.title?.trim() ||
+                    createFallbackTitle(chat.conversationId),
                   TITLE_TEXT_MAX,
                 )
               }

@@ -28,10 +28,12 @@ describe('RecommendationScoreService', () => {
       timestamp: new Date().toISOString(),
     });
 
-    expect(recommendationRepository.applyRecipeScoreDeltas).toHaveBeenCalledTimes(
-      1,
-    );
-    expect(recommendationRepository.applyIngredientScoreDelta).not.toHaveBeenCalled();
+    expect(
+      recommendationRepository.applyRecipeScoreDeltas,
+    ).toHaveBeenCalledTimes(1);
+    expect(
+      recommendationRepository.applyIngredientScoreDelta,
+    ).not.toHaveBeenCalled();
   });
 
   it('FAVORITES_ADD 이벤트를 재료 기반 점수 증가로 반영한다', async () => {
@@ -60,11 +62,6 @@ describe('RecommendationScoreService', () => {
 
     expect(
       recommendationRepository.applyIngredientScoreDelta,
-    ).toHaveBeenCalledWith(
-      3,
-      [1, 2],
-      0.8,
-      '관심 재료 추가 신호 반영',
-    );
+    ).toHaveBeenCalledWith(3, [1, 2], 0.8, '관심 재료 추가 신호 반영');
   });
 });

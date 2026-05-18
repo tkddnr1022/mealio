@@ -1,10 +1,9 @@
-import {
-  registerDecorator,
-  type ValidationOptions,
-} from 'class-validator';
+import { registerDecorator, type ValidationOptions } from 'class-validator';
 import { parseConversationListCursor } from '../../../infrastructure/database/repositories/mongodb/conversation-list-cursor';
 
-export function IsConversationListCursor(validationOptions?: ValidationOptions) {
+export function IsConversationListCursor(
+  validationOptions?: ValidationOptions,
+) {
   return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'isConversationListCursor',

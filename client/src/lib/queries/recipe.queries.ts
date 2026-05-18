@@ -104,8 +104,7 @@ export function useRecipeSearchInfinite(
   const { meta: metaOption, ...rest } = options ?? {};
   return useInfiniteQuery({
     queryKey: recipeQueries.searchInfinite(params),
-    queryFn: ({ pageParam }) =>
-      searchRecipes({ ...params, page: pageParam }),
+    queryFn: ({ pageParam }) => searchRecipes({ ...params, page: pageParam }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       const { page, totalPages } = lastPage.pagination;

@@ -34,7 +34,9 @@ describe('conversation-list-cursor', () => {
     it('빈 문자열·잘못된 값은 null을 반환한다', () => {
       expect(parseConversationListCursor('')).toBeNull();
       expect(parseConversationListCursor('not-a-date')).toBeNull();
-      expect(parseConversationListCursor('2025-01-24T00:00:00.000Z::')).toBeNull();
+      expect(
+        parseConversationListCursor('2025-01-24T00:00:00.000Z::'),
+      ).toBeNull();
       expect(parseConversationListCursor('::conv_only')).toBeNull();
     });
   });
