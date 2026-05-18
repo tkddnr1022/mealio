@@ -34,13 +34,13 @@ export function RecipeMainClientPage({
 
       <SearchBarHeader href="/recipe/filter" />
 
-      {showRecommendedSection ? (
-        <RecipeSection title="맞춤 레시피">
-          <RecipeSlider recipes={recommendedRecipes} />
-        </RecipeSection>
-      ) : null}
-
       <MainContent paddingX={false}>
+        {showRecommendedSection ? (
+          <RecipeSection title="맞춤 레시피">
+            <RecipeSlider recipes={recommendedRecipes} />
+          </RecipeSection>
+        ) : null}
+
         <RecipeSection title="많이 본 레시피">
           {mostViewedRecipes.length > 0 ? (
             <RecipeSlider recipes={mostViewedRecipes} />
