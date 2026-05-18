@@ -57,7 +57,7 @@ export function MypageClientPage() {
           creditUsed={creditUsed}
           creditMax={creditMax}
           userProfileProps={
-            loggedIn ? { nickname, email } : { message: '로그인이 필요합니다' }
+            loggedIn ? { nickname, email } : { message: '로그인이 필요해요' }
           }
         />
 

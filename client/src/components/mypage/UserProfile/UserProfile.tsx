@@ -18,7 +18,7 @@ export function UserProfile({
   loggedIn = true,
   nickname = 'Nickname',
   email = 'recipe@example.com',
-  message = '로그인이 필요합니다',
+  message = '로그인이 필요해요',
   ...rest
 }: UserProfileProps) {
   return (

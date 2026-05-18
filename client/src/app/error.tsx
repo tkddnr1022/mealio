@@ -21,7 +21,7 @@ export default function RootError({ error }: RootErrorProps) {
     <main className="flex h-full min-h-0 flex-1 items-center justify-center bg-background-primary-default px-4">
       <div className="w-full max-w-(--layout-content-max-width)">
         <InfoScreen
-          title="오류가 발생했습니다"
+          title="오류가 발생했어요"
           message={message}
           icon={
             <Info

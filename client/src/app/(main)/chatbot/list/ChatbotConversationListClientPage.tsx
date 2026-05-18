@@ -74,7 +74,7 @@ export function ChatbotConversationListClientPage() {
         ) : (
           <InfoScreen
             icon={<MessageCircle className="size-8" aria-hidden />}
-            title="대화 기록이 없습니다"
+            title="대화 기록이 없어요"
             message="첫 대화를 시작해 보세요"
             buttonLabel="대화 시작"
             buttonHref="/chatbot/list"

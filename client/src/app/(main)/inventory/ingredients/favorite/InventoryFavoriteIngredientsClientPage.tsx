@@ -19,7 +19,7 @@ export function InventoryFavoriteIngredientsClientPage() {
       tab="favoriteIngredients"
       isEmpty={items.length === 0}
       infoScreenProps={{
-        title: '관심 재료가 없습니다',
+        title: '관심 재료가 없어요',
         message: '즐겨 찾는 재료를 추가해 보세요',
         buttonLabel: '재료 추가',
         buttonHref: addHref,

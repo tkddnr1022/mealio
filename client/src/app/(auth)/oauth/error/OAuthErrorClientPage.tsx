@@ -108,14 +108,14 @@ function OAuthErrorPageContent() {
 
   const display = oauthError ?? {
     code: 'UNKNOWN',
-    message: '로그인 처리 중 문제가 발생했습니다. 다시 시도해 주세요.',
+    message: '로그인 처리 중 문제가 발생했어요. 다시 시도해 주세요.',
   };
 
   return (
     <main className="flex h-full min-h-0 flex-1 items-center justify-center bg-background-primary-default px-4">
       <div className="w-full max-w-(--layout-content-max-width)">
         <InfoScreen
-          title="로그인에 실패했습니다"
+          title="로그인에 실패했어요"
           message={`${display.message} (code: ${display.code})`}
           icon={
             <AlertTriangle

@@ -39,7 +39,7 @@ export function MypageHeader({
       <UserProfile
         loggedIn={loggedIn}
         {...userProfileProps}
-        message={userProfileProps?.message ?? '로그인이 필요합니다'}
+        message={userProfileProps?.message ?? '로그인이 필요해요'}
       />
       {loggedIn && creditMax > 0 ? (
         <CreditUsageCard

@@ -4,7 +4,7 @@ import { Info } from 'lucide-react';
 import { InfoScreen } from '@/components/layout/InfoScreen';
 
 export const metadata: Metadata = {
-  title: '페이지를 찾을 수 없습니다',
+  title: '페이지를 찾을 수 없어요',
   description: '요청하신 페이지가 없거나 이동되었습니다.',
   robots: { index: false, follow: true },
 };
@@ -14,8 +14,8 @@ export default function NotFound() {
     <main className="flex h-full min-h-0 flex-1 items-center justify-center bg-background-primary-default px-4">
       <div className="w-full max-w-(--layout-content-max-width)">
         <InfoScreen
-          title="페이지를 찾을 수 없습니다"
-          message="요청하신 페이지가 없거나 이동되었습니다."
+          title="페이지를 찾을 수 없어요"
+          message="요청하신 페이지가 없거나 이동되었어요"
           icon={
             <Info
               className="size-8 text-text-accent"

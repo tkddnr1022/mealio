@@ -31,7 +31,7 @@ export function InventoryFavoriteRecipesClientPage() {
       tab="favoriteRecipes"
       isEmpty={recipes.length === 0}
       infoScreenProps={{
-        title: '관심 레시피가 없습니다',
+        title: '관심 레시피가 없어요',
         message: '즐겨 찾는 레시피를 추가해 보세요',
         buttonLabel: '레시피 추가',
         buttonHref: addHref,

@@ -14,7 +14,7 @@ export function resolveErrorBoundaryMessage(
     raw.includes('unauthorized') ||
     raw.includes('forbidden')
   ) {
-    return '접근 권한이 없습니다';
+    return '접근 권한이 없어요';
   }
   if (
     raw.includes('network') ||
@@ -24,5 +24,5 @@ export function resolveErrorBoundaryMessage(
   ) {
     return '네트워크 상태를 확인한 뒤 다시 시도해 주세요';
   }
-  return '일시적인 오류가 발생했습니다';
+  return '일시적인 오류가 발생했어요';
 }

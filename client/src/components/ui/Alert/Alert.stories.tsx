@@ -30,7 +30,7 @@ type Story = StoryObj<typeof meta>;
 export const Error = {
   args: {
     variant: 'error',
-    title: '오류가 발생했습니다',
+    title: '오류가 발생했어요',
     message: '다시 시도하거나 잠시 후 이용해 주세요.',
   },
 } satisfies Story;
@@ -38,7 +38,7 @@ export const Error = {
 export const Warning = {
   args: {
     variant: 'warning',
-    title: '확인이 필요합니다',
+    title: '확인이 필요해요',
     message: '입력한 내용을 한 번 더 검토해 주세요.',
   },
 } satisfies Story;

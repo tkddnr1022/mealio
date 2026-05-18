@@ -19,7 +19,7 @@ export function InventoryOwnedIngredientsClientPage() {
       tab="ownedIngredients"
       isEmpty={items.length === 0}
       infoScreenProps={{
-        title: '보유 재료가 없습니다',
+        title: '보유 재료가 없어요',
         message: '가지고 있는 재료를 추가해 보세요',
         buttonLabel: '재료 추가',
         buttonHref: addHref,

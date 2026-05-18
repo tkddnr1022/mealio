@@ -46,7 +46,7 @@ export function RecipeMainClientPage({
             <RecipeSlider recipes={mostViewedRecipes} />
           ) : (
             <p className="typo-body-regular px-4 style-text-caption">
-              표시할 레시피가 없습니다.
+              표시할 레시피가 없어요.
             </p>
           )}
         </RecipeSection>
@@ -56,7 +56,7 @@ export function RecipeMainClientPage({
             <RecipeSlider recipes={mostLikedRecipes} />
           ) : (
             <p className="typo-body-regular px-4 style-text-caption">
-              표시할 레시피가 없습니다.
+              표시할 레시피가 없어요.
             </p>
           )}
         </RecipeSection>

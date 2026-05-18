@@ -265,7 +265,7 @@ export function RecipeSearchClientPage({
         ) : (
           <InfoScreen
             className="h-full justify-center gap-6"
-            title="검색 결과가 없습니다"
+            title="검색 결과가 없어요"
             message="다른 검색 조건을 시도해 보세요"
             icon={<Search className="size-8" strokeWidth={2} aria-hidden />}
             buttonLabel="검색 조건 변경"
