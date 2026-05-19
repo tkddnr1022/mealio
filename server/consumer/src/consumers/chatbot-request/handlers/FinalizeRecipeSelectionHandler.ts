@@ -22,7 +22,9 @@ export class FinalizeRecipeSelectionHandler {
       return [];
     }
 
-    const candidateById = new Map(candidates.map((recipe) => [recipe.id, recipe]));
+    const candidateById = new Map(
+      candidates.map((recipe) => [recipe.id, recipe]),
+    );
     return uniqueIds
       .map((id) => candidateById.get(id))
       .filter((recipe): recipe is SearchedRecipe => recipe !== undefined);

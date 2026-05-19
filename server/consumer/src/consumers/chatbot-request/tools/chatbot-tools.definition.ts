@@ -61,8 +61,7 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
           },
           maxCookTime: {
             type: 'number',
-            description:
-              '최대 조리 시간(분). 예: "30분 이내"는 30.',
+            description: '최대 조리 시간(분). 예: "30분 이내"는 30.',
           },
           servings: {
             type: 'number',

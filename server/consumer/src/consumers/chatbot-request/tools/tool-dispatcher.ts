@@ -56,7 +56,8 @@ export class ToolDispatcher {
             : undefined,
           maxCookTime:
             typeof args.maxCookTime === 'number' ? args.maxCookTime : undefined,
-          servings: typeof args.servings === 'number' ? args.servings : undefined,
+          servings:
+            typeof args.servings === 'number' ? args.servings : undefined,
           dietaryTags: Array.isArray(args.dietaryTags)
             ? (args.dietaryTags as string[])
             : undefined,

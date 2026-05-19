@@ -189,9 +189,7 @@ export class SearchRecipesHandler {
     }));
   }
 
-  private buildKeywords(
-    payload: SearchRecipesPayload,
-  ): string[] {
+  private buildKeywords(payload: SearchRecipesPayload): string[] {
     return this.normalizeLowerCaseValues([
       ...(payload.keywords ?? []),
       ...(payload.mustHaveIngredients ?? []),
@@ -219,11 +217,7 @@ export class SearchRecipesHandler {
   }
 
   private normalizePositiveNumber(value: unknown): number | undefined {
-    if (
-      typeof value !== 'number' ||
-      !Number.isFinite(value) ||
-      value <= 0
-    ) {
+    if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
       return undefined;
     }
     return Math.floor(value);

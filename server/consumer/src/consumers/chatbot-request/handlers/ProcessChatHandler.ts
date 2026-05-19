@@ -252,7 +252,9 @@ export class ProcessChatHandler {
             candidateCount: candidates.length,
             candidateRecipeIds: candidates.map((item) => item.id),
             selectedRecipeIds: selected.map((item) => item.id),
-            topScores: candidates.map((item) => item.finalScore ?? 0).slice(0, 5),
+            topScores: candidates
+              .map((item) => item.finalScore ?? 0)
+              .slice(0, 5),
           };
         }
       } else {
