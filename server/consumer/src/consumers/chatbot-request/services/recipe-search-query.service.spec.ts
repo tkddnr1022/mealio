@@ -24,6 +24,7 @@ describe('RecipeSearchQueryService', () => {
     const service = module.get(RecipeSearchQueryService);
     await service.searchRecipes({
       maxCookTime: 20,
+      servings: 2,
       recipeCategoryIds: [1, 1, -1],
       ingredientCategoryIds: [2, 0],
       includeIngredientIds: [10, 10, 0],
@@ -36,6 +37,7 @@ describe('RecipeSearchQueryService', () => {
     expect(findManyArg.where).toEqual({
       isPublished: true,
       cookTime: { lte: 20 },
+      servings: 2,
       categoryId: { in: [1] },
       AND: [
         {
@@ -103,6 +105,30 @@ describe('RecipeSearchQueryService', () => {
         },
       ],
     });
+  });
+
+  it('servings가 유효하지 않으면 인분 필터를 적용하지 않는다', async () => {
+    const findMany = jest
+      .fn<Promise<unknown[]>, [Prisma.RecipeFindManyArgs]>()
+      .mockResolvedValue([]);
+    const prismaService = {
+      recipe: {
+        findMany,
+      },
+    };
+
+    const module = await Test.createTestingModule({
+      providers: [
+        RecipeSearchQueryService,
+        { provide: PrismaService, useValue: prismaService },
+      ],
+    }).compile();
+
+    const service = module.get(RecipeSearchQueryService);
+    await service.searchRecipes({ servings: 0 });
+
+    const findManyArg = findMany.mock.calls[0][0];
+    expect(findManyArg.where).toEqual({ isPublished: true });
   });
 
   it('조건이 없으면 AND 없이 기본 published 조건만 조회한다', async () => {

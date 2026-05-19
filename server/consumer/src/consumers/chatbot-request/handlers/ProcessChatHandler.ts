@@ -104,7 +104,6 @@ export class ProcessChatHandler {
   }> {
     const toolContext: ToolContext = {
       userId: payload.userId,
-      userMessage: payload.message,
     };
 
     const previousTurns = await this.chatbotLogRepository.findRecentTurns(

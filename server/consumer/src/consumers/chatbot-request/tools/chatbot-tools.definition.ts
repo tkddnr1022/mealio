@@ -23,17 +23,9 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
   {
     type: 'function',
     function: {
-      name: 'extract_recipe_intent',
-      description:
-        '현재 사용자의 자연어 메시지를 구조화합니다. 검색 조건이 모호하거나 복합 조건(제외 재료, 인분, 식단 조건)이 있으면 search_recipes 전에 먼저 호출하세요.',
-    },
-  },
-  {
-    type: 'function',
-    function: {
       name: 'search_recipes',
       description:
-        '키워드·조리시간·재료 ID·레시피/재료 카테고리로 레시피를 검색합니다. 항상 최대 10개 후보를 반환하며, 최종 추천 레시피는 이 결과 안에서 사용자 요청에 맞게 직접 고르세요. get_user_inventory로 재료 id·재료 분류를, get_food_categories로 레시피/재료 분류 id를 확인한 뒤 조합해 사용할 수 있습니다.',
+        '키워드·조리시간·인분·재료/카테고리 조건으로 레시피를 검색합니다. 사용자 요청에서 해석한 조건은 이 함수 인자에 직접 전달하세요. 항상 최대 10개 후보를 반환하며, 최종 추천 레시피는 이 결과 안에서 직접 고르세요. get_user_inventory로 재료 id·재료 분류를, get_food_categories로 레시피/재료 분류 id를 확인해 조합할 수 있습니다.',
       parameters: {
         type: 'object',
         properties: {
@@ -49,11 +41,39 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
             description:
               '보유 인벤토리와 겹치는 재료가 많은 레시피에 가산점. get_user_inventory 결과의 ownedIngredients/favoriteIngredients id 목록을 사용.',
           },
+          mustHaveIngredients: {
+            type: 'array',
+            items: { type: 'string' },
+            description:
+              '반드시 포함되면 좋은 재료 이름 목록(예: 닭가슴살, 두부). 이름 기반으로 검색 필터에 반영.',
+          },
           avoidIngredientIds: {
             type: 'array',
             items: { type: 'number' },
             description:
               '제외할 재료 id 목록. get_user_inventory 결과의 ownedIngredients/favoriteIngredients id 목록을 사용.',
+          },
+          avoidIngredients: {
+            type: 'array',
+            items: { type: 'string' },
+            description:
+              '제외할 재료 이름 목록(예: 우유, 땅콩). 이름 기반 제외 필터에 반영.',
+          },
+          maxCookTime: {
+            type: 'number',
+            description:
+              '최대 조리 시간(분). 예: "30분 이내"는 30.',
+          },
+          servings: {
+            type: 'number',
+            description:
+              '희망 인분(예: 2). Recipe.servings와 일치하는 레시피만 조회.',
+          },
+          dietaryTags: {
+            type: 'array',
+            items: { type: 'string' },
+            description:
+              '식단/취향 태그(예: 저탄고지, 고단백, 비건). 현재는 검색 랭킹 힌트로 활용.',
           },
           recipeCategoryIds: {
             type: 'array',

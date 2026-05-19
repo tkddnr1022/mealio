@@ -2,7 +2,6 @@
  * OpenAI Function `name` 값 — 서버 `chatbot-tools.definition.ts`의 `CHATBOT_TOOLS[].function.name`과 동기화할 것.
  */
 export const CHATBOT_TOOL_FUNCTION_NAME = {
-  EXTRACT_RECIPE_INTENT: 'extract_recipe_intent',
   FINALIZE_RECIPE_SELECTION: 'finalize_recipe_selection',
   SEARCH_RECIPES: 'search_recipes',
   GET_USER_INVENTORY: 'get_user_inventory',
@@ -13,7 +12,6 @@ export type ChatbotToolFunctionName =
   (typeof CHATBOT_TOOL_FUNCTION_NAME)[keyof typeof CHATBOT_TOOL_FUNCTION_NAME];
 
 const TOOL_PROGRESS_LABELS: Record<ChatbotToolFunctionName, string> = {
-  [CHATBOT_TOOL_FUNCTION_NAME.EXTRACT_RECIPE_INTENT]: '요청 분석 중…',
   [CHATBOT_TOOL_FUNCTION_NAME.FINALIZE_RECIPE_SELECTION]: '추천 레시피 선정 중…',
   [CHATBOT_TOOL_FUNCTION_NAME.SEARCH_RECIPES]: '레시피 검색 중…',
   [CHATBOT_TOOL_FUNCTION_NAME.GET_USER_INVENTORY]: '재료 목록 불러오는 중…',

@@ -36,9 +36,8 @@
 | server/consumer/src/consumers/chatbot-request/services/chatbot-credit.service.ts | 챗봇 턴 완료 시 Prisma 트랜잭션으로 `chatbot_credit_deductions`(streamChannelId PK) 멱등 삽입·`User.creditBalance` 차감·차감 크레딧 기록. `@mealio/shared`의 `computeChatbotCreditCost` 사용. 신규 차감 시 `cache-invalidation`(USER_PROFILE) 토픽 발행 |
 | server/consumer/src/consumers/chatbot-request/services/chatbot-credit.service.spec.ts | ChatbotCreditService 단위 테스트 |
 | server/consumer/src/consumers/chatbot-request/handlers/InventoryHandler.ts | get_user_inventory — Inventory 조회(`ingredients.owned`, `ingredients.favorite`, `recipes.favorite`), Ingredient id→name(Redis 캐시) 반환 |
-| server/consumer/src/consumers/chatbot-request/handlers/SearchRecipesHandler.ts | search_recipes — Prisma 레시피 검색, ingredientIds optional, RecipeSummary[] 반환 |
+| server/consumer/src/consumers/chatbot-request/handlers/SearchRecipesHandler.ts | search_recipes — Prisma 레시피 검색, 명시적 필터(`keywords`, `maxCookTime`, `mustHaveIngredients`, `avoidIngredients`, 카테고리/재료 id) 기반 후보 조회·재랭킹 |
 | server/consumer/src/consumers/chatbot-request/handlers/FoodCategoriesHandler.ts | get_food_categories — 레시피·재료 카테고리 마스터 조회(Redis 캐시 1시간) |
-| server/consumer/src/consumers/chatbot-request/handlers/QueryUnderstandingHandler.ts | extract_recipe_intent — 자연어 질의를 구조화(JSON)하여 search_recipes 필터 보조 |
 | server/consumer/src/consumers/chatbot-request/handlers/SaveChatLogHandler.ts | 스트림 종료 후 ChatbotLog 저장 |
 | server/consumer/src/consumers/chatbot-request/handlers/SyncConversationMetaHandler.ts | 성공 턴 후 `chatbot_conversations` 동기화: `chatbot.start`면 LLM 제목·메타 생성, `chatbot.message`면 `updatedAt` 갱신 |
 | server/consumer/src/consumers/chatbot-request/services/recipe-embedding.service.ts | 레시피 문서화·OpenAI 임베딩 생성·pgvector 업서트(증분 동기화) |

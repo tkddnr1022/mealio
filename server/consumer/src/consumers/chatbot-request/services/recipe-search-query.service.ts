@@ -4,6 +4,7 @@ import { PrismaService } from '@mealio/shared';
 
 export interface RecipeSearchQueryInput {
   maxCookTime?: number;
+  servings?: number;
   recipeCategoryIds?: number[];
   ingredientCategoryIds?: number[];
   includeIngredientIds?: number[];
@@ -54,6 +55,7 @@ export class RecipeSearchQueryService {
     const normalizedExcludeIngredientNames = this.normalizeLowerCaseValues(
       input.excludeIngredientNames ?? [],
     );
+    const normalizedServings = this.normalizePositiveNumber(input.servings);
 
     const andConditions: Prisma.RecipeWhereInput[] = [];
 
@@ -126,6 +128,9 @@ export class RecipeSearchQueryService {
       ...(input.maxCookTime != null && {
         cookTime: { lte: input.maxCookTime },
       }),
+      ...(normalizedServings != null && {
+        servings: normalizedServings,
+      }),
       ...(normalizedRecipeCategoryIds.length > 0 && {
         categoryId: { in: normalizedRecipeCategoryIds },
       }),
@@ -147,6 +152,13 @@ export class RecipeSearchQueryService {
       take: 80,
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  private normalizePositiveNumber(value: unknown): number | undefined {
+    if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
+      return undefined;
+    }
+    return Math.floor(value);
   }
 
   private normalizePositiveIds(values: number[]): number[] {

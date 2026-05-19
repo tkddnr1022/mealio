@@ -30,7 +30,6 @@ import { ChatbotCreditService } from './services/chatbot-credit.service';
 import { RecipeEmbeddingRepository } from 'src/persistence/repositories/postgresql/recipe-embedding.repository';
 import { RecipeEmbeddingService } from './services/recipe-embedding.service';
 import { RecipeSearchQueryService } from './services/recipe-search-query.service';
-import { QueryUnderstandingHandler } from './handlers/QueryUnderstandingHandler';
 import { FinalizeRecipeSelectionHandler } from './handlers/FinalizeRecipeSelectionHandler';
 
 @Module({
@@ -54,7 +53,6 @@ import { FinalizeRecipeSelectionHandler } from './handlers/FinalizeRecipeSelecti
     EventLogRepository,
     SearchRecipesHandler,
     FoodCategoriesHandler,
-    QueryUnderstandingHandler,
     FinalizeRecipeSelectionHandler,
     RecipeEmbeddingRepository,
     RecipeEmbeddingService,

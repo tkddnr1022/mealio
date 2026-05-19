@@ -3,7 +3,6 @@ import { PrismaService } from '@mealio/shared';
 import { RecipeEmbeddingService } from '../services/recipe-embedding.service';
 import { RecipeSearchQueryService } from '../services/recipe-search-query.service';
 import { RecipeEmbeddingRepository } from 'src/persistence/repositories/postgresql/recipe-embedding.repository';
-import type { StructuredRecipeIntent } from './QueryUnderstandingHandler';
 
 /** `search_recipes` 도구가 반환하는 레시피 요약(검색 결과). 추천·랭킹 점수는 포함하지 않는다. */
 export interface SearchedRecipe {
@@ -29,7 +28,12 @@ export interface SearchedRecipe {
 export interface SearchRecipesPayload {
   keywords?: string[];
   ingredientIds?: number[];
+  mustHaveIngredients?: string[];
   avoidIngredientIds?: number[];
+  avoidIngredients?: string[];
+  maxCookTime?: number;
+  servings?: number;
+  dietaryTags?: string[];
   recipeCategoryIds?: number[];
   ingredientCategoryIds?: number[];
 }
@@ -45,7 +49,6 @@ const RERANK_WEIGHT = {
 
 export interface SearchRecipesOptions {
   userId: number;
-  structuredIntent?: StructuredRecipeIntent;
 }
 
 /**
@@ -65,29 +68,27 @@ export class SearchRecipesHandler {
     payload: SearchRecipesPayload,
     options: SearchRecipesOptions,
   ): Promise<SearchedRecipe[]> {
-    const keywords = this.buildKeywords(payload, options.structuredIntent);
-    const maxCookTime = options.structuredIntent?.maxCookTime ?? undefined;
+    const keywords = this.buildKeywords(payload);
+    const maxCookTime = this.normalizePositiveNumber(payload.maxCookTime);
+    const servings = this.normalizePositiveNumber(payload.servings);
     const recipeCategoryIds = payload.recipeCategoryIds ?? [];
     const ingredientCategoryIds = payload.ingredientCategoryIds ?? [];
     const ingredientIds = payload.ingredientIds ?? [];
     const recipes = await this.recipeSearchQueryService.searchRecipes({
       maxCookTime,
+      servings,
       recipeCategoryIds,
       ingredientCategoryIds,
       includeIngredientIds: ingredientIds,
-      includeIngredientNames:
-        options.structuredIntent?.mustHaveIngredients ?? [],
+      includeIngredientNames: payload.mustHaveIngredients ?? [],
       excludeIngredientIds: payload.avoidIngredientIds ?? [],
-      excludeIngredientNames: options.structuredIntent?.avoidIngredients ?? [],
+      excludeIngredientNames: payload.avoidIngredients ?? [],
     });
 
     const recipeIds = recipes.map((recipe) => recipe.id);
     await this.recipeEmbeddingService.ensureEmbeddingsForRecipeIds(recipeIds);
 
-    const queryText = this.buildSemanticQueryText(
-      keywords,
-      options.structuredIntent,
-    );
+    const queryText = this.buildSemanticQueryText(payload, keywords);
     const queryEmbedding =
       queryText.length > 0
         ? await this.recipeEmbeddingService.createQueryEmbedding(queryText)
@@ -190,12 +191,10 @@ export class SearchRecipesHandler {
 
   private buildKeywords(
     payload: SearchRecipesPayload,
-    intent?: StructuredRecipeIntent,
   ): string[] {
     return this.normalizeLowerCaseValues([
       ...(payload.keywords ?? []),
-      ...(intent?.keywords ?? []),
-      ...(intent?.mustHaveIngredients ?? []),
+      ...(payload.mustHaveIngredients ?? []),
     ]);
   }
 
@@ -206,17 +205,28 @@ export class SearchRecipesHandler {
   }
 
   private buildSemanticQueryText(
+    payload: SearchRecipesPayload,
     keywords: string[],
-    intent?: StructuredRecipeIntent,
   ): string {
     const sections = [
       `keywords: ${keywords.join(', ')}`,
-      `must_have: ${(intent?.mustHaveIngredients ?? []).join(', ')}`,
-      `avoid: ${(intent?.avoidIngredients ?? []).join(', ')}`,
-      `dietary_tags: ${(intent?.dietaryTags ?? []).join(', ')}`,
-      `intent_type: ${intent?.intentType ?? 'search'}`,
+      `must_have: ${(payload.mustHaveIngredients ?? []).join(', ')}`,
+      `avoid: ${(payload.avoidIngredients ?? []).join(', ')}`,
+      `dietary_tags: ${(payload.dietaryTags ?? []).join(', ')}`,
+      `servings: ${this.normalizePositiveNumber(payload.servings) ?? ''}`,
     ];
     return sections.join('\n').trim();
+  }
+
+  private normalizePositiveNumber(value: unknown): number | undefined {
+    if (
+      typeof value !== 'number' ||
+      !Number.isFinite(value) ||
+      value <= 0
+    ) {
+      return undefined;
+    }
+    return Math.floor(value);
   }
 
   private computeKeywordScore(

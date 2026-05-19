@@ -2,17 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { SearchRecipesHandler } from '../handlers/SearchRecipesHandler';
 import { FoodCategoriesHandler } from '../handlers/FoodCategoriesHandler';
 import { InventoryHandler } from '../handlers/InventoryHandler';
-import {
-  QueryUnderstandingHandler,
-  type StructuredRecipeIntent,
-} from '../handlers/QueryUnderstandingHandler';
 import { FinalizeRecipeSelectionHandler } from '../handlers/FinalizeRecipeSelectionHandler';
 import type { SearchedRecipe } from '../handlers/SearchRecipesHandler';
 
 export interface ToolContext {
   userId: number;
-  userMessage: string;
-  structuredIntent?: StructuredRecipeIntent;
   candidateRecipes?: SearchedRecipe[];
   selectedRecipes?: SearchedRecipe[];
 }
@@ -26,7 +20,6 @@ export class ToolDispatcher {
     private readonly searchRecipesHandler: SearchRecipesHandler,
     private readonly foodCategoriesHandler: FoodCategoriesHandler,
     private readonly inventoryHandler: InventoryHandler,
-    private readonly queryUnderstandingHandler: QueryUnderstandingHandler,
     private readonly finalizeRecipeSelectionHandler: FinalizeRecipeSelectionHandler,
   ) {}
 
@@ -44,13 +37,6 @@ export class ToolDispatcher {
         const result = await this.foodCategoriesHandler.execute();
         return JSON.stringify(result);
       }
-      case 'extract_recipe_intent': {
-        const result = await this.queryUnderstandingHandler.execute(
-          context.userMessage,
-        );
-        context.structuredIntent = result;
-        return JSON.stringify(result);
-      }
       case 'search_recipes': {
         const payload = {
           keywords: Array.isArray(args.keywords)
@@ -59,8 +45,20 @@ export class ToolDispatcher {
           ingredientIds: Array.isArray(args.ingredientIds)
             ? (args.ingredientIds as number[])
             : undefined,
+          mustHaveIngredients: Array.isArray(args.mustHaveIngredients)
+            ? (args.mustHaveIngredients as string[])
+            : undefined,
           avoidIngredientIds: Array.isArray(args.avoidIngredientIds)
             ? (args.avoidIngredientIds as number[])
+            : undefined,
+          avoidIngredients: Array.isArray(args.avoidIngredients)
+            ? (args.avoidIngredients as string[])
+            : undefined,
+          maxCookTime:
+            typeof args.maxCookTime === 'number' ? args.maxCookTime : undefined,
+          servings: typeof args.servings === 'number' ? args.servings : undefined,
+          dietaryTags: Array.isArray(args.dietaryTags)
+            ? (args.dietaryTags as string[])
             : undefined,
           recipeCategoryIds: Array.isArray(args.recipeCategoryIds)
             ? (args.recipeCategoryIds as number[])
@@ -71,7 +69,6 @@ export class ToolDispatcher {
         };
         const result = await this.searchRecipesHandler.execute(payload, {
           userId: context.userId,
-          structuredIntent: context.structuredIntent,
         });
         context.candidateRecipes = result;
         context.selectedRecipes = [];
