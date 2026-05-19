@@ -20,6 +20,10 @@ export interface SuggestedRecipe {
   categoryName: string;
   /** 대표 이미지 URL (없으면 null) */
   imageUrl?: string | null;
+  /** 조리 시간(분). 없으면 null */
+  cookTime?: number | null;
+  /** 난이도(1-5). 없으면 null */
+  difficulty?: number | null;
 }
 
 // ─── 대화 REST 응답 ────────────────────────────────────────────────────────────

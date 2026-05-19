@@ -32,6 +32,8 @@ describe('ChatbotController', () => {
             categoryId: 1,
             categoryName: '밥',
             imageUrl: null,
+            cookTime: 15,
+            difficulty: 2,
           },
           {
             id: 2,
@@ -39,6 +41,8 @@ describe('ChatbotController', () => {
             categoryId: 1,
             categoryName: '밥',
             imageUrl: null,
+            cookTime: 30,
+            difficulty: 3,
           },
         ],
         createdAt: '2025-01-25T00:00:01.000Z',

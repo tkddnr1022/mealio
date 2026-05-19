@@ -1837,6 +1837,14 @@ components:
           type: string
           nullable: true
           description: 대표 이미지 URL
+        cookTime:
+          type: integer
+          nullable: true
+          description: 조리 시간(분)
+        difficulty:
+          type: integer
+          nullable: true
+          description: 난이도(1-5)
 
     ChatbotResponse:
       type: object
@@ -1859,6 +1867,8 @@ components:
             categoryId: 1
             categoryName: 한식
             imageUrl: https://cdn.example.com/recipes/456.jpg
+            cookTime: 15
+            difficulty: 2
 
     ConversationHistory:
       type: object

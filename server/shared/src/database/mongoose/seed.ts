@@ -88,6 +88,8 @@ const SEED_CHATBOT_LOGS = [
           categoryId: 1,
           categoryName: '밥류',
           imageUrl: null,
+          cookTime: 15,
+          difficulty: 2,
         },
         {
           id: 2,
@@ -95,6 +97,8 @@ const SEED_CHATBOT_LOGS = [
           categoryId: 1,
           categoryName: '밥류',
           imageUrl: null,
+          cookTime: 10,
+          difficulty: 1,
         },
       ],
       userPreferences: {
@@ -145,6 +149,8 @@ const SEED_CHATBOT_LOGS = [
           categoryId: 2,
           categoryName: '찌개·국',
           imageUrl: null,
+          cookTime: 25,
+          difficulty: 2,
         },
         {
           id: 4,
@@ -152,6 +158,8 @@ const SEED_CHATBOT_LOGS = [
           categoryId: 2,
           categoryName: '찌개·국',
           imageUrl: null,
+          cookTime: 20,
+          difficulty: 2,
         },
       ],
       userPreferences: {
@@ -201,6 +209,8 @@ const SEED_CHATBOT_LOGS = [
           categoryId: 3,
           categoryName: '반찬',
           imageUrl: null,
+          cookTime: 5,
+          difficulty: 1,
         },
         {
           id: 6,
@@ -208,6 +218,8 @@ const SEED_CHATBOT_LOGS = [
           categoryId: 3,
           categoryName: '반찬',
           imageUrl: null,
+          cookTime: 5,
+          difficulty: 1,
         },
       ],
       userPreferences: {
@@ -257,6 +269,8 @@ const SEED_CHATBOT_LOGS = [
           categoryId: 1,
           categoryName: '밥류',
           imageUrl: null,
+          cookTime: 5,
+          difficulty: 1,
         },
         {
           id: 8,
@@ -264,6 +278,8 @@ const SEED_CHATBOT_LOGS = [
           categoryId: 1,
           categoryName: '밥류',
           imageUrl: null,
+          cookTime: 5,
+          difficulty: 1,
         },
       ],
       userPreferences: {

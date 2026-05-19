@@ -145,6 +145,8 @@ export class ChatbotRequestProcessor extends BaseTopicProcessor<ChatbotRequestEv
         categoryId: r.categoryId,
         categoryName: r.categoryName,
         imageUrl: r.imageUrl,
+        cookTime: r.cookTime,
+        difficulty: r.difficulty,
       })),
       usage: result.usage,
       model: result.model,

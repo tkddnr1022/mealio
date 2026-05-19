@@ -373,6 +373,8 @@
 | categoryId   | Number  | 레시피 카테고리 ID      |
 | categoryName | String  | 카테고리 표시명         |
 | imageUrl     | String \| null | 대표 이미지 URL (없으면 null) |
+| cookTime     | Number \| null | 조리 시간(분). 없으면 null |
+| difficulty   | Number \| null | 난이도(1-5). 없으면 null |
 
 **LLMMetadata**
 

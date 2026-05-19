@@ -15,6 +15,8 @@ const sampleSuggestedRecipes: readonly SuggestedRecipe[] = [
     categoryId: 10,
     categoryName: '한식',
     imageUrl: null,
+    cookTime: 30,
+    difficulty: 2,
   },
   {
     id: 2,
@@ -22,6 +24,8 @@ const sampleSuggestedRecipes: readonly SuggestedRecipe[] = [
     categoryId: 10,
     categoryName: '한식',
     imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200',
+    cookTime: 15,
+    difficulty: 1,
   },
 ];
 

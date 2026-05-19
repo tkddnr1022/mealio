@@ -23,4 +23,18 @@ export class SuggestedRecipeDto {
     example: 'https://cdn.example.com/recipes/456.jpg',
   })
   imageUrl: string | null;
+
+  @ApiPropertyOptional({
+    description: '조리 시간(분)',
+    nullable: true,
+    example: 15,
+  })
+  cookTime: number | null;
+
+  @ApiPropertyOptional({
+    description: '난이도(1-5)',
+    nullable: true,
+    example: 2,
+  })
+  difficulty: number | null;
 }

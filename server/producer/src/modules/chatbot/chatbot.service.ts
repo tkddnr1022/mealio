@@ -206,6 +206,8 @@ export class ChatbotService {
                 categoryId: r.categoryId,
                 categoryName: r.categoryName,
                 imageUrl: r.imageUrl ?? null,
+                cookTime: r.cookTime ?? null,
+                difficulty: r.difficulty ?? null,
               }))
             : null,
         createdAt: raw.createdAt ? new Date(raw.createdAt).toISOString() : '',

@@ -15,6 +15,8 @@ const sampleRecipe: SuggestedRecipe = {
   title: '비빔밥',
   categoryId: 10,
   categoryName: '한식',
+  cookTime: 30,
+  difficulty: 2,
 };
 
 const meta = {

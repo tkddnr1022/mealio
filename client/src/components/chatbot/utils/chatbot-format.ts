@@ -1,3 +1,7 @@
+import {
+  toRecipeCookingTimeLabel,
+  toRecipeDifficultyLabel,
+} from '@/components/recipe/utils/recipe-format';
 import type { MiniTagItem } from '@/components/ui/MiniTagsRow';
 import type { DateInput } from '@/lib/utils/date';
 import { formatMeridiemTime, formatRelativeTime } from '@/lib/utils/date';
@@ -22,7 +26,14 @@ export function toChatBubbleTimestampLabel(timestamp: DateInput): string {
 export function toSuggestedRecipeTagItems(
   recipe: SuggestedRecipe,
 ): readonly MiniTagItem[] {
-  return [{ label: recipe.categoryName }];
+  const items: MiniTagItem[] = [{ label: recipe.categoryName }];
+  if (recipe.cookTime != null && recipe.cookTime > 0) {
+    items.push({ label: toRecipeCookingTimeLabel(recipe.cookTime) });
+  }
+  if (recipe.difficulty != null && recipe.difficulty > 0) {
+    items.push({ label: toRecipeDifficultyLabel(recipe.difficulty) });
+  }
+  return items;
 }
 
 export function isValidSuggestedRecipe(recipe: SuggestedRecipe): boolean {

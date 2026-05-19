@@ -150,6 +150,8 @@ export class ProcessChatHandler {
                     categoryId: r.categoryId,
                     categoryName: r.categoryName,
                     imageUrl: r.imageUrl,
+                    cookTime: r.cookTime,
+                    difficulty: r.difficulty,
                   }))
                 : undefined,
           },

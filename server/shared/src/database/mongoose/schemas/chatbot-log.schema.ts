@@ -38,6 +38,14 @@ export class SuggestedRecipeSummary {
   /** 레시피 대표 이미지 URL (없으면 null) */
   @Prop({ type: String, default: null })
   imageUrl: string | null;
+
+  /** 조리 시간(분). 없으면 null */
+  @Prop({ type: Number, default: null })
+  cookTime: number | null;
+
+  /** 난이도(1-5). 없으면 null */
+  @Prop({ type: Number, default: null })
+  difficulty: number | null;
 }
 
 class ConversationContext {
