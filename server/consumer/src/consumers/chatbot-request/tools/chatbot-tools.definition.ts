@@ -49,6 +49,12 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
             description:
               '보유 인벤토리와 겹치는 재료가 많은 레시피에 가산점. get_user_inventory 결과의 ownedIngredients/favoriteIngredients id 목록을 사용.',
           },
+          avoidIngredientIds: {
+            type: 'array',
+            items: { type: 'number' },
+            description:
+              '제외할 재료 id 목록. get_user_inventory 결과의 ownedIngredients/favoriteIngredients id 목록을 사용.',
+          },
           recipeCategoryIds: {
             type: 'array',
             items: { type: 'number' },
@@ -60,22 +66,6 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
             items: { type: 'number' },
             description:
               '해당 재료 분류를 쓰는 레시피만 포함. get_food_categories 또는 get_user_inventory 결과의 *Ingredients[].categoryId.',
-          },
-          maxCookTime: {
-            type: 'number',
-            description: '최대 조리 시간(분). 선택 사항.',
-          },
-          intentKeywords: {
-            type: 'array',
-            items: { type: 'string' },
-            description:
-              'extract_recipe_intent 결과의 keywords를 넘길 때 사용. keywords와 함께 합쳐 검색된다.',
-          },
-          avoidIngredients: {
-            type: 'array',
-            items: { type: 'string' },
-            description:
-              '제외할 재료 이름 키워드 목록. 예: [땅콩, 우유]. 제목/설명/재료명에 포함되면 제외한다.',
           },
         },
       },

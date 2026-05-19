@@ -1,11 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@mealio/shared/prisma-client';
-import {
-  PrismaService,
-  RedisService,
-  cacheKeyChatbotFoodCategories,
-} from '@mealio/shared';
+import { PrismaService } from '@mealio/shared';
 import { RecipeEmbeddingService } from '../services/recipe-embedding.service';
+import { RecipeSearchQueryService } from '../services/recipe-search-query.service';
 import { RecipeEmbeddingRepository } from 'src/persistence/repositories/postgresql/recipe-embedding.repository';
 import type { StructuredRecipeIntent } from './QueryUnderstandingHandler';
 
@@ -33,32 +29,13 @@ export interface SearchedRecipe {
 export interface SearchRecipesPayload {
   keywords?: string[];
   ingredientIds?: number[];
+  avoidIngredientIds?: number[];
   recipeCategoryIds?: number[];
   ingredientCategoryIds?: number[];
-  maxCookTime?: number;
-  intentKeywords?: string[];
-  avoidIngredients?: string[];
-}
-
-export interface FoodCategoriesResult {
-  recipeCategories: Array<{
-    id: number;
-    key: string;
-    name: string;
-    displayOrder: number;
-  }>;
-  ingredientCategories: Array<{
-    id: number;
-    key: string;
-    name: string;
-    displayOrder: number;
-  }>;
 }
 
 /** search_recipes 후보 풀 크기. 최종 추천 개수는 LLM이 이 목록에서 선택한다. */
 export const SEARCH_RECIPES_RESULT_LIMIT = 10;
-/** Producer RecipeCacheStrategy·레시피 카테고리 API와 동일하게 1시간 */
-const FOOD_CATEGORIES_CACHE_TTL_SECONDS = 3600;
 const RERANK_WEIGHT = {
   semantic: 0.55,
   keyword: 0.2,
@@ -79,149 +56,38 @@ export interface SearchRecipesOptions {
 export class SearchRecipesHandler {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly redis: RedisService,
     private readonly recipeEmbeddingService: RecipeEmbeddingService,
     private readonly recipeEmbeddingRepository: RecipeEmbeddingRepository,
+    private readonly recipeSearchQueryService: RecipeSearchQueryService,
   ) {}
-
-  /**
-   * 레시피·재료 카테고리 마스터 (활성만, 정렬 순). Redis 캐시 1시간.
-   */
-  async getFoodCategories(): Promise<FoodCategoriesResult> {
-    const key = cacheKeyChatbotFoodCategories();
-    const cached = await this.redis.get(key);
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached) as FoodCategoriesResult;
-        if (
-          Array.isArray(parsed.recipeCategories) &&
-          Array.isArray(parsed.ingredientCategories)
-        ) {
-          return parsed;
-        }
-      } catch {
-        /* 캐시 손상 시 DB 재조회 */
-      }
-    }
-
-    const [recipeCategories, ingredientCategories] = await Promise.all([
-      this.prisma.recipeCategory.findMany({
-        where: { isActive: true },
-        orderBy: [{ displayOrder: 'asc' }, { id: 'asc' }],
-        select: { id: true, key: true, name: true, displayOrder: true },
-      }),
-      this.prisma.ingredientCategory.findMany({
-        where: { isActive: true },
-        orderBy: [{ displayOrder: 'asc' }, { id: 'asc' }],
-        select: { id: true, key: true, name: true, displayOrder: true },
-      }),
-    ]);
-    const result: FoodCategoriesResult = {
-      recipeCategories,
-      ingredientCategories,
-    };
-    await this.redis.set(
-      key,
-      JSON.stringify(result),
-      FOOD_CATEGORIES_CACHE_TTL_SECONDS,
-    );
-    return result;
-  }
 
   async execute(
     payload: SearchRecipesPayload,
     options: SearchRecipesOptions,
   ): Promise<SearchedRecipe[]> {
     const keywords = this.buildKeywords(payload, options.structuredIntent);
-    const maxCookTime =
-      payload.maxCookTime ?? options.structuredIntent?.maxCookTime ?? undefined;
+    const maxCookTime = options.structuredIntent?.maxCookTime ?? undefined;
     const recipeCategoryIds = payload.recipeCategoryIds ?? [];
     const ingredientCategoryIds = payload.ingredientCategoryIds ?? [];
-    const avoidIngredients = this.normalizeLowerCaseValues([
-      ...(payload.avoidIngredients ?? []),
-      ...(options.structuredIntent?.avoidIngredients ?? []),
-    ]);
-
-    const where: Prisma.RecipeWhereInput = {
-      isPublished: true,
-      ...(maxCookTime != null && {
-        cookTime: { lte: maxCookTime },
-      }),
-      ...(recipeCategoryIds.length > 0 && {
-        categoryId: { in: recipeCategoryIds },
-      }),
-    };
-
     const ingredientIds = payload.ingredientIds ?? [];
-    const relationAnd: Prisma.RecipeWhereInput[] = [];
-    if (ingredientCategoryIds.length > 0) {
-      relationAnd.push({
-        recipeIngredients: {
-          some: {
-            ingredient: {
-              categoryId: { in: ingredientCategoryIds },
-            },
-          },
-        },
-      });
-    }
-    if (ingredientIds.length > 0) {
-      relationAnd.push({
-        recipeIngredients: {
-          some: { ingredientId: { in: ingredientIds } },
-        },
-      });
-    }
-    if (relationAnd.length > 0) {
-      where.AND = relationAnd;
-    }
-    if (avoidIngredients.length > 0) {
-      const avoidFilter: Prisma.RecipeWhereInput = {
-        recipeIngredients: {
-          none: {
-            ingredient: {
-              OR: avoidIngredients.map((name) => ({
-                name: {
-                  contains: name,
-                  mode: Prisma.QueryMode.insensitive,
-                },
-              })),
-            },
-          },
-        },
-      };
-      const currentAnd = where.AND
-        ? Array.isArray(where.AND)
-          ? where.AND
-          : [where.AND]
-        : [];
-      where.AND = [...currentAnd, avoidFilter];
-    }
-
-    const recipes = await this.prisma.recipe.findMany({
-      where,
-      include: {
-        categoryMeta: { select: { id: true, name: true } },
-        recipeIngredients: {
-          select: {
-            ingredientId: true,
-            isOptional: true,
-            ingredient: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        },
-      },
-      take: 80,
-      orderBy: { createdAt: 'desc' },
+    const recipes = await this.recipeSearchQueryService.searchRecipes({
+      maxCookTime,
+      recipeCategoryIds,
+      ingredientCategoryIds,
+      includeIngredientIds: ingredientIds,
+      includeIngredientNames:
+        options.structuredIntent?.mustHaveIngredients ?? [],
+      excludeIngredientIds: payload.avoidIngredientIds ?? [],
+      excludeIngredientNames: options.structuredIntent?.avoidIngredients ?? [],
     });
 
     const recipeIds = recipes.map((recipe) => recipe.id);
     await this.recipeEmbeddingService.ensureEmbeddingsForRecipeIds(recipeIds);
 
-    const queryText = this.buildSemanticQueryText(keywords, options.structuredIntent);
+    const queryText = this.buildSemanticQueryText(
+      keywords,
+      options.structuredIntent,
+    );
     const queryEmbedding =
       queryText.length > 0
         ? await this.recipeEmbeddingService.createQueryEmbedding(queryText)
@@ -248,10 +114,7 @@ export class SearchRecipesHandler {
       },
     });
     const preferenceScoreByRecipeId = new Map(
-      preferenceRows.map((row) => [
-        row.recipeId,
-        Number(row.score.toString()),
-      ]),
+      preferenceRows.map((row) => [row.recipeId, Number(row.score.toString())]),
     );
     const maxPreference = Math.max(
       1,
@@ -331,16 +194,15 @@ export class SearchRecipesHandler {
   ): string[] {
     return this.normalizeLowerCaseValues([
       ...(payload.keywords ?? []),
-      ...(payload.intentKeywords ?? []),
       ...(intent?.keywords ?? []),
       ...(intent?.mustHaveIngredients ?? []),
     ]);
   }
 
   private normalizeLowerCaseValues(values: string[]): string[] {
-    return [...new Set(values.map((value) => value.trim().toLowerCase()))].filter(
-      (value) => value.length > 0,
-    );
+    return [
+      ...new Set(values.map((value) => value.trim().toLowerCase())),
+    ].filter((value) => value.length > 0);
   }
 
   private buildSemanticQueryText(

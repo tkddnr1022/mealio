@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SearchRecipesHandler } from '../handlers/SearchRecipesHandler';
+import { FoodCategoriesHandler } from '../handlers/FoodCategoriesHandler';
 import { InventoryHandler } from '../handlers/InventoryHandler';
 import {
   QueryUnderstandingHandler,
@@ -23,6 +24,7 @@ export interface ToolContext {
 export class ToolDispatcher {
   constructor(
     private readonly searchRecipesHandler: SearchRecipesHandler,
+    private readonly foodCategoriesHandler: FoodCategoriesHandler,
     private readonly inventoryHandler: InventoryHandler,
     private readonly queryUnderstandingHandler: QueryUnderstandingHandler,
     private readonly finalizeRecipeSelectionHandler: FinalizeRecipeSelectionHandler,
@@ -39,7 +41,7 @@ export class ToolDispatcher {
         return JSON.stringify(result);
       }
       case 'get_food_categories': {
-        const result = await this.searchRecipesHandler.getFoodCategories();
+        const result = await this.foodCategoriesHandler.execute();
         return JSON.stringify(result);
       }
       case 'extract_recipe_intent': {
@@ -57,19 +59,14 @@ export class ToolDispatcher {
           ingredientIds: Array.isArray(args.ingredientIds)
             ? (args.ingredientIds as number[])
             : undefined,
+          avoidIngredientIds: Array.isArray(args.avoidIngredientIds)
+            ? (args.avoidIngredientIds as number[])
+            : undefined,
           recipeCategoryIds: Array.isArray(args.recipeCategoryIds)
             ? (args.recipeCategoryIds as number[])
             : undefined,
           ingredientCategoryIds: Array.isArray(args.ingredientCategoryIds)
             ? (args.ingredientCategoryIds as number[])
-            : undefined,
-          maxCookTime:
-            typeof args.maxCookTime === 'number' ? args.maxCookTime : undefined,
-          intentKeywords: Array.isArray(args.intentKeywords)
-            ? (args.intentKeywords as string[])
-            : undefined,
-          avoidIngredients: Array.isArray(args.avoidIngredients)
-            ? (args.avoidIngredients as string[])
             : undefined,
         };
         const result = await this.searchRecipesHandler.execute(payload, {

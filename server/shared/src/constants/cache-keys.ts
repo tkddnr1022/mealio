@@ -73,7 +73,7 @@ export function cacheKeyIngredientById(ingredientId: number): string {
   );
 }
 
-/** Consumer 챗봇 SearchRecipesHandler.getFoodCategories — `recipe:chatbot:food-categories` */
+/** Consumer 챗봇 FoodCategoriesHandler — `recipe:chatbot:food-categories` */
 export function cacheKeyChatbotFoodCategories(): string {
   return buildCacheKey(
     CACHE_KEY_PREFIX.RECIPE,
