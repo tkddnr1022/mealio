@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import { InventoryEventType } from '@mealio/shared';
 import { RecommendationRepository } from 'src/persistence/repositories/postgresql/recommendation.repository';
 import { RecommendationScoreService } from './recommendation-score.service';
+import { RecipeEmbeddingService } from 'src/consumers/chatbot-request/services/recipe-embedding.service';
 
 describe('RecommendationScoreService', () => {
   it('RECIPE_FAVORITES_ADD 이벤트를 추천 점수 증가로 반영한다', async () => {
@@ -16,6 +17,15 @@ describe('RecommendationScoreService', () => {
         {
           provide: RecommendationRepository,
           useValue: recommendationRepository,
+        },
+        {
+          provide: RecipeEmbeddingService,
+          useValue: {
+            ensureEmbeddingsForRecipeIds: jest.fn().mockResolvedValue({
+              syncedRecipeIds: [],
+              skippedRecipeIds: [],
+            }),
+          },
         },
       ],
     }).compile();
@@ -48,6 +58,15 @@ describe('RecommendationScoreService', () => {
         {
           provide: RecommendationRepository,
           useValue: recommendationRepository,
+        },
+        {
+          provide: RecipeEmbeddingService,
+          useValue: {
+            ensureEmbeddingsForRecipeIds: jest.fn().mockResolvedValue({
+              syncedRecipeIds: [],
+              skippedRecipeIds: [],
+            }),
+          },
         },
       ],
     }).compile();

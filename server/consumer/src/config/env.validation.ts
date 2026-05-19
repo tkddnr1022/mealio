@@ -46,6 +46,11 @@ export const envValidationSchema = Joi.object({
     'string.empty': 'OPENAI_CHAT_MODEL must not be empty',
     'any.required': 'OPENAI_CHAT_MODEL is required',
   }),
+
+  OPENAI_EMBEDDING_MODEL: Joi.string().min(1).required().messages({
+    'string.empty': 'OPENAI_EMBEDDING_MODEL must not be empty',
+    'any.required': 'OPENAI_EMBEDDING_MODEL is required',
+  }),
 });
 
 export const envValidationOptions = {

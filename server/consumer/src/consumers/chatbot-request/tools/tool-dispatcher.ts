@@ -1,9 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { SearchRecipesHandler } from '../handlers/SearchRecipesHandler';
 import { InventoryHandler } from '../handlers/InventoryHandler';
+import {
+  QueryUnderstandingHandler,
+  type StructuredRecipeIntent,
+} from '../handlers/QueryUnderstandingHandler';
+import { FinalizeRecipeSelectionHandler } from '../handlers/FinalizeRecipeSelectionHandler';
+import type { SearchedRecipe } from '../handlers/SearchRecipesHandler';
 
 export interface ToolContext {
   userId: number;
+  userMessage: string;
+  structuredIntent?: StructuredRecipeIntent;
+  candidateRecipes?: SearchedRecipe[];
+  selectedRecipes?: SearchedRecipe[];
 }
 
 /**
@@ -14,6 +24,8 @@ export class ToolDispatcher {
   constructor(
     private readonly searchRecipesHandler: SearchRecipesHandler,
     private readonly inventoryHandler: InventoryHandler,
+    private readonly queryUnderstandingHandler: QueryUnderstandingHandler,
+    private readonly finalizeRecipeSelectionHandler: FinalizeRecipeSelectionHandler,
   ) {}
 
   async execute(
@@ -28,6 +40,13 @@ export class ToolDispatcher {
       }
       case 'get_food_categories': {
         const result = await this.searchRecipesHandler.getFoodCategories();
+        return JSON.stringify(result);
+      }
+      case 'extract_recipe_intent': {
+        const result = await this.queryUnderstandingHandler.execute(
+          context.userMessage,
+        );
+        context.structuredIntent = result;
         return JSON.stringify(result);
       }
       case 'search_recipes': {
@@ -46,10 +65,32 @@ export class ToolDispatcher {
             : undefined,
           maxCookTime:
             typeof args.maxCookTime === 'number' ? args.maxCookTime : undefined,
-          limit: typeof args.limit === 'number' ? args.limit : undefined,
+          intentKeywords: Array.isArray(args.intentKeywords)
+            ? (args.intentKeywords as string[])
+            : undefined,
+          avoidIngredients: Array.isArray(args.avoidIngredients)
+            ? (args.avoidIngredients as string[])
+            : undefined,
         };
-        const result = await this.searchRecipesHandler.execute(payload);
+        const result = await this.searchRecipesHandler.execute(payload, {
+          userId: context.userId,
+          structuredIntent: context.structuredIntent,
+        });
+        context.candidateRecipes = result;
+        context.selectedRecipes = [];
         return JSON.stringify(result);
+      }
+      case 'finalize_recipe_selection': {
+        const selected = this.finalizeRecipeSelectionHandler.execute(
+          {
+            selectedRecipeIds: Array.isArray(args.selectedRecipeIds)
+              ? (args.selectedRecipeIds as number[])
+              : undefined,
+          },
+          context.candidateRecipes ?? [],
+        );
+        context.selectedRecipes = selected;
+        return JSON.stringify(selected);
       }
       default:
         return JSON.stringify({

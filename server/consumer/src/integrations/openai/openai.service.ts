@@ -38,6 +38,7 @@ export interface ChatCompletionResult {
 export class OpenAIService {
   private readonly client: OpenAI;
   private readonly model: string;
+  private readonly embeddingModel: string;
 
   constructor(
     private readonly config: ConfigService,
@@ -47,7 +48,23 @@ export class OpenAIService {
   ) {
     const apiKey = this.config.getOrThrow<string>('OPENAI_API_KEY');
     this.model = this.config.getOrThrow<string>('OPENAI_CHAT_MODEL');
+    this.embeddingModel = this.config.getOrThrow<string>(
+      'OPENAI_EMBEDDING_MODEL',
+    );
     this.client = new OpenAI({ apiKey });
+  }
+
+  async createEmbedding(input: string): Promise<number[]> {
+    await this.rateLimiter?.acquire();
+    const response = await this.client.embeddings.create({
+      model: this.embeddingModel,
+      input,
+    });
+    const embedding = response.data[0]?.embedding;
+    if (!embedding) {
+      return [];
+    }
+    return embedding;
   }
 
   /**
@@ -199,5 +216,9 @@ export class OpenAIService {
 
   getModel(): string {
     return this.model;
+  }
+
+  getEmbeddingModel(): string {
+    return this.embeddingModel;
   }
 }

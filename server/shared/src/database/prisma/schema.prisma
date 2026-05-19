@@ -62,11 +62,29 @@ model Recipe {
   recipeIngredients RecipeIngredient[]
   stats             RecipeStats?
   recommendedTo     UserRecipeRecommendation[]
+  embedding         RecipeEmbedding?
 
   @@index([categoryId, difficulty, cookTime, createdAt])
   @@index([difficulty, cookTime, createdAt])
   @@index([createdAt(sort: Desc)])
   @@map("Recipe")
+}
+
+model RecipeEmbedding {
+  recipeId       Int                      @id @map("recipe_id")
+  /** pgvector extension type. Prisma Client에서는 raw query로 접근한다. */
+  embedding      Unsupported("vector")
+  documentText   String                   @map("document_text") @db.Text
+  embeddingModel String                   @map("embedding_model") @db.VarChar(100)
+  version        Int                      @default(1)
+  sourceUpdatedAt DateTime                @map("source_updated_at")
+  createdAt      DateTime                 @default(now()) @map("created_at")
+  updatedAt      DateTime                 @default(now()) @updatedAt @map("updated_at")
+
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([updatedAt(sort: Desc)])
+  @@map("RecipeEmbedding")
 }
 
 model RecipeStats {

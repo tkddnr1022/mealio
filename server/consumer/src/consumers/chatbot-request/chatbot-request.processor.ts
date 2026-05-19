@@ -148,6 +148,7 @@ export class ChatbotRequestProcessor extends BaseTopicProcessor<ChatbotRequestEv
       })),
       usage: result.usage,
       model: result.model,
+      retrieval: result.retrieval,
     });
 
     if (!event.conversationId) {

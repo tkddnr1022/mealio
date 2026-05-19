@@ -5,6 +5,9 @@ import {
   RedisService,
   cacheKeyChatbotFoodCategories,
 } from '@mealio/shared';
+import { RecipeEmbeddingService } from '../services/recipe-embedding.service';
+import { RecipeEmbeddingRepository } from 'src/persistence/repositories/postgresql/recipe-embedding.repository';
+import type { StructuredRecipeIntent } from './QueryUnderstandingHandler';
 
 /** `search_recipes` 도구가 반환하는 레시피 요약(검색 결과). 추천·랭킹 점수는 포함하지 않는다. */
 export interface SearchedRecipe {
@@ -18,6 +21,13 @@ export interface SearchedRecipe {
   /** RecipeCategory.id */
   categoryId: number;
   categoryName: string;
+  semanticScore?: number;
+  keywordScore?: number;
+  inventoryMatchScore?: number;
+  userPreferenceScore?: number;
+  finalScore?: number;
+  missingIngredients?: string[];
+  reasonSignals?: string[];
 }
 
 export interface SearchRecipesPayload {
@@ -26,7 +36,8 @@ export interface SearchRecipesPayload {
   recipeCategoryIds?: number[];
   ingredientCategoryIds?: number[];
   maxCookTime?: number;
-  limit?: number;
+  intentKeywords?: string[];
+  avoidIngredients?: string[];
 }
 
 export interface FoodCategoriesResult {
@@ -44,10 +55,21 @@ export interface FoodCategoriesResult {
   }>;
 }
 
-const DEFAULT_LIMIT = 5;
-const MAX_LIMIT = 20;
+/** search_recipes 후보 풀 크기. 최종 추천 개수는 LLM이 이 목록에서 선택한다. */
+export const SEARCH_RECIPES_RESULT_LIMIT = 10;
 /** Producer RecipeCacheStrategy·레시피 카테고리 API와 동일하게 1시간 */
 const FOOD_CATEGORIES_CACHE_TTL_SECONDS = 3600;
+const RERANK_WEIGHT = {
+  semantic: 0.55,
+  keyword: 0.2,
+  inventoryMatch: 0.15,
+  userPreference: 0.1,
+} as const;
+
+export interface SearchRecipesOptions {
+  userId: number;
+  structuredIntent?: StructuredRecipeIntent;
+}
 
 /**
  * search_recipes 함수 실행 — Prisma로 레시피를 조건 필터·키워드 필터 후,
@@ -58,6 +80,8 @@ export class SearchRecipesHandler {
   constructor(
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
+    private readonly recipeEmbeddingService: RecipeEmbeddingService,
+    private readonly recipeEmbeddingRepository: RecipeEmbeddingRepository,
   ) {}
 
   /**
@@ -104,15 +128,24 @@ export class SearchRecipesHandler {
     return result;
   }
 
-  async execute(payload: SearchRecipesPayload): Promise<SearchedRecipe[]> {
-    const limit = Math.min(payload.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
+  async execute(
+    payload: SearchRecipesPayload,
+    options: SearchRecipesOptions,
+  ): Promise<SearchedRecipe[]> {
+    const keywords = this.buildKeywords(payload, options.structuredIntent);
+    const maxCookTime =
+      payload.maxCookTime ?? options.structuredIntent?.maxCookTime ?? undefined;
     const recipeCategoryIds = payload.recipeCategoryIds ?? [];
     const ingredientCategoryIds = payload.ingredientCategoryIds ?? [];
+    const avoidIngredients = this.normalizeLowerCaseValues([
+      ...(payload.avoidIngredients ?? []),
+      ...(options.structuredIntent?.avoidIngredients ?? []),
+    ]);
 
     const where: Prisma.RecipeWhereInput = {
       isPublished: true,
-      ...(payload.maxCookTime != null && {
-        cookTime: { lte: payload.maxCookTime },
+      ...(maxCookTime != null && {
+        cookTime: { lte: maxCookTime },
       }),
       ...(recipeCategoryIds.length > 0 && {
         categoryId: { in: recipeCategoryIds },
@@ -142,29 +175,137 @@ export class SearchRecipesHandler {
     if (relationAnd.length > 0) {
       where.AND = relationAnd;
     }
+    if (avoidIngredients.length > 0) {
+      const avoidFilter: Prisma.RecipeWhereInput = {
+        recipeIngredients: {
+          none: {
+            ingredient: {
+              OR: avoidIngredients.map((name) => ({
+                name: {
+                  contains: name,
+                  mode: Prisma.QueryMode.insensitive,
+                },
+              })),
+            },
+          },
+        },
+      };
+      const currentAnd = where.AND
+        ? Array.isArray(where.AND)
+          ? where.AND
+          : [where.AND]
+        : [];
+      where.AND = [...currentAnd, avoidFilter];
+    }
 
     const recipes = await this.prisma.recipe.findMany({
       where,
       include: {
         categoryMeta: { select: { id: true, name: true } },
+        recipeIngredients: {
+          select: {
+            ingredientId: true,
+            isOptional: true,
+            ingredient: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
       },
-      take: 50,
+      take: 80,
       orderBy: { createdAt: 'desc' },
     });
 
-    const keywordLower = payload.keywords?.map((k) => k.toLowerCase()) ?? [];
-    const filtered =
-      keywordLower.length === 0
-        ? recipes
-        : recipes.filter((r) => {
-            const title = (r.title ?? '').toLowerCase();
-            const desc = ((r.description as string) ?? '').toLowerCase();
-            return keywordLower.some(
-              (k) => title.includes(k) || desc.includes(k),
-            );
-          });
+    const recipeIds = recipes.map((recipe) => recipe.id);
+    await this.recipeEmbeddingService.ensureEmbeddingsForRecipeIds(recipeIds);
 
-    return filtered.slice(0, limit).map((r) => ({
+    const queryText = this.buildSemanticQueryText(keywords, options.structuredIntent);
+    const queryEmbedding =
+      queryText.length > 0
+        ? await this.recipeEmbeddingService.createQueryEmbedding(queryText)
+        : [];
+    const semanticRows =
+      queryEmbedding.length > 0
+        ? await this.recipeEmbeddingRepository.searchByRecipeIds(
+            recipeIds,
+            queryEmbedding,
+          )
+        : [];
+    const semanticScoreByRecipeId = new Map(
+      semanticRows.map((row) => [row.recipeId, row.semanticScore]),
+    );
+
+    const preferenceRows = await this.prisma.userRecipeRecommendation.findMany({
+      where: {
+        userId: options.userId,
+        recipeId: { in: recipeIds },
+      },
+      select: {
+        recipeId: true,
+        score: true,
+      },
+    });
+    const preferenceScoreByRecipeId = new Map(
+      preferenceRows.map((row) => [
+        row.recipeId,
+        Number(row.score.toString()),
+      ]),
+    );
+    const maxPreference = Math.max(
+      1,
+      ...preferenceRows.map((row) => Number(row.score.toString())),
+    );
+
+    const reranked = recipes
+      .map((recipe) => {
+        const keywordScore = this.computeKeywordScore(
+          recipe.title,
+          recipe.description,
+          keywords,
+        );
+        const inventoryMatchScore = this.computeInventoryMatchScore(
+          payload.ingredientIds ?? [],
+          recipe.recipeIngredients.map((row) => row.ingredientId),
+        );
+        const semanticScore = semanticScoreByRecipeId.get(recipe.id) ?? 0;
+        const userPreferenceRaw = preferenceScoreByRecipeId.get(recipe.id) ?? 0;
+        const userPreferenceScore = Math.max(
+          0,
+          Math.min(1, userPreferenceRaw / maxPreference),
+        );
+        const finalScore =
+          semanticScore * RERANK_WEIGHT.semantic +
+          keywordScore * RERANK_WEIGHT.keyword +
+          inventoryMatchScore * RERANK_WEIGHT.inventoryMatch +
+          userPreferenceScore * RERANK_WEIGHT.userPreference;
+
+        const missingIngredients = this.computeMissingIngredients(
+          payload.ingredientIds ?? [],
+          recipe.recipeIngredients,
+        );
+
+        return {
+          ...recipe,
+          semanticScore,
+          keywordScore,
+          inventoryMatchScore,
+          userPreferenceScore,
+          finalScore,
+          missingIngredients,
+          reasonSignals: this.buildReasonSignals({
+            semanticScore,
+            keywordScore,
+            inventoryMatchScore,
+            userPreferenceScore,
+          }),
+        };
+      })
+      .sort((a, b) => b.finalScore - a.finalScore)
+      .slice(0, SEARCH_RECIPES_RESULT_LIMIT);
+
+    return reranked.map((r) => ({
       id: r.id,
       title: r.title,
       description: r.description,
@@ -174,6 +315,110 @@ export class SearchRecipesHandler {
       servings: r.servings,
       categoryId: r.categoryId,
       categoryName: r.categoryMeta.name,
+      semanticScore: r.semanticScore,
+      keywordScore: r.keywordScore,
+      inventoryMatchScore: r.inventoryMatchScore,
+      userPreferenceScore: r.userPreferenceScore,
+      finalScore: r.finalScore,
+      missingIngredients: r.missingIngredients,
+      reasonSignals: r.reasonSignals,
     }));
+  }
+
+  private buildKeywords(
+    payload: SearchRecipesPayload,
+    intent?: StructuredRecipeIntent,
+  ): string[] {
+    return this.normalizeLowerCaseValues([
+      ...(payload.keywords ?? []),
+      ...(payload.intentKeywords ?? []),
+      ...(intent?.keywords ?? []),
+      ...(intent?.mustHaveIngredients ?? []),
+    ]);
+  }
+
+  private normalizeLowerCaseValues(values: string[]): string[] {
+    return [...new Set(values.map((value) => value.trim().toLowerCase()))].filter(
+      (value) => value.length > 0,
+    );
+  }
+
+  private buildSemanticQueryText(
+    keywords: string[],
+    intent?: StructuredRecipeIntent,
+  ): string {
+    const sections = [
+      `keywords: ${keywords.join(', ')}`,
+      `must_have: ${(intent?.mustHaveIngredients ?? []).join(', ')}`,
+      `avoid: ${(intent?.avoidIngredients ?? []).join(', ')}`,
+      `dietary_tags: ${(intent?.dietaryTags ?? []).join(', ')}`,
+      `intent_type: ${intent?.intentType ?? 'search'}`,
+    ];
+    return sections.join('\n').trim();
+  }
+
+  private computeKeywordScore(
+    title: string,
+    description: string | null,
+    keywords: string[],
+  ): number {
+    if (keywords.length === 0) {
+      return 0;
+    }
+    const source = `${title} ${description ?? ''}`.toLowerCase();
+    const hitCount = keywords.reduce(
+      (count, keyword) => (source.includes(keyword) ? count + 1 : count),
+      0,
+    );
+    return Math.max(0, Math.min(1, hitCount / keywords.length));
+  }
+
+  private computeInventoryMatchScore(
+    ingredientIds: number[],
+    recipeIngredientIds: number[],
+  ): number {
+    const uniqueOwned = new Set(ingredientIds.filter((id) => id > 0));
+    if (uniqueOwned.size === 0) {
+      return 0;
+    }
+    const matched = recipeIngredientIds.filter((id) => uniqueOwned.has(id));
+    return Math.max(0, Math.min(1, matched.length / uniqueOwned.size));
+  }
+
+  private computeMissingIngredients(
+    ingredientIds: number[],
+    recipeIngredients: Array<{
+      ingredientId: number;
+      isOptional: boolean;
+      ingredient: { name: string };
+    }>,
+  ): string[] {
+    const owned = new Set(ingredientIds.filter((id) => id > 0));
+    return recipeIngredients
+      .filter((item) => !item.isOptional && !owned.has(item.ingredientId))
+      .map((item) => item.ingredient.name)
+      .slice(0, 5);
+  }
+
+  private buildReasonSignals(scores: {
+    semanticScore: number;
+    keywordScore: number;
+    inventoryMatchScore: number;
+    userPreferenceScore: number;
+  }): string[] {
+    const reasons: string[] = [];
+    if (scores.semanticScore >= 0.6) {
+      reasons.push('semantic_match');
+    }
+    if (scores.keywordScore >= 0.5) {
+      reasons.push('keyword_match');
+    }
+    if (scores.inventoryMatchScore >= 0.4) {
+      reasons.push('inventory_match');
+    }
+    if (scores.userPreferenceScore >= 0.4) {
+      reasons.push('user_preference');
+    }
+    return reasons;
   }
 }

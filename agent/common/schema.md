@@ -243,6 +243,33 @@
 
 ---
 
+### 2.9 RecipeEmbedding (RAG 벡터 인덱스)
+
+**의미**
+
+* 레시피 문서를 pgvector 임베딩으로 저장하는 검색 인덱스
+* 챗봇 `search_recipes`의 semantic retrieval용 기반 데이터
+
+**필드 설명** (PostgreSQL `RecipeEmbedding`)
+
+| 필드 | 타입 | 의미 |
+| --- | --- | --- |
+| recipe_id | INT (PK, FK → Recipe.id) | 레시피 ID |
+| embedding | vector(1536) | OpenAI 임베딩 벡터 |
+| document_text | TEXT | 임베딩 생성에 사용한 원문(제목/설명/재료/카테고리 등) |
+| embedding_model | VARCHAR(100) | 사용한 임베딩 모델명 |
+| version | INT | 재생성 횟수(업서트 시 증가) |
+| source_updated_at | TIMESTAMP | 원본 Recipe 최신 갱신 시각 스냅샷 |
+| created_at | TIMESTAMP | 생성 시각 |
+| updated_at | TIMESTAMP | 갱신 시각 |
+
+**인덱스**
+
+* `(updated_at DESC)` — 최신 재색인 추적
+* `ivfflat (embedding vector_cosine_ops)` — 코사인 유사도 검색
+
+---
+
 ## 3. NoSQL 스키마 (MongoDB, Mongoose)
 
 > 아래 스키마는 `server/shared/src/database/mongoose/schemas/` 의 Mongoose 스키마와 일치한다.  

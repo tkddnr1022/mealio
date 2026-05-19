@@ -11,10 +11,14 @@ import { CacheInvalidationModule } from '../cache-invalidation/cache-invalidatio
 import { ActivityEventsProcessor } from './activity-events.processor';
 import { ActivityEventsConsumer } from './activity-events.consumer';
 import { ActivityRecommendationService } from './services/activity-recommendation.service';
+import { OpenAIModule } from 'src/integrations/openai/openai.module';
+import { RecipeEmbeddingRepository } from 'src/persistence/repositories/postgresql/recipe-embedding.repository';
+import { RecipeEmbeddingService } from '../chatbot-request/services/recipe-embedding.service';
 
 @Module({
   imports: [
     KafkaModule,
+    OpenAIModule,
     CacheInvalidationModule,
     MongooseModule.forFeature([
       { name: EventLog.name, schema: EventLogSchema },
@@ -26,6 +30,8 @@ import { ActivityRecommendationService } from './services/activity-recommendatio
     EventLogRepository,
     RecipeRepository,
     RecommendationRepository,
+    RecipeEmbeddingRepository,
+    RecipeEmbeddingService,
     ActivityRecommendationService,
     ActivityEventsProcessor,
     ActivityEventsConsumer,

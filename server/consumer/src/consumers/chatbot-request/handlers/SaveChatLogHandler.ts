@@ -21,6 +21,12 @@ export interface SaveChatLogPayload {
     totalTokens: number;
   };
   model?: string;
+  retrieval?: {
+    candidateCount: number;
+    candidateRecipeIds?: number[];
+    selectedRecipeIds: number[];
+    topScores: number[];
+  };
 }
 
 /**
@@ -44,12 +50,14 @@ export class SaveChatLogHandler {
       suggestedRecipes,
       usage,
       model,
+      retrieval,
     } = payload;
 
     const userContext = { conversationId };
     const assistantContext = {
       conversationId,
       suggestedRecipes: suggestedRecipes ?? [],
+      retrieval,
     };
 
     await this.chatbotLogModel.insertMany([

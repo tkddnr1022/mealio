@@ -26,6 +26,10 @@ import { SearchRecipesHandler } from './handlers/SearchRecipesHandler';
 import { InventoryHandler } from './handlers/InventoryHandler';
 import { ToolDispatcher } from './tools/tool-dispatcher';
 import { ChatbotCreditService } from './services/chatbot-credit.service';
+import { RecipeEmbeddingRepository } from 'src/persistence/repositories/postgresql/recipe-embedding.repository';
+import { RecipeEmbeddingService } from './services/recipe-embedding.service';
+import { QueryUnderstandingHandler } from './handlers/QueryUnderstandingHandler';
+import { FinalizeRecipeSelectionHandler } from './handlers/FinalizeRecipeSelectionHandler';
 
 @Module({
   imports: [
@@ -47,6 +51,10 @@ import { ChatbotCreditService } from './services/chatbot-credit.service';
     ChatbotLogRepository,
     EventLogRepository,
     SearchRecipesHandler,
+    QueryUnderstandingHandler,
+    FinalizeRecipeSelectionHandler,
+    RecipeEmbeddingRepository,
+    RecipeEmbeddingService,
     InventoryHandler,
     ToolDispatcher,
     ProcessChatHandler,

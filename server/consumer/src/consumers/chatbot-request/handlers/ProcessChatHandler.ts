@@ -15,7 +15,7 @@ import {
   ChatbotLogRepository,
   DEFAULT_RECENT_TURNS_LIMIT,
 } from 'src/persistence/repositories/mongodb/chatbot-log.repository';
-import { ToolDispatcher } from '../tools/tool-dispatcher';
+import { ToolDispatcher, type ToolContext } from '../tools/tool-dispatcher';
 import { CHATBOT_TOOLS } from '../tools/chatbot-tools.definition';
 import { buildMessagesForGpt } from '../context/conversation.manager';
 import type { SearchedRecipe } from './SearchRecipesHandler';
@@ -26,6 +26,13 @@ export interface ProcessChatPayload {
   message: string;
   conversationId?: string;
   streamChannelId?: string;
+}
+
+interface RetrievalMeta {
+  candidateCount: number;
+  candidateRecipeIds: number[];
+  selectedRecipeIds: number[];
+  topScores: number[];
 }
 
 @Injectable()
@@ -50,6 +57,7 @@ export class ProcessChatHandler {
           totalTokens: number;
         };
         model?: string;
+        retrieval?: RetrievalMeta;
       }
     | { error: string }
   > {
@@ -92,8 +100,12 @@ export class ProcessChatHandler {
       completionTokens: number;
       totalTokens: number;
     };
+    retrieval?: RetrievalMeta;
   }> {
-    const toolContext = { userId: payload.userId };
+    const toolContext: ToolContext = {
+      userId: payload.userId,
+      userMessage: payload.message,
+    };
 
     const previousTurns = await this.chatbotLogRepository.findRecentTurns(
       payload.userId,
@@ -106,11 +118,11 @@ export class ProcessChatHandler {
       payload.message,
     );
     let fullContent = '';
-    let lastSearchedRecipes: SearchedRecipe[] = [];
     let usage:
       | { promptTokens: number; completionTokens: number; totalTokens: number }
       | undefined;
     let model: string | undefined;
+    let retrievalMeta: RetrievalMeta | undefined;
 
     const publishDoneWithCredits = async () => {
       let isCreditDepleted = false;
@@ -124,14 +136,15 @@ export class ProcessChatHandler {
         isCreditDepleted = debit.isCreditDepleted;
       }
       if (channel) {
+        const suggestedRecipes = this.resolveSuggestedRecipes(toolContext);
         publish({
           type: CHATBOT_STREAM_EVENT_TYPES.DONE,
           data: {
             conversationId,
             isCreditDepleted,
             suggestedRecipes:
-              lastSearchedRecipes.length > 0
-                ? lastSearchedRecipes.map((r) => ({
+              suggestedRecipes.length > 0
+                ? suggestedRecipes.map((r) => ({
                     id: r.id,
                     title: r.title,
                     categoryId: r.categoryId,
@@ -232,42 +245,76 @@ export class ProcessChatHandler {
             tool_call_id: tc.id,
             content: result,
           });
-
-          try {
-            const parsed = JSON.parse(result) as unknown;
-            if (
-              Array.isArray(parsed) &&
-              parsed.length > 0 &&
-              typeof parsed[0] === 'object' &&
-              parsed[0] !== null &&
-              'id' in parsed[0] &&
-              'title' in parsed[0] &&
-              'categoryId' in parsed[0] &&
-              'categoryName' in parsed[0]
-            ) {
-              lastSearchedRecipes = parsed as SearchedRecipe[];
-            }
-          } catch {
-            // ignore
-          }
+          const candidates = toolContext.candidateRecipes ?? [];
+          const selected = toolContext.selectedRecipes ?? [];
+          retrievalMeta = {
+            candidateCount: candidates.length,
+            candidateRecipeIds: candidates.map((item) => item.id),
+            selectedRecipeIds: selected.map((item) => item.id),
+            topScores: candidates.map((item) => item.finalScore ?? 0).slice(0, 5),
+          };
         }
       } else {
+        const suggestedRecipes = this.resolveSuggestedRecipes(toolContext);
+        const finalRetrieval = this.buildFinalRetrievalMeta(
+          retrievalMeta,
+          toolContext.candidateRecipes ?? [],
+          suggestedRecipes,
+        );
         await publishDoneWithCredits();
         return {
           fullContent,
-          suggestedRecipes: lastSearchedRecipes,
+          suggestedRecipes,
           usage,
           model,
+          retrieval: finalRetrieval,
         };
       }
     }
 
+    const suggestedRecipes = this.resolveSuggestedRecipes(toolContext);
+    const finalRetrieval = this.buildFinalRetrievalMeta(
+      retrievalMeta,
+      toolContext.candidateRecipes ?? [],
+      suggestedRecipes,
+    );
     await publishDoneWithCredits();
     return {
       fullContent,
-      suggestedRecipes: lastSearchedRecipes,
+      suggestedRecipes,
       model,
       usage,
+      retrieval: finalRetrieval,
+    };
+  }
+
+  private resolveSuggestedRecipes(toolContext: {
+    selectedRecipes?: SearchedRecipe[];
+    candidateRecipes?: SearchedRecipe[];
+  }): SearchedRecipe[] {
+    if (toolContext.selectedRecipes && toolContext.selectedRecipes.length > 0) {
+      return toolContext.selectedRecipes;
+    }
+    const fallbackCandidates = toolContext.candidateRecipes ?? [];
+    if (fallbackCandidates.length === 0) {
+      return [];
+    }
+    return fallbackCandidates.slice(0, 3);
+  }
+
+  private buildFinalRetrievalMeta(
+    retrievalMeta: RetrievalMeta | undefined,
+    candidates: SearchedRecipe[],
+    suggestedRecipes: SearchedRecipe[],
+  ): RetrievalMeta {
+    return {
+      candidateCount: retrievalMeta?.candidateCount ?? candidates.length,
+      candidateRecipeIds:
+        retrievalMeta?.candidateRecipeIds ?? candidates.map((item) => item.id),
+      selectedRecipeIds: suggestedRecipes.map((item) => item.id),
+      topScores:
+        retrievalMeta?.topScores ??
+        candidates.map((item) => item.finalScore ?? 0).slice(0, 5),
     };
   }
 

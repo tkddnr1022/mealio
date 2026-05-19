@@ -55,6 +55,21 @@ class ConversationContext {
 
   @Prop({ type: [SuggestedRecipeSummary] })
   suggestedRecipes?: SuggestedRecipeSummary[];
+
+  @Prop({
+    type: {
+      candidateCount: { type: Number },
+      candidateRecipeIds: { type: [Number] },
+      selectedRecipeIds: { type: [Number] },
+      topScores: { type: [Number] },
+    },
+  })
+  retrieval?: {
+    candidateCount?: number;
+    candidateRecipeIds?: number[];
+    selectedRecipeIds?: number[];
+    topScores?: number[];
+  };
 }
 
 @Schema({

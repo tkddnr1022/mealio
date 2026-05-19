@@ -23,9 +23,17 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
   {
     type: 'function',
     function: {
+      name: 'extract_recipe_intent',
+      description:
+        '현재 사용자의 자연어 메시지를 구조화합니다. 검색 조건이 모호하거나 복합 조건(제외 재료, 인분, 식단 조건)이 있으면 search_recipes 전에 먼저 호출하세요.',
+    },
+  },
+  {
+    type: 'function',
+    function: {
       name: 'search_recipes',
       description:
-        '키워드·조리시간·재료 ID·레시피/재료 카테고리로 레시피를 검색합니다. get_user_inventory로 재료 id·재료 분류를, get_food_categories로 레시피/재료 분류 id를 확인한 뒤 조합해 사용할 수 있습니다.',
+        '키워드·조리시간·재료 ID·레시피/재료 카테고리로 레시피를 검색합니다. 항상 최대 10개 후보를 반환하며, 최종 추천 레시피는 이 결과 안에서 사용자 요청에 맞게 직접 고르세요. get_user_inventory로 재료 id·재료 분류를, get_food_categories로 레시피/재료 분류 id를 확인한 뒤 조합해 사용할 수 있습니다.',
       parameters: {
         type: 'object',
         properties: {
@@ -57,11 +65,39 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
             type: 'number',
             description: '최대 조리 시간(분). 선택 사항.',
           },
-          limit: {
-            type: 'number',
-            description: '반환할 최대 레시피 수. 기본 5',
+          intentKeywords: {
+            type: 'array',
+            items: { type: 'string' },
+            description:
+              'extract_recipe_intent 결과의 keywords를 넘길 때 사용. keywords와 함께 합쳐 검색된다.',
+          },
+          avoidIngredients: {
+            type: 'array',
+            items: { type: 'string' },
+            description:
+              '제외할 재료 이름 키워드 목록. 예: [땅콩, 우유]. 제목/설명/재료명에 포함되면 제외한다.',
           },
         },
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'finalize_recipe_selection',
+      description:
+        'search_recipes 후보 안에서 최종 추천 레시피를 확정합니다. 반드시 후보에 포함된 recipe id만 selectedRecipeIds로 전달하세요.',
+      parameters: {
+        type: 'object',
+        properties: {
+          selectedRecipeIds: {
+            type: 'array',
+            items: { type: 'number' },
+            description:
+              'search_recipes 결과 중 최종 추천으로 확정한 recipe id 목록(권장 3~5개).',
+          },
+        },
+        required: ['selectedRecipeIds'],
       },
     },
   },
