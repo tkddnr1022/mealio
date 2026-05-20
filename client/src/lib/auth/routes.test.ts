@@ -20,7 +20,9 @@ describe('auth routes helpers', () => {
     const parsed = new URL(`https://example.com${url}`);
 
     expect(parsed.pathname).toBe(SSR_REFRESH_BRIDGE_PATH);
-    expect(parsed.searchParams.get(NEXT_QUERY_PARAM)).toBe('/recipe/search?q=egg');
+    expect(parsed.searchParams.get(NEXT_QUERY_PARAM)).toBe(
+      '/recipe/search?q=egg',
+    );
     expect(parsed.searchParams.get(SSR_REFRESH_GUARD_QUERY_PARAM)).toBe('1');
   });
 });

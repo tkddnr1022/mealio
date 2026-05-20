@@ -58,7 +58,10 @@ export function isProtectedPath(pathname: string): boolean {
  * 로그인 URL을 조립한다.
  * @param nextUrl 로그인 후 돌아올 원래 URL(pathname + search). 비어 있으면 쿼리 생략.
  */
-export function buildLoginUrl(nextUrl: string | null | undefined, isSessionExpired: boolean = false): string {
+export function buildLoginUrl(
+  nextUrl: string | null | undefined,
+  isSessionExpired: boolean = false,
+): string {
   const params = new URLSearchParams();
   if (isSessionExpired) params.set(SESSION_EXPIRED_QUERY_PARAM, '1');
   if (nextUrl) params.set(NEXT_QUERY_PARAM, nextUrl);
@@ -76,5 +79,7 @@ export function buildSsrRefreshBridgeUrl(
   if (nextUrl) qs.set(NEXT_QUERY_PARAM, nextUrl);
   qs.set(SSR_REFRESH_GUARD_QUERY_PARAM, '1');
   const query = qs.toString();
-  return query ? `${SSR_REFRESH_BRIDGE_PATH}?${query}` : SSR_REFRESH_BRIDGE_PATH;
+  return query
+    ? `${SSR_REFRESH_BRIDGE_PATH}?${query}`
+    : SSR_REFRESH_BRIDGE_PATH;
 }

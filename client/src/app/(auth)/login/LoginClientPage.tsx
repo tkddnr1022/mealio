@@ -6,26 +6,33 @@ import { Suspense, useEffect } from 'react';
 import { LoginButtonList, LoginFooter, LoginHeader } from '@/components/auth';
 import { Navbar } from '@/components/layout/Navbar';
 import { FullPageSuspenseFallback } from '@/components/layout/FullPageSuspenseFallback';
-import { NEXT_QUERY_PARAM, SESSION_EXPIRED_QUERY_PARAM } from '@/lib/auth/routes';
+import {
+  NEXT_QUERY_PARAM,
+  SESSION_EXPIRED_QUERY_PARAM,
+} from '@/lib/auth/routes';
 import { notifyApiError } from '@/lib/toast';
 import { ApiError } from '@/lib/api/error';
 
 function LoginPageContent() {
   const searchParams = useSearchParams();
   const oauthNext = searchParams.get(NEXT_QUERY_PARAM);
-  const isSessionExpired = searchParams.get(SESSION_EXPIRED_QUERY_PARAM) === '1';
+  const isSessionExpired =
+    searchParams.get(SESSION_EXPIRED_QUERY_PARAM) === '1';
   const router = useRouter();
 
   useEffect(() => {
     if (isSessionExpired) {
-      notifyApiError(new ApiError({
-        status: 401,
-        message: '세션이 만료되었어요',
-        code: 'SESSION_EXPIRED',
-      }), {
-        title: '세션이 만료되었어요',
-        message: '다시 로그인해주세요',
-      });
+      notifyApiError(
+        new ApiError({
+          status: 401,
+          message: '세션이 만료되었어요',
+          code: 'SESSION_EXPIRED',
+        }),
+        {
+          title: '세션이 만료되었어요',
+          message: '다시 로그인해주세요',
+        },
+      );
     }
   }, [isSessionExpired]);
 

@@ -38,7 +38,10 @@ describe('refresh bridge route', () => {
   });
 
   it('redirects to login when refresh fails', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 401 })));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response(null, { status: 401 })),
+    );
 
     const request = new NextRequest(
       'https://mealio.test/api/auth/refresh-bridge?next=%2Finventory%2Frecipes',

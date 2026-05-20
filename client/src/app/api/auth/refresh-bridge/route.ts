@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { env } from '@/lib/config/env';
-import {
-  NEXT_QUERY_PARAM,
-  buildLoginUrl,
-} from '@/lib/auth/routes';
+import { NEXT_QUERY_PARAM, buildLoginUrl } from '@/lib/auth/routes';
 
 function resolveRefreshUrl(request: NextRequest): string {
   if (env.apiBaseUrl) {
@@ -50,11 +47,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
   } catch {
     // TODO: 이부분은 sessionExpired가 아닌 네트워크 에러를 표시해야 함
-    return NextResponse.redirect(new URL(buildLoginUrl(nextPath, true), request.url));
+    return NextResponse.redirect(
+      new URL(buildLoginUrl(nextPath, true), request.url),
+    );
   }
 
   if (refreshResponse.ok) {
-    const successResponse = NextResponse.redirect(new URL(nextPath, request.url));
+    const successResponse = NextResponse.redirect(
+      new URL(nextPath, request.url),
+    );
     copySetCookie(refreshResponse.headers, successResponse.headers);
     return successResponse;
   }

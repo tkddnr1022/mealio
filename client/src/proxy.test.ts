@@ -15,7 +15,9 @@ describe('proxy auth gate', () => {
   });
 
   it('redirects to login with next when refresh token missing', () => {
-    const request = new NextRequest('https://mealio.test/inventory/ingredients');
+    const request = new NextRequest(
+      'https://mealio.test/inventory/ingredients',
+    );
     const response = proxy(request);
 
     expect(response.status).toBe(307);

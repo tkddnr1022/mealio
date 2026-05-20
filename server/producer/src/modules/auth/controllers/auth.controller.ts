@@ -25,7 +25,10 @@ import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { OAuthCallbackGuard } from '../guards/oauth-callback.guard';
 import { ConfigService } from '@nestjs/config';
 import { SUPPORTED_AUTH_PROVIDERS } from '../constants/auth-providers';
-import type { RequestWithOAuthProfile, RequestWithUser } from '../types/request.types';
+import type {
+  RequestWithOAuthProfile,
+  RequestWithUser,
+} from '../types/request.types';
 
 // TODO: 환경 변수로 관리
 const ACCESS_TOKEN_COOKIE_NAME = 'accessToken';
@@ -167,7 +170,10 @@ export class AuthController {
     const { refreshToken } = this.getAuthCookies(req);
     if (typeof refreshToken !== 'string' || refreshToken.length === 0) {
       this.clearAuthCookies(res);
-      throw new HttpException('Refresh token is required', HttpStatus.UNAUTHORIZED);
+      throw new HttpException(
+        'Refresh token is required',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     try {
@@ -183,7 +189,10 @@ export class AuthController {
     }
   }
 
-  private getAuthCookies(req: Request): { accessToken: string, refreshToken: string } {
+  private getAuthCookies(req: Request): {
+    accessToken: string;
+    refreshToken: string;
+  } {
     return {
       accessToken: req.cookies?.[ACCESS_TOKEN_COOKIE_NAME],
       refreshToken: req.cookies?.[REFRESH_TOKEN_COOKIE_NAME],

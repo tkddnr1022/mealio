@@ -35,7 +35,7 @@ import {
 
 type QueryMetaLike = { currentUrl?: string | null };
 
-// TODO: 매번 meta에 currentUrl을 넘겨주어야 하는 문제 
+// TODO: 매번 meta에 currentUrl을 넘겨주어야 하는 문제
 function resolveCurrentUrl(meta: unknown): string | null | undefined {
   if (!meta || typeof meta !== 'object') return undefined;
   const maybeCurrentUrl = (meta as QueryMetaLike).currentUrl;

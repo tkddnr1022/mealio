@@ -222,11 +222,7 @@ export class HttpClient {
 
         if (!response.ok) {
           if (
-            this.shouldAttemptTokenRefresh(
-              path,
-              response.status,
-              refreshTried,
-            )
+            this.shouldAttemptTokenRefresh(path, response.status, refreshTried)
           ) {
             refreshTried = true;
             const refreshed = await this.refreshAccessTokenWithLock();

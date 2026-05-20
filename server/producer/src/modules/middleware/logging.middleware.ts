@@ -11,11 +11,7 @@ import { RequestWithCorrelationId } from './request.types';
 export class LoggingMiddleware implements NestMiddleware {
   private readonly logger = new Logger('HTTP');
 
-  use(
-    req: RequestWithCorrelationId,
-    res: Response,
-    next: NextFunction,
-  ): void {
+  use(req: RequestWithCorrelationId, res: Response, next: NextFunction): void {
     const { method, originalUrl } = req;
     const startedAt = Date.now();
 

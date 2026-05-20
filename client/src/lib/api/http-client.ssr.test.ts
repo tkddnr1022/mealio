@@ -25,7 +25,9 @@ describe('HttpClient SSR auth behavior', () => {
       status: 401,
     });
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(fetchMock.mock.calls[0]?.[0]).toBe('https://api.mealio.test/api/v1/users/me');
+    expect(fetchMock.mock.calls[0]?.[0]).toBe(
+      'https://api.mealio.test/api/v1/users/me',
+    );
   });
 
   it('invokes unauthorizedFallback on SSR 401 response', async () => {

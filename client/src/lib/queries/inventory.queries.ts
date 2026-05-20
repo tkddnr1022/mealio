@@ -109,7 +109,9 @@ function staleInventoryAndFavoriteRecipes(qc: QueryClient) {
 
 // ─── Optimistic update 뮤테이션 (예측 가능한 command) ──
 
-export function useRemoveMyOwnedIngredient(options?: UseMutationOptions<void, Error, number>) {
+export function useRemoveMyOwnedIngredient(
+  options?: UseMutationOptions<void, Error, number>,
+) {
   const qc = useQueryClient();
   const { meta: metaOption, ...rest } = options ?? {};
   return useMutation<void, Error, number, { previous?: InventoryResponse }>({
@@ -187,7 +189,9 @@ export interface ToggleMyFavoriteRecipeVariables {
   isFavorite: boolean;
 }
 
-export function useToggleMyFavoriteRecipe(options?: UseMutationOptions<void, Error, ToggleMyFavoriteRecipeVariables>) {
+export function useToggleMyFavoriteRecipe(
+  options?: UseMutationOptions<void, Error, ToggleMyFavoriteRecipeVariables>,
+) {
   const { meta: metaOption, ...rest } = options ?? {};
   const qc = useQueryClient();
 

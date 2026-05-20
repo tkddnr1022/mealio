@@ -13,11 +13,7 @@ import { RequestWithCorrelationId } from './request.types';
 export class CorrelationIdMiddleware implements NestMiddleware {
   private static readonly HEADER_NAME = 'x-correlation-id';
 
-  use(
-    req: RequestWithCorrelationId,
-    res: Response,
-    next: NextFunction,
-  ): void {
+  use(req: RequestWithCorrelationId, res: Response, next: NextFunction): void {
     const existingId =
       (req.headers[CorrelationIdMiddleware.HEADER_NAME] as
         | string

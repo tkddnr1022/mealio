@@ -320,9 +320,15 @@ export class AuthService {
   /** 사용자의 활성 refresh 세션을 모두 폐기한다(로그아웃·재사용 대응). */
   async revokeAllUserSessions(userId: number): Promise<void> {
     const activeSessionIds =
-      await this.authRefreshSessionRepository.findActiveSessionIdsByUserId(userId);
+      await this.authRefreshSessionRepository.findActiveSessionIdsByUserId(
+        userId,
+      );
     await this.authRefreshSessionRepository.revokeByUserId(userId, new Date());
-    await Promise.all(activeSessionIds.map((sessionId) => this.deleteRefreshSessionCache(sessionId)));
+    await Promise.all(
+      activeSessionIds.map((sessionId) =>
+        this.deleteRefreshSessionCache(sessionId),
+      ),
+    );
   }
 
   /** accessToken JWT·쿠키 Max-Age(초). */
@@ -382,7 +388,9 @@ export class AuthService {
     userId: number;
   }> {
     const sessionId = randomUUID();
-    const secret = randomBytes(this.getRefreshTokenBytes()).toString('base64url');
+    const secret = randomBytes(this.getRefreshTokenBytes()).toString(
+      'base64url',
+    );
     const tokenHash = this.hashRefreshSecret(secret);
     const expiresAt = new Date(
       Date.now() + this.getRefreshTokenTtlSeconds() * 1000,
@@ -477,7 +485,9 @@ export class AuthService {
     revokedAt: Date | null;
     replacedBySessionId: string | null;
   } | null> {
-    const cached = await this.redisService.get(this.refreshSessionCacheKey(sessionId));
+    const cached = await this.redisService.get(
+      this.refreshSessionCacheKey(sessionId),
+    );
     if (!cached) {
       return null;
     }
