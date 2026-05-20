@@ -1,5 +1,6 @@
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
-import type { Request, Response, NextFunction } from 'express';
+import type { Response, NextFunction } from 'express';
+import { RequestWithCorrelationId } from './request.types';
 
 /**
  * HTTP 요청/응답 로깅 미들웨어
@@ -11,7 +12,7 @@ export class LoggingMiddleware implements NestMiddleware {
   private readonly logger = new Logger('HTTP');
 
   use(
-    req: Request & { correlationId?: string },
+    req: RequestWithCorrelationId,
     res: Response,
     next: NextFunction,
   ): void {

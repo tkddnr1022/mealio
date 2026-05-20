@@ -4,6 +4,7 @@ import {
   API_RETRY_POLICY,
   type ApiRetryPolicy,
 } from '@/lib/config/api.config';
+import { API_ENDPOINTS } from '@/lib/api/endpoints';
 
 import {
   CORRELATION_ID_HEADER,
@@ -104,6 +105,7 @@ export class HttpClient {
   private readonly defaultRetryPolicy: ApiRetryPolicy;
   private readonly requestInterceptors: RequestInterceptor[];
   private readonly responseInterceptors: ResponseInterceptor[];
+  private refreshInFlight: Promise<boolean> | null = null;
 
   constructor(config: HttpClientConfig = {}) {
     this.baseUrl = stripTrailingSlash(config.baseUrl ?? env.apiBaseUrl);
@@ -201,6 +203,7 @@ export class HttpClient {
     const retryPolicy = this.resolveRetryPolicy(method, options.retry);
     const timeoutMs = options.timeoutMs ?? this.defaultTimeoutMs;
     const maxAttempts = retryPolicy?.maxAttempts ?? 1;
+    let retriedAfterRefresh = false;
 
     let lastError: ApiError | null = null;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -218,6 +221,22 @@ export class HttpClient {
         });
 
         if (!response.ok) {
+          if (
+            this.shouldAttemptTokenRefresh(
+              method,
+              path,
+              response.status,
+              retriedAfterRefresh,
+            )
+          ) {
+            const refreshed = await this.refreshAccessTokenWithLock();
+            if (refreshed) {
+              retriedAfterRefresh = true;
+              attempt -= 1;
+              continue;
+            }
+          }
+
           const apiError = await parseErrorResponse(response, correlationId);
           if (
             attempt < maxAttempts &&
@@ -338,6 +357,34 @@ export class HttpClient {
     const base = `${this.baseUrl}${normalizedPath}`;
     const qs = buildQueryString(query);
     return qs ? `${base}?${qs}` : base;
+  }
+
+  private shouldAttemptTokenRefresh(
+    method: HttpMethod,
+    path: string,
+    status: number,
+    retriedAfterRefresh: boolean,
+  ): boolean {
+    if (status !== 401) return false;
+    if (retriedAfterRefresh) return false;
+    if (!IDEMPOTENT_METHODS.has(method)) return false;
+    return path !== API_ENDPOINTS.auth.refresh;
+  }
+
+  private async refreshAccessTokenWithLock(): Promise<boolean> {
+    if (this.refreshInFlight) {
+      return this.refreshInFlight;
+    }
+
+    this.refreshInFlight = this.doRefreshAccessToken().finally(() => {
+      this.refreshInFlight = null;
+    });
+    return this.refreshInFlight;
+  }
+
+  private async doRefreshAccessToken(): Promise<boolean> {
+    const response = await this.raw('POST', API_ENDPOINTS.auth.refresh);
+    return response.ok;
   }
 }
 

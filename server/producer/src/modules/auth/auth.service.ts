@@ -1,9 +1,15 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { RedisService } from '@mealio/shared';
 import { KAFKA_TOPICS, UserEventType } from '@mealio/shared';
 import { User } from '@mealio/shared/prisma-client';
 import { UserRepository } from '../../infrastructure/database/repositories/postgresql/user.repository';
+import { AuthRefreshSessionRepository } from '../../infrastructure/database/repositories/postgresql/auth-refresh-session.repository';
 import { KafkaProducerService } from '../../infrastructure/kafka/producer.service';
 import { OAuthProfile } from './types/oauth.types';
 import {
@@ -11,7 +17,7 @@ import {
   AuthProvider,
   isSupportedProvider,
 } from './constants/auth-providers';
-import { randomBytes } from 'crypto';
+import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'crypto';
 
 export const OAUTH_FAILURE_QUERY_KEYS = {
   errorCode: 'errorCode',
@@ -19,12 +25,35 @@ export const OAUTH_FAILURE_QUERY_KEYS = {
   next: 'next',
 } as const;
 
+/** Redis 캐시에 저장하는 refresh 세션 스냅샷 (SSOT는 DB). */
+type RefreshSessionCachePayload = {
+  userId: number;
+  tokenHash: string;
+  expiresAt: string;
+  revokedAt: string | null;
+  replacedBySessionId: string | null;
+};
+
+/** 로그인·갱신 시 세션 메타(선택). */
+export type AuthIssueContext = {
+  userAgent?: string;
+  ipAddress?: string;
+};
+
+/** Access JWT + opaque refresh 토큰 쌍. */
+export type IssuedAuthTokens = {
+  accessToken: string;
+  refreshToken: string;
+};
+
 @Injectable()
 export class AuthService {
   constructor(
     private readonly config: ConfigService,
     private readonly jwt: JwtService,
+    private readonly redisService: RedisService,
     private readonly userRepository: UserRepository,
+    private readonly authRefreshSessionRepository: AuthRefreshSessionRepository,
     private readonly kafkaProducerService: KafkaProducerService,
   ) {}
 
@@ -195,11 +224,298 @@ export class AuthService {
     });
   }
 
+  /** 사용자 ID로 JWT accessToken 발급. */
+  issueAccessToken(userId: number): string {
+    return this.jwt.sign(
+      { sub: String(userId) },
+      { expiresIn: this.getAccessTokenTtlSeconds() },
+    );
+  }
+
+  /** 로그인·OAuth 콜백 성공 시 access + refresh(opaque) 동시 발급. */
+  async issueTokens(
+    userId: number,
+    context?: AuthIssueContext,
+  ): Promise<IssuedAuthTokens> {
+    const accessToken = this.issueAccessToken(userId);
+    const { refreshToken } = await this.createRefreshSession(userId, context);
+    return { accessToken, refreshToken };
+  }
+
   /**
-   * 사용자 ID로 JWT accessToken 발급.
+   * refresh 토큰 검증 후 회전: 기존 세션 revoke, 신규 세션·토큰 발급.
+   * 재사용·위조 감지 시 해당 사용자 활성 세션 전체 revoke.
    */
-  signToken(userId: number): string {
-    return this.jwt.sign({ sub: String(userId) });
+  async rotateTokens(
+    refreshToken: string,
+    context?: AuthIssueContext,
+  ): Promise<IssuedAuthTokens> {
+    const parsed = this.parseOpaqueRefreshToken(refreshToken);
+    const session =
+      (await this.getRefreshSessionFromCache(parsed.sessionId)) ??
+      (await this.authRefreshSessionRepository.findById(parsed.sessionId));
+
+    if (!session) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const now = new Date();
+
+    if (session.revokedAt || session.replacedBySessionId) {
+      await this.revokeAllUserSessions(session.userId);
+      throw new UnauthorizedException('Refresh token was already used');
+    }
+
+    if (session.expiresAt.getTime() <= now.getTime()) {
+      await this.revokeRefreshSession(session.id);
+      throw new UnauthorizedException('Refresh token expired');
+    }
+
+    const secretHash = this.hashRefreshSecret(parsed.secret);
+    if (!this.secureEquals(secretHash, session.tokenHash)) {
+      await this.revokeAllUserSessions(session.userId);
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const nextSession = await this.createRefreshSessionData(session.userId, {
+      userAgent: context?.userAgent,
+      ipAddress: context?.ipAddress,
+    });
+
+    const rotated = await this.authRefreshSessionRepository.replaceAndRevoke({
+      oldSessionId: session.id,
+      revokedAt: now,
+      newSession: {
+        id: nextSession.sessionId,
+        user: { connect: { id: session.userId } },
+        tokenHash: nextSession.tokenHash,
+        expiresAt: nextSession.expiresAt,
+        userAgent: context?.userAgent?.slice(0, 512) || null,
+        ipAddress: context?.ipAddress?.slice(0, 64) || null,
+      },
+    });
+
+    await this.deleteRefreshSessionCache(session.id);
+    await this.cacheRefreshSession({
+      id: rotated.id,
+      userId: rotated.userId,
+      tokenHash: rotated.tokenHash,
+      expiresAt: rotated.expiresAt,
+      revokedAt: rotated.revokedAt,
+      replacedBySessionId: rotated.replacedBySessionId,
+    });
+
+    return {
+      accessToken: this.issueAccessToken(session.userId),
+      refreshToken: `${nextSession.sessionId}.${nextSession.secret}`,
+    };
+  }
+
+  /** 단일 refresh 세션을 DB·Redis에서 폐기한다. */
+  async revokeRefreshSession(sessionId: string): Promise<void> {
+    await this.authRefreshSessionRepository.revokeById(sessionId, new Date());
+    await this.deleteRefreshSessionCache(sessionId);
+  }
+
+  /** 사용자의 활성 refresh 세션을 모두 폐기한다(로그아웃·재사용 대응). */
+  async revokeAllUserSessions(userId: number): Promise<void> {
+    const activeSessionIds =
+      await this.authRefreshSessionRepository.findActiveSessionIdsByUserId(userId);
+    await this.authRefreshSessionRepository.revokeByUserId(userId, new Date());
+    await Promise.all(activeSessionIds.map((sessionId) => this.deleteRefreshSessionCache(sessionId)));
+  }
+
+  /** accessToken JWT·쿠키 Max-Age(초). */
+  getAccessTokenTtlSeconds(): number {
+    return this.getPositiveIntEnv('ACCESS_TOKEN_TTL_SEC');
+  }
+
+  /** refresh 세션·쿠키 TTL(초). */
+  getRefreshTokenTtlSeconds(): number {
+    return this.getPositiveIntEnv('REFRESH_TOKEN_TTL_SEC');
+  }
+
+  /** Set-Cookie `refreshToken` maxAge(ms). */
+  getRefreshTokenCookieMaxAgeMs(): number {
+    return this.getRefreshTokenTtlSeconds() * 1000;
+  }
+
+  /** Set-Cookie `accessToken` maxAge(ms). */
+  getAccessTokenCookieMaxAgeMs(): number {
+    return this.getAccessTokenTtlSeconds() * 1000;
+  }
+
+  /** DB에 세션 저장 후 Redis write-through, opaque `sessionId.secret` 반환. */
+  private async createRefreshSession(
+    userId: number,
+    context?: AuthIssueContext,
+  ): Promise<{ refreshToken: string }> {
+    const created = await this.createRefreshSessionData(userId, context);
+    await this.authRefreshSessionRepository.create({
+      id: created.sessionId,
+      user: { connect: { id: userId } },
+      tokenHash: created.tokenHash,
+      expiresAt: created.expiresAt,
+      userAgent: context?.userAgent?.slice(0, 512) || null,
+      ipAddress: context?.ipAddress?.slice(0, 64) || null,
+    });
+    await this.cacheRefreshSession({
+      id: created.sessionId,
+      userId,
+      tokenHash: created.tokenHash,
+      expiresAt: created.expiresAt,
+      revokedAt: null,
+      replacedBySessionId: null,
+    });
+    return { refreshToken: `${created.sessionId}.${created.secret}` };
+  }
+
+  /** 회전·신규 발급용 세션 ID·secret·해시·만료 시각 생성(저장 없음). */
+  private async createRefreshSessionData(
+    userId: number,
+    _context?: AuthIssueContext,
+  ): Promise<{
+    sessionId: string;
+    secret: string;
+    tokenHash: string;
+    expiresAt: Date;
+    userId: number;
+  }> {
+    const sessionId = randomUUID();
+    const secret = randomBytes(this.getRefreshTokenBytes()).toString('base64url');
+    const tokenHash = this.hashRefreshSecret(secret);
+    const expiresAt = new Date(
+      Date.now() + this.getRefreshTokenTtlSeconds() * 1000,
+    );
+    return {
+      sessionId,
+      secret,
+      tokenHash,
+      expiresAt,
+      userId,
+    };
+  }
+
+  /** opaque refresh 문자열을 `sessionId`·`secret`으로 분리한다. */
+  private parseOpaqueRefreshToken(refreshToken: string): {
+    sessionId: string;
+    secret: string;
+  } {
+    const token = refreshToken.trim();
+    const split = token.indexOf('.');
+    if (split <= 0 || split >= token.length - 1) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const sessionId = token.slice(0, split);
+    const secret = token.slice(split + 1);
+
+    if (!sessionId || !secret) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    return { sessionId, secret };
+  }
+
+  /** DB·캐시에는 secret 원문 대신 SHA-256 hex만 저장한다. */
+  private hashRefreshSecret(secret: string): string {
+    return createHash('sha256').update(secret).digest('hex');
+  }
+
+  /** 타이밍 공격 완화용 문자열 비교. */
+  private secureEquals(left: string, right: string): boolean {
+    const leftBuffer = Buffer.from(left);
+    const rightBuffer = Buffer.from(right);
+    if (leftBuffer.length !== rightBuffer.length) {
+      return false;
+    }
+    return timingSafeEqual(leftBuffer, rightBuffer);
+  }
+
+  /** Redis refresh 세션 캐시 키. */
+  private refreshSessionCacheKey(sessionId: string): string {
+    return `auth:refresh:session:${sessionId}`;
+  }
+
+  /** 세션 스냅샷을 Redis에 TTL=만료까지 남은 시간으로 저장한다. */
+  private async cacheRefreshSession(data: {
+    id: string;
+    userId: number;
+    tokenHash: string;
+    expiresAt: Date;
+    revokedAt: Date | null;
+    replacedBySessionId: string | null;
+  }): Promise<void> {
+    const ttlSeconds = Math.floor(
+      (data.expiresAt.getTime() - Date.now()) / 1000,
+    );
+    if (ttlSeconds <= 0) {
+      await this.deleteRefreshSessionCache(data.id);
+      return;
+    }
+
+    const payload: RefreshSessionCachePayload = {
+      userId: data.userId,
+      tokenHash: data.tokenHash,
+      expiresAt: data.expiresAt.toISOString(),
+      revokedAt: data.revokedAt ? data.revokedAt.toISOString() : null,
+      replacedBySessionId: data.replacedBySessionId,
+    };
+    await this.redisService.set(
+      this.refreshSessionCacheKey(data.id),
+      JSON.stringify(payload),
+      ttlSeconds,
+    );
+  }
+
+  /** Redis에서 세션 조회. 미스·파싱 실패 시 null(DB 폴백). */
+  private async getRefreshSessionFromCache(sessionId: string): Promise<{
+    id: string;
+    userId: number;
+    tokenHash: string;
+    expiresAt: Date;
+    revokedAt: Date | null;
+    replacedBySessionId: string | null;
+  } | null> {
+    const cached = await this.redisService.get(this.refreshSessionCacheKey(sessionId));
+    if (!cached) {
+      return null;
+    }
+
+    try {
+      const parsed = JSON.parse(cached) as RefreshSessionCachePayload;
+      return {
+        id: sessionId,
+        userId: parsed.userId,
+        tokenHash: parsed.tokenHash,
+        expiresAt: new Date(parsed.expiresAt),
+        revokedAt: parsed.revokedAt ? new Date(parsed.revokedAt) : null,
+        replacedBySessionId: parsed.replacedBySessionId,
+      };
+    } catch {
+      await this.deleteRefreshSessionCache(sessionId);
+      return null;
+    }
+  }
+
+  /** 회전·revoke 시 이전 세션 캐시 키 삭제. */
+  private async deleteRefreshSessionCache(sessionId: string): Promise<void> {
+    await this.redisService.del(this.refreshSessionCacheKey(sessionId));
+  }
+
+  /** opaque secret 랜덤 바이트 수. */
+  private getRefreshTokenBytes(): number {
+    return this.getPositiveIntEnv('REFRESH_TOKEN_BYTES');
+  }
+
+  /** env 정수 파싱(0 이하이면 기동 시 검증 실패). */
+  private getPositiveIntEnv(name: string): number {
+    const value = this.config.getOrThrow<string>(name);
+    const parsed = Number.parseInt(value, 10);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      throw new Error(`${name} must be a positive integer`);
+    }
+    return parsed;
   }
 
   /**

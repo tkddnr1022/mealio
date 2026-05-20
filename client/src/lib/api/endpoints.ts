@@ -22,6 +22,8 @@ export const API_ENDPOINTS = {
       `${API_PREFIX}/auth/${provider}/callback`,
     /** 로그아웃 (JWT 쿠키 삭제). POST */
     logout: `${API_PREFIX}/auth/logout`,
+    /** Access/Refresh 토큰 회전 갱신 */
+    refresh: `${API_PREFIX}/auth/refresh`,
   },
   users: {
     me: `${API_PREFIX}/users/me`,

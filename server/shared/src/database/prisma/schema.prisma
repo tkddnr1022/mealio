@@ -24,11 +24,36 @@ model User {
 
   chatbotCreditDeductions ChatbotCreditDeduction[]
   recommendations         UserRecipeRecommendation[]
+  authRefreshSessions     AuthRefreshSession[]
 
   @@index([platformName, platformId])
   @@index([email])
   @@index([createdAt])
   @@map("User")
+}
+
+model AuthRefreshSession {
+  id                  String  @id @db.Uuid
+  userId              Int     @map("user_id")
+  tokenHash           String  @map("token_hash") @db.VarChar(128)
+  expiresAt           DateTime @map("expires_at")
+  revokedAt           DateTime? @map("revoked_at")
+  replacedBySessionId String? @map("replaced_by_session_id") @db.Uuid
+  lastUsedAt          DateTime? @map("last_used_at")
+  userAgent           String? @map("user_agent") @db.VarChar(512)
+  ipAddress           String? @map("ip_address") @db.VarChar(64)
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replacedBy AuthRefreshSession? @relation("AuthRefreshSessionReplacement", fields: [replacedBySessionId], references: [id])
+  replaces   AuthRefreshSession[] @relation("AuthRefreshSessionReplacement")
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([revokedAt])
+  @@index([replacedBySessionId])
+  @@map("auth_refresh_sessions")
 }
 
 /** 챗봇 요청당 1회 차감 멱등 (Kafka 재시도 시 이중 차감 방지) */

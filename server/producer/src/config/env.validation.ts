@@ -21,6 +21,21 @@ export const envValidationSchema = Joi.object({
     'any.required': 'JWT_SECRET is required',
   }),
 
+  ACCESS_TOKEN_TTL_SEC: Joi.string().pattern(/^\d+$/).required().messages({
+    'string.pattern.base': 'ACCESS_TOKEN_TTL_SEC must be a positive integer',
+    'any.required': 'ACCESS_TOKEN_TTL_SEC is required',
+  }),
+
+  REFRESH_TOKEN_TTL_SEC: Joi.string().pattern(/^\d+$/).required().messages({
+    'string.pattern.base': 'REFRESH_TOKEN_TTL_SEC must be a positive integer',
+    'any.required': 'REFRESH_TOKEN_TTL_SEC is required',
+  }),
+
+  REFRESH_TOKEN_BYTES: Joi.string().pattern(/^\d+$/).required().messages({
+    'string.pattern.base': 'REFRESH_TOKEN_BYTES must be a positive integer',
+    'any.required': 'REFRESH_TOKEN_BYTES is required',
+  }),
+
   MONGODB_URL: Joi.string().min(1).required().messages({
     'string.empty': 'MONGODB_URL must not be empty',
     'any.required': 'MONGODB_URL is required',

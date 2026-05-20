@@ -158,8 +158,19 @@ OAuth 인증은 백엔드 주도 흐름을 따른다. 전략·API 계약·보안
 |------|------|
 | **설정** | Provider별 Client ID, Client Secret, Scope, Redirect URI(백엔드 콜백 URL)를 환경 변수 또는 설정 모듈에서 로드. Redirect URI는 Provider 개발자 콘솔에 백엔드 콜백 URL로 등록(클라이언트 도메인 아님). |
 | **진입 라우트** | GET /api/v1/auth/{provider}. path parameter `provider`로 Provider 결정(google, kakao, naver). 해당 Provider 인증 URL 생성(client_id, redirect_uri, scope, state). 응답: 302 Redirect to Provider 인증 URL. |
-| **콜백 라우트** | GET /api/v1/auth/{provider}/callback. Query에서 code(필수), state(권장) 추출. state 검증(권장, CSRF 방지). Authorization Code로 Provider Token 엔드포인트 호출 → Access Token( 및 Refresh Token) 수신. Access Token으로 Provider 사용자 정보 API 호출. 수신 사용자 정보로 DB 사용자 생성 또는 조회. 자체 JWT 발급. 응답: 302 Redirect to 클라이언트 로그인 성공 URL + Set-Cookie: JWT (HttpOnly, Secure, SameSite=Lax, Max-Age). |
+| **콜백 라우트** | GET /api/v1/auth/{provider}/callback. Query에서 code(필수), state(권장) 추출. state 검증(권장, CSRF 방지). Authorization Code로 Provider Token 엔드포인트 호출 → Access Token( 및 Refresh Token) 수신. Access Token으로 Provider 사용자 정보 API 호출. 수신 사용자 정보로 DB 사용자 생성 또는 조회. 자체 Access JWT + Opaque Refresh Token 발급. 응답: 302 Redirect to 클라이언트 로그인 성공 URL + Set-Cookie(`accessToken`, `refreshToken`, HttpOnly, Secure, SameSite=Lax). |
 | **적용 경로** | 진입/콜백: server/producer/src/modules/auth/controllers/*. 전략: server/producer/src/modules/auth/strategies/* (Passport Google, Kakao, Naver). 가드: server/producer/src/modules/auth/guards/* (JWT, OAuth 콜백). 데코레이터: server/producer/src/modules/auth/decorators/*. OpenAPI·프론트엔드와 경로 일치: /api/v1/auth/{provider}, /api/v1/auth/{provider}/callback. |
+
+### Refresh Token (Opaque, SSOT=DB, Cache=Redis)
+
+| 항목 | 명세 |
+|------|------|
+| **Refresh API** | `POST /api/v1/auth/refresh` |
+| **토큰 형식** | Opaque 문자열 `sessionId.secret` |
+| **저장소 전략** | 검증/폐기의 최종 판정은 PostgreSQL(`auth_refresh_sessions`)이 SSOT, Redis는 세션 캐시(`auth:refresh:session:{sessionId}`) |
+| **회전 정책** | Refresh 성공 시 기존 세션 revoke + 신규 세션 생성 + access/refresh 동시 재발급 |
+| **재사용 대응** | 이미 revoke/교체된 세션 재사용 감지 시 사용자 활성 세션 revoke 후 401 |
+| **로그아웃** | `POST /api/v1/auth/logout`에서 access/refresh 쿠키 모두 clear + 사용자 세션 revoke |
 
 ## 1.4 맞춤형 레시피 추천 API (Producer)
 

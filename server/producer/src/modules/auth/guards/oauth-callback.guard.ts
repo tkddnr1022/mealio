@@ -9,6 +9,7 @@ import { Request } from 'express';
 import { isSupportedProvider } from '../constants/auth-providers';
 import { OAuthProfile } from '../types/oauth.types';
 import passport from 'passport';
+import { RequestWithOAuthProfile } from '../types/request.types';
 
 // TODO: state 검증 구현
 @Injectable()
@@ -74,7 +75,7 @@ export class OAuthCallbackGuard implements CanActivate {
             );
             return;
           }
-          (request as Request & { user: OAuthProfile }).user = user;
+          (request as RequestWithOAuthProfile).user = user;
           resolve(true);
         },
       )(request, response, next);

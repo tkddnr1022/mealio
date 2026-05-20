@@ -218,23 +218,24 @@ paths:
       tags:
         - Authentication
       summary: 토큰 갱신
-      description: Refresh Token을 사용하여 Access Token 갱신
+      description: |
+        HttpOnly `refreshToken` 쿠키(opaque token)를 검증해 Access/Refresh 토큰을 회전 발급한다.
+        검증의 SSOT는 DB(Prisma)이며, Redis는 세션 조회 캐시로 사용된다.
       security:
-        - cookieAuth: []
+        - refreshCookieAuth: []
       parameters:
-        - name: accessToken
+        - name: refreshToken
           in: cookie
           required: true
-          description: JWT 액세스 토큰
+          description: Opaque refresh token (예: `sessionId.secret`)
           schema:
             type: string
-          example: "{{apiKey}}"
       responses:
         '200':
           description: 토큰 갱신 성공
           headers:
             Set-Cookie:
-              description: 갱신된 JWT 토큰
+              description: 갱신된 accessToken + refreshToken 쿠키
               schema:
                 type: string
           content:
@@ -1508,6 +1509,11 @@ components:
       in: cookie
       name: accessToken
       description: JWT 토큰이 포함된 HttpOnly 쿠키
+    refreshCookieAuth:
+      type: apiKey
+      in: cookie
+      name: refreshToken
+      description: Opaque refresh token이 포함된 HttpOnly 쿠키
     internalApiKey:
       type: apiKey
       in: header

@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  HttpException,
   HttpCode,
   HttpStatus,
   Param,
@@ -18,15 +19,17 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import * as express from 'express';
+import type { Request, Response } from 'express';
 import { AuthService } from '../auth.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { OAuthCallbackGuard } from '../guards/oauth-callback.guard';
-import { OAuthProfile } from '../types/oauth.types';
 import { ConfigService } from '@nestjs/config';
 import { SUPPORTED_AUTH_PROVIDERS } from '../constants/auth-providers';
-// TODO: refresh token 구현
-const COOKIE_MAX_AGE_MS = 60 * 60 * 1000; // 1h
+import type { RequestWithOAuthProfile, RequestWithUser } from '../types/request.types';
+
+const ACCESS_TOKEN_COOKIE_NAME = 'accessToken';
+const REFRESH_TOKEN_COOKIE_NAME = 'refreshToken';
+const REFRESH_COOKIE_PATH = '/api/v1/auth';
 
 @ApiTags('Authentication')
 @Controller('api/v1/auth')
@@ -53,14 +56,11 @@ export class AuthController {
     description: 'accessToken 없음·만료·무효',
   })
   async logout(
-    @Res({ passthrough: true }) res: express.Response,
+    @Req() req: RequestWithUser,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<void> {
-    res.clearCookie('accessToken', {
-      httpOnly: true,
-      secure: this.config.getOrThrow<string>('NODE_ENV') !== 'development',
-      sameSite: 'lax',
-      path: '/',
-    });
+    await this.authService.revokeAllUserSessions(req.user.id);
+    this.clearAuthCookies(res);
   }
 
   @Get(':provider')
@@ -89,7 +89,7 @@ export class AuthController {
   async login(
     @Param('provider') provider: string,
     @Query('next') next: string | undefined,
-    @Res({ passthrough: false }) res: express.Response,
+    @Res({ passthrough: false }) res: Response,
   ): Promise<void> {
     const state = this.authService.buildOAuthState(next);
     const url = this.authService.getAuthUrl(provider, state);
@@ -116,8 +116,8 @@ export class AuthController {
     @Query('next') next: string | undefined,
     @Query('error') oauthError: string | undefined,
     @Query('error_description') oauthErrorDescription: string | undefined,
-    @Req() req: { user: OAuthProfile },
-    @Res({ passthrough: false }) res: express.Response,
+    @Req() req: RequestWithOAuthProfile,
+    @Res({ passthrough: false }) res: Response,
   ): Promise<void> {
     const providerErrorRedirect =
       this.authService.buildOAuthProviderErrorRedirectUrl({
@@ -135,18 +135,99 @@ export class AuthController {
 
     const profile = req.user;
     const user = await this.authService.findOrCreateUser(profile);
-    const token = this.authService.signToken(user.id);
-
-    res.cookie('accessToken', token, {
-      httpOnly: true,
-      secure: this.config.getOrThrow<string>('NODE_ENV') !== 'development',
-      sameSite: 'lax',
-      // domain: this.config.getOrThrow<string>('COOKIE_DOMAIN'),
-      maxAge: COOKIE_MAX_AGE_MS,
-      path: '/',
+    const issued = await this.authService.issueTokens(user.id, {
+      userAgent: req.get('user-agent') || undefined,
+      ipAddress: req.ip || undefined,
     });
+    this.setAuthCookies(res, issued.accessToken, issued.refreshToken);
 
     const redirectUrl = this.authService.buildLoginSuccessRedirectUrl(safeNext);
     res.redirect(HttpStatus.FOUND, redirectUrl);
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: '토큰 갱신',
+    description:
+      'Refresh Token 쿠키를 검증해 Access/Refresh Token을 회전 발급한다.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '토큰 갱신 성공 (Set-Cookie로 access/refresh 동시 갱신)',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'refreshToken 없음·만료·무효·재사용',
+  })
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ success: true }> {
+    const { refreshToken } = this.getAuthCookies(req);
+    if (typeof refreshToken !== 'string' || refreshToken.length === 0) {
+      this.clearAuthCookies(res);
+      throw new HttpException('Refresh token is required', HttpStatus.UNAUTHORIZED);
+    }
+
+    try {
+      const issued = await this.authService.rotateTokens(refreshToken, {
+        userAgent: req.get('user-agent') || undefined,
+        ipAddress: req.ip || undefined,
+      });
+      this.setAuthCookies(res, issued.accessToken, issued.refreshToken);
+      return { success: true };
+    } catch (error) {
+      this.clearAuthCookies(res);
+      throw error;
+    }
+  }
+
+  private getAuthCookies(req: Request): { accessToken: string, refreshToken: string } {
+    return {
+      accessToken: req.cookies?.[ACCESS_TOKEN_COOKIE_NAME],
+      refreshToken: req.cookies?.[REFRESH_TOKEN_COOKIE_NAME],
+    };
+  }
+
+  private setAuthCookies(
+    res: Response,
+    accessToken: string,
+    refreshToken: string,
+  ): void {
+    res.cookie(ACCESS_TOKEN_COOKIE_NAME, accessToken, {
+      httpOnly: true,
+      secure: this.isSecureCookie(),
+      sameSite: 'lax',
+      maxAge: this.authService.getAccessTokenCookieMaxAgeMs(),
+      path: '/',
+    });
+
+    res.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
+      httpOnly: true,
+      secure: this.isSecureCookie(),
+      sameSite: 'lax',
+      maxAge: this.authService.getRefreshTokenCookieMaxAgeMs(),
+      path: REFRESH_COOKIE_PATH,
+    });
+  }
+
+  private clearAuthCookies(res: Response): void {
+    res.clearCookie(ACCESS_TOKEN_COOKIE_NAME, {
+      httpOnly: true,
+      secure: this.isSecureCookie(),
+      sameSite: 'lax',
+      path: '/',
+    });
+    res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, {
+      httpOnly: true,
+      secure: this.isSecureCookie(),
+      sameSite: 'lax',
+      path: REFRESH_COOKIE_PATH,
+    });
+  }
+
+  private isSecureCookie(): boolean {
+    return this.config.getOrThrow<string>('NODE_ENV') !== 'development';
   }
 }
