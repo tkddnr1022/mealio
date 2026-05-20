@@ -15,7 +15,7 @@ import { isApiError } from '@/lib/api/error';
 import { httpClient } from '@/lib/api/http-client';
 import type { SessionUser } from '@/lib/types/auth';
 
-import { AUTH_COOKIE_NAME } from './session';
+import { REFRESH_TOKEN_COOKIE_NAME } from './session';
 
 /**
  * 서버 컴포넌트·Route Handler에서 JWT 쿠키 존재 여부만 빠르게 확인한다.
@@ -23,8 +23,8 @@ import { AUTH_COOKIE_NAME } from './session';
 export async function hasAuthCookie(): Promise<boolean> {
   const { cookies } = await import('next/headers');
   const store = await cookies();
-  const value = store.get(AUTH_COOKIE_NAME)?.value;
-  return typeof value === 'string' && value.length > 0;
+  const refreshToken = store.get(REFRESH_TOKEN_COOKIE_NAME)?.value;
+  return typeof refreshToken === 'string' && refreshToken.length > 0;
 }
 
 /**
@@ -40,9 +40,6 @@ export async function getServerSession(): Promise<SessionUser | null> {
     .getAll()
     .map((c) => `${c.name}=${c.value}`)
     .join('; ');
-
-  const token = store.get(AUTH_COOKIE_NAME)?.value;
-  if (!token) return null;
 
   try {
     return await httpClient.get<SessionUser>(API_ENDPOINTS.users.me, {

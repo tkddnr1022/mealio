@@ -4,6 +4,7 @@ import { Suspense, useEffect, useRef, useState } from 'react';
 import { LikeButton } from '@/components/ui/buttons/LikeButton';
 import { useProtectedAction } from '@/lib/auth/protected-action';
 import { useToggleMyFavoriteRecipe } from '@/lib/queries/inventory.queries';
+import { usePathname } from 'next/navigation';
 
 export interface RecipeFavoriteButtonProps {
   recipeId: number;
@@ -38,8 +39,9 @@ function RecipeFavoriteButtonInner({
   isFavorite = false,
   className = '',
 }: RecipeFavoriteButtonProps) {
+  const currentUrl = usePathname();
   const [localFavorite, setLocalFavorite] = useState(isFavorite);
-  const toggleFavorite = useToggleMyFavoriteRecipe();
+  const toggleFavorite = useToggleMyFavoriteRecipe({ meta: { currentUrl } });
   const { runProtectedAction, isAuthenticating } = useProtectedAction();
   const inFlightRef = useRef(false);
   const queuedIntentRef = useRef<boolean | null>(null);

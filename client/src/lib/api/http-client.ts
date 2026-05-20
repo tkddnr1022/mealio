@@ -203,7 +203,7 @@ export class HttpClient {
     const retryPolicy = this.resolveRetryPolicy(method, options.retry);
     const timeoutMs = options.timeoutMs ?? this.defaultTimeoutMs;
     const maxAttempts = retryPolicy?.maxAttempts ?? 1;
-    let retriedAfterRefresh = false;
+    let refreshTried = false;
 
     let lastError: ApiError | null = null;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -223,20 +223,18 @@ export class HttpClient {
         if (!response.ok) {
           if (
             this.shouldAttemptTokenRefresh(
-              method,
               path,
               response.status,
-              retriedAfterRefresh,
+              refreshTried,
             )
           ) {
+            refreshTried = true;
             const refreshed = await this.refreshAccessTokenWithLock();
             if (refreshed) {
-              retriedAfterRefresh = true;
               attempt -= 1;
               continue;
             }
           }
-
           const apiError = await parseErrorResponse(response, correlationId);
           if (
             attempt < maxAttempts &&
@@ -360,14 +358,13 @@ export class HttpClient {
   }
 
   private shouldAttemptTokenRefresh(
-    method: HttpMethod,
     path: string,
     status: number,
-    retriedAfterRefresh: boolean,
+    refreshTried: boolean,
   ): boolean {
+    if (typeof window === 'undefined') return false;
     if (status !== 401) return false;
-    if (retriedAfterRefresh) return false;
-    if (!IDEMPOTENT_METHODS.has(method)) return false;
+    if (refreshTried) return false;
     return path !== API_ENDPOINTS.auth.refresh;
   }
 
@@ -383,8 +380,12 @@ export class HttpClient {
   }
 
   private async doRefreshAccessToken(): Promise<boolean> {
-    const response = await this.raw('POST', API_ENDPOINTS.auth.refresh);
-    return response.ok;
+    try {
+      const response = await this.raw('POST', API_ENDPOINTS.auth.refresh);
+      return response.ok;
+    } catch {
+      return false;
+    }
   }
 }
 

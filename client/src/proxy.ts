@@ -5,16 +5,17 @@ import {
   NEXT_QUERY_PARAM,
   isProtectedPath,
 } from '@/lib/auth/routes';
-import { AUTH_COOKIE_NAME } from '@/lib/auth/session';
+import { REFRESH_TOKEN_COOKIE_NAME } from '@/lib/auth/session';
 
 /**
  * Next.js Proxy.
  *
- * `(main)` 중 `/chatbot`·`/inventory`(및 하위), `/mypage/...`(하위만) 접근 시 JWT 쿠키를 검사한다.
+ * `(main)` 중 `/chatbot`·`/inventory`(및 하위), `/mypage/...`(하위만) 접근 시
+ * refresh 토큰 쿠키 존재 여부를 검사한다.
  * `/mypage` 루트는 `isProtectedPath`가 false. `/mypage/...`는 matcher 적용 후 쿠키 검사.
  *
- * 쿠키 존재 = "인증됨"으로 가정하는 낙관적 검사이며, 실제 토큰의 유효성·만료는
- * 백엔드와 `ProtectedRoute`의 `GET /api/v1/users/me` 호출에서 2차로 검증한다.
+ * 쿠키 존재 = "인증 가능 상태"로 가정하는 낙관적 검사이며, 실제 토큰의 유효성·만료 및
+ * 회전(refresh)은 SSR/CSR 백엔드 API 호출 단계에서 검증한다.
  *
  * 보호 경로 정의는 `@/lib/auth/routes`에 단일 원천으로 관리되며, `ProtectedRoute`도
  * 동일한 상수를 공유한다. `matcher`는 Next.js 빌드 타임 정적 분석 요구로 리터럴 배열을
@@ -27,7 +28,7 @@ export function proxy(request: NextRequest): NextResponse {
     return NextResponse.next();
   }
 
-  const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
+  const token = request.cookies.get(REFRESH_TOKEN_COOKIE_NAME)?.value;
   if (token && token.length > 0) {
     return NextResponse.next();
   }

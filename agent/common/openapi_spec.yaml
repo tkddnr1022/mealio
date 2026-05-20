@@ -5,7 +5,7 @@ info:
     레시피 추천 및 재료 관리 서비스 API
     
     ## 인증 방식
-    - Cookie 기반 JWT 인증 (HttpOnly, Secure, SameSite=Strict)
+    - Cookie 기반 인증 (HttpOnly, Secure, SameSite=Lax)
     - 소셜 로그인: 백엔드 주도 OAuth. 클라이언트는 GET /api/v1/auth/{provider} 진입만 하며, 이후 리다이렉트·토큰 교환·JWT 발급은 백엔드에서 처리
     
     ## 주요 기능
@@ -103,7 +103,7 @@ paths:
         서버가 Authorization Code로 Access Token 교환 → 사용자 정보 조회 → 사용자 생성/조회 → JWT 발급 후
         성공 시 프론트 앱의 최종 경로(`FRONTEND_APP_BASE_URL` + 검증된 상대 경로 또는 `FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH`)로 302 리다이렉트하며,
         실패 시 `FRONTEND_APP_BASE_URL` + `FRONTEND_OAUTH_ERROR_PATH`로 302 하고 오류 쿼리를 붙인다.
-        성공 응답에 Set-Cookie로 accessToken을 담아 전달한다.
+        성공 응답에 Set-Cookie로 accessToken/refreshToken을 함께 전달한다.
       operationId: getAuthProviderCallback
       security: []
       parameters:
@@ -148,7 +148,7 @@ paths:
         '302':
           description: |
             OAuth 처리 결과에 따라 프론트엔드 URL로 리다이렉트.
-            - 성공: 최종 앱 경로로 302 + Set-Cookie(accessToken). `next`는 서버에서 안전한 상대 경로로 검증된 값만 반영.
+            - 성공: 최종 앱 경로로 302 + Set-Cookie(accessToken, refreshToken). `next`는 서버에서 안전한 상대 경로로 검증된 값만 반영.
             - 실패: `FRONTEND_OAUTH_ERROR_PATH`로 302 (`errorCode`, `errorMessage`, optional `next` 쿼리 포함)
           headers:
             Location:
@@ -157,10 +157,10 @@ paths:
                 type: string
                 example: "https://app.example.com"
             Set-Cookie:
-              description: JWT accessToken (HttpOnly, Secure, SameSite=Lax)
+              description: accessToken(Path=/) + refreshToken(Path=/) 쿠키 (HttpOnly, Secure, SameSite=Lax)
               schema:
                 type: string
-                example: "accessToken=eyJhbGc...; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=3600"
+                example: "accessToken=eyJhbGc...; Path=/; HttpOnly; Secure; SameSite=Lax, refreshToken=session.secret; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=1209600"
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -198,7 +198,7 @@ paths:
               description: JWT 토큰이 포함된 쿠키
               schema:
                 type: string
-                example: "accessToken=eyJhbGc...; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=3600"
+                example: "accessToken=eyJhbGc...; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=3600"
           content:
             application/json:
               schema:
@@ -235,7 +235,7 @@ paths:
           description: 토큰 갱신 성공
           headers:
             Set-Cookie:
-              description: 갱신된 accessToken + refreshToken 쿠키
+              description: 갱신된 accessToken(Path=/) + refreshToken(Path=/) 쿠키
               schema:
                 type: string
           content:
@@ -270,10 +270,10 @@ paths:
           description: 로그아웃 성공
           headers:
             Set-Cookie:
-              description: 쿠키 삭제
+              description: accessToken/refreshToken 쿠키 삭제
               schema:
                 type: string
-                example: "accessToken=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0"
+                example: "accessToken=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0, refreshToken=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0"
         '401':
           $ref: '#/components/responses/Unauthorized'
 
@@ -1508,12 +1508,12 @@ components:
       type: apiKey
       in: cookie
       name: accessToken
-      description: JWT 토큰이 포함된 HttpOnly 쿠키
+      description: JWT access token이 포함된 HttpOnly 쿠키 (Path=/)
     refreshCookieAuth:
       type: apiKey
       in: cookie
       name: refreshToken
-      description: Opaque refresh token이 포함된 HttpOnly 쿠키
+      description: Opaque refresh token이 포함된 HttpOnly 쿠키 (Path=/)
     internalApiKey:
       type: apiKey
       in: header

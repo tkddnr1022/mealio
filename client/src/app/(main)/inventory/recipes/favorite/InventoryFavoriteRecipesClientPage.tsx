@@ -7,6 +7,7 @@ import type { InventoryFavoriteRecipe } from '@/lib/types/inventory';
 import type { RecipeSummary } from '@/lib/types/recipe';
 import { InventoryPageShell } from '../../InventoryPageShell';
 import { RecipeFavoriteButton } from '@/components/recipe/cards/RecipeFavoriteButton/RecipeFavoriteButton';
+import { usePathname } from 'next/navigation';
 
 function toRecipeSummary(recipe: InventoryFavoriteRecipe): RecipeSummary {
   return {
@@ -17,7 +18,12 @@ function toRecipeSummary(recipe: InventoryFavoriteRecipe): RecipeSummary {
 }
 
 export function InventoryFavoriteRecipesClientPage() {
-  const { data } = useMyInventory();
+  const currentUrl = usePathname();
+  const { data } = useMyInventory({
+    meta: {
+      currentUrl,
+    },
+  });
 
   const recipes = useMemo(() => {
     const favoriteRecipes = data?.favoriteRecipes ?? [];

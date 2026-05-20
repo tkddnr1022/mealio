@@ -109,13 +109,15 @@ function staleInventoryAndFavoriteRecipes(qc: QueryClient) {
 
 // ─── Optimistic update 뮤테이션 (예측 가능한 command) ──
 
-export function useRemoveMyOwnedIngredient() {
+export function useRemoveMyOwnedIngredient(options?: UseMutationOptions<void, Error, number>) {
   const qc = useQueryClient();
-
+  const { meta: metaOption, ...rest } = options ?? {};
   return useMutation<void, Error, number, { previous?: InventoryResponse }>({
     mutationFn: (id) => removeMyOwnedIngredient(id),
+    ...rest,
     meta: {
       errorToastTitle: '보유 재료를 삭제하지 못했어요',
+      ...metaOption,
     },
     onMutate: async (ingredientId) => {
       await qc.cancelQueries({ queryKey: inventoryQueries.overview() });
@@ -142,13 +144,17 @@ export function useRemoveMyOwnedIngredient() {
   });
 }
 
-export function useRemoveMyFavoriteIngredient() {
+export function useRemoveMyFavoriteIngredient(
+  options?: UseMutationOptions<void, Error, number>,
+) {
   const qc = useQueryClient();
-
+  const { meta: metaOption, ...rest } = options ?? {};
   return useMutation<void, Error, number, { previous?: InventoryResponse }>({
     mutationFn: (id) => removeMyFavoriteIngredient(id),
+    ...rest,
     meta: {
       errorToastTitle: '관심 재료를 삭제하지 못했어요',
+      ...metaOption,
     },
     onMutate: async (ingredientId) => {
       await qc.cancelQueries({ queryKey: inventoryQueries.overview() });
@@ -181,7 +187,8 @@ export interface ToggleMyFavoriteRecipeVariables {
   isFavorite: boolean;
 }
 
-export function useToggleMyFavoriteRecipe() {
+export function useToggleMyFavoriteRecipe(options?: UseMutationOptions<void, Error, ToggleMyFavoriteRecipeVariables>) {
+  const { meta: metaOption, ...rest } = options ?? {};
   const qc = useQueryClient();
 
   return useMutation<
@@ -197,8 +204,10 @@ export function useToggleMyFavoriteRecipe() {
       }
       await addMyFavoriteRecipes([recipeId]);
     },
+    ...rest,
     meta: {
       errorToastTitle: '관심 레시피를 변경하지 못했어요',
+      ...metaOption,
     },
     onMutate: async ({ recipeId, isFavorite }) => {
       await qc.cancelQueries({ queryKey: inventoryQueries.overview() });

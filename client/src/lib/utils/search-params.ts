@@ -41,3 +41,24 @@ export function getFirstTrimmedSearchParam(
   }
   return undefined;
 }
+
+export function buildCurrentUrlFromSearchParams(
+  pathname: string,
+  searchParams?: SearchParamRecord,
+): string {
+  if (!searchParams) return pathname;
+
+  const qs = new URLSearchParams();
+  for (const [key, value] of Object.entries(searchParams)) {
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        if (item != null) qs.append(key, item);
+      }
+      continue;
+    }
+    if (value != null) qs.append(key, value);
+  }
+
+  const query = qs.toString();
+  return query ? `${pathname}?${query}` : pathname;
+}

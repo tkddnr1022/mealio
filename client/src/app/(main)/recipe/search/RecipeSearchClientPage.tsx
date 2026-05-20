@@ -2,7 +2,7 @@
 
 import { Search } from 'lucide-react';
 import { useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
 import { Tabbar } from '@/components/layout/Tabbar';
@@ -93,11 +93,9 @@ export function RecipeSearchClientPage({
   initialPagination,
   totalCount,
 }: RecipeSearchClientPageProps) {
+  const pathname = usePathname();
   const router = useRouter();
   const isAuthenticated = useIsAuthenticated();
-  const { data: favoriteIdsData } = useMyFavoriteRecipeIds({
-    enabled: isAuthenticated,
-  });
 
   const apiSearchParams = useMemo(
     (): Omit<RecipeSearchQuery, 'page'> => ({
@@ -112,6 +110,18 @@ export function RecipeSearchClientPage({
     [query, sort, difficulty, cookTimeMin, cookTimeMax, categoryId],
   );
 
+  const currentUrl = useMemo(
+    () => `${pathname}?${buildQueryString(objectToQuery(apiSearchParams))}`,
+    [pathname, apiSearchParams],
+  );
+
+  const { data: favoriteIdsData } = useMyFavoriteRecipeIds({
+    enabled: isAuthenticated,
+    meta: {
+      currentUrl,
+    },
+  });
+
   const {
     data: searchData,
     fetchNextPage,
@@ -121,6 +131,9 @@ export function RecipeSearchClientPage({
     initialData: {
       pages: [{ data: initialRecipes, pagination: initialPagination }],
       pageParams: [1],
+    },
+    meta: {
+      currentUrl,
     },
   });
 

@@ -27,9 +27,9 @@ import { ConfigService } from '@nestjs/config';
 import { SUPPORTED_AUTH_PROVIDERS } from '../constants/auth-providers';
 import type { RequestWithOAuthProfile, RequestWithUser } from '../types/request.types';
 
+// TODO: 환경 변수로 관리
 const ACCESS_TOKEN_COOKIE_NAME = 'accessToken';
 const REFRESH_TOKEN_COOKIE_NAME = 'refreshToken';
-const REFRESH_COOKIE_PATH = '/api/v1/auth';
 
 @ApiTags('Authentication')
 @Controller('api/v1/auth')
@@ -208,7 +208,7 @@ export class AuthController {
       secure: this.isSecureCookie(),
       sameSite: 'lax',
       maxAge: this.authService.getRefreshTokenCookieMaxAgeMs(),
-      path: REFRESH_COOKIE_PATH,
+      path: '/',
     });
   }
 
@@ -223,7 +223,7 @@ export class AuthController {
       httpOnly: true,
       secure: this.isSecureCookie(),
       sameSite: 'lax',
-      path: REFRESH_COOKIE_PATH,
+      path: '/',
     });
   }
 

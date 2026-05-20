@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
 import { RecipeSearchClientPage } from './RecipeSearchClientPage';
 import { getRecipeCategories, searchRecipes } from '@/lib/api/domains';
-import { withForwardedHeaders } from '@/lib/api/server';
+import { serverFetchWrapper, withForwardedHeaders } from '@/lib/api/server';
 import {
   RECIPE_SORT_KEYS,
   type RecipeSearchQuery,
   type RecipeSortKey,
 } from '@/lib/types/recipe';
 import {
+  buildCurrentUrlFromSearchParams,
   getMultiSearchParam,
   getSingleSearchParam,
   getTrimmedSearchParam,
@@ -140,21 +141,28 @@ export default async function RecipeSearchPage({
     page: query.page ?? 1,
     size: query.size ?? RECIPE_SEARCH_PAGE_SIZE,
   };
-  const forwardedHeaders = await withForwardedHeaders();
-  const [searchResult, categoriesResult] = await Promise.allSettled([
-    searchRecipes(searchQuery, forwardedHeaders),
-    getRecipeCategories(),
-  ]);
 
-  const recipes =
-    searchResult.status === 'fulfilled' ? searchResult.value.data : [];
-  const initialPagination: Pagination =
-    searchResult.status === 'fulfilled'
-      ? searchResult.value.pagination
-      : { page: 1, size: RECIPE_SEARCH_PAGE_SIZE, total: 0, totalPages: 0 };
+  const currentUrl = buildCurrentUrlFromSearchParams(
+    '/recipe/search',
+    resolvedSearchParams,
+  );
+  const forwardedHeaders = await withForwardedHeaders();
+
+  const searchResult = await serverFetchWrapper({
+    fetch: searchRecipes(searchQuery, forwardedHeaders),
+    currentUrl,
+  });
+  const categoriesResult = await getRecipeCategories();
+
+  const recipes = searchResult?.data ?? [];
+  const initialPagination: Pagination = searchResult?.pagination ?? {
+    page: 1,
+    size: RECIPE_SEARCH_PAGE_SIZE,
+    total: 0,
+    totalPages: 0,
+  };
   const totalCount = initialPagination.total;
-  const categories =
-    categoriesResult.status === 'fulfilled' ? categoriesResult.value.data : [];
+  const categories = categoriesResult?.data ?? [];
 
   const categoryName =
     display.categoryId != null

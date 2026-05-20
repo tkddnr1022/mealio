@@ -59,6 +59,7 @@ export function AuthProvider({
 }: AuthProviderProps): React.JSX.Element {
   const queryClient = useQueryClient();
 
+  // TODO: 새로고침 마다 `/me` + `/refresh` 호출하게 되는 문제
   const query = useCurrentUser({
     initialData: initialUser === undefined ? undefined : initialUser,
   });

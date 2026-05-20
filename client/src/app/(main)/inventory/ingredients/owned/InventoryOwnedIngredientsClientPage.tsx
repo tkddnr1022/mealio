@@ -6,10 +6,20 @@ import {
   useRemoveMyOwnedIngredient,
 } from '@/lib/queries/inventory.queries';
 import { InventoryPageShell } from '../../InventoryPageShell';
+import { usePathname } from 'next/navigation';
 
 export function InventoryOwnedIngredientsClientPage() {
-  const { data } = useMyInventory();
-  const removeMutation = useRemoveMyOwnedIngredient();
+  const currentUrl = usePathname();
+  const { data } = useMyInventory({
+    meta: {
+      currentUrl,
+    },
+  });
+  const removeMutation = useRemoveMyOwnedIngredient({
+    meta: {
+      currentUrl,
+    },
+  });
 
   const items = data?.ownedIngredients ?? [];
   const addHref = '/ingredient/filter?type=owned';

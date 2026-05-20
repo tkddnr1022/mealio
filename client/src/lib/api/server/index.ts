@@ -9,3 +9,4 @@ export {
   withForwardedHeaders,
   type ForwardKind,
 } from './with-forwarded-headers';
+export { serverFetchWrapper } from './server-fetch-wrapper';

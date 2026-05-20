@@ -9,6 +9,7 @@ import { RecipeSection, RecipeSlider } from '@/components/recipe';
 import { AuthStatus, useAuth } from '@/lib/auth/auth-context';
 import { useRecommendedRecipes } from '@/lib/queries/recipe.queries';
 import type { RecipeSummary } from '@/lib/types/recipe';
+import { usePathname } from 'next/navigation';
 
 export interface RecipeMainClientPageProps {
   mostViewedRecipes: readonly RecipeSummary[];
@@ -19,10 +20,14 @@ export function RecipeMainClientPage({
   mostViewedRecipes,
   mostLikedRecipes,
 }: RecipeMainClientPageProps) {
+  const currentUrl = usePathname();
   const { status } = useAuth();
   const isAuthenticated = status === AuthStatus.Authenticated;
   const { data: recommendedData, isPending: isRecommendedPending } =
-    useRecommendedRecipes(undefined, { enabled: isAuthenticated });
+    useRecommendedRecipes(undefined, {
+      enabled: isAuthenticated,
+      meta: { currentUrl },
+    });
   const recommendedRecipes =
     recommendedData?.data.map((item) => item.recipe) ?? [];
   const showRecommendedSection =

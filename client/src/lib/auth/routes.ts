@@ -30,6 +30,12 @@ export const LOGIN_PATH = '/login';
 
 /** 로그인 후 복귀할 원래 경로를 담는 쿼리 파라미터 이름 */
 export const NEXT_QUERY_PARAM = 'next';
+/** 세션 만료 플래그 쿼리 키 */
+export const SESSION_EXPIRED_QUERY_PARAM = 'sessionExpired';
+/** SSR 토큰 갱신 브리지 경로 */
+export const SSR_REFRESH_BRIDGE_PATH = '/api/auth/refresh-bridge';
+/** SSR 토큰 갱신 재시도 플래그 쿼리 키 */
+export const SSR_REFRESH_GUARD_QUERY_PARAM = 'refreshed';
 
 /**
  * 주어진 pathname이 보호 대상인지 판별한다.
@@ -52,7 +58,23 @@ export function isProtectedPath(pathname: string): boolean {
  * 로그인 URL을 조립한다.
  * @param nextUrl 로그인 후 돌아올 원래 URL(pathname + search). 비어 있으면 쿼리 생략.
  */
-export function buildLoginUrl(nextUrl: string | null | undefined): string {
-  if (!nextUrl) return LOGIN_PATH;
-  return `${LOGIN_PATH}?${NEXT_QUERY_PARAM}=${encodeURIComponent(nextUrl)}`;
+export function buildLoginUrl(nextUrl: string | null | undefined, isSessionExpired: boolean = false): string {
+  const params = new URLSearchParams();
+  if (isSessionExpired) params.set(SESSION_EXPIRED_QUERY_PARAM, '1');
+  if (nextUrl) params.set(NEXT_QUERY_PARAM, nextUrl);
+  return `${LOGIN_PATH}?${params.toString()}`;
+}
+
+/**
+ * SSR에서 401 발생 시 refresh 브리지로 이동할 URL을 조립한다.
+ * 브리지는 refresh 성공 시 `next`로 복귀하고, 실패 시 로그인으로 보낸다.
+ */
+export function buildSsrRefreshBridgeUrl(
+  nextUrl: string | null | undefined,
+): string {
+  const qs = new URLSearchParams();
+  if (nextUrl) qs.set(NEXT_QUERY_PARAM, nextUrl);
+  qs.set(SSR_REFRESH_GUARD_QUERY_PARAM, '1');
+  const query = qs.toString();
+  return query ? `${SSR_REFRESH_BRIDGE_PATH}?${query}` : SSR_REFRESH_BRIDGE_PATH;
 }

@@ -2,7 +2,7 @@
 
 import { MessageCircle } from 'lucide-react';
 import { useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useConversationListInfinite } from '@/lib/queries/chatbot.queries';
 import { CHATBOT_CONVERSATION_LIST_LIMIT } from '@/lib/config/pagination.config';
 import { MainContent } from '@/components/layout/MainContent';
@@ -25,6 +25,7 @@ function createFallbackTitle(conversationId: string): string {
 }
 
 export function ChatbotConversationListClientPage() {
+  const currentUrl = usePathname();
   const router = useRouter();
   const {
     data: listData,
@@ -32,9 +33,16 @@ export function ChatbotConversationListClientPage() {
     hasNextPage,
     isFetchingNextPage,
     isLoading,
-  } = useConversationListInfinite({
-    limit: CHATBOT_CONVERSATION_LIST_LIMIT,
-  });
+  } = useConversationListInfinite(
+    {
+      limit: CHATBOT_CONVERSATION_LIST_LIMIT,
+    },
+    {
+      meta: {
+        currentUrl,
+      },
+    },
+  );
 
   const items = useMemo(
     () => listData?.pages.flatMap((page) => page.items) ?? [],

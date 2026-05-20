@@ -1,6 +1,7 @@
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react';
 import { type OAuthProvider } from '@/lib/types/auth';
 import { cn } from '@/lib/utils/cn';
+import { NavLink } from '@/components/ui/NavLink';
 
 const PROVIDER_META: Record<
   OAuthProvider,
@@ -75,14 +76,14 @@ export function LoginButton(props: LoginButtonProps) {
     void omitProvider;
     void omitClassName;
     return (
-      <a
+      <NavLink
         href={href}
         className={surfaceClass}
         data-name="LoginButton"
         {...anchorRest}
       >
         {inner}
-      </a>
+      </NavLink>
     );
   }
 

@@ -2,7 +2,7 @@
 
 import { Clock3, Flame, Users } from 'lucide-react';
 import { useEffect, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
 import { Tabbar } from '@/components/layout/Tabbar';
@@ -69,9 +69,12 @@ export function RecipeDetailClientPage({
 }: RecipeDetailClientPageProps) {
   const router = useRouter();
   const isAuthenticated = useIsAuthenticated();
-
+  const currentUrl = usePathname();
   const { data: favoriteIdsData } = useMyFavoriteRecipeIds({
     enabled: isAuthenticated,
+    meta: {
+      currentUrl,
+    },
   });
 
   const isFavorite = useMemo(() => {

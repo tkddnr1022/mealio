@@ -1,6 +1,6 @@
 # OAuth 구현 전략 (백엔드 주도)
 
-에이전트가 OAuth 인증을 구현할 때 따를 **백엔드 주도** 절차와 API·설정 규칙을 정의한다. 클라이언트는 로그인 진입 API만 호출하며, 이후 인증·토큰 교환·JWT 발급은 모두 백엔드와 Provider 리다이렉트로 처리한다.
+에이전트가 OAuth 인증·세션(access/refresh 쿠키)을 구현할 때 따를 **백엔드 주도** 절차와 API·설정 규칙을 정의한다. 클라이언트는 로그인 진입 API만 호출하며, 이후 인증·토큰 교환·자체 토큰 발급은 모두 백엔드와 Provider 리다이렉트로 처리한다. 갱신·로그아웃도 동일하게 백엔드 API·쿠키 계약을 따른다.
 
 ---
 
@@ -9,7 +9,7 @@
 1. **진입**: 클라이언트가 `GET /api/v1/auth/{provider}` 호출
 2. **리다이렉트**: 서버가 302로 Provider 인증 URL로 보냄 (Client ID, Scope, Redirect URI는 서버에서 관리)
 3. **Redirect URI**: **백엔드 API**를 가리킴. Provider가 인증 후 해당 백엔드 URL로 Authorization Code와 함께 리다이렉트
-4. **콜백**: 백엔드가 Code → OAuth Token 교환 → 사용자 정보 요청 → 사용자 생성/조회 → 자체 JWT 발급 → 성공 시 프론트 최종 경로로 302 + 쿠키에 JWT 설정, 실패 시 `FRONTEND_OAUTH_ERROR_PATH`로 302
+4. **콜백**: 백엔드가 Code → OAuth Token 교환 → 사용자 정보 요청 → 사용자 생성/조회 → 자체 JWT 발급 → 성공 시 프론트 최종 경로로 302 + `accessToken`/`refreshToken` 쿠키 설정, 실패 시 `FRONTEND_OAUTH_ERROR_PATH`로 302
 
 클라이언트는 1번만 호출하면 되며, 2~4는 브라우저 리다이렉트와 백엔드에서만 처리한다.
 
@@ -35,7 +35,7 @@
 |------|------|
 | **Method / Path** | `GET /api/v1/auth/{provider}/callback` |
 | **Query** | 성공 시 `code`(필수), `state`(선택). 실패 시 `error`, `error_description` 가능 |
-| **동작(성공)** | 1) Authorization Code로 OAuth Token 요청 2) OAuth Token으로 사용자 정보 요청 3) 사용자 생성/조회 4) 자체 JWT 발급 5) **302 Redirect** to `FRONTEND_APP_BASE_URL` + 검증된 `next` 상대 경로(없으면 `FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH`) + **Set-Cookie**로 JWT 전달 (HttpOnly, Secure, SameSite=Lax) |
+| **동작(성공)** | 1) Authorization Code로 OAuth Token 요청 2) OAuth Token으로 사용자 정보 요청 3) 사용자 생성/조회 4) 자체 JWT 발급 5) **302 Redirect** to `FRONTEND_APP_BASE_URL` + 검증된 `next` 상대 경로(없으면 `FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH`) + **Set-Cookie**로 `accessToken`/`refreshToken` 전달 (HttpOnly, Secure, SameSite=Lax, Path=/) |
 | **동작(실패)** | OAuth 실패를 `FRONTEND_APP_BASE_URL` + `FRONTEND_OAUTH_ERROR_PATH`로 **302 Redirect**하고 쿼리로 `errorCode`, `errorMessage`, optional `next`(안전한 경로만)를 전달 |
 
 - 프론트로 돌아갈 URL은 **베이스 + 경로**로 나눈다.
@@ -43,6 +43,26 @@
   - `FRONTEND_OAUTH_ERROR_PATH`: 실패 시 붙일 경로(예: `/oauth/error`, 반드시 `/`로 시작).
   - `FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH`: 성공 시 `next`가 없거나 검증 실패 시 이동할 상대 경로(예: `/recipe`).
 - `next` 검증(상대 경로만, `//` 금지 등)은 **백엔드**에서만 수행한다. 클라이언트는 진입 시 `next`를 그대로 넘길 수 있으며, 서버의 `buildOAuthState`·`resolveSafeNextPath`가 근거다.
+
+### 2.3 토큰 갱신 (Refresh)
+
+| 항목 | 내용 |
+|------|------|
+| **Method / Path** | `POST /api/v1/auth/refresh` |
+| **인증** | HttpOnly `refreshToken` 쿠키(opaque token, 예: `sessionId.secret`) |
+| **동작(성공)** | DB(`auth_refresh_sessions`)에서 세션 검증(SSOT) → 기존 세션 revoke → 신규 세션 생성 → **access/refresh 동시 회전 발급** → `Set-Cookie`로 `accessToken`/`refreshToken` 재설정 (HttpOnly, Secure, SameSite=Lax, Path=/) |
+| **동작(실패)** | `401 Unauthorized`. 이미 revoke·교체된 refresh 재사용이 감지되면 해당 사용자의 활성 refresh 세션을 일괄 revoke한다. |
+| **캐시** | Redis(`auth:refresh:session:{sessionId}`)는 조회 가속용이며, 최종 판정·폐기는 PostgreSQL이 담당한다. |
+
+- 상세 구현·환경 변수(`REFRESH_TOKEN_TTL_SEC` 등)는 `../spec/backend_architecture_spec_producer.md` §1.3 **Refresh Token** 표를 본다.
+
+### 2.4 로그아웃
+
+| 항목 | 내용 |
+|------|------|
+| **Method / Path** | `POST /api/v1/auth/logout` |
+| **인증** | HttpOnly `accessToken` 쿠키(JWT) |
+| **동작(성공)** | `204 No Content` + `Set-Cookie`로 `accessToken`/`refreshToken` 삭제(Max-Age=0) + 해당 사용자 refresh 세션 revoke |
 
 ---
 

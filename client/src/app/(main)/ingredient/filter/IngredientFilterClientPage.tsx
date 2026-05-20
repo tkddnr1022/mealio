@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
 import { SearchBarCard } from '@/components/recipe';
@@ -39,7 +39,7 @@ export function IngredientFilterClientPage({
   const searchParams = useSearchParams();
   const type: InventoryType =
     searchParams.get('type') === 'favorites' ? 'favorites' : 'owned';
-
+  const currentUrl = usePathname();
   const [keyword, setKeyword] = useState('');
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -73,7 +73,11 @@ export function IngredientFilterClientPage({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useIngredientSearchInfinite(searchQuery);
+  } = useIngredientSearchInfinite(searchQuery, {
+    meta: {
+      currentUrl,
+    },
+  });
 
   const displayItems: InventoryIngredient[] = useMemo(() => {
     const raw = ingredientData?.pages.flatMap((page) => page.data) ?? [];
@@ -95,8 +99,16 @@ export function IngredientFilterClientPage({
     return toInventoryIngredientCountText(displayItems.length);
   }, [ingredientData?.pages, displayItems.length]);
 
-  const addOwnedMutation = useAddMyOwnedIngredients();
-  const addFavoriteMutation = useAddMyFavoriteIngredients();
+  const addOwnedMutation = useAddMyOwnedIngredients({
+    meta: {
+      currentUrl,
+    },
+  });
+  const addFavoriteMutation = useAddMyFavoriteIngredients({
+    meta: {
+      currentUrl,
+    },
+  });
 
   const toggleCategory = useCallback((categoryId: number) => {
     setSelectedCategoryIds((prev) =>

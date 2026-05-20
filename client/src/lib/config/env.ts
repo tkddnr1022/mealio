@@ -40,6 +40,11 @@ export interface AppEnv {
    * 기본값: `accessToken`
    */
   readonly authCookieName: string;
+  /**
+   * 백엔드가 발급하는 Refresh Token HttpOnly 쿠키 이름.
+   * 기본값: `refreshToken`
+   */
+  readonly refreshCookieName: string;
   /** Web Vitals·로그 수집 엔드포인트(선택). 비어 있으면 수집을 비활성화한다. */
   readonly observabilityEndpoint: string;
   /**
@@ -53,6 +58,7 @@ const DEFAULTS = {
   apiBaseUrl: '',
   apiPrefix: '/api/v1',
   authCookieName: 'accessToken',
+  refreshCookieName: 'refreshToken',
   observabilityEndpoint: '',
 } as const;
 
@@ -60,6 +66,7 @@ const RAW_ENV_MAP: Record<string, string | undefined> = {
   NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   NEXT_PUBLIC_API_PREFIX: process.env.NEXT_PUBLIC_API_PREFIX,
   NEXT_PUBLIC_AUTH_COOKIE_NAME: process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME,
+  NEXT_PUBLIC_REFRESH_COOKIE_NAME: process.env.NEXT_PUBLIC_REFRESH_COOKIE_NAME,
   NEXT_PUBLIC_OBSERVABILITY_ENDPOINT:
     process.env.NEXT_PUBLIC_OBSERVABILITY_ENDPOINT,
 };
@@ -120,6 +127,19 @@ function parseAuthCookieName(): string {
   if (!/^[A-Za-z0-9._-]+$/.test(raw)) {
     throw new EnvValidationError(
       `Invalid NEXT_PUBLIC_AUTH_COOKIE_NAME: "${raw}". 영문/숫자/.-_만 허용됩니다.`,
+    );
+  }
+
+  return raw;
+}
+
+function parseRefreshCookieName(): string {
+  const raw = readRaw('NEXT_PUBLIC_REFRESH_COOKIE_NAME');
+  if (raw === undefined) return DEFAULTS.refreshCookieName;
+
+  if (!/^[A-Za-z0-9._-]+$/.test(raw)) {
+    throw new EnvValidationError(
+      `Invalid NEXT_PUBLIC_REFRESH_COOKIE_NAME: "${raw}". 영문/숫자/.-_만 허용됩니다.`,
     );
   }
 
@@ -215,6 +235,12 @@ function buildEnv(): AppEnv {
     errors,
     runtime,
   );
+  const refreshCookieName = safeParse(
+    parseRefreshCookieName,
+    DEFAULTS.refreshCookieName,
+    errors,
+    runtime,
+  );
   const observabilityEndpoint = safeParse(
     parseObservabilityEndpoint,
     DEFAULTS.observabilityEndpoint,
@@ -229,6 +255,7 @@ function buildEnv(): AppEnv {
     apiBaseUrl,
     apiPrefix,
     authCookieName,
+    refreshCookieName,
     observabilityEndpoint,
     validationErrors: Object.freeze(errors),
   });

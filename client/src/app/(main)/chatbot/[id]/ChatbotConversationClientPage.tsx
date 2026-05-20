@@ -2,7 +2,7 @@
 
 import { Send } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChatComposer } from '@/components/chatbot/conversation/ChatComposer';
 import {
@@ -84,6 +84,7 @@ function toDisplayMessages(
 }
 
 export function ChatbotConversationClientPage() {
+  const currentUrl = usePathname();
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -98,7 +99,11 @@ export function ChatbotConversationClientPage() {
       ? rawConversationId
       : null;
 
-  const { data: conversation } = useConversationDetail(conversationId);
+  const { data: conversation } = useConversationDetail(conversationId, {
+    meta: {
+      currentUrl,
+    },
+  });
   const stream = useChatbotStream({
     conversationId: conversationId ?? undefined,
   });

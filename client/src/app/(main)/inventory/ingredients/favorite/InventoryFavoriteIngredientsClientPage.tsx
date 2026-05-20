@@ -6,10 +6,20 @@ import {
   useRemoveMyFavoriteIngredient,
 } from '@/lib/queries/inventory.queries';
 import { InventoryPageShell } from '../../InventoryPageShell';
+import { usePathname } from 'next/navigation';
 
 export function InventoryFavoriteIngredientsClientPage() {
-  const { data } = useMyInventory();
-  const removeMutation = useRemoveMyFavoriteIngredient();
+  const currentUrl = usePathname();
+  const { data } = useMyInventory({
+    meta: {
+      currentUrl,
+    },
+  });
+  const removeMutation = useRemoveMyFavoriteIngredient({
+    meta: {
+      currentUrl,
+    },
+  });
 
   const items = data?.favoriteIngredients ?? [];
   const addHref = '/ingredient/filter?type=favorites';
