@@ -15,6 +15,11 @@ import { useIsAuthenticated } from '@/lib/auth/auth-context';
 import { useMyFavoriteRecipeIds } from '@/lib/queries/inventory.queries';
 import { increaseRecipeViewCount } from '@/lib/api/domains';
 import type { RecipeDetail } from '@/lib/types/recipe';
+import {
+  AnalyticsEventProps,
+  AnalyticsEvents,
+} from '@/lib/observability/analytics-events';
+import { trackEvent } from '@/lib/observability/analytics';
 import { hasSentRecipeView, markRecipeViewSent } from './recipe-view-tracking';
 import {
   toRecipeCookingTimeLabel,
@@ -95,6 +100,9 @@ export function RecipeDetailClientPage({
     }
 
     void increaseRecipeViewCount(recipe.id);
+    trackEvent(AnalyticsEvents.RECIPE_VIEWED, {
+      [AnalyticsEventProps.RECIPE_ID]: recipe.id,
+    });
   }, [recipe.id]);
 
   return (

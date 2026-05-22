@@ -20,6 +20,11 @@ import {
   chatbotQueries,
   useConversationDetail,
 } from '@/lib/queries/chatbot.queries';
+import {
+  AnalyticsEventProps,
+  AnalyticsEvents,
+} from '@/lib/observability/analytics-events';
+import { trackEvent } from '@/lib/observability/analytics';
 import { notifyApiError } from '@/lib/toast';
 import type { ConversationMessage, SuggestedRecipe } from '@/lib/types/chatbot';
 
@@ -276,9 +281,14 @@ export function ChatbotConversationClientPage() {
         timestamp: new Date().toISOString(),
       });
       setComposerValue('');
+      trackEvent(AnalyticsEvents.CHATBOT_MESSAGE_SENT, {
+        [AnalyticsEventProps.CONVERSATION_ID]: conversationId ?? 'new',
+        [AnalyticsEventProps.MESSAGE_LENGTH]: trimmed.length,
+        [AnalyticsEventProps.IS_NEW_CONVERSATION]: conversationId === null,
+      });
       void stream.sendMessage(trimmed);
     },
-    [isStreaming, stream, composerDisabled],
+    [isStreaming, stream, composerDisabled, conversationId],
   );
 
   useEffect(() => {

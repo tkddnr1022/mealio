@@ -79,6 +79,9 @@ export function isClientSentryEnabled(): boolean {
 
 /**
  * logger {@link setLogSink}용 — warn/error 및 correlationId 태깅.
+ *
+ * 정책: `warn` → Sentry warning, `error`(+ Error 객체) → captureException,
+ * 그 외 레벨은 Sentry로 보내지 않는다.
  */
 export function createSentryLogSink(): LogSink {
   return (level: LogLevel, message: string, context?: LogContext) => {

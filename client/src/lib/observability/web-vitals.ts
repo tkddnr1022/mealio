@@ -5,6 +5,8 @@ import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 import { env } from '@/lib/config/env';
 import { logger } from '@/lib/utils/logger';
 
+import { reportExceededWebVitalToSentry } from './web-vitals-sentry';
+
 /**
  * Web Vitals(LCP/INP/CLS 등) 수집·리포팅 모듈.
  *
@@ -18,9 +20,8 @@ import { logger } from '@/lib/utils/logger';
  * "FID"가 가리키는 "입력 응답성 예산(100ms)"을 유지하되, 실제 수집·판정은 INP(≤200ms)로 한다.
  *
  * 환경 변수:
- * - `NEXT_PUBLIC_OBSERVABILITY_ENDPOINT` (`env.observabilityEndpoint`): 리포팅 수신 URL.
- *   analytics 이벤트와 공용으로 사용한다.
- *   - 미설정 시: 전송을 생략하고 개발 환경에서 `console`로만 출력한다.
+ * - `NEXT_PUBLIC_OBSERVABILITY_ENDPOINT` (`env.observabilityEndpoint`): 자체 수집 API URL(Phase D SaaS-only에서는 비움).
+ *   - 미설정 시: HTTP 전송 생략. production에서 예산 초과는 Sentry로 보고, Vercel Analytics는 배포 환경에서 수집.
  *
  * 사용 예 (Next.js App Router):
  * ```tsx
@@ -119,7 +120,12 @@ export function reportWebVital(
     );
   }
 
-  if (!endpoint) return;
+  if (!endpoint) {
+    if (env.isProduction) {
+      reportExceededWebVitalToSentry(payload);
+    }
+    return;
+  }
   if (typeof window === 'undefined') return;
 
   sendPayload(endpoint, payload);

@@ -3,6 +3,11 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { LikeButton } from '@/components/ui/buttons/LikeButton';
 import { useProtectedAction } from '@/lib/auth/protected-action';
+import {
+  AnalyticsEventProps,
+  AnalyticsEvents,
+} from '@/lib/observability/analytics-events';
+import { trackEvent } from '@/lib/observability/analytics';
 import { useToggleMyFavoriteRecipe } from '@/lib/queries/inventory.queries';
 import { usePathname } from 'next/navigation';
 
@@ -71,6 +76,10 @@ function RecipeFavoriteButtonInner({
         recipeId,
         isFavorite: !intent,
       });
+      trackEvent(
+        intent ? AnalyticsEvents.RECIPE_SAVED : AnalyticsEvents.RECIPE_UNSAVED,
+        { [AnalyticsEventProps.RECIPE_ID]: recipeId },
+      );
     } catch {
       setLocalFavorite(isFavorite);
     } finally {

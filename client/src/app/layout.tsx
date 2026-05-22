@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist_Mono, Noto_Sans_KR, Plus_Jakarta_Sans } from 'next/font/google';
 import { Suspense } from 'react';
+import { AnalyticsAuthSync } from '@/components/observability/AnalyticsAuthSync';
 import { ObservabilityBootstrap } from '@/components/observability/ObservabilityBootstrap';
 import { AppRootFrame } from '@/components/layout/AppRootFrame';
 import { AuthProvider } from '@/lib/auth/auth-context';
@@ -131,6 +132,7 @@ export default function RootLayout({
         <AppQueryClientProvider>
           <ToastProvider>
             <AuthProvider>
+              <AnalyticsAuthSync />
               <AppRootFrame>{children}</AppRootFrame>
             </AuthProvider>
           </ToastProvider>

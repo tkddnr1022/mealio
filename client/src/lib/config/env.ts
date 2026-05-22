@@ -45,11 +45,18 @@ export interface AppEnv {
    * 기본값: `refreshToken`
    */
   readonly refreshCookieName: string;
-  /** Web Vitals·로그 수집 엔드포인트(선택). 비어 있으면 수집을 비활성화한다. */
+  /**
+   * 자체 Web Vitals·analytics 수집 API URL(선택).
+   * Phase D SaaS-only: 비워 두고 Sentry + GA4 + Vercel Analytics를 사용한다.
+   */
   readonly observabilityEndpoint: string;
-  /** Sentry 브라우저 DSN(선택). 비어 있으면 Sentry를 비활성화한다. */
+  /**
+   * Sentry 브라우저 DSN. staging/production 권장, 로컬은 비워도 됨.
+   */
   readonly sentryDsn: string;
-  /** GA4 Measurement ID(선택, 예: G-XXXXXXXX). 비어 있으면 GA를 비활성화한다. */
+  /**
+   * GA4 Measurement ID (예: G-XXXXXXXXXX). staging/production 권장.
+   */
   readonly gaMeasurementId: string;
   /**
    * 파싱 중 발견된 검증 오류 목록. production에서는 런타임을 죽이지 않기 위해 수집만 하고,
