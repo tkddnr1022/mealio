@@ -11,6 +11,7 @@ import {
 } from './config/env.validation';
 import { OpenAIModule } from './integrations/openai/openai.module';
 import { ConsumersModule } from './consumers/consumers.module';
+import { AnalyticsModule } from './integrations/analytics/analytics.module';
 import { MonitoringModule } from './reliability/monitoring/monitoring.module';
 import { mongooseConnectionPoolConfig } from './config/mongoose-pool.config';
 import { prismaConnectionPoolConfig } from './config/prisma-pool.config';
@@ -31,6 +32,7 @@ import { prismaConnectionPoolConfig } from './config/prisma-pool.config';
     // OpenAI (GPT API 래퍼, 레이트 리미터)
     OpenAIModule,
     // 다중 Kafka consumer 인스턴스 (그룹별 분리)
+    AnalyticsModule,
     MonitoringModule,
     ConsumersModule,
   ],

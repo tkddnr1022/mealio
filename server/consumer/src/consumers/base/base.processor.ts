@@ -10,6 +10,7 @@ import type {
   RetryContext,
 } from 'src/consumers/base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
+import { SentryService } from 'src/integrations/analytics/sentry.service';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
 import { getConsumerGroupForTopic } from 'src/reliability/monitoring/topic-consumer-group.map';
 
@@ -33,6 +34,10 @@ export abstract class BaseTopicProcessor<TEvent> implements ITopicProcessor {
   @Optional()
   @Inject(ConsumerMetricsService)
   protected readonly consumerMetrics?: ConsumerMetricsService;
+
+  @Optional()
+  @Inject(SentryService)
+  protected readonly sentry?: SentryService;
 
   protected constructor(
     loggerName: string,
@@ -117,9 +122,18 @@ export abstract class BaseTopicProcessor<TEvent> implements ITopicProcessor {
       });
     } catch (error) {
       this.consumerMetrics?.recordFailed(topic, consumerGroup);
+      const sentryEventId = this.sentry?.captureException(error, {
+        correlationId,
+        topic,
+        consumerGroup,
+        partition,
+        offset: message.offset,
+        extra: { dlqTopic },
+      });
       logStructured(this.logger, 'error', {
         event: 'kafka_message_failed',
         message: (error as Error).message,
+        sentryEventId,
         ...logContext,
       });
 

@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { createObservabilityConfig } from '@mealio/shared';
+import { createObservabilityConfig, initSentry } from '@mealio/shared';
 import { AppModule } from './app.module';
 
 async function bootstrap(): Promise<void> {
@@ -9,6 +9,7 @@ async function bootstrap(): Promise<void> {
   const observability = createObservabilityConfig('consumer', {
     requireMetricsPort: true,
   });
+  initSentry({ config: observability });
 
   // HTTP 서버 없이 DI 컨테이너만 구동하는 워커 모드
   const app = await NestFactory.createApplicationContext(AppModule, {

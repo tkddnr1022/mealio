@@ -22,6 +22,7 @@ import { CorrelationIdMiddleware } from './modules/middleware/correlation-id.mid
 import { LoggingMiddleware } from './modules/middleware/logging.middleware';
 import { RateLimitMiddleware } from './modules/middleware/rate-limit.middleware';
 import { MonitoringModule } from './optimization/monitoring/monitoring.module';
+import { SentryModule } from './optimization/monitoring/sentry.module';
 import { HttpMetricsMiddleware } from './optimization/monitoring/http-metrics.middleware';
 
 @Module({
@@ -43,6 +44,7 @@ import { HttpMetricsMiddleware } from './optimization/monitoring/http-metrics.mi
     InventoryModule,
     ChatbotModule,
     MonitoringModule,
+    SentryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

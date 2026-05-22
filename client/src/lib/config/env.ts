@@ -47,6 +47,10 @@ export interface AppEnv {
   readonly refreshCookieName: string;
   /** Web Vitals·로그 수집 엔드포인트(선택). 비어 있으면 수집을 비활성화한다. */
   readonly observabilityEndpoint: string;
+  /** Sentry 브라우저 DSN(선택). 비어 있으면 Sentry를 비활성화한다. */
+  readonly sentryDsn: string;
+  /** GA4 Measurement ID(선택, 예: G-XXXXXXXX). 비어 있으면 GA를 비활성화한다. */
+  readonly gaMeasurementId: string;
   /**
    * 파싱 중 발견된 검증 오류 목록. production에서는 런타임을 죽이지 않기 위해 수집만 하고,
    * 호출부에서 {@link assertEnv} 또는 {@link getEnvValidationErrors}로 점검한다.
@@ -60,6 +64,8 @@ const DEFAULTS = {
   authCookieName: 'accessToken',
   refreshCookieName: 'refreshToken',
   observabilityEndpoint: '',
+  sentryDsn: '',
+  gaMeasurementId: '',
 } as const;
 
 const RAW_ENV_MAP: Record<string, string | undefined> = {
@@ -69,6 +75,8 @@ const RAW_ENV_MAP: Record<string, string | undefined> = {
   NEXT_PUBLIC_REFRESH_COOKIE_NAME: process.env.NEXT_PUBLIC_REFRESH_COOKIE_NAME,
   NEXT_PUBLIC_OBSERVABILITY_ENDPOINT:
     process.env.NEXT_PUBLIC_OBSERVABILITY_ENDPOINT,
+  NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
 };
 
 export class EnvValidationError extends Error {
@@ -152,6 +160,36 @@ function parseObservabilityEndpoint(): string {
     allowEmpty: true,
     trimTrailingSlash: false,
   });
+}
+
+function parseSentryDsn(): string {
+  const raw = readRaw('NEXT_PUBLIC_SENTRY_DSN');
+  if (raw === undefined) return DEFAULTS.sentryDsn;
+  try {
+    const parsed = new URL(raw);
+    if (!parsed.protocol.startsWith('http')) {
+      throw new EnvValidationError(
+        'Invalid NEXT_PUBLIC_SENTRY_DSN: http(s) URL이어야 합니다.',
+      );
+    }
+    return raw;
+  } catch (error) {
+    if (error instanceof EnvValidationError) throw error;
+    throw new EnvValidationError(
+      `Invalid NEXT_PUBLIC_SENTRY_DSN: "${raw}". 유효한 URL이어야 합니다.`,
+    );
+  }
+}
+
+function parseGaMeasurementId(): string {
+  const raw = readRaw('NEXT_PUBLIC_GA_MEASUREMENT_ID');
+  if (raw === undefined) return DEFAULTS.gaMeasurementId;
+  if (!/^G-[A-Z0-9]+$/i.test(raw)) {
+    throw new EnvValidationError(
+      `Invalid NEXT_PUBLIC_GA_MEASUREMENT_ID: "${raw}". 예: G-XXXXXXXXXX`,
+    );
+  }
+  return raw;
 }
 
 function parseHttpUrl(
@@ -247,6 +285,18 @@ function buildEnv(): AppEnv {
     errors,
     runtime,
   );
+  const sentryDsn = safeParse(
+    parseSentryDsn,
+    DEFAULTS.sentryDsn,
+    errors,
+    runtime,
+  );
+  const gaMeasurementId = safeParse(
+    parseGaMeasurementId,
+    DEFAULTS.gaMeasurementId,
+    errors,
+    runtime,
+  );
 
   return Object.freeze<AppEnv>({
     runtime,
@@ -257,6 +307,8 @@ function buildEnv(): AppEnv {
     authCookieName,
     refreshCookieName,
     observabilityEndpoint,
+    sentryDsn,
+    gaMeasurementId,
     validationErrors: Object.freeze(errors),
   });
 }

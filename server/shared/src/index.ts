@@ -34,6 +34,36 @@ export {
   type StructuredLogLevel,
 } from './utils/structured-logger';
 
+// Sentry (Phase C)
+export {
+  SENTRY_TAG_SERVICE,
+  SENTRY_TAG_CORRELATION_ID,
+  SENTRY_TAG_FEATURE,
+  SENTRY_TAG_TOPIC,
+  SENTRY_TAG_CONSUMER_GROUP,
+  SENTRY_TAG_PARTITION,
+  SENTRY_TAG_OFFSET,
+  SENTRY_SENSITIVE_KEY_PATTERNS,
+  SENTRY_SENSITIVE_HEADERS,
+  type SentryServiceTag,
+  type SentryFeatureTag,
+} from './observability/sentry.constants';
+export { scrubObject, scrubSentryEvent } from './observability/sentry-scrub';
+export {
+  inferFeatureFromHttpPath,
+  inferFeatureFromKafkaTopic,
+} from './observability/sentry-feature';
+export {
+  initSentry,
+  isSentryInitialized,
+  captureSentryException,
+  captureSentryMessage,
+  closeSentry,
+  type SentryCaptureContext,
+  type InitSentryOptions,
+} from './observability/sentry';
+export { httpIntegration } from '@sentry/node';
+
 // Constants
 export {
   KAFKA_TOPICS,

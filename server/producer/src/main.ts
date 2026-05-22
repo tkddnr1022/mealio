@@ -3,7 +3,11 @@ import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
-import { createObservabilityConfig } from '@mealio/shared';
+import {
+  createObservabilityConfig,
+  httpIntegration,
+  initSentry,
+} from '@mealio/shared';
 import { AppModule } from './app.module';
 import { createSwaggerConfig } from './config/swagger.config';
 import { AuthService } from './modules/auth/auth.service';
@@ -12,6 +16,10 @@ import { OAuthCallbackExceptionFilter } from './modules/auth/filters/oauth-callb
 async function bootstrap() {
   const observability = createObservabilityConfig('producer', {
     requireMetricsPort: false,
+  });
+  initSentry({
+    config: observability,
+    integrations: [httpIntegration()],
   });
 
   const app = await NestFactory.create(AppModule);

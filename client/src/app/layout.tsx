@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist_Mono, Noto_Sans_KR, Plus_Jakarta_Sans } from 'next/font/google';
+import { Suspense } from 'react';
+import { ObservabilityBootstrap } from '@/components/observability/ObservabilityBootstrap';
 import { AppRootFrame } from '@/components/layout/AppRootFrame';
 import { AuthProvider } from '@/lib/auth/auth-context';
 import { AppQueryClientProvider } from '@/lib/queries/query-client.provider';
@@ -123,6 +125,9 @@ export default function RootLayout({
       className={`${notoSansKr.variable} ${geistMono.variable} ${plusJakartaSans.variable}`}
     >
       <body className="antialiased">
+        <Suspense fallback={null}>
+          <ObservabilityBootstrap />
+        </Suspense>
         <AppQueryClientProvider>
           <ToastProvider>
             <AuthProvider>
