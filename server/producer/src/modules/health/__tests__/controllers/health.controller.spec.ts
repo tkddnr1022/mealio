@@ -53,6 +53,7 @@ describe('HealthController', () => {
         app: 'ok',
         postgres: 'ok',
         mongodb: 'ok',
+        redis: 'ok',
       },
     };
     (healthService.getReadiness as jest.Mock).mockResolvedValue(mockResponse);

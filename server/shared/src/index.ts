@@ -6,6 +6,31 @@
 // Configs
 export { createRedisConfig } from './configs/redis.config';
 export { createKafkaConfig, LOCAL_TOPIC_CONFIG } from './configs/kafka.config';
+export {
+  createObservabilityConfig,
+  CORRELATION_ID_HEADER,
+  DEFAULT_SLOW_QUERY_THRESHOLD_MS,
+  DEFAULT_LOG_SAMPLE_RATE,
+  DEFAULT_TRACE_SAMPLE_RATE,
+  type ObservabilityConfig,
+  type ObservabilityServiceName,
+} from './configs/observability.config';
+
+// Observability utilities
+export {
+  runWithCorrelationId,
+  getCorrelationId,
+} from './utils/correlation-context';
+export {
+  generateCorrelationId,
+  extractCorrelationIdFromKafkaHeaders,
+} from './utils/correlation-id';
+export {
+  formatStructuredLog,
+  logStructured,
+  type StructuredLogFields,
+  type StructuredLogLevel,
+} from './utils/structured-logger';
 
 // Constants
 export {

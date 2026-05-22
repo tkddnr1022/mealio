@@ -1,5 +1,6 @@
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import type { Response, NextFunction } from 'express';
+import { logStructured } from '@mealio/shared';
 import { RequestWithCorrelationId } from './request.types';
 
 /**
@@ -17,20 +18,23 @@ export class LoggingMiddleware implements NestMiddleware {
 
     res.on('finish', () => {
       const { statusCode } = res;
-      const duration = Date.now() - startedAt;
-      const correlationId = req.correlationId;
-
-      const baseMessage = `${method} ${originalUrl} ${statusCode} +${duration}ms`;
-      const message = correlationId
-        ? `${baseMessage} [correlationId=${correlationId}]`
-        : baseMessage;
+      const durationMs = Date.now() - startedAt;
+      const fields = {
+        event: 'http_request',
+        service: 'producer',
+        correlationId: req.correlationId,
+        method,
+        path: originalUrl,
+        statusCode,
+        durationMs,
+      };
 
       if (statusCode >= 500) {
-        this.logger.error(message);
+        logStructured(this.logger, 'error', fields);
       } else if (statusCode >= 400) {
-        this.logger.warn(message);
+        logStructured(this.logger, 'warn', fields);
       } else {
-        this.logger.log(message);
+        logStructured(this.logger, 'log', fields);
       }
     });
 

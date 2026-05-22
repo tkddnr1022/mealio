@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import {
+  createObservabilityConfig,
   MongooseSchemasModule,
   PrismaModule,
   RedisModule,
@@ -31,6 +32,12 @@ import { prismaConnectionPoolConfig } from './config/prisma-pool.config';
     OpenAIModule,
     // 다중 Kafka consumer 인스턴스 (그룹별 분리)
     ConsumersModule,
+  ],
+  providers: [
+    {
+      provide: 'OBSERVABILITY_CONFIG',
+      useFactory: () => createObservabilityConfig('consumer'),
+    },
   ],
 })
 export class AppModule {}

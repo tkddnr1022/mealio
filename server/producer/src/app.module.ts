@@ -1,5 +1,6 @@
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { createObservabilityConfig } from '@mealio/shared';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import {
@@ -42,7 +43,14 @@ import { RateLimitMiddleware } from './modules/middleware/rate-limit.middleware'
     ChatbotModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: 'OBSERVABILITY_CONFIG',
+      useFactory: () => createObservabilityConfig('producer'),
+    },
+  ],
+  exports: ['OBSERVABILITY_CONFIG'],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {

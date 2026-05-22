@@ -6,7 +6,12 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Kafka, Producer } from 'kafkajs';
-import { createKafkaConfig } from '@mealio/shared';
+import {
+  CORRELATION_ID_HEADER,
+  createKafkaConfig,
+  generateCorrelationId,
+  getCorrelationId,
+} from '@mealio/shared';
 
 @Injectable()
 export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
@@ -57,13 +62,21 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
    * 단일 메시지를 지정한 토픽으로 발행한다.
    * JSON 직렬화를 기본으로 사용하며, 실패 시 로깅만 수행한다.
    */
-  async emit<T>(topic: string, payload: T, key?: string): Promise<void> {
+  async emit<T>(
+    topic: string,
+    payload: T,
+    key?: string,
+    correlationId?: string,
+  ): Promise<void> {
     if (!this.producer || !this.isConnected) {
       this.logger.warn(
         `Kafka producer is not connected. Skipping publish to topic=${topic}`,
       );
       return;
     }
+
+    const resolvedCorrelationId =
+      correlationId ?? getCorrelationId() ?? generateCorrelationId();
 
     try {
       await this.producer.send({
@@ -72,12 +85,18 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
           {
             key,
             value: JSON.stringify(payload),
+            headers: {
+              [CORRELATION_ID_HEADER]: Buffer.from(
+                resolvedCorrelationId,
+                'utf8',
+              ),
+            },
           },
         ],
       });
     } catch (error) {
       this.logger.error(
-        `Failed to publish message to topic=${topic}`,
+        `Failed to publish message to topic=${topic} correlationId=${resolvedCorrelationId}`,
         error as Error,
       );
     }

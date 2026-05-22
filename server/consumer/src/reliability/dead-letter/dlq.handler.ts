@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Kafka, Producer } from 'kafkajs';
-import { createKafkaConfig } from '@mealio/shared';
+import { CORRELATION_ID_HEADER, createKafkaConfig } from '@mealio/shared';
 
 export interface DlqPayload {
   topic: string;
@@ -10,6 +10,7 @@ export interface DlqPayload {
   value: string;
   reason: string;
   timestamp: string;
+  correlationId?: string;
 }
 
 @Injectable()
@@ -43,17 +44,31 @@ export class DeadLetterHandler {
     }
 
     try {
+      const headers =
+        payload.correlationId !== undefined
+          ? {
+              [CORRELATION_ID_HEADER]: Buffer.from(
+                payload.correlationId,
+                'utf8',
+              ),
+            }
+          : undefined;
+
       await this.producer.send({
         topic: payload.topic,
         messages: [
           {
             key: payload.key ?? undefined,
             value: JSON.stringify(payload),
+            headers,
           },
         ],
       });
     } catch (error) {
-      this.logger.error('Failed to send message to DLQ', error as Error);
+      this.logger.error(
+        `Failed to send message to DLQ correlationId=${payload.correlationId ?? 'none'}`,
+        error as Error,
+      );
     }
   }
 }

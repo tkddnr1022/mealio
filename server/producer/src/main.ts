@@ -1,13 +1,17 @@
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
+import { createObservabilityConfig } from '@mealio/shared';
 import { AppModule } from './app.module';
 import { createSwaggerConfig } from './config/swagger.config';
 import { AuthService } from './modules/auth/auth.service';
 import { OAuthCallbackExceptionFilter } from './modules/auth/filters/oauth-callback-exception.filter';
 
 async function bootstrap() {
+  const observability = createObservabilityConfig('producer');
+
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
 
@@ -44,5 +48,10 @@ async function bootstrap() {
   );
 
   await app.listen(port);
+
+  const logger = new Logger('Observability');
+  logger.log(
+    `service=${observability.serviceName} metricsEnabled=${observability.metricsEnabled} slowQueryThresholdMs=${observability.slowQueryThresholdMs}`,
+  );
 }
 bootstrap();

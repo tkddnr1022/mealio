@@ -1,5 +1,10 @@
 import type { EachMessagePayload } from 'kafkajs';
 import { Logger } from '@nestjs/common';
+import {
+  extractCorrelationIdFromKafkaHeaders,
+  generateCorrelationId,
+  logStructured,
+} from '@mealio/shared';
 import type {
   RetryStrategy,
   RetryContext,
@@ -45,21 +50,44 @@ export abstract class BaseTopicProcessor<TEvent> implements ITopicProcessor {
     await this.handleWithRetryAndDlq(payload, this.getDlqTopic());
   }
 
+  protected resolveCorrelationId(payload: EachMessagePayload): string {
+    return (
+      extractCorrelationIdFromKafkaHeaders(payload.message.headers) ??
+      generateCorrelationId()
+    );
+  }
+
   protected async handleWithRetryAndDlq(
     payload: EachMessagePayload,
     dlqTopic: string,
     retryContext?: RetryContext,
   ): Promise<void> {
-    const { message } = payload;
+    const { message, topic, partition } = payload;
+    const correlationId = this.resolveCorrelationId(payload);
+    const logContext = {
+      correlationId,
+      service: 'consumer' as const,
+      topic,
+      partition,
+      offset: message.offset,
+    };
 
     if (!message.value) {
-      this.logger.warn('Received message without value, skipping');
+      logStructured(this.logger, 'warn', {
+        event: 'kafka_message_skipped',
+        message: 'Received message without value',
+        ...logContext,
+      });
       return;
     }
 
     const event = this.parseEvent(payload);
     if (!event) {
-      this.logger.warn('Failed to parse event. Skipping message.');
+      logStructured(this.logger, 'warn', {
+        event: 'kafka_message_parse_failed',
+        message: 'Failed to parse event',
+        ...logContext,
+      });
       return;
     }
 
@@ -71,11 +99,16 @@ export abstract class BaseTopicProcessor<TEvent> implements ITopicProcessor {
           ...retryContext,
         },
       );
+      logStructured(this.logger, 'log', {
+        event: 'kafka_message_processed',
+        ...logContext,
+      });
     } catch (error) {
-      this.logger.error(
-        `Error while processing event for topic=${this.getTopic()}`,
-        error as Error,
-      );
+      logStructured(this.logger, 'error', {
+        event: 'kafka_message_failed',
+        message: (error as Error).message,
+        ...logContext,
+      });
 
       await this.deadLetterHandler.send({
         topic: dlqTopic,
@@ -85,6 +118,7 @@ export abstract class BaseTopicProcessor<TEvent> implements ITopicProcessor {
         value: message.value.toString(),
         reason: (error as Error).message,
         timestamp: new Date().toISOString(),
+        correlationId,
       });
     }
   }

@@ -1,6 +1,10 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
-import { randomUUID } from 'crypto';
 import type { Response, NextFunction } from 'express';
+import {
+  CORRELATION_ID_HEADER,
+  generateCorrelationId,
+  runWithCorrelationId,
+} from '@mealio/shared';
 import { RequestWithCorrelationId } from './request.types';
 
 /**
@@ -11,22 +15,21 @@ import { RequestWithCorrelationId } from './request.types';
  */
 @Injectable()
 export class CorrelationIdMiddleware implements NestMiddleware {
-  private static readonly HEADER_NAME = 'x-correlation-id';
-
   use(req: RequestWithCorrelationId, res: Response, next: NextFunction): void {
     const existingId =
-      (req.headers[CorrelationIdMiddleware.HEADER_NAME] as
-        | string
-        | undefined) ?? undefined;
+      (req.headers[CORRELATION_ID_HEADER] as string | undefined) ??
+      (req.headers['X-Correlation-Id'] as string | undefined);
 
     const correlationId =
       existingId && existingId.length > 0
         ? existingId
-        : randomUUID().replace(/-/g, '');
+        : generateCorrelationId();
 
     req.correlationId = correlationId;
     res.setHeader('X-Correlation-Id', correlationId);
 
-    next();
+    runWithCorrelationId(correlationId, () => {
+      next();
+    });
   }
 }

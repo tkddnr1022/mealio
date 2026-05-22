@@ -1,12 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getConnectionToken } from '@nestjs/mongoose';
-import { PrismaService } from '@mealio/shared';
+import { PrismaService, RedisService } from '@mealio/shared';
 import { HealthService } from '../../health.service';
 
 describe('HealthService', () => {
   let service: HealthService;
   let prisma: PrismaService;
   let mongoConnection: { db: { admin: () => { ping: () => Promise<void> } } };
+  let redisService: RedisService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -28,12 +29,19 @@ describe('HealthService', () => {
             },
           },
         },
+        {
+          provide: RedisService,
+          useValue: {
+            ping: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<HealthService>(HealthService);
     prisma = module.get<PrismaService>(PrismaService);
     mongoConnection = module.get(getConnectionToken());
+    redisService = module.get<RedisService>(RedisService);
   });
 
   it('should be defined', () => {
@@ -52,12 +60,14 @@ describe('HealthService', () => {
     jest
       .spyOn(mongoConnection.db.admin(), 'ping')
       .mockResolvedValueOnce(undefined);
+    (redisService.ping as jest.Mock).mockResolvedValueOnce('PONG');
 
     const result = await service.getReadiness();
 
     expect(result.status).toBe('ok');
     expect(result.details.postgres).toBe('ok');
     expect(result.details.mongodb).toBe('ok');
+    expect(result.details.redis).toBe('ok');
   });
 
   it('getReadiness should return degraded when prisma fails', async () => {
@@ -65,11 +75,28 @@ describe('HealthService', () => {
     jest
       .spyOn(mongoConnection.db.admin(), 'ping')
       .mockResolvedValueOnce(undefined);
+    (redisService.ping as jest.Mock).mockResolvedValueOnce('PONG');
 
     const result = await service.getReadiness();
 
     expect(result.status).toBe('degraded');
     expect(result.details.postgres).toBe('degraded');
     expect(result.details.mongodb).toBe('ok');
+    expect(result.details.redis).toBe('ok');
+  });
+
+  it('getReadiness should return degraded when redis fails', async () => {
+    (prisma.$queryRaw as jest.Mock).mockResolvedValueOnce(undefined);
+    jest
+      .spyOn(mongoConnection.db.admin(), 'ping')
+      .mockResolvedValueOnce(undefined);
+    (redisService.ping as jest.Mock).mockRejectedValueOnce(
+      new Error('redis down'),
+    );
+
+    const result = await service.getReadiness();
+
+    expect(result.status).toBe('degraded');
+    expect(result.details.redis).toBe('degraded');
   });
 });

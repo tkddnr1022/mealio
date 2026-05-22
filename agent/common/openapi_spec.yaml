@@ -1441,7 +1441,7 @@ paths:
       summary: 애플리케이션 readiness 체크
       description: |
         애플리케이션이 트래픽을 받을 준비가 되었는지(readiness) 확인합니다.
-        PostgreSQL, MongoDB 등 주요 의존성의 연결 상태를 종합해 상태를 반환합니다.
+        PostgreSQL, MongoDB, Redis 등 주요 의존성의 연결 상태를 종합해 상태를 반환합니다.
       security: []
       responses:
         '200':
@@ -1467,6 +1467,9 @@ paths:
                         type: string
                         enum: [ok, degraded, unknown]
                       mongodb:
+                        type: string
+                        enum: [ok, degraded, unknown]
+                      redis:
                         type: string
                         enum: [ok, degraded, unknown]
 

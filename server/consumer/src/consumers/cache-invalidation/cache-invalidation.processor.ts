@@ -71,6 +71,7 @@ const cacheInvalidationBusinessRules: BusinessRule<CacheInvalidationPayload>[] =
     },
   ];
 
+// TODO: consumer에서 service 레이어로 강등
 /** cache-invalidation 토픽 전용 processor (파싱·비즈니스·DLQ). Redis 무효화 수행, 추후 CDN 무효화 확장 가능. */
 @Injectable()
 export class CacheInvalidationProcessor extends BaseTopicProcessor<CacheInvalidationPayload> {

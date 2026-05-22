@@ -115,6 +115,13 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     return this.client.ttl(key);
   }
 
+  /**
+   * Redis 연결 상태 확인 (readiness probe용)
+   */
+  async ping(): Promise<string> {
+    return this.client.ping();
+  }
+
   async del(key: string): Promise<number> {
     return this.client.del(key);
   }

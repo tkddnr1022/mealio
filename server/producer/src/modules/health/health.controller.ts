@@ -50,6 +50,10 @@ export class HealthController {
               type: 'string',
               enum: ['ok', 'degraded', 'unknown'],
             },
+            redis: {
+              type: 'string',
+              enum: ['ok', 'degraded', 'unknown'],
+            },
           },
         },
       },

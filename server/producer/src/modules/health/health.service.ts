@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@mealio/shared';
+import { PrismaService, RedisService } from '@mealio/shared';
 import { InjectConnection } from '@nestjs/mongoose';
 import type { Connection } from 'mongoose';
 
@@ -14,6 +14,7 @@ export interface ReadinessDetails {
   app: HealthStatus;
   postgres: HealthStatus | 'unknown';
   mongodb: HealthStatus | 'unknown';
+  redis: HealthStatus | 'unknown';
 }
 
 export interface ReadinessResponse {
@@ -27,6 +28,7 @@ export class HealthService {
   constructor(
     private readonly prisma: PrismaService,
     @InjectConnection() private readonly mongoConnection: Connection,
+    private readonly redisService: RedisService,
   ) {}
 
   getLiveness(): LivenessResponse {
@@ -41,6 +43,7 @@ export class HealthService {
       app: 'ok',
       postgres: 'unknown',
       mongodb: 'unknown',
+      redis: 'unknown',
     };
 
     try {
@@ -58,8 +61,19 @@ export class HealthService {
       details.mongodb = 'degraded';
     }
 
+    try {
+      const pong = await this.redisService.ping();
+      details.redis = pong === 'PONG' ? 'ok' : 'degraded';
+    } catch {
+      details.redis = 'degraded';
+    }
+
     const status: HealthStatus =
-      details.postgres === 'ok' && details.mongodb === 'ok' ? 'ok' : 'degraded';
+      details.postgres === 'ok' &&
+      details.mongodb === 'ok' &&
+      details.redis === 'ok'
+        ? 'ok'
+        : 'degraded';
 
     return {
       status,
