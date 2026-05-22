@@ -10,7 +10,9 @@ import { AuthService } from './modules/auth/auth.service';
 import { OAuthCallbackExceptionFilter } from './modules/auth/filters/oauth-callback-exception.filter';
 
 async function bootstrap() {
-  const observability = createObservabilityConfig('producer');
+  const observability = createObservabilityConfig('producer', {
+    requireMetricsPort: false,
+  });
 
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());

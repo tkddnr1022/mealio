@@ -33,6 +33,7 @@
     "kafkajs": "^2.2.4",
     "mongoose": "^9.1.4",
     "openai": "^4.68.4",
+    "prom-client": "^15.1.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },

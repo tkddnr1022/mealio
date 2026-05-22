@@ -1,5 +1,5 @@
 import type { EachMessagePayload } from 'kafkajs';
-import { Logger } from '@nestjs/common';
+import { Inject, Logger, Optional } from '@nestjs/common';
 import {
   extractCorrelationIdFromKafkaHeaders,
   generateCorrelationId,
@@ -10,6 +10,8 @@ import type {
   RetryContext,
 } from 'src/consumers/base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
+import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
+import { getConsumerGroupForTopic } from 'src/reliability/monitoring/topic-consumer-group.map';
 
 /**
  * 토픽별 메시지 처리 인터페이스.
@@ -27,6 +29,10 @@ export interface ITopicProcessor {
  */
 export abstract class BaseTopicProcessor<TEvent> implements ITopicProcessor {
   protected readonly logger: Logger;
+
+  @Optional()
+  @Inject(ConsumerMetricsService)
+  protected readonly consumerMetrics?: ConsumerMetricsService;
 
   protected constructor(
     loggerName: string,
@@ -91,6 +97,9 @@ export abstract class BaseTopicProcessor<TEvent> implements ITopicProcessor {
       return;
     }
 
+    const consumerGroup = getConsumerGroupForTopic(topic);
+    const startedAt = Date.now();
+
     try {
       await this.retryStrategy.execute(
         () => this.processEvent(event, payload),
@@ -99,11 +108,15 @@ export abstract class BaseTopicProcessor<TEvent> implements ITopicProcessor {
           ...retryContext,
         },
       );
+      const durationMs = Date.now() - startedAt;
+      this.consumerMetrics?.recordProcessed(topic, consumerGroup, durationMs);
       logStructured(this.logger, 'log', {
         event: 'kafka_message_processed',
+        durationMs,
         ...logContext,
       });
     } catch (error) {
+      this.consumerMetrics?.recordFailed(topic, consumerGroup);
       logStructured(this.logger, 'error', {
         event: 'kafka_message_failed',
         message: (error as Error).message,

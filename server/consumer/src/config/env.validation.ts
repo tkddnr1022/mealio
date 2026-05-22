@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import { buildObservabilityEnvRules } from '@mealio/shared';
 
 /**
  * Consumer 앱 시작 시 환경 변수 검증 스키마
@@ -51,6 +52,8 @@ export const envValidationSchema = Joi.object({
     'string.empty': 'OPENAI_EMBEDDING_MODEL must not be empty',
     'any.required': 'OPENAI_EMBEDDING_MODEL is required',
   }),
+
+  ...buildObservabilityEnvRules({ requireMetricsPort: true }),
 });
 
 export const envValidationOptions = {

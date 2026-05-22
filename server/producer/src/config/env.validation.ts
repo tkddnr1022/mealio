@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import { buildObservabilityEnvRules } from '@mealio/shared';
 
 /**
  * 앱 시작 시 환경 변수 검증 스키마
@@ -112,6 +113,8 @@ export const envValidationSchema = Joi.object({
     'string.empty': 'NAVER_CLIENT_SECRET must not be empty',
     'any.required': 'NAVER_CLIENT_SECRET is required',
   }),
+
+  ...buildObservabilityEnvRules({ requireMetricsPort: false }),
 });
 
 export const envValidationOptions = {

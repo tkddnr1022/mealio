@@ -1,4 +1,4 @@
-import { Kafka, type Consumer, type ConsumerConfig } from 'kafkajs';
+import { Kafka, type Admin, type Consumer, type ConsumerConfig } from 'kafkajs';
 import { Injectable } from '@nestjs/common';
 import { createKafkaConfig } from '@mealio/shared';
 
@@ -16,5 +16,9 @@ export class KafkaService {
 
   getConsumer(config: ConsumerConfig): Consumer {
     return this.kafka.consumer(config);
+  }
+
+  getAdmin(): Admin {
+    return this.kafka.admin();
   }
 }

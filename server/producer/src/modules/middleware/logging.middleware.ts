@@ -1,6 +1,7 @@
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import type { Response, NextFunction } from 'express';
 import { logStructured } from '@mealio/shared';
+import { shouldExcludeRequestFromAppHttpObservability } from './observability-http-paths';
 import { RequestWithCorrelationId } from './request.types';
 
 /**
@@ -13,6 +14,11 @@ export class LoggingMiddleware implements NestMiddleware {
   private readonly logger = new Logger('HTTP');
 
   use(req: RequestWithCorrelationId, res: Response, next: NextFunction): void {
+    if (shouldExcludeRequestFromAppHttpObservability(req)) {
+      next();
+      return;
+    }
+
     const { method, originalUrl } = req;
     const startedAt = Date.now();
 

@@ -10,6 +10,7 @@ import {
   PRISMA_POOL_CONFIG,
   type PrismaPoolConfig,
 } from './prisma-pool.config';
+import { isMetricsEnabledFromEnv } from '../../configs/observability.config';
 
 /**
  * Prisma 서비스 (Producer/Consumer 공용)
@@ -25,7 +26,13 @@ export class PrismaService
       connectionString: process.env.POSTGRESQL_URL!,
       ...config,
     });
-    super({ adapter });
+    const metricsEnabled = isMetricsEnabledFromEnv();
+    super({
+      adapter,
+      ...(metricsEnabled
+        ? { log: [{ emit: 'event', level: 'query' as const }] }
+        : {}),
+    });
   }
 
   async onModuleInit() {

@@ -227,7 +227,7 @@ paths:
         - name: refreshToken
           in: cookie
           required: true
-          description: Opaque refresh token (예: `sessionId.secret`)
+          description: Opaque refresh token
           schema:
             type: string
       responses:
@@ -1945,7 +1945,7 @@ components:
         type:
           type: string
           description: |
-            이벤트 타입 (예: recipe.view, recipe.like, search.query, user.signup, ingredient.add, chatbot.message)
+            이벤트 타입
         actor:
           type: object
           properties:

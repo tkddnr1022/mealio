@@ -35,4 +35,30 @@ describe('LoggingMiddleware', () => {
 
     logSpy.mockRestore();
   });
+
+  it('should skip logging for /metrics', () => {
+    const logSpy = jest.spyOn(middleware['logger'], 'log');
+    const next = jest.fn();
+    const res = new EventEmitter() as EventEmitter & {
+      statusCode: number;
+      on: EventEmitter['on'];
+    };
+    res.statusCode = 200;
+
+    middleware.use(
+      {
+        method: 'GET',
+        path: '/',
+        originalUrl: '/metrics',
+        url: '/metrics',
+      } as never,
+      res as never,
+      next,
+    );
+    res.emit('finish');
+
+    expect(next).toHaveBeenCalled();
+    expect(logSpy).not.toHaveBeenCalled();
+    logSpy.mockRestore();
+  });
 });

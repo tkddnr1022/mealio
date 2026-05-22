@@ -1,6 +1,5 @@
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { createObservabilityConfig } from '@mealio/shared';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import {
@@ -22,6 +21,8 @@ import { CacheModule } from './infrastructure/cache/cache.module';
 import { CorrelationIdMiddleware } from './modules/middleware/correlation-id.middleware';
 import { LoggingMiddleware } from './modules/middleware/logging.middleware';
 import { RateLimitMiddleware } from './modules/middleware/rate-limit.middleware';
+import { MonitoringModule } from './optimization/monitoring/monitoring.module';
+import { HttpMetricsMiddleware } from './optimization/monitoring/http-metrics.middleware';
 
 @Module({
   imports: [
@@ -41,21 +42,20 @@ import { RateLimitMiddleware } from './modules/middleware/rate-limit.middleware'
     IngredientsModule,
     InventoryModule,
     ChatbotModule,
+    MonitoringModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: 'OBSERVABILITY_CONFIG',
-      useFactory: () => createObservabilityConfig('producer'),
-    },
-  ],
-  exports: ['OBSERVABILITY_CONFIG'],
+  providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
     consumer
-      .apply(CorrelationIdMiddleware, LoggingMiddleware, RateLimitMiddleware)
+      .apply(
+        CorrelationIdMiddleware,
+        HttpMetricsMiddleware,
+        LoggingMiddleware,
+        RateLimitMiddleware,
+      )
       .forRoutes('*');
   }
 }

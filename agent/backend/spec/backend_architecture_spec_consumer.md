@@ -114,9 +114,9 @@
 | server/consumer/src/reliability/idempotency/idempotent.decorator.ts | 멱등성 보장 |
 | server/consumer/src/reliability/idempotency/deduplication.service.ts | 중복 이벤트 필터링 |
 | **server/consumer/src/reliability/monitoring/** | |
+| server/consumer/src/reliability/monitoring/consumer-metrics.service.ts | 처리량·에러율·처리 지연 Prometheus 메트릭 |
 | server/consumer/src/reliability/monitoring/consumer-lag.monitor.ts | Kafka lag |
-| server/consumer/src/reliability/monitoring/error-rate.monitor.ts | 에러율 |
-| server/consumer/src/reliability/monitoring/throughput.monitor.ts | 처리량 |
+| server/consumer/src/reliability/monitoring/metrics-exporter.service.ts | 워커용 GET /metrics (METRICS_PORT) |
 | **server/consumer/src/reliability/dead-letter/** | |
 | server/consumer/src/reliability/dead-letter/dlq.handler.ts | DLQ 처리 |
 | server/consumer/src/reliability/dead-letter/manual-replay.service.ts | 수동 재처리 |
