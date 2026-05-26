@@ -20,6 +20,7 @@ alwaysApply: true
 | **프론트엔드** | `agent/frontend/guidelines/`, `agent/frontend/spec/` | |
 | **백엔드** | `agent/backend/guidelines/`, `agent/backend/spec/` | |
 | **디자인** | `agent/design/guidelines/`, `agent/design/spec/` | |
+| **관측성** | `agent/observability/` | 관측성·모니터링 문서 통합 허브 |
 
 ---
 
@@ -95,6 +96,19 @@ alwaysApply: true
 
 **Figma·DS 문서 역할 요약**: 구현 시 **design_to_code** → (필요 시) **code_to_design**으로 편집·캡처. 디자인 시스템 워크플로우는 **1) 수집** `design_system_collection_guidelines.md` (**Figma → `figma-variables-and-styles.md`**) → **2) 변환** `design_tokens_conversion_guidelines.md` (**`figma-variables-and-styles.md` → `design_tokens.json`**) → **3) 연동** `design_system_integration_guidelines.md` (**`design_tokens.json` → `globals.css`**) 순서로 진행한다. **DS 분석**은 `design_system_analysis_guidelines.md`로 수행하고, 검토·권장사항은 **`agent/design/temp/`**로 관리한다.
 
+### 관측성 (`agent/observability/`)
+
+프론트엔드·백엔드·인프라를 아우르는 관측성·모니터링 문서를 통합 관리한다.
+
+| 파일 | 설명 | 참고 용도 |
+|------|------|-----------|
+| **validation.md** | 통합 검증 시나리오 | 헬스·메트릭·에러·분석·EventLog·KPI 롤업·대시보드 수동 검증을 수행할 때 |
+| **frontend_event_instrumentation.md** | 프론트 이벤트 계측 체크리스트 | GA4 이벤트 상수·호출 위치·백엔드 역할 분리를 확인할 때 |
+| **product_kpi_contract.md** | 제품 KPI 계약서 | KPI ID·계산식·SSOT·수집 경로 분리를 확인할 때 |
+| **event_dictionary.md** | 이벤트 사전 | GA ↔ EventLog ↔ Kafka 이벤트 매핑·네이밍 규칙·승인 절차를 확인할 때 |
+| **aggregation_pipeline.md** | 집계 파이프라인 | 롤업 잡·대시보드·Grafana 데이터소스·배치 운영을 확인할 때 |
+| **product_kpi_runbook.md** | 제품 KPI Runbook | 알림 임계치·장애 대응·에스컬레이션을 수행할 때 |
+
 ---
 
 ## 작업별 권장 참조 순서
@@ -119,6 +133,9 @@ alwaysApply: true
 
 - **기획·스택·배포 정책**  
   `agent/common/proposal.md` → `agent/common/architecture.mermaid`
+
+- **관측성·모니터링**  
+  `validation.md` (통합 검증) → `frontend_event_instrumentation.md` (프론트 계측) → `product_kpi_contract.md`·`event_dictionary.md`·`aggregation_pipeline.md` (KPI 정의·이벤트·집계) → `product_kpi_runbook.md` (알림·장애 대응)
 
 - **UI/UX·디자인 원칙·Figma**  
   - **화면 구현(Figma→코드)**: `agent/design/guidelines/design_to_code_guidelines.md` → `agent/design/spec/design_tokens.json` → `agent/design/spec/design_principle.json`(터치 타겟 44px, WCAG 2.1 AA, 반응형 브레이크포인트, LCP/FID/CLS·번들 예산, 레이아웃·챗봇 톤 등) → `agent/frontend/guidelines/frontend_development_guidelines.md`  
