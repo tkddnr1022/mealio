@@ -56,6 +56,7 @@
 | client/src/components/ui/CustomScrollbar/ | 커스텀 스크롤바 프리미티브 |
 | client/src/components/ui/Alert/ | 알림 배너 세트(`variant` × 제목·메시지) |
 | client/src/components/ui/Toast/ | 전역 Toast 카드·뷰포트(`Alert` 토큰 재사용) |
+| client/src/components/ui/NavLink/ | 내비게이션 링크(앱 내 `Link` vs 외부 `<a>` 자동 분기) |
 | **client/src/components/ui/buttons/** | 아이콘 액션 버튼 그룹 |
 | client/src/components/ui/buttons/BackButton/ | 뒤로 가기 버튼 |
 | client/src/components/ui/buttons/AddButton/ | 추가 버튼 |
@@ -105,6 +106,8 @@
 | client/src/components/recipe/detail/RecipeIngredientsCard/ | 재료 카드 |
 | client/src/components/recipe/detail/RecipeStepRow/ | 조리 단계 행 |
 | client/src/components/recipe/detail/RecipeStepsCard/ | 조리 단계 카드 |
+| **client/src/components/recipe/utils/** | 레시피 도메인 공용 유틸 |
+| client/src/components/recipe/utils/recipe-search-filters.ts | 레시피 검색 필터 파라미터 직렬화·디시리얼라이즈 유틸 |
 
 ### 2.4 챗봇 도메인 (`client/src/components/chatbot/`)
 
@@ -119,9 +122,8 @@
 | client/src/components/chatbot/conversation/ChatConversationRow/ | 대화 행 세트(`role`) |
 | client/src/components/chatbot/conversation/ChatConversation/ | 대화 본문 |
 | client/src/components/chatbot/conversation/ChatComposer/ | 입력 컴포저 세트(`filled`) |
-| **client/src/components/chatbot/suggested/** | 추천 레시피 영역(명세 경로; 구현·스토리북은 `conversation/`에 두고 `suggested/`는 re-export) |
-| client/src/components/chatbot/suggested/SuggestedRecipeCard/ | 추천 레시피 카드 |
-| client/src/components/chatbot/suggested/SuggestedRecipeSlider/ | 추천 레시피 슬라이더 |
+| client/src/components/chatbot/conversation/SuggestedRecipeCard/ | 추천 레시피 카드 |
+| client/src/components/chatbot/conversation/SuggestedRecipeSlider/ | 추천 레시피 슬라이더 |
 
 ### 2.5 보관함 도메인 (`client/src/components/inventory/`)
 
@@ -132,7 +134,9 @@
 | client/src/components/inventory/IngredientGrid/ | 재료 그리드 |
 | client/src/components/inventory/InventorySubTabbar/ | 보관함 서브 탭바 세트(`selectedIndex`) |
 | client/src/components/inventory/IngredientGridHeader/ | 재료 그리드 헤더 |
+| client/src/components/inventory/IngredientRemoveButton/ | 재료 삭제 버튼 |
 | client/src/components/inventory/IngredientSearchResult/ | 재료 검색 결과 |
+| client/src/components/inventory/utils/inventory-format.ts | 보관함 표시 포맷 유틸 |
 
 ### 2.6 마이페이지 도메인 (`client/src/components/mypage/`)
 
@@ -155,6 +159,13 @@
 | client/src/components/auth/LoginButtonList/ | 로그인 버튼 목록 |
 | client/src/components/auth/LoginHeader/ | 로그인 헤더 |
 | client/src/components/auth/LoginFooter/ | 로그인 푸터 |
+
+### 2.8 관측성 (`client/src/components/observability/`)
+
+| 경로 | 역할 |
+|------|------|
+| **client/src/components/observability/** | 관측성 연동 컴포넌트 묶음 |
+| client/src/components/observability/AnalyticsAuthSync.tsx | 인증 상태 변경 시 GA4 사용자 속성 동기화 |
 
 ---
 

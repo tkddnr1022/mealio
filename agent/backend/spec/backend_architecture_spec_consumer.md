@@ -37,10 +37,12 @@
 | server/consumer/src/consumers/chatbot-request/services/chatbot-credit.service.spec.ts | ChatbotCreditService 단위 테스트 |
 | server/consumer/src/consumers/chatbot-request/handlers/InventoryHandler.ts | get_user_inventory — Inventory 조회(`ingredients.owned`, `ingredients.favorite`, `recipes.favorite`), Ingredient id→name(Redis 캐시) 반환 |
 | server/consumer/src/consumers/chatbot-request/handlers/SearchRecipesHandler.ts | search_recipes — Prisma 레시피 검색, 명시적 필터(`keywords`, `maxCookTime`, `mustHaveIngredients`, `avoidIngredients`, 카테고리/재료 id) 기반 후보 조회·재랭킹 |
+| server/consumer/src/consumers/chatbot-request/handlers/FinalizeRecipeSelectionHandler.ts | finalize_recipe_selection — 챗봇 추천 레시피 최종 선택·확정 처리 |
 | server/consumer/src/consumers/chatbot-request/handlers/FoodCategoriesHandler.ts | get_food_categories — 레시피·재료 카테고리 마스터 조회(Redis 캐시 1시간) |
 | server/consumer/src/consumers/chatbot-request/handlers/SaveChatLogHandler.ts | 스트림 종료 후 ChatbotLog 저장 |
 | server/consumer/src/consumers/chatbot-request/handlers/SyncConversationMetaHandler.ts | 성공 턴 후 `chatbot_conversations` 동기화: `chatbot.start`면 LLM 제목·메타 생성, `chatbot.message`면 `updatedAt` 갱신 |
 | server/consumer/src/consumers/chatbot-request/services/recipe-embedding.service.ts | 레시피 문서화·OpenAI 임베딩 생성·pgvector 업서트(증분 동기화) |
+| server/consumer/src/consumers/chatbot-request/services/recipe-search-query.service.ts | search_recipes 핸들러용 Prisma 쿼리 빌더 (필터·정렬·페이지네이션 조합) |
 | server/consumer/src/persistence/repositories/mongodb/chatbot-conversation.repository.ts | ChatbotConversation 메타 (`createWithTitle` 생성·제목 없는 스텁 보정, `chatbot.message` 시 `touchUpdatedAt`) |
 | server/consumer/src/consumers/chatbot-request/tools/chatbot-tools.definition.ts | OpenAI tools 배열 (search_recipes, get_user_inventory 등) |
 | server/consumer/src/consumers/chatbot-request/tools/tool-dispatcher.ts | function name → Handler 매핑·실행 |
@@ -67,17 +69,20 @@
 | server/consumer/src/consumers/cache-invalidation/cache-invalidation-request.service.ts | requestUserProfileInvalidation / requestInventoryInvalidation / requestRecipeInvalidation / requestRecommendationInvalidation — 토픽 발행 |
 | server/consumer/src/consumers/cache-invalidation/redis-invalidation.handler.ts | Redis 키 삭제 (user:{userId}, inventory:{userId}, recipe:{id}, recommendation:{userId}) + recipe:list/search 패턴 삭제 |
 | **server/consumer/src/integrations/kafka/** | |
+| server/consumer/src/integrations/kafka/kafka.module.ts | KafkaModule (KafkaService·KafkaProducerService 묶음) |
 | server/consumer/src/integrations/kafka/kafka.service.ts | Consumer 인스턴스 생성 (getConsumer) |
 | server/consumer/src/integrations/kafka/kafka-producer.service.ts | Consumer 내부 토픽 발행 (connect/disconnect, emit). 토픽 §2.2 |
 | **server/consumer/src/integrations/openai/** | |
+| server/consumer/src/integrations/openai/openai.module.ts | OpenAI 통합 모듈 |
 | server/consumer/src/integrations/openai/openai.service.ts | GPT API 래퍼 |
 | server/consumer/src/integrations/openai/response-parser.ts | JSON 파싱·검증 |
 | server/consumer/src/integrations/openai/rate-limiter.ts | API 호출 제한 |
-| **server/consumer/src/integrations/storage/** | |
-| server/consumer/src/integrations/storage/s3-uploader.service.ts | 대용량 이미지 업로드 |
-| server/consumer/src/integrations/storage/image-optimizer.ts | 이미지 리사이징/압축 |
+| **server/consumer/src/integrations/storage/** | ⚠️ 미구현 |
+| server/consumer/src/integrations/storage/s3-uploader.service.ts | ⚠️ 미구현 · 대용량 이미지 업로드 |
+| server/consumer/src/integrations/storage/image-optimizer.ts | ⚠️ 미구현 · 이미지 리사이징/압축 |
 | **server/consumer/src/integrations/analytics/** | |
-| server/consumer/src/integrations/analytics/google-analytics.service.ts | GA 연동 |
+| server/consumer/src/integrations/analytics/analytics.module.ts | Analytics 통합 모듈 |
+| server/consumer/src/integrations/analytics/google-analytics.service.ts | ⚠️ 미구현 · GA 연동 |
 | server/consumer/src/integrations/analytics/sentry.service.ts | 에러 리포팅 |
 | **server/consumer/src/processing/validation/** | |
 | server/consumer/src/processing/validation/schema.validator.ts | 이벤트 스키마 검증 |
@@ -88,38 +93,44 @@
 | **server/consumer/src/persistence/repositories/postgresql/** | |
 | server/consumer/src/persistence/repositories/postgresql/recipe.repository.ts | Recipe 쓰기 (Prisma) |
 | server/consumer/src/persistence/repositories/postgresql/user.repository.ts | User 업데이트 (Prisma) |
-| server/consumer/src/persistence/repositories/postgresql/recipe-ingredient.repository.ts | RecipeIngredient 쓰기 |
+| server/consumer/src/persistence/repositories/postgresql/recipe-ingredient.repository.ts | ⚠️ 미구현 · RecipeIngredient 쓰기 |
 | server/consumer/src/persistence/repositories/postgresql/recommendation.repository.ts | UserRecipeRecommendation upsert·랭크 재정렬·top N 조회 |
 | server/consumer/src/persistence/repositories/postgresql/recipe-embedding.repository.ts | RecipeEmbedding(pgvector) raw query 조회/업서트 |
 | **server/consumer/src/persistence/repositories/mongodb/** | |
 | server/consumer/src/persistence/repositories/mongodb/event-log.repository.ts | EventLog 저장 (Mongoose) |
 | server/consumer/src/persistence/repositories/mongodb/chatbot-log.repository.ts | ChatbotLog 저장 (Mongoose) |
 | server/consumer/src/persistence/repositories/mongodb/inventory.repository.ts | Inventory 저장 (Mongoose) |
-| **server/consumer/src/persistence/transactions/** | |
-| server/consumer/src/persistence/transactions/recipe-creation.transaction.ts | Prisma $transaction |
-| server/consumer/src/persistence/transactions/mongodb-session.transaction.ts | Mongoose session (필요 시) |
-| server/consumer/src/persistence/transactions/saga.coordinator.ts | 분산 트랜잭션 (RDB↔NoSQL) |
-| **server/consumer/src/persistence/bulk-operations/postgresql/** | |
-| server/consumer/src/persistence/bulk-operations/postgresql/batch-create.service.ts | Prisma createMany |
-| server/consumer/src/persistence/bulk-operations/postgresql/batch-update.service.ts | Prisma updateMany |
-| server/consumer/src/persistence/bulk-operations/postgresql/upsert.service.ts | Prisma upsert |
-| **server/consumer/src/persistence/bulk-operations/mongodb/** | |
-| server/consumer/src/persistence/bulk-operations/mongodb/bulk-write.service.ts | bulkWrite/insertMany |
-| server/consumer/src/persistence/bulk-operations/mongodb/update-many.service.ts | updateMany/updateOne |
-| server/consumer/src/persistence/bulk-operations/mongodb/findOneAndUpdate.service.ts | findOneAndUpdate(upsert) |
+| **server/consumer/src/persistence/transactions/** | ⚠️ 미구현 |
+| server/consumer/src/persistence/transactions/recipe-creation.transaction.ts | ⚠️ 미구현 · Prisma $transaction |
+| server/consumer/src/persistence/transactions/mongodb-session.transaction.ts | ⚠️ 미구현 · Mongoose session (필요 시) |
+| server/consumer/src/persistence/transactions/saga.coordinator.ts | ⚠️ 미구현 · 분산 트랜잭션 (RDB↔NoSQL) |
+| **server/consumer/src/persistence/bulk-operations/postgresql/** | ⚠️ 미구현 |
+| server/consumer/src/persistence/bulk-operations/postgresql/batch-create.service.ts | ⚠️ 미구현 · Prisma createMany |
+| server/consumer/src/persistence/bulk-operations/postgresql/batch-update.service.ts | ⚠️ 미구현 · Prisma updateMany |
+| server/consumer/src/persistence/bulk-operations/postgresql/upsert.service.ts | ⚠️ 미구현 · Prisma upsert |
+| **server/consumer/src/persistence/bulk-operations/mongodb/** | ⚠️ 미구현 |
+| server/consumer/src/persistence/bulk-operations/mongodb/bulk-write.service.ts | ⚠️ 미구현 · bulkWrite/insertMany |
+| server/consumer/src/persistence/bulk-operations/mongodb/update-many.service.ts | ⚠️ 미구현 · updateMany/updateOne |
+| server/consumer/src/persistence/bulk-operations/mongodb/findOneAndUpdate.service.ts | ⚠️ 미구현 · findOneAndUpdate(upsert) |
 | **server/consumer/src/reliability/retry/** | |
 | server/consumer/src/reliability/retry/exponential-backoff.ts | 지수 백오프 |
-| server/consumer/src/reliability/retry/circuit-breaker.ts | OpenAI 서킷 브레이커 |
-| **server/consumer/src/reliability/idempotency/** | |
-| server/consumer/src/reliability/idempotency/idempotent.decorator.ts | 멱등성 보장 |
-| server/consumer/src/reliability/idempotency/deduplication.service.ts | 중복 이벤트 필터링 |
+| server/consumer/src/reliability/retry/circuit-breaker.ts | ⚠️ 미구현 · OpenAI 서킷 브레이커 |
+| **server/consumer/src/reliability/idempotency/** | ⚠️ 미구현 |
+| server/consumer/src/reliability/idempotency/idempotent.decorator.ts | ⚠️ 미구현 · 멱등성 보장 |
+| server/consumer/src/reliability/idempotency/deduplication.service.ts | ⚠️ 미구현 · 중복 이벤트 필터링 |
 | **server/consumer/src/reliability/monitoring/** | |
+| server/consumer/src/reliability/monitoring/monitoring.module.ts | 모니터링 통합 모듈 |
 | server/consumer/src/reliability/monitoring/consumer-metrics.service.ts | 처리량·에러율·처리 지연 Prometheus 메트릭 |
 | server/consumer/src/reliability/monitoring/consumer-lag.monitor.ts | Kafka lag |
 | server/consumer/src/reliability/monitoring/metrics-exporter.service.ts | 워커용 GET /metrics (METRICS_PORT) |
+| server/consumer/src/reliability/monitoring/topic-consumer-group.map.ts | 토픽 → Consumer Group 매핑 상수 (lag 모니터링용) |
 | **server/consumer/src/reliability/dead-letter/** | |
 | server/consumer/src/reliability/dead-letter/dlq.handler.ts | DLQ 처리 |
-| server/consumer/src/reliability/dead-letter/manual-replay.service.ts | 수동 재처리 |
+| server/consumer/src/reliability/dead-letter/manual-replay.service.ts | ⚠️ 미구현 · 수동 재처리 |
+| **server/consumer/src/jobs/kpi-rollup/** | KPI 롤업 배치 잡 |
+| server/consumer/src/jobs/kpi-rollup/kpi-rollup.module.ts | KPI 롤업 모듈 |
+| server/consumer/src/jobs/kpi-rollup/kpi-rollup.service.ts | KPI 집계 서비스 (MongoDB EventLog → 롤업 문서) |
+| server/consumer/src/jobs/kpi-rollup/run-kpi-rollup.ts | KPI 롤업 실행 엔트리포인트 (CLI/스케줄러) |
 
 ---
 

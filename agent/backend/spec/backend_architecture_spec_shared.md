@@ -30,10 +30,21 @@
 | server/shared/src/database/prisma/migrations/ | PostgreSQL 마이그레이션 |
 | server/shared/src/database/mongoose/mongoose-pool.config.ts | MongoosePoolConfig 타입 (커넥션 풀 설정). 앱에서는 풀만 정의, URI·retry·readPreference 등은 shared 공용 |
 | server/shared/src/database/mongoose/mongoose.module.ts | MongooseSchemasModule. forRoot(poolConfig) / forRootAsync 로 풀 config 주입. URI·스키마(EventLog, ChatbotLog, Inventory)는 shared에서 공용 관리 |
-| server/shared/src/database/mongoose/schemas/* | ChatbotLog, ChatbotConversation, EventLog, Inventory 스키마 (`ingredients.ownedIds`, `ingredients.favoriteIds`, `recipes.favoriteIds` 포함) |
+| server/shared/src/database/mongoose/schemas/index.ts | Mongoose 스키마 배럴 export |
+| server/shared/src/database/mongoose/schemas/chatbot-log.schema.ts | ChatbotLog 스키마 |
+| server/shared/src/database/mongoose/schemas/chatbot-conversation.schema.ts | ChatbotConversation 스키마 |
+| server/shared/src/database/mongoose/schemas/event-log.schema.ts | EventLog 스키마 |
+| server/shared/src/database/mongoose/schemas/inventory.schema.ts | Inventory 스키마 (`ingredients.ownedIds`, `ingredients.favoriteIds`, `recipes.favoriteIds` 포함) |
+| server/shared/src/database/mongoose/schemas/kpi-rollup.schema.ts | KPI 롤업 집계 문서 스키마 |
 | server/shared/src/redis/redis.service.ts | RedisService (NestJS). get/set/setex/del/exists/expire/ttl, 구독 채널 관리 |
 | server/shared/src/redis/redis.module.ts | RedisModule |
-| server/shared/src/types/events/* | ChatbotRequestEvent, ChatbotStreamEvent(`done`에 `isCreditDepleted` 포함), UserEvent, InventoryEvent(ingredient/recipe favorites 포함), CacheInvalidationPayload·CacheInvalidationEventType(`RECOMMENDATION` 포함) 등 |
+| server/shared/src/types/events/index.ts | 이벤트 타입 배럴 export |
+| server/shared/src/types/events/chatbot-request.event.ts | ChatbotRequestEvent |
+| server/shared/src/types/events/chatbot-stream-event.event.ts | ChatbotStreamEvent (`done`에 `isCreditDepleted` 포함) |
+| server/shared/src/types/events/user-event.event.ts | UserEvent |
+| server/shared/src/types/events/inventory-event.event.ts | InventoryEvent (ingredient/recipe favorites 포함) |
+| server/shared/src/types/events/activity-event.event.ts | ActivityEvent (recipe.view, recipe.like, search.click 등) |
+| server/shared/src/types/events/cache-invalidation.event.ts | CacheInvalidationPayload·CacheInvalidationEventType (`RECOMMENDATION` 포함) |
 
 ## 3.2 Prisma 스키마 (schema.prisma) — 모델·필드 명세
 
@@ -65,8 +76,18 @@ datasource: `postgresql`. generator: `prisma-client`, output `generated`.
 | 경로 | 역할 |
 |------|------------|
 | server/shared/src/utils/ | logger, error-handler, prisma-helpers, mongoose-helpers, validator |
-| server/shared/src/constants/ | cache-keys.ts, asset-url-prefixes.ts, **user-credits.ts**(챗봇 크레딧 기본값·비용 계산), error-codes.ts (3.1의 kafka-topics, redis-channels 외 추가) |
-| server/shared/src/configs/ | observability.config.ts (3.1의 kafka, redis 외 추가) |
+| server/shared/src/utils/structured-logger.ts | 구조화 로거 (JSON 출력, 레벨·컨텍스트·Correlation-ID) |
+| server/shared/src/utils/correlation-id.ts | Correlation-ID 생성 유틸 |
+| server/shared/src/utils/correlation-context.ts | AsyncLocalStorage 기반 Correlation Context 전파 |
+| server/shared/src/constants/ | cache-keys.ts, asset-url-prefixes.ts, **user-credits.ts**(챗봇 크레딧 기본값·비용 계산), ⚠️ 미구현: error-codes.ts (3.1의 kafka-topics, redis-channels 외 추가) |
+| server/shared/src/configs/ | observability.config.ts, observability.env-validation.ts (3.1의 kafka, redis 외 추가) |
+| server/shared/src/configs/observability.config.ts | Sentry DSN·환경·샘플링 등 관측성 설정 |
+| server/shared/src/configs/observability.env-validation.ts | 관측성 관련 환경 변수 Joi 스키마 검증 |
+| **server/shared/src/observability/** | Sentry 초기화·유틸 묶음 |
+| server/shared/src/observability/sentry.ts | Sentry `init` 래퍼 (Producer/Consumer 공용) |
+| server/shared/src/observability/sentry-scrub.ts | Sentry 이벤트 전송 전 PII·비밀 스크러빙 |
+| server/shared/src/observability/sentry-feature.ts | Sentry 피처 플래그 (환경별 기능 토글) |
+| server/shared/src/observability/sentry.constants.ts | Sentry 태그·컨텍스트 키 상수 |
 
 ## 3.5 추천 캐시·무효화 계약
 

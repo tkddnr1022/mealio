@@ -37,6 +37,7 @@
 | server/producer/src/modules/auth/strategies/naver.strategy.ts | Naver OAuth 전략 |
 | server/producer/src/modules/auth/types/oauth.types.ts | OAuth 관련 타입 정의 |
 | server/producer/src/modules/auth/types/request.types.ts | 인증 관련 Request 확장 타입 |
+| server/producer/src/modules/auth/filters/oauth-callback-exception.filter.ts | OAuth 콜백 예외 필터 (Provider 에러·state 불일치 → 프론트 `/oauth/error`로 302) |
 | **server/producer/src/modules/health/** | 헬스체크 모듈 |
 | server/producer/src/modules/health/health.module.ts | HealthModule 정의 (Service·Controller 묶음) |
 | server/producer/src/modules/health/health.service.ts | DB·캐시·외부 연동 상태 체크 로직 |
@@ -45,6 +46,8 @@
 | server/producer/src/modules/middleware/rate-limit.middleware.ts | API 요청 제한 (Redis 기반 Rate Limiting) |
 | server/producer/src/modules/middleware/logging.middleware.ts | 요청/응답 로깅 |
 | server/producer/src/modules/middleware/correlation-id.middleware.ts | 분산 추적용 Correlation ID 부여·전파 |
+| server/producer/src/modules/middleware/observability-http-paths.ts | HTTP 경로 정규화 (메트릭·로그용 path grouping) |
+| server/producer/src/modules/middleware/request.types.ts | 미들웨어 Request 확장 타입 정의 |
 | **server/producer/src/modules/users/** | 사용자 프로필 모듈 |
 | server/producer/src/modules/users/users.module.ts | UsersModule 정의 |
 | server/producer/src/modules/users/users.service.ts | 유저 프로필 조회·수정, 캐시 우선 조회 후 RDS 폴백 |
@@ -72,6 +75,7 @@
 | server/producer/src/modules/ingredients/dto/ingredient-list-query.dto.ts | 재료 목록 조회 쿼리 DTO |
 | server/producer/src/modules/ingredients/dto/ingredient-search-query.dto.ts | 재료 검색 쿼리 DTO |
 | server/producer/src/modules/ingredients/dto/ingredient.dto.ts | 재료 단건 응답 DTO |
+| server/producer/src/modules/ingredients/dto/ingredient-category.dto.ts | 재료 카테고리 응답 DTO |
 | server/producer/src/modules/ingredients/dto/pagination.dto.ts | 페이지네이션 DTO(재료 전용) |
 | **server/producer/src/modules/inventory/** | 유저 보관함 모듈 |
 | server/producer/src/modules/inventory/inventory.module.ts | InventoryModule 정의 |
@@ -93,16 +97,19 @@
 | server/producer/src/modules/chatbot/dto/conversation-list-item.dto.ts | 대화 리스트 아이템 DTO |
 | server/producer/src/modules/chatbot/dto/conversation-list-query.dto.ts | 대화 리스트 조회 쿼리 DTO |
 | server/producer/src/modules/chatbot/dto/conversation-list.dto.ts | 대화 리스트 응답 DTO |
+| server/producer/src/modules/chatbot/dto/is-conversation-list-cursor.validator.ts | 커서 문자열 유효성 검증 커스텀 밸리데이터 |
 | server/producer/src/modules/chatbot/dto/suggested-recipe.dto.ts | 챗봇이 제안하는 레시피 DTO |
 | **server/producer/src/infrastructure/database/repositories/postgresql/** | |
 | server/producer/src/infrastructure/database/repositories/postgresql/user.repository.ts | User 조회·생성(OAuth 로그인용)·갱신 (PrismaService, @mealio/shared/prisma-client) |
 | server/producer/src/infrastructure/database/repositories/postgresql/recipe.repository.ts | Recipe 조회/검색 리포지토리. RecipeStats 조인(attach) 및 통계 기반 정렬(viewCount/likeCount) 지원 |
 | server/producer/src/infrastructure/database/repositories/postgresql/ingredient.repository.ts | Ingredient 조회 |
 | server/producer/src/infrastructure/database/repositories/postgresql/recipe-ingredient.repository.ts | RecipeIngredient 조회/생성 |
+| server/producer/src/infrastructure/database/repositories/postgresql/auth-refresh-session.repository.ts | Refresh Token 세션 CRUD (SSOT=PostgreSQL `auth_refresh_sessions`) |
 | **server/producer/src/infrastructure/database/repositories/mongodb/** | |
 | server/producer/src/infrastructure/database/repositories/mongodb/event-log.repository.ts | EventLog (스키마·타입 @mealio/shared) |
 | server/producer/src/infrastructure/database/repositories/mongodb/chatbot-log.repository.ts | ChatbotLog (스키마·타입 @mealio/shared) |
 | server/producer/src/infrastructure/database/repositories/mongodb/chatbot-conversation.repository.ts | ChatbotConversation 메타 목록·제목 조회 (`updatedAt` 정렬·커서) (스키마·타입 @mealio/shared) |
+| server/producer/src/infrastructure/database/repositories/mongodb/conversation-list-cursor.ts | 대화 목록 커서 기반 페이지네이션 유틸 (커서 인코딩/디코딩) |
 | server/producer/src/infrastructure/database/repositories/mongodb/inventory.repository.ts | Inventory (스키마·타입 @mealio/shared) |
 | **server/producer/src/infrastructure/cache/** | |
 | server/producer/src/infrastructure/cache/cache.service.ts | 캐시 서비스 (Redis는 @mealio/shared 사용) |
@@ -120,23 +127,29 @@
 | server/producer/src/infrastructure/kafka/kafka-admin.service.ts | 토픽 생성·확인 등 |
 | server/producer/src/infrastructure/kafka/producer.service.ts | createKafkaConfig 등 @mealio/shared |
 | server/producer/src/infrastructure/kafka/serializers/* | (선택: Avro/JSON 직렬화 구현 시 해당 경로 사용, 구현하지 않을 경우 디렉터리·파일 생략 가능) |
-| **server/producer/src/infrastructure/storage/** | |
-| server/producer/src/infrastructure/storage/s3.service.ts | 이미지 Presigned URL 생성 |
-| server/producer/src/infrastructure/storage/cdn.service.ts | CloudFlare 캐시 무효화 |
-| **server/producer/src/optimization/caching/** | |
-| server/producer/src/optimization/caching/query-result.cache.ts | Prisma 쿼리 결과 캐싱 |
-| server/producer/src/optimization/caching/mongoose-query.cache.ts | Mongoose 쿼리 결과 캐싱 |
-| server/producer/src/optimization/caching/http-response.cache.ts | HTTP 응답 캐싱 |
-| server/producer/src/optimization/caching/cache-warming.service.ts | 인기 레시피 사전 캐싱 |
-| **server/producer/src/optimization/database/postgresql/** | |
-| server/producer/src/optimization/database/postgresql/read-replica.config.ts | 읽기 복제본 URL |
-| server/producer/src/optimization/database/postgresql/query-optimizer/select-optimizer.ts | Prisma select 최적화 |
-| server/producer/src/optimization/database/postgresql/query-optimizer/include-optimizer.ts | include 제거 |
-| **server/producer/src/optimization/database/mongodb/** | |
-| server/producer/src/optimization/database/mongodb/query-optimizer/lean-project.helper.ts | lean()+select() |
+| **server/producer/src/infrastructure/storage/** | ⚠️ 미구현 |
+| server/producer/src/infrastructure/storage/s3.service.ts | ⚠️ 미구현 · 이미지 Presigned URL 생성 |
+| server/producer/src/infrastructure/storage/cdn.service.ts | ⚠️ 미구현 · CloudFlare 캐시 무효화 |
+| **server/producer/src/optimization/caching/** | ⚠️ 미구현 |
+| server/producer/src/optimization/caching/query-result.cache.ts | ⚠️ 미구현 · Prisma 쿼리 결과 캐싱 |
+| server/producer/src/optimization/caching/mongoose-query.cache.ts | ⚠️ 미구현 · Mongoose 쿼리 결과 캐싱 |
+| server/producer/src/optimization/caching/http-response.cache.ts | ⚠️ 미구현 · HTTP 응답 캐싱 |
+| server/producer/src/optimization/caching/cache-warming.service.ts | ⚠️ 미구현 · 인기 레시피 사전 캐싱 |
+| **server/producer/src/optimization/database/postgresql/** | ⚠️ 미구현 |
+| server/producer/src/optimization/database/postgresql/read-replica.config.ts | ⚠️ 미구현 · 읽기 복제본 URL |
+| server/producer/src/optimization/database/postgresql/query-optimizer/select-optimizer.ts | ⚠️ 미구현 · Prisma select 최적화 |
+| server/producer/src/optimization/database/postgresql/query-optimizer/include-optimizer.ts | ⚠️ 미구현 · include 제거 |
+| **server/producer/src/optimization/database/mongodb/** | ⚠️ 미구현 |
+| server/producer/src/optimization/database/mongodb/query-optimizer/lean-project.helper.ts | ⚠️ 미구현 · lean()+select() |
 | **server/producer/src/optimization/monitoring/** | |
+| server/producer/src/optimization/monitoring/monitoring.module.ts | 모니터링 통합 모듈 (Sentry·메트릭·예외필터 묶음) |
 | server/producer/src/optimization/monitoring/metrics.service.ts | Prometheus 메트릭 |
+| server/producer/src/optimization/monitoring/metrics.controller.ts | GET /metrics 엔드포인트 |
+| server/producer/src/optimization/monitoring/http-metrics.middleware.ts | HTTP 요청/응답 메트릭 미들웨어 (duration·status) |
 | server/producer/src/optimization/monitoring/slow-query.interceptor.ts | 느린 쿼리 로깅 |
+| server/producer/src/optimization/monitoring/global-exception.filter.ts | 전역 예외 필터 (미처리 에러 Sentry 전송·JSON 응답) |
+| server/producer/src/optimization/monitoring/sentry.module.ts | Sentry NestJS 모듈 설정 |
+| server/producer/src/optimization/monitoring/sentry.service.ts | Sentry captureException·breadcrumb 래퍼 |
 | server/producer/src/optimization/monitoring/prisma-metrics.ts | Prisma 쿼리 메트릭 |
 | server/producer/src/optimization/monitoring/mongoose-metrics.ts | Mongoose 쿼리/연결 메트릭 |
 
