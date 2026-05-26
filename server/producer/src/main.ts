@@ -1,4 +1,4 @@
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule } from '@nestjs/swagger';
@@ -10,8 +10,6 @@ import {
 } from '@mealio/shared';
 import { AppModule } from './app.module';
 import { createSwaggerConfig } from './config/swagger.config';
-import { AuthService } from './modules/auth/auth.service';
-import { OAuthCallbackExceptionFilter } from './modules/auth/filters/oauth-callback-exception.filter';
 
 async function bootstrap() {
   const observability = createObservabilityConfig('producer', {
@@ -26,8 +24,6 @@ async function bootstrap() {
   app.use(cookieParser());
 
   const config = app.get(ConfigService);
-  const httpAdapterHost = app.get(HttpAdapterHost);
-  const authService = app.get(AuthService);
   const port = parseInt(config.getOrThrow<string>('PORT'), 10);
 
   const frontendAppBaseUrl = config.getOrThrow<string>('FRONTEND_APP_BASE_URL');
@@ -52,10 +48,6 @@ async function bootstrap() {
   const swaggerConfig = createSwaggerConfig();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api-docs', app, document);
-
-  app.useGlobalFilters(
-    new OAuthCallbackExceptionFilter(httpAdapterHost, authService),
-  );
 
   await app.listen(port);
 

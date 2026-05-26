@@ -9,6 +9,7 @@ import {
   Query,
   Req,
   Res,
+  UseFilters,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -21,6 +22,7 @@ import {
 } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { AuthService } from '../auth.service';
+import { OAuthCallbackExceptionFilter } from '../filters/oauth-callback-exception.filter';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { OAuthCallbackGuard } from '../guards/oauth-callback.guard';
 import { ConfigService } from '@nestjs/config';
@@ -100,6 +102,7 @@ export class AuthController {
   }
 
   @Get(':provider/callback')
+  @UseFilters(OAuthCallbackExceptionFilter)
   @UseGuards(OAuthCallbackGuard)
   @ApiOperation({
     summary: 'OAuth 콜백 (Provider → 백엔드)',
