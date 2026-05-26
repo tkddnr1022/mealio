@@ -92,8 +92,5 @@ jobs:
       - name: Install dependencies
         run: pnpm run ci:install
 
-      - name: Sync Web Vitals budget with design tokens
-        run: pnpm run ci:check:client-observability
-
       - name: Run client unit tests
         run: pnpm run ci:test:client

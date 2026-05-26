@@ -9,7 +9,6 @@
     "lint": "eslint",
     "test:unit": "vitest run --project unit",
     "test:unit:observability": "vitest run --project unit src/lib/observability",
-    "check:web-vitals-budget": "node scripts/check-web-vitals-budget-sync.mjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },

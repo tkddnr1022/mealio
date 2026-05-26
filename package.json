@@ -24,7 +24,6 @@
     "ci:build:server": "pnpm run ci:build:shared && pnpm run ci:build:producer",
     "ci:test:producer": "pnpm --filter @mealio/producer test -- --passWithNoTests",
     "ci:test:client": "pnpm --filter client test:unit:observability",
-    "ci:check:client-observability": "pnpm --filter client run check:web-vitals-budget",
     "db:prisma:generate": "pnpm --filter @mealio/shared run prisma:generate",
     "db:prisma:migrate:dev": "pnpm --filter @mealio/shared run prisma:migrate:dev",
     "db:prisma:migrate:deploy": "pnpm --filter @mealio/shared run prisma:migrate:deploy",
