@@ -1,0 +1,130 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: mealio-ops-alerts
+    folder: Mealio
+    interval: 1m
+    rules:
+      # ALERT_KAFKA_FAIL_RATE — 처리 실패율 > 1% for 10m
+      - uid: alert-kafka-fail-rate
+        title: ALERT_KAFKA_FAIL_RATE
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: >
+                sum by (topic) (rate(kafka_messages_failed_total{service="consumer"}[5m]))
+                /
+                (sum by (topic) (rate(kafka_messages_processed_total{service="consumer"}[5m]))
+                + sum by (topic) (rate(kafka_messages_failed_total{service="consumer"}[5m])))
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0.01]
+              refId: C
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Kafka 처리 실패율 > 1% (topic: {{ $labels.topic }})"
+          description: >
+            실패율: {{ $value }}.
+            대응: product_kpi_runbook.md §2.2 참조.
+            correlationId, topic, partition, offset 기준으로 Sentry/로그 필터.
+
+      # ALERT_KAFKA_LAG — Consumer lag > 1000 for 15m
+      - uid: alert-kafka-lag
+        title: ALERT_KAFKA_LAG
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: max by (topic) (kafka_consumer_lag{service="consumer", topic=~"activity-events|user-events"})
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [1000]
+              refId: C
+        for: 15m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Consumer lag > 1000 (topic: {{ $labels.topic }})"
+          description: >
+            현재 lag: {{ $value }}.
+            대응: product_kpi_runbook.md §2.1 참조.
+            Consumer 스케일 아웃, poison message DLQ 격리 검토.
+
+      # ALERT_DLQ_SPIKE — DLQ 급증 (failed rate 3x baseline over 1h)
+      - uid: alert-dlq-spike
+        title: ALERT_DLQ_SPIKE
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 3600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: rate(kafka_messages_failed_total{service="consumer"}[5m])
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 3600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0.5]
+              refId: C
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "DLQ 메시지 급증"
+          description: >
+            대응: product_kpi_runbook.md §2.2 참조.
+            DLQ 토픽 메시지 샘플링 후 원인 파악.

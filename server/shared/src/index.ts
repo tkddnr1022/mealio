@@ -121,12 +121,15 @@ export {
   EventLogSchema,
   Inventory,
   InventorySchema,
+  KpiRollup,
+  KpiRollupSchema,
 } from './database/mongoose/schemas';
 export type {
   ChatbotConversationDocument,
   ChatbotLogDocument,
   EventLogDocument,
   InventoryDocument,
+  KpiRollupDocument,
 } from './database/mongoose/schemas';
 
 // Types / Events

@@ -1,0 +1,99 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "Kafka fail rate by topic (5m)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum by (topic) (rate(kafka_messages_failed_total{service=\"consumer\"}[5m])) / (sum by (topic) (rate(kafka_messages_processed_total{service=\"consumer\"}[5m])) + sum by (topic) (rate(kafka_messages_failed_total{service=\"consumer\"}[5m])))",
+          "legendFormat": "{{topic}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "title": "Consumer lag by topic",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "max by (topic) (kafka_consumer_lag{service=\"consumer\", topic=~\"activity-events|user-events\"})",
+          "legendFormat": "{{topic}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 3,
+      "title": "Processing duration p95 (user-events)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, topic) (rate(kafka_message_processing_duration_ms_bucket{service=\"consumer\", topic=\"user-events\"}[5m])))",
+          "legendFormat": "p95",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 4,
+      "title": "Message throughput by topic",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum(rate(kafka_messages_processed_total{service=\"consumer\"}[5m])) by (topic)",
+          "legendFormat": "processed {{topic}}",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(kafka_messages_failed_total{service=\"consumer\"}[5m])) by (topic)",
+          "legendFormat": "failed {{topic}}",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "id": 5,
+      "title": "DLQ messages (failed total)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum(kafka_messages_failed_total{service=\"consumer\"}) by (topic)",
+          "legendFormat": "{{topic}}",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["mealio", "ops"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "timezone": "browser",
+  "title": "Mealio Ops — Kafka Health",
+  "uid": "mealio-ops",
+  "version": 1
+}

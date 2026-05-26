@@ -10,6 +10,8 @@ import {
   EventLogSchema,
   Inventory,
   InventorySchema,
+  KpiRollup,
+  KpiRollupSchema,
 } from './schemas';
 
 /** shared에서 공용으로 관리하는 옵션 (URL 제외) */
@@ -57,6 +59,7 @@ export class MongooseSchemasModule {
             schema: ChatbotConversationSchema,
           },
           { name: Inventory.name, schema: InventorySchema },
+          { name: KpiRollup.name, schema: KpiRollupSchema },
         ]),
       ],
       exports: [MongooseModule],
@@ -90,6 +93,7 @@ export class MongooseSchemasModule {
             schema: ChatbotConversationSchema,
           },
           { name: Inventory.name, schema: InventorySchema },
+          { name: KpiRollup.name, schema: KpiRollupSchema },
         ]),
       ],
       exports: [MongooseModule],

@@ -1,0 +1,83 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "grafana-mongodb-datasource", "uid": "mongodb" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "Recipe Favorite CVR (daily)",
+      "type": "timeseries",
+      "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] },
+      "targets": [
+        {
+          "collection": "kpi_rollups",
+          "queryType": "aggregate",
+          "aggregatePipeline": "[{\"$match\":{\"kpiId\":\"kpi_recipe_favorite_cvr\"}},{\"$sort\":{\"date\":1}},{\"$project\":{\"_id\":0,\"date\":1,\"value\":1,\"numerator\":1,\"denominator\":1}}]",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "grafana-mongodb-datasource", "uid": "mongodb" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "title": "Search Click Rate (daily)",
+      "type": "timeseries",
+      "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] },
+      "targets": [
+        {
+          "collection": "kpi_rollups",
+          "queryType": "aggregate",
+          "aggregatePipeline": "[{\"$match\":{\"kpiId\":\"kpi_search_click_rate\"}},{\"$sort\":{\"date\":1}},{\"$project\":{\"_id\":0,\"date\":1,\"value\":1,\"numerator\":1,\"denominator\":1}}]",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "grafana-mongodb-datasource", "uid": "mongodb" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 3,
+      "title": "Recommendation E2E Latency p95 (daily, ms)",
+      "type": "timeseries",
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "targets": [
+        {
+          "collection": "kpi_rollups",
+          "queryType": "aggregate",
+          "aggregatePipeline": "[{\"$match\":{\"kpiId\":\"kpi_recommendation_e2e_latency\"}},{\"$sort\":{\"date\":1}},{\"$project\":{\"_id\":0,\"date\":1,\"value\":1,\"stats\":1}}]",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "grafana-mongodb-datasource", "uid": "mongodb" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 4,
+      "title": "KPI Rollup History (all)",
+      "type": "table",
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "targets": [
+        {
+          "collection": "kpi_rollups",
+          "queryType": "aggregate",
+          "aggregatePipeline": "[{\"$sort\":{\"date\":-1}},{\"$limit\":50},{\"$project\":{\"_id\":0,\"kpiId\":1,\"date\":1,\"value\":1,\"numerator\":1,\"denominator\":1,\"computedAt\":1}}]",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 39,
+  "tags": ["mealio", "product"],
+  "templating": { "list": [] },
+  "time": { "from": "now-30d", "to": "now" },
+  "timezone": "browser",
+  "title": "Mealio Product — KPI Rollups",
+  "uid": "mealio-product",
+  "version": 1
+}
