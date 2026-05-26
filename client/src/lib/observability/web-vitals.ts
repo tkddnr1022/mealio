@@ -8,20 +8,15 @@ import { logger } from '@/lib/utils/logger';
 import { reportExceededWebVitalToSentry } from './web-vitals-sentry';
 
 /**
- * Web Vitals(LCP/INP/CLS 등) 수집·리포팅 모듈.
+ * Web Vitals(LCP/INP/CLS 등) 수집·리포팅 모듈 (SaaS-only).
  *
  * - 성능 목표·페이지별 예산은 `agent/frontend/spec/frontend_architecture_spec.md` §4에 정의되어 있다.
  * - 수집은 Google의 `web-vitals` 라이브러리를 사용하며, Next.js App Router에서는
  *   `next/web-vitals`의 `useReportWebVitals(reportWebVital)` 훅과도 호환된다.
- * - 전송은 `navigator.sendBeacon`을 우선 사용해 언로드 시점에도 유실을 줄이고,
- *   미지원 환경에서는 `fetch(..., { keepalive: true })`로 폴백한다.
+ * - production 예산 초과는 Sentry로 보고하고, 실시간 수집은 Vercel Analytics를 사용한다.
  *
  * 참고: Web Vitals v4+에서 FID는 INP로 대체되었다(Google, 2024-03). 본 모듈은 스펙상
  * "FID"가 가리키는 "입력 응답성 예산(100ms)"을 유지하되, 실제 수집·판정은 INP(≤200ms)로 한다.
- *
- * 환경 변수:
- * - `NEXT_PUBLIC_OBSERVABILITY_ENDPOINT` (`env.observabilityEndpoint`): 자체 수집 API URL(Phase D SaaS-only에서는 비움).
- *   - 미설정 시: HTTP 전송 생략. production에서 예산 초과는 Sentry로 보고, Vercel Analytics는 배포 환경에서 수집.
  *
  * 사용 예 (Next.js App Router):
  * ```tsx
@@ -60,9 +55,7 @@ export const WEB_VITAL_BUDGET: Partial<Record<WebVitalName, number>> = {
 export type WebVitalMetric = Metric | MetricType;
 
 export interface ReportWebVitalOptions {
-  /** 리포팅 수신 URL. 미지정 시 `env.observabilityEndpoint`를 사용 */
-  endpoint?: string;
-  /** 추가 메타데이터(유저 ID, AB 테스트 변형 등). 서버가 집계에 활용 */
+  /** 추가 메타데이터(유저 ID, AB 테스트 변형 등) */
   context?: Record<string, unknown>;
   /** dev 환경 외에도 console 로그를 강제로 남길지 여부 */
   debug?: boolean;
@@ -82,8 +75,6 @@ export interface WebVitalsReportPayload {
   [key: string]: unknown;
 }
 
-const DEFAULT_ENDPOINT = env.observabilityEndpoint;
-
 /**
  * 단일 Web Vitals 메트릭이 §4.1 예산을 초과했는지 판단한다.
  * 예산이 정의되지 않은 메트릭(FCP, TTFB 등)은 항상 false를 반환한다.
@@ -97,18 +88,16 @@ export function isBudgetExceeded(
 }
 
 /**
- * Web Vitals 메트릭을 리포팅 엔드포인트로 전송한다.
+ * Web Vitals 메트릭을 수집·보고한다 (SaaS-only).
  *
- * - 전송 우선순위: `navigator.sendBeacon` → `fetch({ keepalive: true })`.
- * - 엔드포인트가 비어 있으면 전송을 생략한다(dev에서는 콘솔로만 출력).
- * - 리포팅 실패는 앱 동작을 방해하지 않도록 조용히 무시한다.
+ * - dev/test: 콘솔 로그 출력.
+ * - production: 예산 초과 시 Sentry로 보고. 실시간 수집은 Vercel Analytics가 담당.
  */
 export function reportWebVital(
   metric: WebVitalMetric,
   options: ReportWebVitalOptions = {},
 ): void {
   const payload = buildPayload(metric, options.context);
-  const endpoint = options.endpoint ?? DEFAULT_ENDPOINT;
 
   if (!env.isProduction || options.debug) {
     const level = payload.exceededBudget ? 'warn' : 'info';
@@ -120,15 +109,9 @@ export function reportWebVital(
     );
   }
 
-  if (!endpoint) {
-    if (env.isProduction) {
-      reportExceededWebVitalToSentry(payload);
-    }
-    return;
+  if (env.isProduction) {
+    reportExceededWebVitalToSentry(payload);
   }
-  if (typeof window === 'undefined') return;
-
-  sendPayload(endpoint, payload);
 }
 
 /**
@@ -199,32 +182,3 @@ function buildPayload(
   };
 }
 
-function sendPayload(endpoint: string, payload: WebVitalsReportPayload): void {
-  const body = JSON.stringify(payload);
-
-  try {
-    if (
-      typeof navigator !== 'undefined' &&
-      typeof navigator.sendBeacon === 'function'
-    ) {
-      const blob = new Blob([body], { type: 'application/json' });
-      if (navigator.sendBeacon(endpoint, blob)) return;
-    }
-  } catch {
-    // sendBeacon 호출 자체가 실패하는 경우(예: CSP 위반)엔 fetch로 폴백
-  }
-
-  try {
-    void fetch(endpoint, {
-      method: 'POST',
-      body,
-      headers: { 'Content-Type': 'application/json' },
-      keepalive: true,
-      credentials: 'include',
-    }).catch(() => {
-      // 리포팅 실패는 사용자 흐름을 막지 않는다
-    });
-  } catch {
-    // fetch 동기 throw (env 폴리필 부재 등)도 무시
-  }
-}

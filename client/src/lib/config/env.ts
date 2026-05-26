@@ -46,11 +46,6 @@ export interface AppEnv {
    */
   readonly refreshCookieName: string;
   /**
-   * 자체 Web Vitals·analytics 수집 API URL(선택).
-   * Phase D SaaS-only: 비워 두고 Sentry + GA4 + Vercel Analytics를 사용한다.
-   */
-  readonly observabilityEndpoint: string;
-  /**
    * Sentry 브라우저 DSN. staging/production 권장, 로컬은 비워도 됨.
    */
   readonly sentryDsn: string;
@@ -70,7 +65,6 @@ const DEFAULTS = {
   apiPrefix: '/api/v1',
   authCookieName: 'accessToken',
   refreshCookieName: 'refreshToken',
-  observabilityEndpoint: '',
   sentryDsn: '',
   gaMeasurementId: '',
 } as const;
@@ -80,8 +74,6 @@ const RAW_ENV_MAP: Record<string, string | undefined> = {
   NEXT_PUBLIC_API_PREFIX: process.env.NEXT_PUBLIC_API_PREFIX,
   NEXT_PUBLIC_AUTH_COOKIE_NAME: process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME,
   NEXT_PUBLIC_REFRESH_COOKIE_NAME: process.env.NEXT_PUBLIC_REFRESH_COOKIE_NAME,
-  NEXT_PUBLIC_OBSERVABILITY_ENDPOINT:
-    process.env.NEXT_PUBLIC_OBSERVABILITY_ENDPOINT,
   NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
   NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
 };
@@ -161,14 +153,6 @@ function parseRefreshCookieName(): string {
   return raw;
 }
 
-function parseObservabilityEndpoint(): string {
-  const raw = readRaw('NEXT_PUBLIC_OBSERVABILITY_ENDPOINT');
-  return parseHttpUrl('NEXT_PUBLIC_OBSERVABILITY_ENDPOINT', raw, {
-    allowEmpty: true,
-    trimTrailingSlash: false,
-  });
-}
-
 function parseSentryDsn(): string {
   const raw = readRaw('NEXT_PUBLIC_SENTRY_DSN');
   if (raw === undefined) return DEFAULTS.sentryDsn;
@@ -200,7 +184,7 @@ function parseGaMeasurementId(): string {
 }
 
 function parseHttpUrl(
-  envName: 'NEXT_PUBLIC_API_BASE_URL' | 'NEXT_PUBLIC_OBSERVABILITY_ENDPOINT',
+  envName: 'NEXT_PUBLIC_API_BASE_URL',
   raw: string | undefined,
   options: { allowEmpty: boolean; trimTrailingSlash: boolean },
 ): string {
@@ -286,12 +270,6 @@ function buildEnv(): AppEnv {
     errors,
     runtime,
   );
-  const observabilityEndpoint = safeParse(
-    parseObservabilityEndpoint,
-    DEFAULTS.observabilityEndpoint,
-    errors,
-    runtime,
-  );
   const sentryDsn = safeParse(
     parseSentryDsn,
     DEFAULTS.sentryDsn,
@@ -313,7 +291,6 @@ function buildEnv(): AppEnv {
     apiPrefix,
     authCookieName,
     refreshCookieName,
-    observabilityEndpoint,
     sentryDsn,
     gaMeasurementId,
     validationErrors: Object.freeze(errors),
