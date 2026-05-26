@@ -10,8 +10,6 @@ policies:
     routes:
       - receiver: slack-product
         matchers:
-          - label: team
-            match: "="
-            value: product
+          - team = product
         group_by: ["alertname"]
         repeat_interval: 12h
