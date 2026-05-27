@@ -1,14 +1,10 @@
 'use client';
 
 import { Analytics } from '@vercel/analytics/react';
-import { usePathname, useSearchParams } from 'next/navigation';
 import { useReportWebVitals } from 'next/web-vitals';
 import { useEffect, useRef } from 'react';
 
-import {
-  registerAnalyticsDispatcher,
-  trackPageView,
-} from '@/lib/observability/analytics';
+import { registerAnalyticsDispatcher } from '@/lib/observability/analytics';
 import { createGa4Dispatcher } from '@/lib/observability/ga-dispatcher';
 import { reportWebVital } from '@/lib/observability/web-vitals';
 import { createSentryLogSink } from '@/lib/observability/sentry.client';
@@ -34,7 +30,7 @@ function bootstrapObservability(): () => void {
 
   if (env.gaMeasurementId) {
     unregisterGaDispatcher = registerAnalyticsDispatcher(
-      createGa4Dispatcher(env.gaMeasurementId),
+      createGa4Dispatcher(),
     );
   }
 
@@ -52,15 +48,16 @@ export function resetObservabilityBootstrapForTests(): void {
 }
 
 /**
- * 루트 레이아웃에서 1회 마운트 — GA4, Vercel Analytics, Web Vitals, 라우트 page_view.
+ * 루트 레이아웃에서 1회 마운트 — GA4, Vercel Analytics, Web Vitals.
  *
  * - `useReportWebVitals`는 Next가 제공하는 메트릭만 수집한다(중복 `registerWebVitals` 호출 없음).
- * - `trackPageView`는 pathname·searchParams 변경마다 실행된다(쿼리 변경 포함).
+ *
+ * **page_view 정책**: `GoogleAnalytics` 컴포넌트(@next/third-parties)가
+ * 초기 로드 시 `gtag('config', gaId)`를 통해 자동 pageview를 전송하고,
+ * SPA 라우트 전환은 GA Enhanced Measurement("Page changes based on browser history events")가 처리한다.
+ * 수동 `trackPageView` 호출은 사용하지 않는다.
  */
 export function ObservabilityBootstrap() {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const searchKey = searchParams.toString();
   const bootstrappedRef = useRef(false);
 
   useEffect(() => {
@@ -70,14 +67,6 @@ export function ObservabilityBootstrap() {
   }, []);
 
   useReportWebVitals(reportWebVital);
-
-  useEffect(() => {
-    const params =
-      searchKey.length > 0
-        ? Object.fromEntries(new URLSearchParams(searchKey).entries())
-        : undefined;
-    trackPageView(pathname, params);
-  }, [pathname, searchKey]);
 
   return (
     <>

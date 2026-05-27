@@ -1,5 +1,7 @@
 'use client';
 
+import { sendGAEvent } from '@next/third-parties/google';
+import { usePathname } from 'next/navigation';
 import {
   useCallback,
   useEffect,
@@ -7,11 +9,30 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { env } from '@/lib/config/env';
 import { cn } from '@/lib/utils/cn';
 
 const SCROLLBAR_THUMB_HEIGHT_SCALE = 1;
 const SCROLLBAR_VISIBLE_DURATION_MS = 500;
 const SCROLLBAR_TRACK_INSET_PX = 8;
+/** GA4 Enhanced Measurement scroll 이벤트와 동일한 임계치(%) */
+const GA_SCROLL_DEPTH_THRESHOLD = 90;
+
+function getScrollDepthPercent(el: HTMLElement): number {
+  const { clientHeight, scrollHeight, scrollTop } = el;
+  if (scrollHeight <= clientHeight) return 0;
+  const maxScroll = scrollHeight - clientHeight;
+  return Math.min(100, Math.round((scrollTop / maxScroll) * 100));
+}
+
+function sendGaScrollEvent(percentScrolled: number): void {
+  if (!env.gaMeasurementId) return;
+  try {
+    sendGAEvent('event', 'scroll', { percent_scrolled: percentScrolled });
+  } catch {
+    // GA 전송 실패는 앱 흐름을 막지 않는다
+  }
+}
 
 export interface CustomScrollbarProps {
   className?: string;
@@ -22,11 +43,17 @@ export function CustomScrollbar({
   className = '',
   children,
 }: CustomScrollbarProps) {
+  const pathname = usePathname();
   const scrollRef = useRef<HTMLDivElement>(null);
   const hideTimerRef = useRef<number | null>(null);
+  const scrollDepthSentRef = useRef(false);
   const [thumbHeight, setThumbHeight] = useState(0);
   const [thumbOffset, setThumbOffset] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    scrollDepthSentRef.current = false;
+  }, [pathname]);
 
   const clearHideTimer = useCallback(() => {
     if (hideTimerRef.current !== null) {
@@ -75,6 +102,18 @@ export function CustomScrollbar({
     }, SCROLLBAR_VISIBLE_DURATION_MS);
   }, [clearHideTimer]);
 
+  const reportScrollDepthOnUserScroll = useCallback(() => {
+    if (scrollDepthSentRef.current) return;
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const depth = getScrollDepthPercent(el);
+    if (depth < GA_SCROLL_DEPTH_THRESHOLD) return;
+
+    scrollDepthSentRef.current = true;
+    sendGaScrollEvent(GA_SCROLL_DEPTH_THRESHOLD);
+  }, []);
+
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -83,6 +122,7 @@ export function CustomScrollbar({
     const handleScroll = () => {
       updateThumb();
       showScrollbarTemporarily();
+      reportScrollDepthOnUserScroll();
     };
 
     const handleResize = () => {
@@ -101,7 +141,12 @@ export function CustomScrollbar({
       window.removeEventListener('resize', handleResize);
       clearHideTimer();
     };
-  }, [clearHideTimer, showScrollbarTemporarily, updateThumb]);
+  }, [
+    clearHideTimer,
+    reportScrollDepthOnUserScroll,
+    showScrollbarTemporarily,
+    updateThumb,
+  ]);
 
   return (
     <div className="relative min-h-0 w-full flex-1">

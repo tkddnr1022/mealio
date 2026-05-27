@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist_Mono, Noto_Sans_KR, Plus_Jakarta_Sans } from 'next/font/google';
-import { Suspense } from 'react';
+import { GoogleAnalytics } from '@next/third-parties/google';
 import { AnalyticsAuthSync } from '@/components/observability/AnalyticsAuthSync';
 import { ObservabilityBootstrap } from '@/components/observability/ObservabilityBootstrap';
 import { AppRootFrame } from '@/components/layout/AppRootFrame';
@@ -126,9 +126,7 @@ export default function RootLayout({
       className={`${notoSansKr.variable} ${geistMono.variable} ${plusJakartaSans.variable}`}
     >
       <body className="antialiased">
-        <Suspense fallback={null}>
-          <ObservabilityBootstrap />
-        </Suspense>
+        <ObservabilityBootstrap />
         <AppQueryClientProvider>
           <ToastProvider>
             <AuthProvider>
@@ -138,6 +136,9 @@ export default function RootLayout({
           </ToastProvider>
         </AppQueryClientProvider>
       </body>
+      {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+      )}
     </html>
   );
 }
