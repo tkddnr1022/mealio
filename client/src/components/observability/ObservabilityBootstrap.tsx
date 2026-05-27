@@ -11,10 +11,7 @@ import {
 } from '@/lib/observability/analytics';
 import { createGa4Dispatcher } from '@/lib/observability/ga-dispatcher';
 import { reportWebVital } from '@/lib/observability/web-vitals';
-import {
-  createSentryLogSink,
-  initClientSentry,
-} from '@/lib/observability/sentry.client';
+import { createSentryLogSink } from '@/lib/observability/sentry.client';
 import { env } from '@/lib/config/env';
 import { setLogSink } from '@/lib/utils/logger';
 
@@ -23,7 +20,8 @@ let observabilityBootstrapped = false;
 let unregisterGaDispatcher: (() => void) | null = null;
 
 /**
- * Sentry·GA4 dispatcher·log sink를 1회만 등록한다.
+ * GA4 dispatcher·log sink를 1회만 등록한다.
+ * Sentry SDK 초기화는 `instrumentation-client.ts`에서 자동 수행된다.
  * @returns analytics dispatcher 해제 함수 (useEffect cleanup용)
  */
 function bootstrapObservability(): () => void {
@@ -32,7 +30,6 @@ function bootstrapObservability(): () => void {
   }
   observabilityBootstrapped = true;
 
-  initClientSentry();
   setLogSink(createSentryLogSink());
 
   if (env.gaMeasurementId) {
@@ -55,7 +52,7 @@ export function resetObservabilityBootstrapForTests(): void {
 }
 
 /**
- * 루트 레이아웃에서 1회 마운트 — Sentry, GA4, Vercel Analytics, Web Vitals, 라우트 page_view.
+ * 루트 레이아웃에서 1회 마운트 — GA4, Vercel Analytics, Web Vitals, 라우트 page_view.
  *
  * - `useReportWebVitals`는 Next가 제공하는 메트릭만 수집한다(중복 `registerWebVitals` 호출 없음).
  * - `trackPageView`는 pathname·searchParams 변경마다 실행된다(쿼리 변경 포함).

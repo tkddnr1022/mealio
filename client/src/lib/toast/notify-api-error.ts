@@ -1,5 +1,4 @@
 import { ApiError, isApiError } from '@/lib/api/error';
-import { reportApiErrorToSentry } from '@/lib/observability/api-error-sentry';
 
 import { enqueueToast } from './toast-bridge';
 import type { ToastActionSpec, ToastVariant } from './toast.types';
@@ -52,7 +51,6 @@ export function notifyApiError(
   options?: NotifyApiErrorOptions,
 ): string | null {
   const api = isApiError(error) ? error : ApiError.fromUnknown(error);
-  reportApiErrorToSentry(api);
 
   const dedupeKey =
     options?.dedupeKey ??

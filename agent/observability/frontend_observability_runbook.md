@@ -34,6 +34,18 @@ Vercel 배포 시 Web Vitals는 Vercel Analytics 대시보드에서 확인한다
 2. Sentry Issues에서 `service:client` 태그 확인
 3. `correlationId` 태그가 백엔드 로그 `X-Correlation-Id`와 동일한지 대조
 
+### 3-1. Sentry 캡처 레이어 (중복 방지 정책)
+
+```
+L1 Global        instrumentation-client.ts   SDK 자동 (window.onerror 등)
+L2 Boundary      error.tsx / global-error.tsx 클라이언트 렌더 에러 (digest 있으면 건너뜀)
+L3 API           api-error-sentry.ts         5xx ApiError만 captureException (HttpClient throw 시점)
+L4 Logger        sentry.client.ts (sink)     warn→message, error→exception (ApiError 제외)
+```
+
+- L4는 `isApiError(err)` 이면 캡처 건너뜀 → L3과 중복 제거
+- L2는 `error.digest` 이면 캡처 건너뜀 → 서버 `onRequestError`와 중복 제거
+
 ### 4. Web Vitals
 
 - **Vercel**: 프로젝트 → Analytics → Web Vitals (LCP/INP/CLS)
@@ -63,6 +75,9 @@ GA4만으로는 도메인 CVR·추천 지연을 확정할 수 없다. staging에
 
 ## 관련 코드
 
+- Sentry 초기화 (L1): `client/src/instrumentation-client.ts`
+- Sentry 서버/엣지: `client/sentry.server.config.ts`, `client/sentry.edge.config.ts`
+- Sentry 레이어 헬퍼 (L3/L4): `client/src/lib/observability/sentry.client.ts`, `client/src/lib/observability/api-error-sentry.ts`
 - 부트스트랩: `client/src/components/observability/ObservabilityBootstrap.tsx`
 - 이벤트 상수: `client/src/lib/observability/analytics-events.ts`
 - 계측 체크리스트: [frontend_event_instrumentation.md](./frontend_event_instrumentation.md)

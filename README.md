@@ -47,6 +47,14 @@ pnpm run db:prisma:seed
 pnpm run db:mongoose:seed
 ```
 
+### CI Secrets (GitHub Actions)
+
+| Secret | 용도 | 비고 |
+|--------|------|------|
+| `SENTRY_ORG` | Sentry 조직 slug | 소스맵 업로드 대상 |
+| `SENTRY_PROJECT` | Sentry 프로젝트 slug | 소스맵 업로드 대상 |
+| `SENTRY_AUTH_TOKEN` | Sentry Auth Token | `org:read`, `project:releases` 권한 필요 |
+
 ### 워크스페이스
 
 | 경로 | 패키지명 | 설명 |

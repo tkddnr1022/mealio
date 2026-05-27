@@ -1,15 +1,13 @@
 'use client';
 
-import * as Sentry from '@sentry/browser';
+import * as Sentry from '@sentry/nextjs';
 
-import { env } from '@/lib/config/env';
+import { isApiError } from '@/lib/api/error';
 import type { LogContext, LogLevel, LogSink } from '@/lib/utils/logger';
 
 const SENTRY_TAG_SERVICE = 'service';
 const SENTRY_TAG_CORRELATION_ID = 'correlationId';
 const REDACTED = '[Filtered]';
-
-let initialized = false;
 
 function scrubContext(context: LogContext): LogContext {
   const out: LogContext = {};
@@ -29,60 +27,15 @@ function scrubContext(context: LogContext): LogContext {
   return out;
 }
 
-function getClientSampleRate(): number {
-  const raw = process.env.NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE;
-  if (!raw) return env.isProduction ? 0.1 : 1;
-  const parsed = parseFloat(raw);
-  if (!Number.isFinite(parsed) || parsed < 0 || parsed > 1) return 0.1;
-  return parsed;
-}
-
 /**
- * 브라우저 Sentry SDK 초기화. DSN이 없으면 no-op.
+ * SDK가 초기화된 상태인지 확인한다.
+ * `@sentry/nextjs`에서는 `instrumentation-client.ts`에서 자동 초기화되므로
+ * DSN 존재 여부로 판별한다.
  */
-export function initClientSentry(): boolean {
-  if (initialized || typeof window === 'undefined') {
-    return initialized;
-  }
-  const dsn = env.sentryDsn;
-  if (!dsn) return false;
-
-  Sentry.init({
-    dsn,
-    environment: env.runtime,
-    tracesSampleRate: getClientSampleRate(),
-    beforeSend(event) {
-      if (event.request?.headers) {
-        const headers = { ...event.request.headers };
-        for (const key of Object.keys(headers)) {
-          if (
-            key.toLowerCase() === 'authorization' ||
-            key.toLowerCase() === 'cookie'
-          ) {
-            headers[key] = REDACTED;
-          }
-        }
-        event.request.headers = headers;
-      }
-      return event;
-    },
-  });
-
-  Sentry.setTag(SENTRY_TAG_SERVICE, 'client');
-  initialized = true;
-  return true;
-}
-
 export function isClientSentryEnabled(): boolean {
-  return initialized && Boolean(env.sentryDsn);
+  return Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN);
 }
 
-/**
- * logger {@link setLogSink}용 — warn/error 및 correlationId 태깅.
- *
- * 정책: `warn` → Sentry warning, `error`(+ Error 객체) → captureException,
- * 그 외 레벨은 Sentry로 보내지 않는다.
- */
 export function createSentryLogSink(): LogSink {
   return (level: LogLevel, message: string, context?: LogContext) => {
     if (!isClientSentryEnabled()) return;
@@ -104,6 +57,7 @@ export function createSentryLogSink(): LogSink {
 
       const err = context?.error;
       if (level === 'error' && err instanceof Error) {
+        if (isApiError(err)) return;
         Sentry.captureException(err);
         return;
       }

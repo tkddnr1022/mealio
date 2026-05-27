@@ -1,5 +1,6 @@
 'use client';
 
+import * as Sentry from '@sentry/nextjs';
 import { useEffect } from 'react';
 import { Info } from 'lucide-react';
 
@@ -14,7 +15,10 @@ export default function RootError({ error }: RootErrorProps) {
   const message = resolveErrorBoundaryMessage(error);
 
   useEffect(() => {
-    console.error('[RootError]', error);
+    if (error.digest) return;
+    Sentry.captureException(error, {
+      tags: { boundary: 'root' },
+    });
   }, [error]);
 
   return (

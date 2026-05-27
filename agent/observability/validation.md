@@ -96,10 +96,22 @@
 
 ### 5.3 Client
 
+**캡처 레이어 구조** (`@sentry/nextjs` 기반):
+
+| 레이어 | 파일 | 역할 | 중복 방지 |
+|--------|------|------|-----------|
+| L1 Global | `instrumentation-client.ts` | SDK 자동 (window.onerror / unhandledrejection) | Dedupe integration |
+| L2 Boundary | `error.tsx` · `global-error.tsx` | React 렌더링 에러 (클라이언트 only) | `digest` 있으면 건너뜀 (서버 onRequestError가 처리) |
+| L3 API | `api-error-sentry.ts` | 5xx ApiError captureException (HttpClient throw 시점) | 4xx 제외 |
+| L4 Logger | `sentry.client.ts` (log sink) | warn→message, error→exception | ApiError 건너뜀 (L3이 처리) |
+
 | # | 시나리오 | 기대 결과 |
 |---|----------|-----------|
-| 5.3.1 | 5xx `ApiError` Toast 발생 | Sentry 이슈: `service:client`, `correlationId` 태그 포함 |
-| 5.3.2 | `logger.error` 호출 | Sentry message/exception 수신 (DSN 설정 시) |
+| 5.3.1 | 5xx `ApiError` Toast 발생 | Sentry 이슈: `service:client`, `correlationId` 태그 (L3 경유) |
+| 5.3.2 | `logger.error` 호출 (non-ApiError) | Sentry exception 수신 (L4 경유, DSN 설정 시) |
+| 5.3.3 | `logger.error` 호출 (ApiError) | Sentry 이벤트 생성 **안 됨** (L3에서 이미 처리) |
+| 5.3.4 | 클라이언트 렌더링 에러 | Sentry 이슈: `boundary:root` 태그 (L2 경유) |
+| 5.3.5 | 서버 컴포넌트 에러 → error.tsx 도달 | 클라이언트 중복 전송 **안 됨** (digest 존재, 서버 onRequestError가 처리) |
 
 ---
 

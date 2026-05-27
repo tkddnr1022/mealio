@@ -1,16 +1,10 @@
 'use client';
 
-import * as Sentry from '@sentry/browser';
+import * as Sentry from '@sentry/nextjs';
 
 import { isApiError } from '@/lib/api/error';
 import { isClientSentryEnabled, setSentryCorrelationTag } from './sentry.client';
 
-/**
- * ApiError 발생 시 correlationId 태그 및 5xx 예외를 Sentry에 보고한다.
- *
- * - 4xx: scope 태그만 설정(이슈 생성 없음)
- * - 5xx: `captureException` + `service`·`correlationId` 태그
- */
 export function reportApiErrorToSentry(error: unknown): void {
   if (!isClientSentryEnabled() || !isApiError(error)) return;
 

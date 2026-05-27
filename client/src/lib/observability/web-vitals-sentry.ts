@@ -1,6 +1,6 @@
 'use client';
 
-import * as Sentry from '@sentry/browser';
+import * as Sentry from '@sentry/nextjs';
 
 import type { WebVitalName, WebVitalsReportPayload } from './web-vitals';
 import { isClientSentryEnabled } from './sentry.client';

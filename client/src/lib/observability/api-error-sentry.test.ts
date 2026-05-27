@@ -9,7 +9,7 @@ const withScope = vi.fn((cb: (scope: { setTag: typeof setTag }) => void) => {
   cb({ setTag });
 });
 
-vi.mock('@sentry/browser', () => ({
+vi.mock('@sentry/nextjs', () => ({
   captureException,
   withScope,
 }));
