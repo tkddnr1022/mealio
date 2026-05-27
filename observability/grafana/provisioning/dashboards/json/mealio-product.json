@@ -7,7 +7,10 @@
   "links": [],
   "panels": [
     {
-      "datasource": { "type": "haohanyang-mongodb-datasource", "uid": "mongodb" },
+      "datasource": {
+        "type": "haohanyang-mongodb-datasource",
+        "uid": "mongodb"
+      },
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
       "id": 1,
       "title": "Recipe Favorite CVR (daily)",
@@ -23,7 +26,10 @@
       ]
     },
     {
-      "datasource": { "type": "haohanyang-mongodb-datasource", "uid": "mongodb" },
+      "datasource": {
+        "type": "haohanyang-mongodb-datasource",
+        "uid": "mongodb"
+      },
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
       "id": 2,
       "title": "Search Click Rate (daily)",
@@ -39,7 +45,10 @@
       ]
     },
     {
-      "datasource": { "type": "haohanyang-mongodb-datasource", "uid": "mongodb" },
+      "datasource": {
+        "type": "haohanyang-mongodb-datasource",
+        "uid": "mongodb"
+      },
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
       "id": 3,
       "title": "Recommendation E2E Latency p95 (daily, ms)",
@@ -55,7 +64,10 @@
       ]
     },
     {
-      "datasource": { "type": "haohanyang-mongodb-datasource", "uid": "mongodb" },
+      "datasource": {
+        "type": "haohanyang-mongodb-datasource",
+        "uid": "mongodb"
+      },
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
       "id": 4,
       "title": "KPI Rollup History (all)",

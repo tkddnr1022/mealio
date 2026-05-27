@@ -62,10 +62,7 @@ export function createSentryLogSink(): LogSink {
         return;
       }
 
-      Sentry.captureMessage(
-        message,
-        level === 'error' ? 'error' : 'warning',
-      );
+      Sentry.captureMessage(message, level === 'error' ? 'error' : 'warning');
     });
   };
 }

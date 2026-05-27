@@ -91,7 +91,10 @@ function applyCaptureScope(
     scope.setTag(SENTRY_TAG_OFFSET, context.offset);
   }
   if (context?.extra) {
-    scope.setContext('extra', scrubObject(context.extra) as Record<string, unknown>);
+    scope.setContext(
+      'extra',
+      scrubObject(context.extra) as Record<string, unknown>,
+    );
   }
 }
 

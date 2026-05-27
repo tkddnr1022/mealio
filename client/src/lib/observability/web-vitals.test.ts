@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  isBudgetExceeded,
-  WEB_VITAL_BUDGET,
-} from './web-vitals';
+import { isBudgetExceeded, WEB_VITAL_BUDGET } from './web-vitals';
 
 describe('WEB_VITAL_BUDGET', () => {
   it('matches frontend spec §4.1 targets (LCP 2.5s, INP 200ms, CLS 0.1)', () => {

@@ -29,9 +29,7 @@ function bootstrapObservability(): () => void {
   setLogSink(createSentryLogSink());
 
   if (env.gaMeasurementId) {
-    unregisterGaDispatcher = registerAnalyticsDispatcher(
-      createGa4Dispatcher(),
-    );
+    unregisterGaDispatcher = registerAnalyticsDispatcher(createGa4Dispatcher());
   }
 
   return () => {
@@ -68,9 +66,5 @@ export function ObservabilityBootstrap() {
 
   useReportWebVitals(reportWebVital);
 
-  return (
-    <>
-      {env.isProduction ? <Analytics /> : null}
-    </>
-  );
+  return <>{env.isProduction ? <Analytics /> : null}</>;
 }

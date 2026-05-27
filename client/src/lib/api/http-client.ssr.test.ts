@@ -29,5 +29,4 @@ describe('HttpClient SSR auth behavior', () => {
       'https://api.mealio.test/api/v1/users/me',
     );
   });
-
 });

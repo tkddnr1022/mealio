@@ -3,7 +3,10 @@
 import * as Sentry from '@sentry/nextjs';
 
 import { isApiError } from '@/lib/api/error';
-import { isClientSentryEnabled, setSentryCorrelationTag } from './sentry.client';
+import {
+  isClientSentryEnabled,
+  setSentryCorrelationTag,
+} from './sentry.client';
 
 export function reportApiErrorToSentry(error: unknown): void {
   if (!isClientSentryEnabled() || !isApiError(error)) return;
@@ -15,9 +18,7 @@ export function reportApiErrorToSentry(error: unknown): void {
   Sentry.captureException(error, {
     tags: {
       service: 'client',
-      ...(error.correlationId
-        ? { correlationId: error.correlationId }
-        : {}),
+      ...(error.correlationId ? { correlationId: error.correlationId } : {}),
     },
     extra: {
       status: error.status,

@@ -37,7 +37,4 @@ export const KpiRollupSchema = SchemaFactory.createForClass(KpiRollup);
 
 KpiRollupSchema.index({ kpiId: 1, date: 1 }, { unique: true });
 KpiRollupSchema.index({ kpiId: 1, computedAt: -1 });
-KpiRollupSchema.index(
-  { computedAt: 1 },
-  { expireAfterSeconds: 34560000 },
-);
+KpiRollupSchema.index({ computedAt: 1 }, { expireAfterSeconds: 34560000 });

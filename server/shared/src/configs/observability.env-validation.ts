@@ -38,13 +38,10 @@ export function buildObservabilityEnvRules(
     SENTRY_DSN: Joi.string().uri().optional().allow(''),
     SLOW_QUERY_THRESHOLD_MS: Joi.when('METRICS_ENABLED', {
       is: metricsEnabledOn,
-      then: Joi.string()
-        .pattern(/^\d+$/)
-        .required()
-        .messages({
-          'any.required':
-            'SLOW_QUERY_THRESHOLD_MS is required when METRICS_ENABLED=true',
-        }),
+      then: Joi.string().pattern(/^\d+$/).required().messages({
+        'any.required':
+          'SLOW_QUERY_THRESHOLD_MS is required when METRICS_ENABLED=true',
+      }),
       otherwise: Joi.optional(),
     }),
     LOG_SAMPLE_RATE: Joi.when('METRICS_ENABLED', {
@@ -62,12 +59,9 @@ export function buildObservabilityEnvRules(
   if (options.requireMetricsPort) {
     rules.METRICS_PORT = Joi.when('METRICS_ENABLED', {
       is: metricsEnabledOn,
-      then: Joi.string()
-        .pattern(/^\d+$/)
-        .required()
-        .messages({
-          'any.required': 'METRICS_PORT is required when METRICS_ENABLED=true',
-        }),
+      then: Joi.string().pattern(/^\d+$/).required().messages({
+        'any.required': 'METRICS_PORT is required when METRICS_ENABLED=true',
+      }),
       otherwise: Joi.optional(),
     });
   }
