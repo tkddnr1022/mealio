@@ -19,9 +19,9 @@ function mutationDedupeKey(
 }
 
 /**
- * {@link QueryClient} 생성 시 `queryCache`에 넘기는 전역 `onError`.
+ * {@link QueryClient} `queryCache` 전역 `onError`에서 API 실패 Toast를 표시한다.
  */
-export function globalQueryCacheOnError(
+export function showGlobalQueryErrorToast(
   error: Error,
   query: Query<unknown, unknown, unknown, readonly unknown[]>,
 ): void {
@@ -33,9 +33,9 @@ export function globalQueryCacheOnError(
 }
 
 /**
- * {@link QueryClient} 생성 시 `mutationCache`에 넘기는 전역 `onError`.
+ * {@link QueryClient} `mutationCache` 전역 `onError`에서 API 실패 Toast를 표시한다.
  */
-export function globalMutationCacheOnError(
+export function showGlobalMutationErrorToast(
   error: Error,
   _variables: unknown,
   _context: unknown,

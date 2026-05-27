@@ -10,8 +10,6 @@ import {
   CORRELATION_ID_HEADER,
   defaultCorrelationIdGenerator,
 } from './correlation-id';
-import { reportApiErrorToSentry } from '@/lib/observability/api-error-sentry';
-
 import { ApiError } from './error';
 import { parseErrorResponse } from './error.parser';
 import { buildQueryString, type Query } from './query';
@@ -208,56 +206,36 @@ export class HttpClient {
     let refreshTried = false;
 
     let lastError: ApiError | null = null;
-    try {
-      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        try {
-          const response = await this.executeAttempt({
-            method,
-            url,
-            path,
-            headers,
-            body: serializedBody,
-            correlationId,
-            attempt,
-            signal: options.signal,
-            timeoutMs,
-          });
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const response = await this.executeAttempt({
+          method,
+          url,
+          path,
+          headers,
+          body: serializedBody,
+          correlationId,
+          attempt,
+          signal: options.signal,
+          timeoutMs,
+        });
 
-          if (!response.ok) {
-            if (
-              this.shouldAttemptTokenRefresh(path, response.status, refreshTried)
-            ) {
-              refreshTried = true;
-              const refreshed = await this.refreshAccessTokenWithLock();
-              if (refreshed) {
-                attempt -= 1;
-                continue;
-              }
-            }
-            const apiError = await parseErrorResponse(response, correlationId);
-            if (
-              attempt < maxAttempts &&
-              retryPolicy &&
-              isRetryableStatus(response.status, retryPolicy)
-            ) {
-              await sleep(computeBackoffMs(retryPolicy, attempt));
-              lastError = apiError;
+        if (!response.ok) {
+          if (
+            this.shouldAttemptTokenRefresh(path, response.status, refreshTried)
+          ) {
+            refreshTried = true;
+            const refreshed = await this.refreshAccessTokenWithLock();
+            if (refreshed) {
+              attempt -= 1;
               continue;
             }
-            throw apiError;
           }
-
-          return (await parseResponseBody(response)) as T;
-        } catch (error) {
-          const apiError =
-            error instanceof ApiError
-              ? error
-              : ApiError.fromUnknown(error, correlationId);
+          const apiError = await parseErrorResponse(response, correlationId);
           if (
             attempt < maxAttempts &&
             retryPolicy &&
-            apiError.status === 0 &&
-            !options.signal?.aborted
+            isRetryableStatus(response.status, retryPolicy)
           ) {
             await sleep(computeBackoffMs(retryPolicy, attempt));
             lastError = apiError;
@@ -265,12 +243,27 @@ export class HttpClient {
           }
           throw apiError;
         }
+
+        return (await parseResponseBody(response)) as T;
+      } catch (error) {
+        const apiError =
+          error instanceof ApiError
+            ? error
+            : ApiError.fromUnknown(error, correlationId);
+        if (
+          attempt < maxAttempts &&
+          retryPolicy &&
+          apiError.status === 0 &&
+          !options.signal?.aborted
+        ) {
+          await sleep(computeBackoffMs(retryPolicy, attempt));
+          lastError = apiError;
+          continue;
+        }
+        throw apiError;
       }
-      throw lastError ?? new ApiError({ status: 0, message: 'unreachable' });
-    } catch (error) {
-      reportApiErrorToSentry(error);
-      throw error;
     }
+    throw lastError ?? new ApiError({ status: 0, message: 'unreachable' });
   }
 
   private async executeAttempt(args: {

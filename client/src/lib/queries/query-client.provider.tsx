@@ -6,7 +6,7 @@
  * - App Router 최상단 Provider에서 QueryClient를 1회 생성해 재사용한다.
  * - 전역 기본값은 `@/lib/config/cache.config`의 `QUERY_DEFAULTS`를 사용한다.
  * - 전역 오류 토스트: `QueryCache` / `MutationCache`의 `onError`에서
- *   {@link globalQueryCacheOnError} · {@link globalMutationCacheOnError} 호출.
+ *   {@link showGlobalQueryErrorToast} · {@link showGlobalMutationErrorToast} 호출.
  *   개별 쿼리는 `meta.suppressGlobalErrorToast` / `meta.errorToastTitle`로 조정한다.
  * - 401(`ApiError`)은 `meta.currentUrl` 기반으로 로그인 페이지로 공통 네비게이션한다.
  * - 개발 환경에서만 Devtools를 동적으로 로드해 프로덕션 번들을 늘리지 않는다.
@@ -28,9 +28,10 @@ import { isApiError } from '@/lib/api/error';
 import { buildLoginUrl } from '@/lib/auth/routes';
 import { QUERY_DEFAULTS } from '@/lib/config/cache.config';
 import { env } from '@/lib/config/env';
+import { reportApiErrorToSentry } from '@/lib/observability/api-error-sentry';
 import {
-  globalMutationCacheOnError,
-  globalQueryCacheOnError,
+  showGlobalMutationErrorToast,
+  showGlobalQueryErrorToast,
 } from '@/lib/queries/global-query-error-toast';
 
 type QueryMetaLike = { currentUrl?: string | null };
@@ -50,13 +51,15 @@ function createQueryClient(
     queryCache: new QueryCache({
       onError: (error, query) => {
         if (handleUnauthorized(error, query.meta)) return;
-        globalQueryCacheOnError(error as Error, query);
+        reportApiErrorToSentry(error);
+        showGlobalQueryErrorToast(error as Error, query);
       },
     }),
     mutationCache: new MutationCache({
       onError: (error, variables, context, mutation) => {
         if (handleUnauthorized(error, mutation.meta)) return;
-        globalMutationCacheOnError(
+        reportApiErrorToSentry(error);
+        showGlobalMutationErrorToast(
           error as Error,
           variables,
           context,

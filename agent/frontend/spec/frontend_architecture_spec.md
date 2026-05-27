@@ -226,7 +226,7 @@ React Query(TanStack Query) 기반. 쿼리 키 계층화·`staleTime`·`cacheTim
 |------|------|
 | **client/src/lib/queries/** | React Query `QueryClient` 공급·쿼리 키·훅·전역 오류 토스트 어댑터 |
 | client/src/lib/queries/query-client.provider.tsx | `AppQueryClientProvider`(Client). `QueryClientProvider` + devtools, SSR-safe `QueryClient` 생성. `QueryCache`/`MutationCache`에 `onError` 등록 → §5.4 `notifyApiError` 연동 |
-| client/src/lib/queries/global-query-error-toast.ts | `globalQueryCacheOnError` / `globalMutationCacheOnError` — 전역 `onError`에서 `notifyApiError` 호출, `meta`로 스킵·제목 오버라이드(§5.4) |
+| client/src/lib/queries/global-query-error-toast.ts | `showGlobalQueryErrorToast` / `showGlobalMutationErrorToast` — 전역 `onError`에서 `notifyApiError` 호출, `meta`로 스킵·제목 오버라이드(§5.4) |
 | client/src/lib/queries/react-query-meta.d.ts | TanStack `Register` 확장 — `queryMeta`·`mutationMeta`에 `suppressGlobalErrorToast`, `errorToastTitle` |
 | client/src/lib/queries/recipe.queries.ts | `recipeQueries` 키, `useRecipeList` / `useRecipeDetail` / `useRecipeSearch` / `useRecipeSummaries` / `useRecommendedRecipes` |
 | client/src/lib/queries/ingredient.queries.ts | `ingredientQueries` 키, `useIngredientList` / `useIngredientSearch` |
