@@ -17,10 +17,13 @@ jobs:
         include:
           - package: client
             script: ci:lint:client
+            needs_shared: false
           - package: producer
             script: ci:lint:producer
+            needs_shared: true
           - package: consumer
             script: ci:lint:consumer
+            needs_shared: true
     steps:
       - uses: actions/checkout@v4
 
@@ -35,6 +38,10 @@ jobs:
 
       - name: Install dependencies
         run: pnpm run ci:install
+
+      - name: Build @mealio/shared
+        if: matrix.needs_shared
+        run: pnpm run ci:build:shared
 
       - name: Run lint
         run: pnpm run ${{ matrix.script }}
