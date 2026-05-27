@@ -7,7 +7,7 @@
   "links": [],
   "panels": [
     {
-      "datasource": { "type": "grafana-mongodb-datasource", "uid": "mongodb" },
+      "datasource": { "type": "haohanyang-mongodb-datasource", "uid": "mongodb" },
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
       "id": 1,
       "title": "Recipe Favorite CVR (daily)",
@@ -16,14 +16,14 @@
       "targets": [
         {
           "collection": "kpi_rollups",
-          "queryType": "aggregate",
-          "aggregatePipeline": "[{\"$match\":{\"kpiId\":\"kpi_recipe_favorite_cvr\"}},{\"$sort\":{\"date\":1}},{\"$project\":{\"_id\":0,\"date\":1,\"value\":1,\"numerator\":1,\"denominator\":1}}]",
+          "queryLanguage": "json",
+          "queryText": "[{\"$match\":{\"kpiId\":\"kpi_recipe_favorite_cvr\"}},{\"$sort\":{\"date\":1}},{\"$project\":{\"_id\":0,\"time\":{\"$toDate\":\"$date\"},\"value\":1,\"numerator\":1,\"denominator\":1}}]",
           "refId": "A"
         }
       ]
     },
     {
-      "datasource": { "type": "grafana-mongodb-datasource", "uid": "mongodb" },
+      "datasource": { "type": "haohanyang-mongodb-datasource", "uid": "mongodb" },
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
       "id": 2,
       "title": "Search Click Rate (daily)",
@@ -32,14 +32,14 @@
       "targets": [
         {
           "collection": "kpi_rollups",
-          "queryType": "aggregate",
-          "aggregatePipeline": "[{\"$match\":{\"kpiId\":\"kpi_search_click_rate\"}},{\"$sort\":{\"date\":1}},{\"$project\":{\"_id\":0,\"date\":1,\"value\":1,\"numerator\":1,\"denominator\":1}}]",
+          "queryLanguage": "json",
+          "queryText": "[{\"$match\":{\"kpiId\":\"kpi_search_click_rate\"}},{\"$sort\":{\"date\":1}},{\"$project\":{\"_id\":0,\"time\":{\"$toDate\":\"$date\"},\"value\":1,\"numerator\":1,\"denominator\":1}}]",
           "refId": "A"
         }
       ]
     },
     {
-      "datasource": { "type": "grafana-mongodb-datasource", "uid": "mongodb" },
+      "datasource": { "type": "haohanyang-mongodb-datasource", "uid": "mongodb" },
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
       "id": 3,
       "title": "Recommendation E2E Latency p95 (daily, ms)",
@@ -48,14 +48,14 @@
       "targets": [
         {
           "collection": "kpi_rollups",
-          "queryType": "aggregate",
-          "aggregatePipeline": "[{\"$match\":{\"kpiId\":\"kpi_recommendation_e2e_latency\"}},{\"$sort\":{\"date\":1}},{\"$project\":{\"_id\":0,\"date\":1,\"value\":1,\"stats\":1}}]",
+          "queryLanguage": "json",
+          "queryText": "[{\"$match\":{\"kpiId\":\"kpi_recommendation_e2e_latency\"}},{\"$sort\":{\"date\":1}},{\"$project\":{\"_id\":0,\"time\":{\"$toDate\":\"$date\"},\"value\":1,\"stats\":1}}]",
           "refId": "A"
         }
       ]
     },
     {
-      "datasource": { "type": "grafana-mongodb-datasource", "uid": "mongodb" },
+      "datasource": { "type": "haohanyang-mongodb-datasource", "uid": "mongodb" },
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
       "id": 4,
       "title": "KPI Rollup History (all)",
@@ -64,8 +64,8 @@
       "targets": [
         {
           "collection": "kpi_rollups",
-          "queryType": "aggregate",
-          "aggregatePipeline": "[{\"$sort\":{\"date\":-1}},{\"$limit\":50},{\"$project\":{\"_id\":0,\"kpiId\":1,\"date\":1,\"value\":1,\"numerator\":1,\"denominator\":1,\"computedAt\":1}}]",
+          "queryLanguage": "json",
+          "queryText": "[{\"$sort\":{\"date\":-1}},{\"$limit\":50},{\"$project\":{\"_id\":0,\"kpiId\":1,\"date\":1,\"value\":1,\"numerator\":1,\"denominator\":1,\"computedAt\":1}}]",
           "refId": "A"
         }
       ]

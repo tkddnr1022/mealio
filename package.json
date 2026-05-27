@@ -17,6 +17,7 @@
     "start:consumer": "npm run start:dev -w server/consumer",
     "format": "prettier --write .",
     "verify:design-contrast": "node agent/common/verify-design-token-contrast.mjs",
+    "kpi:rollup": "pnpm --filter consumer run job:kpi-rollup",
     "ci": "pnpm run ci:install && pnpm run ci:lint && pnpm run ci:build && pnpm run ci:test",
     "ci:install": "pnpm install --frozen-lockfile",
     "ci:lint": "pnpm run ci:lint:client && pnpm run ci:lint:producer && pnpm run ci:lint:consumer",
