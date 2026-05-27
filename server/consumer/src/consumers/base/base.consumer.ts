@@ -43,7 +43,8 @@ export abstract class BaseConsumer implements OnModuleInit, OnModuleDestroy {
     await this.consumer.connect();
     await this.consumer.subscribe({ topics: topicList });
     await this.consumer.run({
-      eachBatch: async ({ batch, heartbeat, isRunning, isStale }) => {
+      eachBatch: async (batchContext) => {
+        const { batch } = batchContext;
         const processor = processorByTopic.get(batch.topic);
         if (!processor) {
           this.logger.warn(
@@ -52,7 +53,7 @@ export abstract class BaseConsumer implements OnModuleInit, OnModuleDestroy {
           return;
         }
         for (const message of batch.messages) {
-          if (!isRunning() || isStale()) break;
+          if (!batchContext.isRunning() || batchContext.isStale()) break;
 
           const payload = {
             topic: batch.topic,
@@ -61,9 +62,9 @@ export abstract class BaseConsumer implements OnModuleInit, OnModuleDestroy {
           } as EachMessagePayload;
 
           const timer = setInterval(() => {
-            heartbeat().catch((err) =>
-              this.logger.warn('Heartbeat failed', err),
-            );
+            batchContext
+              .heartbeat()
+              .catch((err) => this.logger.warn('Heartbeat failed', err));
           }, BaseConsumer.HEARTBEAT_INTERVAL_MS);
           try {
             await processor.handleMessage(payload);

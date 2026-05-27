@@ -31,18 +31,17 @@ export class EventLogRepository {
     skip?: number;
     take?: number;
     cursor?: { id: string };
-    where?: any;
+    where?: Record<string, unknown>;
     orderBy?: { [key: string]: 'asc' | 'desc' };
   }): Promise<EventLog[]> {
-    const { skip, take, cursor, where, orderBy } = params;
-
-    const queryConditions: any = { ...where };
-    if (cursor) {
-      queryConditions['_id'] = { $gt: cursor.id };
-    }
+    const { skip, take, cursor, orderBy } = params;
+    const filter: Record<string, unknown> = {
+      ...(params.where ?? {}),
+      ...(cursor ? { _id: { $gt: cursor.id } } : {}),
+    };
 
     const query = this.eventLogModel
-      .find(queryConditions)
+      .find(filter)
       .select('type actor entity payload metadata occurredAt processedAt')
       .lean();
 

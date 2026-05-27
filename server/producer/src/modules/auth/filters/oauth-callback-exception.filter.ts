@@ -121,16 +121,17 @@ export class OAuthCallbackExceptionFilter
     const status = exception.getStatus();
     const response = exception.getResponse() as ErrorBody | string;
 
-    const codeFromStatus =
-      status === HttpStatus.BAD_REQUEST
-        ? 'BAD_REQUEST'
-        : status === HttpStatus.UNAUTHORIZED
-          ? 'UNAUTHORIZED'
-          : status === HttpStatus.FORBIDDEN
-            ? 'FORBIDDEN'
-            : status >= 500
-              ? 'INTERNAL_SERVER_ERROR'
-              : 'OAUTH_CALLBACK_ERROR';
+    const statusCode = Number(status);
+    let codeFromStatus = 'OAUTH_CALLBACK_ERROR';
+    if (statusCode === 400) {
+      codeFromStatus = 'BAD_REQUEST';
+    } else if (statusCode === 401) {
+      codeFromStatus = 'UNAUTHORIZED';
+    } else if (statusCode === 403) {
+      codeFromStatus = 'FORBIDDEN';
+    } else if (statusCode >= 500) {
+      codeFromStatus = 'INTERNAL_SERVER_ERROR';
+    }
 
     if (typeof response === 'string') {
       return {

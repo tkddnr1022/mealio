@@ -92,12 +92,7 @@ export class ConsumerLagMonitor implements OnModuleInit, OnModuleDestroy {
           }
           const committedOffset = Number(partitionOffset.offset);
           const lag = Math.max(0, high - committedOffset);
-          this.metrics.setLag(
-            topic,
-            partitionOffset.partition,
-            groupId,
-            lag,
-          );
+          this.metrics.setLag(topic, partitionOffset.partition, groupId, lag);
         }
       }
     } catch (error) {

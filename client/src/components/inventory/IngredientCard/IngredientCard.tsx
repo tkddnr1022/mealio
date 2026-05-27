@@ -1,5 +1,5 @@
 import { Check, X } from 'lucide-react';
-import type { HTMLAttributes, ReactNode } from 'react';
+import { createElement, type HTMLAttributes, type ReactNode } from 'react';
 import type { InventoryIngredient } from '@/lib/types/inventory';
 import { cn } from '@/lib/utils/cn';
 import {
@@ -30,8 +30,6 @@ export function IngredientCard({
     onRemove !== undefined
       ? toInventoryIngredientRemoveAriaLabel(ingredient)
       : undefined;
-
-  const CategoryIcon = getIngredientCategoryIcon(ingredient.categoryId);
 
   const defaultTrailing = selected ? (
     <span
@@ -69,7 +67,11 @@ export function IngredientCard({
             : 'bg-dropdown-selected-default style-text-accent',
         )}
       >
-        <CategoryIcon className="size-5" strokeWidth={2} aria-hidden />
+        {createElement(getIngredientCategoryIcon(ingredient.categoryId), {
+          className: 'size-5',
+          strokeWidth: 2,
+          'aria-hidden': true,
+        })}
       </span>
       <p className="w-full truncate text-center typo-card-body style-text-primary">
         {ingredient.name}

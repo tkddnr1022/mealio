@@ -21,7 +21,10 @@ export class OptionalJwtAuthGuard implements CanActivate {
     const request = context
       .switchToHttp()
       .getRequest<RequestWithOptionalUser>();
-    const accessToken = request.cookies?.accessToken;
+    const cookies = request.cookies as
+      | Record<string, string | undefined>
+      | undefined;
+    const accessToken = cookies?.accessToken;
 
     if (!accessToken) {
       return true;

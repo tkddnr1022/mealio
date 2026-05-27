@@ -32,21 +32,23 @@ export class MetricsExporterService implements OnModuleInit, OnModuleDestroy {
     }
 
     const port = this.observability.metricsPort;
-    this.server = createServer(async (req, res) => {
+    this.server = createServer((req, res) => {
       if (req.url !== '/metrics') {
         res.statusCode = 404;
         res.end('Not Found');
         return;
       }
-      try {
-        const body = await this.metrics.getMetrics();
-        res.statusCode = 200;
-        res.setHeader('Content-Type', this.metrics.getContentType());
-        res.end(body);
-      } catch (error) {
-        res.statusCode = 500;
-        res.end((error as Error).message);
-      }
+      void (async () => {
+        try {
+          const body = await this.metrics.getMetrics();
+          res.statusCode = 200;
+          res.setHeader('Content-Type', this.metrics.getContentType());
+          res.end(body);
+        } catch (error) {
+          res.statusCode = 500;
+          res.end((error as Error).message);
+        }
+      })();
     });
 
     this.server.listen(port, () => {

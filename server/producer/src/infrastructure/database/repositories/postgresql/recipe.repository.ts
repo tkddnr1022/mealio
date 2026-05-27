@@ -166,7 +166,7 @@ export class RecipeRepository {
     ]);
 
     const data = await this.attachStats(
-      rows as Recipe[],
+      rows,
       rows.map((row) => row.id),
     );
     return { data, total };
@@ -246,7 +246,7 @@ export class RecipeRepository {
     ]);
 
     const data = await this.attachStats(
-      rows as Recipe[],
+      rows,
       rows.map((row) => row.id),
     );
     return { data, total };

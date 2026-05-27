@@ -5,7 +5,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Request } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { isSupportedProvider } from '../constants/auth-providers';
 import { OAuthProfile } from '../types/oauth.types';
 import passport from 'passport';
@@ -17,10 +17,10 @@ export class OAuthCallbackGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const http = context.switchToHttp();
     const request = http.getRequest<Request>();
-    const response = http.getResponse();
-    const next = http.getNext();
+    const response = http.getResponse<Response>();
+    const next = http.getNext<NextFunction>();
     const provider = request.params['provider'] as string;
-    const oauthError = request.query['error'];
+    const oauthError = request.query.error;
 
     if (!provider || !isSupportedProvider(provider)) {
       throw new BadRequestException({
@@ -38,7 +38,7 @@ export class OAuthCallbackGuard implements CanActivate {
     }
 
     return new Promise<boolean>((resolve, reject) => {
-      passport.authenticate(
+      const authenticate = passport.authenticate(
         provider,
         { session: false },
         (err: unknown, user: OAuthProfile | false | null) => {
@@ -78,7 +78,8 @@ export class OAuthCallbackGuard implements CanActivate {
           (request as RequestWithOAuthProfile).user = user;
           resolve(true);
         },
-      )(request, response, next);
+      ) as (req: Request, res: Response, next: NextFunction) => void;
+      authenticate(request, response, next);
     });
   }
 }

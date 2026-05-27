@@ -16,7 +16,7 @@ export async function withExponentialBackoff<T>(
   let attempt = 0;
   // 첫 시도 포함하여 maxRetries + 1 번까지 시도
   // (예: maxRetries=2 → 총 3번 시도)
-  // eslint-disable-next-line no-constant-condition
+
   while (true) {
     try {
       return await fn();

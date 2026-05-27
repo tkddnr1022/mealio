@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
@@ -34,16 +34,18 @@ interface RecipeFilterClientPageProps {
   categoryOptions: RecipeCategory[];
 }
 
-export function RecipeFilterClientPage({
+type RecipeFilterDraftState = ReturnType<typeof parseRecipeFilterDraftState>;
+
+interface RecipeFilterFormProps {
+  categoryOptions: RecipeCategory[];
+  initialDraftState: RecipeFilterDraftState;
+}
+
+function RecipeFilterForm({
   categoryOptions,
-}: RecipeFilterClientPageProps) {
+  initialDraftState,
+}: RecipeFilterFormProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialDraftState = useMemo(
-    () =>
-      parseRecipeFilterDraftState(new URLSearchParams(searchParams.toString())),
-    [searchParams],
-  );
   const [keyword, setKeyword] = useState(initialDraftState.keyword);
   const [selectedDifficulties, setSelectedDifficulties] = useState<number[]>(
     initialDraftState.selectedDifficulties,
@@ -55,14 +57,6 @@ export function RecipeFilterClientPage({
     initialDraftState.cookTimeRange,
   );
   const [sliderResetKey, setSliderResetKey] = useState(0);
-
-  useEffect(() => {
-    setKeyword(initialDraftState.keyword);
-    setSelectedDifficulties(initialDraftState.selectedDifficulties);
-    setSelectedCategoryId(initialDraftState.selectedCategoryId);
-    setCookTimeRange(initialDraftState.cookTimeRange);
-    setSliderResetKey((prev) => prev + 1);
-  }, [initialDraftState]);
 
   const toggleDifficulty = (difficulty: number) => {
     setSelectedDifficulties((prev) => {
@@ -165,5 +159,24 @@ export function RecipeFilterClientPage({
         }}
       />
     </>
+  );
+}
+
+export function RecipeFilterClientPage({
+  categoryOptions,
+}: RecipeFilterClientPageProps) {
+  const searchParams = useSearchParams();
+  const draftKey = searchParams.toString();
+  const initialDraftState = useMemo(
+    () => parseRecipeFilterDraftState(new URLSearchParams(draftKey)),
+    [draftKey],
+  );
+
+  return (
+    <RecipeFilterForm
+      key={draftKey}
+      categoryOptions={categoryOptions}
+      initialDraftState={initialDraftState}
+    />
   );
 }

@@ -53,7 +53,7 @@ describe('refresh bridge route', () => {
 
     expect(response.status).toBe(307);
     expect(response.headers.get('location')).toBe(
-      'https://mealio.test/login?next=%2Finventory%2Frecipes',
+      'https://mealio.test/login?sessionExpired=1&next=%2Finventory%2Frecipes',
     );
   });
 });

@@ -46,7 +46,7 @@ describe('UsersService', () => {
       set: jest.fn().mockResolvedValue(undefined),
       getOrSet: jest
         .fn()
-        .mockImplementation(async (strategy, fallback, ...args) => {
+        .mockImplementation(async (strategy, fallback, ..._args) => {
           return fallback();
         }),
     };
@@ -54,8 +54,8 @@ describe('UsersService', () => {
     const mockCacheStrategy = {
       generateKey: jest
         .fn()
-        .mockImplementation((...args: (string | number)[]) =>
-          buildCacheKey(CACHE_KEY_PREFIX.USER, ...args),
+        .mockImplementation((..._args: (string | number)[]) =>
+          buildCacheKey(CACHE_KEY_PREFIX.USER, ..._args),
         ),
       getTtl: jest.fn().mockReturnValue(1800),
     };

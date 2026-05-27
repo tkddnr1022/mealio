@@ -62,7 +62,10 @@ describe('GlobalSentryExceptionFilter', () => {
 
   it('reports 5xx to Sentry with correlation id', () => {
     const host = createHost('/api/v1/recipes', 'corr-abc');
-    filter.catch(new HttpException('fail', HttpStatus.INTERNAL_SERVER_ERROR), host);
+    filter.catch(
+      new HttpException('fail', HttpStatus.INTERNAL_SERVER_ERROR),
+      host,
+    );
 
     expect(sentryService.captureException).toHaveBeenCalledWith(
       expect.any(HttpException),

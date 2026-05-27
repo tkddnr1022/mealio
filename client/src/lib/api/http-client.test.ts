@@ -11,7 +11,7 @@ describe('HttpClient auth refresh handling', () => {
     window.history.replaceState({}, '', '/chatbot/list');
   });
 
-  it('redirects to login when refresh returns 401', async () => {
+  it('throws 401 when refresh returns 401 without client redirect', async () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce(
@@ -46,6 +46,10 @@ describe('HttpClient auth refresh handling', () => {
     await expect(client.get(API_ENDPOINTS.users.me)).rejects.toMatchObject({
       status: 401,
     });
-    expect(assignMock).toHaveBeenCalledWith('/login?next=%2Fchatbot%2Flist');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[1]?.[0]).toBe(
+      `https://api.mealio.test${API_ENDPOINTS.auth.refresh}`,
+    );
+    expect(assignMock).not.toHaveBeenCalled();
   });
 });

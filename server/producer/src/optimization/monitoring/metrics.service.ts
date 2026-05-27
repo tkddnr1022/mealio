@@ -116,7 +116,11 @@ export class MetricsService implements OnModuleInit {
     this.httpRequestsTotal!.inc(labels);
   }
 
-  recordDbQuery(engine: 'prisma' | 'mongoose', operation: string, durationMs: number): void {
+  recordDbQuery(
+    engine: 'prisma' | 'mongoose',
+    operation: string,
+    durationMs: number,
+  ): void {
     if (!this.enabled) {
       return;
     }

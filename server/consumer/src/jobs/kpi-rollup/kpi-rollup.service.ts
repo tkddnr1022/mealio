@@ -50,9 +50,7 @@ export class KpiRollupService {
       await this.upsertRollup(result);
     }
 
-    this.logger.log(
-      `Completed ${results.length} KPI rollups for ${dateStr}`,
-    );
+    this.logger.log(`Completed ${results.length} KPI rollups for ${dateStr}`);
     return results;
   }
 
@@ -143,7 +141,8 @@ export class KpiRollupService {
       ])
       .exec();
 
-    if (!result.length || result[0].count === 0) {
+    const rows = result as Array<{ count: number; values: number[] }>;
+    if (!rows.length || rows[0].count === 0) {
       return {
         kpiId: 'kpi_recommendation_e2e_latency',
         date: dateStr,
@@ -154,10 +153,7 @@ export class KpiRollupService {
       };
     }
 
-    const { count, values } = result[0] as {
-      count: number;
-      values: number[];
-    };
+    const { count, values } = rows[0];
     const p50 = values[Math.floor(count * 0.5)] ?? 0;
     const p95 = values[Math.floor(count * 0.95)] ?? 0;
     const p99 = values[Math.floor(count * 0.99)] ?? 0;

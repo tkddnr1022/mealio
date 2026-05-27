@@ -14,9 +14,8 @@ describe('sentry-scrub (shared)', () => {
     const scrubbed = scrubSentryEvent({
       request: { headers: { Authorization: 'Bearer x', Accept: 'json' } },
     });
-    const headers = (
-      scrubbed.request as { headers?: Record<string, string> }
-    ).headers;
+    const headers = (scrubbed.request as { headers?: Record<string, string> })
+      .headers;
     expect(headers?.Authorization).toBe('[Filtered]');
     expect(headers?.Accept).toBe('json');
   });

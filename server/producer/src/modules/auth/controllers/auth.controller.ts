@@ -91,11 +91,11 @@ export class AuthController {
     status: HttpStatus.BAD_REQUEST,
     description: '잘못된 provider',
   })
-  async login(
+  login(
     @Param('provider') provider: string,
     @Query('next') next: string | undefined,
     @Res({ passthrough: false }) res: Response,
-  ): Promise<void> {
+  ): void {
     const state = this.authService.buildOAuthState(next);
     const url = this.authService.getAuthUrl(provider, state);
     res.redirect(HttpStatus.FOUND, url);
@@ -196,9 +196,12 @@ export class AuthController {
     accessToken: string;
     refreshToken: string;
   } {
+    const cookies = req.cookies as
+      | Record<string, string | undefined>
+      | undefined;
     return {
-      accessToken: req.cookies?.[ACCESS_TOKEN_COOKIE_NAME],
-      refreshToken: req.cookies?.[REFRESH_TOKEN_COOKIE_NAME],
+      accessToken: cookies?.[ACCESS_TOKEN_COOKIE_NAME] ?? '',
+      refreshToken: cookies?.[REFRESH_TOKEN_COOKIE_NAME] ?? '',
     };
   }
 

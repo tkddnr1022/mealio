@@ -83,18 +83,26 @@ export function RangeSlider({
   const fallbackMaxValue = normalizedMax;
   const showSecondThumb = true;
 
-  const [minValue, setMinValue] = useState(
-    clamp(defaultMinValue ?? fallbackMinValue, normalizedMin, normalizedMax),
-  );
-  const [maxValue, setMaxValue] = useState(
-    clamp(defaultMaxValue ?? fallbackMaxValue, normalizedMin, normalizedMax),
-  );
-
-  useEffect(() => {
-    setMaxValue((prev) =>
-      clamp(Math.max(prev, minValue), normalizedMin, normalizedMax),
+  const [minValue, setMinValue] = useState(() => {
+    const nextMin = clamp(
+      defaultMinValue ?? fallbackMinValue,
+      normalizedMin,
+      normalizedMax,
     );
-  }, [minValue, normalizedMin, normalizedMax]);
+    return nextMin;
+  });
+  const [maxValue, setMaxValue] = useState(() => {
+    const nextMin = clamp(
+      defaultMinValue ?? fallbackMinValue,
+      normalizedMin,
+      normalizedMax,
+    );
+    return clamp(
+      Math.max(defaultMaxValue ?? fallbackMaxValue, nextMin),
+      normalizedMin,
+      normalizedMax,
+    );
+  });
 
   useEffect(() => {
     onValueChange?.({ minValue, maxValue });
@@ -181,7 +189,7 @@ export function RangeSlider({
   };
 
   const handleThumbPointerDown =
-    (thumb: 'min' | 'max') => (event: PointerEvent<HTMLButtonElement>) => {
+    (_thumb: 'min' | 'max') => (event: PointerEvent<HTMLButtonElement>) => {
       event.preventDefault();
       event.currentTarget.setPointerCapture(event.pointerId);
     };

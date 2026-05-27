@@ -144,8 +144,8 @@ export class AuthService {
    * 콜백 쿼리의 `next`·`state` 중 안전한 상대 경로를 하나 고른다 (`next` 우선).
    */
   resolveOAuthCallbackSafeNext(
-    next?: string | null | undefined,
-    state?: string | null | undefined,
+    next?: string | null,
+    state?: string | null,
   ): string | null {
     return this.resolveSafeNextPath(next) ?? this.resolveSafeNextPath(state);
   }
@@ -277,7 +277,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const nextSession = await this.createRefreshSessionData(session.userId, {
+    const nextSession = this.createRefreshSessionData(session.userId, {
       userAgent: context?.userAgent,
       ipAddress: context?.ipAddress,
     });
@@ -356,7 +356,7 @@ export class AuthService {
     userId: number,
     context?: AuthIssueContext,
   ): Promise<{ refreshToken: string }> {
-    const created = await this.createRefreshSessionData(userId, context);
+    const created = this.createRefreshSessionData(userId, context);
     await this.authRefreshSessionRepository.create({
       id: created.sessionId,
       user: { connect: { id: userId } },
@@ -377,16 +377,16 @@ export class AuthService {
   }
 
   /** 회전·신규 발급용 세션 ID·secret·해시·만료 시각 생성(저장 없음). */
-  private async createRefreshSessionData(
+  private createRefreshSessionData(
     userId: number,
     _context?: AuthIssueContext,
-  ): Promise<{
+  ): {
     sessionId: string;
     secret: string;
     tokenHash: string;
     expiresAt: Date;
     userId: number;
-  }> {
+  } {
     const sessionId = randomUUID();
     const secret = randomBytes(this.getRefreshTokenBytes()).toString(
       'base64url',

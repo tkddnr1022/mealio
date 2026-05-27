@@ -51,12 +51,9 @@ export class ActivityRecommendationService {
 
     const payloadRecipeId =
       event.payload && typeof event.payload === 'object'
-        ? normalizeNumericId(
-            (event.payload as Record<string, unknown>).recipeId,
-            {
-              min: 1,
-            },
-          )
+        ? normalizeNumericId(event.payload.recipeId, {
+            min: 1,
+          })
         : null;
     return payloadRecipeId;
   }

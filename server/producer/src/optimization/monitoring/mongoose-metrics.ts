@@ -47,7 +47,7 @@ function inferMongooseOperation(ctx: unknown): string {
   if (op) {
     return op;
   }
-  const constructorName = (ctx as { constructor?: { name?: string } }).constructor
-    ?.name;
+  const constructorName = (ctx as { constructor?: { name?: string } })
+    .constructor?.name;
   return constructorName ?? 'unknown';
 }

@@ -43,11 +43,12 @@ export class RecipeGenerationProcessor extends BaseTopicProcessor<RecipeGenerati
     );
   }
 
-  protected async processEvent(
+  protected processEvent(
     _event: RecipeGenerationEvent,
     _message: EachMessagePayload,
   ): Promise<void> {
     // TODO: GenerateRecipeHandler, SaveRecipeHandler, UploadImageHandler 연동
     this.logger.debug('Recipe generation event received (stub)');
+    return Promise.resolve();
   }
 }

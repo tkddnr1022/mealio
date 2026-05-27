@@ -39,7 +39,7 @@ describe('HealthController', () => {
     };
     (healthService.getLiveness as jest.Mock).mockReturnValue(mockResponse);
 
-    const result = await controller.getHealth();
+    const result = controller.getHealth();
 
     expect(result).toEqual(mockResponse);
     expect(healthService.getLiveness).toHaveBeenCalled();

@@ -116,7 +116,16 @@ export class RecipeEmbeddingService {
   }): string {
     const ingredients = recipe.recipeIngredients
       .map((row) => {
-        const amountText = row.amount != null ? ` ${row.amount}` : '';
+        const amountText =
+          row.amount != null
+            ? ` ${
+                typeof row.amount === 'string' ||
+                typeof row.amount === 'number' ||
+                typeof row.amount === 'boolean'
+                  ? String(row.amount)
+                  : JSON.stringify(row.amount)
+              }`
+            : '';
         const unitText = row.unit ? row.unit : '';
         const optionalText = row.isOptional ? ' optional' : '';
         return `${row.ingredient.name}${amountText}${unitText}${optionalText} (${row.ingredient.categoryMeta.name})`;

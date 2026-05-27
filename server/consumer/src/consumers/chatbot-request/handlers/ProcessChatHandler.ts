@@ -69,7 +69,7 @@ export class ProcessChatHandler {
 
     const publish = (event: ChatbotStreamEvent) => {
       if (channel) {
-        this.redis.getClient().publish(channel, JSON.stringify(event));
+        void this.redis.getClient().publish(channel, JSON.stringify(event));
       }
     };
 
@@ -112,7 +112,7 @@ export class ProcessChatHandler {
       DEFAULT_RECENT_TURNS_LIMIT,
     );
 
-    let messages: ChatCompletionMessageParam[] = buildMessagesForGpt(
+    const messages: ChatCompletionMessageParam[] = buildMessagesForGpt(
       previousTurns,
       payload.message,
     );
@@ -232,7 +232,7 @@ export class ProcessChatHandler {
 
           let args: Record<string, unknown> = {};
           try {
-            args = JSON.parse(tc.arguments || '{}');
+            args = JSON.parse(tc.arguments || '{}') as Record<string, unknown>;
           } catch {
             args = {};
           }

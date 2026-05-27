@@ -25,7 +25,10 @@ export class PrismaMetrics implements OnModuleInit {
     }
 
     const client = this.prisma as PrismaService & {
-      $on?: (event: 'query', callback: (event: PrismaQueryEvent) => void) => void;
+      $on?: (
+        event: 'query',
+        callback: (event: PrismaQueryEvent) => void,
+      ) => void;
     };
 
     if (typeof client.$on !== 'function') {
@@ -47,6 +50,8 @@ export class PrismaMetrics implements OnModuleInit {
 }
 
 function inferPrismaOperation(query: string): string {
-  const match = query.trim().match(/^(SELECT|INSERT|UPDATE|DELETE|BEGIN|COMMIT)/i);
+  const match = query
+    .trim()
+    .match(/^(SELECT|INSERT|UPDATE|DELETE|BEGIN|COMMIT)/i);
   return match?.[1]?.toUpperCase() ?? 'QUERY';
 }

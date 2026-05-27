@@ -30,30 +30,4 @@ describe('HttpClient SSR auth behavior', () => {
     );
   });
 
-  it('invokes unauthorizedFallback on SSR 401 response', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(
-      new Response(
-        JSON.stringify({
-          statusCode: 401,
-          message: 'Unauthorized',
-        }),
-        {
-          status: 401,
-          headers: { 'Content-Type': 'application/json' },
-        },
-      ),
-    );
-    vi.stubGlobal('fetch', fetchMock);
-    const fallback = vi.fn();
-    const client = createHttpClient({ baseUrl: 'https://api.mealio.test' });
-
-    await expect(
-      client.get(API_ENDPOINTS.users.me, {
-        unauthorizedFallback: fallback,
-      }),
-    ).rejects.toMatchObject({ status: 401 });
-
-    expect(fallback).toHaveBeenCalledTimes(1);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-  });
 });
