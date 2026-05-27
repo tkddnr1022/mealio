@@ -47,7 +47,7 @@ pnpm run db:prisma:seed
 pnpm run db:mongoose:seed
 ```
 
-### CI Secrets (GitHub Actions)
+### Vercel CI Secrets
 
 | Secret | 용도 | 비고 |
 |--------|------|------|

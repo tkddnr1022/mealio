@@ -7,87 +7,75 @@ on:
     branches: [master, main]
 
 jobs:
-  build-server:
-    name: Build server (shared → producer)
+  # ── Lint ──────────────────────────────────────────────
+  lint:
+    name: Lint (${{ matrix.package }})
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: .
-
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: client
+            script: ci:lint:client
+          - package: producer
+            script: ci:lint:producer
+          - package: consumer
+            script: ci:lint:consumer
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 9.15.0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "pnpm"
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm run ci:install
 
-      - name: Build server (shared → producer)
-        run: pnpm run ci:build:server
+      - name: Run lint
+        run: pnpm run ${{ matrix.script }}
 
-  test-producer:
-    name: Test producer
+  # ── Client build ──────────────────────────────────────
+  build-client:
+    name: Build client
     runs-on: ubuntu-latest
-    needs: build-server
-    defaults:
-      run:
-        working-directory: .
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 9.15.0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "pnpm"
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm run ci:install
 
-      - name: Build @mealio/shared
-        run: pnpm run ci:build:shared
+      - name: Build client (Next.js)
+        run: pnpm run ci:build:client
 
-      - name: Run producer tests
-        run: pnpm run ci:test:producer
-
+  # ── Client test ───────────────────────────────────────
   test-client:
-    name: Test client (observability)
+    name: Test client
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: .
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 9.15.0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "pnpm"
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm run ci:install
@@ -95,39 +83,71 @@ jobs:
       - name: Run client unit tests
         run: pnpm run ci:test:client
 
-  # CI에서 소스맵을 업로드 하므로 Vercel에서는 수행하지 않아야 함
-  build-client:
-    name: Build client (+ Sentry release)
+  # ── Server build (shared → producer / consumer) ──────
+  build-server:
+    name: Build server (${{ matrix.package }})
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-    defaults:
-      run:
-        working-directory: .
-
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: producer
+            script: ci:build:producer
+          - package: consumer
+            script: ci:build:consumer
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 9.15.0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "pnpm"
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm run ci:install
 
-      - name: Build client
-        env:
-          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-        run: pnpm --filter client build
-        continue-on-error: true
+      - name: Build @mealio/shared
+        run: pnpm run ci:build:shared
+
+      - name: Build @mealio/${{ matrix.package }}
+        run: pnpm run ${{ matrix.script }}
+
+  # ── Server test (shared → producer / consumer) ───────
+  test-server:
+    name: Test server (${{ matrix.package }})
+    runs-on: ubuntu-latest
+    needs: build-server
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: producer
+            script: ci:test:producer
+          - package: consumer
+            script: ci:test:consumer
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm run ci:install
+
+      - name: Build @mealio/shared
+        run: pnpm run ci:build:shared
+
+      - name: Run ${{ matrix.package }} tests
+        run: pnpm run ${{ matrix.script }}
+
+  # Vercel handles client release builds & Sentry source map uploads
