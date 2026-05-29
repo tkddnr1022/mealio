@@ -94,6 +94,34 @@ export class RecipeSearchQueryDto {
   categoryId?: number;
 
   @ApiPropertyOptional({
+    description: '조리 방법 (예: 찌기, 볶기)',
+    example: '찌기',
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    const s = String(value).trim();
+    return s.length === 0 ? undefined : s;
+  })
+  @IsString()
+  @MinLength(1)
+  cookingMethod?: string;
+
+  @ApiPropertyOptional({
+    description: '요리 종류 (예: 반찬, 국)',
+    example: '반찬',
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    const s = String(value).trim();
+    return s.length === 0 ? undefined : s;
+  })
+  @IsString()
+  @MinLength(1)
+  dishType?: string;
+
+  @ApiPropertyOptional({
     description: '정렬 기준',
     enum: RECIPE_SORT_KEYS,
     default: DEFAULT_RECIPE_SORT,

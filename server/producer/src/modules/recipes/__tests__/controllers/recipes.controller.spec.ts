@@ -37,6 +37,18 @@ describe('RecipesController', () => {
     ...mockSummary,
     categoryId: 1,
     categoryName: '한식',
+    cookingMethod: '볶기',
+    dishType: '밥',
+    nutrition: {
+      calories: 420,
+      carbohydrates: 55,
+      protein: 12,
+      fat: 16,
+      sodium: 780,
+    },
+    cookingTip: '저염 김치를 사용하면 나트륨을 줄일 수 있습니다.',
+    source: 'mealio',
+    sourceRecipeId: 'seed-1',
     instructions: [{ step: 1, content: '재료를 준비한다.', imageUrl: null }],
     ingredients: [
       { id: 1, name: '김치', amount: 100, unit: 'g', isOptional: false },

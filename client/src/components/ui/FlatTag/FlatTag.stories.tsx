@@ -19,7 +19,6 @@ const meta = {
   decorators: [figmaWidth],
   args: {
     label: 'Label',
-    accent: false,
   },
 } satisfies Meta<typeof FlatTag>;
 
@@ -27,12 +26,6 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default = {} satisfies Story;
-
-export const Accent = {
-  args: {
-    accent: true,
-  },
-} satisfies Story;
 
 export const CustomLeftIcon = {
   args: {

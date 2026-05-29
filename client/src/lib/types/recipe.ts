@@ -59,10 +59,30 @@ export interface RecipeInstructionStep {
   imageUrl?: string | null;
 }
 
+/** 1인분 기준 영양 정보 */
+export interface RecipeNutrition {
+  calories: number | null;
+  carbohydrates: number | null;
+  protein: number | null;
+  fat: number | null;
+  sodium: number | null;
+}
+
 /** 레시피 상세 응답 */
 export interface RecipeDetail extends RecipeSummary {
   categoryId: number;
   categoryName: string;
+  /** 조리 방법 (예: 찌기, 볶기) */
+  cookingMethod: string | null;
+  /** 요리 종류 (예: 반찬, 국) */
+  dishType: string | null;
+  nutrition: RecipeNutrition | null;
+  /** 저감·건강 조리 팁 */
+  cookingTip: string | null;
+  /** 데이터 출처 식별자 */
+  source: string | null;
+  /** 출처별 레시피 ID */
+  sourceRecipeId: string | null;
   instructions: RecipeInstructionStep[];
   ingredients: RecipeIngredientItem[];
 }
@@ -105,6 +125,10 @@ export interface RecipeListQuery {
 export interface RecipeSearchQuery extends RecipeListQuery {
   q?: string;
   categoryId?: number;
+  /** 조리 방법 (예: 찌기, 볶기) */
+  cookingMethod?: string;
+  /** 요리 종류 (예: 반찬, 국) */
+  dishType?: string;
 }
 
 /** `GET /recipes/static-ids` 쿼리 파라미터 */

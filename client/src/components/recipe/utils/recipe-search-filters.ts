@@ -4,6 +4,9 @@ import type { RecipeSearchQuery } from '@/lib/types/recipe';
 export const DEFAULT_RECIPE_COOK_TIME_MIN = 0;
 export const DEFAULT_RECIPE_COOK_TIME_MAX = 120;
 
+export const RECIPE_SEARCH_PATH = '/recipe/search' as const;
+export const RECIPE_FILTER_PATH = '/recipe/filter' as const;
+
 export interface RecipeFilterDraftState {
   keyword: string;
   selectedDifficulties: number[];
@@ -92,8 +95,7 @@ export function buildRecipeSearchQueryFromDraft(
   };
 }
 
-export function buildRecipeFilterHref(
-  filterPagePath: string,
+export function buildRecipeSearchHref(
   searchQuery: RecipeSearchQuery,
 ): string {
   const queryString = buildQueryString(
@@ -103,8 +105,31 @@ export function buildRecipeFilterHref(
       cookTimeMin: searchQuery.cookTimeMin,
       cookTimeMax: searchQuery.cookTimeMax,
       categoryId: searchQuery.categoryId,
+      cookingMethod: searchQuery.cookingMethod,
+      dishType: searchQuery.dishType,
+      sort: searchQuery.sort,
     }),
   );
 
-  return queryString ? `${filterPagePath}?${queryString}` : filterPagePath;
+  return queryString
+    ? `${RECIPE_SEARCH_PATH}?${queryString}`
+    : RECIPE_SEARCH_PATH;
+}
+
+export function buildRecipeFilterHref(
+  searchQuery: RecipeSearchQuery,
+): string {
+  const queryString = buildQueryString(
+    objectToQuery({
+      q: searchQuery.q,
+      difficulty: searchQuery.difficulty,
+      cookTimeMin: searchQuery.cookTimeMin,
+      cookTimeMax: searchQuery.cookTimeMax,
+      categoryId: searchQuery.categoryId,
+      cookingMethod: searchQuery.cookingMethod,
+      dishType: searchQuery.dishType,
+    }),
+  );
+
+  return queryString ? `${RECIPE_FILTER_PATH}?${queryString}` : RECIPE_FILTER_PATH;
 }

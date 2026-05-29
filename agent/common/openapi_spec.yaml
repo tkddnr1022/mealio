@@ -727,6 +727,18 @@ paths:
             type: integer
             format: int64
             minimum: 1
+        - name: cookingMethod
+          in: query
+          description: 조리 방법 (예 - 찌기, 볶기)
+          schema:
+            type: string
+            minLength: 1
+        - name: dishType
+          in: query
+          description: 요리 종류 (예 - 반찬, 국)
+          schema:
+            type: string
+            minLength: 1
         - name: sort
           in: query
           description: 정렬 기준
@@ -1664,6 +1676,36 @@ components:
       example:
         favoriteRecipeIds: [101, 202]
 
+    RecipeNutrition:
+      type: object
+      description: 1인분 기준 영양 정보 (외부 레시피 API INFO_* 필드 대응)
+      properties:
+        calories:
+          type: number
+          format: float
+          nullable: true
+          description: 열량 (kcal)
+        carbohydrates:
+          type: number
+          format: float
+          nullable: true
+          description: 탄수화물 (g)
+        protein:
+          type: number
+          format: float
+          nullable: true
+          description: 단백질 (g)
+        fat:
+          type: number
+          format: float
+          nullable: true
+          description: 지방 (g)
+        sodium:
+          type: number
+          format: float
+          nullable: true
+          description: 나트륨 (mg)
+
     RecipeDetail:
       allOf:
         - $ref: '#/components/schemas/RecipeSummary'
@@ -1676,6 +1718,29 @@ components:
             categoryName:
               type: string
               description: 레시피 카테고리 표시명
+            cookingMethod:
+              type: string
+              nullable: true
+              description: 조리 방법 (예 - 찌기, 볶기)
+            dishType:
+              type: string
+              nullable: true
+              description: 요리 종류 (예 - 반찬, 국)
+            nutrition:
+              $ref: '#/components/schemas/RecipeNutrition'
+              nullable: true
+            cookingTip:
+              type: string
+              nullable: true
+              description: 저감·건강 조리 팁
+            source:
+              type: string
+              nullable: true
+              description: 데이터 출처 식별자
+            sourceRecipeId:
+              type: string
+              nullable: true
+              description: 출처별 레시피 ID
             instructions:
               type: array
               items:

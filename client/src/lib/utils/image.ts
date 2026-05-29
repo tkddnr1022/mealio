@@ -1,5 +1,5 @@
 /**
- * `next/image` 전용 이미지 유틸.
+ * 이미지 유틸. 렌더링 분기는 {@link AdaptiveImage}( `@/components/ui/AdaptiveImage` )를 사용한다.
  *
  * - {@link buildBlurDataUrl}은 placeholder로 쓸 저용량 data URL을 생성한다.
  *   서버에서 BlurHash/LQIP 문자열을 내려주지 않는 경우의 폴백으로 사용한다.

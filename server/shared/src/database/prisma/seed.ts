@@ -36,6 +36,15 @@ type UserSeed = {
 type RecipeInstructionStep = {
   step: number;
   content: string;
+  imageUrl?: string;
+};
+
+type RecipeNutritionSeed = {
+  calories?: number;
+  carbohydrates?: number;
+  protein?: number;
+  fat?: number;
+  sodium?: number;
 };
 
 type RecipeSeed = {
@@ -48,6 +57,12 @@ type RecipeSeed = {
   servings: number;
   imageUrl: string;
   instructions: RecipeInstructionStep[];
+  cookingMethod?: string;
+  dishType?: string;
+  nutrition?: RecipeNutritionSeed;
+  cookingTip?: string;
+  source?: string;
+  sourceRecipeId?: string;
 };
 
 type RecipeIngredientSeed = [
@@ -142,6 +157,19 @@ const RECIPES: RecipeSeed[] = [
     servings: 1,
     imageUrl:
       'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800&q=80',
+    cookingMethod: '볶기',
+    dishType: '밥',
+    nutrition: {
+      calories: 420,
+      carbohydrates: 55,
+      protein: 12,
+      fat: 16,
+      sodium: 780,
+    },
+    cookingTip:
+      '김치 국물을 함께 넣으면 간을 덜해도 깊은 맛이 납니다. 나트륨을 줄이려면 저염 김치를 사용하세요.',
+    source: 'mealio',
+    sourceRecipeId: 'seed-1',
     instructions: [
       { step: 1, content: '김치는 적당히 잘라 준비한다.' },
       { step: 2, content: '팬에 기름을 두르고 김치를 넣어 중불로 2분 볶는다.' },
@@ -458,8 +486,8 @@ async function seed(): Promise<void> {
 
     for (const recipe of RECIPES) {
       await client.query(
-        `INSERT INTO "Recipe" ("id","categoryId","title","description","difficulty","cook_time","servings","instructions","image_url")
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9)
+        `INSERT INTO "Recipe" ("id","categoryId","title","description","difficulty","cook_time","servings","instructions","image_url","cooking_method","dish_type","nutrition","cooking_tip","source","source_recipe_id")
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10,$11,$12::jsonb,$13,$14,$15)
          ON CONFLICT ("id") DO NOTHING`,
         [
           recipe.id,
@@ -471,6 +499,12 @@ async function seed(): Promise<void> {
           recipe.servings,
           JSON.stringify(recipe.instructions),
           recipe.imageUrl,
+          recipe.cookingMethod ?? null,
+          recipe.dishType ?? null,
+          recipe.nutrition ? JSON.stringify(recipe.nutrition) : null,
+          recipe.cookingTip ?? null,
+          recipe.source ?? null,
+          recipe.sourceRecipeId ?? null,
         ],
       );
     }

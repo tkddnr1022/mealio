@@ -5,7 +5,6 @@ import { BaseRow } from '@/components/ui/BaseRow';
 export type FlatTagItem = Readonly<{
   label: string;
   leftIcon?: ReactNode;
-  accent?: boolean;
 }>;
 
 export interface FlatTagsRowProps extends Omit<
@@ -28,7 +27,6 @@ export function FlatTagsRow({
           key={`${item.label}-${index}`}
           label={item.label}
           leftIcon={item.leftIcon}
-          accent={item.accent ?? false}
           className="shrink-0"
         />
       ))}

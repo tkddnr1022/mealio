@@ -32,8 +32,8 @@
   --color-indicator-inactive: var(--ref-color-indicator-inactive);
   --color-on-primary: var(--ref-color-on-primary);
   --color-on-secondary: var(--ref-color-on-secondary);
-  --color-tag-accent: var(--ref-color-tag-accent);
-  --color-tag-default: var(--ref-color-tag-default);
+  --color-accent-default: var(--ref-color-background-accent-default);
+  --color-accent-hover: var(--ref-color-background-accent-hover);
   --color-tab-active: var(--ref-color-tab-active);
   --color-tab-inactive: var(--ref-color-tab-inactive);
   --color-toggle-selected-default: var(--ref-color-toggle-selected-default);
@@ -192,8 +192,8 @@
   --ref-color-indicator-inactive: #d4d4d4;
   --ref-color-on-primary: #ffffff;
   --ref-color-on-secondary: #575352;
-  --ref-color-tag-accent: #fff7ed;
-  --ref-color-tag-default: #fafaf9;
+  --ref-color-background-accent-default: #fff7ed;
+  --ref-color-background-accent-hover: #f8f0e6;
   --ref-color-tab-active: #c2410c;
   --ref-color-tab-inactive: #737373;
   --ref-color-toggle-selected-default: #c2410c;
@@ -269,8 +269,8 @@
   --ref-color-indicator-inactive: #52525b;
   --ref-color-on-primary: #ffffff;
   --ref-color-on-secondary: #d1d5db;
-  --ref-color-tag-accent: #422006;
-  --ref-color-tag-default: #1f2937;
+  --ref-color-background-accent-default: #422006;
+  --ref-color-background-accent-hover: #5c2d0e;
   --ref-color-tab-active: #fb923c;
   --ref-color-tab-inactive: #a3a3a3;
   --ref-color-toggle-selected-default: #c2410c;

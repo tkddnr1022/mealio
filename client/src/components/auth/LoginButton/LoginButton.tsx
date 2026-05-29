@@ -1,6 +1,7 @@
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react';
 import { type OAuthProvider } from '@/lib/types/auth';
 import { cn } from '@/lib/utils/cn';
+import { AdaptiveImage } from '@/components/ui/AdaptiveImage';
 import { NavLink } from '@/components/ui/NavLink';
 
 const PROVIDER_META: Record<
@@ -60,7 +61,14 @@ export function LoginButton(props: LoginButtonProps) {
 
   const inner = (
     <>
-      <img src={iconSrc} alt="" aria-hidden className="size-4 shrink-0" />
+      <AdaptiveImage
+        src={iconSrc}
+        alt=""
+        aria-hidden
+        width={16}
+        height={16}
+        className="size-4 shrink-0"
+      />
       <span className="typo-label-dropdown text-center">{label}</span>
       <span aria-hidden className="w-4 shrink-0" />
     </>

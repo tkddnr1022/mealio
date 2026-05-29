@@ -29,14 +29,11 @@ import {
   buildRecipeFilterHref,
   DEFAULT_RECIPE_COOK_TIME_MAX,
   DEFAULT_RECIPE_COOK_TIME_MIN,
+  RECIPE_SEARCH_PATH,
 } from '@/components/recipe/utils/recipe-search-filters';
 import { useIsAuthenticated } from '@/lib/auth/auth-context';
 import { useMyFavoriteRecipeIds } from '@/lib/queries/inventory.queries';
 import { useRecipeSearchInfinite } from '@/lib/queries/recipe.queries';
-
-const FILTER_PAGE_PATH = '/recipe/filter' as const;
-const SEARCH_PAGE_PATH = '/recipe/search' as const;
-const RECIPE_PATH = '/recipe' as const;
 
 const SORT_OPTIONS: readonly DropdownOption[] = [
   { value: 'latest', label: '최신순' },
@@ -56,6 +53,8 @@ interface RecipeSearchClientPageProps {
   cookTimeMax?: number;
   categoryId?: number;
   categoryName?: string;
+  cookingMethod?: string;
+  dishType?: string;
   recipes: RecipeSummary[];
   initialPagination: Pagination;
   totalCount: number;
@@ -89,6 +88,8 @@ export function RecipeSearchClientPage({
   cookTimeMax,
   categoryId,
   categoryName,
+  cookingMethod,
+  dishType,
   recipes: initialRecipes,
   initialPagination,
   totalCount,
@@ -105,9 +106,11 @@ export function RecipeSearchClientPage({
       cookTimeMin,
       cookTimeMax,
       categoryId,
+      cookingMethod,
+      dishType,
       size: RECIPE_SEARCH_PAGE_SIZE,
     }),
-    [query, sort, difficulty, cookTimeMin, cookTimeMax, categoryId],
+    [query, sort, difficulty, cookTimeMin, cookTimeMax, categoryId, cookingMethod, dishType],
   );
 
   const currentUrl = useMemo(
@@ -161,12 +164,14 @@ export function RecipeSearchClientPage({
     ...difficultyLabels,
     ...(cookTimeChipLabel ? [cookTimeChipLabel] : []),
     ...(categoryName ? [categoryName] : []),
+    ...(cookingMethod ? [cookingMethod] : []),
+    ...(dishType ? [dishType] : []),
   ];
 
   const pushSearch = (nextQuery: RecipeSearchQuery) => {
     const queryString = buildQueryString(objectToQuery(nextQuery));
     router.push(
-      queryString ? `${SEARCH_PAGE_PATH}?${queryString}` : SEARCH_PAGE_PATH,
+      queryString ? `${RECIPE_SEARCH_PATH}?${queryString}` : RECIPE_SEARCH_PATH,
     );
   };
 
@@ -177,6 +182,8 @@ export function RecipeSearchClientPage({
     cookTimeMin,
     cookTimeMax,
     categoryId,
+    cookingMethod,
+    dishType,
   });
 
   const handleRemoveChip = (_index: number, label: string) => {
@@ -215,6 +222,22 @@ export function RecipeSearchClientPage({
         ...current,
         categoryId: undefined,
       });
+      return;
+    }
+
+    if (cookingMethod === label) {
+      pushSearch({
+        ...current,
+        cookingMethod: undefined,
+      });
+      return;
+    }
+
+    if (dishType === label) {
+      pushSearch({
+        ...current,
+        dishType: undefined,
+      });
     }
   };
 
@@ -223,12 +246,12 @@ export function RecipeSearchClientPage({
       <Navbar
         displayBackButton
         displayTitle={false}
-        onBack={() => router.push(RECIPE_PATH)}
+        onBack={() => router.push('/recipe')}
         additionalButtons={
           <FilterButton
             onClick={() =>
               router.push(
-                buildRecipeFilterHref(FILTER_PAGE_PATH, buildCurrentQuery()),
+                buildRecipeFilterHref(buildCurrentQuery()),
               )
             }
           />
@@ -283,7 +306,6 @@ export function RecipeSearchClientPage({
             icon={<Search className="size-8" strokeWidth={2} aria-hidden />}
             buttonLabel="검색 조건 변경"
             buttonHref={buildRecipeFilterHref(
-              FILTER_PAGE_PATH,
               buildCurrentQuery(),
             )}
           />

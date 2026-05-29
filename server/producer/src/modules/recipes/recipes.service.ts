@@ -20,6 +20,7 @@ import {
   RecipeDetailDto,
   RecipeIngredientItemDto,
   RecipeInstructionStepDto,
+  RecipeNutritionDto,
 } from './dto/recipe-detail.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { RecipeCategoryDto } from './dto/recipe-category.dto';
@@ -226,6 +227,8 @@ export class RecipeQueryService {
       cookTimeMin?: number;
       cookTimeMax?: number;
       categoryId?: number;
+      cookingMethod?: string;
+      dishType?: string;
       sort?: RecipeListOrder;
     },
     context?: ActivityContext,
@@ -238,6 +241,8 @@ export class RecipeQueryService {
         : CACHE_KEY_SEGMENT.ALL;
     const cookTimeRangeKey = `${params.cookTimeMin ?? CACHE_KEY_SEGMENT.ALL}-${params.cookTimeMax ?? CACHE_KEY_SEGMENT.ALL}`;
     const categoryKey = params.categoryId ?? CACHE_KEY_SEGMENT.ALL;
+    const cookingMethodKey = params.cookingMethod?.trim() || CACHE_KEY_SEGMENT.ALL;
+    const dishTypeKey = params.dishType?.trim() || CACHE_KEY_SEGMENT.ALL;
     const sortKey = params.sort ?? DEFAULT_RECIPE_SORT;
     const payload: RecipeSearchParams = {
       keyword,
@@ -247,6 +252,8 @@ export class RecipeQueryService {
       minCookTime: params.cookTimeMin,
       maxCookTime: params.cookTimeMax,
       categoryId: params.categoryId,
+      cookingMethod: params.cookingMethod,
+      dishType: params.dishType,
       sort: sortKey,
     };
     const keywordKey = keyword ?? CACHE_KEY_SEGMENT.ALL;
@@ -271,6 +278,8 @@ export class RecipeQueryService {
       difficultyKey,
       cookTimeRangeKey,
       categoryKey,
+      cookingMethodKey,
+      dishTypeKey,
       sortKey,
       params.page,
       params.size,
@@ -342,9 +351,42 @@ export class RecipeQueryService {
       ...this.toSummaryDto(recipe),
       categoryId: recipe.categoryId,
       categoryName: recipe.categoryMeta.name,
+      cookingMethod: recipe.cookingMethod ?? null,
+      dishType: recipe.dishType ?? null,
+      nutrition: this.parseNutrition(recipe.nutrition),
+      cookingTip: recipe.cookingTip ?? null,
+      source: recipe.source ?? null,
+      sourceRecipeId: recipe.sourceRecipeId ?? null,
       instructions,
       ingredients,
     };
+  }
+
+  private parseNutrition(nutrition: unknown): RecipeNutritionDto | null {
+    if (!nutrition || typeof nutrition !== 'object' || Array.isArray(nutrition)) {
+      return null;
+    }
+    const record = nutrition as Record<string, unknown>;
+    const parsed: RecipeNutritionDto = {
+      calories: this.parseNutritionValue(record.calories),
+      carbohydrates: this.parseNutritionValue(record.carbohydrates),
+      protein: this.parseNutritionValue(record.protein),
+      fat: this.parseNutritionValue(record.fat),
+      sodium: this.parseNutritionValue(record.sodium),
+    };
+    const hasValue = Object.values(parsed).some((value) => value != null);
+    return hasValue ? parsed : null;
+  }
+
+  private parseNutritionValue(value: unknown): number | null {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return value;
+    }
+    if (typeof value === 'string' && value.trim().length > 0) {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    return null;
   }
 
   private parseInstructions(instructions: unknown): RecipeInstructionStepDto[] {

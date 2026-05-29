@@ -7,7 +7,6 @@ export interface FlatTagProps extends Omit<
 > {
   className?: string;
   label?: string;
-  accent?: boolean;
   leftIcon?: ReactNode;
   trailing?: ReactNode;
 }
@@ -15,7 +14,6 @@ export interface FlatTagProps extends Omit<
 export function FlatTag({
   className = '',
   label,
-  accent = false,
   leftIcon,
   trailing,
   ...rest
@@ -23,10 +21,7 @@ export function FlatTag({
   return (
     <div
       className={cn(
-        'inline-flex items-center gap-2 rounded-full px-3 py-2',
-        accent
-          ? 'bg-tag-accent style-text-accent'
-          : 'bg-tag-default style-text-secondary',
+        'inline-flex items-center gap-2 rounded-full bg-background-primary px-3 py-2 style-text-secondary',
         className,
       )}
       data-name="FlatTag"

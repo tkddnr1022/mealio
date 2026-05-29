@@ -30,6 +30,8 @@ export interface RecipeSearchParams {
   maxCookTime?: number;
   /** RecipeCategory.id (활성 카테고리만 매칭) */
   categoryId?: number;
+  cookingMethod?: string;
+  dishType?: string;
   sort?: RecipeListOrder;
 }
 
@@ -197,6 +199,8 @@ export class RecipeRepository {
       minCookTime,
       maxCookTime,
       categoryId,
+      cookingMethod,
+      dishType,
       sort = DEFAULT_RECIPE_SORT,
     } = params;
     const skip = (page - 1) * size;
@@ -225,6 +229,14 @@ export class RecipeRepository {
         categoryId,
         categoryMeta: { isActive: true },
       });
+    }
+    const normalizedCookingMethod = cookingMethod?.trim();
+    if (normalizedCookingMethod) {
+      andConditions.push({ cookingMethod: normalizedCookingMethod });
+    }
+    const normalizedDishType = dishType?.trim();
+    if (normalizedDishType) {
+      andConditions.push({ dishType: normalizedDishType });
     }
 
     const where: Prisma.RecipeWhereInput = {

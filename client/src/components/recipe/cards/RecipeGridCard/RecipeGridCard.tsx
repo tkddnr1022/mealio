@@ -1,5 +1,5 @@
-import Image from 'next/image';
 import type { HTMLAttributes } from 'react';
+import { AdaptiveImage } from '@/components/ui/AdaptiveImage';
 import { NavLink } from '@/components/ui/NavLink';
 import type { RecipeSummary } from '@/lib/types/recipe';
 import { cn } from '@/lib/utils/cn';
@@ -52,7 +52,7 @@ export function RecipeGridCard({
       <article className="contents">
         <div className="w-full shrink-0 overflow-hidden rounded-xl bg-background-placeholder">
           <div className="relative aspect-square w-full">
-            <Image
+            <AdaptiveImage
               alt={alt}
               className="object-cover"
               src={imageUrl}

@@ -1,15 +1,15 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
-import { RecipeDetailHeader } from '@/components/recipe';
+import { RecipeTipsCard } from '@/components/recipe/detail/RecipeTipsCard';
 
 const figmaWidth: Decorator = (Story) => (
-  <div className="w-[min(100vw-2rem,23rem)]">
+  <div className="w-[min(100vw-2rem,22.5rem)]">
     <Story />
   </div>
 );
 
 const meta = {
-  title: 'Recipe/Detail/RecipeDetailHeader',
-  component: RecipeDetailHeader,
+  title: 'Recipe/Detail/RecipeTipsCard',
+  component: RecipeTipsCard,
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
@@ -17,11 +17,9 @@ const meta = {
   },
   decorators: [figmaWidth],
   args: {
-    title: '비빔밥',
-    description:
-      '한국의 대표적인 건강식으로, 다양한 나물과 고기, 계란을 넣어 비벼 먹는 전통 요리입니다.',
+    tip: '나트륨을 줄이려면 저염 재료를 사용하고, 간은 새우에 들어 있는 염분으로 맛을 냅니다.',
   },
-} satisfies Meta<typeof RecipeDetailHeader>;
+} satisfies Meta<typeof RecipeTipsCard>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

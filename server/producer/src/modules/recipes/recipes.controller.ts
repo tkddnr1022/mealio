@@ -217,6 +217,8 @@ export class RecipesController {
       cookTimeMin: query.cookTimeMin,
       cookTimeMax: query.cookTimeMax,
       categoryId: query.categoryId,
+      cookingMethod: query.cookingMethod,
+      dishType: query.dishType,
       sort,
     };
 

@@ -115,11 +115,26 @@
 | cookTime        | cook_time    | INT             | 예상 조리 시간 (분)              |
 | imageUrl        | image_url    | VARCHAR(512)    | 레시피 이미지 URL (nullable)     |
 | servings        | servings     | INT             | 인분 (기본값 2)                  |
+| cookingMethod   | cooking_method | VARCHAR(50)   | 조리 방법 (예: 찌기, 볶기). nullable |
+| dishType        | dish_type    | VARCHAR(50)     | 요리 종류 (예: 반찬, 국). nullable |
+| nutrition       | nutrition    | JSON            | 1인분 영양 정보. nullable. `{ calories, carbohydrates, protein, fat, sodium }` (단위: kcal·g·mg) |
+| cookingTip      | cooking_tip  | TEXT            | 저감·건강 조리 팁. nullable      |
+| source          | source       | VARCHAR(50)     | 데이터 출처 식별자 (예: `foodsafety`). nullable |
+| sourceRecipeId  | source_recipe_id | VARCHAR(50) | 출처별 레시피 ID (외부 API 일련번호 등). nullable |
 | isPublished     | is_published | BOOLEAN         | 공개 여부 (기본값 true)          |
 | createdAt       | created_at   | TIMESTAMP       | 생성 시각                        |
 | updatedAt       | updated_at   | TIMESTAMP       | 수정 시각                        |
 
-**제약**: `FK(category) -> RecipeCategory(id)` (Prisma: `categoryId` → `@map("category")`)  
+**`instructions` JSON 항목** (조리 단계 1건)
+
+| 필드 | 타입 | 의미 |
+| --- | --- | --- |
+| step | number | 단계 번호 |
+| content | string | 조리 설명 |
+| imageUrl | string \| null | 단계별 참고 이미지 URL (optional) |
+
+**제약**: `FK(category) -> RecipeCategory(id)` (Prisma: `categoryId` → `@map("category")`)
+**인덱스(추가)**: `UNIQUE(source, source_recipe_id)` — 동일 출처 레시피 중복 방지 (nullable 조합 허용)  
 **인덱스**: `(category, difficulty, cook_time, created_at)`, `(difficulty, cook_time, created_at)`, `(created_at DESC)`
 
 ### 2.4 RecipeStats

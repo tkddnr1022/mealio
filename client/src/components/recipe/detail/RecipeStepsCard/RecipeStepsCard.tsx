@@ -15,7 +15,11 @@ export interface RecipeStepsCardProps extends Omit<
   title?: string;
   steps?: readonly RecipeInstructionStep[];
   rowClassName?: string;
-  rowProps?: Omit<RecipeStepRowProps, 'step' | 'instruction' | 'className'>;
+  rowProps?: Omit<
+    RecipeStepRowProps,
+    'step' | 'instruction' | 'imageUrl' | 'imageAlt' | 'className'
+  >;
+  stepImageAlt?: string;
 }
 
 export function RecipeStepsCard({
@@ -24,6 +28,7 @@ export function RecipeStepsCard({
   steps = [],
   rowClassName = '',
   rowProps,
+  stepImageAlt = '',
   ...rest
 }: RecipeStepsCardProps) {
   return (
@@ -39,6 +44,12 @@ export function RecipeStepsCard({
             key={`${item.step}-${index}`}
             step={toRecipeStepLabel(item.step)}
             instruction={item.content}
+            imageUrl={item.imageUrl}
+            imageAlt={
+              stepImageAlt
+                ? `${stepImageAlt} ${toRecipeStepLabel(item.step)}단계`
+                : ''
+            }
             className={rowClassName}
             {...rowProps}
           />

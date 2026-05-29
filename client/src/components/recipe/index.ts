@@ -48,3 +48,9 @@ export type { RecipeDetailHeaderProps } from './detail/RecipeDetailHeader';
 
 export { RecipeDetailContent } from './detail/RecipeDetailContent';
 export type { RecipeDetailContentProps } from './detail/RecipeDetailContent';
+
+export { RecipeNutritionCard } from './detail/RecipeNutritionCard';
+export type { RecipeNutritionCardProps } from './detail/RecipeNutritionCard';
+
+export { RecipeTipsCard } from './detail/RecipeTipsCard';
+export type { RecipeTipsCardProps } from './detail/RecipeTipsCard';

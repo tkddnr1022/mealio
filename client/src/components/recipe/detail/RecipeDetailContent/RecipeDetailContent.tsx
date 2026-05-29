@@ -2,6 +2,10 @@ import type { HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils/cn';
 import { CardTagsRow, type CardTagItem } from '@/components/ui/CardTagsRow';
 import {
+  HashTagsRow,
+  type HashTagItem,
+} from '@/components/ui/HashTagsRow';
+import {
   RecipeDetailHeader,
   type RecipeDetailHeaderProps,
 } from '@/components/recipe/detail/RecipeDetailHeader';
@@ -13,6 +17,14 @@ import {
   RecipeStepsCard,
   type RecipeStepsCardProps,
 } from '@/components/recipe/detail/RecipeStepsCard';
+import {
+  RecipeNutritionCard,
+  type RecipeNutritionCardProps,
+} from '@/components/recipe/detail/RecipeNutritionCard';
+import {
+  RecipeTipsCard,
+  type RecipeTipsCardProps,
+} from '@/components/recipe/detail/RecipeTipsCard';
 
 export interface RecipeDetailContentProps extends Omit<
   HTMLAttributes<HTMLElement>,
@@ -20,16 +32,22 @@ export interface RecipeDetailContentProps extends Omit<
 > {
   className?: string;
   headerProps?: RecipeDetailHeaderProps;
-  tags?: readonly CardTagItem[];
+  hashTags?: readonly HashTagItem[];
+  metaTags?: readonly CardTagItem[];
   ingredientsCardProps?: RecipeIngredientsCardProps;
+  nutritionCardProps?: RecipeNutritionCardProps;
+  tipsCardProps?: RecipeTipsCardProps;
   stepsCardProps?: RecipeStepsCardProps;
 }
 
 export function RecipeDetailContent({
   className = '',
   headerProps,
-  tags = [],
+  hashTags = [],
+  metaTags = [],
   ingredientsCardProps,
+  nutritionCardProps,
+  tipsCardProps,
   stepsCardProps,
   ...rest
 }: RecipeDetailContentProps) {
@@ -43,8 +61,11 @@ export function RecipeDetailContent({
       {...rest}
     >
       <RecipeDetailHeader {...headerProps} />
-      <CardTagsRow items={tags} />
+      <CardTagsRow items={metaTags} />
+      <HashTagsRow items={hashTags} />
       <RecipeIngredientsCard {...ingredientsCardProps} />
+      <RecipeNutritionCard {...nutritionCardProps} />
+      <RecipeTipsCard {...tipsCardProps} />
       <RecipeStepsCard {...stepsCardProps} />
     </section>
   );

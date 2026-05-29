@@ -1,5 +1,5 @@
-import Image from 'next/image';
 import type { HTMLAttributes } from 'react';
+import { AdaptiveImage } from '@/components/ui/AdaptiveImage';
 import { cn } from '@/lib/utils/cn';
 
 export interface ThumbnailProps extends Omit<
@@ -29,7 +29,7 @@ export function Thumbnail({
       data-name="Thumbnail"
       {...rest}
     >
-      <Image
+      <AdaptiveImage
         alt={imageAlt}
         className="object-cover"
         src={imageUrl}

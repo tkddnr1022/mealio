@@ -40,6 +40,18 @@ describe('RecipeQueryService', () => {
     likeCount: 0,
     isPublished: true,
     instructions: [{ step: 1, content: '재료를 준비한다.' }],
+    cookingMethod: '볶기',
+    dishType: '밥',
+    nutrition: {
+      calories: 420,
+      carbohydrates: 55,
+      protein: 12,
+      fat: 16,
+      sodium: 780,
+    },
+    cookingTip: '저염 김치를 사용하면 나트륨을 줄일 수 있습니다.',
+    source: 'mealio',
+    sourceRecipeId: 'seed-1',
     createdAt: new Date('2025-01-10T10:30:00.000Z'),
     updatedAt: new Date('2025-01-10T10:30:00.000Z'),
     recipeIngredients: [
@@ -312,6 +324,10 @@ describe('RecipeQueryService', () => {
       expect(result.ingredients).toHaveLength(1);
       expect(result.ingredients[0].name).toBe('김치');
       expect(result.ingredients[0].amount).toBe(100);
+      expect(result.cookingMethod).toBe('볶기');
+      expect(result.dishType).toBe('밥');
+      expect(result.nutrition?.calories).toBe(420);
+      expect(result.cookingTip).toContain('저염');
     });
 
     it('레시피가 없으면 NotFoundException을 던진다', async () => {
@@ -336,6 +352,12 @@ describe('RecipeQueryService', () => {
         createdAt: new Date(),
         categoryId: 1,
         categoryName: '한식',
+        cookingMethod: null,
+        dishType: null,
+        nutrition: null,
+        cookingTip: null,
+        source: null,
+        sourceRecipeId: null,
         instructions: [],
         ingredients: [],
       };

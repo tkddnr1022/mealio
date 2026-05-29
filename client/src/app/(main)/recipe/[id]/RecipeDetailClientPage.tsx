@@ -10,6 +10,8 @@ import { RecipeDetailContent, RecipeFavoriteButton } from '@/components/recipe';
 import { ShareButton } from '@/components/ui/buttons/ShareButton';
 import { Thumbnail } from '@/components/ui/Thumbnail';
 import type { CardTagItem } from '@/components/ui/CardTagsRow';
+import type { HashTagItem } from '@/components/ui/HashTagsRow';
+import { buildRecipeSearchHref } from '@/components/recipe/utils/recipe-search-filters';
 import { buildAriaLabel } from '@/lib/utils/a11y';
 import { useIsAuthenticated } from '@/lib/auth/auth-context';
 import { useMyFavoriteRecipeIds } from '@/lib/queries/inventory.queries';
@@ -32,8 +34,34 @@ interface RecipeDetailClientPageProps {
   recipe: RecipeDetail;
 }
 
-function buildRecipeTags(recipe: RecipeDetail): CardTagItem[] {
-  return [
+function buildRecipeClassificationHashTags(recipe: RecipeDetail): HashTagItem[] {
+  const items: HashTagItem[] = [];
+  const categoryLabel = recipe.categoryName?.trim();
+  if (categoryLabel) {
+    items.push({
+      label: categoryLabel,
+      href: buildRecipeSearchHref({ categoryId: recipe.categoryId }),
+    });
+  }
+  const cookingMethod = recipe.cookingMethod?.trim();
+  if (cookingMethod) {
+    items.push({
+      label: cookingMethod,
+      href: buildRecipeSearchHref({ cookingMethod }),
+    });
+  }
+  const dishType = recipe.dishType?.trim();
+  if (dishType) {
+    items.push({
+      label: dishType,
+      href: buildRecipeSearchHref({ dishType }),
+    });
+  }
+  return items;
+}
+
+function buildRecipeMetaTags(recipe: RecipeDetail): CardTagItem[] {
+  const items: CardTagItem[] = [
     {
       label: toRecipeCookingTimeLabel(recipe.cookTime),
       leftIcon: <Clock3 className="size-5" aria-hidden />,
@@ -47,6 +75,8 @@ function buildRecipeTags(recipe: RecipeDetail): CardTagItem[] {
       leftIcon: <Users className="size-5" aria-hidden />,
     },
   ];
+
+  return items;
 }
 
 async function copyCurrentUrl(): Promise<void> {
@@ -132,13 +162,18 @@ export function RecipeDetailClientPage({
 
           <RecipeDetailContent
             headerProps={{
-              category: recipe.categoryName,
               title: recipe.title,
               description: recipe.description ?? '',
             }}
-            tags={buildRecipeTags(recipe)}
+            hashTags={buildRecipeClassificationHashTags(recipe)}
+            metaTags={buildRecipeMetaTags(recipe)}
             ingredientsCardProps={{ ingredients: recipe.ingredients }}
-            stepsCardProps={{ steps: recipe.instructions }}
+            nutritionCardProps={{ nutrition: recipe.nutrition }}
+            tipsCardProps={{ tip: recipe.cookingTip }}
+            stepsCardProps={{
+              steps: recipe.instructions,
+              stepImageAlt: recipe.title,
+            }}
           />
         </div>
       </MainContent>

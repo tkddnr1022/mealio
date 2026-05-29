@@ -15,7 +15,6 @@
       "color/toggle/unselected/hover": "color/background/placeholder",
       "color/toggle/unselected/default": "color/background/primary",
       "color/secondary": "color/background/primary",
-      "color/tag/default": "color/background/primary",
       "color/dropdown/unselected/hover": "color/background/primary",
       "card/elevation/color": "elevation/md/color",
       "card/elevation/x": "elevation/md/x",
@@ -34,12 +33,10 @@
       "variables.color.light.border.muted": "variables.color.light.background.placeholder",
       "variables.color.light.toggle.unselected.hover": "variables.color.light.background.placeholder",
       "variables.color.light.secondary.default": "variables.color.light.background.primary",
-      "variables.color.light.tag.default": "variables.color.light.background.primary",
       "variables.color.light.dropdown.unselected.hover": "variables.color.light.background.primary",
       "variables.color.light.toggle.unselected.default": "variables.color.light.background.primary",
       "variables.color.dark.tab.active": "variables.color.dark.text.accent",
       "variables.color.dark.chip.default": "variables.color.dark.background.surface",
-      "variables.color.dark.tag.default": "variables.color.dark.secondary.default",
       "variables.color.dark.dropdown.unselected.default": "variables.color.dark.background.surface",
       "variables.color.dark.dropdown.unselected.hover": "variables.color.dark.background.placeholder",
       "variables.card.elevation": "variables.elevation.md"
@@ -144,7 +141,9 @@
         "background": {
           "primary": "#FAFAF9",
           "surface": "#FFFFFF",
-          "placeholder": "#F5F5F4"
+          "placeholder": "#F5F5F4",
+          "accent": "#FFF7ED",
+          "accent-hover": "#F8F0E6"
         },
         "border": {
           "accent": "#C2410C",
@@ -215,12 +214,6 @@
             "aliasOf": "variables.color.light.primary.default"
           },
           "inactive": "#737373"
-        },
-        "tag": {
-          "accent": "#FFF7ED",
-          "default": {
-            "aliasOf": "variables.color.light.background.primary"
-          }
         },
         "text": {
           "accent": {
@@ -294,7 +287,9 @@
         "background": {
           "primary": "#060809",
           "surface": "#111827",
-          "placeholder": "#1F2937"
+          "placeholder": "#1F2937",
+          "accent": "#422006",
+          "accent-hover": "#5C2D0E"
         },
         "border": {
           "accent": "#FB923C",
@@ -365,12 +360,6 @@
             "aliasOf": "variables.color.dark.text.accent"
           },
           "inactive": "#A3A3A3"
-        },
-        "tag": {
-          "accent": "#422006",
-          "default": {
-            "aliasOf": "variables.color.dark.secondary.default"
-          }
         },
         "text": {
           "accent": "#FB923C",
@@ -484,6 +473,16 @@
         "surface": {
           "figma": "Background/Surface",
           "variable-token": "variables.color.light.background.surface"
+        },
+        "accent": {
+          "default": {
+            "figma": "Background/Accent/Default",
+            "variable-token": "variables.color.light.background.accent"
+          },
+          "hover": {
+            "figma": "Background/Accent/Hover",
+            "variable-token": "variables.color.light.background.accent-hover"
+          }
         }
       },
       "border": {
@@ -586,16 +585,6 @@
         "thumb": {
           "figma": "Scrollbar/Thumb",
           "variable-token": "variables.color.light.scrollbar.thumb"
-        }
-      },
-      "tag": {
-        "accent": {
-          "figma": "Tag/Accent",
-          "variable-token": "variables.color.light.tag.accent"
-        },
-        "default": {
-          "figma": "Tag/Default",
-          "variable-token": "variables.color.light.tag.default"
         }
       },
       "text": {
@@ -895,8 +884,8 @@
       "description-typography-token": "styles.typography.card.body",
       "description-color-token": "variables.color.light.text.secondary",
       "description-color-dark-token": "variables.color.dark.text.secondary",
-      "flat-tag-surface-token": "variables.color.light.tag.default",
-      "flat-tag-surface-dark-token": "variables.color.dark.tag.default",
+      "flat-tag-surface-token": "variables.color.light.background.primary",
+      "flat-tag-surface-dark-token": "variables.color.dark.background.primary",
       "meta-typography-token": "styles.typography.card.caption",
       "meta-color-token": "variables.color.light.text.caption",
       "meta-color-dark-token": "variables.color.dark.text.caption",

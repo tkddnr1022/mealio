@@ -45,16 +45,3 @@ export const Default: Story = {
   },
 };
 
-export const WithAccentItem: Story = {
-  args: {
-    items: [
-      { label: 'Time' },
-      {
-        label: 'Difficulty',
-        leftIcon: <Flame className="size-4 p-px" strokeWidth={2} aria-hidden />,
-        accent: true,
-      },
-      { label: 'Servings' },
-    ],
-  },
-};

@@ -39,8 +39,10 @@
 | client/src/components/ui/ToggleCard/ | 카드형 토글 UI |
 | client/src/components/ui/Chip/ | 칩 세트(`state`) |
 | client/src/components/ui/ChipsRow/ | 칩 행 조합 컴포넌트 |
-| client/src/components/ui/FlatTag/ | 플랫 태그 세트(`accent`) |
+| client/src/components/ui/FlatTag/ | 플랫 태그 |
 | client/src/components/ui/FlatTagsRow/ | 플랫 태그 행 조합 컴포넌트 |
+| client/src/components/ui/HashTag/ | 해시/분류 태그 |
+| client/src/components/ui/HashTagsRow/ | 해시 태그 행 조합 컴포넌트 |
 | client/src/components/ui/MiniTag/ | 미니 태그 UI |
 | client/src/components/ui/MiniTagsRow/ | 미니 태그 행 조합 컴포넌트 |
 | client/src/components/ui/CardTag/ | 카드 내부 태그 UI |
@@ -57,6 +59,7 @@
 | client/src/components/ui/Alert/ | 알림 배너 세트(`variant` × 제목·메시지) |
 | client/src/components/ui/Toast/ | 전역 Toast 카드·뷰포트(`Alert` 토큰 재사용) |
 | client/src/components/ui/NavLink/ | 내비게이션 링크(앱 내 `Link` vs 외부 `<a>` 자동 분기) |
+| client/src/components/ui/AdaptiveImage/ | 이미지(`next/image` vs `<img>` 자동 분기, `isNativeImageSrc`) |
 | **client/src/components/ui/buttons/** | 아이콘 액션 버튼 그룹 |
 | client/src/components/ui/buttons/BackButton/ | 뒤로 가기 버튼 |
 | client/src/components/ui/buttons/AddButton/ | 추가 버튼 |
@@ -106,6 +109,8 @@
 | client/src/components/recipe/detail/RecipeIngredientsCard/ | 재료 카드 |
 | client/src/components/recipe/detail/RecipeStepRow/ | 조리 단계 행 |
 | client/src/components/recipe/detail/RecipeStepsCard/ | 조리 단계 카드 |
+| client/src/components/recipe/detail/RecipeNutritionCard/ | 영양 정보 카드 |
+| client/src/components/recipe/detail/RecipeTipsCard/ | 조리 팁 카드 |
 | **client/src/components/recipe/utils/** | 레시피 도메인 공용 유틸 |
 | client/src/components/recipe/utils/recipe-search-filters.ts | 레시피 검색 필터 파라미터 직렬화·디시리얼라이즈 유틸 |
 
