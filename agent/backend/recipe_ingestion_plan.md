@@ -30,13 +30,6 @@
 
 **SSOT**: MongoDB `recipe_ingestion_jobs` (파이프라인) · PostgreSQL (레시피 도메인) · Kafka (persist 트리거만)
 
-### 운영·인프라 결정 (고정)
-
-| 항목 | 결정 | 비고 |
-|------|------|------|
-| Batch `expired` | `retry_count++` 후 `status: ingested` | `failed`와 동일 재시도 정책 |
-| LLM 모델 | `OPENAI_BATCH_MODEL` env (챗봇 `OPENAI_CHAT_MODEL`과 분리) | JSONL `body.model`에 사용 |
-
 ---
 
 ## 공공데이터 API (COOKRCP01)
@@ -129,7 +122,6 @@ flowchart LR
   - `PUBLIC_DATA_TYPE` (기본 `json`)
   - `OPENAI_BATCH_MODEL` (필수 — Batch JSONL `body.model`. `OPENAI_CHAT_MODEL`과 분리)
 - [ ] Consumer `.env.example`에 위 변수·예시 값 반영
-- [ ] Prisma — `IngredientAlias` 테이블 추가 (persist 2차 매칭용, alias → canonical ingredient)
 - [ ] `backend_architecture_spec_consumer.md` §2.1·§2.2에 신규 경로·토픽 **초안** 반영 (Phase 5에서 최종 동기화)
 
 ### 예정 파일 (shared / consumer)
@@ -144,13 +136,11 @@ flowchart LR
 | `server/consumer/src/config/consumer-groups.ts` | consumer group 상수 |
 | `server/consumer/src/reliability/monitoring/topic-consumer-group.map.ts` | 토픽 → consumer group (메트릭) |
 | `server/consumer/src/reliability/monitoring/consumer-lag.monitor.ts` | group → topic (lag 폴링) |
-| `server/shared/src/database/prisma/schema.prisma` | `IngredientAlias` 모델 |
 
 ### 완료 기준
 
 - Job 문서 CRUD·`source_id` unique upsert·`status` 조건부 update 단위 테스트 통과 (`__tests__/` 하위 spec)
 - 로컬: Producer 기동 후 KafkaAdminService로 메인·DLQ 토픽 생성 확인
-- Prisma migration 적용 후 `IngredientAlias` 시드/수동 insert 가능
 
 ---
 
@@ -318,9 +308,9 @@ pnpm --filter consumer run job:recipe-ingestion-retrieve
 - [ ] `retrieved_data` JSON 스키마 검증 (`response-parser` 또는 전용 validator)
 - [ ] 레시피·재료 카테고리 신규 제안 upsert
 - [ ] **재료 매칭** (단계적)
-  - 4-B-1 (MVP): 1차 정규화 + 2차 `IngredientAlias` + 3차 exact match
+  - 4-B-1 (MVP): 1차 정규화 + 2차 LLM `ingredient_alias` exact match + 3차 정규화명 exact match
   - 4-B-2 (후속): 4차 임베딩 유사도 (threshold 0.90 / 0.85~0.90 검수 큐 / 0.85 미만 신규 후보)
-- [ ] `match_method` (`exact | alias | vector | new`) 기록
+- [ ] `match_method` (`exact | alias` = LLM ingredient_alias hit | `vector` | `new`) 기록
 - [ ] Recipe + RecipeIngredient **Prisma `$transaction`** upsert — `(source, sourceRecipeId)` unique
 - [ ] `parse_confidence: low` → `isPublished: false`
 - [ ] `recipe-creation.transaction.ts` (명세 §2.1 미구현 항목) 구현 또는 persist handler 내부 트랜잭션
@@ -351,7 +341,7 @@ pnpm --filter consumer run job:recipe-ingestion-retrieve
 | 서브 Phase | 범위 | 배포 가능 여부 |
 |------------|------|----------------|
 | 4-A | consumer + 멱등 shell + skip 로직 | Kafka consume만 (no-op handler) |
-| 4-B-1 | exact·alias 매칭 + transaction upsert | **MVP persist** |
+| 4-B-1 | LLM alias + exact 매칭 + transaction upsert | **MVP persist** |
 | 4-B-2 | vector 매칭 + 검수 큐 | 품질 개선 (별도 스프린트) |
 
 ---

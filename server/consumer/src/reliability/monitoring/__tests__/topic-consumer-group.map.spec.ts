@@ -10,6 +10,9 @@ describe('getConsumerGroupForTopic', () => {
     expect(getConsumerGroupForTopic(KAFKA_TOPICS.CHATBOT_REQUESTS)).toBe(
       CONSUMER_GROUPS.CHATBOT,
     );
+    expect(
+      getConsumerGroupForTopic(KAFKA_TOPICS.RECIPE_INGESTION_RETRIEVED),
+    ).toBe(CONSUMER_GROUPS.RECIPE_INGESTION_PERSIST);
   });
 
   it('should return unknown for unmapped topics', () => {

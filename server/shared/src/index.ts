@@ -95,6 +95,12 @@ export {
   DEFAULT_USER_CREDIT_MONTHLY_LIMIT,
   computeChatbotCreditCost,
 } from './constants/user-credits';
+export {
+  RECIPE_INGESTION_JOB_STATUSES,
+  type RecipeIngestionJobStatus,
+  MAX_RECIPE_INGESTION_RETRY_COUNT,
+  RECIPE_INGESTION_STATE_KEY,
+} from './constants/recipe-ingestion';
 
 // Redis
 export { RedisModule } from './redis/redis.module';
@@ -123,6 +129,10 @@ export {
   InventorySchema,
   KpiRollup,
   KpiRollupSchema,
+  RecipeIngestionJob,
+  RecipeIngestionJobSchema,
+  RecipeIngestionState,
+  RecipeIngestionStateSchema,
 } from './database/mongoose/schemas';
 export type {
   ChatbotConversationDocument,
@@ -130,6 +140,8 @@ export type {
   EventLogDocument,
   InventoryDocument,
   KpiRollupDocument,
+  RecipeIngestionJobDocument,
+  RecipeIngestionStateDocument,
 } from './database/mongoose/schemas';
 
 // Types / Events

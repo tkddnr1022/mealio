@@ -36,6 +36,9 @@
 | server/shared/src/database/mongoose/schemas/event-log.schema.ts | EventLog 스키마 |
 | server/shared/src/database/mongoose/schemas/inventory.schema.ts | Inventory 스키마 (`ingredients.ownedIds`, `ingredients.favoriteIds`, `recipes.favoriteIds` 포함) |
 | server/shared/src/database/mongoose/schemas/kpi-rollup.schema.ts | KPI 롤업 집계 문서 스키마 |
+| server/shared/src/database/mongoose/schemas/recipe-ingestion-job.schema.ts | Recipe ingestion job 파이프라인 SSOT 스키마 |
+| server/shared/src/database/mongoose/schemas/recipe-ingestion-state.schema.ts | Recipe ingestion API 페이징 커서 singleton 스키마 |
+| server/shared/src/constants/recipe-ingestion.ts | Recipe ingestion status enum·재시도 상한·state key 상수 |
 | server/shared/src/redis/redis.service.ts | RedisService (NestJS). get/set/setex/del/exists/expire/ttl, 구독 채널 관리 |
 | server/shared/src/redis/redis.module.ts | RedisModule |
 | server/shared/src/types/events/index.ts | 이벤트 타입 배럴 export |

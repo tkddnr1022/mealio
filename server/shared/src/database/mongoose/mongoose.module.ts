@@ -12,6 +12,10 @@ import {
   InventorySchema,
   KpiRollup,
   KpiRollupSchema,
+  RecipeIngestionJob,
+  RecipeIngestionJobSchema,
+  RecipeIngestionState,
+  RecipeIngestionStateSchema,
 } from './schemas';
 
 /** shared에서 공용으로 관리하는 옵션 (URL 제외) */
@@ -60,6 +64,14 @@ export class MongooseSchemasModule {
           },
           { name: Inventory.name, schema: InventorySchema },
           { name: KpiRollup.name, schema: KpiRollupSchema },
+          {
+            name: RecipeIngestionJob.name,
+            schema: RecipeIngestionJobSchema,
+          },
+          {
+            name: RecipeIngestionState.name,
+            schema: RecipeIngestionStateSchema,
+          },
         ]),
       ],
       exports: [MongooseModule],
@@ -94,6 +106,14 @@ export class MongooseSchemasModule {
           },
           { name: Inventory.name, schema: InventorySchema },
           { name: KpiRollup.name, schema: KpiRollupSchema },
+          {
+            name: RecipeIngestionJob.name,
+            schema: RecipeIngestionJobSchema,
+          },
+          {
+            name: RecipeIngestionState.name,
+            schema: RecipeIngestionStateSchema,
+          },
         ]),
       ],
       exports: [MongooseModule],

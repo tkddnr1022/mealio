@@ -16,7 +16,7 @@
 |------|------|
 | **server/consumer/src/config/** | 설정 모듈 디렉터리 |
 | server/consumer/src/config/consumer-groups.ts | Kafka consumer 그룹 ID 상수 (CONSUMER_GROUPS, §2.2 그룹과 매핑) |
-| server/consumer/src/config/env.validation.ts | 앱 시작 시 환경 변수 검증 (Joi 스키마, NODE_ENV·MONGODB_URL·REDIS_URL·KAFKA_*·POSTGRESQL_URL·OPENAI_* 등) |
+| server/consumer/src/config/env.validation.ts | 앱 시작 시 환경 변수 검증 (Joi 스키마, NODE_ENV·MONGODB_URL·REDIS_URL·KAFKA_*·POSTGRESQL_URL·OPENAI_*·PUBLIC_DATA_*·OPENAI_BATCH_MODEL 등) |
 | server/consumer/src/config/mongoose-pool.config.ts | Mongoose 커넥션 풀 설정 (MongooseSchemasModule.forRoot 주입용) |
 | server/consumer/src/config/prisma-pool.config.ts | Prisma 커넥션 풀 설정 (PRISMA_POOL_CONFIG 주입용) |
 | **server/consumer/src/consumers/consumers.module.ts** | 그룹 모듈(ChatbotRequest, UserEvents, ActivityEvents, CacheInvalidation) 통합 |
@@ -96,6 +96,8 @@
 | server/consumer/src/persistence/repositories/mongodb/event-log.repository.ts | EventLog 저장 (Mongoose) |
 | server/consumer/src/persistence/repositories/mongodb/chatbot-log.repository.ts | ChatbotLog 저장 (Mongoose) |
 | server/consumer/src/persistence/repositories/mongodb/inventory.repository.ts | Inventory 저장 (Mongoose) |
+| server/consumer/src/persistence/repositories/mongodb/recipe-ingestion-job.repository.ts | Recipe ingestion job CRUD·상태 전환 (Mongoose) |
+| server/consumer/src/persistence/repositories/mongodb/recipe-ingestion-state.repository.ts | Recipe ingestion API 커서 singleton (Mongoose) |
 | **server/consumer/src/persistence/transactions/** | ⚠️ 미구현 |
 | server/consumer/src/persistence/transactions/recipe-creation.transaction.ts | ⚠️ 미구현 · Prisma $transaction |
 | server/consumer/src/persistence/transactions/mongodb-session.transaction.ts | ⚠️ 미구현 · Mongoose session (필요 시) |
@@ -127,6 +129,9 @@
 | server/consumer/src/jobs/kpi-rollup/kpi-rollup.module.ts | KPI 롤업 모듈 |
 | server/consumer/src/jobs/kpi-rollup/kpi-rollup.service.ts | KPI 집계 서비스 (MongoDB EventLog → 롤업 문서) |
 | server/consumer/src/jobs/kpi-rollup/run-kpi-rollup.ts | KPI 롤업 실행 엔트리포인트 (CLI/스케줄러) |
+| **server/consumer/src/jobs/recipe-ingestion/** | ⚠️ Phase 1~2 · ingest+submit standalone job (예정) |
+| **server/consumer/src/jobs/recipe-ingestion-retrieve/** | ⚠️ Phase 3 · retrieve standalone job (예정) |
+| **server/consumer/src/consumers/recipe-ingestion-persist/** | ⚠️ Phase 4 · Kafka persist consumer (예정) |
 
 ---
 
@@ -140,6 +145,7 @@
 | **activity-events** | activity-events-dlq | activity-events-group | Producer (레시피 조회수 기록 API/좋아요/공유, 검색 API 등) | 비로그인 포함 활동 이벤트. payload: type(recipe.view \| recipe.like \| recipe.share \| search.query \| search.click), actor(type, userId?, ipAddress?, userAgent?), entity?, payload?, metadata?. Consumer: EventLog 저장. `recipe.view`는 상세 조회 GET이 아닌 `POST /api/v1/recipes/:recipeId/views`에서 발행되며, Producer에서 dedupe key를 `user:{id}` 우선/비로그인 `ip:{ip}`(`unknown-ip` fallback) 기준으로 제어한다. |
 | **user-events** | user-events-dlq | analytics-group | Producer (닉네임 변경, 재료 CRUD, 관심 레시피 추가/삭제 등) | 로그인 유저 도메인 이벤트. payload: UserEvent \| InventoryEvent. Consumer: UpdateUserProfileHandler, UpdateInventoryHandler, TrackUserActivityHandler(EventLog), RecommendationHandler, 캐시 무효화 요청(CacheInvalidationRequestService). |
 | **cache-invalidation** | cache-invalidation-dlq | cache-invalidation-group | Consumer 내부 (CacheInvalidationRequestService) | 캐시 무효화 지시. payload: type(USER_PROFILE \| INVENTORY \| RECIPE \| RECOMMENDATION), userId 또는 recipeIds[]. Handler가 직접 발행하지 않고 RequestService가 발행. Consumer: RedisInvalidationHandler로 Redis 키/패턴 삭제. |
+| **recipe-ingestion-retrieved** | recipe-ingestion-retrieved-dlq | recipe-ingestion-persist-group | Consumer (retrieve job, Phase 3) | Recipe ingestion persist 트리거. payload: `{ jobId }`, key = jobId. Consumer: recipe-ingestion-persist (Phase 4). Mongo `recipe_ingestion_jobs`가 SSOT. |
 
 **공통**
 

@@ -237,7 +237,7 @@ API는 순번 구간으로 데이터를 반환하고, 동일 레시피 재수집
    - 어조 규칙 (~요 체 등)
    - 노이즈 제거 (MANUAL 필드 말미 단일 영문자 등)
    - 카테고리 목록 (ID, 이름) — 선택 또는 신규 제안
-   - 재료명 정규화·`ingredient_alias` 반환 지시
+   - 재료명 정규화·`ingredient_alias`(canonical 재료명) 반환 지시
    - `parse_confidence: high | low`, `parse_issues` 반환 지시
 
 4. **Files API 업로드**
@@ -303,19 +303,19 @@ Kafka `recipe-ingestion-retrieved` 소비 → `{ jobId }`로 job 조회 → Post
 
 1. 레시피 카테고리 신규 제안 upsert
 2. 재료 카테고리 신규 제안 upsert
-3. **재료 매칭** (단계적, 검토 필요)
+3. **재료 매칭** (단계적)
    ```
-   1차: 정규화 (괄호·조사·수량 제거, 공백 정리)
+   1차: 원문 정규화 (괄호·조사·수량 제거, 공백 정리)
         예) "대파(흰 부분)" → "대파", "달걀 2개" → "달걀"
-   2차: ingredient_alias 사전 매핑
-        예) "파(대파)" → "대파"
-   3차: 정규화 이름 DB exact match
-   4차: 임베딩 유사도 (pgvector 또는 Redis vector)
+   2차: LLM `retrieved_data`의 `ingredient_alias`(canonical명) → Ingredient.name exact match
+        예) 원문 "파(대파)" + ingredient_alias "대파" → DB "대파"
+   3차: 1차 정규화 결과 → Ingredient.name exact match
+   4차: 임베딩 유사도 (pgvector 또는 Redis vector, Phase 4-B-2)
         cosine ≥ 0.90 → 매칭
         0.85~0.90 → 검수 큐, 임시 매칭 보류
         < 0.85 → 신규 재료 후보 upsert, 검수 큐
    ```
-   `match_method`: `exact` \| `alias` \| `vector` \| `new`
+   `match_method`: `exact` \| `alias`(LLM ingredient_alias hit) \| `vector` \| `new`
 4. Recipe + RecipeIngredient **transaction upsert** — `(source, sourceRecipeId)` unique; `parse_confidence: low` → `isPublished: false`
 5. job 업데이트: `status: persisted`, `persisted_at: now()`
 

@@ -3,6 +3,7 @@ export const KAFKA_TOPICS = {
   ACTIVITY_EVENTS: 'activity-events',
   USER_EVENTS: 'user-events',
   CACHE_INVALIDATION: 'cache-invalidation',
+  RECIPE_INGESTION_RETRIEVED: 'recipe-ingestion-retrieved',
 } as const;
 
 export type KafkaTopic = (typeof KAFKA_TOPICS)[keyof typeof KAFKA_TOPICS];
@@ -12,6 +13,7 @@ export const KAFKA_DLQ_TOPICS = {
   ACTIVITY_EVENTS_DLQ: 'activity-events-dlq',
   USER_EVENTS_DLQ: 'user-events-dlq',
   CACHE_INVALIDATION_DLQ: 'cache-invalidation-dlq',
+  RECIPE_INGESTION_RETRIEVED_DLQ: 'recipe-ingestion-retrieved-dlq',
 } as const;
 
 export type KafkaDlqTopic =

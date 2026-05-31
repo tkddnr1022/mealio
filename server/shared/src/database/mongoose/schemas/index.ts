@@ -15,3 +15,13 @@ export { Inventory, InventorySchema } from './inventory.schema';
 export type { InventoryDocument } from './inventory.schema';
 export { KpiRollup, KpiRollupSchema } from './kpi-rollup.schema';
 export type { KpiRollupDocument } from './kpi-rollup.schema';
+export {
+  RecipeIngestionJob,
+  RecipeIngestionJobSchema,
+} from './recipe-ingestion-job.schema';
+export type { RecipeIngestionJobDocument } from './recipe-ingestion-job.schema';
+export {
+  RecipeIngestionState,
+  RecipeIngestionStateSchema,
+} from './recipe-ingestion-state.schema';
+export type { RecipeIngestionStateDocument } from './recipe-ingestion-state.schema';
