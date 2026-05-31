@@ -100,6 +100,8 @@ export {
   type RecipeIngestionJobStatus,
   MAX_RECIPE_INGESTION_RETRY_COUNT,
   RECIPE_INGESTION_STATE_KEY,
+  DEFAULT_RECIPE_INGEST_FETCH_LIMIT,
+  MAX_RECIPE_INGEST_FETCH_LIMIT,
 } from './constants/recipe-ingestion';
 
 // Redis

@@ -32,7 +32,9 @@ export class RecipeIngestionStateRepository {
   /**
    * lastEndIdx 저장 (singleton upsert)
    */
-  async setLastEndIdx(lastEndIdx: number): Promise<RecipeIngestionStateDocument> {
+  async setLastEndIdx(
+    lastEndIdx: number,
+  ): Promise<RecipeIngestionStateDocument> {
     return this.stateModel
       .findOneAndUpdate(
         { key: RECIPE_INGESTION_STATE_KEY },

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import {
+  MAX_RECIPE_INGESTION_RETRY_COUNT,
   RecipeIngestionJob,
   type RecipeIngestionJobDocument,
   type RecipeIngestionJobStatus,
@@ -58,6 +59,41 @@ export class RecipeIngestionJobRepository {
   /**
    * sourceId(RCP_SEQ) 기준 upsert — ingest 멱등성
    */
+  /**
+   * ingest 단계 row 처리 실패 시 retry_count 증가, 상한 초과 시 failed
+   */
+  async recordIngestFailure(
+    sourceId: string,
+    errorMessage: string,
+  ): Promise<RecipeIngestionJobDocument> {
+    const existing = await this.jobModel.findOne({ sourceId }).exec();
+    const nextRetryCount = (existing?.retryCount ?? 0) + 1;
+    const now = new Date();
+    const failed = nextRetryCount >= MAX_RECIPE_INGESTION_RETRY_COUNT;
+
+    return this.jobModel
+      .findOneAndUpdate(
+        { sourceId },
+        {
+          $set: {
+            retryCount: nextRetryCount,
+            errorMessage,
+            ...(failed
+              ? { status: 'failed' as RecipeIngestionJobStatus, failedAt: now }
+              : {}),
+          },
+          $setOnInsert: {
+            sourceId,
+            status: failed
+              ? ('failed' as RecipeIngestionJobStatus)
+              : ('ingested' as RecipeIngestionJobStatus),
+          },
+        },
+        { new: true, upsert: true },
+      )
+      .exec() as Promise<RecipeIngestionJobDocument>;
+  }
+
   async upsertIngested(
     sourceId: string,
     rawData: Record<string, unknown>,
