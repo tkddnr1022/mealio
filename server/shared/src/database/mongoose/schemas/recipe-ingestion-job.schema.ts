@@ -44,7 +44,7 @@ export class RecipeIngestionJob extends Document {
   errorMessage?: string;
 
   @Prop({ type: Date })
-  ingestedAt?: Date;
+  fetchedAt?: Date;
 
   @Prop({ type: Date })
   submittedAt?: Date;

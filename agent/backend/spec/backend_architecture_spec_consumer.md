@@ -129,7 +129,8 @@
 | server/consumer/src/jobs/kpi-rollup/kpi-rollup.module.ts | KPI 롤업 모듈 |
 | server/consumer/src/jobs/kpi-rollup/kpi-rollup.service.ts | KPI 집계 서비스 (MongoDB EventLog → 롤업 문서) |
 | server/consumer/src/jobs/kpi-rollup/run-kpi-rollup.ts | KPI 롤업 실행 엔트리포인트 (CLI/스케줄러) |
-| **server/consumer/src/jobs/recipe-ingestion/** | ⚠️ Phase 1~2 · ingest+submit standalone job (예정) |
+| **server/consumer/src/jobs/recipe-ingestion-fetch/** | ⚠️ Phase 1 · fetch standalone job (예정) |
+| **server/consumer/src/jobs/recipe-ingestion-submit/** | ⚠️ Phase 2 · submit standalone job (예정) |
 | **server/consumer/src/jobs/recipe-ingestion-retrieve/** | ⚠️ Phase 3 · retrieve standalone job (예정) |
 | **server/consumer/src/consumers/recipe-ingestion-persist/** | ⚠️ Phase 4 · Kafka persist consumer (예정) |
 

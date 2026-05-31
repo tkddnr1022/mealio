@@ -7,15 +7,15 @@ import {
 } from 'src/integrations/public-data/public-data-api.client';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { RecipeIngestionStateRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-state.repository';
-import { IngestService } from '../../services/ingest.service';
+import { FetchService } from '../../services/fetch.service';
 
-describe('IngestService', () => {
-  let service: IngestService;
+describe('FetchService', () => {
+  let service: FetchService;
   let publicDataApiClient: jest.Mocked<
     Pick<PublicDataApiClient, 'assertFetchRangeValid' | 'fetchRecipes'>
   >;
   let jobRepository: jest.Mocked<
-    Pick<RecipeIngestionJobRepository, 'upsertIngested' | 'recordIngestFailure'>
+    Pick<RecipeIngestionJobRepository, 'upsertFetched' | 'recordFetchFailure'>
   >;
   let stateRepository: jest.Mocked<
     Pick<RecipeIngestionStateRepository, 'getLastEndIdx' | 'setLastEndIdx'>
@@ -27,8 +27,8 @@ describe('IngestService', () => {
       fetchRecipes: jest.fn(),
     };
     jobRepository = {
-      upsertIngested: jest.fn(),
-      recordIngestFailure: jest.fn(),
+      upsertFetched: jest.fn(),
+      recordFetchFailure: jest.fn(),
     };
     stateRepository = {
       getLastEndIdx: jest.fn(),
@@ -37,21 +37,21 @@ describe('IngestService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        IngestService,
+        FetchService,
         { provide: PublicDataApiClient, useValue: publicDataApiClient },
         { provide: RecipeIngestionJobRepository, useValue: jobRepository },
         { provide: RecipeIngestionStateRepository, useValue: stateRepository },
       ],
     }).compile();
 
-    service = module.get(IngestService);
+    service = module.get(FetchService);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  describe('first ingest (cursor absent)', () => {
+  describe('first fetch (cursor absent)', () => {
     it('should fetch 1..100, upsert rows, and advance cursor to 100', async () => {
       stateRepository.getLastEndIdx.mockResolvedValue(0);
       publicDataApiClient.fetchRecipes.mockResolvedValue({
@@ -62,10 +62,10 @@ describe('IngestService', () => {
           { RCP_SEQ: '2', RCP_NM: 'recipe-2' },
         ],
       });
-      jobRepository.upsertIngested.mockResolvedValue({} as never);
+      jobRepository.upsertFetched.mockResolvedValue({} as never);
       stateRepository.setLastEndIdx.mockResolvedValue({} as never);
 
-      const result = await service.ingest({ ingestFetchLimit: 100 });
+      const result = await service.fetch({ fetchLimit: 100 });
 
       expect(publicDataApiClient.assertFetchRangeValid).toHaveBeenCalledWith(
         1,
@@ -73,8 +73,8 @@ describe('IngestService', () => {
         100,
       );
       expect(publicDataApiClient.fetchRecipes).toHaveBeenCalledWith(1, 100);
-      expect(jobRepository.upsertIngested).toHaveBeenCalledTimes(2);
-      expect(jobRepository.upsertIngested).toHaveBeenCalledWith('1', {
+      expect(jobRepository.upsertFetched).toHaveBeenCalledTimes(2);
+      expect(jobRepository.upsertFetched).toHaveBeenCalledWith('1', {
         RCP_SEQ: '1',
         RCP_NM: 'recipe-1',
       });
@@ -82,7 +82,7 @@ describe('IngestService', () => {
       expect(result).toEqual({
         startIdx: 1,
         endIdx: 100,
-        ingestedCount: 2,
+        fetchedCount: 2,
         exhausted: false,
       });
     });
@@ -96,18 +96,18 @@ describe('IngestService', () => {
         code: 'INFO-000',
         rows: [{ RCP_SEQ: '42', RCP_NM: 'same-recipe' }],
       });
-      jobRepository.upsertIngested.mockResolvedValue({} as never);
+      jobRepository.upsertFetched.mockResolvedValue({} as never);
       stateRepository.setLastEndIdx.mockResolvedValue({} as never);
 
-      await service.ingest({ ingestFetchLimit: 100 });
-      await service.ingest({ ingestFetchLimit: 100 });
+      await service.fetch({ fetchLimit: 100 });
+      await service.fetch({ fetchLimit: 100 });
 
-      expect(jobRepository.upsertIngested).toHaveBeenCalledTimes(2);
-      expect(jobRepository.upsertIngested).toHaveBeenNthCalledWith(1, '42', {
+      expect(jobRepository.upsertFetched).toHaveBeenCalledTimes(2);
+      expect(jobRepository.upsertFetched).toHaveBeenNthCalledWith(1, '42', {
         RCP_SEQ: '42',
         RCP_NM: 'same-recipe',
       });
-      expect(jobRepository.upsertIngested).toHaveBeenNthCalledWith(2, '42', {
+      expect(jobRepository.upsertFetched).toHaveBeenNthCalledWith(2, '42', {
         RCP_SEQ: '42',
         RCP_NM: 'same-recipe',
       });
@@ -122,25 +122,25 @@ describe('IngestService', () => {
         code: 'INFO-200',
       });
 
-      const result = await service.ingest({ ingestFetchLimit: 100 });
+      const result = await service.fetch({ fetchLimit: 100 });
 
       expect(publicDataApiClient.fetchRecipes).toHaveBeenCalledWith(501, 600);
-      expect(jobRepository.upsertIngested).not.toHaveBeenCalled();
+      expect(jobRepository.upsertFetched).not.toHaveBeenCalled();
       expect(stateRepository.setLastEndIdx).not.toHaveBeenCalled();
       expect(result).toEqual({
         startIdx: 501,
         endIdx: 600,
-        ingestedCount: 0,
+        fetchedCount: 0,
         exhausted: true,
       });
     });
   });
 
   describe('ERROR-336 / fetch limit guard', () => {
-    it('should reject ingestFetchLimit above 1000 before API call', async () => {
+    it('should reject fetchLimit above 1000 before API call', async () => {
       stateRepository.getLastEndIdx.mockResolvedValue(0);
 
-      await expect(service.ingest({ ingestFetchLimit: 1001 })).rejects.toThrow(
+      await expect(service.fetch({ fetchLimit: 1001 })).rejects.toThrow(
         PublicDataFetchLimitError,
       );
 
@@ -161,16 +161,16 @@ describe('IngestService', () => {
           code: 'INFO-000',
           rows: [{ RCP_SEQ: '7', RCP_NM: 'retry-success' }],
         });
-      jobRepository.upsertIngested.mockResolvedValue({} as never);
+      jobRepository.upsertFetched.mockResolvedValue({} as never);
       stateRepository.setLastEndIdx.mockResolvedValue({} as never);
 
-      const result = await service.ingest({
-        ingestFetchLimit: 100,
+      const result = await service.fetch({
+        fetchLimit: 100,
         maxApiRetries: 3,
       });
 
       expect(publicDataApiClient.fetchRecipes).toHaveBeenCalledTimes(2);
-      expect(result.ingestedCount).toBe(1);
+      expect(result.fetchedCount).toBe(1);
       expect(stateRepository.setLastEndIdx).toHaveBeenCalledWith(100);
     });
 
@@ -181,11 +181,11 @@ describe('IngestService', () => {
       );
 
       await expect(
-        service.ingest({ ingestFetchLimit: 100, maxApiRetries: 3 }),
+        service.fetch({ fetchLimit: 100, maxApiRetries: 3 }),
       ).rejects.toThrow(PublicDataApiError);
 
       expect(publicDataApiClient.fetchRecipes).toHaveBeenCalledTimes(3);
-      expect(jobRepository.upsertIngested).not.toHaveBeenCalled();
+      expect(jobRepository.upsertFetched).not.toHaveBeenCalled();
       expect(stateRepository.setLastEndIdx).not.toHaveBeenCalled();
     });
 
@@ -196,7 +196,7 @@ describe('IngestService', () => {
       );
 
       await expect(
-        service.ingest({ ingestFetchLimit: 100, maxApiRetries: 3 }),
+        service.fetch({ fetchLimit: 100, maxApiRetries: 3 }),
       ).rejects.toThrow(PublicDataApiError);
 
       expect(publicDataApiClient.fetchRecipes).toHaveBeenCalledTimes(1);
@@ -205,24 +205,24 @@ describe('IngestService', () => {
   });
 
   describe('row upsert failure', () => {
-    it('should record ingest failure for the sourceId job', async () => {
+    it('should record fetch failure for the sourceId job', async () => {
       stateRepository.getLastEndIdx.mockResolvedValue(0);
       publicDataApiClient.fetchRecipes.mockResolvedValue({
         kind: 'success',
         code: 'INFO-000',
         rows: [{ RCP_SEQ: '99', RCP_NM: 'broken' }],
       });
-      jobRepository.upsertIngested.mockRejectedValue(new Error('mongo down'));
-      jobRepository.recordIngestFailure.mockResolvedValue({} as never);
+      jobRepository.upsertFetched.mockRejectedValue(new Error('mongo down'));
+      jobRepository.recordFetchFailure.mockResolvedValue({} as never);
       stateRepository.setLastEndIdx.mockResolvedValue({} as never);
 
-      const result = await service.ingest({ ingestFetchLimit: 100 });
+      const result = await service.fetch({ fetchLimit: 100 });
 
-      expect(jobRepository.recordIngestFailure).toHaveBeenCalledWith(
+      expect(jobRepository.recordFetchFailure).toHaveBeenCalledWith(
         '99',
         'mongo down',
       );
-      expect(result.ingestedCount).toBe(0);
+      expect(result.fetchedCount).toBe(0);
       expect(stateRepository.setLastEndIdx).toHaveBeenCalledWith(100);
     });
   });

@@ -15,7 +15,7 @@ describe('RecipeIngestionJobRepository', () => {
   const mockJob = {
     _id: jobId,
     sourceId: '12345',
-    status: 'ingested',
+    status: 'fetched',
     retryCount: 0,
     rawData: { RCP_SEQ: '12345' },
   } as unknown as RecipeIngestionJobDocument;
@@ -46,12 +46,12 @@ describe('RecipeIngestionJobRepository', () => {
     expect(repository).toBeDefined();
   });
 
-  describe('upsertIngested', () => {
-    it('should upsert by sourceId with ingested status on insert', async () => {
+  describe('upsertFetched', () => {
+    it('should upsert by sourceId with fetched status on insert', async () => {
       const exec = jest.fn().mockResolvedValue(mockJob);
       jest.spyOn(model, 'findOneAndUpdate').mockReturnValue({ exec } as never);
 
-      const result = await repository.upsertIngested('12345', {
+      const result = await repository.upsertFetched('12345', {
         RCP_SEQ: '12345',
       });
 
@@ -60,11 +60,11 @@ describe('RecipeIngestionJobRepository', () => {
         expect.objectContaining({
           $set: expect.objectContaining({
             rawData: { RCP_SEQ: '12345' },
-            ingestedAt: expect.any(Date),
+            fetchedAt: expect.any(Date),
           }),
           $setOnInsert: {
             sourceId: '12345',
-            status: 'ingested',
+            status: 'fetched',
             retryCount: 0,
           },
         }),
@@ -81,12 +81,12 @@ describe('RecipeIngestionJobRepository', () => {
 
       const result = await repository.transitionStatus(
         jobId,
-        'ingested',
+        'fetched',
         'submitting',
       );
 
       expect(model.findOneAndUpdate).toHaveBeenCalledWith(
-        { _id: jobId, status: 'ingested' },
+        { _id: jobId, status: 'fetched' },
         { $set: { status: 'submitting' } },
         { new: true },
       );
@@ -96,7 +96,7 @@ describe('RecipeIngestionJobRepository', () => {
     it('should return null for invalid id', async () => {
       const result = await repository.transitionStatus(
         'invalid-id',
-        'ingested',
+        'fetched',
         'submitting',
       );
       expect(result).toBeNull();

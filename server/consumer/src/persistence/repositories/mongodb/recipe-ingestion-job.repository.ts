@@ -14,7 +14,7 @@ export type RecipeIngestionJobStatusUpdate = Partial<
     | 'batchId'
     | 'retrievedData'
     | 'errorMessage'
-    | 'ingestedAt'
+    | 'fetchedAt'
     | 'submittedAt'
     | 'retrievedAt'
     | 'persistedAt'
@@ -49,7 +49,7 @@ export class RecipeIngestionJobRepository {
     status: RecipeIngestionJobStatus,
     limit?: number,
   ): Promise<RecipeIngestionJobDocument[]> {
-    const query = this.jobModel.find({ status }).sort({ ingestedAt: 1 });
+    const query = this.jobModel.find({ status }).sort({ fetchedAt: 1 });
     if (limit !== undefined) {
       query.limit(limit);
     }
@@ -57,12 +57,9 @@ export class RecipeIngestionJobRepository {
   }
 
   /**
-   * sourceId(RCP_SEQ) 기준 upsert — ingest 멱등성
+   * fetch 단계 row 처리 실패 시 retry_count 증가, 상한 초과 시 failed
    */
-  /**
-   * ingest 단계 row 처리 실패 시 retry_count 증가, 상한 초과 시 failed
-   */
-  async recordIngestFailure(
+  async recordFetchFailure(
     sourceId: string,
     errorMessage: string,
   ): Promise<RecipeIngestionJobDocument> {
@@ -86,7 +83,7 @@ export class RecipeIngestionJobRepository {
             sourceId,
             status: failed
               ? ('failed' as RecipeIngestionJobStatus)
-              : ('ingested' as RecipeIngestionJobStatus),
+              : ('fetched' as RecipeIngestionJobStatus),
           },
         },
         { new: true, upsert: true },
@@ -94,7 +91,8 @@ export class RecipeIngestionJobRepository {
       .exec() as Promise<RecipeIngestionJobDocument>;
   }
 
-  async upsertIngested(
+  /** sourceId(RCP_SEQ) 기준 upsert — fetch 멱등성 */
+  async upsertFetched(
     sourceId: string,
     rawData: Record<string, unknown>,
   ): Promise<RecipeIngestionJobDocument> {
@@ -105,11 +103,11 @@ export class RecipeIngestionJobRepository {
         {
           $set: {
             rawData,
-            ingestedAt: now,
+            fetchedAt: now,
           },
           $setOnInsert: {
             sourceId,
-            status: 'ingested' as RecipeIngestionJobStatus,
+            status: 'fetched' as RecipeIngestionJobStatus,
             retryCount: 0,
           },
         },

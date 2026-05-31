@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
-  DEFAULT_RECIPE_INGEST_FETCH_LIMIT,
-  MAX_RECIPE_INGEST_FETCH_LIMIT,
+  DEFAULT_RECIPE_FETCH_LIMIT,
+  MAX_RECIPE_FETCH_LIMIT,
 } from '@mealio/shared';
 import {
   PublicDataApiClient,
@@ -11,15 +11,15 @@ import {
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { RecipeIngestionStateRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-state.repository';
 
-export interface IngestOptions {
-  ingestFetchLimit?: number;
+export interface FetchOptions {
+  fetchLimit?: number;
   maxApiRetries?: number;
 }
 
-export interface IngestResult {
+export interface FetchResult {
   startIdx: number;
   endIdx: number;
-  ingestedCount: number;
+  fetchedCount: number;
   exhausted: boolean;
 }
 
@@ -27,12 +27,13 @@ const DEFAULT_MAX_API_RETRIES = 3;
 const RETRY_BASE_DELAY_MS = 1_000;
 
 /**
- * 공공데이터 API ingest — recipe_ingestion_jobs에 status: ingested 적재
+ * 공공데이터 API fetch — recipe_ingestion_jobs에 status: fetched 적재.
+ * submit·retrieve와 결합하지 않는 standalone 단계.
  * @see agent/backend/guidelines/recipe_ingestion_guidelines.md §5.1
  */
 @Injectable()
-export class IngestService {
-  private readonly logger = new Logger(IngestService.name);
+export class FetchService {
+  private readonly logger = new Logger(FetchService.name);
 
   constructor(
     private readonly publicDataApiClient: PublicDataApiClient,
@@ -40,19 +41,15 @@ export class IngestService {
     private readonly stateRepository: RecipeIngestionStateRepository,
   ) {}
 
-  async ingest(options: IngestOptions = {}): Promise<IngestResult> {
-    const ingestFetchLimit = this.resolveFetchLimit(options.ingestFetchLimit);
+  async fetch(options: FetchOptions = {}): Promise<FetchResult> {
+    const fetchLimit = this.resolveFetchLimit(options.fetchLimit);
     const maxApiRetries = options.maxApiRetries ?? DEFAULT_MAX_API_RETRIES;
 
     const lastEndIdx = await this.stateRepository.getLastEndIdx();
     const startIdx = lastEndIdx + 1;
-    const endIdx = startIdx + ingestFetchLimit - 1;
+    const endIdx = startIdx + fetchLimit - 1;
 
-    this.publicDataApiClient.assertFetchRangeValid(
-      startIdx,
-      endIdx,
-      ingestFetchLimit,
-    );
+    this.publicDataApiClient.assertFetchRangeValid(startIdx, endIdx, fetchLimit);
 
     const response = await this.fetchWithRetry(startIdx, endIdx, maxApiRetries);
 
@@ -63,12 +60,12 @@ export class IngestService {
       return {
         startIdx,
         endIdx,
-        ingestedCount: 0,
+        fetchedCount: 0,
         exhausted: true,
       };
     }
 
-    let ingestedCount = 0;
+    let fetchedCount = 0;
     for (const row of response.rows) {
       const sourceId = this.extractSourceId(row);
       if (!sourceId) {
@@ -77,39 +74,39 @@ export class IngestService {
       }
 
       try {
-        await this.jobRepository.upsertIngested(sourceId, row);
-        ingestedCount++;
+        await this.jobRepository.upsertFetched(sourceId, row);
+        fetchedCount++;
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : 'Unknown ingest error';
-        await this.jobRepository.recordIngestFailure(sourceId, message);
+          error instanceof Error ? error.message : 'Unknown fetch error';
+        await this.jobRepository.recordFetchFailure(sourceId, message);
         this.logger.warn(`Failed to upsert sourceId=${sourceId}: ${message}`);
       }
     }
 
     await this.stateRepository.setLastEndIdx(endIdx);
     this.logger.log(
-      `Ingested ${ingestedCount} recipes startIdx=${startIdx} endIdx=${endIdx}`,
+      `Fetched ${fetchedCount} recipes startIdx=${startIdx} endIdx=${endIdx}`,
     );
 
     return {
       startIdx,
       endIdx,
-      ingestedCount,
+      fetchedCount,
       exhausted: false,
     };
   }
 
   private resolveFetchLimit(limit?: number): number {
-    const resolved = limit ?? DEFAULT_RECIPE_INGEST_FETCH_LIMIT;
+    const resolved = limit ?? DEFAULT_RECIPE_FETCH_LIMIT;
     if (resolved < 1) {
       throw new PublicDataFetchLimitError(
-        `ingestFetchLimit must be >= 1, received ${resolved}`,
+        `fetchLimit must be >= 1, received ${resolved}`,
       );
     }
-    if (resolved > MAX_RECIPE_INGEST_FETCH_LIMIT) {
+    if (resolved > MAX_RECIPE_FETCH_LIMIT) {
       throw new PublicDataFetchLimitError(
-        `ingestFetchLimit (${resolved}) exceeds maximum ${MAX_RECIPE_INGEST_FETCH_LIMIT} (ERROR-336)`,
+        `fetchLimit (${resolved}) exceeds maximum ${MAX_RECIPE_FETCH_LIMIT} (ERROR-336)`,
       );
     }
     return resolved;
@@ -159,7 +156,7 @@ export class IngestService {
 
     throw (
       lastError ??
-      new PublicDataApiError('UNKNOWN', 'Ingest fetch failed', false)
+      new PublicDataApiError('UNKNOWN', 'Recipe fetch failed', false)
     );
   }
 

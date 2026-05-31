@@ -4,7 +4,7 @@
  */
 
 export const RECIPE_INGESTION_JOB_STATUSES = [
-  'ingested',
+  'fetched',
   'submitting',
   'submitted',
   'retrieving',
@@ -23,6 +23,9 @@ export const MAX_RECIPE_INGESTION_RETRY_COUNT = 3;
 /** recipe_ingestion_state singleton 문서 키 */
 export const RECIPE_INGESTION_STATE_KEY = 'singleton';
 
-/** ingest 1회 요청 기본·상한 (공공 API ERROR-336) */
-export const DEFAULT_RECIPE_INGEST_FETCH_LIMIT = 100;
-export const MAX_RECIPE_INGEST_FETCH_LIMIT = 1000;
+/** fetch 1회 요청 기본·상한 (공공 API ERROR-336) */
+export const DEFAULT_RECIPE_FETCH_LIMIT = 100;
+export const MAX_RECIPE_FETCH_LIMIT = 1000;
+
+/** submit 1회 제출 기본 건수 (status: fetched 대상) */
+export const DEFAULT_RECIPE_SUBMIT_BATCH_SIZE = 100;

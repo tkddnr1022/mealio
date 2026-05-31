@@ -21,7 +21,7 @@ export class RecipeIngestionState extends Document {
   })
   key: string;
 
-  /** 마지막으로 요청한 endIdx (없으면 ingest 시 0으로 간주) */
+  /** 마지막으로 요청한 endIdx (없으면 fetch 시 0으로 간주) */
   @Prop({ required: true, type: Number, default: 0 })
   lastEndIdx: number;
 

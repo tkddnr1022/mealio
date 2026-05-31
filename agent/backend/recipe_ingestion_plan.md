@@ -19,12 +19,13 @@
 ## 파이프라인 개요
 
 ```
-[ingest] → [submit] → [retrieve] → [persist]
+[fetch] → [submit] → [retrieve] → [persist]
 ```
 
 | 단계 | 수행 주체 | 구동 | 예정 경로 |
 |------|-----------|------|-----------|
-| ingest + submit | standalone job | cron → CLI | `server/consumer/src/jobs/recipe-ingestion/` |
+| fetch | standalone job | cron → CLI | `server/consumer/src/jobs/recipe-ingestion-fetch/` |
+| submit | standalone job | cron → CLI | `server/consumer/src/jobs/recipe-ingestion-submit/` |
 | retrieve | standalone job | cron → CLI | `server/consumer/src/jobs/recipe-ingestion-retrieve/` |
 | persist | always-on consumer | Kafka 구독 | `server/consumer/src/consumers/recipe-ingestion-persist/` |
 
@@ -42,21 +43,21 @@
 http://openapi.foodsafetykorea.go.kr/api/{keyId}/{serviceId}/{dataType}/{startIdx}/{endIdx}
 ```
 
-### ingestion에서 사용하는 인자
+### fetch 단계에서 사용하는 인자
 
 | 인자 | 출처 | 값 |
 |------|------|-----|
 | `keyId` | `PUBLIC_DATA_API_KEY` | Open API 인증키 |
 | `serviceId` | `PUBLIC_DATA_SERVICE_ID` | `COOKRCP01` (기본) |
 | `dataType` | `PUBLIC_DATA_TYPE` | `json` (기본) |
-| `startIdx` | ingest 로직 계산 | `last_end_idx + 1` |
-| `endIdx` | ingest 로직 계산 | `startIdx + ingestFetchLimit - 1` |
+| `startIdx` | fetch 로직 계산 | `last_end_idx + 1` |
+| `endIdx` | fetch 로직 계산 | `startIdx + fetchLimit - 1` |
 
 **미사용 (선택 쿼리)**: `RCP_NM`, `RCP_PARTS_DTLS`, `CHNG_DT`, `RCP_PAT2`
 
 ### API 제약·응답
 
-- 1회 요청 최대 **1000건** (`ERROR-336`) — `ingestFetchLimit` ≤ 1000
+- 1회 요청 최대 **1000건** (`ERROR-336`) — `fetchLimit` ≤ 1000
 - `INFO-000`: 정상 · row 파싱 후 upsert
 - `INFO-200`: 데이터 없음 · 0건 종료
 - `INFO-100` / `INFO-300` / `INFO-400` / `ERROR-5xx` 등: 가이드라인 표의 재시도·실패 정책
@@ -74,7 +75,7 @@ http://openapi.foodsafetykorea.go.kr/api/{keyId}/{serviceId}/{dataType}/{startId
 
 ```mermaid
 flowchart LR
-  P0[Phase 0<br/>기반·스키마] --> P1[Phase 1<br/>ingest]
+  P0[Phase 0<br/>기반·스키마] --> P1[Phase 1<br/>fetch]
   P0 --> P2[Phase 2<br/>submit]
   P1 --> P2
   P2 --> P3[Phase 3<br/>retrieve]
@@ -86,7 +87,7 @@ flowchart LR
 | Phase | 이름 | 핵심 산출 | 가이드라인 대응 |
 |-------|------|-----------|-----------------|
 | 0 | 기반·스키마 | Mongoose·Kafka·공통 상수·env | §2.6, §3 |
-| 1 | ingest | 공공데이터 수집 job | §5.1 |
+| 1 | fetch | 공공데이터 수집 job | §5.1 |
 | 2 | submit | OpenAI Batch 제출 job | §5.2, §6 |
 | 3 | retrieve | Batch 완료 조회·결과 반영 job | §5.3 |
 | 4 | persist | Kafka consumer + PG 영속화 | §5.4, §2.5 |
@@ -104,8 +105,8 @@ flowchart LR
 
 - [ ] MongoDB `recipe_ingestion_state` Mongoose 스키마 — `last_end_idx` API 커서 (singleton)
 - [ ] MongoDB `recipe_ingestion_jobs` Mongoose 스키마·모델 정의
-  - 필드: `source_id`(unique, API `RCP_SEQ`), `status`, `retry_count`, `raw_data`, `batch_id`, `retrieved_data`, `error_message`, 타임스탬프(`ingested_at` ~ `failed_at`)
-  - `status` enum: `ingested | submitting | submitted | retrieving | retrieved | persisting | persisted | failed`
+  - 필드: `source_id`(unique, API `RCP_SEQ`), `status`, `retry_count`, `raw_data`, `batch_id`, `retrieved_data`, `error_message`, 타임스탬프(`fetched_at` ~ `failed_at`)
+  - `status` enum: `fetched | submitting | submitted | retrieving | retrieved | persisting | persisted | failed`
 - [ ] `RecipeIngestionJobRepository` (MongoDB) — upsert·조건부 status 전환(낙관적 락)·batch 단위 조회
 - [ ] `RecipeIngestionStateRepository` — `last_end_idx` get/set
 - [ ] `@mealio/shared` Kafka 상수 등록 (기존 토픽과 동일 — `backend_architecture_spec_consumer.md` §2.2)
@@ -144,9 +145,9 @@ flowchart LR
 
 ---
 
-## Phase 1 — ingest
+## Phase 1 — fetch
 
-**목표**: 공공데이터 API에서 신규 레시피를 수집해 `recipe_ingestion_jobs`에 `status: ingested`로 적재한다.
+**목표**: 공공데이터 API에서 신규 레시피를 수집해 `recipe_ingestion_jobs`에 `status: fetched`로 적재한다.
 
 **선행 조건**: Phase 0
 
@@ -156,14 +157,15 @@ flowchart LR
   - URL: `GET /api/{keyId}/{serviceId}/{dataType}/{startIdx}/{endIdx}`
   - 경로 인자만 사용 — 선택 쿼리(`RCP_NM` 등) 미사용
   - `RESULT.CODE` 파싱 — `INFO-000` / `INFO-200` / 오류 코드별 분기 (가이드라인 §4.3)
-  - `ingestFetchLimit` > 1000 요청 시 클라이언트 단에서 거부 또는 분할 (API `ERROR-336`)
-- [ ] **`IngestService`**
+  - `fetchLimit` > 1000 요청 시 클라이언트 단에서 거부 또는 분할 (API `ERROR-336`)
+- [ ] **`FetchService`** — 공공데이터 수집만 (submit·retrieve 미호출)
   1. `recipe_ingestion_state`에서 `last_end_idx` 조회 (없으면 `0`)
-  2. `startIdx = last_end_idx + 1`, `endIdx = startIdx + ingestFetchLimit - 1` 계산
+  2. `startIdx = last_end_idx + 1`, `endIdx = startIdx + fetchLimit - 1` 계산
   3. API 호출 (`COOKRCP01`, `json`)
-  4. `INFO-000`: 각 row `RCP_SEQ` → `source_id` upsert (`status: ingested`, `raw_data`, `ingested_at`)
+  4. `INFO-000`: 각 row `RCP_SEQ` → `source_id` upsert (`status: fetched`, `raw_data`, `fetched_at`)
   5. `INFO-200`: 0건 반환, 커서 미갱신
   6. 성공 시 `last_end_idx = endIdx` 저장
+- [ ] CLI 엔트리포인트 `run-recipe-ingestion-fetch.ts` + `package.json` script `job:recipe-ingestion-fetch`
 - [ ] 실패 처리: recoverable 오류 재시도 · job 단위 `retry_count++` · `retry_count >= 3` → `failed`
 - [ ] 단위 테스트 — API mock · `INFO-200` · `ERROR-336` · 동일 `RCP_SEQ` upsert · 커서 갱신 (`backend_development_guidelines.md` §2 — `__tests__/services/`)
 
@@ -171,9 +173,11 @@ flowchart LR
 
 | 경로 | 역할 |
 |------|------|
-| `server/consumer/src/jobs/recipe-ingestion/services/ingest.service.ts` | ingest 로직 |
+| `server/consumer/src/jobs/recipe-ingestion-fetch/recipe-ingestion-fetch.module.ts` | fetch standalone job 모듈 |
+| `server/consumer/src/jobs/recipe-ingestion-fetch/services/fetch.service.ts` | fetch 로직 |
+| `server/consumer/src/jobs/recipe-ingestion-fetch/run-recipe-ingestion-fetch.ts` | fetch CLI |
 | `server/consumer/src/integrations/public-data/public-data-api.client.ts` | 공공 API HTTP 클라이언트 |
-| `server/consumer/src/jobs/recipe-ingestion/__tests__/services/ingest.service.spec.ts` | 단위 테스트 |
+| `server/consumer/src/jobs/recipe-ingestion-fetch/__tests__/services/fetch.service.spec.ts` | 단위 테스트 |
 
 ### 완료 기준
 
@@ -181,61 +185,62 @@ flowchart LR
 - `INFO-200` 시 커서·job 건수 변화 없음
 - 동일 `RCP_SEQ`(`source_id`) 재수집 시 job 문서 1건만 유지(upsert)
 - API 장애·`INFO-300` 시 재시도 정책이 가이드라인과 일치
-- `ingestFetchLimit` CLI 플래그(`--ingest-fetch-limit`, 기본 100, 최대 1000) 파싱 가능 (Phase 2 orchestration에서 사용)
+- `fetchLimit` CLI 플래그(`--fetch-limit`, 기본 100, 최대 1000) 파싱 가능
+- cron → CLI → `NestFactory.createApplicationContext` 패턴 준수 (`run-kpi-rollup.ts` 참고)
 
 ---
 
-## Phase 2 — submit (ingest+submit 오케스트레이션)
+## Phase 2 — submit
 
-**목표**: `status: ingested` job을 OpenAI Batch API에 제출하고 `status: submitted`로 전환한다. ingest 부족 시 자동 수집 후 submit한다.
+**목표**: `status: fetched` job을 OpenAI Batch API에 제출하고 `status: submitted`로 전환한다. fetch와 **독립 standalone job**이며, fetch 부족 시 자동 수집하지 않는다(운영 레이어에서 fetch cron 조율).
 
 **선행 조건**: Phase 0, Phase 1
 
 ### 작업 항목
 
-- [ ] **오케스트레이션** (`RecipeIngestionOrchestrator`)
-  1. `ingested` 건수 조회 → `available`
-  2. `available < submitBatchSize`이면 `IngestService` 호출
-  3. `min(submitBatchSize, available)`건에 `SubmitService` 실행
+- [ ] **`SubmitService`** — OpenAI Batch 제출만 (FetchService 미호출)
+  1. `status: fetched` job `submitBatchSize`건 조회 (가용 건수 미만이면 가용 건만 처리)
+  2. `fetched` → `submitting` 일괄 전환
+  3. JSONL 생성·Files API 업로드·Batches API 생성
+  4. `submitting` → `submitted` (+ `batch_id`, `submitted_at`)
 - [ ] **카테고리 컨텍스트** — Redis TTL 1h 캐시 (기존 `FoodCategoriesHandler` 패턴 재사용 또는 공유 서비스 추출)
 - [ ] **system_prompt** 템플릿 — 출력 JSON 스키마·어조·노이즈 제거·카테고리 목록·재료 정규화·`parse_confidence`/`parse_issues`/`ingredient_alias` 지시
 - [ ] **JSONL 생성** — `custom_id` = job `_id`, model = `ConfigService.getOrThrow('OPENAI_BATCH_MODEL')`, `response_format: json_object`
 - [ ] **OpenAI Batch 연동**
   - Files API 업로드 (`purpose: batch`)
   - Batches API 생성 (`endpoint: /v1/chat/completions`, `completion_window: 24h`)
-- [ ] 상태 전이: `ingested` → `submitting` → `submitted` (+ `batch_id`, `submitted_at`)
-- [ ] CLI 엔트리포인트 `run-recipe-ingestion.ts` + `package.json` script `job:recipe-ingestion`
+- [ ] CLI 엔트리포인트 `run-recipe-ingestion-submit.ts` + `package.json` script `job:recipe-ingestion-submit`
 - [ ] 통합 테스트 — OpenAI mock·JSONL 형식·`OPENAI_BATCH_MODEL` 주입 검증 (`__tests__/services/`)
 
 ### 예정 파일
 
 | 경로 | 역할 |
 |------|------|
-| `server/consumer/src/jobs/recipe-ingestion/recipe-ingestion.module.ts` | Nest 모듈 |
-| `server/consumer/src/jobs/recipe-ingestion/recipe-ingestion.orchestrator.ts` | ingest+submit 오케스트레이션 |
-| `server/consumer/src/jobs/recipe-ingestion/services/submit.service.ts` | submit 로직 |
-| `server/consumer/src/jobs/recipe-ingestion/services/category-context.service.ts` | Redis·DB 카테고리 조회 |
-| `server/consumer/src/jobs/recipe-ingestion/prompts/recipe-ingestion.system-prompt.ts` | system prompt |
+| `server/consumer/src/jobs/recipe-ingestion-submit/recipe-ingestion-submit.module.ts` | submit standalone job 모듈 |
+| `server/consumer/src/jobs/recipe-ingestion-submit/services/submit.service.ts` | submit 로직 |
+| `server/consumer/src/jobs/recipe-ingestion-submit/services/category-context.service.ts` | Redis·DB 카테고리 조회 |
+| `server/consumer/src/jobs/recipe-ingestion-submit/prompts/recipe-ingestion.system-prompt.ts` | system prompt |
 | `server/consumer/src/integrations/openai/openai-batch.service.ts` | Files·Batches API |
-| `server/consumer/src/jobs/recipe-ingestion/run-recipe-ingestion.ts` | CLI |
+| `server/consumer/src/jobs/recipe-ingestion-submit/run-recipe-ingestion-submit.ts` | submit CLI |
 
 ### CLI 계약
 
 ```bash
-pnpm --filter consumer run job:recipe-ingestion
-pnpm --filter consumer run job:recipe-ingestion --submit-batch-size 50 --ingest-fetch-limit 100
+pnpm --filter consumer run job:recipe-ingestion-submit
+pnpm --filter consumer run job:recipe-ingestion-submit --submit-batch-size 50
 ```
 
 | 플래그 | 기본값 | 제약 |
 |--------|--------|------|
-| `--submit-batch-size` | 100 | `ingestFetchLimit >= submitBatchSize` 권장 |
-| `--ingest-fetch-limit` | 100 | API 1회 최대 1000 (`ERROR-336`) |
+| `--submit-batch-size` | 100 | 가용 `fetched` 건수 미만이면 가용 건만 제출 |
 
 ### 완료 기준
 
-- E2E(mock): ingest → JSONL 업로드 → batch 생성 → Mongo `submitted` 일괄 반영
-- Batch API 실패 시 `submitting` job이 `ingested`로 복귀·retry_count 증가
+- E2E(mock): JSONL 업로드 → batch 생성 → Mongo `submitted` 일괄 반영
+- `fetched` 0건 시 no-op 종료 (fetch CLI 미호출)
+- Batch API 실패 시 `submitting` job이 `fetched`로 복귀·retry_count 증가
 - cron → CLI → `NestFactory.createApplicationContext` 패턴 준수 (`run-kpi-rollup.ts` 참고)
+- submit job이 fetch job과 **독립 모듈·CLI·배포**
 
 ---
 
@@ -250,11 +255,11 @@ pnpm --filter consumer run job:recipe-ingestion --submit-batch-size 50 --ingest-
 - [ ] **RetrieveService** — `status: submitted`인 distinct `batch_id` 조회
 - [ ] Batch 상태 확인 (`GET /v1/batches/{id}`)
   - `completed` → retrieve 단계 수행
-  - `failed` / `expired` → `retry_count++`, `status: ingested` (`expired`도 재시도 횟수 소모 — 가이드라인 §5.3)
+  - `failed` / `expired` → `retry_count++`, `status: fetched` (`expired`도 재시도 횟수 소모 — 가이드라인 §5.3)
   - `retry_count >= 3` → `status: failed`, `failed_at`
   - `in_progress` / `validating` / `finalizing` → 변경 없음
 - [ ] output JSONL 스트리밍 다운로드·라인 파싱
-  - 오류 라인: `retry_count++`, `status: ingested`, `error_message`
+  - 오류 라인: `retry_count++`, `status: fetched`, `error_message`
   - 성공 라인: `retrieved_data` 저장, `status: retrieved`, `retrieved_at`
 - [ ] Kafka `recipe-ingestion-retrieved` 발행 — payload `{ jobId }`, key = `jobId`
 - [ ] CLI 엔트리포인트 `run-recipe-ingestion-retrieve.ts` + `package.json` script `job:recipe-ingestion-retrieve`
@@ -276,7 +281,7 @@ pnpm --filter consumer run job:recipe-ingestion-retrieve
 ### 완료 기준
 
 - mock batch `completed` → job별 `retrieved` + Kafka 메시지 1건/job
-- mock batch `expired` → 해당 batch job `retry_count++`·`ingested` 복귀
+- mock batch `expired` → 해당 batch job `retry_count++`·`fetched` 복귀
 - partial failure JSONL → 성공·실패 job 분리 처리
 - `in_progress` batch — CLI 1회 실행 시 job 상태 불변, 이후 cron 재실행 시 `completed` 처리
 - cron → CLI → `NestFactory.createApplicationContext` 패턴 준수 (`run-kpi-rollup.ts` 참고)
@@ -356,11 +361,13 @@ pnpm --filter consumer run job:recipe-ingestion-retrieve
 
 | Scheduled Task | 호출 CLI | 주기 (초안) | 배포 단위 |
 |----------------|----------|-------------|-----------|
-| recipe-ingestion-orchestrator | `pnpm --filter consumer run job:recipe-ingestion` | 운영 정책 확정 | ingest+submit 1 태스크 |
+| recipe-ingestion-fetch | `pnpm --filter consumer run job:recipe-ingestion-fetch` | 운영 정책 확정 | fetch 별도 태스크 |
+| recipe-ingestion-submit | `pnpm --filter consumer run job:recipe-ingestion-submit` | 운영 정책 확정 | submit 별도 태스크 |
 | recipe-ingestion-retrieve | `pnpm --filter consumer run job:recipe-ingestion-retrieve` | 1~5분 | retrieve 별도 태스크 |
 | recipe-ingestion-persist | — | always-on | Kafka consumer ECS service |
 
-- [ ] ECS Scheduled Task / cron 스케줄 정의 (ingest+submit, retrieve 분리)
+- [ ] ECS Scheduled Task / cron 스케줄 정의 (fetch·submit·retrieve **각각 분리**)
+- [ ] **운영 runbook** — fetch/submit cron 주기·`fetchLimit`/`submitBatchSize` 조율 (`fetchLimit >= submitBatchSize` 권장)
 - [ ] ECS Task Definition·IAM·환경 변수 (`OPENAI_BATCH_MODEL`·공공데이터 API 키 포함)
 - [ ] EventBridge / cron 표현식·타임존·동시 실행 정책
 - [ ] **단계별 Prometheus 메트릭** (`consumer-metrics.service` 확장)
@@ -388,10 +395,10 @@ pnpm --filter consumer run job:recipe-ingestion-retrieve
 
 Phase 5 또는 각 Phase 완료 시 아래를 순차 검증한다.
 
-1. **Happy path**: 공공 API mock 10건 → ingest → submit(mock batch) → retrieve(mock output) → persist → PG Recipe 10건·Mongo `persisted`
-2. ** ingest 부족**: `ingested` 0건 상태에서 orchestrator가 ingest 후 submit
-3. **Batch partial fail**: JSONL 일부 `status_code != 200` → 해당 job만 `ingested` 복귀·`retry_count++`
-4. **Batch expired**: OpenAI batch `expired` → batch 소속 job `retry_count++`·`ingested` 복귀
+1. **Happy path**: 공공 API mock 10건 → fetch CLI → submit CLI(mock batch) → retrieve(mock output) → persist → PG Recipe 10건·Mongo `persisted`
+2. **fetch 부족**: `fetched` 0건 상태에서 submit CLI no-op · fetch cron 후 submit cron 재실행으로 제출
+3. **Batch partial fail**: JSONL 일부 `status_code != 200` → 해당 job만 `fetched` 복귀·`retry_count++`
+4. **Batch expired**: OpenAI batch `expired` → batch 소속 job `retry_count++`·`fetched` 복귀
 5. **Kafka redelivery**: persist 중복 consume → PG row count 불변
 6. **retry ceiling**: `retry_count >= 3` → `failed`, 더 이상 자동 submit 제외
 
@@ -402,7 +409,7 @@ Phase 5 또는 각 Phase 완료 시 아래를 순차 검증한다.
 가이드라인 §8과 구현 대응:
 
 ```
-ingested → submitting → submitted
+fetched → submitting → submitted
         → retrieving → retrieved
         → persisting → persisted
 retry_count >= 3 → failed
@@ -410,8 +417,8 @@ retry_count >= 3 → failed
 
 | 전이 | 구현 Phase | 검증 |
 |------|------------|------|
-| → ingested | 1 | upsert |
-| ingested → submitting → submitted | 2 | batch_id 설정 |
+| → fetched | 1 | upsert |
+| fetched → submitting → submitted | 2 | batch_id 설정 |
 | submitted → retrieving → retrieved | 3 | retrieved_data·Kafka |
 | retrieved → persisting → persisted | 4 | PG upsert |
 | any → failed (retry ≥ 3) | 1~4 공통 | failed_at |
@@ -431,11 +438,11 @@ retry_count >= 3 → failed
 
 ```
 Phase 0 (기반)
-  └─► Phase 1 (ingest)
-        └─► Phase 2 (submit + orchestration + CLI)
+  └─► Phase 1 (fetch + fetch CLI)
+        └─► Phase 2 (submit + submit CLI)
               └─► Phase 3 (retrieve + CLI)
                     └─► Phase 4-A → 4-B-1 (persist MVP)
-                          └─► Phase 5 (운영)
+                          └─► Phase 5 (운영 — cron·runbook으로 단계 조율)
                                 └─► Phase 4-B-2 (vector 매칭, 선택)
 ```
 

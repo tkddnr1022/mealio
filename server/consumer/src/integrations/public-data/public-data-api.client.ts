@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MAX_RECIPE_INGEST_FETCH_LIMIT } from '@mealio/shared';
+import { MAX_RECIPE_FETCH_LIMIT } from '@mealio/shared';
 
 export const PUBLIC_DATA_API_BASE_URL =
   'http://openapi.foodsafetykorea.go.kr/api';
@@ -62,12 +62,12 @@ export class PublicDataApiClient {
   ) {}
 
   /**
-   * ingestFetchLimit 및 startIdx/endIdx 구간이 API 1000건 한도 이내인지 검증
+   * fetchLimit 및 startIdx/endIdx 구간이 API 1000건 한도 이내인지 검증
    */
   assertFetchRangeValid(
     startIdx: number,
     endIdx: number,
-    ingestFetchLimit?: number,
+    fetchLimit?: number,
   ): void {
     if (startIdx < 1) {
       throw new PublicDataFetchLimitError(
@@ -81,18 +81,15 @@ export class PublicDataApiClient {
     }
 
     const rangeCount = endIdx - startIdx + 1;
-    if (rangeCount > MAX_RECIPE_INGEST_FETCH_LIMIT) {
+    if (rangeCount > MAX_RECIPE_FETCH_LIMIT) {
       throw new PublicDataFetchLimitError(
-        `Request range exceeds API limit (${MAX_RECIPE_INGEST_FETCH_LIMIT}): ${rangeCount} rows (ERROR-336)`,
+        `Request range exceeds API limit (${MAX_RECIPE_FETCH_LIMIT}): ${rangeCount} rows (ERROR-336)`,
       );
     }
 
-    if (
-      ingestFetchLimit !== undefined &&
-      ingestFetchLimit > MAX_RECIPE_INGEST_FETCH_LIMIT
-    ) {
+    if (fetchLimit !== undefined && fetchLimit > MAX_RECIPE_FETCH_LIMIT) {
       throw new PublicDataFetchLimitError(
-        `ingestFetchLimit (${ingestFetchLimit}) exceeds maximum ${MAX_RECIPE_INGEST_FETCH_LIMIT} (ERROR-336)`,
+        `fetchLimit (${fetchLimit}) exceeds maximum ${MAX_RECIPE_FETCH_LIMIT} (ERROR-336)`,
       );
     }
   }
