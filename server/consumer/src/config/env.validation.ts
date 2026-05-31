@@ -58,14 +58,6 @@ export const envValidationSchema = Joi.object({
     'any.required': 'PUBLIC_DATA_API_KEY is required',
   }),
 
-  PUBLIC_DATA_SERVICE_ID: Joi.string().default('COOKRCP01').messages({
-    'string.empty': 'PUBLIC_DATA_SERVICE_ID must not be empty',
-  }),
-
-  PUBLIC_DATA_TYPE: Joi.string().default('json').messages({
-    'string.empty': 'PUBLIC_DATA_TYPE must not be empty',
-  }),
-
   OPENAI_BATCH_MODEL: Joi.string().min(1).required().messages({
     'string.empty': 'OPENAI_BATCH_MODEL must not be empty',
     'any.required': 'OPENAI_BATCH_MODEL is required',

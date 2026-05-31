@@ -235,11 +235,6 @@ describe('PublicDataApiClient', () => {
       if (key === 'PUBLIC_DATA_API_KEY') return 'test-api-key';
       throw new Error(`Missing ${key}`);
     }),
-    get: jest.fn((key: string) => {
-      if (key === 'PUBLIC_DATA_SERVICE_ID') return 'COOKRCP01';
-      if (key === 'PUBLIC_DATA_TYPE') return 'json';
-      return undefined;
-    }),
   } as unknown as ConfigService;
 
   beforeEach(() => {

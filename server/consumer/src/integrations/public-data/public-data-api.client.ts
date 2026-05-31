@@ -5,6 +5,12 @@ import { MAX_RECIPE_FETCH_LIMIT } from '@mealio/shared';
 export const PUBLIC_DATA_API_BASE_URL =
   'http://openapi.foodsafetykorea.go.kr/api';
 
+/** 식품의약품안전처 조리식품 레시피 DB Open API serviceId */
+export const PUBLIC_DATA_SERVICE_ID = 'COOKRCP01';
+
+/** 공공 API 응답 형식 (ingestion은 json 고정) */
+export const PUBLIC_DATA_TYPE = 'json';
+
 /** 공공 API RESULT.CODE — recoverable 여부 */
 const RECOVERABLE_RESULT_CODES = new Set([
   'INFO-300',
@@ -96,11 +102,8 @@ export class PublicDataApiClient {
 
   buildUrl(startIdx: number, endIdx: number): string {
     const keyId = this.config.getOrThrow<string>('PUBLIC_DATA_API_KEY');
-    const serviceId =
-      this.config.get<string>('PUBLIC_DATA_SERVICE_ID') ?? 'COOKRCP01';
-    const dataType = this.config.get<string>('PUBLIC_DATA_TYPE') ?? 'json';
 
-    return `${PUBLIC_DATA_API_BASE_URL}/${encodeURIComponent(keyId)}/${encodeURIComponent(serviceId)}/${encodeURIComponent(dataType)}/${startIdx}/${endIdx}`;
+    return `${PUBLIC_DATA_API_BASE_URL}/${encodeURIComponent(keyId)}/${encodeURIComponent(PUBLIC_DATA_SERVICE_ID)}/${encodeURIComponent(PUBLIC_DATA_TYPE)}/${startIdx}/${endIdx}`;
   }
 
   async fetchRecipes(
@@ -144,9 +147,7 @@ export class PublicDataApiClient {
   }
 
   parseResponseBody(body: unknown): PublicDataFetchResult {
-    const serviceId =
-      this.config.get<string>('PUBLIC_DATA_SERVICE_ID') ?? 'COOKRCP01';
-    const envelope = this.extractEnvelope(body, serviceId);
+    const envelope = this.extractEnvelope(body, PUBLIC_DATA_SERVICE_ID);
     const code = envelope.resultCode;
     const message = envelope.resultMessage;
 

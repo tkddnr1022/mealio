@@ -48,8 +48,8 @@ http://openapi.foodsafetykorea.go.kr/api/{keyId}/{serviceId}/{dataType}/{startId
 | 인자 | 출처 | 값 |
 |------|------|-----|
 | `keyId` | `PUBLIC_DATA_API_KEY` | Open API 인증키 |
-| `serviceId` | `PUBLIC_DATA_SERVICE_ID` | `COOKRCP01` (기본) |
-| `dataType` | `PUBLIC_DATA_TYPE` | `json` (기본) |
+| `serviceId` | `public-data-api.client.ts` `PUBLIC_DATA_SERVICE_ID` | `COOKRCP01` |
+| `dataType` | `public-data-api.client.ts` `PUBLIC_DATA_TYPE` | `json` |
 | `startIdx` | fetch 로직 계산 | `last_end_idx + 1` |
 | `endIdx` | fetch 로직 계산 | `startIdx + fetchLimit - 1` |
 
@@ -119,9 +119,8 @@ flowchart LR
   - `reliability/monitoring/consumer-lag.monitor.ts` (`GROUP_TOPIC_MAP` — lag 수집)
 - [ ] `env.validation.ts` — 공공데이터 API·OpenAI Batch 관련 변수 검증
   - `PUBLIC_DATA_API_KEY` (필수)
-  - `PUBLIC_DATA_SERVICE_ID` (기본 `COOKRCP01`)
-  - `PUBLIC_DATA_TYPE` (기본 `json`)
   - `OPENAI_BATCH_MODEL` (필수 — Batch JSONL `body.model`. `OPENAI_CHAT_MODEL`과 분리)
+- [ ] `public-data-api.client.ts` — `PUBLIC_DATA_SERVICE_ID`(`COOKRCP01`), `PUBLIC_DATA_TYPE`(`json`) 상수
 - [ ] Consumer `.env.example`에 위 변수·예시 값 반영
 - [ ] `backend_architecture_spec_consumer.md` §2.1·§2.2에 신규 경로·토픽 **초안** 반영 (Phase 5에서 최종 동기화)
 
