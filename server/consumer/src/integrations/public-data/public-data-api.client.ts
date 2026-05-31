@@ -52,7 +52,7 @@ export type PublicDataFetchResult =
   | PublicDataFetchEmpty;
 
 /**
- * 식품의약품안전처 공공데이터 Open API (COOKRCP01) HTTP 클라이언트
+ * 식품의약품안전처 공공데이터 Open API HTTP 클라이언트
  * @see agent/backend/guidelines/recipe_ingestion_guidelines.md §4
  */
 @Injectable()

@@ -33,7 +33,7 @@
 
 ---
 
-## 공공데이터 API (COOKRCP01)
+## 공공데이터 API
 
 식품의약품안전처 Open API **조리식품의 레시피 DB**에서 원본을 가져온다. 상세 절차·응답 코드 처리는 `guidelines/recipe_ingestion_guidelines.md` §4를 따른다.
 
@@ -48,7 +48,7 @@ http://openapi.foodsafetykorea.go.kr/api/{keyId}/{serviceId}/{dataType}/{startId
 | 인자 | 출처 | 값 |
 |------|------|-----|
 | `keyId` | `PUBLIC_DATA_API_KEY` | Open API 인증키 |
-| `serviceId` | `public-data-api.client.ts` `PUBLIC_DATA_SERVICE_ID` | `COOKRCP01` |
+| `serviceId` | `public-data-api.client.ts` `PUBLIC_DATA_SERVICE_ID` | 조리식품 레시피 DB serviceId |
 | `dataType` | `public-data-api.client.ts` `PUBLIC_DATA_TYPE` | `json` |
 | `startIdx` | fetch 로직 계산 | `last_end_idx + 1` |
 | `endIdx` | fetch 로직 계산 | `startIdx + fetchLimit - 1` |
@@ -120,7 +120,7 @@ flowchart LR
 - [ ] `env.validation.ts` — 공공데이터 API·OpenAI Batch 관련 변수 검증
   - `PUBLIC_DATA_API_KEY` (필수)
   - `OPENAI_BATCH_MODEL` (필수 — Batch JSONL `body.model`. `OPENAI_CHAT_MODEL`과 분리)
-- [ ] `public-data-api.client.ts` — `PUBLIC_DATA_SERVICE_ID`(`COOKRCP01`), `PUBLIC_DATA_TYPE`(`json`) 상수
+- [ ] `public-data-api.client.ts` — `PUBLIC_DATA_SERVICE_ID`, `PUBLIC_DATA_TYPE`(`json`) 상수
 - [ ] Consumer `.env.example`에 위 변수·예시 값 반영
 - [ ] `backend_architecture_spec_consumer.md` §2.1·§2.2에 신규 경로·토픽 **초안** 반영 (Phase 5에서 최종 동기화)
 
@@ -160,7 +160,7 @@ flowchart LR
 - [ ] **`FetchService`** — 공공데이터 수집만 (submit·retrieve 미호출)
   1. `recipe_ingestion_state`에서 `last_end_idx` 조회 (없으면 `0`)
   2. `startIdx = last_end_idx + 1`, `endIdx = startIdx + fetchLimit - 1` 계산
-  3. API 호출 (`COOKRCP01`, `json`)
+  3. API 호출 (공공데이터 API, `json`)
   4. `INFO-000`: 각 row `RCP_SEQ` → `source_id` upsert (`status: fetched`, `raw_data`, `fetched_at`)
   5. `INFO-200`: 0건 반환, 커서 미갱신
   6. 성공 시 `last_end_idx = endIdx` 저장
@@ -204,6 +204,7 @@ flowchart LR
   4. `submitting` → `submitted` (+ `batch_id`, `submitted_at`)
 - [ ] **카테고리 컨텍스트** — Redis TTL 1h 캐시 (기존 `FoodCategoriesHandler` 패턴 재사용 또는 공유 서비스 추출)
 - [ ] **system_prompt** 템플릿 — 출력 JSON 스키마·어조·노이즈 제거·카테고리 목록·재료 정규화·`parse_confidence`/`parse_issues`/`ingredient_alias` 지시
+  - **확장**: `imageUrl`, `nutrition`, `cookingMethod`, `dishType`, `steps[].imageUrl` (공공데이터 API §4.5 매핑)
 - [ ] **JSONL 생성** — `custom_id` = job `_id`, model = `ConfigService.getOrThrow('OPENAI_BATCH_MODEL')`, `response_format: json_object`
 - [ ] **OpenAI Batch 연동**
   - Files API 업로드 (`purpose: batch`)
@@ -310,6 +311,7 @@ pnpm --filter consumer run job:recipe-ingestion-retrieve
 #### 4-B — 도메인 영속화
 
 - [ ] `retrieved_data` JSON 스키마 검증 (`response-parser` 또는 전용 validator)
+  - **확장**: `imageUrl`, `nutrition`, `cookingMethod`, `dishType`, `steps[]` 객체 형식(`content`, `imageUrl?`)
 - [ ] 레시피·재료 카테고리 신규 제안 upsert
 - [ ] **재료 매칭** (단계적)
   - 4-B-1 (MVP): 1차 정규화 + 2차 LLM `ingredient_alias` exact match + 3차 정규화명 exact match
@@ -330,7 +332,8 @@ pnpm --filter consumer run job:recipe-ingestion-retrieve
 | `server/consumer/src/consumers/recipe-ingestion-persist/handlers/PersistRecipeHandler.ts` | persist 오케스트레이션 |
 | `server/consumer/src/consumers/recipe-ingestion-persist/__tests__/handlers/PersistRecipeHandler.spec.ts` | handler 단위 테스트 |
 | `server/consumer/src/consumers/recipe-ingestion-persist/services/ingredient-matcher.service.ts` | 재료 매칭 |
-| `server/consumer/src/persistence/transactions/recipe-creation.transaction.ts` | Prisma 트랜잭션 |
+| `server/consumer/src/persistence/transactions/recipe-creation.transaction.ts` | Prisma 트랜잭션 (LLM `retrieved_data` → imageUrl·nutrition·instructions[].imageUrl) |
+| `server/consumer/src/integrations/public-data/foodsafety-image-url.util.ts` | LLM 이미지 URL 정규화 (persist) |
 | `server/consumer/src/persistence/repositories/postgresql/recipe-ingredient.repository.ts` | RecipeIngredient 쓰기 |
 
 ### 완료 기준
@@ -338,6 +341,7 @@ pnpm --filter consumer run job:recipe-ingestion-retrieve
 - 동일 `{ jobId }` Kafka redelivery 시 PG 중복 insert 없음
 - `(source, sourceRecipeId)` 기준 upsert로 재처리 안전
 - MVP(4-B-1) 매칭으로 end-to-end 1건 persist 성공
+- persist 후 Recipe에 `imageUrl`, `nutrition`, `instructions[].imageUrl`, `cookingMethod`, `dishType`, `cookingTip` 저장 확인
 - consumer lag·DLQ 토픽 모니터링 대상 등록 (Phase 5)
 
 ### Phase 4 분할 권장
@@ -400,6 +404,7 @@ Phase 5 또는 각 Phase 완료 시 아래를 순차 검증한다.
 4. **Batch expired**: OpenAI batch `expired` → batch 소속 job `retry_count++`·`fetched` 복귀
 5. **Kafka redelivery**: persist 중복 consume → PG row count 불변
 6. **retry ceiling**: `retry_count >= 3` → `failed`, 더 이상 자동 submit 제외
+7. **이미지·영양 persist**: fetch mock row(ATT_FILE/MANUAL_IMG/INFO_*) → persist → PG `imageUrl`·`nutrition`·`instructions[].imageUrl`·`cookingTip` 확인
 
 ---
 
@@ -426,6 +431,7 @@ retry_count >= 3 → failed
 
 ## Backlog (본 계획 범위 외)
 
+- **공공데이터 API deterministic 매퍼** — `integrations/public-data/public-data-recipe-field.mapper.ts` (예정). `raw_data`에서 `imageUrl`·`nutrition`·`MANUAL_IMG*` 등을 코드로 직접 매핑하고, persist 시 LLM `retrieved_data`와 병합(`raw_data` 우선). LLM-only persist의 누락·오차·비용을 줄이는 품질 개선 옵션. §4.5 참조.
 - Admin API / UI — failed job 검수·수동 재처리
 - 재료 검수 큐 (vector 0.85~0.90 구간) 전용 워크플로
 - `recipe-ingestion-retrieved` 파티션 키·처리량 튜닝

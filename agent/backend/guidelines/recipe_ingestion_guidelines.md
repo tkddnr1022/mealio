@@ -146,9 +146,9 @@ MongoDB singleton. API 순번 페이징 커서.
 
 ---
 
-## 4. 공공데이터 API (식품의약품안전처 · COOKRCP01)
+## 4. 공공데이터 API (식품의약품안전처)
 
-레시피 원본은 [식품의약품안전처 Open API](http://openapi.foodsafetykorea.go.kr) **조리식품의 레시피 DB**(`COOKRCP01`)에서 수집한다. **경로·필수 인자만** 사용하며, 선택 쿼리(`RCP_NM`, `RCP_PARTS_DTLS`, `CHNG_DT`, `RCP_PAT2`)는 사용하지 않는다.
+레시피 원본은 [식품의약품안전처 Open API](http://openapi.foodsafetykorea.go.kr) **조리식품의 레시피 DB**에서 수집한다. **경로·필수 인자만** 사용하며, 선택 쿼리(`RCP_NM`, `RCP_PARTS_DTLS`, `CHNG_DT`, `RCP_PAT2`)는 사용하지 않는다.
 
 ### 4.1 요청 URL
 
@@ -159,7 +159,7 @@ http://openapi.foodsafetykorea.go.kr/api/{keyId}/{serviceId}/{dataType}/{startId
 | 경로·인자 | 타입 | 설명 | ingestion 값 |
 |-----------|------|------|--------------|
 | `keyId` | STRING (필수) | Open API 인증키 | `PUBLIC_DATA_API_KEY` |
-| `serviceId` | STRING (필수) | 서비스명 | `PUBLIC_DATA_SERVICE_ID` (`COOKRCP01`) |
+| `serviceId` | STRING (필수) | 서비스명 | `PUBLIC_DATA_SERVICE_ID` (조리식품 레시피 DB) |
 | `dataType` | STRING (필수) | `xml` \| `json` | `PUBLIC_DATA_TYPE` (`json`) |
 | `startIdx` | STRING (필수) | 요청 시작 위치 (1-based) | §5.1에서 계산 |
 | `endIdx` | STRING (필수) | 요청 종료 위치 (1-based) | §5.1에서 계산 |
@@ -199,6 +199,39 @@ http://openapi.foodsafetykorea.go.kr/api/{keyId}/{serviceId}/{dataType}/{startId
 | `last_end_idx` | Mongo `recipe_ingestion_state` — 마지막으로 요청한 `endIdx` |
 
 API는 순번 구간으로 데이터를 반환하고, 동일 레시피 재수집 시 `RCP_SEQ` → `source_id` upsert로 중복 job을 방지한다.
+
+### 4.5 공공데이터 API 응답 필드 → Recipe 도메인 매핑
+
+fetch 단계에서 `raw_data`에 원본 row 전체를 보존한다. **이미지·영양·조리 메타**는 submit 단계 LLM이 `retrieved_data`로 구조화하고, persist는 **검증된 `retrieved_data`만** PostgreSQL에 저장한다.
+
+| 공공데이터 API 필드 | LLM `retrieved_data` | Recipe 도메인 | 비고 |
+|----------------|----------------------|---------------|------|
+| `ATT_FILE_NO_MK` | `recipe.imageUrl` | `imageUrl` | **우선** `ATT_FILE_NO_MK`, 없으면 `ATT_FILE_NO_MAIN` |
+| `ATT_FILE_NO_MAIN` | `recipe.imageUrl` | `imageUrl` | fallback (소) |
+| `MANUAL01`~`MANUAL20` | `recipe.steps[].content` | `instructions[].content` | 빈 단계 제외, ~요체 정제 |
+| `MANUAL_IMG01`~`MANUAL_IMG20` | `recipe.steps[].imageUrl` | `instructions[].imageUrl` | 단계 인덱스(1-based) 정렬 |
+| `INFO_ENG` | `recipe.nutrition.calories` | `nutrition.calories` | kcal, 추측 금지 |
+| `INFO_CAR` | `recipe.nutrition.carbohydrates` | `nutrition.carbohydrates` | g |
+| `INFO_PRO` | `recipe.nutrition.protein` | `nutrition.protein` | g |
+| `INFO_FAT` | `recipe.nutrition.fat` | `nutrition.fat` | g |
+| `INFO_NA` | `recipe.nutrition.sodium` | `nutrition.sodium` | mg |
+| `RCP_WAY2` | `recipe.cookingMethod` | `cookingMethod` | VARCHAR(50) |
+| `RCP_PAT2` | `recipe.dishType` | `dishType` | VARCHAR(50) |
+| `RCP_NA_TIP` | `recipe.tips` | `cookingTip` | persist 시 `tips` → `cookingTip` |
+| `RCP_SEQ` | — | `sourceRecipeId` | job `source_id`에서 매핑 (LLM 경유 없음) |
+| `INFO_WGT` | — | — | **후속** — 현재 Recipe 스키마 미포함 |
+| `HASH_TAG` | — | — | **후속** — 태그 스키마 설계 후 반영 |
+
+**이미지 URL 정책 (S3 통합 전)**
+
+- LLM이 복사한 URL은 persist 시 `foodsafety-image-url.util.ts`로 정규화한다.
+- API 응답 값은 대부분 **절대 URL** (`http://www.foodsafetykorea.go.kr/uploadimg/cook/...`).
+- 상대 경로(`/uploadimg/...`)인 경우 `http://www.foodsafetykorea.go.kr` origin을 prefix한다.
+- invalid·빈 URL은 `null`로 저장한다. **S3 업로드·CDN 재호스팅은 범위 외**(후속 Phase).
+
+**deterministic 매퍼 (후속 옵션)**
+
+LLM 누락·오차·Batch 품질 편차를 줄이려면 persist 전 `raw_data` → 도메인 **deterministic 매퍼**를 도입할 수 있다. 예상 경로: `integrations/public-data/public-data-recipe-field.mapper.ts`. 도입 시 병합 우선순위는 `raw_data` 매핑 → LLM `retrieved_data` fallback을 권장한다. **현재 구현 범위에서는 LLM-only**이며, `raw_data`는 Mongo 보존·재처리(replay) SSOT로만 사용한다.
 
 ---
 
@@ -251,6 +284,7 @@ API는 순번 구간으로 데이터를 반환하고, 동일 레시피 재수집
 
    `system_prompt` 포함 항목:
    - 출력 JSON 스키마 (레시피, 재료, 레시피-재료)
+   - **이미지·영양·조리 메타**: `imageUrl`, `nutrition`, `cookingMethod`, `dishType`, `steps[].imageUrl`
    - 어조 규칙 (~요 체 등)
    - 노이즈 제거 (MANUAL 필드 말미 단일 영문자 등)
    - 카테고리 목록 (ID, 이름) — 선택 또는 신규 제안
@@ -338,6 +372,7 @@ Kafka `recipe-ingestion-retrieved` 소비 → `{ jobId }`로 job 조회 → Post
    ```
    `match_method`: `exact` \| `alias`(LLM ingredient_alias hit) \| `vector` \| `new`
 4. Recipe + RecipeIngredient **transaction upsert** — `(source, sourceRecipeId)` unique; `parse_confidence: low` → `isPublished: false`
+   - **이미지·영양·조리 메타**: 검증된 `retrieved_data` → `imageUrl`, `nutrition`, `cookingMethod`, `dishType`, `cookingTip`, `instructions[].imageUrl` (§4.5)
 5. job 업데이트: `status: persisted`, `persisted_at: now()`
 
 ---

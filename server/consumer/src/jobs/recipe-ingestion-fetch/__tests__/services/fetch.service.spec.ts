@@ -241,7 +241,7 @@ describe('PublicDataApiClient', () => {
     client = new PublicDataApiClient(config);
   });
 
-  it('should build URL matching COOKRCP01/json/{startIdx}/{endIdx}', () => {
+  it('should build URL matching 공공데이터 API json/{startIdx}/{endIdx}', () => {
     const url = client.buildUrl(1, 100);
     expect(url).toBe(
       'http://openapi.foodsafetykorea.go.kr/api/test-api-key/COOKRCP01/json/1/100',

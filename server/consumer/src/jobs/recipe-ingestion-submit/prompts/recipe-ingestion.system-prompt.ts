@@ -4,6 +4,7 @@ import type { RecipeIngestionCategoryContext } from '../services/category-contex
  * OpenAI Batch system prompt — 공공데이터 raw_data → 구조화 JSON 변환 지시
  * @see agent/backend/guidelines/recipe_ingestion_guidelines.md §5.2
  */
+// TODO: servings inference 정확도 향상 필요
 export function buildRecipeIngestionSystemPrompt(
   categories: RecipeIngestionCategoryContext,
 ): string {
@@ -27,8 +28,23 @@ Convert the user's raw public API recipe JSON into a single JSON object (no mark
     "cookingTimeMinutes": "number | null",
     "categoryId": "number | null (existing recipe category id)",
     "proposedCategory": { "key": "string", "name": "string" } | null,
-    "steps": ["string"] (ordered cooking steps, ~요체),
-    "tips": "string | null"
+    "imageUrl": "string | null (recipe thumbnail URL from ATT_FILE_NO_MK or ATT_FILE_NO_MAIN)",
+    "nutrition": {
+      "calories": "number | null (INFO_ENG, kcal)",
+      "carbohydrates": "number | null (INFO_CAR, g)",
+      "protein": "number | null (INFO_PRO, g)",
+      "fat": "number | null (INFO_FAT, g)",
+      "sodium": "number | null (INFO_NA, mg)"
+    } | null,
+    "cookingMethod": "string | null (RCP_WAY2)",
+    "dishType": "string | null (RCP_PAT2)",
+    "steps": [
+      {
+        "content": "string (ordered cooking step, ~요체)",
+        "imageUrl": "string | null (MANUAL_IMGnn URL when present)"
+      }
+    ],
+    "tips": "string | null (RCP_NA_TIP → recipe.tips, 저감 조리법 TIP)"
   },
   "ingredients": [
     {
@@ -53,6 +69,15 @@ Convert the user's raw public API recipe JSON into a single JSON object (no mark
 - Strip trailing single English letters or OCR artifacts from MANUAL/step fields.
 - Remove HTML tags and excessive whitespace.
 - Do not invent ingredients or steps not present in the source.
+
+## Public API field mapping
+Copy structured metadata from the source when present (do not guess numeric nutrition):
+- ATT_FILE_NO_MK (prefer) or ATT_FILE_NO_MAIN → recipe.imageUrl
+- INFO_ENG / INFO_CAR / INFO_PRO / INFO_FAT / INFO_NA → recipe.nutrition (numbers only)
+- RCP_WAY2 → recipe.cookingMethod, RCP_PAT2 → recipe.dishType
+- MANUAL01~MANUAL20 → recipe.steps[].content (skip empty steps)
+- MANUAL_IMG01~MANUAL_IMG20 → recipe.steps[].imageUrl aligned by step index
+- RCP_NA_TIP → recipe.tips
 
 ## Categories
 Pick an existing recipe category id when possible. If none fit, set categoryId to null and propose a new category in proposedCategory.

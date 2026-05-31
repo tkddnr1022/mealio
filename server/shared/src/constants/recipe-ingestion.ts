@@ -36,7 +36,7 @@ export const MAX_RECIPE_SUBMIT_BATCH_SIZE = 1000;
 /** recipe ingestion submit: 카테고리 컨텍스트 Redis TTL (초) */
 export const RECIPE_INGESTION_CATEGORY_CACHE_TTL_SECONDS = 3600;
 
-/** PostgreSQL Recipe.source — 공공데이터(COOKRCP01) 출처 식별자 */
+/** PostgreSQL Recipe.source — 공공데이터 API(식품의약품안전처) 출처 식별자 */
 export const RECIPE_INGESTION_RECIPE_SOURCE = 'foodsafety';
 
 /** 카테고리 매핑 실패 시 기본 레시피 카테고리 id (seed: KOREAN) */

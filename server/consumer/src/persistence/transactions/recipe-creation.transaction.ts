@@ -16,7 +16,12 @@ import {
   type IngredientMatchMethod,
 } from 'src/consumers/recipe-ingestion-persist/services/ingredient-matcher.service';
 import { CategoryResolverService } from 'src/consumers/recipe-ingestion-persist/services/category-resolver.service';
-import type { RetrievedDataPayload } from 'src/consumers/recipe-ingestion-persist/validators/retrieved-data.validator';
+import type {
+  RetrievedDataPayload,
+  RetrievedNutritionPayload,
+  RetrievedRecipeStepPayload,
+} from 'src/consumers/recipe-ingestion-persist/validators/retrieved-data.validator';
+import { normalizeFoodsafetyImageUrl } from 'src/integrations/public-data/foodsafety-image-url.util';
 
 export interface RecipeCreationResult {
   recipeId: number;
@@ -49,11 +54,42 @@ function parseQuantityToDecimal(
   return Number.isNaN(parsed) ? null : String(parsed);
 }
 
-function buildInstructions(steps: string[]): Prisma.InputJsonValue {
-  return steps.map((content, index) => ({
-    step: index + 1,
-    content,
-  }));
+function buildInstructions(
+  steps: RetrievedRecipeStepPayload[],
+): Prisma.InputJsonValue {
+  return steps.map((step, index) => {
+    const imageUrl = normalizeFoodsafetyImageUrl(step.imageUrl);
+
+    const entry: { step: number; content: string; imageUrl?: string } = {
+      step: index + 1,
+      content: step.content,
+    };
+    if (imageUrl) {
+      entry.imageUrl = imageUrl;
+    }
+    return entry;
+  });
+}
+
+function toNutritionJson(
+  nutrition: RetrievedNutritionPayload | null | undefined,
+): Prisma.InputJsonValue | typeof Prisma.JsonNull {
+  if (!nutrition) {
+    return Prisma.JsonNull;
+  }
+
+  const payload: RetrievedNutritionPayload = {};
+  if (nutrition.calories != null) payload.calories = nutrition.calories;
+  if (nutrition.carbohydrates != null) {
+    payload.carbohydrates = nutrition.carbohydrates;
+  }
+  if (nutrition.protein != null) payload.protein = nutrition.protein;
+  if (nutrition.fat != null) payload.fat = nutrition.fat;
+  if (nutrition.sodium != null) payload.sodium = nutrition.sodium;
+
+  return Object.keys(payload).length > 0
+    ? (payload as Prisma.InputJsonValue)
+    : Prisma.JsonNull;
 }
 
 /**
@@ -96,6 +132,10 @@ export class RecipeCreationTransaction {
         difficulty: RECIPE_INGESTION_DEFAULT_DIFFICULTY,
         cookTime,
         servings,
+        imageUrl: normalizeFoodsafetyImageUrl(data.recipe.imageUrl),
+        nutrition: toNutritionJson(data.recipe.nutrition),
+        cookingMethod: data.recipe.cookingMethod?.trim().slice(0, 50) ?? null,
+        dishType: data.recipe.dishType?.trim().slice(0, 50) ?? null,
         cookingTip: data.recipe.tips?.trim() ?? null,
         source: RECIPE_INGESTION_RECIPE_SOURCE,
         sourceRecipeId,
