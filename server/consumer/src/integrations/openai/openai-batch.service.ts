@@ -17,9 +17,37 @@ export interface OpenAIBatchSubmitResult {
   batchId: string;
 }
 
+/** OpenAI Batch Job 상태 */
+export type OpenAIBatchStatus =
+  | 'validating'
+  | 'failed'
+  | 'in_progress'
+  | 'finalizing'
+  | 'completed'
+  | 'expired'
+  | 'cancelling'
+  | 'cancelled';
+
+export interface OpenAIBatchInfo {
+  id: string;
+  status: OpenAIBatchStatus;
+  outputFileId?: string;
+  errorFileId?: string;
+}
+
+const IN_PROGRESS_BATCH_STATUSES: ReadonlySet<OpenAIBatchStatus> = new Set([
+  'validating',
+  'in_progress',
+  'finalizing',
+]);
+
+export function isInProgressBatchStatus(status: OpenAIBatchStatus): boolean {
+  return IN_PROGRESS_BATCH_STATUSES.has(status);
+}
+
 /**
- * OpenAI Batch API 연동 — Files 업로드 + Batch Job 생성
- * @see agent/backend/guidelines/recipe_ingestion_guidelines.md §5.2
+ * OpenAI Batch API 연동 — Files 업로드 + Batch Job 생성·조회
+ * @see agent/backend/guidelines/recipe_ingestion_guidelines.md §5.2, §5.3
  */
 @Injectable()
 export class OpenAIBatchService {
@@ -62,6 +90,37 @@ export class OpenAIBatchService {
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'OpenAI Batch submit failed';
+      throw new OpenAIBatchError(message, error);
+    }
+  }
+
+  /** Batch Job 상태 조회 */
+  async getBatch(batchId: string): Promise<OpenAIBatchInfo> {
+    try {
+      const batch = await this.client.batches.retrieve(batchId);
+      return {
+        id: batch.id,
+        status: batch.status as OpenAIBatchStatus,
+        outputFileId: batch.output_file_id ?? undefined,
+        errorFileId: batch.error_file_id ?? undefined,
+      };
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'OpenAI Batch retrieve failed';
+      throw new OpenAIBatchError(message, error);
+    }
+  }
+
+  /** Batch output JSONL 파일 내용 다운로드 */
+  async downloadBatchOutput(outputFileId: string): Promise<string> {
+    try {
+      const response = await this.client.files.content(outputFileId);
+      return await response.text();
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'OpenAI Batch output download failed';
       throw new OpenAIBatchError(message, error);
     }
   }

@@ -19,7 +19,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "job:kpi-rollup": "ts-node -r tsconfig-paths/register src/jobs/kpi-rollup/run-kpi-rollup.ts",
     "job:recipe-ingestion-fetch": "ts-node -r tsconfig-paths/register src/jobs/recipe-ingestion-fetch/run-recipe-ingestion-fetch.ts",
-    "job:recipe-ingestion-submit": "ts-node -r tsconfig-paths/register src/jobs/recipe-ingestion-submit/run-recipe-ingestion-submit.ts"
+    "job:recipe-ingestion-submit": "ts-node -r tsconfig-paths/register src/jobs/recipe-ingestion-submit/run-recipe-ingestion-submit.ts",
+    "job:recipe-ingestion-retrieve": "ts-node -r tsconfig-paths/register src/jobs/recipe-ingestion-retrieve/run-recipe-ingestion-retrieve.ts"
   },
   "dependencies": {
     "@mealio/shared": "workspace:*",

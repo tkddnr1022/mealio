@@ -284,4 +284,154 @@ export class RecipeIngestionJobRepository {
 
     return rolledBack;
   }
+
+  /**
+   * retrieve: batch failed/expired 시 submitted job 재시도 또는 failed 전환
+   * @returns 처리된 job 수
+   */
+  async rollbackSubmittedBatchWithRetry(
+    batchId: string,
+    errorMessage: string,
+  ): Promise<number> {
+    const jobs = await this.jobModel
+      .find({ batchId, status: 'submitted' })
+      .exec();
+
+    let rolledBack = 0;
+    const now = new Date();
+
+    for (const job of jobs) {
+      const nextRetryCount = (job.retryCount ?? 0) + 1;
+      const failed = nextRetryCount >= MAX_RECIPE_INGESTION_RETRY_COUNT;
+
+      const result = await this.jobModel
+        .updateOne(
+          { _id: job._id, status: 'submitted' },
+          {
+            $set: {
+              retryCount: nextRetryCount,
+              errorMessage,
+              status: failed
+                ? ('failed' as RecipeIngestionJobStatus)
+                : ('fetched' as RecipeIngestionJobStatus),
+              ...(failed ? { failedAt: now } : {}),
+              ...(!failed
+                ? {
+                    batchId: undefined,
+                    submittedAt: undefined,
+                  }
+                : {}),
+            },
+          },
+        )
+        .exec();
+
+      if (result.modifiedCount > 0) {
+        rolledBack++;
+      }
+    }
+
+    return rolledBack;
+  }
+
+  /**
+   * retrieve: batch output 처리 전체 실패 시 retrieving job 일괄 롤백
+   * @returns 처리된 job 수
+   */
+  async rollbackRetrievingBatchWithRetry(
+    batchId: string,
+    errorMessage: string,
+  ): Promise<number> {
+    const jobs = await this.jobModel
+      .find({ batchId, status: 'retrieving' })
+      .exec();
+
+    let rolledBack = 0;
+    const now = new Date();
+
+    for (const job of jobs) {
+      const nextRetryCount = (job.retryCount ?? 0) + 1;
+      const failed = nextRetryCount >= MAX_RECIPE_INGESTION_RETRY_COUNT;
+
+      const result = await this.jobModel
+        .updateOne( // TODO: updateMany 적용 방안 검토
+          { _id: job._id, status: 'retrieving' },
+          {
+            $set: {
+              retryCount: nextRetryCount,
+              errorMessage,
+              status: failed
+                ? ('failed' as RecipeIngestionJobStatus)
+                : ('fetched' as RecipeIngestionJobStatus),
+              ...(failed ? { failedAt: now } : {}),
+              ...(!failed
+                ? {
+                    batchId: undefined,
+                    submittedAt: undefined,
+                    retrievedData: undefined,
+                    retrievedAt: undefined,
+                  }
+                : {}),
+            },
+          },
+        )
+        .exec();
+
+      if (result.modifiedCount > 0) {
+        rolledBack++;
+      }
+    }
+
+    return rolledBack;
+  }
+
+  /**
+   * retrieve: output 라인 실패 시 retrieving job 재시도 또는 failed 전환
+   * @returns 갱신 성공 여부
+   */
+  async rollbackRetrievingJobWithRetry(
+    id: string,
+    errorMessage: string,
+  ): Promise<boolean> {
+    if (!Types.ObjectId.isValid(id)) {
+      return false;
+    }
+
+    const job = await this.jobModel
+      .findOne({ _id: id, status: 'retrieving' })
+      .exec();
+    if (!job) {
+      return false;
+    }
+
+    const nextRetryCount = (job.retryCount ?? 0) + 1;
+    const failed = nextRetryCount >= MAX_RECIPE_INGESTION_RETRY_COUNT;
+    const now = new Date();
+
+    const result = await this.jobModel
+      .updateOne(
+        { _id: id, status: 'retrieving' },
+        {
+          $set: {
+            retryCount: nextRetryCount,
+            errorMessage,
+            status: failed
+              ? ('failed' as RecipeIngestionJobStatus)
+              : ('fetched' as RecipeIngestionJobStatus),
+            ...(failed ? { failedAt: now } : {}),
+            ...(!failed
+              ? {
+                  batchId: undefined,
+                  submittedAt: undefined,
+                  retrievedData: undefined,
+                  retrievedAt: undefined,
+                }
+              : {}),
+          },
+        },
+      )
+      .exec();
+
+    return result.modifiedCount > 0;
+  }
 }

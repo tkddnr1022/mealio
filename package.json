@@ -20,6 +20,7 @@
     "kpi:rollup": "pnpm --filter consumer run job:kpi-rollup",
     "recipe-ingestion:fetch": "pnpm --filter consumer run job:recipe-ingestion-fetch",
     "recipe-ingestion:submit": "pnpm --filter consumer run job:recipe-ingestion-submit",
+    "recipe-ingestion:retrieve": "pnpm --filter consumer run job:recipe-ingestion-retrieve",
     "ci": "pnpm run ci:install && pnpm run ci:build && pnpm run ci:lint && pnpm run ci:test",
     "ci:install": "pnpm install --frozen-lockfile",
     "ci:lint": "pnpm run ci:lint:client && pnpm run ci:lint:producer && pnpm run ci:lint:consumer",
