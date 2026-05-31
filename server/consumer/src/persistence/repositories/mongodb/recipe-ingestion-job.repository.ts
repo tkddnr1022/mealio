@@ -434,4 +434,46 @@ export class RecipeIngestionJobRepository {
 
     return result.modifiedCount > 0;
   }
+
+  /**
+   * persist 실패 시 persisting job을 retrieved(또는 retry 상한 시 failed)로 롤백
+   * @returns 갱신 성공 여부
+   */
+  async rollbackPersistingJobWithRetry(
+    id: string,
+    errorMessage: string,
+  ): Promise<boolean> {
+    if (!Types.ObjectId.isValid(id)) {
+      return false;
+    }
+
+    const job = await this.jobModel
+      .findOne({ _id: id, status: 'persisting' })
+      .exec();
+    if (!job) {
+      return false;
+    }
+
+    const nextRetryCount = (job.retryCount ?? 0) + 1;
+    const failed = nextRetryCount >= MAX_RECIPE_INGESTION_RETRY_COUNT;
+    const now = new Date();
+
+    const result = await this.jobModel
+      .updateOne(
+        { _id: id, status: 'persisting' },
+        {
+          $set: {
+            retryCount: nextRetryCount,
+            errorMessage,
+            status: failed
+              ? ('failed' as RecipeIngestionJobStatus)
+              : ('retrieved' as RecipeIngestionJobStatus),
+            ...(failed ? { failedAt: now } : {}),
+          },
+        },
+      )
+      .exec();
+
+    return result.modifiedCount > 0;
+  }
 }

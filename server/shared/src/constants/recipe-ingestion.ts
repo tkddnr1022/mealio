@@ -35,3 +35,16 @@ export const MAX_RECIPE_SUBMIT_BATCH_SIZE = 1000;
 
 /** recipe ingestion submit: 카테고리 컨텍스트 Redis TTL (초) */
 export const RECIPE_INGESTION_CATEGORY_CACHE_TTL_SECONDS = 3600;
+
+/** PostgreSQL Recipe.source — 공공데이터(COOKRCP01) 출처 식별자 */
+export const RECIPE_INGESTION_RECIPE_SOURCE = 'foodsafety';
+
+/** 카테고리 매핑 실패 시 기본 레시피 카테고리 id (seed: KOREAN) */
+export const RECIPE_INGESTION_DEFAULT_RECIPE_CATEGORY_ID = 1;
+
+/** 재료 카테고리 매핑 실패 시 기본 재료 카테고리 id (seed: VEGETABLE) */
+export const RECIPE_INGESTION_DEFAULT_INGREDIENT_CATEGORY_ID = 1;
+
+/** persist 시 기본 난이도·조리시간(분) */
+export const RECIPE_INGESTION_DEFAULT_DIFFICULTY = 2;
+export const RECIPE_INGESTION_DEFAULT_COOK_TIME_MINUTES = 30;

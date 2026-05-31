@@ -4,6 +4,7 @@ import { ChatbotRequestModule } from './chatbot-request/chatbot-request.module';
 import { UserEventsModule } from './user-events/user-events.module';
 import { ActivityEventsModule } from './activity-events/activity-events.module';
 import { CacheInvalidationModule } from './cache-invalidation/cache-invalidation.module';
+import { RecipeIngestionPersistModule } from './recipe-ingestion-persist/recipe-ingestion-persist.module';
 
 /**
  * 다중 Kafka consumer 인스턴스 등록.
@@ -11,6 +12,7 @@ import { CacheInvalidationModule } from './cache-invalidation/cache-invalidation
  * - analytics-group → UserEventsProcessor (user-events)
  * - activity-events-group → ActivityEventsProcessor (EventLog 기록, 비로그인 포함)
  * - cache-invalidation-group → CacheInvalidationProcessor
+ * - recipe-ingestion-persist-group → RecipeIngestionPersistProcessor
  */
 @Module({
   imports: [
@@ -19,6 +21,7 @@ import { CacheInvalidationModule } from './cache-invalidation/cache-invalidation
     UserEventsModule,
     ActivityEventsModule,
     CacheInvalidationModule,
+    RecipeIngestionPersistModule,
   ],
 })
 export class ConsumersModule {}
