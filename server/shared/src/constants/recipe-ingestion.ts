@@ -29,3 +29,9 @@ export const MAX_RECIPE_FETCH_LIMIT = 1000;
 
 /** submit 1회 제출 기본 건수 (status: fetched 대상) */
 export const DEFAULT_RECIPE_SUBMIT_BATCH_SIZE = 100;
+
+/** submit 1회 제출 상한 (OpenAI Batch input 라인 수) */
+export const MAX_RECIPE_SUBMIT_BATCH_SIZE = 1000;
+
+/** recipe ingestion submit: 카테고리 컨텍스트 Redis TTL (초) */
+export const RECIPE_INGESTION_CATEGORY_CACHE_TTL_SECONDS = 3600;

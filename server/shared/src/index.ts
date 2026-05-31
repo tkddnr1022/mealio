@@ -84,6 +84,7 @@ export {
   cacheKeyInventory,
   cacheKeyIngredientById,
   cacheKeyChatbotFoodCategories,
+  cacheKeyRecipeIngestionFoodCategories,
   cacheKeyRateLimitApi,
   cacheKeyRecipeDetail,
   cacheKeyRecommendation,
@@ -103,6 +104,8 @@ export {
   DEFAULT_RECIPE_FETCH_LIMIT,
   MAX_RECIPE_FETCH_LIMIT,
   DEFAULT_RECIPE_SUBMIT_BATCH_SIZE,
+  MAX_RECIPE_SUBMIT_BATCH_SIZE,
+  RECIPE_INGESTION_CATEGORY_CACHE_TTL_SECONDS,
 } from './constants/recipe-ingestion';
 
 // Redis

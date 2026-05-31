@@ -22,6 +22,7 @@ export type CacheKeyPrefix =
  * `getOrSet` 등에서 두 번째 이후 세그먼트로 쓰는 고정 문자열
  * (Producer 서비스·전략과 동일한 키가 나오도록 여기서만 정의)
  */
+// TODO: 캐시 재사용 전략 수립
 export const CACHE_KEY_SEGMENT = {
   LIST: 'list',
   SEARCH: 'search',
@@ -38,6 +39,11 @@ export const CACHE_KEY_SEGMENT = {
    * `recipe:chatbot:food-categories`
    */
   CHATBOT_FOOD_CATEGORIES: 'chatbot:food-categories',
+  /**
+   * Consumer recipe ingestion submit: LLM system prompt용 카테고리 컨텍스트
+   * `recipe:ingestion:food-categories`
+   */
+  RECIPE_INGESTION_FOOD_CATEGORIES: 'ingestion:food-categories',
 } as const;
 
 /** `prefix` + 세그먼트들을 `:` 로 결합 (Producer CacheStrategy·무효화·Consumer 공통) */
@@ -78,6 +84,14 @@ export function cacheKeyChatbotFoodCategories(): string {
   return buildCacheKey(
     CACHE_KEY_PREFIX.RECIPE,
     CACHE_KEY_SEGMENT.CHATBOT_FOOD_CATEGORIES,
+  );
+}
+
+/** Consumer recipe ingestion submit — `recipe:ingestion:food-categories` */
+export function cacheKeyRecipeIngestionFoodCategories(): string {
+  return buildCacheKey(
+    CACHE_KEY_PREFIX.RECIPE,
+    CACHE_KEY_SEGMENT.RECIPE_INGESTION_FOOD_CATEGORIES,
   );
 }
 

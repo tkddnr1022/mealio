@@ -244,7 +244,7 @@ API는 순번 구간으로 데이터를 반환하고, 동일 레시피 재수집
 3. **JSONL 생성** — `submitBatchSize`건, `custom_id` = `recipe_ingestion_job._id`
 
    ```jsonl
-   {"custom_id": "{recipe_ingestion_job._id}", "method": "POST", "url": "/v1/chat/completions", "body": {"model": "{OPENAI_BATCH_MODEL}", "max_tokens": 2048, "response_format": {"type": "json_object"}, "messages": [{"role": "system", "content": "{system_prompt}"}, {"role": "user", "content": "{raw_data_json}"}]}}
+   {"custom_id": "{recipe_ingestion_job._id}", "method": "POST", "url": "/v1/chat/completions", "body": {"model": "{OPENAI_BATCH_MODEL}", "max_completion_tokens": 8192, "reasoning_effort": "low", "verbosity": "low", "response_format": {"type": "json_object"}, "messages": [{"role": "system", "content": "{system_prompt}"}, {"role": "user", "content": "{raw_data_json}"}]}}
    ```
 
    `model`은 환경 변수 `OPENAI_BATCH_MODEL` 값을 사용한다.
@@ -254,7 +254,9 @@ API는 순번 구간으로 데이터를 반환하고, 동일 레시피 재수집
    - 어조 규칙 (~요 체 등)
    - 노이즈 제거 (MANUAL 필드 말미 단일 영문자 등)
    - 카테고리 목록 (ID, 이름) — 선택 또는 신규 제안
+   - 재료량 기반 `servings` 추측 혹은 `null` 처리
    - 재료명 정규화·`ingredient_alias`(canonical 재료명) 반환 지시
+   - **`quantity`/`unit` 파싱: 중량·부피와 개수가 함께 있으면 개수 우선** (예: `달걀 30g(1/2개)` → quantity `1/2`, unit `개` — `30`/`g` 아님)
    - `parse_confidence: high | low`, `parse_issues` 반환 지시
 
 4. **Files API 업로드**
@@ -323,7 +325,9 @@ Kafka `recipe-ingestion-retrieved` 소비 → `{ jobId }`로 job 조회 → Post
 3. **재료 매칭** (단계적)
    ```
    1차: 원문 정규화 (괄호·조사·수량 제거, 공백 정리)
-        예) "대파(흰 부분)" → "대파", "달걀 2개" → "달걀"
+        예) "대파(흰 부분)" → "대파", "달걀 2개" → "달걀", "달걀 30g(1/2개)" → "달걀"
+        quantity/unit: 중량·부피와 개수가 함께 있으면 **개수 우선**
+        예) "달걀 30g(1/2개)" → quantity `1/2`, unit `개` (30g 아님)
    2차: LLM `retrieved_data`의 `ingredient_alias`(canonical명) → Ingredient.name exact match
         예) 원문 "파(대파)" + ingredient_alias "대파" → DB "대파"
    3차: 1차 정규화 결과 → Ingredient.name exact match

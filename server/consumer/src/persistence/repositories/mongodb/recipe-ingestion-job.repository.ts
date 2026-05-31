@@ -56,6 +56,22 @@ export class RecipeIngestionJobRepository {
     return query.exec();
   }
 
+  async findManyByIdsAndStatus(
+    ids: string[],
+    status: RecipeIngestionJobStatus,
+  ): Promise<RecipeIngestionJobDocument[]> {
+    const objectIds = ids
+      .filter((id) => Types.ObjectId.isValid(id))
+      .map((id) => new Types.ObjectId(id));
+    if (objectIds.length === 0) {
+      return [];
+    }
+    return this.jobModel
+      .find({ _id: { $in: objectIds }, status })
+      .sort({ fetchedAt: 1 })
+      .exec();
+  }
+
   /**
    * fetch 단계 row 처리 실패 시 retry_count 증가, 상한 초과 시 failed
    */
@@ -217,5 +233,55 @@ export class RecipeIngestionJobRepository {
       )
       .exec();
     return result.modifiedCount;
+  }
+
+  /**
+   * submit 실패 시 submitting job을 fetched(또는 retry 상한 시 failed)로 롤백
+   * @returns 롤백된 job 수
+   */
+  async rollbackSubmittingWithRetry(
+    ids: string[],
+    errorMessage: string,
+  ): Promise<number> {
+    const objectIds = ids
+      .filter((id) => Types.ObjectId.isValid(id))
+      .map((id) => new Types.ObjectId(id));
+    if (objectIds.length === 0) {
+      return 0;
+    }
+
+    const jobs = await this.jobModel
+      .find({ _id: { $in: objectIds }, status: 'submitting' })
+      .exec();
+
+    let rolledBack = 0;
+    const now = new Date();
+
+    for (const job of jobs) {
+      const nextRetryCount = (job.retryCount ?? 0) + 1;
+      const failed = nextRetryCount >= MAX_RECIPE_INGESTION_RETRY_COUNT;
+
+      const result = await this.jobModel
+        .updateOne(
+          { _id: job._id, status: 'submitting' },
+          {
+            $set: {
+              retryCount: nextRetryCount,
+              errorMessage,
+              status: failed
+                ? ('failed' as RecipeIngestionJobStatus)
+                : ('fetched' as RecipeIngestionJobStatus),
+              ...(failed ? { failedAt: now } : {}),
+            },
+          },
+        )
+        .exec();
+
+      if (result.modifiedCount > 0) {
+        rolledBack++;
+      }
+    }
+
+    return rolledBack;
   }
 }
