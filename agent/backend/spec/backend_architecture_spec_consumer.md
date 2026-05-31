@@ -10,7 +10,7 @@
 
 패키지 루트: `server/consumer/`. 경로 표기 규칙은 `backend_architecture_spec.md`와 동일하다.
 
-**구조 원칙**: `consumers/` 하위에 **consumer_name** 폴더(user-events, activity-events, cache-invalidation, chatbot-request, recipe-generation)를 두고, 각 폴더에 `{consumer_name}.processor.ts`, `{consumer_name}.module.ts`, `{consumer_name}.consumer.ts`를 둔다.
+**구조 원칙**: `consumers/` 하위에 **consumer_name** 폴더(user-events, activity-events, cache-invalidation, chatbot-request)를 두고, 각 폴더에 `{consumer_name}.processor.ts`, `{consumer_name}.module.ts`, `{consumer_name}.consumer.ts`를 둔다.
 
 | 경로 | 역할 |
 |------|------|
@@ -19,15 +19,11 @@
 | server/consumer/src/config/env.validation.ts | 앱 시작 시 환경 변수 검증 (Joi 스키마, NODE_ENV·MONGODB_URL·REDIS_URL·KAFKA_*·POSTGRESQL_URL·OPENAI_* 등) |
 | server/consumer/src/config/mongoose-pool.config.ts | Mongoose 커넥션 풀 설정 (MongooseSchemasModule.forRoot 주입용) |
 | server/consumer/src/config/prisma-pool.config.ts | Prisma 커넥션 풀 설정 (PRISMA_POOL_CONFIG 주입용) |
-| **server/consumer/src/consumers/consumers.module.ts** | 그룹 모듈(RecipeGeneration, ChatbotRequest, UserEvents, ActivityEvents, CacheInvalidation) 통합 |
+| **server/consumer/src/consumers/consumers.module.ts** | 그룹 모듈(ChatbotRequest, UserEvents, ActivityEvents, CacheInvalidation) 통합 |
 | **server/consumer/src/consumers/base/** | |
 | server/consumer/src/consumers/base/base.processor.ts | 토픽 공통 인터페이스(ITopicProcessor)·BaseTopicProcessor(파싱·재시도·DLQ 위임) |
 | server/consumer/src/consumers/base/base.consumer.ts | 단일 consumer 인스턴스 connect/subscribe/run/disconnect 공통 로직 (BaseConsumerRunner) |
 | server/consumer/src/consumers/base/retry.strategy.ts | 재시도 전략 (지수 백오프) |
-| **server/consumer/src/consumers/recipe-generation/** | |
-| server/consumer/src/consumers/recipe-generation/recipe-generation.processor.ts | 레시피 생성 processor (파싱·비즈니스·DLQ). 토픽 §2.2 |
-| server/consumer/src/consumers/recipe-generation/recipe-generation.module.ts | 그룹 모듈 정의 |
-| server/consumer/src/consumers/recipe-generation/recipe-generation.consumer.ts | 해당 토픽 구독·디스패치. 토픽 §2.2 |
 | **server/consumer/src/consumers/chatbot-request/** | 토픽 §2.2 chatbot-requests |
 | server/consumer/src/consumers/chatbot-request/chatbot-request.processor.ts | 해당 토픽 processor |
 | server/consumer/src/consumers/chatbot-request/chatbot-request.module.ts | 그룹 모듈 정의 |
@@ -140,7 +136,6 @@
 
 | 토픽 (메인) | DLQ 토픽 | Consumer 그룹 | 발행 주체 | 용도·페이로드 개요 |
 |-------------|-----------|----------------|-----------|---------------------|
-| **recipe-generation** | recipe-generation-dlq | recipe-generation-group | Producer (API 연동 시) | 레시피 생성 요청. 추후 이미지·재료 기반 생성 요청 payload. Processor: stub → GenerateRecipeHandler 등 연동 예정. |
 | **chatbot-requests** | chatbot-requests-dlq | chatbot-group | Producer (POST /api/v1/chatbot/messages 등) | 챗봇 메시지 요청. payload: userId, message, conversationId?, streamChannelId. Consumer: ProcessChatHandler(GPT·tool call), SaveChatLogHandler(ChatbotLog 저장), `chatbot.start`·`chatbot.message` 성공 후 SyncConversationMetaHandler(대화 메타 동기화), Redis 스트림 이벤트 발행. 성공 턴 완료 시 ChatbotCreditService로 멱등 크레딧 차감·`done.data.isCreditDepleted` 반영, 차감 시 내부적으로 **cache-invalidation**(USER_PROFILE) 발행. |
 | **activity-events** | activity-events-dlq | activity-events-group | Producer (레시피 조회수 기록 API/좋아요/공유, 검색 API 등) | 비로그인 포함 활동 이벤트. payload: type(recipe.view \| recipe.like \| recipe.share \| search.query \| search.click), actor(type, userId?, ipAddress?, userAgent?), entity?, payload?, metadata?. Consumer: EventLog 저장. `recipe.view`는 상세 조회 GET이 아닌 `POST /api/v1/recipes/:recipeId/views`에서 발행되며, Producer에서 dedupe key를 `user:{id}` 우선/비로그인 `ip:{ip}`(`unknown-ip` fallback) 기준으로 제어한다. |
 | **user-events** | user-events-dlq | analytics-group | Producer (닉네임 변경, 재료 CRUD, 관심 레시피 추가/삭제 등) | 로그인 유저 도메인 이벤트. payload: UserEvent \| InventoryEvent. Consumer: UpdateUserProfileHandler, UpdateInventoryHandler, TrackUserActivityHandler(EventLog), RecommendationHandler, 캐시 무효화 요청(CacheInvalidationRequestService). |

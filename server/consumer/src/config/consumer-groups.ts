@@ -3,7 +3,6 @@
  * 환경 변수가 아닌 상수로 관리하여 그룹별 역할이 명확하도록 한다.
  */
 export const CONSUMER_GROUPS = {
-  RECIPE_GENERATION: 'recipe-generation-group',
   CHATBOT: 'chatbot-group',
   USER_EVENTS: 'user-events-group',
   ACTIVITY_EVENTS: 'activity-events-group',

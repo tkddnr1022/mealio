@@ -20,10 +20,6 @@ const GROUP_TOPIC_MAP: ReadonlyArray<{
   groupId: string;
   topic: string;
 }> = [
-  {
-    groupId: CONSUMER_GROUPS.RECIPE_GENERATION,
-    topic: KAFKA_TOPICS.RECIPE_GENERATION,
-  },
   { groupId: CONSUMER_GROUPS.CHATBOT, topic: KAFKA_TOPICS.CHATBOT_REQUESTS },
   { groupId: CONSUMER_GROUPS.USER_EVENTS, topic: KAFKA_TOPICS.USER_EVENTS },
   {

@@ -13,7 +13,7 @@
    - MongoDB 스키마 정의 (`inventories`, `chatbot_logs`, `event_logs` 등)
    - 인덱스 및 TTL 정책 설정
 3. **Producer**: Auth, Users, Recipes (조회), Kafka 발행
-4. **Consumer**: Recipe Generation, ChatbotLog 저장
+4. **Consumer**: ChatbotLog 저장
 5. **Infrastructure**: Prisma(PostgreSQL), Mongoose(MongoDB), Kafka, Redis 연결
 
 ### Phase 2: 최적화
@@ -50,7 +50,7 @@
 
 - **대상**: Consumer(메시지 수신·핸들러 호출·재시도/DLQ 위임), Handler(페이로드 기반 로직·DB·OpenAI·S3 등).
 - **테스트 초점**: Consumer는 Handler들을 Mock한 뒤 메시지 파싱·핸들러 호출 순서·예외 시 재시도/DLQ 검증. Handler는 OpenAIService·Repository 등 Mock 후 `execute(payload)` 동작·반환·예외 검증.
-- **적용 범위**: recipe-generation, chatbot-request, user-events, activity-events, cache-invalidation 등 consumer별 모듈에 대해 consumer.spec + processor/handlers spec 작성.
+- **적용 범위**: chatbot-request, user-events, activity-events, cache-invalidation 등 consumer별 모듈에 대해 consumer.spec + processor/handlers spec 작성.
 
 ### 2.4 Producer / Consumer 테스트 요약
 

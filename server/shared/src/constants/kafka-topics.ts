@@ -1,5 +1,4 @@
 export const KAFKA_TOPICS = {
-  RECIPE_GENERATION: 'recipe-generation',
   CHATBOT_REQUESTS: 'chatbot-requests',
   ACTIVITY_EVENTS: 'activity-events',
   USER_EVENTS: 'user-events',
@@ -9,7 +8,6 @@ export const KAFKA_TOPICS = {
 export type KafkaTopic = (typeof KAFKA_TOPICS)[keyof typeof KAFKA_TOPICS];
 
 export const KAFKA_DLQ_TOPICS = {
-  RECIPE_GENERATION_DLQ: 'recipe-generation-dlq',
   CHATBOT_REQUESTS_DLQ: 'chatbot-requests-dlq',
   ACTIVITY_EVENTS_DLQ: 'activity-events-dlq',
   USER_EVENTS_DLQ: 'user-events-dlq',
