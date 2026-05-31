@@ -26,7 +26,10 @@ const meta = {
     },
     hashTags: [
       { label: '한식', href: '/recipe/search?categoryId=1' },
-      { label: '볶기', href: '/recipe/search?cookingMethod=%EB%B3%B6%EA%B8%B0' },
+      {
+        label: '볶기',
+        href: '/recipe/search?cookingMethod=%EB%B3%B6%EA%B8%B0',
+      },
       { label: '밥', href: '/recipe/search?dishType=%EB%B0%A5' },
     ],
     metaTags: [

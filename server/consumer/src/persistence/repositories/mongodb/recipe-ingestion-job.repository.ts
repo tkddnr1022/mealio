@@ -354,7 +354,8 @@ export class RecipeIngestionJobRepository {
       const failed = nextRetryCount >= MAX_RECIPE_INGESTION_RETRY_COUNT;
 
       const result = await this.jobModel
-        .updateOne( // TODO: updateMany 적용 방안 검토
+        .updateOne(
+          // TODO: updateMany 적용 방안 검토
           { _id: job._id, status: 'retrieving' },
           {
             $set: {

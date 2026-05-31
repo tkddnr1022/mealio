@@ -49,7 +49,11 @@ export class FetchService {
     const startIdx = lastEndIdx + 1;
     const endIdx = startIdx + fetchLimit - 1;
 
-    this.publicDataApiClient.assertFetchRangeValid(startIdx, endIdx, fetchLimit);
+    this.publicDataApiClient.assertFetchRangeValid(
+      startIdx,
+      endIdx,
+      fetchLimit,
+    );
 
     const response = await this.fetchWithRetry(startIdx, endIdx, maxApiRetries);
 

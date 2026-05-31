@@ -1,10 +1,7 @@
 import type { HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils/cn';
 import { CardTagsRow, type CardTagItem } from '@/components/ui/CardTagsRow';
-import {
-  HashTagsRow,
-  type HashTagItem,
-} from '@/components/ui/HashTagsRow';
+import { HashTagsRow, type HashTagItem } from '@/components/ui/HashTagsRow';
 import {
   RecipeDetailHeader,
   type RecipeDetailHeaderProps,

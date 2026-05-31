@@ -110,7 +110,16 @@ export function RecipeSearchClientPage({
       dishType,
       size: RECIPE_SEARCH_PAGE_SIZE,
     }),
-    [query, sort, difficulty, cookTimeMin, cookTimeMax, categoryId, cookingMethod, dishType],
+    [
+      query,
+      sort,
+      difficulty,
+      cookTimeMin,
+      cookTimeMax,
+      categoryId,
+      cookingMethod,
+      dishType,
+    ],
   );
 
   const currentUrl = useMemo(
@@ -250,9 +259,7 @@ export function RecipeSearchClientPage({
         additionalButtons={
           <FilterButton
             onClick={() =>
-              router.push(
-                buildRecipeFilterHref(buildCurrentQuery()),
-              )
+              router.push(buildRecipeFilterHref(buildCurrentQuery()))
             }
           />
         }
@@ -305,9 +312,7 @@ export function RecipeSearchClientPage({
             message="다른 검색 조건을 시도해 보세요"
             icon={<Search className="size-8" strokeWidth={2} aria-hidden />}
             buttonLabel="검색 조건 변경"
-            buttonHref={buildRecipeFilterHref(
-              buildCurrentQuery(),
-            )}
+            buttonHref={buildRecipeFilterHref(buildCurrentQuery())}
           />
         )}
       </MainContent>

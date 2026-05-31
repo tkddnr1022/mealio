@@ -2,7 +2,8 @@ import { normalizeFoodsafetyImageUrl } from '../foodsafety-image-url.util';
 
 describe('normalizeFoodsafetyImageUrl', () => {
   it('should accept absolute http URL', () => {
-    const url = 'http://www.foodsafetykorea.go.kr/uploadimg/cook/10_00017_2.png';
+    const url =
+      'http://www.foodsafetykorea.go.kr/uploadimg/cook/10_00017_2.png';
     expect(normalizeFoodsafetyImageUrl(url)).toBe(url);
   });
 

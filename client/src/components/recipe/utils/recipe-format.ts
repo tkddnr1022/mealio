@@ -77,7 +77,10 @@ export function toRecipeNutritionDisplayItems(
   }
   const items: Array<RecipeNutritionDisplayItem | null> = [
     toNutritionValueLabel(nutrition.calories, 'kcal')
-      ? { label: '열량', value: toNutritionValueLabel(nutrition.calories, 'kcal')! }
+      ? {
+          label: '열량',
+          value: toNutritionValueLabel(nutrition.calories, 'kcal')!,
+        }
       : null,
     toNutritionValueLabel(nutrition.carbohydrates, 'g')
       ? {
@@ -86,14 +89,22 @@ export function toRecipeNutritionDisplayItems(
         }
       : null,
     toNutritionValueLabel(nutrition.protein, 'g')
-      ? { label: '단백질', value: toNutritionValueLabel(nutrition.protein, 'g')! }
+      ? {
+          label: '단백질',
+          value: toNutritionValueLabel(nutrition.protein, 'g')!,
+        }
       : null,
     toNutritionValueLabel(nutrition.fat, 'g')
       ? { label: '지방', value: toNutritionValueLabel(nutrition.fat, 'g')! }
       : null,
     toNutritionValueLabel(nutrition.sodium, 'mg')
-      ? { label: '나트륨', value: toNutritionValueLabel(nutrition.sodium, 'mg')! }
+      ? {
+          label: '나트륨',
+          value: toNutritionValueLabel(nutrition.sodium, 'mg')!,
+        }
       : null,
   ];
-  return items.filter((item): item is RecipeNutritionDisplayItem => item != null);
+  return items.filter(
+    (item): item is RecipeNutritionDisplayItem => item != null,
+  );
 }

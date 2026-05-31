@@ -10,11 +10,7 @@ export interface HashTagProps {
   href?: string;
 }
 
-export function HashTag({
-  className = '',
-  label,
-  href,
-}: HashTagProps) {
+export function HashTag({ className = '', label, href }: HashTagProps) {
   const content = <span className="typo-caption-regular">{`#${label}`}</span>;
 
   if (href) {
@@ -30,10 +26,7 @@ export function HashTag({
   }
 
   return (
-    <div
-      className={cn(hashTagSurfaceClass, className)}
-      data-name="HashTag"
-    >
+    <div className={cn(hashTagSurfaceClass, className)} data-name="HashTag">
       {content}
     </div>
   );

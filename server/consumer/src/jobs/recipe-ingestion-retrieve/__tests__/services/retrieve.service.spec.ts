@@ -126,7 +126,9 @@ describe('RetrieveService', () => {
 
       expect(result.skippedBatchCount).toBe(1);
       expect(jobRepository.transitionManyByBatchId).not.toHaveBeenCalled();
-      expect(jobRepository.rollbackSubmittedBatchWithRetry).not.toHaveBeenCalled();
+      expect(
+        jobRepository.rollbackSubmittedBatchWithRetry,
+      ).not.toHaveBeenCalled();
     });
   });
 
@@ -141,10 +143,9 @@ describe('RetrieveService', () => {
 
       const result = await service.retrieve();
 
-      expect(jobRepository.rollbackSubmittedBatchWithRetry).toHaveBeenCalledWith(
-        BATCH_ID,
-        'Batch expired',
-      );
+      expect(
+        jobRepository.rollbackSubmittedBatchWithRetry,
+      ).toHaveBeenCalledWith(BATCH_ID, 'Batch expired');
       expect(result.failedCount).toBe(2);
       expect(result.retrievedCount).toBe(0);
     });
@@ -250,10 +251,9 @@ describe('RetrieveService', () => {
 
       const result = await service.retrieve();
 
-      expect(jobRepository.rollbackRetrievingBatchWithRetry).toHaveBeenCalledWith(
-        BATCH_ID,
-        'download failed',
-      );
+      expect(
+        jobRepository.rollbackRetrievingBatchWithRetry,
+      ).toHaveBeenCalledWith(BATCH_ID, 'download failed');
       expect(result.failedCount).toBe(2);
     });
   });

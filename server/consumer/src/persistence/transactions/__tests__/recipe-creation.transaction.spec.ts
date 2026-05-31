@@ -56,9 +56,11 @@ describe('RecipeCreationTransaction', () => {
       $transaction: jest.fn(async (fn) => fn(prisma)),
       recipe: {
         findUnique: jest.fn().mockResolvedValue(null),
-        create: jest.fn().mockImplementation(({ data }) =>
-          Promise.resolve({ id: 99, ...data }),
-        ),
+        create: jest
+          .fn()
+          .mockImplementation(({ data }) =>
+            Promise.resolve({ id: 99, ...data }),
+          ),
         update: jest.fn(),
       },
       recipeStats: { upsert: jest.fn().mockResolvedValue({}) },
@@ -83,7 +85,9 @@ describe('RecipeCreationTransaction', () => {
         },
         {
           provide: RecipeIngredientRepository,
-          useValue: { replaceForRecipe: jest.fn().mockResolvedValue(undefined) },
+          useValue: {
+            replaceForRecipe: jest.fn().mockResolvedValue(undefined),
+          },
         },
       ],
     }).compile();

@@ -39,7 +39,9 @@ export function RecipeNutritionCard({
             <dt className="typo-caption-regular style-text-secondary">
               {item.label}
             </dt>
-            <dd className="typo-body-regular style-text-primary">{item.value}</dd>
+            <dd className="typo-body-regular style-text-primary">
+              {item.value}
+            </dd>
           </div>
         ))}
       </dl>

@@ -95,9 +95,7 @@ export function buildRecipeSearchQueryFromDraft(
   };
 }
 
-export function buildRecipeSearchHref(
-  searchQuery: RecipeSearchQuery,
-): string {
+export function buildRecipeSearchHref(searchQuery: RecipeSearchQuery): string {
   const queryString = buildQueryString(
     objectToQuery({
       q: searchQuery.q,
@@ -116,9 +114,7 @@ export function buildRecipeSearchHref(
     : RECIPE_SEARCH_PATH;
 }
 
-export function buildRecipeFilterHref(
-  searchQuery: RecipeSearchQuery,
-): string {
+export function buildRecipeFilterHref(searchQuery: RecipeSearchQuery): string {
   const queryString = buildQueryString(
     objectToQuery({
       q: searchQuery.q,
@@ -131,5 +127,7 @@ export function buildRecipeFilterHref(
     }),
   );
 
-  return queryString ? `${RECIPE_FILTER_PATH}?${queryString}` : RECIPE_FILTER_PATH;
+  return queryString
+    ? `${RECIPE_FILTER_PATH}?${queryString}`
+    : RECIPE_FILTER_PATH;
 }

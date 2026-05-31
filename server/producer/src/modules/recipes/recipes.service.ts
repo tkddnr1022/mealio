@@ -241,7 +241,8 @@ export class RecipeQueryService {
         : CACHE_KEY_SEGMENT.ALL;
     const cookTimeRangeKey = `${params.cookTimeMin ?? CACHE_KEY_SEGMENT.ALL}-${params.cookTimeMax ?? CACHE_KEY_SEGMENT.ALL}`;
     const categoryKey = params.categoryId ?? CACHE_KEY_SEGMENT.ALL;
-    const cookingMethodKey = params.cookingMethod?.trim() || CACHE_KEY_SEGMENT.ALL;
+    const cookingMethodKey =
+      params.cookingMethod?.trim() || CACHE_KEY_SEGMENT.ALL;
     const dishTypeKey = params.dishType?.trim() || CACHE_KEY_SEGMENT.ALL;
     const sortKey = params.sort ?? DEFAULT_RECIPE_SORT;
     const payload: RecipeSearchParams = {
@@ -363,7 +364,11 @@ export class RecipeQueryService {
   }
 
   private parseNutrition(nutrition: unknown): RecipeNutritionDto | null {
-    if (!nutrition || typeof nutrition !== 'object' || Array.isArray(nutrition)) {
+    if (
+      !nutrition ||
+      typeof nutrition !== 'object' ||
+      Array.isArray(nutrition)
+    ) {
       return null;
     }
     const record = nutrition as Record<string, unknown>;

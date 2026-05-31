@@ -40,9 +40,7 @@ describe('PersistRecipeHandler', () => {
   let jobRepository: jest.Mocked<
     Pick<
       RecipeIngestionJobRepository,
-      | 'findById'
-      | 'transitionStatus'
-      | 'rollbackPersistingJobWithRetry'
+      'findById' | 'transitionStatus' | 'rollbackPersistingJobWithRetry'
     >
   >;
   let recipeCreationTransaction: jest.Mocked<

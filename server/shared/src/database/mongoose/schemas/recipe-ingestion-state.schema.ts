@@ -2,7 +2,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { type HydratedDocument, Document } from 'mongoose';
 import { RECIPE_INGESTION_STATE_KEY } from '../../../constants/recipe-ingestion';
 
-export type RecipeIngestionStateDocument = HydratedDocument<RecipeIngestionState>;
+export type RecipeIngestionStateDocument =
+  HydratedDocument<RecipeIngestionState>;
 
 /**
  * Recipe ingestion API 페이징 커서 singleton (MongoDB)

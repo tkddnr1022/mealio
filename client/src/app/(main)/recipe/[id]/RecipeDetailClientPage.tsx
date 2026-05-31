@@ -34,7 +34,9 @@ interface RecipeDetailClientPageProps {
   recipe: RecipeDetail;
 }
 
-function buildRecipeClassificationHashTags(recipe: RecipeDetail): HashTagItem[] {
+function buildRecipeClassificationHashTags(
+  recipe: RecipeDetail,
+): HashTagItem[] {
   const items: HashTagItem[] = [];
   const categoryLabel = recipe.categoryName?.trim();
   if (categoryLabel) {

@@ -121,7 +121,8 @@ export class RecipeCreationTransaction {
       );
 
       const cookTime =
-        data.recipe.cookingTimeMinutes ?? RECIPE_INGESTION_DEFAULT_COOK_TIME_MINUTES;
+        data.recipe.cookingTimeMinutes ??
+        RECIPE_INGESTION_DEFAULT_COOK_TIME_MINUTES;
       const servings = Math.max(1, data.recipe.servings ?? 2);
 
       const recipeData = {

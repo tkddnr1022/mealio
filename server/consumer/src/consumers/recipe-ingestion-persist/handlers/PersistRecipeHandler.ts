@@ -10,7 +10,7 @@ export interface RecipeIngestionRetrievedPayload {
   jobId: string;
 }
 
-// TODO: standalone cron-cli 패턴 적용 검토 
+// TODO: standalone cron-cli 패턴 적용 검토
 /**
  * Kafka recipe-ingestion-retrieved 이벤트 persist 오케스트레이션
  */
@@ -79,8 +79,7 @@ export class PersistRecipeHandler {
       }
     } catch (error) {
       const message =
-        error instanceof RetrievedDataValidationError ||
-        error instanceof Error
+        error instanceof RetrievedDataValidationError || error instanceof Error
           ? error.message
           : 'Persist failed';
 

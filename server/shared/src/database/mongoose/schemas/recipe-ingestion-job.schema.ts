@@ -1,5 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { type HydratedDocument, Document, Schema as MongooseSchema } from 'mongoose';
+import {
+  type HydratedDocument,
+  Document,
+  Schema as MongooseSchema,
+} from 'mongoose';
 import {
   RECIPE_INGESTION_JOB_STATUSES,
   type RecipeIngestionJobStatus,

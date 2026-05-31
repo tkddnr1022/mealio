@@ -37,8 +37,9 @@ export type BatchOutputLineOutcome =
   | { ok: true; jobId: string; retrievedData: Record<string, unknown> }
   | { ok: false; jobId: string; errorMessage: string };
 
-const TERMINAL_BATCH_FAILURE_STATUSES: ReadonlySet<OpenAIBatchStatus> =
-  new Set(['failed', 'expired']);
+const TERMINAL_BATCH_FAILURE_STATUSES: ReadonlySet<OpenAIBatchStatus> = new Set(
+  ['failed', 'expired'],
+);
 
 /**
  * OpenAI Batch 완료 확인·결과 반영·Kafka persist 트리거
@@ -145,7 +146,11 @@ export class RetrieveService {
   private async processCompletedBatch(
     batchId: string,
     outputFileId: string,
-  ): Promise<{ retrievedCount: number; failedCount: number; skipped: boolean }> {
+  ): Promise<{
+    retrievedCount: number;
+    failedCount: number;
+    skipped: boolean;
+  }> {
     const locked = await this.jobRepository.transitionManyByBatchId(
       batchId,
       'submitted',
@@ -163,18 +168,18 @@ export class RetrieveService {
     let failedCount = 0;
 
     try {
-      const jsonl = await this.openAiBatchService.downloadBatchOutput(
-        outputFileId,
-      );
+      const jsonl =
+        await this.openAiBatchService.downloadBatchOutput(outputFileId);
       const lines = parseJsonlLines(jsonl);
 
       for (const line of lines) {
         const outcome = parseBatchOutputLine(line);
         if (!outcome.ok) {
-          const rolled = await this.jobRepository.rollbackRetrievingJobWithRetry(
-            outcome.jobId,
-            outcome.errorMessage,
-          );
+          const rolled =
+            await this.jobRepository.rollbackRetrievingJobWithRetry(
+              outcome.jobId,
+              outcome.errorMessage,
+            );
           if (rolled) {
             failedCount++;
           }

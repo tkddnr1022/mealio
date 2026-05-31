@@ -37,8 +37,10 @@ export interface RetrievedRecipePayload {
   dishType?: string | null;
 }
 
-export interface ValidatedRetrievedRecipePayload
-  extends Omit<RetrievedRecipePayload, 'steps'> {
+export interface ValidatedRetrievedRecipePayload extends Omit<
+  RetrievedRecipePayload,
+  'steps'
+> {
   steps: RetrievedRecipeStepPayload[];
 }
 
@@ -67,10 +69,7 @@ export class RetrievedDataValidationError extends Error {
 }
 
 function isNutritionNumber(value: unknown): boolean {
-  return (
-    value == null ||
-    (typeof value === 'number' && Number.isFinite(value))
-  );
+  return value == null || (typeof value === 'number' && Number.isFinite(value));
 }
 
 function isRetrievedNutrition(
@@ -105,11 +104,11 @@ function isRetrievedRecipeStep(
   return true;
 }
 
-function normalizeRecipeSteps(
-  steps: unknown,
-): RetrievedRecipeStepPayload[] {
+function normalizeRecipeSteps(steps: unknown): RetrievedRecipeStepPayload[] {
   if (!Array.isArray(steps) || steps.length === 0) {
-    throw new RetrievedDataValidationError('recipe.steps must be a non-empty array');
+    throw new RetrievedDataValidationError(
+      'recipe.steps must be a non-empty array',
+    );
   }
 
   if (steps.every((s) => typeof s === 'string')) {
@@ -153,10 +152,7 @@ function isRetrievedRecipe(value: unknown): value is RetrievedRecipePayload {
   if (!stepsValid) {
     return false;
   }
-  if (
-    o.proposedCategory != null &&
-    !isProposedCategory(o.proposedCategory)
-  ) {
+  if (o.proposedCategory != null && !isProposedCategory(o.proposedCategory)) {
     return false;
   }
   if (o.nutrition != null && !isRetrievedNutrition(o.nutrition)) {
@@ -179,10 +175,7 @@ function isRetrievedIngredient(
   ) {
     return false;
   }
-  if (
-    o.proposedCategory != null &&
-    !isProposedCategory(o.proposedCategory)
-  ) {
+  if (o.proposedCategory != null && !isProposedCategory(o.proposedCategory)) {
     return false;
   }
   return true;
@@ -211,7 +204,9 @@ export function validateRetrievedData(
   }
 
   if (raw.parseConfidence !== 'high' && raw.parseConfidence !== 'low') {
-    throw new RetrievedDataValidationError('parseConfidence must be high or low');
+    throw new RetrievedDataValidationError(
+      'parseConfidence must be high or low',
+    );
   }
 
   const recipe = raw.recipe as RetrievedRecipePayload;
