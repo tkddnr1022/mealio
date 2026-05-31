@@ -117,7 +117,7 @@ MongoDB 컬렉션 (Mongoose). 파이프라인 SSOT.
 
 | 필드 | 설명 |
 |------|------|
-| `source_id` | 공공데이터 원본 ID — API 응답 `RCP_SEQ` (unique) |
+| `source_id` | 공공데이터 원본 ID — API 응답 `RCP_SEQ` (Number, unique) |
 | `status` | `fetched` \| `submitting` \| `submitted` \| `retrieving` \| `retrieved` \| `persisting` \| `persisted` \| `failed` |
 | `retry_count` | 최대 3회 |
 | `raw_data` | JSON (공공데이터 API row 원본) |
@@ -195,7 +195,7 @@ http://openapi.foodsafetykorea.go.kr/api/{keyId}/{serviceId}/{dataType}/{startId
 | 개념 | 역할 |
 |------|------|
 | `startIdx` / `endIdx` | API **순번 페이징** — 다음 수집 구간 결정 |
-| `RCP_SEQ` (응답 필드) | job **`source_id`** — upsert·중복 방지의 비즈니스 키 |
+| `RCP_SEQ` (응답 필드) | job **`source_id`** (Number) — upsert·중복 방지의 비즈니스 키 |
 | `last_end_idx` | Mongo `recipe_ingestion_state` — 마지막으로 요청한 `endIdx` |
 
 API는 순번 구간으로 데이터를 반환하고, 동일 레시피 재수집 시 `RCP_SEQ` → `source_id` upsert로 중복 job을 방지한다.

@@ -112,16 +112,21 @@ export class FetchService {
     return resolved;
   }
 
-  private extractSourceId(row: Record<string, unknown>): string | null {
+  private extractSourceId(row: Record<string, unknown>): number | null {
     const value = row.RCP_SEQ;
     if (value === undefined || value === null || value === '') {
       return null;
     }
-    if (typeof value === 'string') {
-      return value;
+    if (typeof value === 'number') {
+      return Number.isFinite(value) ? value : null;
     }
-    if (typeof value === 'number' || typeof value === 'boolean') {
-      return String(value);
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (trimmed === '') {
+        return null;
+      }
+      const parsed = Number(trimmed);
+      return Number.isFinite(parsed) ? parsed : null;
     }
     return null;
   }

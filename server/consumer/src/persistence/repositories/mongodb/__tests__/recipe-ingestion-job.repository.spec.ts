@@ -14,7 +14,7 @@ describe('RecipeIngestionJobRepository', () => {
   const jobId = new Types.ObjectId().toHexString();
   const mockJob = {
     _id: jobId,
-    sourceId: '12345',
+    sourceId: 12345,
     status: 'fetched',
     retryCount: 0,
     rawData: { RCP_SEQ: '12345' },
@@ -51,19 +51,19 @@ describe('RecipeIngestionJobRepository', () => {
       const exec = jest.fn().mockResolvedValue(mockJob);
       jest.spyOn(model, 'findOneAndUpdate').mockReturnValue({ exec } as never);
 
-      const result = await repository.upsertFetched('12345', {
+      const result = await repository.upsertFetched(12345, {
         RCP_SEQ: '12345',
       });
 
       expect(model.findOneAndUpdate).toHaveBeenCalledWith(
-        { sourceId: '12345' },
+        { sourceId: 12345 },
         expect.objectContaining({
           $set: expect.objectContaining({
             rawData: { RCP_SEQ: '12345' },
             fetchedAt: expect.any(Date),
           }),
           $setOnInsert: {
-            sourceId: '12345',
+            sourceId: 12345,
             status: 'fetched',
             retryCount: 0,
           },

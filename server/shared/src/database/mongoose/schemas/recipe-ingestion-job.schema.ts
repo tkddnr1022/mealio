@@ -17,8 +17,8 @@ export type RecipeIngestionJobDocument = HydratedDocument<RecipeIngestionJob>;
 })
 export class RecipeIngestionJob extends Document {
   /** 공공데이터 API RCP_SEQ — upsert 멱등 키 */
-  @Prop({ required: true, unique: true, type: String, index: true })
-  sourceId: string;
+  @Prop({ required: true, unique: true, type: Number, index: true })
+  sourceId: number;
 
   @Prop({
     required: true,

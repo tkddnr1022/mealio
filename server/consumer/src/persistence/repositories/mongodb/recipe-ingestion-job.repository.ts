@@ -60,7 +60,7 @@ export class RecipeIngestionJobRepository {
    * fetch 단계 row 처리 실패 시 retry_count 증가, 상한 초과 시 failed
    */
   async recordFetchFailure(
-    sourceId: string,
+    sourceId: number,
     errorMessage: string,
   ): Promise<RecipeIngestionJobDocument> {
     const existing = await this.jobModel.findOne({ sourceId }).exec();
@@ -93,7 +93,7 @@ export class RecipeIngestionJobRepository {
 
   /** sourceId(RCP_SEQ) 기준 upsert — fetch 멱등성 */
   async upsertFetched(
-    sourceId: string,
+    sourceId: number,
     rawData: Record<string, unknown>,
   ): Promise<RecipeIngestionJobDocument> {
     const now = new Date();

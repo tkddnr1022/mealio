@@ -67,7 +67,7 @@ http://openapi.foodsafetykorea.go.kr/api/{keyId}/{serviceId}/{dataType}/{startId
 | 저장·필드 | 용도 |
 |-----------|------|
 | `recipe_ingestion_state.last_end_idx` | API `startIdx`/`endIdx` 순번 커서 |
-| `recipe_ingestion_jobs.source_id` | 응답 `RCP_SEQ` — upsert 멱등 키 |
+| `recipe_ingestion_jobs.source_id` | 응답 `RCP_SEQ` (Number) — upsert 멱등 키 |
 
 ---
 
@@ -105,7 +105,7 @@ flowchart LR
 
 - [ ] MongoDB `recipe_ingestion_state` Mongoose 스키마 — `last_end_idx` API 커서 (singleton)
 - [ ] MongoDB `recipe_ingestion_jobs` Mongoose 스키마·모델 정의
-  - 필드: `source_id`(unique, API `RCP_SEQ`), `status`, `retry_count`, `raw_data`, `batch_id`, `retrieved_data`, `error_message`, 타임스탬프(`fetched_at` ~ `failed_at`)
+  - 필드: `source_id`(Number, unique, API `RCP_SEQ`), `status`, `retry_count`, `raw_data`, `batch_id`, `retrieved_data`, `error_message`, 타임스탬프(`fetched_at` ~ `failed_at`)
   - `status` enum: `fetched | submitting | submitted | retrieving | retrieved | persisting | persisted | failed`
 - [ ] `RecipeIngestionJobRepository` (MongoDB) — upsert·조건부 status 전환(낙관적 락)·batch 단위 조회
 - [ ] `RecipeIngestionStateRepository` — `last_end_idx` get/set
