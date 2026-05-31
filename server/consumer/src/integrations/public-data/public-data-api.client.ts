@@ -51,21 +51,13 @@ export type PublicDataFetchResult =
   | PublicDataFetchSuccess
   | PublicDataFetchEmpty;
 
-export type FetchLike = (
-  input: string,
-  init?: RequestInit,
-) => Promise<Response>;
-
 /**
  * 식품의약품안전처 공공데이터 Open API (COOKRCP01) HTTP 클라이언트
  * @see agent/backend/guidelines/recipe_ingestion_guidelines.md §4
  */
 @Injectable()
 export class PublicDataApiClient {
-  constructor(
-    private readonly config: ConfigService,
-    private readonly fetchFn: FetchLike = fetch,
-  ) {}
+  constructor(private readonly config: ConfigService) {}
 
   /**
    * fetchLimit 및 startIdx/endIdx 구간이 API 1000건 한도 이내인지 검증
@@ -115,7 +107,7 @@ export class PublicDataApiClient {
     const url = this.buildUrl(startIdx, endIdx);
     let response: Response;
     try {
-      response = await this.fetchFn(url, { method: 'GET' });
+      response = await fetch(url, { method: 'GET' });
     } catch (error) {
       throw new PublicDataApiError(
         'NETWORK_ERROR',
