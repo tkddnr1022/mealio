@@ -17,6 +17,8 @@ describe('UsersController', () => {
     email: 'test@example.com',
     nickname: 'TestUser',
     createdAt: new Date('2025-01-01T00:00:00.000Z'),
+    creditBalance: 500,
+    creditMonthlyLimit: 1000,
   };
 
   beforeEach(async () => {
@@ -25,6 +27,10 @@ describe('UsersController', () => {
       updateNickname: jest
         .fn()
         .mockResolvedValue({ id: 1, nickname: 'NewNick' }),
+      getMyActivities: jest.fn().mockResolvedValue({
+        items: [],
+        nextCursor: null,
+      }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -68,6 +74,15 @@ describe('UsersController', () => {
       const result = await controller.updateNickname(mockAuthUser, dto);
       expect(usersService.updateNickname).toHaveBeenCalledWith(1, dto);
       expect(result).toEqual({ id: 1, nickname: 'NewNick' });
+    });
+  });
+
+  describe('getMyActivities', () => {
+    it('활동 내역을 반환한다', async () => {
+      const query = { limit: 20 };
+      const result = await controller.getMyActivities(mockAuthUser, query);
+      expect(usersService.getMyActivities).toHaveBeenCalledWith(1, query);
+      expect(result).toEqual({ items: [], nextCursor: null });
     });
   });
 });

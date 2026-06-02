@@ -27,3 +27,20 @@ export interface UpdateNicknameResponse {
   id: number;
   nickname: string;
 }
+
+export interface UserActivityItem {
+  id: string;
+  type: string;
+  occurredAt: string;
+}
+
+export interface UserActivityList {
+  items: UserActivityItem[];
+  nextCursor: string | null;
+}
+
+export interface UserActivityQuery {
+  limit?: number;
+  cursor?: string;
+  types?: string[];
+}

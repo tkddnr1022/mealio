@@ -10,9 +10,12 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { UserProfileDto } from './dto/user-profile.dto';
 import { UpdateNicknameDto } from './dto/update-nickname.dto';
+import { UserActivityQueryDto } from './dto/user-activity-query.dto';
+import { UserActivityListDto } from './dto/user-activity-list.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthUser } from '../auth/types/request.types';
+import { Query } from '@nestjs/common';
 
 @ApiTags('User')
 @Controller('api/v1/users')
@@ -34,6 +37,21 @@ export class UsersController {
   })
   async getProfile(@CurrentUser() user: AuthUser): Promise<UserProfileDto> {
     return this.usersService.getProfile(user.id);
+  }
+
+  @Get('me/activities')
+  @ApiOperation({ summary: '내 활동 내역 조회' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '활동 내역 조회 성공',
+    type: UserActivityListDto,
+  })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: '인증 실패' })
+  async getMyActivities(
+    @CurrentUser() user: AuthUser,
+    @Query() query: UserActivityQueryDto,
+  ): Promise<UserActivityListDto> {
+    return this.usersService.getMyActivities(user.id, query);
   }
 
   @Patch('me/nickname')

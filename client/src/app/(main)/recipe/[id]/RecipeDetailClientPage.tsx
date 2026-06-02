@@ -34,6 +34,7 @@ interface RecipeDetailClientPageProps {
   recipe: RecipeDetail;
 }
 
+// TODO: cookingMethod, dishType 쿼리를 q로 바꾸고 실제 검색 로직에 반영
 function buildRecipeClassificationHashTags(
   recipe: RecipeDetail,
 ): HashTagItem[] {

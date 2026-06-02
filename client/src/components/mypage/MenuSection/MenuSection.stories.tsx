@@ -25,7 +25,7 @@ export const Default: Story = {
   args: {
     items: [
       { label: '내 레시피 관리', href: '/mypage/recipes' },
-      { label: '계정 설정', href: '/mypage/settings' },
+      { label: '활동 내역', href: '/mypage/activity' },
     ],
   },
 };

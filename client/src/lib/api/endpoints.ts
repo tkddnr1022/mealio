@@ -28,6 +28,7 @@ export const API_ENDPOINTS = {
   users: {
     me: `${API_PREFIX}/users/me`,
     meNickname: `${API_PREFIX}/users/me/nickname`,
+    meActivities: `${API_PREFIX}/users/me/activities`,
     meInventory: `${API_PREFIX}/users/me/inventory`,
     meInventoryOwned: `${API_PREFIX}/users/me/inventory/ingredients/owned`,
     meInventoryOwnedDetail: (ingredientId: number) =>

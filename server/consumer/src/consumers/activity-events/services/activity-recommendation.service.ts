@@ -62,8 +62,6 @@ export class ActivityRecommendationService {
     switch (type) {
       case ActivityEventType.RECIPE_VIEW:
         return 0.1;
-      case ActivityEventType.RECIPE_LIKE:
-        return 0.7;
       case ActivityEventType.RECIPE_SHARE:
         return 0.4;
       case ActivityEventType.SEARCH_CLICK:
@@ -78,8 +76,6 @@ export class ActivityRecommendationService {
     switch (type) {
       case ActivityEventType.RECIPE_VIEW:
         return '레시피 조회 행동 신호 반영';
-      case ActivityEventType.RECIPE_LIKE:
-        return '레시피 좋아요 행동 신호 반영';
       case ActivityEventType.RECIPE_SHARE:
         return '레시피 공유 행동 신호 반영';
       case ActivityEventType.SEARCH_CLICK:

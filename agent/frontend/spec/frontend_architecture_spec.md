@@ -40,6 +40,8 @@
 | (main) · 보관함 탭 | `/inventory/ingredients/owned` | `(main)/inventory/ingredients/owned/page.tsx` | CSR | 보유 재료 목록 |
 | (main) · 보관함 탭 | `/inventory/recipes/favorite` | `(main)/inventory/recipes/favorite/page.tsx` | CSR | 관심 레시피 목록 |
 | (main) · 마이페이지 탭 | `/mypage` | `(main)/mypage/page.tsx` | CSR | `'use client'`, `useAuth`로 로딩·비로그인·로그인 상태 분기 |
+| (main) · 마이페이지 탭 | `/mypage/profile` | `(main)/mypage/profile/page.tsx` | CSR | 프로필(닉네임) 수정 |
+| (main) · 마이페이지 탭 | `/mypage/activity` | `(main)/mypage/activity/page.tsx` | CSR | 내 활동 내역 조회 |
 | **(루트)** | — | `not-found.tsx` | — | 앱 전역 404 UI (`notFound()` 호출·존재하지 않는 경로). 별도 URL 없음 |
 | **(루트)** | — | `error.tsx` | CSR | 루트 레이아웃 **자식** 트리의 런타임 에러 UI(Error Boundary). 별도 URL 없음 |
 | **(루트)** | — | `global-error.tsx` | CSR | 루트 `layout.tsx`까지 포함한 치명적 에러 시 대체 UI. `<html>`·`<body>`·`globals.css` 포함, `AppRootFrame`·Provider 비적용 |
@@ -63,6 +65,8 @@
 | `(main)/inventory/ingredients/owned/` | `InventoryOwnedIngredientsClientPage.tsx` |
 | `(main)/inventory/recipes/favorite/` | `InventoryFavoriteRecipesClientPage.tsx` |
 | `(main)/mypage/` | `MypageClientPage.tsx` |
+| `(main)/mypage/profile/` | `ProfileClientPage.tsx` |
+| `(main)/mypage/activity/` | `ActivityClientPage.tsx` |
 
 **보조 파일**:
 
@@ -141,6 +145,8 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 | 경로 | 컴포넌트 | 렌더링 | 설명 |
 |------|----------|--------|------|
 | `/mypage` | MypageMainPage | CSR | `'use client'`, `useAuth` 기반 마이페이지 |
+| `/mypage/profile` | ProfilePage | CSR | 닉네임 수정 |
+| `/mypage/activity` | ActivityPage | CSR | 활동 내역 |
 
 ---
 

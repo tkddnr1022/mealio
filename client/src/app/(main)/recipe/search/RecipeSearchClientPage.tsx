@@ -255,7 +255,7 @@ export function RecipeSearchClientPage({
       <Navbar
         displayBackButton
         displayTitle={false}
-        onBack={() => router.push('/recipe')}
+        onBack={() => router.back()}
         additionalButtons={
           <FilterButton
             onClick={() =>

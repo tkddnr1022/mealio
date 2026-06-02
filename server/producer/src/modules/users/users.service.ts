@@ -2,11 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from '../../infrastructure/database/repositories/postgresql/user.repository';
 import { UserProfileDto } from './dto/user-profile.dto';
 import { UpdateNicknameDto } from './dto/update-nickname.dto';
+import { UserActivityQueryDto } from './dto/user-activity-query.dto';
+import { UserActivityListDto } from './dto/user-activity-list.dto';
 import { KafkaProducerService } from '../../infrastructure/kafka/producer.service';
 import { KAFKA_TOPICS } from '@mealio/shared';
 import { UserEventType, UserNicknameUpdateEvent } from '@mealio/shared';
 import { CacheService } from '../../infrastructure/cache/cache.service';
 import { UserCacheStrategy } from '../../infrastructure/cache/strategies/user-cache-strategy';
+import { EventLogRepository } from '../../infrastructure/database/repositories/mongodb/event-log.repository';
 
 @Injectable()
 export class UsersService {
@@ -15,6 +18,7 @@ export class UsersService {
     private readonly kafkaProducerService: KafkaProducerService,
     private readonly cacheService: CacheService,
     private readonly userCacheStrategy: UserCacheStrategy,
+    private readonly eventLogRepository: EventLogRepository,
   ) {}
 
   async getProfile(userId: number): Promise<UserProfileDto> {
@@ -70,5 +74,30 @@ export class UsersService {
       id: user.id,
       nickname: updateNicknameDto.nickname,
     };
+  }
+
+  // TODO: 캐시 적용 검토
+  async getMyActivities(
+    userId: number,
+    query: UserActivityQueryDto,
+  ): Promise<UserActivityListDto> {
+    const limit = query.limit ?? 20;
+    const logs = await this.eventLogRepository.findByActorUserId({
+      userId,
+      limit,
+      cursor: query.cursor,
+      types: query.types,
+    });
+
+    const items = logs.map((log) => ({
+      id: String((log as { _id?: unknown })._id ?? ''),
+      type: log.type,
+      occurredAt: (log.occurredAt ?? new Date()).toISOString(),
+    }));
+
+    const lastItem = items[items.length - 1];
+    const nextCursor = lastItem ? lastItem.occurredAt : null;
+
+    return { items, nextCursor };
   }
 }

@@ -57,4 +57,36 @@ export class EventLogRepository {
 
     return query.exec();
   }
+
+  /**
+   * 특정 사용자 활동 로그를 최신순으로 조회한다.
+   * 커서는 ISO occurredAt 기준으로 다음 페이지를 조회한다.
+   */
+  async findByActorUserId(params: {
+    userId: number;
+    limit: number;
+    cursor?: string;
+    types?: string[];
+  }): Promise<EventLog[]> {
+    const { userId, limit, cursor, types } = params;
+    const filter: Record<string, unknown> = {
+      'actor.userId': userId,
+    };
+
+    if (cursor) {
+      filter.occurredAt = { $lt: new Date(cursor) };
+    }
+
+    if (types && types.length > 0) {
+      filter.type = { $in: types };
+    }
+
+    return this.eventLogModel
+      .find(filter)
+      .select('type entity occurredAt')
+      .sort({ occurredAt: -1, _id: -1 })
+      .limit(limit)
+      .lean()
+      .exec();
+  }
 }

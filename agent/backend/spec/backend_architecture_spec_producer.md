@@ -51,9 +51,12 @@
 | **server/producer/src/modules/users/** | 사용자 프로필 모듈 |
 | server/producer/src/modules/users/users.module.ts | UsersModule 정의 |
 | server/producer/src/modules/users/users.service.ts | 유저 프로필 조회·수정, 캐시 우선 조회 후 RDS 폴백 |
-| server/producer/src/modules/users/users.controller.ts | GET /api/v1/users/me, PATCH /api/v1/users/me/nickname |
+| server/producer/src/modules/users/users.controller.ts | GET /api/v1/users/me, PATCH /api/v1/users/me/nickname, GET /api/v1/users/me/activities |
 | server/producer/src/modules/users/dto/update-nickname.dto.ts | 닉네임 변경 요청 DTO |
 | server/producer/src/modules/users/dto/user-profile.dto.ts | 유저 프로필 응답 DTO |
+| server/producer/src/modules/users/dto/user-activity-query.dto.ts | 활동 내역 조회 쿼리 DTO (`limit`, `cursor`, `types`) |
+| server/producer/src/modules/users/dto/user-activity-item.dto.ts | 활동 내역 단건 DTO (`type`, `occurredAt`, `summary`) |
+| server/producer/src/modules/users/dto/user-activity-list.dto.ts | 활동 내역 응답 DTO (`items`, `nextCursor`) |
 | **server/producer/src/modules/recipes/** | 레시피 조회 모듈 |
 | server/producer/src/modules/recipes/recipes.module.ts | RecipesModule 정의 |
 | server/producer/src/modules/recipes/recipes.service.ts | RecipeQueryService. 상세 조회(read-only)·캐시 활용 + 조회수 이벤트 기록 API(record view, dedupe key: `user:{id}` 우선, 비로그인은 `ip:{ip}` / 미확인 `ip:unknown-ip`) |

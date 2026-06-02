@@ -4,6 +4,9 @@ export type { UserProfileProps } from './UserProfile';
 export { StatCard } from './StatCard';
 export type { StatCardProps } from './StatCard';
 
+export { ActivityCard } from './ActivityCard';
+export type { ActivityCardProps } from './ActivityCard';
+
 export { CreditUsageCard } from './CreditUsageCard';
 export type { CreditUsageCardProps } from './CreditUsageCard';
 

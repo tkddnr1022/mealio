@@ -7,6 +7,7 @@ import { UpdateNicknameDto } from '../../dto/update-nickname.dto';
 import { CacheService } from '../../../../infrastructure/cache/cache.service';
 import { UserCacheStrategy } from '../../../../infrastructure/cache/strategies/user-cache-strategy';
 import { KafkaProducerService } from '../../../../infrastructure/kafka/producer.service';
+import { EventLogRepository } from '../../../../infrastructure/database/repositories/mongodb/event-log.repository';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -14,6 +15,7 @@ describe('UsersService', () => {
   let cacheService: jest.Mocked<CacheService>;
   let userCacheStrategy: jest.Mocked<UserCacheStrategy>;
   let kafkaProducerService: jest.Mocked<KafkaProducerService>;
+  let eventLogRepository: jest.Mocked<EventLogRepository>;
 
   const mockUser = {
     id: 1,
@@ -64,6 +66,10 @@ describe('UsersService', () => {
       emit: jest.fn().mockResolvedValue(undefined),
     };
 
+    const mockEventLogRepository = {
+      findByActorUserId: jest.fn().mockResolvedValue([]),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
@@ -71,6 +77,7 @@ describe('UsersService', () => {
         { provide: CacheService, useValue: mockCacheService },
         { provide: UserCacheStrategy, useValue: mockCacheStrategy },
         { provide: KafkaProducerService, useValue: mockKafkaProducer },
+        { provide: EventLogRepository, useValue: mockEventLogRepository },
       ],
     }).compile();
 
@@ -87,6 +94,9 @@ describe('UsersService', () => {
     kafkaProducerService = module.get<KafkaProducerService>(
       KafkaProducerService,
     ) as jest.Mocked<KafkaProducerService>;
+    eventLogRepository = module.get<EventLogRepository>(
+      EventLogRepository,
+    ) as jest.Mocked<EventLogRepository>;
   });
 
   it('should be defined', () => {
@@ -160,6 +170,30 @@ describe('UsersService', () => {
 
       // Kafka 이벤트 발행 (Consumer의 cache-invalidation 컨슈머가 캐시 무효화 처리)
       expect(kafkaProducerService.emit).toHaveBeenCalled();
+    });
+  });
+
+  describe('getMyActivities', () => {
+    it('사용자 활동 목록을 조회한다', async () => {
+      eventLogRepository.findByActorUserId.mockResolvedValue([
+        {
+          _id: 'abc',
+          type: 'recipe.view',
+          occurredAt: new Date('2026-06-02T06:00:00.000Z'),
+          entity: { type: 'recipe', id: 1, name: '김치볶음밥' },
+        } as never,
+      ]);
+
+      const result = await service.getMyActivities(1, { limit: 20 });
+
+      expect(eventLogRepository.findByActorUserId).toHaveBeenCalledWith({
+        userId: 1,
+        limit: 20,
+        cursor: undefined,
+        types: undefined,
+      });
+      expect(result.items).toHaveLength(1);
+      expect(result.nextCursor).toBe('2026-06-02T06:00:00.000Z');
     });
   });
 });

@@ -1,11 +1,10 @@
 /**
  * Activity 이벤트 타입 정의.
  * activity-events 토픽 페이로드 (레시피/검색 활동 EventLog 기록용).
- * - recipe.view, recipe.like, recipe.share, search.query, search.click
+ * - recipe.view, recipe.share, search.query, search.click
  */
 export enum ActivityEventType {
   RECIPE_VIEW = 'recipe.view',
-  RECIPE_LIKE = 'recipe.like',
   RECIPE_SHARE = 'recipe.share',
   SEARCH_QUERY = 'search.query',
   SEARCH_CLICK = 'search.click',
@@ -44,14 +43,6 @@ export interface RecipeViewEvent {
   metadata?: ActivityEventMetadata;
 }
 
-export interface RecipeLikeEvent {
-  type: ActivityEventType.RECIPE_LIKE;
-  actor: ActivityEventActor;
-  entity?: ActivityEventEntity;
-  payload?: Record<string, unknown>;
-  metadata?: ActivityEventMetadata;
-}
-
 export interface RecipeShareEvent {
   type: ActivityEventType.RECIPE_SHARE;
   actor: ActivityEventActor;
@@ -78,7 +69,6 @@ export interface SearchClickEvent {
 
 export type ActivityEvent =
   | RecipeViewEvent
-  | RecipeLikeEvent
   | RecipeShareEvent
   | SearchQueryEvent
   | SearchClickEvent;

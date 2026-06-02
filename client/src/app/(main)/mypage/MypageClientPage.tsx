@@ -6,7 +6,6 @@ import {
   FileText,
   LogIn,
   LogOut,
-  Settings,
   Shield,
   SquarePen,
 } from 'lucide-react';
@@ -66,14 +65,14 @@ export function MypageClientPage() {
             <MenuSection
               items={[
                 {
-                  href: '#profile',
+                  href: '/mypage/profile',
                   label: '프로필 수정',
                   leadingIcon: (
                     <SquarePen className="size-5" strokeWidth={2} aria-hidden />
                   ),
                 },
                 {
-                  href: '#activity',
+                  href: '/mypage/activity',
                   label: '활동 내역',
                   leadingIcon: (
                     <Activity className="size-5" strokeWidth={2} aria-hidden />
@@ -83,13 +82,6 @@ export function MypageClientPage() {
             />
             <MenuSection
               items={[
-                {
-                  href: '#settings',
-                  label: '설정',
-                  leadingIcon: (
-                    <Settings className="size-5" strokeWidth={2} aria-hidden />
-                  ),
-                },
                 {
                   href: '#help',
                   label: '도움말',

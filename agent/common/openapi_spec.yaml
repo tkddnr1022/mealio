@@ -353,6 +353,58 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /api/v1/users/me/activities:
+    get:
+      tags:
+        - User
+      summary: 내 활동 내역 조회
+      description: 현재 로그인한 사용자의 활동 내역을 최신순으로 조회 (커서 기반 페이지네이션)
+      parameters:
+        - name: accessToken
+          in: cookie
+          required: true
+          description: JWT 액세스 토큰
+          schema:
+            type: string
+          example: "{{apiKey}}"
+        - name: limit
+          in: query
+          required: false
+          description: 한 페이지당 항목 수 (기본 20, 최대 100)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: cursor
+          in: query
+          required: false
+          description: 다음 페이지 커서 (이전 응답의 nextCursor, ISO occurredAt)
+          schema:
+            type: string
+            maxLength: 64
+        - name: types
+          in: query
+          required: false
+          description: 이벤트 타입 필터
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+      responses:
+        '200':
+          description: 활동 내역 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserActivityList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /api/v1/recipes:
     get:
       tags:
@@ -1572,6 +1624,30 @@ components:
               type: string
               format: date-time
               description: 가입일시
+
+    UserActivityItem:
+      type: object
+      required: [id, type, occurredAt]
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+
+    UserActivityList:
+      type: object
+      required: [items, nextCursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserActivityItem'
+        nextCursor:
+          type: string
+          nullable: true
 
     RecipeSummary:
       type: object

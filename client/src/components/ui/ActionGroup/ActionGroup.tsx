@@ -18,6 +18,10 @@ export function ActionGroup({
   rightButtonProps,
   ...rest
 }: ActionGroupProps) {
+  if (!leftButtonProps && !rightButtonProps) {
+    return null;
+  }
+
   return (
     <section
       className={cn(
@@ -27,18 +31,22 @@ export function ActionGroup({
       data-name="ActionGroup"
       {...rest}
     >
-      <Button
-        size="large"
-        variant="secondary"
-        className="flex-1"
-        {...leftButtonProps}
-      />
-      <Button
-        size="large"
-        variant="primary"
-        className="flex-1"
-        {...rightButtonProps}
-      />
+      {leftButtonProps && (
+        <Button
+          size="large"
+          variant="secondary"
+          className="flex-1"
+          {...leftButtonProps}
+        />
+      )}
+      {rightButtonProps && (
+        <Button
+          size="large"
+          variant="primary"
+          className="flex-1"
+          {...rightButtonProps}
+        />
+      )}
     </section>
   );
 }

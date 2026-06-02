@@ -50,6 +50,7 @@ export interface InventoryPageShellProps {
   children: ReactNode;
 }
 
+// TODO: Layout으로 네이밍 변경
 export function InventoryPageShell({
   tab,
   isEmpty = false,

@@ -53,7 +53,6 @@ export class EventLog extends Document {
     type: String,
     enum: [
       'recipe.view',
-      'recipe.like',
       'recipe.share',
       'search.query',
       'search.click',

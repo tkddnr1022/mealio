@@ -18,12 +18,14 @@ import {
   type UseQueryOptions,
 } from '@tanstack/react-query';
 
-import { updateMyNickname } from '@/lib/api/domains';
+import { getMyActivities, updateMyNickname } from '@/lib/api/domains';
 import { fetchCurrentUser } from '@/lib/auth/session.client';
 import { QUERY_CACHE } from '@/lib/config/cache.config';
 import type {
   UpdateNicknameRequest,
   UpdateNicknameResponse,
+  UserActivityList,
+  UserActivityQuery,
   UserProfile,
 } from '@/lib/types/user';
 
@@ -32,6 +34,8 @@ import type {
 export const userQueries = {
   all: ['users'] as const,
   me: () => [...userQueries.all, 'me'] as const,
+  activities: (query: UserActivityQuery = {}) =>
+    [...userQueries.all, 'activities', query] as const,
 } as const;
 
 // ─── 훅 ───────────────────────────────────────────────────────────────────────
@@ -60,29 +64,64 @@ export function useCurrentUser(options?: CurrentUserQueryOpts) {
 }
 
 export function useUpdateNickname(
-  options?: UseMutationOptions<
+  options?: UseMutationOptions<UpdateNicknameResponse, Error, UpdateNicknameRequest>,
+) {
+  const qc = useQueryClient();
+  const { meta: metaOption, ...rest } = options ?? {};
+  return useMutation<
     UpdateNicknameResponse,
     Error,
-    UpdateNicknameRequest
-  >,
-) {
-  const queryClient = useQueryClient();
-  const { meta: metaOption, ...rest } = options ?? {};
-  return useMutation<UpdateNicknameResponse, Error, UpdateNicknameRequest>({
+    UpdateNicknameRequest,
+    { previous?: UserProfile | null }
+  >({
     mutationFn: (params) => updateMyNickname(params),
     ...rest,
     meta: {
       errorToastTitle: '닉네임을 변경하지 못했어요',
       ...metaOption,
     },
-    onSuccess: (...args) => {
-      const [data] = args;
+    onMutate: async (variables) => {
+      await qc.cancelQueries({ queryKey: userQueries.me() });
+      const previous = qc.getQueryData<UserProfile | null>(userQueries.me());
+      const nextNickname = variables.nickname.trim();
+      qc.setQueryData<UserProfile | null>(userQueries.me(), (prev) =>
+        prev ? { ...prev, nickname: nextNickname } : prev,
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous !== undefined) {
+        qc.setQueryData(userQueries.me(), ctx.previous);
+      }
+    },
+    onSuccess: (data) => {
       // 변경된 닉네임을 즉시 반영하고, 서버 상태 재동기화를 트리거한다.
-      queryClient.setQueryData<UserProfile | null>(userQueries.me(), (prev) =>
+      qc.setQueryData<UserProfile | null>(userQueries.me(), (prev) =>
         prev ? { ...prev, nickname: data.nickname } : prev,
       );
-      void queryClient.invalidateQueries({ queryKey: userQueries.me() });
-      rest.onSuccess?.(...args);
+      void qc.invalidateQueries({ queryKey: userQueries.me(), refetchType: 'none' });
+    },
+  });
+}
+
+type UserActivityQueryOpts = Omit<
+  UseQueryOptions<UserActivityList, Error, UserActivityList>,
+  'queryKey' | 'queryFn'
+>;
+
+export function useMyActivities(
+  params: UserActivityQuery = {},
+  options?: UserActivityQueryOpts,
+) {
+  const { meta: metaOption, ...rest } = options ?? {};
+  return useQuery<UserActivityList, Error>({
+    queryKey: userQueries.activities(params),
+    queryFn: ({ signal }) => getMyActivities(params, { signal }),
+    ...QUERY_CACHE.user,
+    ...rest,
+    meta: {
+      errorToastTitle: '활동 내역을 불러오지 못했어요',
+      ...metaOption,
     },
   });
 }

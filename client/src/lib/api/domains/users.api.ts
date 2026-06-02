@@ -9,8 +9,11 @@
  */
 
 import { httpClient, type RequestOptions } from '../http-client';
+import { objectToQuery } from '../query';
 import { API_ENDPOINTS } from '../endpoints';
 import type {
+  UserActivityList,
+  UserActivityQuery,
   UpdateNicknameRequest,
   UpdateNicknameResponse,
   UserProfile,
@@ -39,4 +42,17 @@ export function updateMyNickname(
     params,
     fetchOptions,
   );
+}
+
+/**
+ * 로그인한 사용자의 활동 내역을 조회한다.
+ */
+export function getMyActivities(
+  params: UserActivityQuery = {},
+  fetchOptions?: RequestOptions,
+): Promise<UserActivityList> {
+  return httpClient.get<UserActivityList>(API_ENDPOINTS.users.meActivities, {
+    ...fetchOptions,
+    query: objectToQuery(params),
+  });
 }
