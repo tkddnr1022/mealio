@@ -35,7 +35,10 @@ export function ProfileClientPage() {
       />
       <MainContent>
         <section className="w-full rounded-2xl bg-background-surface p-4 shadow-(--semantic-shadow-sm)">
-          <label htmlFor="email-input" className="typo-body-small style-text-secondary">
+          <label
+            htmlFor="email-input"
+            className="typo-body-small style-text-secondary"
+          >
             이메일
           </label>
           <Input
@@ -49,7 +52,10 @@ export function ProfileClientPage() {
         </section>
 
         <section className="w-full rounded-2xl bg-background-surface p-4 shadow-(--semantic-shadow-sm)">
-          <label htmlFor="nickname-input" className="typo-body-small style-text-secondary">
+          <label
+            htmlFor="nickname-input"
+            className="typo-body-small style-text-secondary"
+          >
             닉네임
           </label>
           <Input
@@ -67,7 +73,8 @@ export function ProfileClientPage() {
         rightButtonProps={{
           label: updateNicknameMutation.isPending ? '저장 중…' : '저장',
           disabled: isSaveDisabled,
-          onClick: () => updateNicknameMutation.mutate({ nickname: trimmedNickname }),
+          onClick: () =>
+            updateNicknameMutation.mutate({ nickname: trimmedNickname }),
         }}
       />
     </>

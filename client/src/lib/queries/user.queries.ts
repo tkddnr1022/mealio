@@ -64,7 +64,11 @@ export function useCurrentUser(options?: CurrentUserQueryOpts) {
 }
 
 export function useUpdateNickname(
-  options?: UseMutationOptions<UpdateNicknameResponse, Error, UpdateNicknameRequest>,
+  options?: UseMutationOptions<
+    UpdateNicknameResponse,
+    Error,
+    UpdateNicknameRequest
+  >,
 ) {
   const qc = useQueryClient();
   const { meta: metaOption, ...rest } = options ?? {};
@@ -99,7 +103,10 @@ export function useUpdateNickname(
       qc.setQueryData<UserProfile | null>(userQueries.me(), (prev) =>
         prev ? { ...prev, nickname: data.nickname } : prev,
       );
-      void qc.invalidateQueries({ queryKey: userQueries.me(), refetchType: 'none' });
+      void qc.invalidateQueries({
+        queryKey: userQueries.me(),
+        refetchType: 'none',
+      });
     },
   });
 }
