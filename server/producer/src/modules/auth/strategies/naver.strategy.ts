@@ -58,7 +58,9 @@ export class NaverStrategy extends PassportStrategy(
         return response.json() as Promise<NaverUserMeResponse>;
       })
       .then((body) => done(null, body))
-      .catch((err) => done(err));
+      .catch((err: unknown) =>
+        done(err instanceof Error ? err : new Error(String(err))),
+      );
   }
 
   validate(

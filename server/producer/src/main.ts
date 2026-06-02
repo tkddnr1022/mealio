@@ -56,4 +56,4 @@ async function bootstrap() {
     `service=${observability.serviceName} metricsEnabled=${observability.metricsEnabled} slowQueryThresholdMs=${observability.slowQueryThresholdMs}`,
   );
 }
-bootstrap();
+void bootstrap();

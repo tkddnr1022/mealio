@@ -90,7 +90,7 @@ export class UsersService {
     });
 
     const items = logs.map((log) => ({
-      id: String((log as { _id?: unknown })._id ?? ''),
+      id: this.getEventLogId(log),
       type: log.type,
       occurredAt: (log.occurredAt ?? new Date()).toISOString(),
     }));
@@ -99,5 +99,27 @@ export class UsersService {
     const nextCursor = lastItem ? lastItem.occurredAt : null;
 
     return { items, nextCursor };
+  }
+
+  private getEventLogId(log: { _id?: unknown }): string {
+    const rawId = log._id;
+    if (typeof rawId === 'string') {
+      return rawId;
+    }
+    if (this.isObjectIdLike(rawId)) {
+      return rawId.toHexString();
+    }
+    return '';
+  }
+
+  private isObjectIdLike(
+    value: unknown,
+  ): value is { toHexString: () => string } {
+    return (
+      typeof value === 'object' &&
+      value !== null &&
+      'toHexString' in value &&
+      typeof (value as { toHexString?: unknown }).toHexString === 'function'
+    );
   }
 }

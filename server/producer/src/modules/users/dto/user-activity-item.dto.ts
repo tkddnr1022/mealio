@@ -1,15 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-
-class UserActivityEntityDto {
-  @ApiProperty({ example: 'recipe' })
-  type: string;
-
-  @ApiProperty({ example: 123 })
-  id: number;
-
-  @ApiPropertyOptional({ example: '김치볶음밥', nullable: true })
-  name?: string;
-}
+import { ApiProperty } from '@nestjs/swagger';
 
 export class UserActivityItemDto {
   @ApiProperty({ example: '682d0f4bbad3dd2f851f6d80' })
