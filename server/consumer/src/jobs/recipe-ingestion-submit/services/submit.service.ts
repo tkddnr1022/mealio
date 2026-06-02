@@ -9,6 +9,7 @@ import {
   OpenAIBatchService,
 } from 'src/integrations/openai/openai-batch.service';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
+import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
 import { CategoryContextService } from './category-context.service';
 import { buildRecipeIngestionSystemPrompt } from '../prompts/recipe-ingestion.system-prompt';
 
@@ -21,6 +22,8 @@ export class SubmitBatchSizeError extends Error {
 
 export interface SubmitOptions {
   submitBatchSize?: number;
+  retryFailed?: boolean;
+  retryFailedLimit?: number;
 }
 
 export interface SubmitResult {
@@ -61,12 +64,23 @@ export class SubmitService {
     private readonly jobRepository: RecipeIngestionJobRepository,
     private readonly categoryContextService: CategoryContextService,
     private readonly openAiBatchService: OpenAIBatchService,
+    private readonly metrics: ConsumerMetricsService,
   ) {}
 
   async submit(options: SubmitOptions = {}): Promise<SubmitResult> {
+    const startedAt = Date.now();
     const submitBatchSize = this.resolveSubmitBatchSize(
       options.submitBatchSize,
     );
+    const retryFailedLimit = Math.max(1, options.retryFailedLimit ?? 100);
+
+    if (options.retryFailed) {
+      const requeued =
+        await this.jobRepository.requeueFailedToFetched(retryFailedLimit);
+      if (requeued > 0) {
+        this.logger.log(`Requeued failed jobs count=${requeued}`);
+      }
+    }
 
     const fetchedJobs = await this.jobRepository.findByStatus(
       'fetched',
@@ -75,6 +89,11 @@ export class SubmitService {
 
     if (fetchedJobs.length === 0) {
       this.logger.log('No fetched jobs — no-op exit');
+      this.metrics.recordIngestionStage('submit', 'skipped');
+      this.metrics.observeIngestionStageLatency(
+        'submit',
+        Date.now() - startedAt,
+      );
       return { submittedCount: 0, skippedCount: 0 };
     }
 
@@ -84,6 +103,11 @@ export class SubmitService {
     if (eligibleJobs.length === 0) {
       this.logger.warn(
         `All ${fetchedJobs.length} fetched jobs missing rawData — no-op exit`,
+      );
+      this.metrics.recordIngestionStage('submit', 'skipped');
+      this.metrics.observeIngestionStageLatency(
+        'submit',
+        Date.now() - startedAt,
       );
       return { submittedCount: 0, skippedCount };
     }
@@ -98,6 +122,11 @@ export class SubmitService {
 
     if (lockedCount === 0) {
       this.logger.warn('No jobs transitioned to submitting — concurrent run?');
+      this.metrics.recordIngestionStage('submit', 'skipped');
+      this.metrics.observeIngestionStageLatency(
+        'submit',
+        Date.now() - startedAt,
+      );
       return { submittedCount: 0, skippedCount };
     }
 
@@ -136,6 +165,11 @@ export class SubmitService {
       this.logger.log(
         `Submitted ${submittedCount} jobs batchId=${batchId} skipped=${skippedCount}`,
       );
+      this.metrics.recordIngestionStage('submit', 'success', submittedCount);
+      this.metrics.observeIngestionStageLatency(
+        'submit',
+        Date.now() - startedAt,
+      );
 
       return {
         submittedCount,
@@ -156,7 +190,11 @@ export class SubmitService {
       this.logger.error(
         `Batch submit failed, rolled back ${rolledBack} jobs: ${message}`,
       );
-
+      this.metrics.recordIngestionStage('submit', 'failed');
+      this.metrics.observeIngestionStageLatency(
+        'submit',
+        Date.now() - startedAt,
+      );
       throw error;
     }
   }

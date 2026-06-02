@@ -13,6 +13,7 @@ import {
   buildBatchJsonlLine,
 } from '../../services/submit.service';
 import { buildRecipeIngestionSystemPrompt } from '../../prompts/recipe-ingestion.system-prompt';
+import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
 
 const MOCK_BATCH_MODEL = 'gpt-4o-mini-batch';
 
@@ -39,6 +40,7 @@ describe('SubmitService', () => {
     Pick<
       RecipeIngestionJobRepository,
       | 'findByStatus'
+      | 'requeueFailedToFetched'
       | 'transitionManyByIds'
       | 'findManyByIdsAndStatus'
       | 'rollbackSubmittingWithRetry'
@@ -50,10 +52,17 @@ describe('SubmitService', () => {
   let openAiBatchService: jest.Mocked<
     Pick<OpenAIBatchService, 'getBatchModel' | 'submitBatchJsonl'>
   >;
+  let metrics: jest.Mocked<
+    Pick<
+      ConsumerMetricsService,
+      'recordIngestionStage' | 'observeIngestionStageLatency'
+    >
+  >;
 
   beforeEach(async () => {
     jobRepository = {
       findByStatus: jest.fn(),
+      requeueFailedToFetched: jest.fn(),
       transitionManyByIds: jest.fn(),
       findManyByIdsAndStatus: jest.fn(),
       rollbackSubmittingWithRetry: jest.fn(),
@@ -65,6 +74,10 @@ describe('SubmitService', () => {
       getBatchModel: jest.fn().mockReturnValue(MOCK_BATCH_MODEL),
       submitBatchJsonl: jest.fn(),
     };
+    metrics = {
+      recordIngestionStage: jest.fn(),
+      observeIngestionStageLatency: jest.fn(),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -75,6 +88,7 @@ describe('SubmitService', () => {
           useValue: categoryContextService,
         },
         { provide: OpenAIBatchService, useValue: openAiBatchService },
+        { provide: ConsumerMetricsService, useValue: metrics },
       ],
     }).compile();
 

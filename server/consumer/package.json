@@ -20,7 +20,8 @@
     "job:kpi-rollup": "ts-node -r tsconfig-paths/register src/jobs/kpi-rollup/run-kpi-rollup.ts",
     "job:recipe-ingestion-fetch": "ts-node -r tsconfig-paths/register src/jobs/recipe-ingestion-fetch/run-recipe-ingestion-fetch.ts",
     "job:recipe-ingestion-submit": "ts-node -r tsconfig-paths/register src/jobs/recipe-ingestion-submit/run-recipe-ingestion-submit.ts",
-    "job:recipe-ingestion-retrieve": "ts-node -r tsconfig-paths/register src/jobs/recipe-ingestion-retrieve/run-recipe-ingestion-retrieve.ts"
+    "job:recipe-ingestion-retrieve": "ts-node -r tsconfig-paths/register src/jobs/recipe-ingestion-retrieve/run-recipe-ingestion-retrieve.ts",
+    "job:recipe-ingestion-persist": "ts-node -r tsconfig-paths/register src/jobs/recipe-ingestion-persist/run-recipe-ingestion-persist.ts"
   },
   "dependencies": {
     "@mealio/shared": "workspace:*",

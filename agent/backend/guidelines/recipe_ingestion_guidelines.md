@@ -60,6 +60,7 @@ pnpm --filter consumer run job:recipe-ingestion-submit --retry-failed
 | `job:recipe-ingestion-fetch` | 운영 정책에 따라 확정 | 공공데이터 수집 |
 | `job:recipe-ingestion-submit` | 운영 정책에 따라 확정 | `status: fetched` → OpenAI Batch |
 | `job:recipe-ingestion-retrieve` | 1~5분 | Batch 완료 확인·결과 반영 |
+| `job:recipe-ingestion-persist` | 운영 정책에 따라 확정 | `status: retrieved` direct persist (수동/배치) |
 | `recipe-ingestion-persist` consumer | always-on | Kafka 구독 |
 
 **운영 조율 정책 (예시)** — 구현 코드가 아닌 스케줄·runbook에서 정의:
@@ -75,12 +76,13 @@ pnpm --filter consumer run job:recipe-ingestion-submit --retry-failed
 | fetch | standalone job | cron → CLI | `server/consumer/src/jobs/recipe-ingestion-fetch/` |
 | submit | standalone job | cron → CLI | `server/consumer/src/jobs/recipe-ingestion-submit/` |
 | retrieve | standalone job | cron → CLI | `server/consumer/src/jobs/recipe-ingestion-retrieve/` |
-| persist | always-on consumer | Kafka 구독 | `server/consumer/src/consumers/recipe-ingestion-persist/` |
+| persist | standalone job + consumer | CLI + Kafka 구독 | `server/consumer/src/jobs/recipe-ingestion-persist/`, `server/consumer/src/consumers/recipe-ingestion-persist/` |
 
 ```
 cron ──→ job:recipe-ingestion-fetch ──→ MongoDB (recipe_ingestion_jobs, status: fetched)
 cron ──→ job:recipe-ingestion-submit ──→ MongoDB ──→ OpenAI Batch API
 cron ──→ job:recipe-ingestion-retrieve ──→ MongoDB ──→ Kafka (recipe-ingestion-retrieved)
+cron/manual ──→ job:recipe-ingestion-persist ──→ MongoDB + PostgreSQL (Recipe domain)
 Kafka ──→ recipe-ingestion-persist consumer ──→ MongoDB + PostgreSQL (Recipe domain)
 ```
 

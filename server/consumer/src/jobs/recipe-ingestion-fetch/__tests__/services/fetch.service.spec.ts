@@ -7,6 +7,7 @@ import {
 } from 'src/integrations/public-data/public-data-api.client';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { RecipeIngestionStateRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-state.repository';
+import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
 import { FetchService } from '../../services/fetch.service';
 
 describe('FetchService', () => {
@@ -19,6 +20,12 @@ describe('FetchService', () => {
   >;
   let stateRepository: jest.Mocked<
     Pick<RecipeIngestionStateRepository, 'getLastEndIdx' | 'setLastEndIdx'>
+  >;
+  let metrics: jest.Mocked<
+    Pick<
+      ConsumerMetricsService,
+      'recordIngestionStage' | 'observeIngestionStageLatency'
+    >
   >;
 
   beforeEach(async () => {
@@ -34,6 +41,10 @@ describe('FetchService', () => {
       getLastEndIdx: jest.fn(),
       setLastEndIdx: jest.fn(),
     };
+    metrics = {
+      recordIngestionStage: jest.fn(),
+      observeIngestionStageLatency: jest.fn(),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -41,6 +52,7 @@ describe('FetchService', () => {
         { provide: PublicDataApiClient, useValue: publicDataApiClient },
         { provide: RecipeIngestionJobRepository, useValue: jobRepository },
         { provide: RecipeIngestionStateRepository, useValue: stateRepository },
+        { provide: ConsumerMetricsService, useValue: metrics },
       ],
     }).compile();
 

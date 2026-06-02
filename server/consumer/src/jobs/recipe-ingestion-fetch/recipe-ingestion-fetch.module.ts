@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { createObservabilityConfig } from '@mealio/shared';
 import { MongooseSchemasModule } from '@mealio/shared';
 import {
   envValidationOptions,
@@ -9,6 +10,10 @@ import { mongooseConnectionPoolConfig } from '../../config/mongoose-pool.config'
 import { PublicDataModule } from '../../integrations/public-data/public-data.module';
 import { RecipeIngestionJobRepository } from '../../persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { RecipeIngestionStateRepository } from '../../persistence/repositories/mongodb/recipe-ingestion-state.repository';
+import {
+  ConsumerMetricsService,
+  OBSERVABILITY_CONFIG,
+} from '../../reliability/monitoring/consumer-metrics.service';
 import { FetchService } from './services/fetch.service';
 
 /**
@@ -26,6 +31,12 @@ import { FetchService } from './services/fetch.service';
     PublicDataModule,
   ],
   providers: [
+    {
+      provide: OBSERVABILITY_CONFIG,
+      useFactory: () =>
+        createObservabilityConfig('consumer', { requireMetricsPort: false }),
+    },
+    ConsumerMetricsService,
     RecipeIngestionJobRepository,
     RecipeIngestionStateRepository,
     FetchService,

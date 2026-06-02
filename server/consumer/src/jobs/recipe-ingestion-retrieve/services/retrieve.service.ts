@@ -9,6 +9,7 @@ import {
 } from 'src/integrations/openai/openai-batch.service';
 import { KafkaProducerService } from 'src/integrations/kafka/kafka-producer.service';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
+import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
 
 export interface RetrieveResult {
   batchCount: number;
@@ -29,12 +30,22 @@ export interface BatchOutputJsonlLine {
           content?: string;
         };
       }>;
+      usage?: {
+        prompt_tokens?: number;
+        completion_tokens?: number;
+        total_tokens?: number;
+      };
     };
   };
 }
 
 export type BatchOutputLineOutcome =
-  | { ok: true; jobId: string; retrievedData: Record<string, unknown> }
+  | {
+      ok: true;
+      jobId: string;
+      retrievedData: Record<string, unknown>;
+      usage: { inputTokens: number; outputTokens: number; totalTokens: number };
+    }
   | { ok: false; jobId: string; errorMessage: string };
 
 const TERMINAL_BATCH_FAILURE_STATUSES: ReadonlySet<OpenAIBatchStatus> = new Set(
@@ -53,14 +64,21 @@ export class RetrieveService {
     private readonly jobRepository: RecipeIngestionJobRepository,
     private readonly openAiBatchService: OpenAIBatchService,
     private readonly kafkaProducerService: KafkaProducerService,
+    private readonly metrics: ConsumerMetricsService,
   ) {}
 
   async retrieve(): Promise<RetrieveResult> {
+    const startedAt = Date.now();
     const batchIds =
       await this.jobRepository.findDistinctBatchIdsByStatus('submitted');
 
     if (batchIds.length === 0) {
       this.logger.log('No submitted batches — no-op exit');
+      this.metrics.recordIngestionStage('retrieve', 'skipped');
+      this.metrics.observeIngestionStageLatency(
+        'retrieve',
+        Date.now() - startedAt,
+      );
       return {
         batchCount: 0,
         retrievedCount: 0,
@@ -87,11 +105,29 @@ export class RetrieveService {
             ? error.message
             : 'Batch retrieve failed';
         this.logger.error(`batchId=${batchId} retrieve error: ${message}`);
+        this.metrics.recordIngestionStage('retrieve', 'failed');
       }
     }
 
     this.logger.log(
       `Retrieve complete batches=${batchIds.length} retrieved=${retrievedCount} failed=${failedCount} skipped=${skippedBatchCount}`,
+    );
+    if (retrievedCount > 0) {
+      this.metrics.recordIngestionStage('retrieve', 'success', retrievedCount);
+    }
+    if (failedCount > 0) {
+      this.metrics.recordIngestionStage('retrieve', 'failed', failedCount);
+    }
+    if (skippedBatchCount > 0 && retrievedCount === 0 && failedCount === 0) {
+      this.metrics.recordIngestionStage(
+        'retrieve',
+        'skipped',
+        skippedBatchCount,
+      );
+    }
+    this.metrics.observeIngestionStageLatency(
+      'retrieve',
+      Date.now() - startedAt,
     );
 
     return {
@@ -206,6 +242,7 @@ export class RetrieveService {
           { jobId: outcome.jobId },
           outcome.jobId,
         );
+        this.metrics.recordLlmTokenUsage(outcome.usage);
         retrievedCount++;
       }
 
@@ -301,7 +338,31 @@ export function parseBatchOutputLine(
 
   try {
     const retrievedData = JSON.parse(content) as Record<string, unknown>;
-    return { ok: true, jobId, retrievedData };
+    const usageRaw = line.response?.body as
+      | {
+          usage?: {
+            prompt_tokens?: number;
+            completion_tokens?: number;
+            total_tokens?: number;
+          };
+        }
+      | undefined;
+    const usage = usageRaw?.usage;
+    const inputTokens = Number(usage?.prompt_tokens ?? 0);
+    const outputTokens = Number(usage?.completion_tokens ?? 0);
+    const totalTokens = Number(
+      usage?.total_tokens ?? inputTokens + outputTokens,
+    );
+    return {
+      ok: true,
+      jobId,
+      retrievedData,
+      usage: {
+        inputTokens: Number.isFinite(inputTokens) ? inputTokens : 0,
+        outputTokens: Number.isFinite(outputTokens) ? outputTokens : 0,
+        totalTokens: Number.isFinite(totalTokens) ? totalTokens : 0,
+      },
+    };
   } catch {
     return {
       ok: false,

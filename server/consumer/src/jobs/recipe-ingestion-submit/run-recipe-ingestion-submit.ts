@@ -17,7 +17,10 @@ import { SubmitBatchSizeError, SubmitService } from './services/submit.service';
  */
 async function main(): Promise<void> {
   const logger = new Logger('RecipeIngestionSubmitCLI');
-  const submitBatchSize = parseSubmitBatchSize(process.argv.slice(2));
+  const args = process.argv.slice(2);
+  const submitBatchSize = parseSubmitBatchSize(args);
+  const retryFailed = args.includes('--retry-failed');
+  const retryFailedLimit = parseRetryFailedLimit(args);
 
   const app = await NestFactory.createApplicationContext(
     RecipeIngestionSubmitModule,
@@ -26,8 +29,14 @@ async function main(): Promise<void> {
 
   try {
     const service = app.get(SubmitService);
-    logger.log(`Starting submit submitBatchSize=${submitBatchSize}`);
-    const result = await service.submit({ submitBatchSize });
+    logger.log(
+      `Starting submit submitBatchSize=${submitBatchSize} retryFailed=${retryFailed} retryFailedLimit=${retryFailedLimit}`,
+    );
+    const result = await service.submit({
+      submitBatchSize,
+      retryFailed,
+      retryFailedLimit,
+    });
     logger.log(
       `Submit complete submittedCount=${result.submittedCount} batchId=${result.batchId ?? 'n/a'} skippedCount=${result.skippedCount}`,
     );
@@ -47,6 +56,21 @@ function parseSubmitBatchSize(args: string[]): number {
   if (!Number.isFinite(parsed) || parsed < 1) {
     throw new SubmitBatchSizeError(
       `--submit-batch-size must be a positive integer, received "${raw ?? ''}"`,
+    );
+  }
+  return parsed;
+}
+
+function parseRetryFailedLimit(args: string[]): number {
+  const flagIdx = args.indexOf('--retry-failed-limit');
+  if (flagIdx === -1) {
+    return 100;
+  }
+  const raw = args[flagIdx + 1];
+  const parsed = parseInt(raw ?? '', 10);
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    throw new SubmitBatchSizeError(
+      `--retry-failed-limit must be a positive integer, received "${raw ?? ''}"`,
     );
   }
   return parsed;

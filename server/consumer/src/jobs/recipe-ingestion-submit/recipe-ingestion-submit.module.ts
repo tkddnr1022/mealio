@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import {
+  createObservabilityConfig,
   MongooseSchemasModule,
   PrismaModule,
   RedisModule,
@@ -13,6 +14,10 @@ import { mongooseConnectionPoolConfig } from '../../config/mongoose-pool.config'
 import { prismaConnectionPoolConfig } from '../../config/prisma-pool.config';
 import { OpenAIModule } from '../../integrations/openai/openai.module';
 import { RecipeIngestionJobRepository } from '../../persistence/repositories/mongodb/recipe-ingestion-job.repository';
+import {
+  ConsumerMetricsService,
+  OBSERVABILITY_CONFIG,
+} from '../../reliability/monitoring/consumer-metrics.service';
 import { CategoryContextService } from './services/category-context.service';
 import { SubmitService } from './services/submit.service';
 
@@ -33,6 +38,12 @@ import { SubmitService } from './services/submit.service';
     OpenAIModule,
   ],
   providers: [
+    {
+      provide: OBSERVABILITY_CONFIG,
+      useFactory: () =>
+        createObservabilityConfig('consumer', { requireMetricsPort: false }),
+    },
+    ConsumerMetricsService,
     RecipeIngestionJobRepository,
     CategoryContextService,
     SubmitService,

@@ -67,6 +67,9 @@
 | 4.2.2 | 테스트 메시지 처리 후 | `kafka_messages_processed_total` 증가 |
 | 4.2.3 | 처리 실패 유발 후 | `kafka_messages_failed_total` 증가, DLQ 전송 |
 | 4.2.4 | `kafka_message_processing_duration_ms` | topic별 히스토그램 수집 정상 |
+| 4.2.5 | recipe ingestion 실행 후 `/metrics` | `recipe_ingestion_stage_total`, `recipe_ingestion_stage_latency_ms` 존재 |
+| 4.2.6 | persist 성공/실패 시나리오 실행 | `recipe_ingestion_parse_confidence_total`, `recipe_ingestion_ingredient_match_total` 증가 |
+| 4.2.7 | retrieve 처리 후 | `recipe_ingestion_llm_tokens_total` 증가 |
 
 ### 4.3 Prometheus 수집
 
@@ -147,6 +150,19 @@
 | 8.2 | 동일 명령 재실행 | 문서 수 변화 없음 (upsert idempotent) |
 | 8.3 | `pnpm --filter consumer run job:kpi-rollup --backfill 3` | 최근 3일 롤업 생성 |
 | 8.4 | `db.kpi_rollups.find({ date: "YYYY-MM-DD" })` | `kpiId`, `value`, `numerator`, `denominator`, `computedAt` 필드 정상 |
+
+---
+
+## 8-A. Recipe Ingestion 운영 검증
+
+| # | 시나리오 | 기대 결과 |
+|---|----------|-----------|
+| 8A.1 | `job:recipe-ingestion-fetch --fetch-limit 50` 실행 | `recipe_ingestion_jobs`에 `fetched` 증가, stage metric `fetch/success` 증가 |
+| 8A.2 | `job:recipe-ingestion-submit --submit-batch-size 50` 실행 | `submitted` 증가, stage metric `submit/success` 증가 |
+| 8A.3 | `job:recipe-ingestion-retrieve` 실행 | `retrieved` 증가, `recipe-ingestion-retrieved` lag이 감소 방향 |
+| 8A.4 | `job:recipe-ingestion-submit --retry-failed --retry-failed-limit 20` 실행 | `failed -> fetched` 재큐잉 후 재제출 진행 |
+| 8A.5 | `job:recipe-ingestion-persist --job-id <jobId>` 실행 | 지정 jobId direct persist 실행 및 상태 전이 확인 |
+| 8A.6 | persist 실패 유도 후 복구 | `recipe_ingestion_stage_total{stage=\"persist\",outcome=\"failed\"}` 증가 후 복구 실행 시 `success` 증가 |
 
 ---
 

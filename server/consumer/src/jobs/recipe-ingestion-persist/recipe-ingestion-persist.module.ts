@@ -3,25 +3,26 @@ import { ConfigModule } from '@nestjs/config';
 import {
   createObservabilityConfig,
   MongooseSchemasModule,
+  PrismaModule,
 } from '@mealio/shared';
 import {
   envValidationOptions,
   envValidationSchema,
 } from '../../config/env.validation';
 import { mongooseConnectionPoolConfig } from '../../config/mongoose-pool.config';
-import { OpenAIModule } from '../../integrations/openai/openai.module';
-import { KafkaModule } from '../../integrations/kafka/kafka.module';
+import { prismaConnectionPoolConfig } from '../../config/prisma-pool.config';
+import { IngredientRepository } from '../../persistence/repositories/postgresql/ingredient.repository';
+import { RecipeIngredientRepository } from '../../persistence/repositories/postgresql/recipe-ingredient.repository';
 import { RecipeIngestionJobRepository } from '../../persistence/repositories/mongodb/recipe-ingestion-job.repository';
+import { RecipeCreationTransaction } from '../../persistence/transactions/recipe-creation.transaction';
 import {
   ConsumerMetricsService,
   OBSERVABILITY_CONFIG,
 } from '../../reliability/monitoring/consumer-metrics.service';
-import { RetrieveService } from './services/retrieve.service';
+import { CategoryResolverService } from '../../consumers/recipe-ingestion-persist/services/category-resolver.service';
+import { IngredientMatcherService } from '../../consumers/recipe-ingestion-persist/services/ingredient-matcher.service';
+import { PersistService } from './services/persist.service';
 
-/**
- * Recipe ingestion retrieve standalone job 모듈.
- * Consumer 앱 전체를 띄우지 않고 OpenAI Batch 결과 조회·Kafka emit만 구동한다.
- */
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -30,8 +31,7 @@ import { RetrieveService } from './services/retrieve.service';
       validationOptions: envValidationOptions,
     }),
     MongooseSchemasModule.forRoot(mongooseConnectionPoolConfig),
-    OpenAIModule,
-    KafkaModule,
+    PrismaModule.forRoot(prismaConnectionPoolConfig),
   ],
   providers: [
     {
@@ -41,7 +41,13 @@ import { RetrieveService } from './services/retrieve.service';
     },
     ConsumerMetricsService,
     RecipeIngestionJobRepository,
-    RetrieveService,
+    IngredientRepository,
+    RecipeIngredientRepository,
+    CategoryResolverService,
+    IngredientMatcherService,
+    RecipeCreationTransaction,
+    PersistService,
   ],
+  exports: [PersistService],
 })
-export class RecipeIngestionRetrieveModule {}
+export class RecipeIngestionPersistJobModule {}

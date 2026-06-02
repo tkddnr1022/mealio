@@ -477,4 +477,40 @@ export class RecipeIngestionJobRepository {
 
     return result.modifiedCount > 0;
   }
+
+  /**
+   * 운영 복구: failed job을 fetched로 재큐잉
+   * @returns 재큐잉된 job 수
+   */
+  async requeueFailedToFetched(limit = 100): Promise<number> {
+    if (limit < 1) {
+      return 0;
+    }
+    const failedJobs = await this.jobModel
+      .find({ status: 'failed' })
+      .sort({ failedAt: 1, updatedAt: 1 })
+      .limit(limit)
+      .select({ _id: 1 })
+      .lean()
+      .exec();
+    if (failedJobs.length === 0) {
+      return 0;
+    }
+
+    const ids = failedJobs.map((job) => job._id);
+    const result = await this.jobModel
+      .updateMany(
+        { _id: { $in: ids }, status: 'failed' },
+        {
+          $set: {
+            status: 'fetched' as RecipeIngestionJobStatus,
+            errorMessage: undefined,
+            failedAt: undefined,
+          },
+        },
+      )
+      .exec();
+
+    return result.modifiedCount;
+  }
 }

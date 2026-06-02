@@ -132,6 +132,9 @@
 | **server/consumer/src/jobs/recipe-ingestion-fetch/** | fetch standalone job |
 | **server/consumer/src/jobs/recipe-ingestion-submit/** | submit standalone job (`prompts/recipe-ingestion.system-prompt.ts`) |
 | **server/consumer/src/jobs/recipe-ingestion-retrieve/** | retrieve standalone job |
+| server/consumer/src/jobs/recipe-ingestion-submit/run-recipe-ingestion-submit.ts | submit CLI (`--submit-batch-size`, `--retry-failed`, `--retry-failed-limit`) |
+| server/consumer/src/jobs/recipe-ingestion-retrieve/run-recipe-ingestion-retrieve.ts | retrieve CLI |
+| **server/consumer/src/jobs/recipe-ingestion-persist/** | persist standalone job (`--persist-batch-size`, `--job-id`) |
 | **server/consumer/src/consumers/recipe-ingestion-persist/** | Kafka persist consumer |
 | server/consumer/src/integrations/public-data/foodsafety-image-url.util.ts | LLM 이미지 URL 정규화 (persist) |
 | server/consumer/src/persistence/transactions/recipe-creation.transaction.ts | Recipe + RecipeIngredient Prisma 트랜잭션 upsert |

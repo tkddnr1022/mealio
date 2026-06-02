@@ -7,6 +7,7 @@ import {
 } from 'src/integrations/openai/openai-batch.service';
 import { KafkaProducerService } from 'src/integrations/kafka/kafka-producer.service';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
+import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
 import {
   RetrieveService,
   parseBatchOutputLine,
@@ -32,6 +33,11 @@ function successLine(jobId: string, data: Record<string, unknown>) {
             },
           },
         ],
+        usage: {
+          prompt_tokens: 11,
+          completion_tokens: 7,
+          total_tokens: 18,
+        },
       },
     },
   };
@@ -63,6 +69,14 @@ describe('RetrieveService', () => {
     Pick<OpenAIBatchService, 'getBatch' | 'downloadBatchOutput'>
   >;
   let kafkaProducerService: jest.Mocked<Pick<KafkaProducerService, 'emit'>>;
+  let metrics: jest.Mocked<
+    Pick<
+      ConsumerMetricsService,
+      | 'recordIngestionStage'
+      | 'observeIngestionStageLatency'
+      | 'recordLlmTokenUsage'
+    >
+  >;
 
   beforeEach(async () => {
     jobRepository = {
@@ -81,6 +95,11 @@ describe('RetrieveService', () => {
     kafkaProducerService = {
       emit: jest.fn().mockResolvedValue(undefined),
     };
+    metrics = {
+      recordIngestionStage: jest.fn(),
+      observeIngestionStageLatency: jest.fn(),
+      recordLlmTokenUsage: jest.fn(),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -88,6 +107,7 @@ describe('RetrieveService', () => {
         { provide: RecipeIngestionJobRepository, useValue: jobRepository },
         { provide: OpenAIBatchService, useValue: openAiBatchService },
         { provide: KafkaProducerService, useValue: kafkaProducerService },
+        { provide: ConsumerMetricsService, useValue: metrics },
       ],
     }).compile();
 
@@ -264,7 +284,12 @@ describe('parseBatchOutputLine', () => {
     const data = { title: 'test', parseConfidence: 'high' };
     const outcome = parseBatchOutputLine(successLine(JOB_ID_1, data));
 
-    expect(outcome).toEqual({ ok: true, jobId: JOB_ID_1, retrievedData: data });
+    expect(outcome).toEqual({
+      ok: true,
+      jobId: JOB_ID_1,
+      retrievedData: data,
+      usage: { inputTokens: 11, outputTokens: 7, totalTokens: 18 },
+    });
   });
 
   it('should fail on non-200 status_code', () => {

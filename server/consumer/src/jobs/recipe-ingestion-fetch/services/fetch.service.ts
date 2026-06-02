@@ -10,6 +10,7 @@ import {
 } from 'src/integrations/public-data/public-data-api.client';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { RecipeIngestionStateRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-state.repository';
+import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
 
 export interface FetchOptions {
   fetchLimit?: number;
@@ -39,66 +40,91 @@ export class FetchService {
     private readonly publicDataApiClient: PublicDataApiClient,
     private readonly jobRepository: RecipeIngestionJobRepository,
     private readonly stateRepository: RecipeIngestionStateRepository,
+    private readonly metrics: ConsumerMetricsService,
   ) {}
 
   async fetch(options: FetchOptions = {}): Promise<FetchResult> {
-    const fetchLimit = this.resolveFetchLimit(options.fetchLimit);
-    const maxApiRetries = options.maxApiRetries ?? DEFAULT_MAX_API_RETRIES;
+    const startedAt = Date.now();
+    try {
+      const fetchLimit = this.resolveFetchLimit(options.fetchLimit);
+      const maxApiRetries = options.maxApiRetries ?? DEFAULT_MAX_API_RETRIES;
 
-    const lastEndIdx = await this.stateRepository.getLastEndIdx();
-    const startIdx = lastEndIdx + 1;
-    const endIdx = startIdx + fetchLimit - 1;
+      const lastEndIdx = await this.stateRepository.getLastEndIdx();
+      const startIdx = lastEndIdx + 1;
+      const endIdx = startIdx + fetchLimit - 1;
 
-    this.publicDataApiClient.assertFetchRangeValid(
-      startIdx,
-      endIdx,
-      fetchLimit,
-    );
-
-    const response = await this.fetchWithRetry(startIdx, endIdx, maxApiRetries);
-
-    if (response.kind === 'empty') {
-      this.logger.log(
-        `No more recipes (INFO-200) startIdx=${startIdx} endIdx=${endIdx}`,
+      this.publicDataApiClient.assertFetchRangeValid(
+        startIdx,
+        endIdx,
+        fetchLimit,
       );
+
+      const response = await this.fetchWithRetry(
+        startIdx,
+        endIdx,
+        maxApiRetries,
+      );
+
+      if (response.kind === 'empty') {
+        this.logger.log(
+          `No more recipes (INFO-200) startIdx=${startIdx} endIdx=${endIdx}`,
+        );
+        this.metrics.recordIngestionStage('fetch', 'skipped');
+        this.metrics.observeIngestionStageLatency(
+          'fetch',
+          Date.now() - startedAt,
+        );
+        return {
+          startIdx,
+          endIdx,
+          fetchedCount: 0,
+          exhausted: true,
+        };
+      }
+
+      let fetchedCount = 0;
+      for (const row of response.rows) {
+        const sourceId = this.extractSourceId(row);
+        if (!sourceId) {
+          this.logger.warn('Skipping row without RCP_SEQ');
+          continue;
+        }
+
+        try {
+          await this.jobRepository.upsertFetched(sourceId, row);
+          fetchedCount++;
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : 'Unknown fetch error';
+          await this.jobRepository.recordFetchFailure(sourceId, message);
+          this.logger.warn(`Failed to upsert sourceId=${sourceId}: ${message}`);
+        }
+      }
+
+      await this.stateRepository.setLastEndIdx(endIdx);
+      this.logger.log(
+        `Fetched ${fetchedCount} recipes startIdx=${startIdx} endIdx=${endIdx}`,
+      );
+      this.metrics.recordIngestionStage('fetch', 'success', fetchedCount);
+      this.metrics.observeIngestionStageLatency(
+        'fetch',
+        Date.now() - startedAt,
+      );
+
       return {
         startIdx,
         endIdx,
-        fetchedCount: 0,
-        exhausted: true,
+        fetchedCount,
+        exhausted: false,
       };
+    } catch (error) {
+      this.metrics.recordIngestionStage('fetch', 'failed');
+      this.metrics.observeIngestionStageLatency(
+        'fetch',
+        Date.now() - startedAt,
+      );
+      throw error;
     }
-
-    let fetchedCount = 0;
-    for (const row of response.rows) {
-      const sourceId = this.extractSourceId(row);
-      if (!sourceId) {
-        this.logger.warn('Skipping row without RCP_SEQ');
-        continue;
-      }
-
-      try {
-        await this.jobRepository.upsertFetched(sourceId, row);
-        fetchedCount++;
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : 'Unknown fetch error';
-        await this.jobRepository.recordFetchFailure(sourceId, message);
-        this.logger.warn(`Failed to upsert sourceId=${sourceId}: ${message}`);
-      }
-    }
-
-    await this.stateRepository.setLastEndIdx(endIdx);
-    this.logger.log(
-      `Fetched ${fetchedCount} recipes startIdx=${startIdx} endIdx=${endIdx}`,
-    );
-
-    return {
-      startIdx,
-      endIdx,
-      fetchedCount,
-      exhausted: false,
-    };
   }
 
   private resolveFetchLimit(limit?: number): number {

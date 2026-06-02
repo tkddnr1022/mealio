@@ -27,7 +27,7 @@
 | fetch | standalone job | cron → CLI | `server/consumer/src/jobs/recipe-ingestion-fetch/` |
 | submit | standalone job | cron → CLI | `server/consumer/src/jobs/recipe-ingestion-submit/` |
 | retrieve | standalone job | cron → CLI | `server/consumer/src/jobs/recipe-ingestion-retrieve/` |
-| persist | always-on consumer | Kafka 구독 | `server/consumer/src/consumers/recipe-ingestion-persist/` |
+| persist | standalone job + always-on consumer | CLI + Kafka 구독 | `server/consumer/src/jobs/recipe-ingestion-persist/`, `server/consumer/src/consumers/recipe-ingestion-persist/` |
 
 **SSOT**: MongoDB `recipe_ingestion_jobs` (파이프라인) · PostgreSQL (레시피 도메인) · Kafka (persist 트리거만)
 
@@ -367,10 +367,12 @@ pnpm --filter consumer run job:recipe-ingestion-retrieve
 | recipe-ingestion-fetch | `pnpm --filter consumer run job:recipe-ingestion-fetch` | 운영 정책 확정 | fetch 별도 태스크 |
 | recipe-ingestion-submit | `pnpm --filter consumer run job:recipe-ingestion-submit` | 운영 정책 확정 | submit 별도 태스크 |
 | recipe-ingestion-retrieve | `pnpm --filter consumer run job:recipe-ingestion-retrieve` | 1~5분 | retrieve 별도 태스크 |
-| recipe-ingestion-persist | — | always-on | Kafka consumer ECS service |
+| recipe-ingestion-persist-consumer | — | always-on | Kafka consumer ECS service |
+| recipe-ingestion-persist-job | `pnpm --filter consumer run job:recipe-ingestion-persist` | 운영 정책 확정 | persist 별도 태스크 (선택) |
 
 - [ ] ECS Scheduled Task / cron 스케줄 정의 (fetch·submit·retrieve **각각 분리**)
 - [ ] **운영 runbook** — fetch/submit cron 주기·`fetchLimit`/`submitBatchSize` 조율 (`fetchLimit >= submitBatchSize` 권장)
+  - 문서: `guidelines/recipe_ingestion_operations_runbook.md`
 - [ ] ECS Task Definition·IAM·환경 변수 (`OPENAI_BATCH_MODEL`·공공데이터 API 키 포함)
 - [ ] EventBridge / cron 표현식·타임존·동시 실행 정책
 - [ ] **단계별 Prometheus 메트릭** (`consumer-metrics.service` 확장)
@@ -381,7 +383,8 @@ pnpm --filter consumer run job:recipe-ingestion-retrieve
   - stage latency
 - [ ] `consumer-lag.monitor` `GROUP_TOPIC_MAP` — `recipe-ingestion-retrieved` lag 알림 (Phase 0에서 매핑 추가, Phase 5에서 대시보드·알림 연동)
 - [ ] CLI `--retry-failed` — `status: failed` job 재큐잉 (정책·runbook 확정)
-- [ ] CLI persist replay — `{ jobId }` 수동 Kafka emit 또는 direct persist (운영용)
+- [ ] CLI persist 수동 처리 — `{ jobId }` direct persist (운영용)
+  - 구현 계약: `job:recipe-ingestion-persist --job-id <jobId>`
 - [ ] `backend_architecture_spec_consumer.md` **최종 동기화** (§2.1 파일 목록·§2.2 토픽 표·스케줄러 행)
 - [ ] `../observability/validation.md`에 ingestion E2E 검증 시나리오 추가 (선택)
 - [ ] Admin API·검수 UI — **향후 계획** (본 Phase 범위 외, backlog 기록만)

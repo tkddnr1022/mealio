@@ -21,6 +21,11 @@ export class ConsumerMetricsService implements OnModuleInit {
   private messagesFailedTotal?: Counter<string>;
   private messageProcessingDurationMs?: Histogram<string>;
   private consumerLag?: Gauge<string>;
+  private ingestionStageTotal?: Counter<string>;
+  private ingestionStageLatencyMs?: Histogram<string>;
+  private ingestionParseConfidenceTotal?: Counter<string>;
+  private ingestionIngredientMatchTotal?: Counter<string>;
+  private ingestionLlmTokensTotal?: Counter<string>;
 
   constructor(
     @Inject(OBSERVABILITY_CONFIG)
@@ -60,6 +65,42 @@ export class ConsumerMetricsService implements OnModuleInit {
       name: 'kafka_consumer_lag',
       help: 'Consumer group lag (high watermark - committed offset)',
       labelNames: ['topic', 'partition', 'consumer_group'] as const,
+      registers: [this.registry],
+    });
+
+    this.ingestionStageTotal = new Counter({
+      name: 'recipe_ingestion_stage_total',
+      help: 'Recipe ingestion stage executions by outcome',
+      labelNames: ['stage', 'outcome'] as const,
+      registers: [this.registry],
+    });
+
+    this.ingestionStageLatencyMs = new Histogram({
+      name: 'recipe_ingestion_stage_latency_ms',
+      help: 'Recipe ingestion stage latency in milliseconds',
+      labelNames: ['stage'] as const,
+      buckets: PROCESSING_BUCKETS_MS,
+      registers: [this.registry],
+    });
+
+    this.ingestionParseConfidenceTotal = new Counter({
+      name: 'recipe_ingestion_parse_confidence_total',
+      help: 'Recipe ingestion parse confidence distribution',
+      labelNames: ['level'] as const,
+      registers: [this.registry],
+    });
+
+    this.ingestionIngredientMatchTotal = new Counter({
+      name: 'recipe_ingestion_ingredient_match_total',
+      help: 'Recipe ingestion ingredient match method distribution',
+      labelNames: ['match_method'] as const,
+      registers: [this.registry],
+    });
+
+    this.ingestionLlmTokensTotal = new Counter({
+      name: 'recipe_ingestion_llm_tokens_total',
+      help: 'Recipe ingestion LLM token usage',
+      labelNames: ['token_type'] as const,
       registers: [this.registry],
     });
   }
@@ -112,5 +153,74 @@ export class ConsumerMetricsService implements OnModuleInit {
       { topic, partition: String(partition), consumer_group: consumerGroup },
       lag,
     );
+  }
+
+  recordIngestionStage(
+    stage: 'fetch' | 'submit' | 'retrieve' | 'persist',
+    outcome: 'success' | 'failed' | 'skipped',
+    count = 1,
+  ): void {
+    if (!this.enabled || count <= 0) {
+      return;
+    }
+    this.ingestionStageTotal!.inc({ stage, outcome }, count);
+  }
+
+  observeIngestionStageLatency(
+    stage: 'fetch' | 'submit' | 'retrieve' | 'persist',
+    durationMs: number,
+  ): void {
+    if (!this.enabled || durationMs < 0) {
+      return;
+    }
+    this.ingestionStageLatencyMs!.observe({ stage }, durationMs);
+  }
+
+  recordParseConfidence(level: 'high' | 'low'): void {
+    if (!this.enabled) {
+      return;
+    }
+    this.ingestionParseConfidenceTotal!.inc({ level });
+  }
+
+  recordIngredientMatchMethod(
+    matchMethod: 'exact' | 'alias' | 'vector' | 'new',
+    count = 1,
+  ): void {
+    if (!this.enabled || count <= 0) {
+      return;
+    }
+    this.ingestionIngredientMatchTotal!.inc(
+      { match_method: matchMethod },
+      count,
+    );
+  }
+
+  recordLlmTokenUsage(tokens: {
+    inputTokens?: number;
+    outputTokens?: number;
+    totalTokens?: number;
+  }): void {
+    if (!this.enabled) {
+      return;
+    }
+    if ((tokens.inputTokens ?? 0) > 0) {
+      this.ingestionLlmTokensTotal!.inc(
+        { token_type: 'input' },
+        tokens.inputTokens,
+      );
+    }
+    if ((tokens.outputTokens ?? 0) > 0) {
+      this.ingestionLlmTokensTotal!.inc(
+        { token_type: 'output' },
+        tokens.outputTokens,
+      );
+    }
+    if ((tokens.totalTokens ?? 0) > 0) {
+      this.ingestionLlmTokensTotal!.inc(
+        { token_type: 'total' },
+        tokens.totalTokens,
+      );
+    }
   }
 }
