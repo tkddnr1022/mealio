@@ -13,6 +13,8 @@ export const CACHE_KEY_PREFIX = {
   INGREDIENT: 'ingredient',
   /** Producer API 레이트 리밋 카운터 (애플리케이션 데이터 캐시와 별도 네임스페이스) */
   RATE_LIMIT_API: 'rate_limit:api',
+  /** Activity 이벤트 dedupe 슬롯 (애플리케이션 데이터 캐시와 별도 — Redis `dedupe:*` 로 일괄 조회) */
+  DEDUPE: 'dedupe',
 } as const;
 
 export type CacheKeyPrefix =
@@ -111,6 +113,53 @@ export function cacheKeyRecipeDetail(recipeId: number): string {
 /** Producer 개인화 추천 캐시 — `recommendation:{userId}` */
 export function cacheKeyRecommendation(userId: number): string {
   return buildCacheKey(CACHE_KEY_PREFIX.RECOMMENDATION, userId);
+}
+
+/** Activity dedupe — `dedupe:recipe:view:{recipeId}:{actorKey}` */
+export function cacheKeyDedupeRecipeView(
+  recipeId: number,
+  actorKey: string,
+): string {
+  return buildCacheKey(
+    CACHE_KEY_PREFIX.DEDUPE,
+    'recipe',
+    'view',
+    recipeId,
+    actorKey,
+  );
+}
+
+/** Activity dedupe — `dedupe:search:click:{recipeId}:{actorKey}` */
+export function cacheKeyDedupeSearchClick(
+  recipeId: number,
+  actorKey: string,
+): string {
+  return buildCacheKey(
+    CACHE_KEY_PREFIX.DEDUPE,
+    'search',
+    'click',
+    recipeId,
+    actorKey,
+  );
+}
+
+/** Activity dedupe — `dedupe:search:query:{keywordSegment}:{actorKey}` */
+export function cacheKeyDedupeSearchQuery(
+  keywordSegment: string,
+  actorKey: string,
+): string {
+  return buildCacheKey(
+    CACHE_KEY_PREFIX.DEDUPE,
+    'search',
+    'query',
+    keywordSegment,
+    actorKey,
+  );
+}
+
+/** Activity dedupe 전체 패턴 — `dedupe:*` */
+export function cachePatternDedupe(): string {
+  return buildCacheKey(CACHE_KEY_PREFIX.DEDUPE, '*');
 }
 
 /** Producer 레시피 카테고리 캐시 — `recipe:categories` */

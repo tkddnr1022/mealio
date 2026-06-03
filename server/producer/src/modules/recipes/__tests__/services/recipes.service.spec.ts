@@ -398,7 +398,7 @@ describe('RecipeQueryService', () => {
 
       expect(recipeRepository.existsPublishedById).toHaveBeenCalledWith(1);
       expect(redisClient.set).toHaveBeenCalledWith(
-        expect.stringContaining('recipe:view-dedupe:1:user:7'),
+        expect.stringContaining('dedupe:recipe:view:1:user:7'),
         '1',
         'EX',
         1800,
@@ -423,7 +423,7 @@ describe('RecipeQueryService', () => {
       await service.recordRecipeView(1, {});
 
       expect(redisClient.set).toHaveBeenCalledWith(
-        expect.stringContaining('recipe:view-dedupe:1:ip:unknown-ip'),
+        expect.stringContaining('dedupe:recipe:view:1:ip:unknown-ip'),
         '1',
         'EX',
         1800,
@@ -443,7 +443,7 @@ describe('RecipeQueryService', () => {
 
       expect(recipeRepository.existsPublishedById).toHaveBeenCalledWith(1);
       expect(redisClient.set).toHaveBeenCalledWith(
-        expect.stringContaining('search:click-dedupe:1:user:7'),
+        expect.stringContaining('dedupe:search:click:1:user:7'),
         '1',
         'EX',
         1800,
@@ -471,7 +471,7 @@ describe('RecipeQueryService', () => {
       await service.recordSearchClick(1, {});
 
       expect(redisClient.set).toHaveBeenCalledWith(
-        expect.stringContaining('search:click-dedupe:1:ip:unknown-ip'),
+        expect.stringContaining('dedupe:search:click:1:ip:unknown-ip'),
         '1',
         'EX',
         1800,
@@ -567,7 +567,7 @@ describe('RecipeQueryService', () => {
       expect(result.data).toHaveLength(1);
       expect(result.pagination.total).toBe(1);
       expect(redisClient.set).toHaveBeenCalledWith(
-        expect.stringContaining('search:query-dedupe:김치:ip:unknown-ip'),
+        expect.stringContaining('dedupe:search:query:김치:ip:unknown-ip'),
         '1',
         'EX',
         1800,
@@ -712,7 +712,7 @@ describe('RecipeQueryService', () => {
         }),
       );
       expect(redisClient.set).toHaveBeenCalledWith(
-        expect.stringContaining('search:query-dedupe:__no_keyword__:ip:unknown-ip'),
+        expect.stringContaining('dedupe:search:query:__no_keyword__:ip:unknown-ip'),
         '1',
         'EX',
         1800,

@@ -2,6 +2,9 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
   ActivityEventType,
   CACHE_KEY_SEGMENT,
+  cacheKeyDedupeRecipeView,
+  cacheKeyDedupeSearchClick,
+  cacheKeyDedupeSearchQuery,
   KAFKA_TOPICS,
   RedisService,
 } from '@mealio/shared';
@@ -214,7 +217,7 @@ export class RecipeQueryService {
     }
 
     const actorKey = this.buildActorKey(context);
-    const dedupeKey = `recipe:view-dedupe:${recipeId}:${actorKey}`;
+    const dedupeKey = cacheKeyDedupeRecipeView(recipeId, actorKey);
     const shouldEmit = await this.tryAcquireDedupeSlot(
       dedupeKey,
       'recipe.view',
@@ -239,7 +242,7 @@ export class RecipeQueryService {
     }
 
     const actorKey = this.buildActorKey(context);
-    const dedupeKey = `search:click-dedupe:${recipeId}:${actorKey}`;
+    const dedupeKey = cacheKeyDedupeSearchClick(recipeId, actorKey);
     const shouldEmit = await this.tryAcquireDedupeSlot(
       dedupeKey,
       'search.click',
@@ -337,7 +340,7 @@ export class RecipeQueryService {
     const keywordSegment =
       payload.keyword?.trim() || RecipeQueryService.SEARCH_QUERY_NO_KEYWORD;
     const actorKey = this.buildActorKey(context ?? {});
-    const dedupeKey = `search:query-dedupe:${keywordSegment}:${actorKey}`;
+    const dedupeKey = cacheKeyDedupeSearchQuery(keywordSegment, actorKey);
     const shouldEmit = await this.tryAcquireDedupeSlot(
       dedupeKey,
       'search.query',
