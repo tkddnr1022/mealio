@@ -113,10 +113,74 @@ export function cacheKeyRecommendation(userId: number): string {
   return buildCacheKey(CACHE_KEY_PREFIX.RECOMMENDATION, userId);
 }
 
+/** Producer 레시피 카테고리 캐시 — `recipe:categories` */
+export function cacheKeyRecipeCategories(): string {
+  return buildCacheKey(
+    CACHE_KEY_PREFIX.RECIPE,
+    CACHE_KEY_SEGMENT.CATEGORIES,
+  );
+}
+
+/** Producer static-ids 목록 캐시 패턴 — `recipe:list:static-ids:*` */
+export function cachePatternRecipeStaticIds(): string {
+  return buildCacheKey(
+    CACHE_KEY_PREFIX.RECIPE,
+    CACHE_KEY_SEGMENT.LIST,
+    'static-ids',
+    '*',
+  );
+}
+
 /** Producer 레시피 목록/검색 캐시 패턴 — `recipe:list:*`, `recipe:search:*` */
 export function cachePatternRecipeListAndSearch(): string[] {
   return [
     buildCacheKey(CACHE_KEY_PREFIX.RECIPE, CACHE_KEY_SEGMENT.LIST, '*'),
     buildCacheKey(CACHE_KEY_PREFIX.RECIPE, CACHE_KEY_SEGMENT.SEARCH, '*'),
   ];
+}
+
+/** Producer ingredient 카테고리 캐시 — `ingredient:categories` */
+export function cacheKeyIngredientCategories(): string {
+  return buildCacheKey(
+    CACHE_KEY_PREFIX.INGREDIENT,
+    CACHE_KEY_SEGMENT.CATEGORIES,
+  );
+}
+
+/** Producer ingredient 목록·검색 캐시 패턴 — `ingredient:list:*`, `ingredient:search:*` */
+export function cachePatternIngredientListAndSearch(): string[] {
+  return [
+    buildCacheKey(CACHE_KEY_PREFIX.INGREDIENT, CACHE_KEY_SEGMENT.LIST, '*'),
+    buildCacheKey(CACHE_KEY_PREFIX.INGREDIENT, CACHE_KEY_SEGMENT.SEARCH, '*'),
+  ];
+}
+
+/**
+ * INGREDIENT 무효화 시 삭제할 Redis 패턴·단건 키 목록
+ */
+export function cachePatternIngredientInvalidation(): {
+  patterns: string[];
+  singleKeys: string[];
+} {
+  return {
+    patterns: cachePatternIngredientListAndSearch(),
+    singleKeys: [cacheKeyIngredientCategories()],
+  };
+}
+
+/**
+ * RECIPE 무효화 시 삭제할 Redis 패턴·단건 키 목록
+ * (list/search/static-ids 패턴 + categories 단건)
+ */
+export function cachePatternRecipeInvalidation(): {
+  patterns: string[];
+  singleKeys: string[];
+} {
+  return {
+    patterns: [
+      ...cachePatternRecipeListAndSearch(),
+      cachePatternRecipeStaticIds(),
+    ],
+    singleKeys: [cacheKeyRecipeCategories()],
+  };
 }

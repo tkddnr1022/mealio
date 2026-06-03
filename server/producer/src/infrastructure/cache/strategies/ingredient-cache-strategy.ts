@@ -17,7 +17,7 @@ export class IngredientCacheStrategy implements CacheStrategy {
     return buildCacheKey(CACHE_KEY_PREFIX.INGREDIENT, ...args);
   }
 
-  getTtl(): number {
+  getTtl(..._keyArgs: (string | number)[]): number {
     return this.TTL_SECONDS;
   }
 }

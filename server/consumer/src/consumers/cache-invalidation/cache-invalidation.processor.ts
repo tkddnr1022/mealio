@@ -25,7 +25,8 @@ function isValidCacheInvalidationPayload(
     o.type !== CacheInvalidationEventType.USER_PROFILE &&
     o.type !== CacheInvalidationEventType.INVENTORY &&
     o.type !== CacheInvalidationEventType.RECIPE &&
-    o.type !== CacheInvalidationEventType.RECOMMENDATION
+    o.type !== CacheInvalidationEventType.RECOMMENDATION &&
+    o.type !== CacheInvalidationEventType.INGREDIENT
   )
     return false;
   if (o.type === CacheInvalidationEventType.RECIPE) {
@@ -36,6 +37,9 @@ function isValidCacheInvalidationPayload(
       ) === true
     );
   }
+  if (o.type === CacheInvalidationEventType.INGREDIENT) {
+    return true;
+  }
   if (typeof (o as { userId?: unknown }).userId !== 'number') return false;
   return true;
 }
@@ -43,6 +47,9 @@ function isValidCacheInvalidationPayload(
 const cacheInvalidationBusinessRules: BusinessRule<CacheInvalidationPayload>[] =
   [
     (event) => {
+      if (event.type === CacheInvalidationEventType.INGREDIENT) {
+        return null;
+      }
       if (event.type === CacheInvalidationEventType.RECIPE) {
         if (event.recipeIds.length === 0) {
           return {

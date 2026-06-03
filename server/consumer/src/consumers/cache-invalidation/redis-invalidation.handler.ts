@@ -5,7 +5,8 @@ import {
   cacheKeyRecommendation,
   cacheKeyRecipeDetail,
   cacheKeyUserProfile,
-  cachePatternRecipeListAndSearch,
+  cachePatternRecipeInvalidation,
+  cachePatternIngredientInvalidation,
   CacheInvalidationEventType,
   type CacheInvalidationPayload,
 } from '@mealio/shared';
@@ -42,7 +43,12 @@ export class RedisInvalidationHandler {
           this.logger.debug(`Redis invalidated: ${detailKey}`);
         }
 
-        for (const pattern of cachePatternRecipeListAndSearch()) {
+        const { patterns, singleKeys } = cachePatternRecipeInvalidation();
+        for (const key of singleKeys) {
+          await this.redisService.del(key);
+          this.logger.debug(`Redis invalidated: ${key}`);
+        }
+        for (const pattern of patterns) {
           const deleted = await this.redisService.delByPattern(pattern);
           this.logger.debug(
             `Redis invalidated by pattern: ${pattern} (deleted=${deleted})`,
@@ -54,6 +60,20 @@ export class RedisInvalidationHandler {
         const key = cacheKeyRecommendation(payload.userId);
         await this.redisService.del(key);
         this.logger.debug(`Redis invalidated: ${key}`);
+        break;
+      }
+      case CacheInvalidationEventType.INGREDIENT: {
+        const { patterns, singleKeys } = cachePatternIngredientInvalidation();
+        for (const key of singleKeys) {
+          await this.redisService.del(key);
+          this.logger.debug(`Redis invalidated: ${key}`);
+        }
+        for (const pattern of patterns) {
+          const deleted = await this.redisService.delByPattern(pattern);
+          this.logger.debug(
+            `Redis invalidated by pattern: ${pattern} (deleted=${deleted})`,
+          );
+        }
         break;
       }
     }

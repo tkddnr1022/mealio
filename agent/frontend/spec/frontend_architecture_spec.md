@@ -234,12 +234,12 @@ React Query(TanStack Query) 기반. 쿼리 키 계층화·`staleTime`·`cacheTim
 | client/src/lib/queries/query-client.provider.tsx | `AppQueryClientProvider`(Client). `QueryClientProvider` + devtools, SSR-safe `QueryClient` 생성. `QueryCache`/`MutationCache`에 `onError` 등록 → §5.4 `notifyApiError` 연동 |
 | client/src/lib/queries/global-query-error-toast.ts | `showGlobalQueryErrorToast` / `showGlobalMutationErrorToast` — 전역 `onError`에서 `notifyApiError` 호출, `meta`로 스킵·제목 오버라이드(§5.4) |
 | client/src/lib/queries/react-query-meta.d.ts | TanStack `Register` 확장 — `queryMeta`·`mutationMeta`에 `suppressGlobalErrorToast`, `errorToastTitle` |
-| client/src/lib/queries/recipe.queries.ts | `recipeQueries` 키, `useRecipeList` / `useRecipeDetail` / `useRecipeSearch` / `useRecipeSummaries` / `useRecommendedRecipes` |
-| client/src/lib/queries/ingredient.queries.ts | `ingredientQueries` 키, `useIngredientList` / `useIngredientSearch` |
+| client/src/lib/queries/recipe.queries.ts | `recipeQueries` 키, `useRecipeSearchInfinite` / `useRecommendedRecipes` |
+| client/src/lib/queries/ingredient.queries.ts | `ingredientQueries` 키, `useIngredientSearchInfinite` |
 | client/src/lib/queries/auth.queries.ts | `authQueries` 키, `useLogoutMutation` — `POST /api/v1/auth/logout` 래핑, `meta.errorToastTitle` 기본값 포함, 완료 시 `userQueries.me` 무효화 |
 | client/src/lib/queries/user.queries.ts | `userQueries` 키, `useCurrentUser` / `useUpdateNickname` — `useCurrentUser`는 `meta.errorToastTitle`(세션 조회 실패 문구) 기본값 포함 |
 | client/src/lib/queries/inventory.queries.ts | `inventoryQueries`·`favoriteRecipeQueries` 키, `useMyInventory` / `useMyFavoriteRecipeIds` + 보유·관심 재료·관심 레시피 변경 훅 |
-| client/src/lib/queries/chatbot.queries.ts | `chatbotQueries` 키, `useConversationList` / `useConversationDetail` |
+| client/src/lib/queries/chatbot.queries.ts | `chatbotQueries` 키, `useConversationListInfinite` / `useConversationDetail`, `invalidateChatbotAfterStreamDone` |
 | client/src/app/layout.tsx | 루트 레이아웃(서버 컴포넌트). `<html>`/`metadata`/폰트. `<body>` 안에서 **`AppQueryClientProvider` → `ToastProvider` → `AuthProvider` → `AppRootFrame`** 순으로 전역 클라이언트 트리를 합성한다(구 `client/src/lib/providers/root-providers.tsx`는 사용하지 않음). |
 
 ### 5.4 전역 Toast (`client/src/lib/toast/`, `client/src/components/ui/Toast/`)

@@ -12,7 +12,7 @@ export interface CacheStrategy {
   generateKey(...args: (string | number)[]): string;
 
   /**
-   * TTL (초 단위)
+   * TTL (초 단위). 키 세그먼트별 TTL이 필요한 전략은 `keyArgs`를 사용한다.
    */
-  getTtl(): number;
+  getTtl(...keyArgs: (string | number)[]): number;
 }

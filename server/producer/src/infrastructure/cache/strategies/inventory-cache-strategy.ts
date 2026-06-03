@@ -4,11 +4,11 @@ import { CacheStrategy } from './cache-strategy.interface';
 
 /**
  * Inventory 캐시 전략
- * TTL: 30분 (1800초) - 사용자별 재료함 조회 캐싱
+ * TTL: 5분 (300초) - 사용자별 재료함 조회 캐싱
  */
 @Injectable()
 export class InventoryCacheStrategy implements CacheStrategy {
-  private readonly TTL_SECONDS = 1800; // 30분
+  private readonly TTL_SECONDS = 300; // 5분
 
   generateKey(...args: (string | number)[]): string {
     if (args.length === 0) {
@@ -19,7 +19,7 @@ export class InventoryCacheStrategy implements CacheStrategy {
     return buildCacheKey(CACHE_KEY_PREFIX.INVENTORY, ...args);
   }
 
-  getTtl(): number {
+  getTtl(..._keyArgs: (string | number)[]): number {
     return this.TTL_SECONDS;
   }
 }

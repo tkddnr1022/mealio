@@ -32,10 +32,6 @@ describe('IngredientQueryService', () => {
 
   beforeEach(async () => {
     const mockRepo = {
-      findManyPaginated: jest.fn().mockResolvedValue({
-        data: [mockIngredient],
-        total: 1,
-      }),
       searchByKeyword: jest.fn().mockResolvedValue({
         data: [mockIngredient],
         total: 1,
@@ -83,72 +79,6 @@ describe('IngredientQueryService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
-  });
-
-  describe('getList', () => {
-    it('Repository findManyPaginated를 호출하고 data·pagination을 반환한다', async () => {
-      const result = await service.getList({
-        page: 1,
-        size: 50,
-      });
-
-      expect(cacheService.getOrSet).toHaveBeenCalledWith(
-        ingredientCacheStrategy,
-        expect.any(Function),
-        CACHE_KEY_SEGMENT.LIST,
-        CACHE_KEY_SEGMENT.ALL,
-        1,
-        50,
-      );
-      expect(ingredientRepository.findManyPaginated).toHaveBeenCalledWith({
-        categoryId: undefined,
-        page: 1,
-        size: 50,
-      });
-      expect(result.data).toHaveLength(1);
-      expect(result.data[0]).toEqual({
-        id: 1,
-        name: '양파',
-        categoryId: 1,
-      });
-      expect(result.pagination).toEqual({
-        page: 1,
-        size: 50,
-        total: 1,
-        totalPages: 1,
-      });
-    });
-
-    it('categoryId가 있으면 카테고리 필터로 조회한다', async () => {
-      await service.getList({ categoryId: 2, page: 1, size: 20 });
-
-      expect(cacheService.getOrSet).toHaveBeenCalledWith(
-        ingredientCacheStrategy,
-        expect.any(Function),
-        CACHE_KEY_SEGMENT.LIST,
-        2,
-        1,
-        20,
-      );
-      expect(ingredientRepository.findManyPaginated).toHaveBeenCalledWith({
-        categoryId: 2,
-        page: 1,
-        size: 20,
-      });
-    });
-
-    it('캐시에 데이터가 있으면 Repository를 호출하지 않는다', async () => {
-      const cached = {
-        data: [{ id: 2, name: '당근', categoryId: 1 }],
-        pagination: { page: 1, size: 50, total: 1, totalPages: 1 },
-      };
-      cacheService.getOrSet.mockResolvedValue(cached);
-
-      const result = await service.getList({ page: 1, size: 50 });
-
-      expect(result).toEqual(cached);
-      expect(ingredientRepository.findManyPaginated).not.toHaveBeenCalled();
-    });
   });
 
   describe('search', () => {

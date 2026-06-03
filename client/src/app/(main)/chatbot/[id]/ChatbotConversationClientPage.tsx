@@ -17,7 +17,7 @@ import { AuthStatus, useAuth } from '@/lib/auth/auth-context';
 import { getStreamProgressLabel } from '@/lib/chatbot/stream-progress-label';
 import { useChatbotStream } from '@/lib/chatbot/use-chatbot-stream';
 import {
-  chatbotQueries,
+  invalidateChatbotAfterStreamDone,
   useConversationDetail,
 } from '@/lib/queries/chatbot.queries';
 import {
@@ -93,7 +93,7 @@ export function ChatbotConversationClientPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user, status, refresh } = useAuth();
+  const { user, status } = useAuth();
 
   const rawConversationId = params?.id;
   // sentinel('new') 또는 빈 값은 "아직 conversationId가 없는 상태"로 정규화한다.
@@ -239,20 +239,13 @@ export function ChatbotConversationClientPage() {
     router.replace(`/chatbot/${encodeURIComponent(nextConversationId)}`);
   }, [isDone, stream.conversationId, conversationId, router]);
 
-  // 스트리밍이 완료되면 서버 히스토리를 다시 불러와 낙관적 메시지를 정합화한다.
+  // 스트리밍이 완료되면 대화 상세·목록·유저(크레딧) 캐시를 갱신한다.
   useEffect(() => {
     if (!isDone) return;
-    if (!conversationId) return;
-    void queryClient.invalidateQueries({
-      queryKey: chatbotQueries.conversationDetail(conversationId),
+    invalidateChatbotAfterStreamDone(queryClient, {
+      conversationId: stream.conversationId ?? conversationId,
     });
-  }, [isDone, conversationId, queryClient]);
-
-  // 스트림 완료 후 세션 유저(크레딧) 갱신 — composerDisabled의 profileCreditDepleted와 동일 소스
-  useEffect(() => {
-    if (stream.status !== 'done') return;
-    void refresh();
-  }, [stream.status, refresh]);
+  }, [isDone, stream.conversationId, conversationId, queryClient]);
 
   // 기존 대화 상세 진입 시(마운트·라우트 id 변경 후 히스토리가 있을 때) 최하단으로 스크롤
   useEffect(() => {

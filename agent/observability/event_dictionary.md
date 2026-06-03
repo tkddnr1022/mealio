@@ -11,6 +11,7 @@
 | Kafka 토픽 | `kebab-case` | `activity-events`, `user-events` |
 
 - **동일 의미 이중 정의 금지**: UI 노출·퍼널은 GA, 도메인 확정·추천·감사는 EventLog.
+- **이벤트 수집 SSOT**: Producer HTTP `POST /internal/v1/events`는 없음. 도메인 이벤트는 Kafka 토픽(`activity-events` 등)과 Consumer EventLog 기록 경로를 사용한다.
 - 프론트 `recipe_viewed` ≠ 서버 `recipe.view` (이름만 다름, 의미는 유사하나 SSOT 분리).
 
 ## 2. 매핑 표 (구현 완료)

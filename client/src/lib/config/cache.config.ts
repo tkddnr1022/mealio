@@ -36,6 +36,11 @@ export const QUERY_CACHE = {
     staleTime: 5 * MINUTE_MS,
     gcTime: 30 * MINUTE_MS,
   },
+  /** 맞춤 추천 레시피 — 백엔드 recommendation TTL(1h)보다 짧게 */
+  recommended: {
+    staleTime: 20 * MINUTE_MS,
+    gcTime: 60 * MINUTE_MS,
+  },
   /** 레시피 상세 — 상대적으로 긴 수명의 10분 fresh */
   recipeDetail: {
     staleTime: 10 * MINUTE_MS,

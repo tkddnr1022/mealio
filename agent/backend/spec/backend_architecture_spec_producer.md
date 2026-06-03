@@ -73,9 +73,8 @@
 | server/producer/src/modules/recipes/policies/recipe-sort.policy.ts | 레시피 정렬 정책 (latest/cookTime/difficulty/viewCount/likeCount) 및 Prisma orderBy 규칙 |
 | **server/producer/src/modules/ingredients/** | 재료 조회 모듈 |
 | server/producer/src/modules/ingredients/ingredients.module.ts | IngredientsModule 정의 |
-| server/producer/src/modules/ingredients/ingredients.service.ts | 재료 목록·검색, 캐시 우선 조회 |
-| server/producer/src/modules/ingredients/ingredients.controller.ts | GET /api/v1/ingredients, GET /api/v1/ingredients/search |
-| server/producer/src/modules/ingredients/dto/ingredient-list-query.dto.ts | 재료 목록 조회 쿼리 DTO |
+| server/producer/src/modules/ingredients/ingredients.service.ts | 재료 검색·카테고리, 캐시 우선 조회 |
+| server/producer/src/modules/ingredients/ingredients.controller.ts | GET /api/v1/ingredients/search, GET /api/v1/ingredients/categories |
 | server/producer/src/modules/ingredients/dto/ingredient-search-query.dto.ts | 재료 검색 쿼리 DTO |
 | server/producer/src/modules/ingredients/dto/ingredient.dto.ts | 재료 단건 응답 DTO |
 | server/producer/src/modules/ingredients/dto/ingredient-category.dto.ts | 재료 카테고리 응답 DTO |
@@ -120,10 +119,10 @@
 | server/producer/src/infrastructure/cache/cache.decorator.ts | @Cacheable 데코레이터 |
 | server/producer/src/infrastructure/cache/strategies/cache-strategy.interface.ts | 캐시 전략 인터페이스 |
 | server/producer/src/infrastructure/cache/strategies/index.ts | 전략 export |
-| server/producer/src/infrastructure/cache/strategies/recipe-cache-strategy.ts | TTL 30분. 상세(`recipe:{id}`), 목록(`recipe:list:*`), 검색(`recipe:search:*`) 키 세그먼트 사용 |
-| server/producer/src/infrastructure/cache/strategies/ingredient-cache-strategy.ts | TTL 24시간 |
-| server/producer/src/infrastructure/cache/strategies/user-cache-strategy.ts | TTL 30분. 캐시 키 prefix는 @mealio/shared CACHE_KEY_PREFIX.USER 사용 |
-| server/producer/src/infrastructure/cache/strategies/inventory-cache-strategy.ts | TTL 30분. 캐시 키 prefix는 @mealio/shared CACHE_KEY_PREFIX.INVENTORY 사용 |
+| server/producer/src/infrastructure/cache/strategies/recipe-cache-strategy.ts | 상세 TTL 15분(`recipe:{id}`), 목록·검색·카테고리·static-ids TTL 5분 |
+| server/producer/src/infrastructure/cache/strategies/ingredient-cache-strategy.ts | TTL 24시간. 마스터 변경 시 Consumer `CacheInvalidationEventType.INGREDIENT` 무효화(인프라 준비됨, 런타임 발행 경로 TODO) |
+| server/producer/src/infrastructure/cache/strategies/user-cache-strategy.ts | TTL 5분. 캐시 키 prefix는 @mealio/shared CACHE_KEY_PREFIX.USER 사용 |
+| server/producer/src/infrastructure/cache/strategies/inventory-cache-strategy.ts | TTL 5분. 캐시 키 prefix는 @mealio/shared CACHE_KEY_PREFIX.INVENTORY 사용 |
 | server/producer/src/infrastructure/cache/strategies/recommendation-cache-strategy.ts | TTL 1시간. 키 `recommendation:{userId}` (@mealio/shared `cacheKeyRecommendation`). §1.4 |
 | **server/producer/src/infrastructure/kafka/** | |
 | server/producer/src/infrastructure/kafka/kafka.module.ts | Kafka 모듈 |

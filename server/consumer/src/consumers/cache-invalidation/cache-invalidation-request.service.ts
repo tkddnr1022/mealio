@@ -6,6 +6,7 @@ import {
   type CacheInvalidationInventoryPayload,
   type CacheInvalidationRecipePayload,
   type CacheInvalidationRecommendationPayload,
+  type CacheInvalidationIngredientPayload,
 } from '@mealio/shared';
 import { KafkaProducerService } from 'src/integrations/kafka/kafka-producer.service';
 
@@ -82,6 +83,21 @@ export class CacheInvalidationRequestService {
       KAFKA_TOPICS.CACHE_INVALIDATION,
       payload,
       `recommendation:${userId}`,
+    );
+  }
+
+  /**
+   * Producer의 재료 마스터 캐시(`ingredient:list:*`, `ingredient:search:*`, `ingredient:categories`) 무효화를 요청한다.
+   * TODO: admin/배치 등 마스터 변경 경로에서 호출 연결 (현재 런타임 쓰기 API 없음)
+   */
+  async requestIngredientInvalidation(): Promise<void> {
+    const payload: CacheInvalidationIngredientPayload = {
+      type: CacheInvalidationEventType.INGREDIENT,
+    };
+    await this.kafkaProducerService.emit(
+      KAFKA_TOPICS.CACHE_INVALIDATION,
+      payload,
+      'ingredient',
     );
   }
 }

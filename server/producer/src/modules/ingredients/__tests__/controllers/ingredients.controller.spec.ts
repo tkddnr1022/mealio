@@ -32,10 +32,6 @@ describe('IngredientsController', () => {
 
   beforeEach(async () => {
     const mockService = {
-      getList: jest.fn().mockResolvedValue({
-        data: [mockIngredient],
-        pagination: mockPagination,
-      }),
       getCategories: jest.fn().mockResolvedValue({ data: [mockCategory] }),
       search: jest.fn().mockResolvedValue({
         data: [mockIngredient],
@@ -59,32 +55,6 @@ describe('IngredientsController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
-  });
-
-  describe('getList', () => {
-    it('카테고리·페이지·사이즈로 목록을 조회하고 data와 pagination을 반환한다', async () => {
-      const query = { page: 1, size: 50 };
-      const result = await controller.getList(query);
-
-      expect(ingredientQueryService.getList).toHaveBeenCalledWith({
-        categoryId: undefined,
-        page: 1,
-        size: 50,
-      });
-      expect(result.data).toEqual([mockIngredient]);
-      expect(result.pagination).toEqual(mockPagination);
-    });
-
-    it('categoryId가 있으면 카테고리 필터로 조회한다', async () => {
-      const query = { categoryId: 2, page: 1, size: 20 };
-      await controller.getList(query);
-
-      expect(ingredientQueryService.getList).toHaveBeenCalledWith({
-        categoryId: 2,
-        page: 1,
-        size: 20,
-      });
-    });
   });
 
   describe('search', () => {

@@ -22,15 +22,11 @@ export interface IngredientCategory {
   isActive: boolean;
 }
 
-/** `GET /ingredients` 쿼리 파라미터 */
-export interface IngredientListQuery {
+/** 재료 검색 공통 쿼리 파라미터 (페이지·카테고리 필터) */
+export interface IngredientSearchQuery {
+  q?: string;
   categoryId?: number;
   page?: number;
   /** 기본 50, 최대 100 */
   size?: number;
-}
-
-/** `GET /ingredients/search` 쿼리 파라미터 */
-export interface IngredientSearchQuery extends IngredientListQuery {
-  q?: string;
 }

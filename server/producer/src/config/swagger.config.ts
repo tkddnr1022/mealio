@@ -38,15 +38,6 @@ export function createSwaggerConfig() {
       },
       'cookieAuth',
     )
-    .addApiKey(
-      {
-        type: 'apiKey',
-        in: 'header',
-        name: 'X-Internal-API-Key',
-        description: '내부 API 인증 키',
-      },
-      'internalApiKey',
-    )
     .build();
 
   config.security = [{ cookieAuth: [] }];

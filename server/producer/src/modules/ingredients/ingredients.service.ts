@@ -16,40 +16,6 @@ export class IngredientQueryService {
     private readonly ingredientCacheStrategy: IngredientCacheStrategy,
   ) {}
 
-  async getList(params: {
-    categoryId?: number;
-    page: number;
-    size: number;
-  }): Promise<{ data: IngredientDto[]; pagination: PaginationDto }> {
-    const categoryKey = params.categoryId ?? CACHE_KEY_SEGMENT.ALL;
-
-    return this.cacheService.getOrSet(
-      this.ingredientCacheStrategy,
-      async () => {
-        const { data, total } =
-          await this.ingredientRepository.findManyPaginated({
-            categoryId: params.categoryId,
-            page: params.page,
-            size: params.size,
-          });
-        const totalPages = Math.ceil(total / params.size) || 1;
-        return {
-          data: data.map((i) => this.toDto(i)),
-          pagination: {
-            page: params.page,
-            size: params.size,
-            total,
-            totalPages,
-          },
-        };
-      },
-      CACHE_KEY_SEGMENT.LIST,
-      categoryKey,
-      params.page,
-      params.size,
-    );
-  }
-
   async search(params: {
     q?: string;
     categoryId?: number;

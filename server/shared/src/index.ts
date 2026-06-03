@@ -88,7 +88,13 @@ export {
   cacheKeyRateLimitApi,
   cacheKeyRecipeDetail,
   cacheKeyRecommendation,
+  cacheKeyRecipeCategories,
   cachePatternRecipeListAndSearch,
+  cachePatternRecipeStaticIds,
+  cachePatternRecipeInvalidation,
+  cacheKeyIngredientCategories,
+  cachePatternIngredientListAndSearch,
+  cachePatternIngredientInvalidation,
 } from './constants/cache-keys';
 export { ASSET_URL_PREFIX } from './constants/asset-url-prefixes';
 export {

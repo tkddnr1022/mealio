@@ -15,7 +15,7 @@ export class RecommendationCacheStrategy implements CacheStrategy {
     return cacheKeyRecommendation(args[0]);
   }
 
-  getTtl(): number {
+  getTtl(..._keyArgs: (string | number)[]): number {
     return this.TTL_SECONDS;
   }
 }

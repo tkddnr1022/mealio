@@ -56,7 +56,7 @@ export class CacheService {
     try {
       const key = strategy.generateKey(...keyArgs);
       const serialized = JSON.stringify(value);
-      const ttl = strategy.getTtl();
+      const ttl = strategy.getTtl(...keyArgs);
 
       await this.redisService.set(key, serialized, ttl);
       this.logger.debug(`Cache set: ${key} (TTL: ${ttl}s)`);

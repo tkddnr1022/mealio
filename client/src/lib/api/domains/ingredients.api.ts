@@ -2,7 +2,6 @@
  * 재료 API.
  *
  * 엔드포인트: `agent/backend/spec/backend_architecture_spec_producer.md` §1.1
- * - GET /api/v1/ingredients              → {@link getIngredientList}
  * - GET /api/v1/ingredients/categories   → {@link getIngredientCategories}
  * - GET /api/v1/ingredients/search       → {@link searchIngredients}
  *
@@ -16,11 +15,10 @@ import type { Paginated } from '@/lib/types/api';
 import type {
   Ingredient,
   IngredientCategory,
-  IngredientListQuery,
   IngredientSearchQuery,
 } from '@/lib/types/ingredient';
 
-/** 재료 목록/검색 응답 shape (`Paginated<Ingredient>`) */
+/** 재료 검색 응답 shape (`Paginated<Ingredient>`) */
 export type IngredientListResult = Paginated<Ingredient>;
 
 /**
@@ -33,19 +31,6 @@ export function getIngredientCategories(
     API_ENDPOINTS.ingredients.categories,
     fetchOptions,
   );
-}
-
-/**
- * 재료 목록 조회 (카테고리 필터·페이지네이션).
- */
-export function getIngredientList(
-  params: IngredientListQuery = {},
-  fetchOptions?: RequestOptions,
-): Promise<IngredientListResult> {
-  return httpClient.get<IngredientListResult>(API_ENDPOINTS.ingredients.list, {
-    ...fetchOptions,
-    query: objectToQuery(params),
-  });
 }
 
 /**
