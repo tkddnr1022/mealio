@@ -11,6 +11,7 @@ export interface RecipeListProps extends Omit<
   recipes: readonly RecipeSummary[];
   cardClassName?: string;
   favoriteButtonRenderer?: (recipe: RecipeSummary) => ReactNode;
+  onRecipeClick?: (recipe: RecipeSummary) => void;
 }
 
 export function RecipeList({
@@ -18,6 +19,7 @@ export function RecipeList({
   recipes,
   cardClassName = '',
   favoriteButtonRenderer,
+  onRecipeClick,
   ...rest
 }: RecipeListProps) {
   return (
@@ -33,6 +35,7 @@ export function RecipeList({
             recipe={recipe}
             className={cardClassName}
             favoriteButtonRenderer={favoriteButtonRenderer}
+            onRecipeClick={onRecipeClick}
           />
         );
       })}

@@ -428,6 +428,41 @@ describe('RecipeQueryService', () => {
     });
   });
 
+  describe('recordSearchClick', () => {
+    it('공개 레시피면 search.click 이벤트를 발행한다', async () => {
+      await service.recordSearchClick(1, {
+        userId: 7,
+        ipAddress: '127.0.0.1',
+        userAgent: 'jest-agent',
+      });
+
+      expect(recipeRepository.existsPublishedById).toHaveBeenCalledWith(1);
+      expect(kafkaProducer.emit).toHaveBeenCalledWith(
+        KAFKA_TOPICS.ACTIVITY_EVENTS,
+        expect.objectContaining({
+          type: 'search.click',
+          entity: expect.objectContaining({
+            type: 'recipe',
+            id: 1,
+          }),
+          metadata: expect.objectContaining({
+            source: 'recipe_search',
+          }),
+        }),
+        '1',
+      );
+    });
+
+    it('레시피가 없으면 NotFoundException을 던진다', async () => {
+      recipeRepository.existsPublishedById.mockResolvedValue(false);
+
+      await expect(service.recordSearchClick(999, {})).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(kafkaProducer.emit).not.toHaveBeenCalled();
+    });
+  });
+
   describe('getStaticIds', () => {
     it('정적 경로 생성용 레시피 ID 목록을 반환한다', async () => {
       const result = await service.getStaticIds(100);

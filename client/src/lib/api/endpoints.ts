@@ -53,6 +53,8 @@ export const API_ENDPOINTS = {
     summaries: `${API_PREFIX}/recipes/summaries`,
     view: (recipeId: string | number) =>
       `${API_PREFIX}/recipes/${encodeURIComponent(String(recipeId))}/views`,
+    searchClick: (recipeId: string | number) =>
+      `${API_PREFIX}/recipes/${encodeURIComponent(String(recipeId))}/search-clicks`,
   },
   ingredients: {
     categories: `${API_PREFIX}/ingredients/categories`,

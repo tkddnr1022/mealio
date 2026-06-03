@@ -21,12 +21,15 @@ export interface RecipeCardProps extends Omit<
   /** `/recipe/{recipeId}` 상세로 이동 (좋아요 버튼은 링크 밖) */
   recipe: RecipeSummary;
   favoriteButtonRenderer?: (recipe: RecipeSummary) => ReactNode;
+  /** 카드 링크 클릭 직전(검색 결과 클릭 계측 등) */
+  onRecipeClick?: (recipe: RecipeSummary) => void;
 }
 
 export function RecipeCard({
   className = '',
   recipe,
   favoriteButtonRenderer,
+  onRecipeClick,
   ...rest
 }: RecipeCardProps) {
   const imageUrl = toRecipeImageUrl(recipe.imageUrl);
@@ -74,6 +77,7 @@ export function RecipeCard({
         href={detailHref}
         className={cn(linkClassName, className)}
         data-name="RecipeCard"
+        onClick={() => onRecipeClick?.(recipe)}
         {...rest}
       >
         <article className="contents">

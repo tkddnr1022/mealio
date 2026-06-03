@@ -290,4 +290,38 @@ export class RecipesController {
     };
     await this.recipeQueryService.recordRecipeView(recipeId, context);
   }
+
+  @Post(':recipeId/search-clicks')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({ summary: '검색 결과 클릭 이벤트 기록' })
+  @ApiParam({ name: 'recipeId', description: '레시피 ID' })
+  @ApiResponse({
+    status: HttpStatus.ACCEPTED,
+    description: '검색 클릭 이벤트 수락',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: '레시피를 찾을 수 없음',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
+  async recordSearchClick(
+    @Param('recipeId', ParseIntPipe) recipeId: number,
+    @CurrentUserOptional() user?: AuthUser,
+    @Req()
+    req?: {
+      ip?: string;
+      headers: { [key: string]: string | string[] | undefined };
+    },
+  ): Promise<void> {
+    const ua = req?.headers?.['user-agent'];
+    const context = {
+      userId: user?.id,
+      ipAddress: req?.ip,
+      userAgent: Array.isArray(ua) ? ua[0] : ua,
+    };
+    await this.recipeQueryService.recordSearchClick(recipeId, context);
+  }
 }

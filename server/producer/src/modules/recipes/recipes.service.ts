@@ -216,6 +216,20 @@ export class RecipeQueryService {
     });
   }
 
+  async recordSearchClick(
+    recipeId: number,
+    context: ActivityContext = {},
+  ): Promise<void> {
+    const exists = await this.recipeRepository.existsPublishedById(recipeId);
+    if (!exists) {
+      throw new NotFoundException('Recipe not found');
+    }
+
+    this.emitSearchClick(recipeId, context).catch(() => {
+      /* fire-and-forget */
+    });
+  }
+
   // TODO: 조인 비용 및 캐시 정책(Write Behind) 검토
   //? 현재는 Cache-Aside에 가깝고, 짧은 캐시 TTL을 사용하고 있어 조회 부담이 클 수 있다.
   async search(
@@ -449,5 +463,31 @@ export class RecipeQueryService {
       },
       payload,
     });
+  }
+
+  private async emitSearchClick(
+    recipeId: number,
+    context?: ActivityContext,
+  ): Promise<void> {
+    await this.kafkaProducerService.emit(
+      KAFKA_TOPICS.ACTIVITY_EVENTS,
+      {
+        type: ActivityEventType.SEARCH_CLICK,
+        actor: {
+          type: 'user',
+          userId: context?.userId,
+          ipAddress: context?.ipAddress,
+          userAgent: context?.userAgent,
+        },
+        entity: {
+          type: 'recipe',
+          id: recipeId,
+        },
+        metadata: {
+          source: 'recipe_search',
+        },
+      },
+      String(recipeId),
+    );
   }
 }

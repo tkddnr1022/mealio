@@ -663,6 +663,40 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /api/v1/recipes/{recipeId}/search-clicks:
+    post:
+      tags:
+        - Recipe
+      summary: 검색 결과 클릭 이벤트 기록
+      description: |
+        레시피 검색 결과 목록에서 카드 클릭 시 호출한다.
+        `search.click` activity 이벤트를 발행하며, KPI `kpi_search_click_rate` 분자 및 추천 보정(+0.25, 로그인·recipe 엔티티)에 사용된다.
+      security:
+        - cookieAuth: []
+        - {}
+      parameters:
+        - name: accessToken
+          in: cookie
+          required: false
+          description: JWT 액세스 토큰 (선택사항)
+          schema:
+            type: string
+          example: "{{apiKey}}"
+        - name: recipeId
+          in: path
+          required: true
+          description: 레시피 ID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '202':
+          description: 이벤트 수락
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /api/v1/recipes/search:
     get:
       tags:

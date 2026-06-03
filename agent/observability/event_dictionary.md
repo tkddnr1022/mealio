@@ -35,7 +35,8 @@
 
 | EventLog | 파일 |
 |----------|------|
-| activity 타입 | `server/consumer/.../activity-events.processor.ts` |
+| `search.click` (발행) | `server/producer/src/modules/recipes/recipes.service.ts` (`recordSearchClick`) |
+| activity 타입 (소비) | `server/consumer/.../activity-events.processor.ts` |
 | user 타입 | `server/consumer/.../TrackUserActivityHandler.ts` |
 | chatbot | `server/consumer/.../chatbot-request.processor.ts` |
 
@@ -46,7 +47,7 @@
 | `recipe.like` | `activity-events` | Producer | 추천 보정 (+0.7) |
 | `recipe.share` | `activity-events` | Producer | 추천 보정 (+0.4) |
 | `search.query` | `activity-events` | Producer 검색 API | `kpi_search_click_rate` (분모) |
-| `search.click` | `activity-events` | Producer | `kpi_search_click_rate` (분자) |
+| `search.click` | `activity-events` | Producer `POST .../recipes/:id/search-clicks` | `kpi_search_click_rate` (분자) |
 | `signup`, `login`, `nickname.update` | `user-events` | Producer OAuth/프로필 | 가입·활성 (추천 delta 0) |
 | `ingredient.*`, `recipe.favorites_*` | `user-events` | Producer | 추천·인벤토리, `kpi_recommendation_e2e_latency` |
 | `chatbot.start` | `chatbot-requests` | Consumer | 챗봇 퍼널 시작 |

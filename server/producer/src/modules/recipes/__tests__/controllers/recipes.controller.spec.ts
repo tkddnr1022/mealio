@@ -71,6 +71,7 @@ describe('RecipesController', () => {
       }),
       getById: jest.fn().mockResolvedValue(mockDetail),
       recordRecipeView: jest.fn().mockResolvedValue(undefined),
+      recordSearchClick: jest.fn().mockResolvedValue(undefined),
       getStaticIds: jest.fn().mockResolvedValue({ data: [5, 4, 3] }),
       search: jest.fn().mockResolvedValue({
         data: [mockSummary],
@@ -308,6 +309,22 @@ describe('RecipesController', () => {
       );
 
       expect(recipeQueryService.recordRecipeView).toHaveBeenCalledWith(1, {
+        userId: 7,
+        ipAddress: '127.0.0.1',
+        userAgent: 'jest-agent',
+      });
+    });
+  });
+
+  describe('recordSearchClick', () => {
+    it('search-click API는 user/ip/userAgent 컨텍스트를 전달한다', async () => {
+      await controller.recordSearchClick(
+        1,
+        { id: 7 },
+        { ip: '127.0.0.1', headers: { 'user-agent': 'jest-agent' } },
+      );
+
+      expect(recipeQueryService.recordSearchClick).toHaveBeenCalledWith(1, {
         userId: 7,
         ipAddress: '127.0.0.1',
         userAgent: 'jest-agent',

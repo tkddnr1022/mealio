@@ -129,6 +129,20 @@ export function increaseRecipeViewCount(
 }
 
 /**
+ * 검색 결과에서 레시피 카드 클릭 시 search.click 이벤트를 기록한다.
+ */
+export function recordRecipeSearchClick(
+  recipeId: number,
+  fetchOptions?: RequestOptions,
+): Promise<void> {
+  return httpClient.post<void>(
+    API_ENDPOINTS.recipes.searchClick(recipeId),
+    {},
+    fetchOptions,
+  );
+}
+
+/**
  * 레시피 요약 정보 벌크 조회 (최대 100개).
  * 존재하지 않거나 비공개인 ID는 응답에서 제외된다.
  */

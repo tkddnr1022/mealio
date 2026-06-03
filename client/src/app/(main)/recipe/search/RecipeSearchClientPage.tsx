@@ -33,6 +33,7 @@ import {
 } from '@/components/recipe/utils/recipe-search-filters';
 import { useIsAuthenticated } from '@/lib/auth/auth-context';
 import { useMyFavoriteRecipeIds } from '@/lib/queries/inventory.queries';
+import { recordRecipeSearchClick } from '@/lib/api/domains';
 import { useRecipeSearchInfinite } from '@/lib/queries/recipe.queries';
 
 const SORT_OPTIONS: readonly DropdownOption[] = [
@@ -292,6 +293,9 @@ export function RecipeSearchClientPage({
           <>
             <RecipeList
               recipes={recipes}
+              onRecipeClick={(recipe) => {
+                void recordRecipeSearchClick(recipe.id);
+              }}
               favoriteButtonRenderer={(recipe) => (
                 <RecipeFavoriteButton
                   recipeId={recipe.id}
