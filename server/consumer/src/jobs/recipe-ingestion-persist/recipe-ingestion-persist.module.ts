@@ -9,8 +9,8 @@ import {
   envValidationOptions,
   envValidationSchema,
 } from '../../config/env.validation';
-import { mongooseConnectionPoolConfig } from '../../config/mongoose-pool.config';
-import { prismaConnectionPoolConfig } from '../../config/prisma-pool.config';
+import { mongooseConnectionPoolConfig } from '../../policy/mongoose-pool.policy';
+import { prismaConnectionPoolConfig } from '../../policy/prisma-pool.policy';
 import { IngredientRepository } from '../../persistence/repositories/postgresql/ingredient.repository';
 import { RecipeIngredientRepository } from '../../persistence/repositories/postgresql/recipe-ingredient.repository';
 import { RecipeIngestionJobRepository } from '../../persistence/repositories/mongodb/recipe-ingestion-job.repository';

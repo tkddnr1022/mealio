@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import {
   DEFAULT_RECIPE_FETCH_LIMIT,
   MAX_RECIPE_FETCH_LIMIT,
+  MAX_RECIPE_INGESTION_RETRY_COUNT,
 } from '@mealio/shared';
 import {
   PublicDataApiClient,
@@ -11,6 +12,7 @@ import {
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { RecipeIngestionStateRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-state.repository';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
+import { RECIPE_INGESTION_RETRY_BASE_DELAY_MS } from '@mealio/shared';
 
 export interface FetchOptions {
   fetchLimit?: number;
@@ -23,9 +25,6 @@ export interface FetchResult {
   fetchedCount: number;
   exhausted: boolean;
 }
-
-const DEFAULT_MAX_API_RETRIES = 3;
-const RETRY_BASE_DELAY_MS = 1_000;
 
 /**
  * 공공데이터 API fetch — recipe_ingestion_jobs에 status: fetched 적재.
@@ -47,7 +46,8 @@ export class FetchService {
     const startedAt = Date.now();
     try {
       const fetchLimit = this.resolveFetchLimit(options.fetchLimit);
-      const maxApiRetries = options.maxApiRetries ?? DEFAULT_MAX_API_RETRIES;
+      const maxApiRetries =
+        options.maxApiRetries ?? MAX_RECIPE_INGESTION_RETRY_COUNT;
 
       const lastEndIdx = await this.stateRepository.getLastEndIdx();
       const startIdx = lastEndIdx + 1;
@@ -181,7 +181,8 @@ export class FetchService {
           throw error;
         }
 
-        const delayMs = RETRY_BASE_DELAY_MS * 2 ** (attempt - 1);
+        const delayMs =
+          RECIPE_INGESTION_RETRY_BASE_DELAY_MS * 2 ** (attempt - 1);
         this.logger.warn(
           `Recoverable API error code=${error.code} attempt=${attempt}/${maxAttempts}, retrying in ${delayMs}ms`,
         );

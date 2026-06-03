@@ -1,5 +1,5 @@
 import { KAFKA_TOPICS } from '@mealio/shared';
-import { CONSUMER_GROUPS } from 'src/config/consumer-groups';
+import { CONSUMER_GROUPS } from '../../constants/consumer-groups.constants';
 
 const TOPIC_TO_CONSUMER_GROUP: Record<string, string> = {
   [KAFKA_TOPICS.CHATBOT_REQUESTS]: CONSUMER_GROUPS.CHATBOT,

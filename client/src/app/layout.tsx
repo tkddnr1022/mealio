@@ -5,6 +5,14 @@ import { AnalyticsAuthSync } from '@/components/observability/AnalyticsAuthSync'
 import { ObservabilityBootstrap } from '@/components/observability/ObservabilityBootstrap';
 import { AppRootFrame } from '@/components/layout/AppRootFrame';
 import { AuthProvider } from '@/lib/auth/auth-context';
+import { getMetadataBase } from '@/lib/config/app.config';
+import {
+  APP_BRAND_NAME,
+  SITE_DESCRIPTION,
+  SITE_KEYWORDS,
+  THEME_COLOR,
+} from '@/lib/constants/app.constants';
+import { env } from '@/lib/config/env';
 import { AppQueryClientProvider } from '@/lib/queries/query-client.provider';
 import { ToastProvider } from '@/lib/toast';
 import './globals.css';
@@ -28,50 +36,21 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   display: 'swap',
 });
 
-const siteName = 'Mealio';
-const siteDescription =
-  '보유 재료와 취향에 맞춘 AI 레시피 추천. 재료·관심 항목 관리, 레시피 검색, 맞춤 추천 챗봇을 제공합니다.';
-
-function getMetadataBase(): URL {
-  const explicit = process.env.NEXT_PUBLIC_SITE_URL;
-  if (explicit) {
-    try {
-      return new URL(explicit);
-    } catch {
-      /* fallthrough: invalid URL ignored */
-    }
-  }
-  if (process.env.VERCEL_URL) {
-    return new URL(`https://${process.env.VERCEL_URL}`);
-  }
-  return new URL('http://localhost:3000');
-}
-
-const themeColor = '#c2410c';
-
 export const viewport: Viewport = {
-  themeColor,
+  themeColor: THEME_COLOR,
 };
 
 export const metadata: Metadata = {
   metadataBase: getMetadataBase(),
   title: {
-    default: siteName,
-    template: `%s | ${siteName}`,
+    default: APP_BRAND_NAME,
+    template: `%s | ${APP_BRAND_NAME}`,
   },
-  description: siteDescription,
-  applicationName: siteName,
-  keywords: [
-    'Mealio',
-    '밀리오',
-    '레시피',
-    'AI 레시피',
-    '맞춤 레시피',
-    '재료 관리',
-    '요리',
-  ],
-  authors: [{ name: siteName }],
-  creator: siteName,
+  description: SITE_DESCRIPTION,
+  applicationName: APP_BRAND_NAME,
+  keywords: [...SITE_KEYWORDS],
+  authors: [{ name: APP_BRAND_NAME }],
+  creator: APP_BRAND_NAME,
   icons: {
     icon: [
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
@@ -85,22 +64,22 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'ko_KR',
     url: '/',
-    siteName,
-    title: siteName,
-    description: siteDescription,
+    siteName: APP_BRAND_NAME,
+    title: APP_BRAND_NAME,
+    description: SITE_DESCRIPTION,
     images: [
       {
         url: '/android-chrome-512x512.png',
         width: 512,
         height: 512,
-        alt: siteName,
+        alt: APP_BRAND_NAME,
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: siteName,
-    description: siteDescription,
+    title: APP_BRAND_NAME,
+    description: SITE_DESCRIPTION,
     images: ['/android-chrome-512x512.png'],
   },
   robots: {
@@ -136,9 +115,9 @@ export default function RootLayout({
           </ToastProvider>
         </AppQueryClientProvider>
       </body>
-      {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
-        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
-      )}
+      {env.gaMeasurementId ? (
+        <GoogleAnalytics gaId={env.gaMeasurementId} />
+      ) : null}
     </html>
   );
 }

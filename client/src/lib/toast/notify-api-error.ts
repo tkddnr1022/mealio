@@ -1,10 +1,8 @@
 import { ApiError, isApiError } from '@/lib/api/error';
+import { NOTIFY_DEDUPE_MS } from '@/lib/policy/toast.policy';
 
 import { enqueueToast } from './toast-bridge';
 import type { ToastActionSpec, ToastVariant } from './toast.types';
-
-/** 동일 메시지·키의 연속 노출을 막는 최소 간격(ms) */
-const NOTIFY_DEDUPE_MS = 2500;
 
 const recentNotifyAt = new Map<string, number>();
 

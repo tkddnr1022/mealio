@@ -13,8 +13,8 @@ import { OpenAIModule } from './integrations/openai/openai.module';
 import { ConsumersModule } from './consumers/consumers.module';
 import { AnalyticsModule } from './integrations/analytics/analytics.module';
 import { MonitoringModule } from './reliability/monitoring/monitoring.module';
-import { mongooseConnectionPoolConfig } from './config/mongoose-pool.config';
-import { prismaConnectionPoolConfig } from './config/prisma-pool.config';
+import { mongooseConnectionPoolConfig } from './policy/mongoose-pool.policy';
+import { prismaConnectionPoolConfig } from './policy/prisma-pool.policy';
 
 @Module({
   imports: [

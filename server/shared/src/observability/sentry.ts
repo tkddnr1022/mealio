@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/node';
 import type { NodeOptions } from '@sentry/node';
-import type { ObservabilityConfig } from '../configs/observability.config';
+import type { ObservabilityConfig } from '../config/observability.config';
 import {
   SENTRY_TAG_CONSUMER_GROUP,
   SENTRY_TAG_CORRELATION_ID,
@@ -11,7 +11,7 @@ import {
   SENTRY_TAG_TOPIC,
   type SentryFeatureTag,
   type SentryServiceTag,
-} from './sentry.constants';
+} from '../constants/sentry.constants';
 import { scrubObject, scrubSentryEvent } from './sentry-scrub';
 
 let initialized = false;

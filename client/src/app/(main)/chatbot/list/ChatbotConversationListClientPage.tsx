@@ -4,7 +4,7 @@ import { MessageCircle } from 'lucide-react';
 import { useMemo } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useConversationListInfinite } from '@/lib/queries/chatbot.queries';
-import { CHATBOT_CONVERSATION_LIST_LIMIT } from '@/lib/config/pagination.config';
+import { CHATBOT_CONVERSATION_LIST_LIMIT } from '@/lib/policy/pagination.policy';
 import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
 import { Tabbar } from '@/components/layout/Tabbar';

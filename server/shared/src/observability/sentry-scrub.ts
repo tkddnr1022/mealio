@@ -1,7 +1,7 @@
 import {
   SENTRY_SENSITIVE_HEADERS,
   SENTRY_SENSITIVE_KEY_PATTERNS,
-} from './sentry.constants';
+} from '../constants/sentry.constants';
 
 const REDACTED = '[Filtered]';
 

@@ -112,14 +112,14 @@ function normalizeRecipeSteps(steps: unknown): RetrievedRecipeStepPayload[] {
   }
 
   if (steps.every((s) => typeof s === 'string')) {
-    return (steps as string[]).map((content) => ({ content }));
+    return steps.map((content) => ({ content }));
   }
 
   if (!steps.every(isRetrievedRecipeStep)) {
     throw new RetrievedDataValidationError('Invalid recipe.steps payload');
   }
 
-  return steps as RetrievedRecipeStepPayload[];
+  return steps;
 }
 
 function isProposedCategory(value: unknown): value is ProposedCategoryPayload {
@@ -209,12 +209,10 @@ export function validateRetrievedData(
     );
   }
 
-  const recipe = raw.recipe as RetrievedRecipePayload;
-
   return {
     recipe: {
-      ...recipe,
-      steps: normalizeRecipeSteps(recipe.steps),
+      ...raw.recipe,
+      steps: normalizeRecipeSteps(raw.recipe.steps),
     },
     ingredients: raw.ingredients,
     parseConfidence: raw.parseConfidence,

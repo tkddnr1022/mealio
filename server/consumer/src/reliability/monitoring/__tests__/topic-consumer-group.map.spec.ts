@@ -1,5 +1,5 @@
 import { KAFKA_TOPICS } from '@mealio/shared';
-import { CONSUMER_GROUPS } from 'src/config/consumer-groups';
+import { CONSUMER_GROUPS } from '../../../constants/consumer-groups.constants';
 import { getConsumerGroupForTopic } from '../topic-consumer-group.map';
 
 describe('getConsumerGroupForTopic', () => {

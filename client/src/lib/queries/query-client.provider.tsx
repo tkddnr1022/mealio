@@ -4,7 +4,7 @@
  * React Query(TanStack Query v5) Provider.
  *
  * - App Router 최상단 Provider에서 QueryClient를 1회 생성해 재사용한다.
- * - 전역 기본값은 `@/lib/config/cache.config`의 `QUERY_DEFAULTS`를 사용한다.
+ * - 전역 기본값은 `@/lib/policy/cache.policy`의 `QUERY_DEFAULTS`를 사용한다.
  * - 전역 오류 토스트: `QueryCache` / `MutationCache`의 `onError`에서
  *   {@link showGlobalQueryErrorToast} · {@link showGlobalMutationErrorToast} 호출.
  *   개별 쿼리는 `meta.suppressGlobalErrorToast` / `meta.errorToastTitle`로 조정한다.
@@ -26,7 +26,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import { isApiError } from '@/lib/api/error';
 import { buildLoginUrl } from '@/lib/auth/routes';
-import { QUERY_DEFAULTS } from '@/lib/config/cache.config';
+import { QUERY_DEFAULTS } from '@/lib/policy/cache.policy';
 import { env } from '@/lib/config/env';
 import { reportApiErrorToSentry } from '@/lib/observability/api-error-sentry';
 import {

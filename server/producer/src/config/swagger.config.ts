@@ -1,4 +1,5 @@
 import { DocumentBuilder } from '@nestjs/swagger';
+import { ACCESS_TOKEN_COOKIE_NAME } from '../constants/auth-cookie.constants';
 
 export function createSwaggerConfig() {
   const config = new DocumentBuilder()
@@ -33,7 +34,7 @@ export function createSwaggerConfig() {
       {
         type: 'apiKey',
         in: 'cookie',
-        name: 'accessToken',
+        name: ACCESS_TOKEN_COOKIE_NAME,
         description: 'JWT 토큰이 포함된 HttpOnly 쿠키',
       },
       'cookieAuth',

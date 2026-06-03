@@ -8,7 +8,7 @@ export const TOKENS_PER_CREDIT = 30;
 
 /**
  * 토큰 사용량으로 차감 크레딧을 계산한다.
- * - 기본 1크레딧/턴 + totalTokens 5000당 1크레딧(올림)
+ * - 기본 1크레딧/턴 + totalTokens 기준 추가 크레딧(올림, {@link TOKENS_PER_CREDIT} 토큰당 1)
  */
 export function computeChatbotCreditCost(usage?: {
   totalTokens: number;

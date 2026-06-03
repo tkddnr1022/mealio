@@ -18,6 +18,7 @@ import {
   DEFAULT_RECIPE_COOK_TIME_MIN,
   parseRecipeFilterDraftState,
 } from '@/components/recipe/utils/recipe-search-filters';
+import { RECIPE_SEARCH_PATH } from '@/lib/constants/routes.constants';
 
 const DEFAULT_COOK_TIME_RANGE: RangeSliderValue = {
   minValue: DEFAULT_RECIPE_COOK_TIME_MIN,
@@ -28,7 +29,6 @@ const DIFFICULTY_OPTIONS = [
   { value: 3, label: '보통' },
   { value: 5, label: '어려움' },
 ] as const;
-const RECIPE_SEARCH_PATH = '/recipe/search' as const;
 
 interface RecipeFilterClientPageProps {
   categoryOptions: RecipeCategory[];

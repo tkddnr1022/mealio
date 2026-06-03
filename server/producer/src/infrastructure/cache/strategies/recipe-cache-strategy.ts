@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { CACHE_KEY_PREFIX, buildCacheKey } from '@mealio/shared';
+import {
+  CACHE_TTL_RECIPE_DETAIL_SECONDS,
+  CACHE_TTL_RECIPE_LIST_SECONDS,
+} from '../../../policy/cache.policy';
 import { CacheStrategy } from './cache-strategy.interface';
-
-/** list/search/categories/static-ids 등 목록형 세그먼트 TTL (5분) */
-const RECIPE_LIST_TTL_SECONDS = 300;
-/** 상세 `recipe:{id}` TTL (15분) */
-const RECIPE_DETAIL_TTL_SECONDS = 900;
 
 /**
  * Recipe 캐시 전략
@@ -23,8 +22,8 @@ export class RecipeCacheStrategy implements CacheStrategy {
 
   getTtl(...keyArgs: (string | number)[]): number {
     if (keyArgs.length === 1 && typeof keyArgs[0] === 'number') {
-      return RECIPE_DETAIL_TTL_SECONDS;
+      return CACHE_TTL_RECIPE_DETAIL_SECONDS;
     }
-    return RECIPE_LIST_TTL_SECONDS;
+    return CACHE_TTL_RECIPE_LIST_SECONDS;
   }
 }

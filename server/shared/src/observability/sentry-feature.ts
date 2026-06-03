@@ -1,4 +1,4 @@
-import type { SentryFeatureTag } from './sentry.constants';
+import type { SentryFeatureTag } from '../constants/sentry.constants';
 
 /**
  * HTTP path에서 Sentry feature 태그를 추론한다.

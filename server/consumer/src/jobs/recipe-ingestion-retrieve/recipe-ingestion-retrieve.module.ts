@@ -8,7 +8,7 @@ import {
   envValidationOptions,
   envValidationSchema,
 } from '../../config/env.validation';
-import { mongooseConnectionPoolConfig } from '../../config/mongoose-pool.config';
+import { mongooseConnectionPoolConfig } from '../../policy/mongoose-pool.policy';
 import { OpenAIModule } from '../../integrations/openai/openai.module';
 import { KafkaModule } from '../../integrations/kafka/kafka.module';
 import { RecipeIngestionJobRepository } from '../../persistence/repositories/mongodb/recipe-ingestion-job.repository';

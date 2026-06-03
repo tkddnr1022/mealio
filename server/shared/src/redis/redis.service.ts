@@ -5,7 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import Redis from 'ioredis';
-import { createRedisConfig } from '../configs/redis.config';
+import { createRedisConfig } from '../config/redis.config';
 
 /**
  * Redis 커넥션 관리 서비스 (Producer/Consumer 공용)

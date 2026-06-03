@@ -19,7 +19,10 @@ export {
   RecipeIngestionJob,
   RecipeIngestionJobSchema,
 } from './recipe-ingestion-job.schema';
-export type { RecipeIngestionJobDocument } from './recipe-ingestion-job.schema';
+export type {
+  RecipeIngestionJobDocument,
+  RecipeIngestionJobStatus,
+} from './recipe-ingestion-job.schema';
 export {
   RecipeIngestionState,
   RecipeIngestionStateSchema,

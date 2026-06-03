@@ -14,11 +14,16 @@
 
 | 경로 | 역할 |
 |------|------|
-| **server/consumer/src/config/** | 설정 모듈 디렉터리 |
-| server/consumer/src/config/consumer-groups.ts | Kafka consumer 그룹 ID 상수 (CONSUMER_GROUPS, §2.2 그룹과 매핑) |
+| **server/consumer/src/config/** | env 검증 |
 | server/consumer/src/config/env.validation.ts | 앱 시작 시 환경 변수 검증 (Joi 스키마, NODE_ENV·MONGODB_URL·REDIS_URL·KAFKA_*·POSTGRESQL_URL·OPENAI_*·PUBLIC_DATA_*·OPENAI_BATCH_MODEL 등) |
-| server/consumer/src/config/mongoose-pool.config.ts | Mongoose 커넥션 풀 설정 (MongooseSchemasModule.forRoot 주입용) |
-| server/consumer/src/config/prisma-pool.config.ts | Prisma 커넥션 풀 설정 (PRISMA_POOL_CONFIG 주입용) |
+| **server/consumer/src/constants/** | 불변 계약 상수 (`*.constants.ts`) |
+| server/consumer/src/constants/consumer-groups.constants.ts | Kafka consumer 그룹 ID (`CONSUMER_GROUPS`, §2.2 그룹과 매핑) |
+| **server/consumer/src/policy/** | 운영·제품 튜닝 정책 (`*.policy.ts`) |
+| server/consumer/src/policy/mongoose-pool.policy.ts | Mongoose 커넥션 풀 (MongooseSchemasModule.forRoot 주입용) |
+| server/consumer/src/policy/prisma-pool.policy.ts | Prisma 커넥션 풀 (PRISMA_POOL_CONFIG 주입용) |
+| server/consumer/src/policy/openai.policy.ts | OpenAI RPM 기본값 |
+| server/consumer/src/policy/chatbot-cache.policy.ts | 챗봇 Redis 캐시 TTL |
+| server/consumer/src/policy/monitoring.policy.ts | lag 폴링 주기 |
 | **server/consumer/src/consumers/consumers.module.ts** | 그룹 모듈(ChatbotRequest, UserEvents, ActivityEvents, CacheInvalidation) 통합 |
 | **server/consumer/src/consumers/base/** | |
 | server/consumer/src/consumers/base/base.processor.ts | 토픽 공통 인터페이스(ITopicProcessor)·BaseTopicProcessor(파싱·재시도·DLQ 위임) |
@@ -170,7 +175,7 @@
 
 ## 2.4 챗봇 크레딧 멱등 차감 및 스트림 `done` 계약
 
-- **모델·상수**: `@mealio/shared` Prisma `User.creditBalance` / `User.creditMonthlyLimit`, `ChatbotCreditDeduction`(테이블 `chatbot_credit_deductions`, PK `stream_channel_id`). 비용 계산·기본 정책 상수는 `server/shared/src/constants/user-credits.ts`(`computeChatbotCreditCost`, `DEFAULT_USER_CREDIT_*` 등).
+- **모델·정책**: `@mealio/shared` Prisma `User.creditBalance` / `User.creditMonthlyLimit`, `ChatbotCreditDeduction`(테이블 `chatbot_credit_deductions`, PK `stream_channel_id`). 비용 계산·기본값은 `server/shared/src/policy/user-credits.policy.ts`(`computeChatbotCreditCost`, `DEFAULT_USER_CREDIT_*` 등).
 - **ChatbotCreditService** (`consumers/chatbot-request/services/chatbot-credit.service.ts`): 동일 `streamChannelId`에 대해 `createMany` + `skipDuplicates`로 멱등 슬롯 확보 후, `usage.totalTokens` 기반 비용만큼 `creditBalance`를 감소(잔액 상한 클램프). 재처리 시 이중 차감 없음. 신규 차감이 발생한 경우에만 `KafkaProducerService`로 **cache-invalidation** 토픽(USER_PROFILE)을 발행해 Producer 캐시와 정합을 맞춘다.
 - **ProcessChatHandler**: Redis `done` 이벤트(`@mealio/shared` 타입 `ChatbotStreamDoneEvent`)의 `data.isCreditDepleted`에 차감 결과를 넣어 클라이언트가 잔액 소진 여부를 알 수 있게 한다.
 

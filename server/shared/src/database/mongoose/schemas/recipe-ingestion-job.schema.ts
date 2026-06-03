@@ -9,6 +9,8 @@ import {
   type RecipeIngestionJobStatus,
 } from '../../../constants/recipe-ingestion';
 
+export type { RecipeIngestionJobStatus };
+
 export type RecipeIngestionJobDocument = HydratedDocument<RecipeIngestionJob>;
 
 /**

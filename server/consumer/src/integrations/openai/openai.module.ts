@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { OpenAIService } from './openai.service';
 import { OpenAIBatchService } from './openai-batch.service';
-import { OpenAIRateLimiter, DEFAULT_RPM } from './rate-limiter';
+import { OpenAIRateLimiter } from './rate-limiter';
+import { DEFAULT_OPENAI_RATE_LIMIT_RPM } from '../../policy/openai.policy';
 
 /**
  * OpenAI 연동 모듈.
@@ -14,7 +15,7 @@ import { OpenAIRateLimiter, DEFAULT_RPM } from './rate-limiter';
   providers: [
     {
       provide: OpenAIRateLimiter,
-      useFactory: () => new OpenAIRateLimiter(DEFAULT_RPM),
+      useFactory: () => new OpenAIRateLimiter(DEFAULT_OPENAI_RATE_LIMIT_RPM),
     },
     OpenAIService,
     OpenAIBatchService,

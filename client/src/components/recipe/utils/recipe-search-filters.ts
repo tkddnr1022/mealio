@@ -1,11 +1,14 @@
 import { buildQueryString, objectToQuery } from '@/lib/api/query';
+import {
+  RECIPE_FILTER_PATH,
+  RECIPE_SEARCH_PATH,
+} from '@/lib/constants/routes.constants';
 import type { RecipeSearchQuery } from '@/lib/types/recipe';
+
+export { RECIPE_FILTER_PATH, RECIPE_SEARCH_PATH };
 
 export const DEFAULT_RECIPE_COOK_TIME_MIN = 0;
 export const DEFAULT_RECIPE_COOK_TIME_MAX = 120;
-
-export const RECIPE_SEARCH_PATH = '/recipe/search' as const;
-export const RECIPE_FILTER_PATH = '/recipe/filter' as const;
 
 export interface RecipeFilterDraftState {
   keyword: string;

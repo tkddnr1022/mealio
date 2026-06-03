@@ -5,7 +5,7 @@ import {
   envValidationOptions,
   envValidationSchema,
 } from '../../config/env.validation';
-import { mongooseConnectionPoolConfig } from '../../config/mongoose-pool.config';
+import { mongooseConnectionPoolConfig } from '../../policy/mongoose-pool.policy';
 import { KpiRollupService } from './kpi-rollup.service';
 
 /**

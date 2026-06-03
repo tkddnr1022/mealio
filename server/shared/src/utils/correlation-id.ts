@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import type { IHeaders } from 'kafkajs';
-import { CORRELATION_ID_HEADER } from '../configs/observability.config';
+import { CORRELATION_ID_HEADER } from '../config/observability.config';
 
 export { CORRELATION_ID_HEADER };
 

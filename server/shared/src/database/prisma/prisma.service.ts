@@ -10,7 +10,7 @@ import {
   PRISMA_POOL_CONFIG,
   type PrismaPoolConfig,
 } from './prisma-pool.config';
-import { isMetricsEnabledFromEnv } from '../../configs/observability.config';
+import { isMetricsEnabledFromEnv } from '../../config/observability.config';
 
 /**
  * Prisma 서비스 (Producer/Consumer 공용)

@@ -11,7 +11,7 @@ import {
   BACKEND_ERROR_MESSAGE_QUERY_PARAMS,
   OAUTH_ERROR_DESCRIPTION_QUERY_PARAM,
   OAUTH_ERROR_QUERY_PARAM,
-} from '@/lib/config/oauth-error.config';
+} from '@/lib/constants/oauth-error.constants';
 import { buildLoginUrl, NEXT_QUERY_PARAM } from '@/lib/auth/routes';
 
 interface OAuthErrorDisplay {

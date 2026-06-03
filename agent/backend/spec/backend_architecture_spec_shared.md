@@ -14,15 +14,15 @@
 |------|------|
 | server/shared/package.json | name: "@mealio/shared", exports: ".", "./prisma-client" |
 | server/shared/src/index.ts | 공개 API re-export |
-| server/shared/src/configs/kafka.config.ts | createKafkaConfig, LOCAL_TOPIC_CONFIG |
-| server/shared/src/configs/redis.config.ts | createRedisConfig |
+| server/shared/src/config/kafka.config.ts | createKafkaConfig, LOCAL_TOPIC_CONFIG |
+| server/shared/src/config/redis.config.ts | createRedisConfig |
 | server/shared/src/constants/kafka-topics.ts | KAFKA_TOPICS, KafkaTopic |
 | server/shared/src/constants/redis-channels.ts | getChatbotStreamChannel, CHATBOT_STREAM_CHANNEL_PREFIX |
 | server/shared/src/constants/cache-keys.ts | CACHE_KEY_PREFIX. Producer 캐시 전략·Consumer 캐시 무효화에서 공통 사용 (`recommendation:{userId}` 키 포함) |
 | server/shared/src/constants/asset-url-prefixes.ts | ASSET_URL_PREFIX (RECIPE_IMAGE, INGREDIENT_CATEGORY_ICON). 레시피 이미지/재료 카테고리 아이콘 URL prefix 공통 사용 |
-| server/shared/src/constants/user-credits.ts | 챗봇 크레딧 정책: `DEFAULT_USER_CREDIT_BALANCE`, `DEFAULT_USER_CREDIT_MONTHLY_LIMIT`, `TOKENS_PER_CREDIT`, `computeChatbotCreditCost`. 신규 `User` 초기 잔액·시드·Producer `UserRepository.create`와 동일 기준. `@mealio/shared`의 `index.ts`에서 re-export |
+| server/shared/src/policy/user-credits.policy.ts | 챗봇 크레딧: `DEFAULT_USER_CREDIT_*`, `TOKENS_PER_CREDIT`, `computeChatbotCreditCost`. `@mealio/shared` `index.ts` re-export |
 | server/shared/src/database/prisma/schema.prisma | PostgreSQL 스키마 (User·크레딧 필드·ChatbotCreditDeduction, RecipeCategory, Recipe, RecipeStats, IngredientCategory, Ingredient, RecipeIngredient, UserRecipeRecommendation) |
-| server/shared/src/database/prisma/seed.ts | 로컬/개발용 시드 스크립트. `User` 삽입 시 `user-credits` 상수로 `credit_balance`·`credit_monthly_limit` 설정 |
+| server/shared/src/database/prisma/seed.ts | 로컬/개발용 시드 스크립트. `User` 삽입 시 `user-credits.policy`로 `credit_balance`·`credit_monthly_limit` 설정 |
 | server/shared/src/database/prisma/prisma-pool.config.ts | PrismaPoolConfig 타입, PRISMA_POOL_CONFIG DI 토큰 (커넥션 풀 설정용). PrismaService·PrismaModule에서 참조 |
 | server/shared/src/database/prisma/prisma.service.ts | PrismaService (NestJS, OnModuleInit/OnModuleDestroy, PrismaPg 어댑터. PRISMA_POOL_CONFIG 주입) |
 | server/shared/src/database/prisma/prisma.module.ts | PrismaModule. forRoot(config) / forRootAsync({ useFactory }) 로 connection pool config 주입. Producer/Consumer에서 import 시 config 전달 |
@@ -38,7 +38,8 @@
 | server/shared/src/database/mongoose/schemas/kpi-rollup.schema.ts | KPI 롤업 집계 문서 스키마 |
 | server/shared/src/database/mongoose/schemas/recipe-ingestion-job.schema.ts | Recipe ingestion job 파이프라인 SSOT 스키마 |
 | server/shared/src/database/mongoose/schemas/recipe-ingestion-state.schema.ts | Recipe ingestion API 페이징 커서 singleton 스키마 |
-| server/shared/src/constants/recipe-ingestion.ts | Recipe ingestion status enum·재시도 상한·fetch/submit 기본 배치 크기·state key 상수 |
+| server/shared/src/constants/recipe-ingestion.ts | Recipe ingestion status enum·state key·source·seed 기본 category id (계약) |
+| server/shared/src/policy/recipe-ingestion.policy.ts | 재시도·batch·TTL·persist 기본값·OpenAI batch 파라미터 (튜닝) |
 | server/shared/src/redis/redis.service.ts | RedisService (NestJS). get/set/setex/del/exists/expire/ttl, 구독 채널 관리 |
 | server/shared/src/redis/redis.module.ts | RedisModule |
 | server/shared/src/types/events/index.ts | 이벤트 타입 배럴 export |
@@ -82,15 +83,16 @@ datasource: `postgresql`. generator: `prisma-client`, output `generated`.
 | server/shared/src/utils/structured-logger.ts | 구조화 로거 (JSON 출력, 레벨·컨텍스트·Correlation-ID) |
 | server/shared/src/utils/correlation-id.ts | Correlation-ID 생성 유틸 |
 | server/shared/src/utils/correlation-context.ts | AsyncLocalStorage 기반 Correlation Context 전파 |
-| server/shared/src/constants/ | cache-keys.ts, asset-url-prefixes.ts, **user-credits.ts**(챗봇 크레딧 기본값·비용 계산), ⚠️ 미구현: error-codes.ts (3.1의 kafka-topics, redis-channels 외 추가) |
-| server/shared/src/configs/ | observability.config.ts, observability.env-validation.ts (3.1의 kafka, redis 외 추가) |
-| server/shared/src/configs/observability.config.ts | Sentry DSN·환경·샘플링 등 관측성 설정 |
-| server/shared/src/configs/observability.env-validation.ts | 관측성 관련 환경 변수 Joi 스키마 검증 |
+| server/shared/src/constants/ | cache-keys.ts, asset-url-prefixes.ts, recipe-ingestion.ts(계약), sentry.constants.ts, ⚠️ 미구현: error-codes.ts |
+| server/shared/src/policy/ | recipe-ingestion.policy.ts, user-credits.policy.ts |
+| server/shared/src/config/ | observability.config.ts, observability.env-validation.ts (3.1의 kafka, redis 외 추가) |
+| server/shared/src/config/observability.config.ts | Sentry DSN·환경·샘플링 등 관측성 설정 |
+| server/shared/src/config/observability.env-validation.ts | 관측성 관련 환경 변수 Joi 스키마 검증 |
+| server/shared/src/constants/sentry.constants.ts | Sentry 태그·민감 키 패턴 상수 |
 | **server/shared/src/observability/** | Sentry 초기화·유틸 묶음 |
 | server/shared/src/observability/sentry.ts | Sentry `init` 래퍼 (Producer/Consumer 공용) |
 | server/shared/src/observability/sentry-scrub.ts | Sentry 이벤트 전송 전 PII·비밀 스크러빙 |
 | server/shared/src/observability/sentry-feature.ts | Sentry 피처 플래그 (환경별 기능 토글) |
-| server/shared/src/observability/sentry.constants.ts | Sentry 태그·컨텍스트 키 상수 |
 
 ## 3.5 추천 캐시·무효화 계약
 

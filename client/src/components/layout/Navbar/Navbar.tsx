@@ -3,7 +3,7 @@
 import { type ReactNode } from 'react';
 import { BackButton } from '@/components/ui/buttons/BackButton';
 import { NavLink } from '@/components/ui/NavLink';
-import { APP_BRAND_NAME } from '@/lib/config/env';
+import { APP_BRAND_NAME } from '@/lib/constants/app.constants';
 import { cn } from '@/lib/utils/cn';
 
 /** 로고 탭 시 앱 메인(레시피 탭)으로 이동 — 루트 `/` 리다이렉트와 동일 */

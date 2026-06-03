@@ -14,7 +14,7 @@ export type { SessionUser } from '@/lib/types/auth';
 export {
   ACCESS_TOKEN_COOKIE_NAME,
   REFRESH_TOKEN_COOKIE_NAME,
-} from '@/lib/config/auth.config';
+} from '@/lib/constants/auth.constants';
 
 // 기존 호환 re-export — 신규 코드는 `./session.client` / `./session.server`에서 직접 가져오는 것을 권장.
 export { fetchCurrentUser } from './session.client';

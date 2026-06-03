@@ -712,7 +712,9 @@ describe('RecipeQueryService', () => {
         }),
       );
       expect(redisClient.set).toHaveBeenCalledWith(
-        expect.stringContaining('dedupe:search:query:__no_keyword__:ip:unknown-ip'),
+        expect.stringContaining(
+          'dedupe:search:query:__no_keyword__:ip:unknown-ip',
+        ),
         '1',
         'EX',
         1800,

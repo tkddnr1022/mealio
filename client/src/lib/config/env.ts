@@ -11,11 +11,10 @@
  *   {@link assertEnv}를 명시적으로 호출한다.
  *
  * 값을 소비하는 곳:
- * - API base URL: `client/src/lib/config/api.config.ts`
- * - 앱 UI 워드마크: `APP_BRAND_NAME` — 네비·로그인 헤더 등
+ * - API 타임아웃·재시도: `client/src/lib/policy/api.policy.ts`
+ * - Sentry init: `client/src/lib/config/sentry.config.ts`
+ * - 메타 URL: `client/src/lib/config/app.config.ts` (고정 문구는 `constants/app.constants.ts`)
  */
-export const APP_BRAND_NAME = 'Mealio' as const;
-
 export type RuntimeEnv = 'development' | 'production' | 'test';
 
 export interface AppEnv {
@@ -39,10 +38,25 @@ export interface AppEnv {
    * Sentry 브라우저 DSN. staging/production 권장, 로컬은 비워도 됨.
    */
   readonly sentryDsn: string;
+  /** DSN이 설정되어 Sentry를 사용할 수 있는지 */
+  readonly sentryEnabled: boolean;
+  /**
+   * Sentry performance traces 샘플 비율 (0–1).
+   * 미설정 시 production 0.1, 그 외 1.
+   */
+  readonly sentryTracesSampleRate: number;
   /**
    * GA4 Measurement ID (예: G-XXXXXXXXXX). staging/production 권장.
    */
   readonly gaMeasurementId: string;
+  /**
+   * 정규 URL(metadataBase·OG). 비어 있으면 Vercel URL 또는 로컬 기본값으로 대체한다.
+   */
+  readonly siteUrl: string;
+  /**
+   * Vercel 배포 호스트(서버 런타임). `VERCEL_URL`에서 파생. 프로토콜 없음.
+   */
+  readonly vercelHost: string;
   /**
    * 파싱 중 발견된 검증 오류 목록. production에서는 런타임을 죽이지 않기 위해 수집만 하고,
    * 호출부에서 {@link assertEnv} 또는 {@link getEnvValidationErrors}로 점검한다.
@@ -55,13 +69,19 @@ const DEFAULTS = {
   apiPrefix: '/api/v1',
   sentryDsn: '',
   gaMeasurementId: '',
+  siteUrl: '',
+  sentryTracesSampleRateProduction: 0.1,
+  sentryTracesSampleRateDevelopment: 1,
 } as const;
 
 const RAW_ENV_MAP: Record<string, string | undefined> = {
   NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   NEXT_PUBLIC_API_PREFIX: process.env.NEXT_PUBLIC_API_PREFIX,
   NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE:
+    process.env.NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE,
   NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
+  NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
 };
 
 export class EnvValidationError extends Error {
@@ -132,6 +152,22 @@ function parseSentryDsn(): string {
   }
 }
 
+function parseSentryTracesSampleRate(runtime: RuntimeEnv): number {
+  const raw = readRaw('NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE');
+  if (raw === undefined) {
+    return runtime === 'production'
+      ? DEFAULTS.sentryTracesSampleRateProduction
+      : DEFAULTS.sentryTracesSampleRateDevelopment;
+  }
+  const parsed = parseFloat(raw);
+  if (!Number.isFinite(parsed) || parsed < 0 || parsed > 1) {
+    throw new EnvValidationError(
+      `Invalid NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE: "${raw}". 0–1 사이 숫자여야 합니다.`,
+    );
+  }
+  return parsed;
+}
+
 function parseGaMeasurementId(): string {
   const raw = readRaw('NEXT_PUBLIC_GA_MEASUREMENT_ID');
   if (raw === undefined) return DEFAULTS.gaMeasurementId;
@@ -143,8 +179,22 @@ function parseGaMeasurementId(): string {
   return raw;
 }
 
+function parseSiteUrl(): string {
+  const raw = readRaw('NEXT_PUBLIC_SITE_URL');
+  if (raw === undefined) return DEFAULTS.siteUrl;
+  return parseHttpUrl('NEXT_PUBLIC_SITE_URL', raw, {
+    allowEmpty: false,
+    trimTrailingSlash: true,
+  });
+}
+
+function parseVercelHost(): string {
+  const raw = process.env.VERCEL_URL?.trim();
+  return raw ?? '';
+}
+
 function parseHttpUrl(
-  envName: 'NEXT_PUBLIC_API_BASE_URL',
+  envName: 'NEXT_PUBLIC_API_BASE_URL' | 'NEXT_PUBLIC_SITE_URL',
   raw: string | undefined,
   options: { allowEmpty: boolean; trimTrailingSlash: boolean },
 ): string {
@@ -224,12 +274,22 @@ function buildEnv(): AppEnv {
     errors,
     runtime,
   );
+  const sentryTracesSampleRate = safeParse(
+    () => parseSentryTracesSampleRate(runtime),
+    runtime === 'production'
+      ? DEFAULTS.sentryTracesSampleRateProduction
+      : DEFAULTS.sentryTracesSampleRateDevelopment,
+    errors,
+    runtime,
+  );
   const gaMeasurementId = safeParse(
     parseGaMeasurementId,
     DEFAULTS.gaMeasurementId,
     errors,
     runtime,
   );
+  const siteUrl = safeParse(parseSiteUrl, DEFAULTS.siteUrl, errors, runtime);
+  const vercelHost = parseVercelHost();
 
   return Object.freeze<AppEnv>({
     runtime,
@@ -238,7 +298,11 @@ function buildEnv(): AppEnv {
     apiBaseUrl,
     apiPrefix,
     sentryDsn,
+    sentryEnabled: sentryDsn.length > 0,
+    sentryTracesSampleRate,
     gaMeasurementId,
+    siteUrl,
+    vercelHost,
     validationErrors: Object.freeze(errors),
   });
 }

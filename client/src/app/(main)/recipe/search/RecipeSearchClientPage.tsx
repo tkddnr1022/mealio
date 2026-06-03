@@ -15,7 +15,7 @@ import {
 import type { DropdownOption } from '@/components/ui/dropdown/DropdownList';
 import { ListLoadMore } from '@/components/ui/ListLoadMore';
 import { buildQueryString, objectToQuery } from '@/lib/api/query';
-import { RECIPE_SEARCH_PAGE_SIZE } from '@/lib/config/pagination.config';
+import { RECIPE_SEARCH_PAGE_SIZE } from '@/lib/policy/pagination.policy';
 import {
   RECIPE_SORT_KEYS,
   type RecipeSearchQuery,

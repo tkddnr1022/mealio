@@ -16,11 +16,17 @@
 | **server/producer/src/app.module.ts** | 루트 모듈(AppModule). 각 도메인 모듈·인프라 모듈 import |
 | server/producer/src/app.controller.ts | 헬스체크·기본 엔드포인트(필요 시) |
 | server/producer/src/app.service.ts | App 수준 공용 서비스(필요 시) |
-| **server/producer/src/config/** | 설정 모듈 디렉터리 |
+| **server/producer/src/config/** | env 검증·런타임 조합 설정 |
 | server/producer/src/config/env.validation.ts | 환경 변수 스키마 검증 |
-| server/producer/src/config/mongoose-pool.config.ts | Mongoose 커넥션 풀 설정 (MongooseSchemasModule.forRoot 주입용) |
-| server/producer/src/config/prisma-pool.config.ts | Prisma 커넥션 풀 설정 (PRISMA_POOL_CONFIG 주입용) |
-| server/producer/src/config/swagger.config.ts | Swagger(OpenAPI) 설정, 문서 빌더 |
+| server/producer/src/config/swagger.config.ts | Swagger(OpenAPI) `createSwaggerConfig()` |
+| **server/producer/src/constants/** | 불변 계약 상수 (`*.constants.ts`) |
+| server/producer/src/constants/auth-cookie.constants.ts | Access·Refresh HttpOnly 쿠키 이름 |
+| **server/producer/src/policy/** | 운영·제품 튜닝 정책 (`*.policy.ts`) |
+| server/producer/src/policy/cache.policy.ts | Redis 캐시 TTL(초) SSOT |
+| server/producer/src/policy/rate-limit.policy.ts | API 레이트 리밋 윈도우·최대 요청 수 |
+| server/producer/src/policy/chatbot.policy.ts | 챗봇 SSE 스트림 타임아웃(ms) |
+| server/producer/src/policy/prisma-pool.policy.ts | Prisma 커넥션 풀 (PRISMA_POOL_CONFIG 주입용) |
+| server/producer/src/policy/mongoose-pool.policy.ts | Mongoose 커넥션 풀 (MongooseSchemasModule.forRoot 주입용) |
 | **server/producer/src/modules/auth/** | OAuth·JWT 인증 모듈 |
 | server/producer/src/modules/auth/auth.module.ts | AuthModule 정의, 전략·가드·컨트롤러 묶음 |
 | server/producer/src/modules/auth/auth.service.ts | OAuth 로그인 처리, 사용자 생성/조회, JWT 발급 |

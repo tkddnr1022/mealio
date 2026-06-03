@@ -6,14 +6,13 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { KAFKA_TOPICS, type ObservabilityConfig } from '@mealio/shared';
-import { CONSUMER_GROUPS } from 'src/config/consumer-groups';
+import { CONSUMER_GROUPS } from '../../constants/consumer-groups.constants';
+import { CONSUMER_LAG_POLL_INTERVAL_MS } from '../../policy/monitoring.policy';
 import { KafkaService } from 'src/integrations/kafka/kafka.service';
 import {
   ConsumerMetricsService,
   OBSERVABILITY_CONFIG,
 } from './consumer-metrics.service';
-
-const LAG_POLL_INTERVAL_MS = 60_000;
 
 /** consumer group → subscribed main topic */
 const GROUP_TOPIC_MAP: ReadonlyArray<{
@@ -55,7 +54,7 @@ export class ConsumerLagMonitor implements OnModuleInit, OnModuleDestroy {
     void this.pollLag();
     this.intervalId = setInterval(() => {
       void this.pollLag();
-    }, LAG_POLL_INTERVAL_MS);
+    }, CONSUMER_LAG_POLL_INTERVAL_MS);
   }
 
   onModuleDestroy(): void {

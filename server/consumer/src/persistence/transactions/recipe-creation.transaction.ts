@@ -42,8 +42,8 @@ function parseQuantityToDecimal(
   if (trimmed.includes('/')) {
     const parts = trimmed.split('/');
     if (parts.length === 2) {
-      const num = Number.parseFloat(parts[0]!.trim());
-      const den = Number.parseFloat(parts[1]!.trim());
+      const num = Number.parseFloat(parts[0].trim());
+      const den = Number.parseFloat(parts[1].trim());
       if (!Number.isNaN(num) && !Number.isNaN(den) && den !== 0) {
         return String(num / den);
       }

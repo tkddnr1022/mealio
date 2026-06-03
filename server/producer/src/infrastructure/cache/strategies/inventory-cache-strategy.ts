@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CACHE_KEY_PREFIX, buildCacheKey } from '@mealio/shared';
+import { CACHE_TTL_INVENTORY_SECONDS } from '../../../policy/cache.policy';
 import { CacheStrategy } from './cache-strategy.interface';
 
 /**
@@ -8,8 +9,6 @@ import { CacheStrategy } from './cache-strategy.interface';
  */
 @Injectable()
 export class InventoryCacheStrategy implements CacheStrategy {
-  private readonly TTL_SECONDS = 300; // 5분
-
   generateKey(...args: (string | number)[]): string {
     if (args.length === 0) {
       throw new Error(
@@ -20,6 +19,6 @@ export class InventoryCacheStrategy implements CacheStrategy {
   }
 
   getTtl(..._keyArgs: (string | number)[]): number {
-    return this.TTL_SECONDS;
+    return CACHE_TTL_INVENTORY_SECONDS;
   }
 }

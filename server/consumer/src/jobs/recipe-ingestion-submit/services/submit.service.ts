@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
+  DEFAULT_RECIPE_RETRY_FAILED_LIMIT,
   DEFAULT_RECIPE_SUBMIT_BATCH_SIZE,
   MAX_RECIPE_SUBMIT_BATCH_SIZE,
   type RecipeIngestionJobDocument,
@@ -12,6 +13,11 @@ import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongo
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
 import { CategoryContextService } from './category-context.service';
 import { buildRecipeIngestionSystemPrompt } from '../prompts/recipe-ingestion.system-prompt';
+import {
+  RECIPE_INGESTION_OPENAI_BATCH_MAX_TOKENS,
+  RECIPE_INGESTION_OPENAI_BATCH_REASONING_EFFORT,
+  RECIPE_INGESTION_OPENAI_BATCH_VERBOSITY,
+} from '@mealio/shared';
 
 export class SubmitBatchSizeError extends Error {
   constructor(message: string) {
@@ -47,10 +53,6 @@ export interface BatchJsonlRequestLine {
   };
 }
 
-const BATCH_MAX_TOKENS = 8192;
-const BATCH_REASONING_EFFORT = 'low' as const;
-const BATCH_VERBOSITY = 'low' as const;
-
 /**
  * OpenAI Batch 제출 — fetched job을 JSONL로 변환해 Batch API에 제출한다.
  * FetchService를 호출하지 않는 standalone 단계.
@@ -72,7 +74,10 @@ export class SubmitService {
     const submitBatchSize = this.resolveSubmitBatchSize(
       options.submitBatchSize,
     );
-    const retryFailedLimit = Math.max(1, options.retryFailedLimit ?? 100);
+    const retryFailedLimit = Math.max(
+      1,
+      options.retryFailedLimit ?? DEFAULT_RECIPE_RETRY_FAILED_LIMIT,
+    );
 
     if (options.retryFailed) {
       const requeued =
@@ -235,9 +240,9 @@ export function buildBatchJsonlLine(
     url: '/v1/chat/completions',
     body: {
       model,
-      max_completion_tokens: BATCH_MAX_TOKENS,
-      reasoning_effort: BATCH_REASONING_EFFORT,
-      verbosity: BATCH_VERBOSITY,
+      max_completion_tokens: RECIPE_INGESTION_OPENAI_BATCH_MAX_TOKENS,
+      reasoning_effort: RECIPE_INGESTION_OPENAI_BATCH_REASONING_EFFORT,
+      verbosity: RECIPE_INGESTION_OPENAI_BATCH_VERBOSITY,
       response_format: { type: 'json_object' },
       messages: [
         { role: 'system', content: systemPrompt },

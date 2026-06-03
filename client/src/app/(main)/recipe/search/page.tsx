@@ -15,7 +15,7 @@ import {
   resolveSearchParams,
   type SearchParamRecord,
 } from '@/lib/utils/search-params';
-import { RECIPE_SEARCH_PAGE_SIZE } from '@/lib/config/pagination.config';
+import { RECIPE_SEARCH_PAGE_SIZE } from '@/lib/policy/pagination.policy';
 import { truncateForMeta } from '@/lib/metadata/meta-text';
 import type { Pagination } from '@/lib/types/api';
 

@@ -20,7 +20,7 @@ import {
 } from '@tanstack/react-query';
 
 import { getConversationHistory, getConversationList } from '@/lib/api/domains';
-import { QUERY_CACHE } from '@/lib/config/cache.config';
+import { QUERY_CACHE } from '@/lib/policy/cache.policy';
 import type {
   ConversationHistory,
   ConversationList,

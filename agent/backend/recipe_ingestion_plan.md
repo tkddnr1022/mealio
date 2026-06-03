@@ -133,7 +133,7 @@ flowchart LR
 | `server/shared/src/constants/kafka-topics.ts` | 토픽·DLQ 상수 |
 | `server/consumer/src/persistence/repositories/mongodb/recipe-ingestion-job.repository.ts` | Job CRUD·상태 전환 |
 | `server/consumer/src/persistence/repositories/mongodb/recipe-ingestion-state.repository.ts` | `last_end_idx` 커서 |
-| `server/consumer/src/config/consumer-groups.ts` | consumer group 상수 |
+| `server/consumer/src/constants/consumer-groups.constants.ts` | consumer group 상수 |
 | `server/consumer/src/reliability/monitoring/topic-consumer-group.map.ts` | 토픽 → consumer group (메트릭) |
 | `server/consumer/src/reliability/monitoring/consumer-lag.monitor.ts` | group → topic (lag 폴링) |
 

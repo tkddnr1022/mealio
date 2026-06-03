@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { KafkaService } from 'src/integrations/kafka/kafka.service';
-import { CONSUMER_GROUPS } from 'src/config/consumer-groups';
+import { CONSUMER_GROUPS } from '../../constants/consumer-groups.constants';
 import { BaseConsumer } from '../base/base.consumer';
 import { ActivityEventsProcessor } from './activity-events.processor';
 

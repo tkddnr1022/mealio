@@ -16,7 +16,7 @@ import {
   searchIngredients,
   type IngredientListResult,
 } from '@/lib/api/domains';
-import { QUERY_CACHE } from '@/lib/config/cache.config';
+import { QUERY_CACHE } from '@/lib/policy/cache.policy';
 import type { IngredientSearchQuery } from '@/lib/types/ingredient';
 
 // ─── 쿼리 키 ──────────────────────────────────────────────────────────────────

@@ -1,5 +1,5 @@
 import type { HTMLAttributes } from 'react';
-import { APP_BRAND_NAME } from '@/lib/config/env';
+import { APP_BRAND_NAME } from '@/lib/constants/app.constants';
 import { cn } from '@/lib/utils/cn';
 import { NavLink } from '@/components/ui/NavLink';
 

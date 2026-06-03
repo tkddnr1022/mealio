@@ -15,14 +15,13 @@ import {
   useAddMyOwnedIngredients,
   useAddMyFavoriteIngredients,
 } from '@/lib/queries/inventory.queries';
-import { INGREDIENT_SEARCH_PAGE_SIZE } from '@/lib/config/pagination.config';
+import { SEARCH_DEBOUNCE_MS } from '@/lib/policy/interaction.policy';
+import { INGREDIENT_SEARCH_PAGE_SIZE } from '@/lib/policy/pagination.policy';
 import { toInventoryIngredientCountText } from '@/components/inventory/utils/inventory-format';
 import type { Ingredient, IngredientCategory } from '@/lib/types/ingredient';
 import type { InventoryIngredient } from '@/lib/types/inventory';
 
 type InventoryType = 'owned' | 'favorites';
-
-const SEARCH_DEBOUNCE_MS = 300;
 
 function toInventoryIngredient(item: Ingredient): InventoryIngredient {
   return { id: item.id, name: item.name, categoryId: item.categoryId };

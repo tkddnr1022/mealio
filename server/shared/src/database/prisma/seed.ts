@@ -4,7 +4,7 @@ import { Client } from 'pg';
 import {
   DEFAULT_USER_CREDIT_BALANCE,
   DEFAULT_USER_CREDIT_MONTHLY_LIMIT,
-} from '../../constants/user-credits';
+} from '../../policy/user-credits.policy';
 
 type RecipeCategorySeed = {
   id: number;

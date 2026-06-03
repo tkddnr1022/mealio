@@ -17,9 +17,7 @@ import { UserRepository } from '../../infrastructure/database/repositories/postg
 import type { ConversationHistoryDto } from './dto/conversation-history.dto';
 import type { SuggestedRecipeSummary } from '@mealio/shared';
 import type { ConversationListDto } from './dto/conversation-list.dto';
-
-/** SSE 스트림 대기 최대 시간 (ms). 이 시간 내에 done/error가 오지 않으면 연결 종료 */
-const STREAM_TIMEOUT_MS = 120_000;
+import { CHATBOT_STREAM_TIMEOUT_MS } from '../../policy/chatbot.policy';
 
 export interface StreamMessageCallbacks {
   /** SSE 데이터 한 줄 전송 (data: ...\n\n 형식으로 호출 측에서 조합 가능) */
@@ -111,7 +109,7 @@ export class ChatbotService {
       finish(() =>
         callbacks.error(new Error('스트림 응답 시간이 초과되었습니다.')),
       );
-    }, STREAM_TIMEOUT_MS);
+    }, CHATBOT_STREAM_TIMEOUT_MS);
 
     unsubscribe = await this.redisService.subscribe(channel, (raw: string) => {
       try {

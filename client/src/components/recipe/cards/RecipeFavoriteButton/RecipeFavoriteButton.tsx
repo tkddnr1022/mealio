@@ -9,6 +9,7 @@ import {
 } from '@/lib/observability/analytics-events';
 import { trackEvent } from '@/lib/observability/analytics';
 import { useToggleMyFavoriteRecipe } from '@/lib/queries/inventory.queries';
+import { FAVORITE_SOFT_LOCK_DEBOUNCE_MS } from '@/lib/policy/interaction.policy';
 import { usePathname } from 'next/navigation';
 
 export interface RecipeFavoriteButtonProps {
@@ -16,8 +17,6 @@ export interface RecipeFavoriteButtonProps {
   isFavorite?: boolean;
   className?: string;
 }
-
-const SOFT_LOCK_DEBOUNCE_MS = 200;
 
 export function RecipeFavoriteButton({
   recipeId,
@@ -98,7 +97,7 @@ function RecipeFavoriteButtonInner({
     debounceTimerRef.current = setTimeout(() => {
       debounceTimerRef.current = null;
       flushQueuedIntent();
-    }, SOFT_LOCK_DEBOUNCE_MS);
+    }, FAVORITE_SOFT_LOCK_DEBOUNCE_MS);
   };
 
   const handleClick = () => {

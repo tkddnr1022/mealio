@@ -6,6 +6,7 @@ import {
   RetrievedDataValidationError,
   validateRetrievedData,
 } from 'src/consumers/recipe-ingestion-persist/validators/retrieved-data.validator';
+import { DEFAULT_RECIPE_PERSIST_BATCH_SIZE } from '@mealio/shared';
 
 export class PersistBatchSizeError extends Error {
   constructor(message: string) {
@@ -24,8 +25,6 @@ export interface PersistResult {
   skippedCount: number;
   failedCount: number;
 }
-
-const DEFAULT_PERSIST_BATCH_SIZE = 100;
 
 @Injectable()
 export class PersistService {
@@ -169,7 +168,7 @@ export class PersistService {
   }
 
   private resolvePersistBatchSize(size?: number): number {
-    const resolved = size ?? DEFAULT_PERSIST_BATCH_SIZE;
+    const resolved = size ?? DEFAULT_RECIPE_PERSIST_BATCH_SIZE;
     if (resolved < 1) {
       throw new PersistBatchSizeError(
         `persistBatchSize must be >= 1, received ${resolved}`,

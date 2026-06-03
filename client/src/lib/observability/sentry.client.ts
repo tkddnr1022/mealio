@@ -3,6 +3,7 @@
 import * as Sentry from '@sentry/nextjs';
 
 import { isApiError } from '@/lib/api/error';
+import { isSentryEnabled } from '@/lib/config/sentry.config';
 import type { LogContext, LogLevel, LogSink } from '@/lib/utils/logger';
 
 const SENTRY_TAG_SERVICE = 'service';
@@ -33,7 +34,7 @@ function scrubContext(context: LogContext): LogContext {
  * DSN 존재 여부로 판별한다.
  */
 export function isClientSentryEnabled(): boolean {
-  return Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN);
+  return isSentryEnabled();
 }
 
 export function createSentryLogSink(): LogSink {

@@ -1,21 +1,15 @@
 import * as Sentry from '@sentry/nextjs';
 
+import { getSentryInitOptions } from '@/lib/config/sentry.config';
+
 const REDACTED = '[Filtered]';
 
-function getClientSampleRate(): number {
-  const raw = process.env.NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE;
-  if (!raw) return process.env.NODE_ENV === 'production' ? 0.1 : 1;
-  const parsed = parseFloat(raw);
-  if (!Number.isFinite(parsed) || parsed < 0 || parsed > 1) return 0.1;
-  return parsed;
-}
+const sentryInit = getSentryInitOptions('client');
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
 
 Sentry.init({
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN || '',
-  environment: process.env.NODE_ENV ?? 'development',
-  tracesSampleRate: getClientSampleRate(),
+  ...sentryInit,
 
   beforeSend(event) {
     if (event.request?.headers) {
@@ -31,9 +25,5 @@ Sentry.init({
       event.request.headers = headers;
     }
     return event;
-  },
-
-  initialScope: {
-    tags: { service: 'client' },
   },
 });

@@ -1,6 +1,10 @@
 import { Injectable, NestMiddleware, HttpStatus } from '@nestjs/common';
 import type { Request, Response, NextFunction } from 'express';
 import { RedisService, cacheKeyRateLimitApi } from '@mealio/shared';
+import {
+  RATE_LIMIT_MAX_REQUESTS_PER_WINDOW,
+  RATE_LIMIT_WINDOW_SECONDS,
+} from '../../policy/rate-limit.policy';
 
 /**
  * API 레이트 리밋 미들웨어 (Redis 기반)
@@ -12,11 +16,6 @@ import { RedisService, cacheKeyRateLimitApi } from '@mealio/shared';
  */
 @Injectable()
 export class RateLimitMiddleware implements NestMiddleware {
-  /** 윈도우 크기 (초 단위) */
-  private static readonly WINDOW_SECONDS = 60;
-  /** 윈도우당 최대 허용 요청 수 (IP 기준) */
-  private static readonly MAX_REQUESTS_PER_WINDOW = 100;
-
   constructor(private readonly redisService: RedisService) {}
 
   async use(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -27,7 +26,7 @@ export class RateLimitMiddleware implements NestMiddleware {
 
     const identifier = this.getIdentifier(req);
     const now = Math.floor(Date.now() / 1000);
-    const windowSize = RateLimitMiddleware.WINDOW_SECONDS;
+    const windowSize = RATE_LIMIT_WINDOW_SECONDS;
     const windowId = Math.floor(now / windowSize);
 
     const key = cacheKeyRateLimitApi(identifier, windowId);
@@ -42,18 +41,18 @@ export class RateLimitMiddleware implements NestMiddleware {
       }
 
       const remaining = Math.max(
-        RateLimitMiddleware.MAX_REQUESTS_PER_WINDOW - currentCount,
+        RATE_LIMIT_MAX_REQUESTS_PER_WINDOW - currentCount,
         0,
       );
 
       // 기본 RateLimit 헤더 설정
       res.setHeader(
         'X-RateLimit-Limit',
-        RateLimitMiddleware.MAX_REQUESTS_PER_WINDOW.toString(),
+        RATE_LIMIT_MAX_REQUESTS_PER_WINDOW.toString(),
       );
       res.setHeader('X-RateLimit-Remaining', remaining.toString());
 
-      if (currentCount > RateLimitMiddleware.MAX_REQUESTS_PER_WINDOW) {
+      if (currentCount > RATE_LIMIT_MAX_REQUESTS_PER_WINDOW) {
         const ttl = await client.ttl(key);
         if (ttl > 0) {
           res.setHeader('Retry-After', ttl.toString());

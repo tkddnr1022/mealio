@@ -3,7 +3,7 @@ import {
   API_REQUEST_TIMEOUT_MS,
   API_RETRY_POLICY,
   type ApiRetryPolicy,
-} from '@/lib/config/api.config';
+} from '@/lib/policy/api.policy';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 
 import {
@@ -28,7 +28,7 @@ import { buildQueryString, type Query } from './query';
  * - `responseInterceptors`: 응답을 관찰·변형 (성공 응답 로깅, 캐시 write-through 등)
  * 인터셉터는 선언 순서대로 실행되며, 실패 시 `ApiError`로 던진다.
  *
- * 안정성 정책(`@/lib/config/api.config`):
+ * 안정성 정책(`@/lib/policy/api.policy`):
  * - `timeoutMs`: 단일 시도의 타임아웃. 기본 {@link API_REQUEST_TIMEOUT_MS}.
  * - `retry`: GET에 한해 idempotent 정책({@link API_RETRY_POLICY})을 기본 적용.
  *   비-GET(POST/PUT/PATCH/DELETE)은 기본 off — 부작용 이중 실행 방지.

@@ -4,6 +4,7 @@ import {
   RedisService,
   cacheKeyChatbotFoodCategories,
 } from '@mealio/shared';
+import { CHATBOT_FOOD_CATEGORIES_CACHE_TTL_SECONDS } from '../../../policy/chatbot-cache.policy';
 
 export interface FoodCategoriesResult {
   recipeCategories: Array<{
@@ -19,9 +20,6 @@ export interface FoodCategoriesResult {
     displayOrder: number;
   }>;
 }
-
-/** Producer RecipeCacheStrategy·레시피 카테고리 API와 동일하게 1시간 */
-const FOOD_CATEGORIES_CACHE_TTL_SECONDS = 3600;
 
 /**
  * get_food_categories 함수 실행 — 레시피·재료 카테고리 마스터(활성만, 정렬 순).
@@ -70,7 +68,7 @@ export class FoodCategoriesHandler {
     await this.redis.set(
       key,
       JSON.stringify(result),
-      FOOD_CATEGORIES_CACHE_TTL_SECONDS,
+      CHATBOT_FOOD_CATEGORIES_CACHE_TTL_SECONDS,
     );
     return result;
   }

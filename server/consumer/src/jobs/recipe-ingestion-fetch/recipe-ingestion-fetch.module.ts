@@ -6,7 +6,7 @@ import {
   envValidationOptions,
   envValidationSchema,
 } from '../../config/env.validation';
-import { mongooseConnectionPoolConfig } from '../../config/mongoose-pool.config';
+import { mongooseConnectionPoolConfig } from '../../policy/mongoose-pool.policy';
 import { PublicDataModule } from '../../integrations/public-data/public-data.module';
 import { RecipeIngestionJobRepository } from '../../persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { RecipeIngestionStateRepository } from '../../persistence/repositories/mongodb/recipe-ingestion-state.repository';

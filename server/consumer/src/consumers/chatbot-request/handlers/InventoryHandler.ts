@@ -8,8 +8,7 @@ import {
   InventoryDocument,
   cacheKeyIngredientById,
 } from '@mealio/shared';
-
-const INGREDIENT_BY_ID_CACHE_TTL_SECONDS = 3600;
+import { CHATBOT_INGREDIENT_BY_ID_CACHE_TTL_SECONDS } from '../../../policy/chatbot-cache.policy';
 
 export interface InventoryItem {
   id: number;
@@ -154,7 +153,7 @@ export class InventoryHandler {
             categoryName,
             categoryKey,
           }),
-          INGREDIENT_BY_ID_CACHE_TTL_SECONDS,
+          CHATBOT_INGREDIENT_BY_ID_CACHE_TTL_SECONDS,
         );
         items.push({
           id: ing.id,

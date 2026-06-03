@@ -1,0 +1,5 @@
+/**
+ * 챗봇 도메인 Redis 캐시 정책.
+ */
+export const CHATBOT_INGREDIENT_BY_ID_CACHE_TTL_SECONDS = 3_600;
+export const CHATBOT_FOOD_CATEGORIES_CACHE_TTL_SECONDS = 3_600;

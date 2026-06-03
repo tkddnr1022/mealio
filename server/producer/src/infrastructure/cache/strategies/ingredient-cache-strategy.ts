@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CACHE_KEY_PREFIX, buildCacheKey } from '@mealio/shared';
+import { CACHE_TTL_INGREDIENT_SECONDS } from '../../../policy/cache.policy';
 import { CacheStrategy } from './cache-strategy.interface';
 
 /**
@@ -8,8 +9,6 @@ import { CacheStrategy } from './cache-strategy.interface';
  */
 @Injectable()
 export class IngredientCacheStrategy implements CacheStrategy {
-  private readonly TTL_SECONDS = 86400; // 24시간
-
   generateKey(...args: (string | number)[]): string {
     if (args.length === 0) {
       throw new Error('Ingredient cache key requires at least one argument');
@@ -18,6 +17,6 @@ export class IngredientCacheStrategy implements CacheStrategy {
   }
 
   getTtl(..._keyArgs: (string | number)[]): number {
-    return this.TTL_SECONDS;
+    return CACHE_TTL_INGREDIENT_SECONDS;
   }
 }

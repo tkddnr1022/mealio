@@ -3,20 +3,20 @@
  * Configs, constants, database (Prisma/Mongoose), Redis, types
  */
 
-// Configs
-export { createRedisConfig } from './configs/redis.config';
-export { createKafkaConfig, LOCAL_TOPIC_CONFIG } from './configs/kafka.config';
+// Config
+export { createRedisConfig } from './config/redis.config';
+export { createKafkaConfig, LOCAL_TOPIC_CONFIG } from './config/kafka.config';
 export {
   createObservabilityConfig,
   isMetricsEnabledFromEnv,
   CORRELATION_ID_HEADER,
   type ObservabilityConfig,
   type ObservabilityServiceName,
-} from './configs/observability.config';
+} from './config/observability.config';
 export {
   buildObservabilityEnvRules,
   isMetricsEnabledEnv,
-} from './configs/observability.env-validation';
+} from './config/observability.env-validation';
 
 // Observability utilities
 export {
@@ -47,7 +47,7 @@ export {
   SENTRY_SENSITIVE_HEADERS,
   type SentryServiceTag,
   type SentryFeatureTag,
-} from './observability/sentry.constants';
+} from './constants/sentry.constants';
 export { scrubObject, scrubSentryEvent } from './observability/sentry-scrub';
 export {
   inferFeatureFromHttpPath,
@@ -104,24 +104,33 @@ export { ASSET_URL_PREFIX } from './constants/asset-url-prefixes';
 export {
   DEFAULT_USER_CREDIT_BALANCE,
   DEFAULT_USER_CREDIT_MONTHLY_LIMIT,
+  TOKENS_PER_CREDIT,
   computeChatbotCreditCost,
-} from './constants/user-credits';
+} from './policy/user-credits.policy';
 export {
   RECIPE_INGESTION_JOB_STATUSES,
   type RecipeIngestionJobStatus,
-  MAX_RECIPE_INGESTION_RETRY_COUNT,
   RECIPE_INGESTION_STATE_KEY,
+  RECIPE_INGESTION_RECIPE_SOURCE,
+  RECIPE_INGESTION_DEFAULT_RECIPE_CATEGORY_ID,
+  RECIPE_INGESTION_DEFAULT_INGREDIENT_CATEGORY_ID,
+} from './constants/recipe-ingestion';
+export {
+  MAX_RECIPE_INGESTION_RETRY_COUNT,
+  RECIPE_INGESTION_RETRY_BASE_DELAY_MS,
   DEFAULT_RECIPE_FETCH_LIMIT,
   MAX_RECIPE_FETCH_LIMIT,
   DEFAULT_RECIPE_SUBMIT_BATCH_SIZE,
   MAX_RECIPE_SUBMIT_BATCH_SIZE,
+  DEFAULT_RECIPE_PERSIST_BATCH_SIZE,
+  DEFAULT_RECIPE_RETRY_FAILED_LIMIT,
   RECIPE_INGESTION_CATEGORY_CACHE_TTL_SECONDS,
-  RECIPE_INGESTION_RECIPE_SOURCE,
-  RECIPE_INGESTION_DEFAULT_RECIPE_CATEGORY_ID,
-  RECIPE_INGESTION_DEFAULT_INGREDIENT_CATEGORY_ID,
   RECIPE_INGESTION_DEFAULT_DIFFICULTY,
   RECIPE_INGESTION_DEFAULT_COOK_TIME_MINUTES,
-} from './constants/recipe-ingestion';
+  RECIPE_INGESTION_OPENAI_BATCH_MAX_TOKENS,
+  RECIPE_INGESTION_OPENAI_BATCH_REASONING_EFFORT,
+  RECIPE_INGESTION_OPENAI_BATCH_VERBOSITY,
+} from './policy/recipe-ingestion.policy';
 
 // Redis
 export { RedisModule } from './redis/redis.module';

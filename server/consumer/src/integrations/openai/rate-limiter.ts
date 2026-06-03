@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
-
-/** 분당 호출 제한 기본값 */
-export const DEFAULT_RPM = 60;
+import { DEFAULT_OPENAI_RATE_LIMIT_RPM } from '../../policy/openai.policy';
 
 /**
  * OpenAI API 호출 제한 (분당 요청 수 제한)
@@ -12,7 +10,7 @@ export class OpenAIRateLimiter {
   private readonly timestamps: number[] = [];
   private readonly maxRequestsPerMinute: number;
 
-  constructor(maxRequestsPerMinute = DEFAULT_RPM) {
+  constructor(maxRequestsPerMinute = DEFAULT_OPENAI_RATE_LIMIT_RPM) {
     this.maxRequestsPerMinute = maxRequestsPerMinute;
   }
 
