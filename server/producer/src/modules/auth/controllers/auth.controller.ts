@@ -32,7 +32,6 @@ import type {
   RequestWithUser,
 } from '../types/request.types';
 
-// TODO: 환경 변수로 관리
 const ACCESS_TOKEN_COOKIE_NAME = 'accessToken';
 const REFRESH_TOKEN_COOKIE_NAME = 'refreshToken';
 

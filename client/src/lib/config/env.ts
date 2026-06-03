@@ -36,16 +36,6 @@ export interface AppEnv {
    */
   readonly apiPrefix: string;
   /**
-   * 백엔드가 발급하는 JWT HttpOnly 쿠키 이름.
-   * 기본값: `accessToken`
-   */
-  readonly authCookieName: string;
-  /**
-   * 백엔드가 발급하는 Refresh Token HttpOnly 쿠키 이름.
-   * 기본값: `refreshToken`
-   */
-  readonly refreshCookieName: string;
-  /**
    * Sentry 브라우저 DSN. staging/production 권장, 로컬은 비워도 됨.
    */
   readonly sentryDsn: string;
@@ -63,8 +53,6 @@ export interface AppEnv {
 const DEFAULTS = {
   apiBaseUrl: '',
   apiPrefix: '/api/v1',
-  authCookieName: 'accessToken',
-  refreshCookieName: 'refreshToken',
   sentryDsn: '',
   gaMeasurementId: '',
 } as const;
@@ -72,8 +60,6 @@ const DEFAULTS = {
 const RAW_ENV_MAP: Record<string, string | undefined> = {
   NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   NEXT_PUBLIC_API_PREFIX: process.env.NEXT_PUBLIC_API_PREFIX,
-  NEXT_PUBLIC_AUTH_COOKIE_NAME: process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME,
-  NEXT_PUBLIC_REFRESH_COOKIE_NAME: process.env.NEXT_PUBLIC_REFRESH_COOKIE_NAME,
   NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
   NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
 };
@@ -125,32 +111,6 @@ function parseApiPrefix(): string {
   }
 
   return normalized;
-}
-
-function parseAuthCookieName(): string {
-  const raw = readRaw('NEXT_PUBLIC_AUTH_COOKIE_NAME');
-  if (raw === undefined) return DEFAULTS.authCookieName;
-
-  if (!/^[A-Za-z0-9._-]+$/.test(raw)) {
-    throw new EnvValidationError(
-      `Invalid NEXT_PUBLIC_AUTH_COOKIE_NAME: "${raw}". 영문/숫자/.-_만 허용됩니다.`,
-    );
-  }
-
-  return raw;
-}
-
-function parseRefreshCookieName(): string {
-  const raw = readRaw('NEXT_PUBLIC_REFRESH_COOKIE_NAME');
-  if (raw === undefined) return DEFAULTS.refreshCookieName;
-
-  if (!/^[A-Za-z0-9._-]+$/.test(raw)) {
-    throw new EnvValidationError(
-      `Invalid NEXT_PUBLIC_REFRESH_COOKIE_NAME: "${raw}". 영문/숫자/.-_만 허용됩니다.`,
-    );
-  }
-
-  return raw;
 }
 
 function parseSentryDsn(): string {
@@ -258,18 +218,6 @@ function buildEnv(): AppEnv {
     errors,
     runtime,
   );
-  const authCookieName = safeParse(
-    parseAuthCookieName,
-    DEFAULTS.authCookieName,
-    errors,
-    runtime,
-  );
-  const refreshCookieName = safeParse(
-    parseRefreshCookieName,
-    DEFAULTS.refreshCookieName,
-    errors,
-    runtime,
-  );
   const sentryDsn = safeParse(
     parseSentryDsn,
     DEFAULTS.sentryDsn,
@@ -289,8 +237,6 @@ function buildEnv(): AppEnv {
     isDevelopment: runtime === 'development',
     apiBaseUrl,
     apiPrefix,
-    authCookieName,
-    refreshCookieName,
     sentryDsn,
     gaMeasurementId,
     validationErrors: Object.freeze(errors),
