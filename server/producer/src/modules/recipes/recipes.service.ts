@@ -59,7 +59,41 @@ export class RecipeQueryService {
     private readonly redisService: RedisService,
   ) {}
 
-  private static readonly VIEW_DEDUPE_TTL_SECONDS = 60 * 30;
+  private static readonly ACTIVITY_DEDUPE_TTL_SECONDS = 60 * 30;
+
+  /** keyword-only search.query dedupe (키워드 없음 필터 검색) */
+  private static readonly SEARCH_QUERY_NO_KEYWORD = '__no_keyword__';
+
+  private buildActorKey(context: ActivityContext = {}): string {
+    const normalizedIp = context.ipAddress?.trim() || 'unknown-ip';
+    return typeof context.userId === 'number' && context.userId > 0
+      ? `user:${context.userId}`
+      : `ip:${normalizedIp}`;
+  }
+
+  private async tryAcquireDedupeSlot(
+    dedupeKey: string,
+    eventLabel: string,
+  ): Promise<boolean> {
+    try {
+      const setResult = await this.redisService
+        .getClient()
+        .set(
+          dedupeKey,
+          '1',
+          'EX',
+          RecipeQueryService.ACTIVITY_DEDUPE_TTL_SECONDS,
+          'NX',
+        );
+      return setResult === 'OK';
+    } catch (error) {
+      this.logger.warn(
+        `${eventLabel} dedupe failed, fallback emit key=${dedupeKey}`,
+        error as Error,
+      );
+      return true;
+    }
+  }
 
   async getRecommended(
     userId: number,
@@ -179,33 +213,12 @@ export class RecipeQueryService {
       throw new NotFoundException('Recipe not found');
     }
 
-    const normalizedIp = context.ipAddress?.trim() || 'unknown-ip';
-    const actorKey =
-      typeof context.userId === 'number' && context.userId > 0
-        ? `user:${context.userId}`
-        : `ip:${normalizedIp}`;
+    const actorKey = this.buildActorKey(context);
     const dedupeKey = `recipe:view-dedupe:${recipeId}:${actorKey}`;
-
-    let shouldEmit = false;
-    try {
-      const setResult = await this.redisService
-        .getClient()
-        .set(
-          dedupeKey,
-          '1',
-          'EX',
-          RecipeQueryService.VIEW_DEDUPE_TTL_SECONDS,
-          'NX',
-        );
-      shouldEmit = setResult === 'OK';
-    } catch (error) {
-      this.logger.warn(
-        `recipe.view dedupe failed, fallback emit recipeId=${recipeId}`,
-        error as Error,
-      );
-      // Redis 장애 시에도 조회 이벤트를 유실하지 않기 위해 fail-open 정책을 사용한다.
-      shouldEmit = true;
-    }
+    const shouldEmit = await this.tryAcquireDedupeSlot(
+      dedupeKey,
+      'recipe.view',
+    );
 
     if (!shouldEmit) {
       return;
@@ -223,6 +236,17 @@ export class RecipeQueryService {
     const exists = await this.recipeRepository.existsPublishedById(recipeId);
     if (!exists) {
       throw new NotFoundException('Recipe not found');
+    }
+
+    const actorKey = this.buildActorKey(context);
+    const dedupeKey = `search:click-dedupe:${recipeId}:${actorKey}`;
+    const shouldEmit = await this.tryAcquireDedupeSlot(
+      dedupeKey,
+      'search.click',
+    );
+
+    if (!shouldEmit) {
+      return;
     }
 
     this.emitSearchClick(recipeId, context).catch(() => {
@@ -300,10 +324,32 @@ export class RecipeQueryService {
       params.size,
     );
 
-    this.emitSearchQuery(payload, context).catch(() => {
+    this.recordSearchQuery(payload, context).catch(() => {
       /* fire-and-forget */
     });
     return result;
+  }
+
+  private async recordSearchQuery(
+    payload: RecipeSearchParams,
+    context?: ActivityContext,
+  ): Promise<void> {
+    const keywordSegment =
+      payload.keyword?.trim() || RecipeQueryService.SEARCH_QUERY_NO_KEYWORD;
+    const actorKey = this.buildActorKey(context ?? {});
+    const dedupeKey = `search:query-dedupe:${keywordSegment}:${actorKey}`;
+    const shouldEmit = await this.tryAcquireDedupeSlot(
+      dedupeKey,
+      'search.query',
+    );
+
+    if (!shouldEmit) {
+      return;
+    }
+
+    this.emitSearchQuery(payload, context).catch(() => {
+      /* fire-and-forget */
+    });
   }
 
   /**

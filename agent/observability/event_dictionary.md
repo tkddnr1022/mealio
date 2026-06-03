@@ -46,8 +46,8 @@
 |-----------------|------------|-----------|----------|
 | `recipe.like` | `activity-events` | Producer | 추천 보정 (+0.7) |
 | `recipe.share` | `activity-events` | Producer | 추천 보정 (+0.4) |
-| `search.query` | `activity-events` | Producer 검색 API | `kpi_search_click_rate` (분모) |
-| `search.click` | `activity-events` | Producer `POST .../recipes/:id/search-clicks` | `kpi_search_click_rate` (분자) |
+| `search.query` | `activity-events` | Producer 검색 API | `kpi_search_click_rate` (분모). dedupe: keyword-only + actor, 30분 |
+| `search.click` | `activity-events` | Producer `POST .../recipes/:id/search-clicks` | `kpi_search_click_rate` (분자). dedupe: recipeId + actor, 30분 (`recipe.view`와 동일 TTL·actor 규칙) |
 | `signup`, `login`, `nickname.update` | `user-events` | Producer OAuth/프로필 | 가입·활성 (추천 delta 0) |
 | `ingredient.*`, `recipe.favorites_*` | `user-events` | Producer | 추천·인벤토리, `kpi_recommendation_e2e_latency` |
 | `chatbot.start` | `chatbot-requests` | Consumer | 챗봇 퍼널 시작 |

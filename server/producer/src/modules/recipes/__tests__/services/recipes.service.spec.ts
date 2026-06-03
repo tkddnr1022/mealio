@@ -14,6 +14,11 @@ import { RecipeCacheStrategy } from '../../../../infrastructure/cache/strategies
 import { RecommendationCacheStrategy } from '../../../../infrastructure/cache/strategies/recommendation-cache-strategy';
 import { KafkaProducerService } from '../../../../infrastructure/kafka/producer.service';
 
+/** search()의 fire-and-forget activity emit 완료 대기 */
+async function flushActivityEventQueue(): Promise<void> {
+  await new Promise((resolve) => setImmediate(resolve));
+}
+
 describe('RecipeQueryService', () => {
   let service: RecipeQueryService;
   let recipeRepository: jest.Mocked<RecipeRepository>;
@@ -429,7 +434,7 @@ describe('RecipeQueryService', () => {
   });
 
   describe('recordSearchClick', () => {
-    it('공개 레시피면 search.click 이벤트를 발행한다', async () => {
+    it('dedupe 선점에 성공하면 search.click 이벤트를 발행한다', async () => {
       await service.recordSearchClick(1, {
         userId: 7,
         ipAddress: '127.0.0.1',
@@ -437,6 +442,13 @@ describe('RecipeQueryService', () => {
       });
 
       expect(recipeRepository.existsPublishedById).toHaveBeenCalledWith(1);
+      expect(redisClient.set).toHaveBeenCalledWith(
+        expect.stringContaining('search:click-dedupe:1:user:7'),
+        '1',
+        'EX',
+        1800,
+        'NX',
+      );
       expect(kafkaProducer.emit).toHaveBeenCalledWith(
         KAFKA_TOPICS.ACTIVITY_EVENTS,
         expect.objectContaining({
@@ -449,6 +461,33 @@ describe('RecipeQueryService', () => {
             source: 'recipe_search',
           }),
         }),
+        '1',
+      );
+    });
+
+    it('dedupe 선점에 실패하면 search.click 이벤트를 발행하지 않는다', async () => {
+      redisClient.set.mockResolvedValue(null);
+
+      await service.recordSearchClick(1, {});
+
+      expect(redisClient.set).toHaveBeenCalledWith(
+        expect.stringContaining('search:click-dedupe:1:ip:unknown-ip'),
+        '1',
+        'EX',
+        1800,
+        'NX',
+      );
+      expect(kafkaProducer.emit).not.toHaveBeenCalled();
+    });
+
+    it('dedupe Redis 오류 시 search.click을 fail-open으로 발행한다', async () => {
+      redisClient.set.mockRejectedValue(new Error('redis down'));
+
+      await service.recordSearchClick(1, { userId: 3 });
+
+      expect(kafkaProducer.emit).toHaveBeenCalledWith(
+        KAFKA_TOPICS.ACTIVITY_EVENTS,
+        expect.objectContaining({ type: 'search.click' }),
         '1',
       );
     });
@@ -515,6 +554,7 @@ describe('RecipeQueryService', () => {
         page: 1,
         size: 20,
       });
+      await flushActivityEventQueue();
 
       expect(recipeRepository.searchByKeyword).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -526,6 +566,13 @@ describe('RecipeQueryService', () => {
       );
       expect(result.data).toHaveLength(1);
       expect(result.pagination.total).toBe(1);
+      expect(redisClient.set).toHaveBeenCalledWith(
+        expect.stringContaining('search:query-dedupe:김치:ip:unknown-ip'),
+        '1',
+        'EX',
+        1800,
+        'NX',
+      );
       expect(kafkaProducer.emit).toHaveBeenCalledWith(
         KAFKA_TOPICS.ACTIVITY_EVENTS,
         expect.objectContaining({
@@ -541,6 +588,27 @@ describe('RecipeQueryService', () => {
             categoryId: undefined,
           },
         }),
+      );
+    });
+
+    it('dedupe 선점에 실패하면 search.query 이벤트를 발행하지 않는다', async () => {
+      redisClient.set.mockResolvedValue(null);
+
+      await service.search({ q: '김치', page: 1, size: 20 });
+      await flushActivityEventQueue();
+
+      expect(kafkaProducer.emit).not.toHaveBeenCalled();
+    });
+
+    it('dedupe Redis 오류 시 search.query를 fail-open으로 발행한다', async () => {
+      redisClient.set.mockRejectedValue(new Error('redis down'));
+
+      await service.search({ q: '김치', page: 1, size: 20 });
+      await flushActivityEventQueue();
+
+      expect(kafkaProducer.emit).toHaveBeenCalledWith(
+        KAFKA_TOPICS.ACTIVITY_EVENTS,
+        expect.objectContaining({ type: 'search.query' }),
       );
     });
 
@@ -568,6 +636,7 @@ describe('RecipeQueryService', () => {
         categoryId: 3,
         sort: 'cookTime',
       });
+      await flushActivityEventQueue();
 
       expect(kafkaProducer.emit).toHaveBeenCalledWith(
         KAFKA_TOPICS.ACTIVITY_EVENTS,
@@ -629,6 +698,7 @@ describe('RecipeQueryService', () => {
         categoryId: 2,
         sort: 'latest',
       });
+      await flushActivityEventQueue();
       expect(kafkaProducer.emit).toHaveBeenCalledWith(
         KAFKA_TOPICS.ACTIVITY_EVENTS,
         expect.objectContaining({
@@ -640,6 +710,13 @@ describe('RecipeQueryService', () => {
             categoryId: 2,
           }),
         }),
+      );
+      expect(redisClient.set).toHaveBeenCalledWith(
+        expect.stringContaining('search:query-dedupe:__no_keyword__:ip:unknown-ip'),
+        '1',
+        'EX',
+        1800,
+        'NX',
       );
     });
 

@@ -671,6 +671,7 @@ paths:
       description: |
         레시피 검색 결과 목록에서 카드 클릭 시 호출한다.
         `search.click` activity 이벤트를 발행하며, KPI `kpi_search_click_rate` 분자 및 추천 보정(+0.25, 로그인·recipe 엔티티)에 사용된다.
+        서버 dedupe 정책(로그인 사용자는 `userId`, 비로그인은 `ipAddress` 기준, IP 미확인 시 `unknown-ip`)의 30분 윈도우로 동일 `recipeId`·actor 조합의 중복 이벤트를 차단한다.
       security:
         - cookieAuth: []
         - {}
@@ -702,7 +703,9 @@ paths:
       tags:
         - Recipe
       summary: 레시피 검색
-      description: 레시피 검색 (키워드·난이도·조리시간·카테고리·정렬 선택). 키워드를 생략하면 제목·설명 텍스트 검색 없이 필터·정렬만 적용합니다.
+      description: |
+        레시피 검색 (키워드·난이도·조리시간·카테고리·정렬 선택). 키워드를 생략하면 제목·설명 텍스트 검색 없이 필터·정렬만 적용합니다.
+        검색 API 호출 시 `search.query` activity 이벤트를 발행하며, dedupe는 **키워드(q)만** + actor(`userId` 우선, 비로그인 `ipAddress`, 미확인 `unknown-ip`) 기준 30분 윈도우로 중복을 차단한다(필터·정렬·페이지 변경은 동일 키워드면 추가 발행 없음).
       security:
         - cookieAuth: []
         - {}
