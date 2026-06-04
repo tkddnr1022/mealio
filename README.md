@@ -71,10 +71,11 @@ pnpm run db:mongoose:seed
 ```
 
 ```bash
-# 자주 쓰는 실행 명령
+# 개발 환경
+pnpm run ci
 pnpm run start:producer
 pnpm run start:consumer
-pnpm run ci
+pnpm run start:client
 ```
 
 환경 변수는 `.env.example`을 기준으로 설정합니다.
