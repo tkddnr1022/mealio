@@ -61,6 +61,26 @@ pnpm run db:mongoose:seed
 | `NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE` | | prod `0.1` / 그 외 `1` | Sentry traces 샘플 비율 (0–1) |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | | — | GA4 Measurement ID |
 
+#### Shared (`server/shared/`)
+
+| 변수 | 필수 | 설명 |
+|------|:----:|------|
+| `POSTGRESQL_URL` | ✓ | PostgreSQL 연결 URL (Prisma CLI·`PrismaService`) |
+| `MONGODB_URL` | ✓ | MongoDB 연결 URL (`MongooseSchemasModule`·시드) |
+| `REDIS_URL` | ✓ | Redis 연결 URL (`createRedisConfig`) |
+| `KAFKA_BROKERS` | ✓ | Kafka broker 목록(쉼표 구분) |
+| `KAFKA_CLIENT_ID` | ✓ | Kafka client ID (`createKafkaConfig`) |
+| `METRICS_ENABLED` | ✓ | `true`/`false`/`1`/`0` (관측·슬로우 쿼리 로깅) |
+| `SENTRY_DSN` | | Sentry DSN |
+| `SENTRY_RELEASE` | | Sentry release 식별자 |
+| `NODE_ENV` | ✓ | Sentry `environment` 태그 |
+| `SLOW_QUERY_THRESHOLD_MS` | ✓¹ | 슬로우 쿼리 임계(ms) |
+| `LOG_SAMPLE_RATE` | ✓¹ | 로그 샘플 비율 (0–1) |
+| `TRACE_SAMPLE_RATE` | ✓¹ | Sentry traces 샘플 비율 (0–1) |
+| `METRICS_PORT` | ✓¹ | Consumer 전용 Prometheus `/metrics` 포트 |
+
+¹ `METRICS_ENABLED=true`일 때 필수.
+
 #### Producer (`server/producer/`)
 
 | 변수 | 필수 | 설명 |
