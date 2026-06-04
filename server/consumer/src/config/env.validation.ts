@@ -63,7 +63,10 @@ export const envValidationSchema = Joi.object({
     'any.required': 'OPENAI_BATCH_MODEL is required',
   }),
 
-  ...buildObservabilityEnvRules({ requireMetricsPort: true }),
+  ...buildObservabilityEnvRules({
+    serviceName: 'consumer',
+    requireMetricsPort: true,
+  }),
 });
 
 export const envValidationOptions = {

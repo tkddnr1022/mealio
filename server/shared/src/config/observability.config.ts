@@ -9,6 +9,17 @@ import { isMetricsEnabledEnv } from './observability.env-validation';
 
 export type ObservabilityServiceName = 'producer' | 'consumer';
 
+export const SENTRY_DSN_ENV: Record<ObservabilityServiceName, string> = {
+  producer: 'SENTRY_DSN_PRODUCER',
+  consumer: 'SENTRY_DSN_CONSUMER',
+};
+
+export function sentryDsnEnvName(
+  serviceName: ObservabilityServiceName,
+): string {
+  return SENTRY_DSN_ENV[serviceName];
+}
+
 export interface ObservabilityConfig {
   serviceName: ObservabilityServiceName;
   sentryDsn?: string;
@@ -64,7 +75,7 @@ export function createObservabilityConfig(
   const metricsEnabledRaw = readRequiredEnv('METRICS_ENABLED');
   const metricsEnabled = parseBoolean(metricsEnabledRaw);
 
-  const sentryDsn = process.env.SENTRY_DSN?.trim();
+  const sentryDsn = process.env[sentryDsnEnvName(serviceName)]?.trim();
   const base: ObservabilityConfig = {
     serviceName,
     sentryDsn: sentryDsn && sentryDsn.length > 0 ? sentryDsn : undefined,

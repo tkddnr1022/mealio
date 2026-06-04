@@ -7,11 +7,11 @@ datasources:
     access: proxy
     jsonData:
       connectionStringScheme: mongodb
-      host: mongodb:27017
-      database: devdb
+      host: $__env{GRAFANA_MONGODB_HOST}
+      database: $__env{GRAFANA_MONGODB_DATABASE}
       authType: username-password
-      username: devuser
+      username: $__env{GRAFANA_MONGODB_USER}
       authDb: admin
     secureJsonData:
-      password: devpassword
+      password: $__env{GRAFANA_MONGODB_PASSWORD}
     editable: true

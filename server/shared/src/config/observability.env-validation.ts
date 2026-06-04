@@ -1,4 +1,8 @@
 import Joi from 'joi';
+import {
+  sentryDsnEnvName,
+  type ObservabilityServiceName,
+} from './observability.config';
 
 const metricsEnabledOn = Joi.string().valid('true', '1');
 
@@ -17,6 +21,7 @@ const sampleRateSchema = Joi.string()
   });
 
 export interface ObservabilityEnvValidationOptions {
+  serviceName: ObservabilityServiceName;
   /** Consumer는 METRICS_PORT 필수, Producer는 HTTP PORT로 /metrics 노출 */
   requireMetricsPort: boolean;
 }
@@ -35,7 +40,10 @@ export function buildObservabilityEnvRules(
         'any.required': 'METRICS_ENABLED is required',
         'any.only': 'METRICS_ENABLED must be true, false, 1, or 0',
       }),
-    SENTRY_DSN: Joi.string().uri().optional().allow(''),
+    [sentryDsnEnvName(options.serviceName)]: Joi.string()
+      .uri()
+      .optional()
+      .allow(''),
     SLOW_QUERY_THRESHOLD_MS: Joi.when('METRICS_ENABLED', {
       is: metricsEnabledOn,
       then: Joi.string().pattern(/^\d+$/).required().messages({

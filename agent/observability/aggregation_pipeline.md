@@ -116,7 +116,7 @@ Grafana provisioning 경로: `observability/grafana/provisioning/dashboards/json
 | Prometheus | `prometheus` | prometheus | `datasources/prometheus.yml` |
 | MongoDB | `mongodb` | [haohanyang-mongodb-datasource](https://github.com/haohanyang/mongodb-datasource) | `datasources/mongodb.yml` |
 
-MongoDB 플러그인은 `docker-compose.yml`의 `GF_INSTALL_PLUGINS`(GitHub release zip)와 `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS`로 자동 설치한다. Grafana Labs 공식(엔터프라이즈) 플러그인 대신 커뮤니티 오픈소스 플러그인을 사용한다.
+MongoDB 플러그인은 `docker/compose-monitoring.yml`의 `GF_INSTALL_PLUGINS`(GitHub release zip)와 `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS`로 자동 설치한다. Grafana Labs 공식(엔터프라이즈) 플러그인 대신 커뮤니티 오픈소스 플러그인을 사용한다.
 
 알림 임계치·장애 대응은 [product_kpi_runbook.md](./product_kpi_runbook.md)를 참조한다.
 

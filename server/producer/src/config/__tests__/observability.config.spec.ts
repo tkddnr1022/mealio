@@ -26,6 +26,28 @@ describe('createObservabilityConfig', () => {
     expect(config.slowQueryThresholdMs).toBeUndefined();
   });
 
+  it('should read SENTRY_DSN_PRODUCER for producer', () => {
+    process.env.METRICS_ENABLED = 'false';
+    process.env.SENTRY_DSN_PRODUCER = 'https://example@o0.ingest.sentry.io/1';
+
+    const config = createObservabilityConfig('producer', {
+      requireMetricsPort: false,
+    });
+
+    expect(config.sentryDsn).toBe('https://example@o0.ingest.sentry.io/1');
+  });
+
+  it('should read SENTRY_DSN_CONSUMER for consumer', () => {
+    process.env.METRICS_ENABLED = 'false';
+    process.env.SENTRY_DSN_CONSUMER = 'https://example@o0.ingest.sentry.io/2';
+
+    const config = createObservabilityConfig('consumer', {
+      requireMetricsPort: false,
+    });
+
+    expect(config.sentryDsn).toBe('https://example@o0.ingest.sentry.io/2');
+  });
+
   it('should parse producer observability vars when METRICS_ENABLED=true', () => {
     process.env.METRICS_ENABLED = 'true';
     process.env.SLOW_QUERY_THRESHOLD_MS = '750';

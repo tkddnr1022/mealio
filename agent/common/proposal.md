@@ -21,13 +21,9 @@
 
 ## Stack
 
-- Frontend: Next.js, React Native
- 	- Next.js로 페이지를 구성하고 React Native에서 웹뷰 구성
-- Backend: Nest.js, Mongoose, Prisma (공용: @mealio/shared 패키지에 Prisma/Mongoose 스키마·Redis·설정·타입)
+- Frontend: Next.js
+- Backend: Nest.js, Mongoose, Prisma
 - Database: PostgreSQL, MongoDB
- 	- 데이터 **정의와 상태**, 구조, 쿼리 패턴에 따라 구분한다.
- 	- SQL: 유저, 재료, 레시피, 레시피-재료 등
- 	- NoSQL: 유저 보유 재료, 유저 관심 재료, 챗봇 로그, 이벤트 로그 등
 - Cache: Redis
 - Message Broker: Kafka
 - Metric: Sentry, Google Analysis
@@ -38,10 +34,9 @@
 
 - Frontend: Vercel
 - Backend: AWS EC2
- 	- 초기에는 비용 절감을 위해 단일 인스턴스에서 Producer/Consumer 런타임 분리하여 운영
-- Database: AWS RDS, MongoDB Atlas
-- Cache: AWS ElastiCache
-- Message Broker: AWS MSK
+- Database: MongoDB Atlas (MongoDB), Neon (PostgreSQL)
+- Cache: Upstash (Redis)
+- Message Broker: AWS EC2 (Kafka)
 - Storage: AWS S3
 - Domain: AWS Route53
 - CDN: CloudFlare
@@ -49,10 +44,8 @@
 ## Tool
 
 - Git, GitHub Actions
- 	- 모노레포 구조 (pnpm 워크스페이스: client, server/shared, server/producer, server/consumer)
- 	- 공용 코드는 `server/shared` 패키지(`@mealio/shared`)로 분리, Producer/Consumer에서 import
-- 패키지 매니저: pnpm (모노레포 의존성 해석 이슈 방지)
-- Docker or k8s
+- pnpm
+- Docker Compose
 - Apidog
 
 ## Data

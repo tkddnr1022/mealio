@@ -9,6 +9,8 @@ export { createKafkaConfig, LOCAL_TOPIC_CONFIG } from './config/kafka.config';
 export {
   createObservabilityConfig,
   isMetricsEnabledFromEnv,
+  sentryDsnEnvName,
+  SENTRY_DSN_ENV,
   CORRELATION_ID_HEADER,
   type ObservabilityConfig,
   type ObservabilityServiceName,

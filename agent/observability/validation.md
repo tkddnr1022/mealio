@@ -1,6 +1,6 @@
 # 관측성 통합 검증 시나리오
 
-관측성 스택 전체를 대상으로 한 수동 검증 체크리스트. staging 또는 로컬 docker-compose 환경에서 수행한다.
+관측성 스택 전체를 대상으로 한 수동 검증 체크리스트. staging 또는 로컬 Compose 인프라(`docker/compose-database.yml` 등, `agent/common/deployment_strategy.md` §4)에서 수행한다.
 
 ---
 
@@ -10,7 +10,8 @@
 
 | 변수 | 위치 | staging/prod | 로컬 |
 |------|------|--------------|------|
-| `SENTRY_DSN` | Producer `.env`, Consumer `.env` | 설정 | 비워도 됨 (no-op) |
+| `SENTRY_DSN_PRODUCER` | Producer `.env` | 설정 | 비워도 됨 (no-op) |
+| `SENTRY_DSN_CONSUMER` | Consumer `.env` | 설정 | 비워도 됨 (no-op) |
 | `NEXT_PUBLIC_SENTRY_DSN` | Client `.env` | 설정 | 비워도 됨 |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Client `.env` | 설정 | 비워도 됨 |
 | `METRICS_ENABLED` | Producer `.env`, Consumer `.env` | `true` | `true` |
@@ -19,7 +20,7 @@
 
 ### 인프라
 
-- `docker-compose up` — Kafka, Redis, PostgreSQL, MongoDB, Prometheus, Grafana 정상 기동.
+- `docker compose -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-monitoring.yml up -d` — Kafka, Redis, PostgreSQL, MongoDB, Prometheus, Grafana 정상 기동.
 - Producer/Consumer 서버 기동 완료.
 - Client 앱 빌드·서빙 (로컬: `pnpm --filter client dev`).
 
@@ -32,7 +33,7 @@
 | 2.1 | `GET /health` 호출 | `200 OK` |
 | 2.2 | `GET /ready` 호출 | `200` — PostgreSQL, MongoDB 연결 정상 |
 | 2.3 | PostgreSQL 또는 MongoDB 중단 후 `/ready` | `503` 또는 의존 서비스 실패 표시 |
-| 2.4 | `docker-compose` 서비스별 healthcheck | 모든 서비스 `healthy` |
+| 2.4 | Compose 서비스별 healthcheck | 모든 서비스 `healthy` |
 
 ---
 
@@ -183,7 +184,7 @@
 
 | # | 시나리오 | 기대 결과 |
 |---|----------|-----------|
-| 10.1 | `SENTRY_DSN` 비움 | 앱 기동·요청·Kafka 처리 모두 정상 (no-op) |
+| 10.1 | `SENTRY_DSN_PRODUCER` / `SENTRY_DSN_CONSUMER` 비움 | 앱 기동·요청·Kafka 처리 모두 정상 (no-op) |
 | 10.2 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` 비움 | 앱 기동 정상, GA 이벤트 미전송 |
 | 10.3 | `METRICS_ENABLED=false` | `/metrics` 엔드포인트 비활성화, 서버 기동 정상 |
 | 10.4 | `METRICS_ENABLED=true` | `/metrics`·Consumer lag 메트릭 정상 수집 |

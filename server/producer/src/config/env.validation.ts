@@ -114,7 +114,10 @@ export const envValidationSchema = Joi.object({
     'any.required': 'NAVER_CLIENT_SECRET is required',
   }),
 
-  ...buildObservabilityEnvRules({ requireMetricsPort: false }),
+  ...buildObservabilityEnvRules({
+    serviceName: 'producer',
+    requireMetricsPort: false,
+  }),
 });
 
 export const envValidationOptions = {

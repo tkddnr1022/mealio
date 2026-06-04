@@ -1,7 +1,5 @@
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import {
   envValidationOptions,
   envValidationSchema,
@@ -46,8 +44,6 @@ import { HttpMetricsMiddleware } from './optimization/monitoring/http-metrics.mi
     MonitoringModule,
     SentryModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
