@@ -30,6 +30,7 @@
 | server/shared/src/database/prisma/migrations/ | PostgreSQL 마이그레이션 |
 | server/shared/src/database/mongoose/mongoose-pool.config.ts | MongoosePoolConfig 타입 (커넥션 풀 설정). 앱에서는 풀만 정의, URI·retry·readPreference 등은 shared 공용 |
 | server/shared/src/database/mongoose/mongoose.module.ts | MongooseSchemasModule. forRoot(poolConfig) / forRootAsync 로 풀 config 주입. URI·스키마(EventLog, ChatbotLog, Inventory)는 shared에서 공용 관리 |
+| server/shared/src/database/mongoose/seed.ts | MongoDB 로컬/개발용 시드 스크립트 |
 | server/shared/src/database/mongoose/schemas/index.ts | Mongoose 스키마 배럴 export |
 | server/shared/src/database/mongoose/schemas/chatbot-log.schema.ts | ChatbotLog 스키마 |
 | server/shared/src/database/mongoose/schemas/chatbot-conversation.schema.ts | ChatbotConversation 스키마 |

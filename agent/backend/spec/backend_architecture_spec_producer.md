@@ -76,6 +76,7 @@
 | server/producer/src/modules/recipes/dto/recipe-search-query.dto.ts | 검색 쿼리 DTO |
 | server/producer/src/modules/recipes/dto/recipe-static-ids-query.dto.ts | 정적 경로 생성용 ID 목록 조회 쿼리 DTO |
 | server/producer/src/modules/recipes/dto/recipe-summary.dto.ts | 레시피 요약 응답 DTO |
+| server/producer/src/modules/recipes/dto/recipe-category.dto.ts | 레시피 카테고리 응답 DTO |
 | server/producer/src/modules/recipes/policies/recipe-sort.policy.ts | 레시피 정렬 정책 (latest/cookTime/difficulty/viewCount/likeCount) 및 Prisma orderBy 규칙 |
 | **server/producer/src/modules/ingredients/** | 재료 조회 모듈 |
 | server/producer/src/modules/ingredients/ingredients.module.ts | IngredientsModule 정의 |
@@ -94,6 +95,7 @@
 | server/producer/src/modules/inventory/dto/favorite-recipe-ids.dto.ts | 관심 레시피 ID 리스트 DTO (`favoriteRecipeIds`) |
 | server/producer/src/modules/inventory/dto/favorite-recipe-ids-response.dto.ts | 관심 레시피 ID 목록 응답 DTO (`favoriteRecipeIds`) |
 | server/producer/src/modules/inventory/dto/inventory-list.dto.ts | 보관함 조회 응답 DTO (`ownedIngredients`, `favoriteIngredients`) |
+| server/producer/src/modules/inventory/dto/inventory-entry.dto.ts | 보관함 단건 엔트리 DTO (재료·레시피 항목 공통) |
 | **server/producer/src/modules/chatbot/** | 챗봇 SSE·대화 모듈 |
 | server/producer/src/modules/chatbot/chatbot.module.ts | ChatbotModule 정의 |
 | server/producer/src/modules/chatbot/chatbot.service.ts | ChatbotService (Kafka 발행, Redis 구독, SSE 전달) |

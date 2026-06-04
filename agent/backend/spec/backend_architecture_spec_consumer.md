@@ -24,7 +24,7 @@
 | server/consumer/src/policy/openai.policy.ts | OpenAI RPM 기본값 |
 | server/consumer/src/policy/chatbot-cache.policy.ts | 챗봇 Redis 캐시 TTL |
 | server/consumer/src/policy/monitoring.policy.ts | lag 폴링 주기 |
-| **server/consumer/src/consumers/consumers.module.ts** | 그룹 모듈(ChatbotRequest, UserEvents, ActivityEvents, CacheInvalidation) 통합 |
+| **server/consumer/src/consumers/consumers.module.ts** | 그룹 모듈(ChatbotRequest, UserEvents, ActivityEvents, CacheInvalidation, RecipeIngestionPersist) 통합 |
 | **server/consumer/src/consumers/base/** | |
 | server/consumer/src/consumers/base/base.processor.ts | 토픽 공통 인터페이스(ITopicProcessor)·BaseTopicProcessor(파싱·재시도·DLQ 위임) |
 | server/consumer/src/consumers/base/base.consumer.ts | 단일 consumer 인스턴스 connect/subscribe/run/disconnect 공통 로직 (BaseConsumerRunner) |
@@ -35,7 +35,6 @@
 | server/consumer/src/consumers/chatbot-request/chatbot-request.consumer.ts | 해당 토픽 구독. 토픽 §2.2 |
 | server/consumer/src/consumers/chatbot-request/handlers/ProcessChatHandler.ts | GPT Function Calling·스트리밍, tool_calls 디스패치, Redis ChatbotStreamEvent 발행. 턴 성공 종료 직전 `ChatbotCreditService.debitForCompletedChatbotTurn`으로 멱등 크레딧 차감 후 `done` 이벤트에 `isCreditDepleted` 포함 |
 | server/consumer/src/consumers/chatbot-request/services/chatbot-credit.service.ts | 챗봇 턴 완료 시 Prisma 트랜잭션으로 `chatbot_credit_deductions`(streamChannelId PK) 멱등 삽입·`User.creditBalance` 차감·차감 크레딧 기록. `@mealio/shared`의 `computeChatbotCreditCost` 사용. 신규 차감 시 `cache-invalidation`(USER_PROFILE) 토픽 발행 |
-| server/consumer/src/consumers/chatbot-request/services/chatbot-credit.service.spec.ts | ChatbotCreditService 단위 테스트 |
 | server/consumer/src/consumers/chatbot-request/handlers/InventoryHandler.ts | get_user_inventory — Inventory 조회(`ingredients.owned`, `ingredients.favorite`, `recipes.favorite`), Ingredient id→name(Redis 캐시) 반환 |
 | server/consumer/src/consumers/chatbot-request/handlers/SearchRecipesHandler.ts | search_recipes — Prisma 레시피 검색, 명시적 필터(`keywords`, `maxCookTime`, `mustHaveIngredients`, `avoidIngredients`, 카테고리/재료 id) 기반 후보 조회·재랭킹 |
 | server/consumer/src/consumers/chatbot-request/handlers/FinalizeRecipeSelectionHandler.ts | finalize_recipe_selection — 챗봇 추천 레시피 최종 선택·확정 처리 |
@@ -78,6 +77,11 @@
 | server/consumer/src/integrations/openai/openai.service.ts | GPT API 래퍼 |
 | server/consumer/src/integrations/openai/response-parser.ts | JSON 파싱·검증 |
 | server/consumer/src/integrations/openai/rate-limiter.ts | API 호출 제한 |
+| server/consumer/src/integrations/openai/openai-batch.service.ts | OpenAI Batch API 래퍼 (recipe ingestion submit/retrieve) |
+| **server/consumer/src/integrations/public-data/** | 공공데이터(식품안전) API |
+| server/consumer/src/integrations/public-data/public-data.module.ts | PublicData 통합 모듈 |
+| server/consumer/src/integrations/public-data/public-data-api.client.ts | 공공데이터 API HTTP 클라이언트 |
+| server/consumer/src/integrations/public-data/foodsafety-image-url.util.ts | LLM 이미지 URL 정규화 (persist) |
 | **server/consumer/src/integrations/storage/** | ⚠️ 미구현 |
 | server/consumer/src/integrations/storage/s3-uploader.service.ts | ⚠️ 미구현 · 대용량 이미지 업로드 |
 | server/consumer/src/integrations/storage/image-optimizer.ts | ⚠️ 미구현 · 이미지 리사이징/압축 |
@@ -93,6 +97,7 @@
 | server/consumer/src/processing/transformation/data.normalizer.ts | 데이터 정규화 |
 | **server/consumer/src/persistence/repositories/postgresql/** | |
 | server/consumer/src/persistence/repositories/postgresql/recipe.repository.ts | Recipe 쓰기 (Prisma) |
+| server/consumer/src/persistence/repositories/postgresql/ingredient.repository.ts | Ingredient 조회 (persist·매칭) |
 | server/consumer/src/persistence/repositories/postgresql/user.repository.ts | User 업데이트 (Prisma) |
 | server/consumer/src/persistence/repositories/postgresql/recipe-ingredient.repository.ts | ⚠️ 미구현 · RecipeIngredient 쓰기 |
 | server/consumer/src/persistence/repositories/postgresql/recommendation.repository.ts | UserRecipeRecommendation upsert·랭크 재정렬·top N 조회 |
@@ -103,8 +108,8 @@
 | server/consumer/src/persistence/repositories/mongodb/inventory.repository.ts | Inventory 저장 (Mongoose) |
 | server/consumer/src/persistence/repositories/mongodb/recipe-ingestion-job.repository.ts | Recipe ingestion job CRUD·상태 전환 (Mongoose) |
 | server/consumer/src/persistence/repositories/mongodb/recipe-ingestion-state.repository.ts | Recipe ingestion API 커서 singleton (Mongoose) |
-| **server/consumer/src/persistence/transactions/** | ⚠️ 미구현 |
-| server/consumer/src/persistence/transactions/recipe-creation.transaction.ts | ⚠️ 미구현 · Prisma $transaction |
+| **server/consumer/src/persistence/transactions/** | |
+| server/consumer/src/persistence/transactions/recipe-creation.transaction.ts | Recipe + RecipeIngredient Prisma `$transaction` upsert (ingestion persist) |
 | server/consumer/src/persistence/transactions/mongodb-session.transaction.ts | ⚠️ 미구현 · Mongoose session (필요 시) |
 | server/consumer/src/persistence/transactions/saga.coordinator.ts | ⚠️ 미구현 · 분산 트랜잭션 (RDB↔NoSQL) |
 | **server/consumer/src/persistence/bulk-operations/postgresql/** | ⚠️ 미구현 |
@@ -135,14 +140,31 @@
 | server/consumer/src/jobs/kpi-rollup/kpi-rollup.service.ts | KPI 집계 서비스 (MongoDB EventLog → 롤업 문서) |
 | server/consumer/src/jobs/kpi-rollup/run-kpi-rollup.ts | KPI 롤업 실행 엔트리포인트 (CLI/스케줄러) |
 | **server/consumer/src/jobs/recipe-ingestion-fetch/** | fetch standalone job |
-| **server/consumer/src/jobs/recipe-ingestion-submit/** | submit standalone job (`prompts/recipe-ingestion.system-prompt.ts`) |
-| **server/consumer/src/jobs/recipe-ingestion-retrieve/** | retrieve standalone job |
+| server/consumer/src/jobs/recipe-ingestion-fetch/recipe-ingestion-fetch.module.ts | fetch 잡 모듈 |
+| server/consumer/src/jobs/recipe-ingestion-fetch/run-recipe-ingestion-fetch.ts | fetch CLI 엔트리포인트 |
+| server/consumer/src/jobs/recipe-ingestion-fetch/services/fetch.service.ts | 공공데이터 API 페이징·job 생성 |
+| **server/consumer/src/jobs/recipe-ingestion-submit/** | submit standalone job |
+| server/consumer/src/jobs/recipe-ingestion-submit/recipe-ingestion-submit.module.ts | submit 잡 모듈 |
 | server/consumer/src/jobs/recipe-ingestion-submit/run-recipe-ingestion-submit.ts | submit CLI (`--submit-batch-size`, `--retry-failed`, `--retry-failed-limit`) |
+| server/consumer/src/jobs/recipe-ingestion-submit/prompts/recipe-ingestion.system-prompt.ts | OpenAI Batch용 시스템 프롬프트 |
+| server/consumer/src/jobs/recipe-ingestion-submit/services/category-context.service.ts | submit용 카테고리 컨텍스트 조립 |
+| server/consumer/src/jobs/recipe-ingestion-submit/services/submit.service.ts | OpenAI Batch 제출·job 상태 갱신 |
+| **server/consumer/src/jobs/recipe-ingestion-retrieve/** | retrieve standalone job |
+| server/consumer/src/jobs/recipe-ingestion-retrieve/recipe-ingestion-retrieve.module.ts | retrieve 잡 모듈 |
 | server/consumer/src/jobs/recipe-ingestion-retrieve/run-recipe-ingestion-retrieve.ts | retrieve CLI |
+| server/consumer/src/jobs/recipe-ingestion-retrieve/services/retrieve.service.ts | Batch 결과 수신·`recipe-ingestion-retrieved` 토픽 발행 |
 | **server/consumer/src/jobs/recipe-ingestion-persist/** | persist standalone job (`--persist-batch-size`, `--job-id`) |
-| **server/consumer/src/consumers/recipe-ingestion-persist/** | Kafka persist consumer |
-| server/consumer/src/integrations/public-data/foodsafety-image-url.util.ts | LLM 이미지 URL 정규화 (persist) |
-| server/consumer/src/persistence/transactions/recipe-creation.transaction.ts | Recipe + RecipeIngredient Prisma 트랜잭션 upsert |
+| server/consumer/src/jobs/recipe-ingestion-persist/recipe-ingestion-persist.module.ts | persist 잡 모듈 (standalone) |
+| server/consumer/src/jobs/recipe-ingestion-persist/run-recipe-ingestion-persist.ts | persist CLI |
+| server/consumer/src/jobs/recipe-ingestion-persist/services/persist.service.ts | job 단위 persist 오케스트레이션 |
+| **server/consumer/src/consumers/recipe-ingestion-persist/** | Kafka persist consumer (토픽 §2.2 recipe-ingestion-retrieved) |
+| server/consumer/src/consumers/recipe-ingestion-persist/recipe-ingestion-persist.module.ts | persist consumer 모듈 |
+| server/consumer/src/consumers/recipe-ingestion-persist/recipe-ingestion-persist.consumer.ts | persist consumer 구독 |
+| server/consumer/src/consumers/recipe-ingestion-persist/recipe-ingestion-persist.processor.ts | persist processor |
+| server/consumer/src/consumers/recipe-ingestion-persist/handlers/PersistRecipeHandler.ts | 검증된 retrieved_data → PostgreSQL persist |
+| server/consumer/src/consumers/recipe-ingestion-persist/services/category-resolver.service.ts | persist 카테고리 해석 |
+| server/consumer/src/consumers/recipe-ingestion-persist/services/ingredient-matcher.service.ts | persist 재료 매칭 |
+| server/consumer/src/consumers/recipe-ingestion-persist/validators/retrieved-data.validator.ts | retrieved_data 스키마·비즈니스 검증 |
 
 ---
 
@@ -233,7 +255,7 @@
 | `search.click` | +0.25 |
 | `search.query` | 0 |
 
-가중치 변경 시 **서비스 상수·본 절·단위 테스트**(`recommendation-score.service.spec.ts`, `activity-recommendation.service.spec.ts`)를 함께 갱신한다.
+가중치 변경 시 **서비스 상수·본 절**을 함께 갱신한다.
 
 ### 2.6.3 Top N 재정렬 알고리즘 (`RecommendationRepository`)
 
