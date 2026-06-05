@@ -42,7 +42,7 @@ export function IngredientSearchResult({
 
   return (
     <section
-      className={cn('flex w-full flex-col items-start gap-3', className)}
+      className={cn('card flex w-full flex-col items-start gap-3', className)}
       data-name="IngredientSearchResult"
       {...rest}
     >
