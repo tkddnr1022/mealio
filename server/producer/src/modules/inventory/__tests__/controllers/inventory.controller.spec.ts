@@ -14,13 +14,13 @@ describe('InventoryController', () => {
 
   const mockInventoryList: InventoryListDto = {
     ownedIngredients: [
-      { id: 1, name: 'A', categoryId: 10 },
-      { id: 5, name: 'C', categoryId: 10 },
-      { id: 12, name: 'D', categoryId: 30 },
+      { id: 1, name: 'A', categoryId: 10, categoryName: '채소' },
+      { id: 5, name: 'C', categoryId: 10, categoryName: '채소' },
+      { id: 12, name: 'D', categoryId: 30, categoryName: '양념' },
     ],
     favoriteIngredients: [
-      { id: 3, name: 'B', categoryId: 20 },
-      { id: 5, name: 'C', categoryId: 10 },
+      { id: 3, name: 'B', categoryId: 20, categoryName: '육류' },
+      { id: 5, name: 'C', categoryId: 10, categoryName: '채소' },
     ],
     favoriteRecipes: [
       {

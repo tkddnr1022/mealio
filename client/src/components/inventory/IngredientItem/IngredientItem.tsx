@@ -6,7 +6,6 @@ import { Checkbox } from '@/components/ui/Checkbox';
 import { IconShell } from '@/components/ui/IconShell';
 import {
   getIngredientCategoryIcon,
-  getIngredientCategoryLabel,
   toInventoryIngredientRemoveAriaLabel,
 } from '@/components/inventory/utils/inventory-format';
 
@@ -58,7 +57,7 @@ export function IngredientItem({
   onRemove,
   ...rest
 }: IngredientItemProps) {
-  const categoryLabel = getIngredientCategoryLabel(ingredient.categoryId);
+  const categoryLabel = ingredient.categoryName?.trim() ?? '';
   const removeButtonAriaLabel =
     onRemove !== undefined
       ? toInventoryIngredientRemoveAriaLabel(ingredient)

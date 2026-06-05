@@ -23,8 +23,19 @@ import type { InventoryIngredient } from '@/lib/types/inventory';
 
 type InventoryType = 'owned' | 'favorites';
 
-function toInventoryIngredient(item: Ingredient): InventoryIngredient {
-  return { id: item.id, name: item.name, categoryId: item.categoryId };
+function toInventoryIngredient(
+  item: Ingredient,
+  categoryOptions: IngredientCategory[],
+): InventoryIngredient {
+  const categoryName =
+    categoryOptions.find((category) => category.id === item.categoryId)?.name ??
+    null;
+  return {
+    id: item.id,
+    name: item.name,
+    categoryId: item.categoryId,
+    categoryName,
+  };
 }
 
 interface IngredientFilterClientPageProps {
@@ -80,7 +91,9 @@ export function IngredientFilterClientPage({
 
   const displayItems: InventoryIngredient[] = useMemo(() => {
     const raw = ingredientData?.pages.flatMap((page) => page.data) ?? [];
-    const mapped = raw.map(toInventoryIngredient);
+    const mapped = raw.map((item) =>
+      toInventoryIngredient(item, categoryOptions),
+    );
     // 다중 카테고리 선택 시에는 현재 로드된 페이지 안에서만 필터한다.
     if (selectedCategoryIds.length <= 1) return mapped;
     return mapped.filter(
@@ -88,7 +101,7 @@ export function IngredientFilterClientPage({
         item.categoryId != null &&
         selectedCategoryIds.includes(item.categoryId),
     );
-  }, [ingredientData?.pages, selectedCategoryIds]);
+  }, [categoryOptions, ingredientData?.pages, selectedCategoryIds]);
 
   const countText = useMemo(() => {
     const total = ingredientData?.pages[0]?.pagination.total;

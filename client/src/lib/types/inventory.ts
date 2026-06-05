@@ -14,6 +14,7 @@ export interface InventoryIngredient {
   id: number;
   name: string;
   categoryId: number | null;
+  categoryName: string | null;
 }
 
 export interface InventoryFavoriteRecipe {

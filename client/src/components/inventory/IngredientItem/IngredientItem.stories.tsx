@@ -16,21 +16,23 @@ const appleIngredient: InventoryIngredient = {
   id: 1,
   name: '사과',
   categoryId: 1,
+  categoryName: '채소',
 };
 
 const beefIngredient: InventoryIngredient = {
   id: 2,
   name: '소고기',
   categoryId: 2,
+  categoryName: '육류',
 };
 
 const favoriteIngredients: readonly InventoryIngredient[] = [
   appleIngredient,
   beefIngredient,
-  { id: 3, name: '계란', categoryId: 3 },
-  { id: 4, name: '고등어', categoryId: 4 },
-  { id: 5, name: '우유', categoryId: 5 },
-  { id: 6, name: '밀가루', categoryId: 6 },
+  { id: 3, name: '계란', categoryId: 3, categoryName: '양념' },
+  { id: 4, name: '고등어', categoryId: 4, categoryName: '곡류' },
+  { id: 5, name: '우유', categoryId: 5, categoryName: '유제품' },
+  { id: 6, name: '밀가루', categoryId: 6, categoryName: '곡류' },
 ];
 
 const meta = {

@@ -7,13 +7,13 @@ import { RecipeSummaryDto } from '../../recipes/dto/recipe-summary.dto';
  */
 export class InventoryListDto {
   @ApiProperty({
-    description: '보유 재료 목록 (id, name, categoryId)',
+    description: '보유 재료 목록 (id, name, categoryId, categoryName)',
     type: [InventoryEntryDto],
   })
   ownedIngredients: InventoryEntryDto[];
 
   @ApiProperty({
-    description: '관심 재료 목록 (id, name, categoryId)',
+    description: '관심 재료 목록 (id, name, categoryId, categoryName)',
     type: [InventoryEntryDto],
   })
   favoriteIngredients: InventoryEntryDto[];

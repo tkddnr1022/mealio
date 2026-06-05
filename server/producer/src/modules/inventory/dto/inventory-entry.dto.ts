@@ -17,4 +17,12 @@ export class InventoryEntryDto {
     type: Number,
   })
   categoryId: number | null;
+
+  @ApiProperty({
+    example: '채소',
+    description: '재료 카테고리명 (RDB에 없는 ID는 null)',
+    nullable: true,
+    type: String,
+  })
+  categoryName: string | null;
 }

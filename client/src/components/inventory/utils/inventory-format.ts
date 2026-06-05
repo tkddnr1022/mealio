@@ -21,28 +21,11 @@ const CATEGORY_ICON_MAP: ReadonlyMap<number, LucideIcon> = new Map([
 
 const DEFAULT_CATEGORY_ICON: LucideIcon = Apple;
 
-// TODO: 프론트엔드 매핑 없이 백엔드에서 caetgoryName 반환
-const CATEGORY_LABEL_MAP: ReadonlyMap<number, string> = new Map([
-  [1, '채소'],
-  [2, '육류'],
-  [3, '양념'],
-  [4, '곡류'],
-  [5, '유제품'],
-  [6, '곡류'],
-]);
-
 export function getIngredientCategoryIcon(
   categoryId: number | null,
 ): LucideIcon {
   if (categoryId == null) return DEFAULT_CATEGORY_ICON;
   return CATEGORY_ICON_MAP.get(categoryId) ?? DEFAULT_CATEGORY_ICON;
-}
-
-export function getIngredientCategoryLabel(
-  categoryId: number | null,
-): string {
-  if (categoryId == null) return '';
-  return CATEGORY_LABEL_MAP.get(categoryId) ?? '';
 }
 
 export function toInventoryIngredientCountText(count: number): string {

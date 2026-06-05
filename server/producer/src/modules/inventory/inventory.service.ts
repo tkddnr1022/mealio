@@ -23,7 +23,7 @@ import type { InventoryEntryDto } from './dto/inventory-entry.dto';
 import { OwnedIngredientIdsDto } from './dto/owned-ingredient-ids.dto';
 import { FavoriteIngredientIdsDto } from './dto/favorite-ingredient-ids.dto';
 import { FavoriteRecipeIdsDto } from './dto/favorite-recipe-ids.dto';
-import type { Ingredient } from '@mealio/shared/prisma-client';
+import type { IngredientWithCategoryNameRow } from '../../infrastructure/database/repositories/postgresql/ingredient.repository';
 import type { RecipeWithStats } from '../../infrastructure/database/repositories/postgresql/recipe.repository';
 import type { RecipeSummaryDto } from '../recipes/dto/recipe-summary.dto';
 
@@ -228,7 +228,7 @@ export class InventoryService {
 
   private mapIdsToEntries(
     orderedIds: number[],
-    rows: Pick<Ingredient, 'id' | 'name' | 'categoryId'>[],
+    rows: IngredientWithCategoryNameRow[],
   ): InventoryEntryDto[] {
     const map = new Map(rows.map((r) => [r.id, r]));
     return orderedIds.map((id) => {
@@ -237,6 +237,7 @@ export class InventoryService {
         id,
         name: row?.name ?? '',
         categoryId: row?.categoryId ?? null,
+        categoryName: row?.categoryName ?? null,
       };
     });
   }

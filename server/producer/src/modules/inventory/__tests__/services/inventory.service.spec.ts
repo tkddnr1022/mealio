@@ -62,12 +62,12 @@ describe('InventoryService', () => {
       findManyByIds: jest.fn().mockImplementation(async (ids: number[]) => {
         const meta: Record<
           number,
-          { id: number; name: string; categoryId: number }
+          { id: number; name: string; categoryId: number; categoryName: string }
         > = {
-          1: { id: 1, name: 'A', categoryId: 10 },
-          3: { id: 3, name: 'B', categoryId: 20 },
-          5: { id: 5, name: 'C', categoryId: 10 },
-          12: { id: 12, name: 'D', categoryId: 30 },
+          1: { id: 1, name: 'A', categoryId: 10, categoryName: '채소' },
+          3: { id: 3, name: 'B', categoryId: 20, categoryName: '육류' },
+          5: { id: 5, name: 'C', categoryId: 10, categoryName: '채소' },
+          12: { id: 12, name: 'D', categoryId: 30, categoryName: '양념' },
         };
         return ids.filter((id) => meta[id]).map((id) => meta[id]);
       }),
@@ -186,13 +186,13 @@ describe('InventoryService', () => {
         1, 5, 12, 3,
       ]);
       expect(result.ownedIngredients).toEqual([
-        { id: 1, name: 'A', categoryId: 10 },
-        { id: 5, name: 'C', categoryId: 10 },
-        { id: 12, name: 'D', categoryId: 30 },
+        { id: 1, name: 'A', categoryId: 10, categoryName: '채소' },
+        { id: 5, name: 'C', categoryId: 10, categoryName: '채소' },
+        { id: 12, name: 'D', categoryId: 30, categoryName: '양념' },
       ]);
       expect(result.favoriteIngredients).toEqual([
-        { id: 3, name: 'B', categoryId: 20 },
-        { id: 5, name: 'C', categoryId: 10 },
+        { id: 3, name: 'B', categoryId: 20, categoryName: '육류' },
+        { id: 5, name: 'C', categoryId: 10, categoryName: '채소' },
       ]);
       expect(recipeRepository.findSummariesByIds).toHaveBeenCalledWith([101]);
       expect(result.favoriteRecipes).toEqual([

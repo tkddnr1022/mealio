@@ -24,6 +24,13 @@ export interface IngredientCategoryRow {
   isActive: boolean;
 }
 
+export interface IngredientWithCategoryNameRow {
+  id: number;
+  name: string;
+  categoryId: number;
+  categoryName: string;
+}
+
 @Injectable()
 export class IngredientRepository {
   constructor(private prisma: PrismaService) {}
@@ -38,12 +45,23 @@ export class IngredientRepository {
 
   async findManyByIds(
     ids: number[],
-  ): Promise<Pick<Ingredient, 'id' | 'name' | 'categoryId'>[]> {
+  ): Promise<IngredientWithCategoryNameRow[]> {
     if (ids.length === 0) return [];
-    return this.prisma.ingredient.findMany({
+    const rows = await this.prisma.ingredient.findMany({
       where: { id: { in: ids } },
-      select: { id: true, name: true, categoryId: true },
+      select: {
+        id: true,
+        name: true,
+        categoryId: true,
+        categoryMeta: { select: { name: true } },
+      },
     });
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      categoryId: row.categoryId,
+      categoryName: row.categoryMeta.name,
+    }));
   }
 
   async findManyPaginated(params: IngredientListParams): Promise<{

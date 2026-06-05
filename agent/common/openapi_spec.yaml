@@ -1840,6 +1840,7 @@ components:
         - id
         - name
         - categoryId
+        - categoryName
       properties:
         id:
           type: integer
@@ -1853,18 +1854,22 @@ components:
           format: int64
           nullable: true
           description: 재료 카테고리 ID (마스터에 없는 ID는 null)
+        categoryName:
+          type: string
+          nullable: true
+          description: 재료 카테고리명 (마스터에 없는 ID는 null)
 
     InventoryResponse:
       type: object
       properties:
         ownedIngredients:
           type: array
-          description: 보유 재료 (id, name, categoryId)
+          description: 보유 재료 (id, name, categoryId, categoryName)
           items:
             $ref: '#/components/schemas/InventoryEntry'
         favoriteIngredients:
           type: array
-          description: 관심 재료 (id, name, categoryId)
+          description: 관심 재료 (id, name, categoryId, categoryName)
           items:
             $ref: '#/components/schemas/InventoryEntry'
         favoriteRecipes:
