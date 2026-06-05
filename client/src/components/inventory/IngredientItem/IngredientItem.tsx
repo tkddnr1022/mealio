@@ -54,24 +54,20 @@ export function IngredientItem({
   ...rest
 }: IngredientItemProps) {
   const categoryLabel = ingredient.categoryName?.trim() ?? '';
-  const removeButtonAriaLabel =
-    onRemove !== undefined
-      ? toInventoryIngredientRemoveAriaLabel(ingredient)
-      : undefined;
 
-  const defaultTrailing = selected ? (
+  const defaultTrailing = onRemove ? (
+    <IngredientItemRemoveButton
+      ariaLabel={toInventoryIngredientRemoveAriaLabel(ingredient)}
+      onClick={onRemove}
+    />
+  ) : (
     <Checkbox
-      selected
+      selected={selected}
       tabIndex={-1}
       aria-hidden
       className="absolute top-1/2 right-4 -translate-y-1/2"
     />
-  ) : onRemove && removeButtonAriaLabel ? (
-    <IngredientItemRemoveButton
-      ariaLabel={removeButtonAriaLabel}
-      onClick={onRemove}
-    />
-  ) : null;
+  );
 
   return (
     <div
