@@ -1,8 +1,8 @@
-export { IngredientCard } from './IngredientCard';
-export type { IngredientCardProps } from './IngredientCard';
+export { IngredientItem } from './IngredientItem';
+export type { IngredientItemProps } from './IngredientItem';
 
-export { IngredientGrid } from './IngredientGrid';
-export type { IngredientGridProps } from './IngredientGrid';
+export { IngredientList } from './IngredientList';
+export type { IngredientListProps } from './IngredientList';
 
 export { IngredientRemoveButton } from './IngredientRemoveButton';
 export type { IngredientRemoveButtonProps } from './IngredientRemoveButton';
@@ -13,8 +13,8 @@ export type {
   InventorySubTabbarItem,
 } from './InventorySubTabbar';
 
-export { IngredientGridHeader } from './IngredientGridHeader';
-export type { IngredientGridHeaderProps } from './IngredientGridHeader';
+export { IngredientListHeader } from './IngredientListHeader';
+export type { IngredientListHeaderProps } from './IngredientListHeader';
 
 export { IngredientSearchResult } from './IngredientSearchResult';
 export type { IngredientSearchResultProps } from './IngredientSearchResult';

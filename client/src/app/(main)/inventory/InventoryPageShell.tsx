@@ -66,7 +66,11 @@ export function InventoryPageShell({
         additionalButtons={<AddButton onClick={() => router.push(addHref)} />}
       />
       <InventorySubTabbar selected={tab} items={INVENTORY_SUB_TABS} />
-      <MainContent centered={isEmpty}>
+      <MainContent
+        centered={isEmpty}
+        paddingX={tab === 'favoriteRecipes'}
+        paddingY={tab === 'favoriteRecipes'}
+      >
         {isEmpty ? <InfoScreen {...infoScreenProps} /> : children}
       </MainContent>
       <Tabbar activeId="inventory" />

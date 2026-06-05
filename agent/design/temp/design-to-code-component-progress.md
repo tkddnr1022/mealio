@@ -89,11 +89,11 @@
 
 ### 재료 · 인벤토리
 
-- [x] `IngredientCard` 세트 (`selected=true` / `false`)
-- [x] `IngredientGrid`
+- [x] `IngredientItem` 세트 (`selected=true` / `false`)
+- [x] `IngredientList`
 - [x] `SubTab` 세트 (`selected=true` / `false`)
 - [x] `InventorySubTabbar` 세트 (`selectedIndex`)
-- [x] `IngredientGridHeader`
+- [x] `IngredientListHeader`
 - [x] `IngredientSearchResult`
 
 ### 피드백 배너

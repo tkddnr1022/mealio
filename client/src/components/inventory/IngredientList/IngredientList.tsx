@@ -2,11 +2,11 @@ import type { HTMLAttributes } from 'react';
 import type { InventoryIngredient } from '@/lib/types/inventory';
 import { cn } from '@/lib/utils/cn';
 import {
-  IngredientCard,
-  type IngredientCardProps,
-} from '@/components/inventory/IngredientCard';
+  IngredientItem,
+  type IngredientItemProps,
+} from '@/components/inventory/IngredientItem';
 
-export interface IngredientGridProps extends Omit<
+export interface IngredientListProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   'children'
 > {
@@ -15,33 +15,33 @@ export interface IngredientGridProps extends Omit<
   selectedIngredientIds?: readonly number[];
   getTrailing?: (
     ingredient: InventoryIngredient,
-  ) => IngredientCardProps['trailing'];
+  ) => IngredientItemProps['trailing'];
   onRemoveIngredient?: (ingredient: InventoryIngredient) => void;
   onClickIngredient?: (ingredient: InventoryIngredient) => void;
-  cardClassName?: string;
+  itemClassName?: string;
 }
 
-export function IngredientGrid({
+export function IngredientList({
   className = '',
   items,
   selectedIngredientIds = [],
   getTrailing,
   onRemoveIngredient,
   onClickIngredient,
-  cardClassName = '',
+  itemClassName = '',
   ...rest
-}: IngredientGridProps) {
+}: IngredientListProps) {
   const isClickable = onClickIngredient != null;
 
   return (
     <div
-      className={cn('grid w-full grid-cols-4 gap-4', className)}
-      data-name="IngredientGrid"
+      className={cn('flex w-full flex-col', className)}
+      data-name="IngredientList"
       {...rest}
     >
       {items.map((item) => {
         return (
-          <IngredientCard
+          <IngredientItem
             key={item.id}
             ingredient={item}
             selected={selectedIngredientIds.includes(item.id)}
@@ -49,7 +49,7 @@ export function IngredientGrid({
             onRemove={
               onRemoveIngredient ? () => onRemoveIngredient(item) : undefined
             }
-            className={cn(isClickable && 'cursor-pointer', cardClassName)}
+            className={cn(isClickable && 'cursor-pointer', itemClassName)}
             {...(isClickable
               ? {
                   role: 'button',

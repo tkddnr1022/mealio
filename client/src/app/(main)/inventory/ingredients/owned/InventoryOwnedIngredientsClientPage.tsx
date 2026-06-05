@@ -1,6 +1,6 @@
 'use client';
 
-import { IngredientGrid, IngredientRemoveButton } from '@/components/inventory';
+import { IngredientList, IngredientRemoveButton } from '@/components/inventory';
 import {
   useMyInventory,
   useRemoveMyOwnedIngredient,
@@ -36,7 +36,7 @@ export function InventoryOwnedIngredientsClientPage() {
       }}
       addHref={addHref}
     >
-      <IngredientGrid
+      <IngredientList
         items={items}
         getTrailing={(ingredient) => (
           <IngredientRemoveButton

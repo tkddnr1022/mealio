@@ -1,7 +1,7 @@
 import type { HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils/cn';
 
-export interface IngredientGridHeaderProps extends Omit<
+export interface IngredientListHeaderProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   'children'
 > {
@@ -10,19 +10,19 @@ export interface IngredientGridHeaderProps extends Omit<
   countText?: string;
 }
 
-export function IngredientGridHeader({
+export function IngredientListHeader({
   className = '',
   title = '재료 선택',
   countText = '0개의 재료',
   ...rest
-}: IngredientGridHeaderProps) {
+}: IngredientListHeaderProps) {
   return (
     <div
       className={cn(
         'flex w-full items-center justify-between whitespace-nowrap',
         className,
       )}
-      data-name="IngredientGridHeader"
+      data-name="IngredientListHeader"
       {...rest}
     >
       <h3 className="typo-card-heading style-text-primary">{title}</h3>

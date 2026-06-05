@@ -1,11 +1,11 @@
 import type { HTMLAttributes } from 'react';
 import type { InventoryIngredient } from '@/lib/types/inventory';
 import { cn } from '@/lib/utils/cn';
-import { IngredientGrid } from '@/components/inventory/IngredientGrid';
+import { IngredientList } from '@/components/inventory/IngredientList';
 import {
-  IngredientGridHeader,
-  type IngredientGridHeaderProps,
-} from '@/components/inventory/IngredientGridHeader';
+  IngredientListHeader,
+  type IngredientListHeaderProps,
+} from '@/components/inventory/IngredientListHeader';
 import { toInventoryIngredientCountText } from '@/components/inventory/utils/inventory-format';
 
 export interface IngredientSearchResultProps extends Omit<
@@ -14,15 +14,15 @@ export interface IngredientSearchResultProps extends Omit<
 > {
   className?: string;
   items?: readonly InventoryIngredient[];
-  headerProps?: Omit<IngredientGridHeaderProps, 'countText'>;
+  headerProps?: Omit<IngredientListHeaderProps, 'countText'>;
   countText?: string;
   selectedIngredientIds?: readonly number[];
-  getTrailing?: Parameters<typeof IngredientGrid>[0]['getTrailing'];
+  getTrailing?: Parameters<typeof IngredientList>[0]['getTrailing'];
   onRemoveIngredient?: Parameters<
-    typeof IngredientGrid
+    typeof IngredientList
   >[0]['onRemoveIngredient'];
-  onClickIngredient?: Parameters<typeof IngredientGrid>[0]['onClickIngredient'];
-  cardClassName?: string;
+  onClickIngredient?: Parameters<typeof IngredientList>[0]['onClickIngredient'];
+  itemClassName?: string;
 }
 
 export function IngredientSearchResult({
@@ -34,7 +34,7 @@ export function IngredientSearchResult({
   getTrailing,
   onRemoveIngredient,
   onClickIngredient,
-  cardClassName = '',
+  itemClassName = '',
   ...rest
 }: IngredientSearchResultProps) {
   const resolvedCountText =
@@ -46,14 +46,14 @@ export function IngredientSearchResult({
       data-name="IngredientSearchResult"
       {...rest}
     >
-      <IngredientGridHeader {...headerProps} countText={resolvedCountText} />
-      <IngredientGrid
+      <IngredientListHeader {...headerProps} countText={resolvedCountText} />
+      <IngredientList
         items={items}
         selectedIngredientIds={selectedIngredientIds}
         getTrailing={getTrailing}
         onRemoveIngredient={onRemoveIngredient}
         onClickIngredient={onClickIngredient}
-        cardClassName={cardClassName}
+        itemClassName={itemClassName}
       />
     </section>
   );

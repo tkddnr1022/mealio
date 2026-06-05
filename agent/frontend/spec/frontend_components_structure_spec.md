@@ -135,10 +135,10 @@
 | 경로 | 역할 |
 |------|------|
 | **client/src/components/inventory/** | 재료 보관함 도메인 컴포넌트 묶음 |
-| client/src/components/inventory/IngredientCard/ | 재료 카드 세트(`selected`) |
-| client/src/components/inventory/IngredientGrid/ | 재료 그리드 |
+| client/src/components/inventory/IngredientItem/ | 재료 아이템 세트(`selected`) |
+| client/src/components/inventory/IngredientList/ | 재료 리스트 |
 | client/src/components/inventory/InventorySubTabbar/ | 보관함 서브 탭바 세트(`selectedIndex`) |
-| client/src/components/inventory/IngredientGridHeader/ | 재료 그리드 헤더 |
+| client/src/components/inventory/IngredientListHeader/ | 재료 리스트 헤더 |
 | client/src/components/inventory/IngredientRemoveButton/ | 재료 삭제 버튼 |
 | client/src/components/inventory/IngredientSearchResult/ | 재료 검색 결과 |
 | client/src/components/inventory/utils/inventory-format.ts | 보관함 표시 포맷 유틸 |

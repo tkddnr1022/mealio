@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { IngredientGridHeader } from '@/components/inventory/IngredientGridHeader';
+import { IngredientListHeader } from '@/components/inventory/IngredientListHeader';
 
 const meta = {
-  title: 'Inventory/IngredientGridHeader',
-  component: IngredientGridHeader,
+  title: 'Inventory/IngredientListHeader',
+  component: IngredientListHeader,
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
@@ -15,7 +15,7 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof IngredientGridHeader>;
+} satisfies Meta<typeof IngredientListHeader>;
 
 export default meta;
 

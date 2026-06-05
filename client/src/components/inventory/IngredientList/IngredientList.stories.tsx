@@ -1,8 +1,7 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
 import type { InventoryIngredient } from '@/lib/types/inventory';
 import { Checkbox } from '@/components/ui/Checkbox';
-import { toInventoryIngredientCountText } from '@/components/inventory/utils/inventory-format';
-import { IngredientSearchResult } from './IngredientSearchResult';
+import { IngredientList } from '@/components/inventory/IngredientList/index';
 
 const figmaWidth: Decorator = (Story) => (
   <div className="w-[360px] max-w-full">
@@ -13,7 +12,7 @@ const figmaWidth: Decorator = (Story) => (
 const filterCheckboxClassName =
   'absolute top-1/2 right-4 -translate-y-1/2';
 
-const filterIngredients: readonly InventoryIngredient[] = [
+const favoriteIngredients: readonly InventoryIngredient[] = [
   { id: 1, name: '사과', categoryId: 1 },
   { id: 2, name: '소고기', categoryId: 2 },
   { id: 3, name: '계란', categoryId: 3 },
@@ -25,28 +24,32 @@ const filterIngredients: readonly InventoryIngredient[] = [
 const filterSelectedIngredientIds = [1];
 
 const meta = {
-  title: 'Inventory/IngredientSearchResult',
-  component: IngredientSearchResult,
+  title: 'Inventory/IngredientList',
+  component: IngredientList,
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
     viewport: { defaultViewport: 'mobile1' },
   },
   decorators: [figmaWidth],
-} satisfies Meta<typeof IngredientSearchResult>;
+} satisfies Meta<typeof IngredientList>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const IngredientFilterSelection = {
-  name: '재료 필터 · 선택',
+export const FavoriteIngredients = {
+  name: '관심 재료',
   args: {
-    items: filterIngredients,
-    countText: toInventoryIngredientCountText(filterIngredients.length),
-    headerProps: {
-      title: '재료 선택',
-    },
+    items: favoriteIngredients,
+    onRemoveIngredient: () => undefined,
+  },
+} satisfies Story;
+
+export const IngredientFilterSelection = {
+  name: '재료 선택',
+  args: {
+    items: favoriteIngredients,
     selectedIngredientIds: filterSelectedIngredientIds,
     onClickIngredient: () => undefined,
     getTrailing: (ingredient: InventoryIngredient) => (
@@ -57,16 +60,5 @@ export const IngredientFilterSelection = {
         className={filterCheckboxClassName}
       />
     ),
-  },
-} satisfies Story;
-
-export const Empty = {
-  name: '결과 없음',
-  args: {
-    items: [],
-    countText: toInventoryIngredientCountText(0),
-    headerProps: {
-      title: '재료 선택',
-    },
   },
 } satisfies Story;
