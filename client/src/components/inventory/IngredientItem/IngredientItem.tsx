@@ -1,13 +1,9 @@
 import { X } from 'lucide-react';
-import { createElement, type HTMLAttributes, type ReactNode } from 'react';
+import { type HTMLAttributes, type ReactNode } from 'react';
 import type { InventoryIngredient } from '@/lib/types/inventory';
 import { cn } from '@/lib/utils/cn';
 import { Checkbox } from '@/components/ui/Checkbox';
-import { IconShell } from '@/components/ui/IconShell';
-import {
-  getIngredientCategoryIcon,
-  toInventoryIngredientRemoveAriaLabel,
-} from '@/components/inventory/utils/inventory-format';
+import { toInventoryIngredientRemoveAriaLabel } from '@/components/inventory/utils/inventory-format';
 
 export interface IngredientItemRemoveButtonProps {
   ariaLabel: string;
@@ -90,15 +86,6 @@ export function IngredientItem({
       data-selected={selected ? 'true' : 'false'}
       {...rest}
     >
-      <IconShell
-        variant={selected ? 'primary' : 'secondary'}
-        size="large"
-        icon={createElement(getIngredientCategoryIcon(ingredient.categoryId), {
-          className: 'size-6',
-          strokeWidth: 2,
-          'aria-hidden': true,
-        })}
-      />
       <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
         <p className="w-full wrap-break-word typo-card-heading style-text-primary">
           {ingredient.name}
