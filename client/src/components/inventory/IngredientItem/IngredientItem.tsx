@@ -74,7 +74,7 @@ export function IngredientItem({
       className={cn(
         'relative flex w-full items-center gap-4 p-4',
         selected
-          ? 'bg-accent-default'
+          ? 'border-b border-accent-default bg-accent-default'
           : 'border-b border-border-subtle bg-background-surface',
         className,
       )}
