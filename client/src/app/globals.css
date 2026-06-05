@@ -125,7 +125,7 @@
   --elevation-sm-blur: var(--ref-elevation-sm-blur);
   --elevation-sm-color: var(--ref-elevation-sm-color);
   --elevation-md-x: 0;
-  --elevation-md-y: 4px;
+  --elevation-md-y: 1px;
   --elevation-md-blur: var(--ref-elevation-md-blur);
   --elevation-md-color: var(--ref-elevation-md-color);
 
@@ -226,7 +226,7 @@
   --ref-color-alert-info-strong: #2b6ba3;
   --ref-elevation-sm-blur: 2px;
   --ref-elevation-sm-color: rgba(15, 23, 42, 0.06);
-  --ref-elevation-md-blur: 8px;
+  --ref-elevation-md-blur: 4px;
   --ref-elevation-md-color: rgba(15, 23, 42, 0.08);
 }
 
@@ -303,7 +303,7 @@
   --ref-color-alert-info-strong: #bfdbfe;
   --ref-elevation-sm-blur: 3px;
   --ref-elevation-sm-color: rgba(0, 0, 0, 0.45);
-  --ref-elevation-md-blur: 12px;
+  --ref-elevation-md-blur: 4px;
   --ref-elevation-md-color: rgba(0, 0, 0, 0.5);
 }
 

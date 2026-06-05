@@ -74,8 +74,8 @@
       },
       "md": {
         "x": 0,
-        "y": 4,
-        "blur": 8,
+        "y": 1,
+        "blur": 4,
         "color": "#0f172a14"
       },
       "figma-note": "`elevation/sm/*`·`elevation/md/*`."
@@ -822,7 +822,7 @@
       },
       "medium": {
         "figma": "Elevation/Medium",
-        "shadow": "0 4px 8px rgba(15, 23, 42, 0.08)",
+        "shadow": "0 1px 4px rgba(15, 23, 42, 0.08)",
         "variable-atoms": {
           "color": "variables.elevation.md.color",
           "x": "variables.elevation.md.x",
