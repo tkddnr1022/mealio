@@ -20,10 +20,12 @@ export const DEFAULT_RECIPE_SUBMIT_BATCH_SIZE = 100;
 export const MAX_RECIPE_SUBMIT_BATCH_SIZE = 1000;
 
 /** persist 1회 처리 기본 건수 — submit 배치와 동일 정책 */
-export const DEFAULT_RECIPE_PERSIST_BATCH_SIZE = DEFAULT_RECIPE_SUBMIT_BATCH_SIZE;
+export const DEFAULT_RECIPE_PERSIST_BATCH_SIZE =
+  DEFAULT_RECIPE_SUBMIT_BATCH_SIZE;
 
 /** failed job 재제출 1회 상한 — submit 배치와 동일 정책 */
-export const DEFAULT_RECIPE_RETRY_FAILED_LIMIT = DEFAULT_RECIPE_SUBMIT_BATCH_SIZE;
+export const DEFAULT_RECIPE_RETRY_FAILED_LIMIT =
+  DEFAULT_RECIPE_SUBMIT_BATCH_SIZE;
 
 /** recipe ingestion submit: 카테고리 컨텍스트 Redis TTL (초) */
 export const RECIPE_INGESTION_CATEGORY_CACHE_TTL_SECONDS = 3600;

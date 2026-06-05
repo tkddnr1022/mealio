@@ -10,8 +10,7 @@ const figmaWidth: Decorator = (Story) => (
   </div>
 );
 
-const filterCheckboxClassName =
-  'absolute top-1/2 right-4 -translate-y-1/2';
+const filterCheckboxClassName = 'absolute top-1/2 right-4 -translate-y-1/2';
 
 const filterIngredients: readonly InventoryIngredient[] = [
   { id: 1, name: '사과', categoryId: 1, categoryName: '채소' },

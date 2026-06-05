@@ -43,9 +43,7 @@ export class IngredientRepository {
     return this.prisma.ingredient.findFirst({ where: { name } });
   }
 
-  async findManyByIds(
-    ids: number[],
-  ): Promise<IngredientWithCategoryNameRow[]> {
+  async findManyByIds(ids: number[]): Promise<IngredientWithCategoryNameRow[]> {
     if (ids.length === 0) return [];
     const rows = await this.prisma.ingredient.findMany({
       where: { id: { in: ids } },

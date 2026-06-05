@@ -164,10 +164,7 @@ export function cachePatternDedupe(): string {
 
 /** Producer 레시피 카테고리 캐시 — `recipe:categories` */
 export function cacheKeyRecipeCategories(): string {
-  return buildCacheKey(
-    CACHE_KEY_PREFIX.RECIPE,
-    CACHE_KEY_SEGMENT.CATEGORIES,
-  );
+  return buildCacheKey(CACHE_KEY_PREFIX.RECIPE, CACHE_KEY_SEGMENT.CATEGORIES);
 }
 
 /** Producer static-ids 목록 캐시 패턴 — `recipe:list:static-ids:*` */
