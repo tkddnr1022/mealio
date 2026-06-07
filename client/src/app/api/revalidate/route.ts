@@ -5,22 +5,32 @@ import { NextRequest, NextResponse } from 'next/server';
 
 interface RevalidateRequestBody {
   secret?: unknown;
-  id?: unknown;
+  path?: unknown;
 }
 
-function parseRecipeId(raw: unknown): number | null {
-  const parsed =
-    typeof raw === 'number'
-      ? raw
-      : typeof raw === 'string'
-        ? Number.parseInt(raw, 10)
-        : Number.NaN;
-
-  if (!Number.isFinite(parsed) || parsed <= 0 || !Number.isInteger(parsed)) {
+function parseRevalidatePath(raw: unknown): string | null {
+  if (typeof raw !== 'string') {
     return null;
   }
 
-  return parsed;
+  const trimmed = raw.trim();
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  if (!trimmed.startsWith('/')) {
+    return null;
+  }
+
+  if (trimmed.startsWith('//') || trimmed.includes('..')) {
+    return null;
+  }
+
+  if (trimmed.length > 1 && trimmed.endsWith('/')) {
+    return trimmed.slice(0, -1);
+  }
+
+  return trimmed;
 }
 
 function isValidSecret(provided: unknown, expected: string): boolean {
@@ -69,15 +79,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   }
 
-  const recipeId = parseRecipeId(body.id);
-  if (recipeId === null) {
+  const path = parseRevalidatePath(body.path);
+  if (path === null) {
     return NextResponse.json(
-      { ok: false, error: 'Invalid recipe id' },
+      { ok: false, error: 'Invalid path' },
       { status: 400 },
     );
   }
 
-  const path = `/recipe/${recipeId}`;
   revalidatePath(path);
 
   return NextResponse.json({

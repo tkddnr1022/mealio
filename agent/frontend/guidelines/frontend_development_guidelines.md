@@ -67,7 +67,7 @@
 1. **빌드 타임**: `generateStaticParams` + `getRecipeStaticIds({ size: 10 })`로 상위 인기 레시피 id만 사전 생성.
 2. **최초 요청**: 사전 생성되지 않은 id는 첫 방문 시 on-demand로 HTML 생성·캐시.
 3. **캐시 유지**: `export const revalidate = false` — 주기 재검증 없음, 캐시는 명시적 무효화까지 유지.
-4. **데이터 변경 시**: 백엔드·관리 도구가 `POST /api/revalidate`(본문 `{ secret, id }`, `REVALIDATE_SECRET`)를 호출 → `revalidatePath('/recipe/{id}')`. 계약은 `agent/common/openapi_spec_frontend.yaml`.
+4. **데이터 변경 시**: 백엔드·관리 도구가 `POST /api/revalidate`(본문 `{ secret, path: '/recipe/{id}' }`, `REVALIDATE_SECRET`)를 호출 → `revalidatePath(path)`. 계약은 `agent/common/openapi_spec_frontend.yaml`.
 
 ```typescript
 // app/(main)/recipe/[id]/page.tsx
@@ -127,7 +127,7 @@ export default async function RecipesPage() {
 ### 3.2 페이지별 캐싱 요약
 
 - `/recipe`: ISR `revalidate = 300`, Redis 쿼리 캐시
-- `/recipe/[id]`: 온디맨드 ISR(`revalidate = false`, `generateStaticParams` size 10). 데이터 변경 시 `POST /api/revalidate` → `revalidatePath`
+- `/recipe/[id]`: 온디맨드 ISR(`revalidate = false`, `generateStaticParams` size 10). 데이터 변경 시 `POST /api/revalidate`(본문 `{ secret, path }`) → `revalidatePath(path)`
 - `/recipe` 개인화 추천 섹션: CSR(`GET /api/v1/recipes/recommended`) + Redis 결과 캐시 TTL 1시간
 
 ---
