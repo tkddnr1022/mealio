@@ -4,7 +4,7 @@ import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
 import { SearchBarHeader } from '@/components/layout/SearchBarHeader';
 import { Tabbar } from '@/components/layout/Tabbar';
-import { RecipeSection, RecipeSlider } from '@/components/recipe';
+import { RecipeSection } from '@/components/recipe';
 
 import { AuthStatus, useAuth } from '@/lib/auth/auth-context';
 import { useRecommendedRecipes } from '@/lib/queries/recipe.queries';
@@ -41,30 +41,32 @@ export function RecipeMainClientPage({
 
       <MainContent paddingX={false}>
         {showRecommendedSection ? (
-          <RecipeSection title="맞춤 레시피">
-            <RecipeSlider recipes={recommendedRecipes} />
-          </RecipeSection>
+          <RecipeSection
+            title="맞춤 레시피"
+            recipes={recommendedRecipes}
+            layout={{ columns: 2, rows: 1 }}
+          />
         ) : null}
 
-        <RecipeSection title="많이 본 레시피">
-          {mostViewedRecipes.length > 0 ? (
-            <RecipeSlider recipes={mostViewedRecipes} />
-          ) : (
+        <RecipeSection
+          title="많이 본 레시피"
+          recipes={mostViewedRecipes}
+          emptyFallback={
             <p className="typo-body-regular px-4 style-text-caption">
               표시할 레시피가 없어요.
             </p>
-          )}
-        </RecipeSection>
+          }
+        />
 
-        <RecipeSection title="좋아요 많은 레시피">
-          {mostLikedRecipes.length > 0 ? (
-            <RecipeSlider recipes={mostLikedRecipes} />
-          ) : (
+        <RecipeSection
+          title="좋아요 많은 레시피"
+          recipes={mostLikedRecipes}
+          emptyFallback={
             <p className="typo-body-regular px-4 style-text-caption">
               표시할 레시피가 없어요.
             </p>
-          )}
-        </RecipeSection>
+          }
+        />
       </MainContent>
 
       <Tabbar />
