@@ -3,9 +3,7 @@
 import * as Sentry from '@sentry/nextjs';
 
 import { isApiError } from '@/lib/api/error';
-import {
-  setSentryCorrelationTag,
-} from './sentry.client';
+import { setSentryCorrelationTag } from './sentry.client';
 
 export function reportApiErrorToSentry(error: unknown): void {
   if (!isApiError(error)) return;

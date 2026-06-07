@@ -4,8 +4,7 @@ import { Type } from 'class-transformer';
 
 export class RecipeStaticIdsQueryDto {
   @ApiPropertyOptional({
-    description:
-      '정적 경로 생성용 레시피 ID 개수 (인기순: 조회수 + 좋아요 수)',
+    description: '정적 경로 생성용 레시피 ID 개수 (인기순: 조회수 + 좋아요 수)',
     default: 100,
     minimum: 1,
     maximum: 500,

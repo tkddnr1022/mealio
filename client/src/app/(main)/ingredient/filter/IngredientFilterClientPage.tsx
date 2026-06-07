@@ -178,7 +178,7 @@ export function IngredientFilterClientPage({
           heading="검색어"
           searchBarProps={{
             value: keyword,
-            onChange: (e) => setKeyword(e.target.value)
+            onChange: (e) => setKeyword(e.target.value),
           }}
         />
 

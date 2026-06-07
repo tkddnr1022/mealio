@@ -50,7 +50,7 @@ export function RecipeSection({
         layout={layout}
       />
     ) : (
-      emptyFallback ?? null
+      (emptyFallback ?? null)
     );
 
   return (

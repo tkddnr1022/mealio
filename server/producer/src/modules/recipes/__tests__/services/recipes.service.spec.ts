@@ -513,7 +513,9 @@ describe('RecipeQueryService', () => {
         'static-ids',
         100,
       );
-      expect(recipeRepository.findPublishedIdsByPopularity).toHaveBeenCalledWith({
+      expect(
+        recipeRepository.findPublishedIdsByPopularity,
+      ).toHaveBeenCalledWith({
         size: 100,
       });
       expect(result).toEqual({ data: [3, 2, 1] });
@@ -525,7 +527,9 @@ describe('RecipeQueryService', () => {
       const result = await service.getStaticIds(3);
 
       expect(result).toEqual({ data: [10, 9, 8] });
-      expect(recipeRepository.findPublishedIdsByPopularity).not.toHaveBeenCalled();
+      expect(
+        recipeRepository.findPublishedIdsByPopularity,
+      ).not.toHaveBeenCalled();
     });
   });
 
