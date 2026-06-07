@@ -13,6 +13,13 @@ export type { RecipeFavoriteButtonProps } from './cards/RecipeFavoriteButton';
 export { RecipeGrid } from './lists/RecipeGrid';
 export type { RecipeGridProps } from './lists/RecipeGrid';
 
+export {
+  DEFAULT_RECIPE_GRID_LAYOUT,
+  getCardsPerPage,
+  getRecipeGridColsClass,
+} from './lists/recipe-grid-layout';
+export type { RecipeGridLayout } from './lists/recipe-grid-layout';
+
 export { RecipeSlider } from './lists/RecipeSlider';
 export type { RecipeSliderProps } from './lists/RecipeSlider';
 

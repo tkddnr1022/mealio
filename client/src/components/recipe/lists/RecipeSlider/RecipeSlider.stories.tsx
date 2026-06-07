@@ -91,6 +91,14 @@ export const SinglePage = {
   },
 } satisfies Story;
 
+export const TwoByOneLayout = {
+  name: '2×1 레이아웃',
+  args: {
+    recipes: makeRecipes(8),
+    layout: { columns: 2, rows: 1 },
+  },
+} satisfies Story;
+
 export const WiderPeek = {
   name: 'peek 넓게 (48px)',
   args: {

@@ -12,9 +12,12 @@ import 'swiper/css';
 import 'swiper/css/a11y';
 
 import { RecipeGrid } from '@/components/recipe/lists/RecipeGrid';
+import {
+  DEFAULT_RECIPE_GRID_LAYOUT,
+  getCardsPerPage,
+  type RecipeGridLayout,
+} from '@/components/recipe/lists/recipe-grid-layout';
 import { SliderPagination } from '@/components/ui/SliderPagination';
-
-const CARDS_PER_PAGE = 4;
 
 /** Figma / SliderPagination 정렬에 맞춘 값 — `peekPx`와 함께 슬라이드 폭 계산에 사용 */
 const SLIDES_OFFSET_BEFORE = 16;
@@ -42,6 +45,8 @@ export interface RecipeSliderProps extends Omit<
   recipes: readonly RecipeSummary[]; // TODO: optional로 만들고 fallback 구현
   cardClassName?: string;
   peekPx?: number;
+  /** 슬라이드 한 페이지당 그리드 구성. 기본 2×2(4장) */
+  layout?: RecipeGridLayout;
 }
 
 /**
@@ -53,9 +58,14 @@ export function RecipeSlider({
   recipes,
   cardClassName = '',
   peekPx = DEFAULT_PEEK_PX,
+  layout = DEFAULT_RECIPE_GRID_LAYOUT,
   ...rest
 }: RecipeSliderProps) {
-  const pages = useMemo(() => chunkRecipes(recipes, CARDS_PER_PAGE), [recipes]);
+  const cardsPerPage = getCardsPerPage(layout);
+  const pages = useMemo(
+    () => chunkRecipes(recipes, cardsPerPage),
+    [recipes, cardsPerPage],
+  );
   const [activeIndex, setActiveIndex] = useState(0);
   const slideWidthStyle = useMemo(
     () => ({
@@ -101,7 +111,11 @@ export function RecipeSlider({
               className="box-border! shrink-0"
               style={slideWidthStyle}
             >
-              <RecipeGrid recipes={pageRecipes} cardClassName={cardClassName} />
+              <RecipeGrid
+                recipes={pageRecipes}
+                cardClassName={cardClassName}
+                layout={layout}
+              />
             </SwiperSlide>
           ))}
         </Swiper>

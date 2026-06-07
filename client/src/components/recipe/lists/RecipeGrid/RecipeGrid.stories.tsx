@@ -164,6 +164,22 @@ export const ThreeItems = {
   },
 } satisfies Story;
 
+export const TwoByOne = {
+  name: '2×1 (2열 1행)',
+  args: {
+    recipes: variedRecipes.slice(0, 2),
+    layout: { columns: 2, rows: 1 },
+  },
+} satisfies Story;
+
+export const OneByTwo = {
+  name: '1×2 (1열 2행)',
+  args: {
+    recipes: variedRecipes.slice(0, 2),
+    layout: { columns: 1, rows: 2 },
+  },
+} satisfies Story;
+
 export const Empty = {
   name: '빈 목록',
   args: {
