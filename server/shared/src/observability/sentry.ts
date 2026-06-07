@@ -1,7 +1,10 @@
 import * as Sentry from '@sentry/node';
 import type { NodeOptions } from '@sentry/node';
 import type { ObservabilityConfig } from '../config/observability.config';
-import { getSentryInitOptions } from '../config/sentry.config';
+import {
+  getSentryInitOptions,
+  resolveBackendSentryEnabled,
+} from '../config/sentry.config';
 import {
   SENTRY_TAG_CONSUMER_GROUP,
   SENTRY_TAG_CORRELATION_ID,
@@ -34,18 +37,19 @@ export interface InitSentryOptions {
 }
 
 /**
- * Sentry SDK를 초기화한다. DSN이 없으면 no-op.
- * 중복 호출은 무시한다(싱글톤).
+ * Sentry SDK를 초기화한다. 중복 호출은 무시한다(싱글톤).
  */
-export function initSentry(options: InitSentryOptions): boolean {
-  if (initialized) return Boolean(options.config.sentryDsn);
+export function initSentry(options: InitSentryOptions): void {
+  if (initialized) return;
   const { config } = options;
-  if (!config.sentryDsn) {
-    return false;
-  }
+  const enabled = resolveBackendSentryEnabled(config.sentryDsn);
 
   Sentry.init({
-    ...getSentryInitOptions(config.serviceName, config.sentryDsn),
+    ...getSentryInitOptions(
+      config.serviceName,
+      config.sentryDsn ?? '',
+      enabled,
+    ),
     beforeSend(event) {
       return scrubSentryEvent(event);
     },
@@ -54,11 +58,6 @@ export function initSentry(options: InitSentryOptions): boolean {
 
   Sentry.setTag(SENTRY_TAG_SERVICE, config.serviceName);
   initialized = true;
-  return true;
-}
-
-export function isSentryInitialized(): boolean {
-  return initialized && Boolean(Sentry.getClient());
 }
 
 function applyCaptureScope(
@@ -93,33 +92,25 @@ function applyCaptureScope(
   }
 }
 
-/**
- * 예외를 Sentry에 보고한다. 초기화되지 않았으면 no-op.
- */
+/** 예외를 Sentry에 보고한다. SDK disabled이면 no-op. */
 export function captureSentryException(
   error: unknown,
   service: SentryServiceTag,
   context?: SentryCaptureContext,
 ): string | undefined {
-  if (!isSentryInitialized()) return undefined;
-
   return Sentry.withScope((scope) => {
     applyCaptureScope(scope, service, context);
     return Sentry.captureException(error);
   });
 }
 
-/**
- * 메시지를 Sentry에 보고한다(warn/error 로그 싱크 등).
- */
+/** 메시지를 Sentry에 보고한다(warn/error 로그 싱크 등). SDK disabled이면 no-op. */
 export function captureSentryMessage(
   message: string,
   level: Sentry.SeverityLevel,
   service: SentryServiceTag,
   context?: SentryCaptureContext,
 ): string | undefined {
-  if (!isSentryInitialized()) return undefined;
-
   return Sentry.withScope((scope) => {
     applyCaptureScope(scope, service, context);
     scope.setLevel(level);
@@ -129,7 +120,7 @@ export function captureSentryMessage(
 
 /** 테스트·graceful shutdown용 */
 export async function closeSentry(timeoutMs = 2000): Promise<void> {
-  if (!isSentryInitialized()) return;
+  if (!Sentry.getClient()) return;
   await Sentry.close(timeoutMs);
   initialized = false;
 }

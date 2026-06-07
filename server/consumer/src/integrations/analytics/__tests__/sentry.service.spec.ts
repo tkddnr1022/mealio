@@ -5,11 +5,6 @@ jest.mock('@mealio/shared', () => {
   const actual = jest.requireActual('@mealio/shared');
   return {
     ...actual,
-    createObservabilityConfig: jest.fn(() => ({
-      serviceName: 'consumer',
-      sentryDsn: 'https://example@o0.ingest.sentry.io/0',
-      metricsEnabled: true,
-    })),
     captureSentryException: jest.fn(() => 'evt-1'),
     inferFeatureFromKafkaTopic: jest.fn(() => 'chatbot'),
   };

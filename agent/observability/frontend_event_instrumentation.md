@@ -1,7 +1,5 @@
 # 프론트엔드 관측 이벤트 계측 체크리스트
 
-SaaS-only(GA4 + Sentry + Vercel Analytics) 기준.
-
 이벤트 사전·KPI SSOT: [event_dictionary.md](./event_dictionary.md).
 
 ## GA4 스크립트 로딩

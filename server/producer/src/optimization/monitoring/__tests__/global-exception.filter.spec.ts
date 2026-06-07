@@ -17,7 +17,6 @@ describe('GlobalSentryExceptionFilter', () => {
   const captureMock = sharedSentry.captureSentryException as jest.Mock;
 
   const sentryService = {
-    isEnabled: () => true,
     captureException: jest.fn((error: unknown, ctx?: { path?: string }) => {
       return captureMock(error, 'producer', {
         correlationId: ctx?.correlationId,

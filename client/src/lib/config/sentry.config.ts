@@ -2,7 +2,7 @@
  * Sentry SDK 초기화 옵션 (env·런타임 파생).
  *
  * `instrumentation-client.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`의
- * 단일 진입점. DSN·enabled는 {@link env}에서만 읽는다.
+ * 단일 진입점. DSN은 {@link env}에서, enabled는 `NEXT_PUBLIC_SENTRY_ENABLED` env에서 읽는다.
  * 그 외 모든 Sentry 옵션·샘플링 비율은 본 파일 상수가 SSOT이다.
  */
 import type { BrowserOptions } from '@sentry/nextjs';
@@ -58,8 +58,19 @@ export const SENTRY_CLIENT_SAMPLING_DEVELOPMENT = {
 
 export type SentryRuntime = 'client' | 'server' | 'edge';
 
-export function isSentryEnabled(): boolean {
-  return env.sentryEnabled;
+function parseClientSentryEnabledFlag(raw: string | undefined): boolean {
+  if (raw === undefined) return false;
+  if (raw === 'true' || raw === '1') return true;
+  if (raw === 'false' || raw === '0') return false;
+  return false;
+}
+
+/** `getSentryInitOptions` 전용 — NEXT_PUBLIC_SENTRY_ENABLED env와 DSN으로 enabled를 계산한다. */
+export function resolveClientSentryEnabled(dsn?: string): boolean {
+  return (
+    parseClientSentryEnabledFlag(process.env.NEXT_PUBLIC_SENTRY_ENABLED) &&
+    Boolean(dsn && dsn.length > 0)
+  );
 }
 
 function getTraceSamplingRates() {
@@ -113,7 +124,7 @@ export function getSentryInitOptions(
   const base: BrowserOptions = {
     dsn: env.sentryDsn,
     environment: env.runtime,
-    enabled: env.sentryEnabled,
+    enabled: resolveClientSentryEnabled(env.sentryDsn),
     sampleRate: rates.sampleRate,
     tracesSampler: createClientTracesSampler(),
     profilesSampleRate: rates.profilesSampleRate,

@@ -19,11 +19,12 @@ export {
   createBackendTracesSampler,
   getSentryInitOptions,
   isProductionRuntime,
-  isSentryEnabled,
+  resolveBackendSentryEnabled,
 } from './config/sentry.config';
 export {
   buildObservabilityEnvRules,
   isMetricsEnabledEnv,
+  isSentryEnabledEnv,
 } from './config/observability.env-validation';
 
 // Observability utilities
@@ -63,7 +64,6 @@ export {
 } from './observability/sentry-feature';
 export {
   initSentry,
-  isSentryInitialized,
   captureSentryException,
   captureSentryMessage,
   closeSentry,

@@ -38,8 +38,6 @@ export interface AppEnv {
    * Sentry 브라우저 DSN. staging/production 권장, 로컬은 비워도 됨.
    */
   readonly sentryDsn: string;
-  /** DSN이 설정되어 Sentry를 사용할 수 있는지 */
-  readonly sentryEnabled: boolean;
   /**
    * GA4 Measurement ID (예: G-XXXXXXXXXX). staging/production 권장.
    */
@@ -265,7 +263,6 @@ function buildEnv(): AppEnv {
     apiBaseUrl,
     apiPrefix,
     sentryDsn,
-    sentryEnabled: sentryDsn.length > 0,
     gaMeasurementId,
     siteUrl,
     vercelHost,

@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import {
   captureSentryException,
   captureSentryMessage,
-  createObservabilityConfig,
   getCorrelationId,
   inferFeatureFromHttpPath,
   type SentryCaptureContext,
@@ -10,14 +9,6 @@ import {
 
 @Injectable()
 export class SentryService {
-  private readonly observability = createObservabilityConfig('producer', {
-    requireMetricsPort: false,
-  });
-
-  isEnabled(): boolean {
-    return Boolean(this.observability.sentryDsn);
-  }
-
   captureException(
     error: unknown,
     context?: Omit<SentryCaptureContext, 'feature'> & { path?: string },

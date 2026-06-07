@@ -7,6 +7,7 @@
 import type { NodeOptions } from '@sentry/node';
 
 import type { ObservabilityServiceName } from './observability.config';
+import { isSentryEnabledEnv } from './observability.env-validation';
 
 /** HTTP·Kafka 트레이스 경로 매칭용 (tracesSampler) */
 export const SENTRY_BACKEND_TRACE_PATH = {
@@ -17,7 +18,6 @@ export const SENTRY_BACKEND_TRACE_PATH = {
 /** 모든 서비스 공통 init 옵션 */
 export const SENTRY_BACKEND_COMMON = {
   sendDefaultPii: false,
-  enabledWhenDsnPresent: true,
 } as const;
 
 /** Production 샘플링 (에러·프로파일·트레이스) */
@@ -52,8 +52,12 @@ export function isProductionRuntime(): boolean {
   return (process.env.NODE_ENV ?? 'development') === 'production';
 }
 
-export function isSentryEnabled(dsn?: string): boolean {
-  return Boolean(dsn && dsn.length > 0);
+/** `initSentry` 전용 — SENTRY_ENABLED env와 DSN으로 SDK enabled 플래그를 계산한다. */
+export function resolveBackendSentryEnabled(dsn?: string): boolean {
+  return (
+    isSentryEnabledEnv(process.env.SENTRY_ENABLED) &&
+    Boolean(dsn && dsn.length > 0)
+  );
 }
 
 function getTraceSamplingRates() {
@@ -96,6 +100,7 @@ export function createBackendTracesSampler(): NonNullable<
 export function getSentryInitOptions(
   serviceTag: ObservabilityServiceName,
   dsn: string,
+  enabled: boolean,
 ): NodeOptions {
   const rates = getEventSamplingRates();
 
@@ -103,7 +108,7 @@ export function getSentryInitOptions(
     dsn,
     environment: process.env.NODE_ENV ?? 'development',
     release: process.env.SENTRY_RELEASE,
-    enabled: SENTRY_BACKEND_COMMON.enabledWhenDsnPresent,
+    enabled,
     sampleRate: rates.sampleRate,
     tracesSampler: createBackendTracesSampler(),
     profilesSampleRate: rates.profilesSampleRate,

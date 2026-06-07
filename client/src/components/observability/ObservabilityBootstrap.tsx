@@ -48,7 +48,7 @@ export function resetObservabilityBootstrapForTests(): void {
 /**
  * 루트 레이아웃에서 1회 마운트 — GA4, Vercel Analytics, Web Vitals.
  *
- * - `useReportWebVitals`는 Next가 제공하는 메트릭만 수집한다(중복 `registerWebVitals` 호출 없음).
+ * - `useReportWebVitals`는 Next가 제공하는 메트릭만 수집한다.
  *
  * **page_view 정책**: `GoogleAnalytics` 컴포넌트(@next/third-parties)가
  * 초기 로드 시 `gtag('config', gaId)`를 통해 자동 pageview를 전송하고,

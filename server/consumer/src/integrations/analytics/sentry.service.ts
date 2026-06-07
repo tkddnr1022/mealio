@@ -2,21 +2,12 @@ import { Injectable } from '@nestjs/common';
 import {
   captureSentryException,
   captureSentryMessage,
-  createObservabilityConfig,
   inferFeatureFromKafkaTopic,
   type SentryCaptureContext,
 } from '@mealio/shared';
 
 @Injectable()
 export class SentryService {
-  private readonly observability = createObservabilityConfig('consumer', {
-    requireMetricsPort: true,
-  });
-
-  isEnabled(): boolean {
-    return Boolean(this.observability.sentryDsn);
-  }
-
   captureException(
     error: unknown,
     context: SentryCaptureContext & { topic?: string },

@@ -26,6 +26,13 @@ export function buildObservabilityEnvRules(
         'any.required': 'METRICS_ENABLED is required',
         'any.only': 'METRICS_ENABLED must be true, false, 1, or 0',
       }),
+    SENTRY_ENABLED: Joi.string()
+      .valid('true', 'false', '1', '0')
+      .required()
+      .messages({
+        'any.required': 'SENTRY_ENABLED is required',
+        'any.only': 'SENTRY_ENABLED must be true, false, 1, or 0',
+      }),
     [sentryDsnEnvName(options.serviceName)]: Joi.string()
       .uri()
       .optional()
@@ -54,5 +61,9 @@ export function buildObservabilityEnvRules(
 }
 
 export function isMetricsEnabledEnv(value: string | undefined): boolean {
+  return value === 'true' || value === '1';
+}
+
+export function isSentryEnabledEnv(value: string | undefined): boolean {
   return value === 'true' || value === '1';
 }

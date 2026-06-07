@@ -28,7 +28,7 @@ export class GlobalSentryExceptionFilter
   }
 
   catch(exception: unknown, host: ArgumentsHost): void {
-    if (host.getType() === 'http' && this.sentryService.isEnabled()) {
+    if (host.getType() === 'http') {
       this.reportToSentry(exception, host);
     }
     super.catch(exception, host);

@@ -3,7 +3,6 @@
 import * as Sentry from '@sentry/nextjs';
 
 import { isApiError } from '@/lib/api/error';
-import { isSentryEnabled } from '@/lib/config/sentry.config';
 import type { LogContext, LogLevel, LogSink } from '@/lib/utils/logger';
 
 const SENTRY_TAG_SERVICE = 'service';
@@ -28,18 +27,8 @@ function scrubContext(context: LogContext): LogContext {
   return out;
 }
 
-/**
- * SDK가 초기화된 상태인지 확인한다.
- * `@sentry/nextjs`에서는 `instrumentation-client.ts`에서 자동 초기화되므로
- * DSN 존재 여부로 판별한다.
- */
-export function isClientSentryEnabled(): boolean {
-  return isSentryEnabled();
-}
-
 export function createSentryLogSink(): LogSink {
   return (level: LogLevel, message: string, context?: LogContext) => {
-    if (!isClientSentryEnabled()) return;
     if (level !== 'warn' && level !== 'error') return;
 
     const correlationId =
@@ -72,6 +61,6 @@ export function createSentryLogSink(): LogSink {
  * ApiError 등에서 correlationId를 Sentry 태그로 설정한다.
  */
 export function setSentryCorrelationTag(correlationId?: string): void {
-  if (!isClientSentryEnabled() || !correlationId) return;
+  if (!correlationId) return;
   Sentry.setTag(SENTRY_TAG_CORRELATION_ID, correlationId);
 }

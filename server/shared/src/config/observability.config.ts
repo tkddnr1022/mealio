@@ -66,9 +66,11 @@ export function createObservabilityConfig(
   const metricsEnabled = parseBoolean(metricsEnabledRaw);
 
   const sentryDsn = process.env[sentryDsnEnvName(serviceName)]?.trim();
+  const normalizedSentryDsn =
+    sentryDsn && sentryDsn.length > 0 ? sentryDsn : undefined;
   const base: ObservabilityConfig = {
     serviceName,
-    sentryDsn: sentryDsn && sentryDsn.length > 0 ? sentryDsn : undefined,
+    sentryDsn: normalizedSentryDsn,
     metricsEnabled,
   };
 

@@ -1,6 +1,7 @@
 import {
   createObservabilityConfig,
   isMetricsEnabledFromEnv,
+  resolveBackendSentryEnabled,
 } from '@mealio/shared';
 
 describe('createObservabilityConfig', () => {
@@ -86,5 +87,20 @@ describe('createObservabilityConfig', () => {
     expect(isMetricsEnabledFromEnv()).toBe(true);
     process.env.METRICS_ENABLED = 'false';
     expect(isMetricsEnabledFromEnv()).toBe(false);
+  });
+
+  it('resolveBackendSentryEnabled should require SENTRY_ENABLED=true and DSN', () => {
+    process.env.SENTRY_ENABLED = 'true';
+    expect(
+      resolveBackendSentryEnabled('https://example@o0.ingest.sentry.io/1'),
+    ).toBe(true);
+
+    process.env.SENTRY_ENABLED = 'false';
+    expect(
+      resolveBackendSentryEnabled('https://example@o0.ingest.sentry.io/1'),
+    ).toBe(false);
+
+    process.env.SENTRY_ENABLED = 'true';
+    expect(resolveBackendSentryEnabled(undefined)).toBe(false);
   });
 });

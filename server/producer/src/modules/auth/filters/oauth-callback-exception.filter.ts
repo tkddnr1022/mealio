@@ -69,10 +69,6 @@ export class OAuthCallbackExceptionFilter
   }
 
   private reportToSentry(exception: unknown, request: Request): void {
-    if (!this.sentryService.isEnabled()) {
-      return;
-    }
-
     const status =
       exception instanceof HttpException
         ? exception.getStatus()

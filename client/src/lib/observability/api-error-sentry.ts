@@ -4,12 +4,11 @@ import * as Sentry from '@sentry/nextjs';
 
 import { isApiError } from '@/lib/api/error';
 import {
-  isClientSentryEnabled,
   setSentryCorrelationTag,
 } from './sentry.client';
 
 export function reportApiErrorToSentry(error: unknown): void {
-  if (!isClientSentryEnabled() || !isApiError(error)) return;
+  if (!isApiError(error)) return;
 
   setSentryCorrelationTag(error.correlationId);
 
