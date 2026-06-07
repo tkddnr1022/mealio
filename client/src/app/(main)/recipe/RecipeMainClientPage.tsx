@@ -37,7 +37,10 @@ export function RecipeMainClientPage({
     <>
       <Navbar />
 
-      <SearchBarHeader href="/recipe/filter" />
+      <SearchBarHeader
+        href="/recipe/filter"
+        searchBarProps={{ placeholder: '레시피 검색하기' }}
+      />
 
       <MainContent paddingX={false}>
         {showRecommendedSection ? (

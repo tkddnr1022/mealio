@@ -106,8 +106,7 @@ function RecipeFilterForm({
           heading="검색어"
           searchBarProps={{
             value: keyword,
-            onChange: (event) => setKeyword(event.target.value),
-            placeholder: '검색어를 입력해 주세요',
+            onChange: (event) => setKeyword(event.target.value)
           }}
         />
 
