@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@mealio/shared';
+import { MAX_RECOMMENDATION_ROWS, PrismaService } from '@mealio/shared';
 import { Prisma } from '@mealio/shared/prisma-client';
 
 export interface RecipeScoreDeltaInput {
@@ -8,7 +8,6 @@ export interface RecipeScoreDeltaInput {
   reason: string;
 }
 
-const MAX_RECOMMENDATION_ROWS = 30;
 /** 재정렬 전 placeholder. recipeId를 더해 동일 트랜잭션 내 다건 create 시 (userId, rank) 유니크 충돌을 방지한다. */
 const DEFAULT_UNRANKED = 9999;
 

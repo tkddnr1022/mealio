@@ -201,7 +201,7 @@ OAuth 인증은 백엔드 주도 흐름을 따른다. 전략·API 계약·보안
 
 | 항목 | 명세 |
 |------|------|
-| **API** | `GET /api/v1/recipes/recommended` — **JWT 필수**(`JwtAuthGuard`). 쿼리 `limit` 기본 12, 최소 1·최대 30 (`RecommendedRecipesQueryDto`). |
+| **API** | `GET /api/v1/recipes/recommended` — **JWT 필수**(`JwtAuthGuard`). 쿼리 `limit` 기본 10, 최소 1·최대 10 (`RecommendedRecipesQueryDto`). |
 | **컨트롤러·서비스** | `recipes.controller.ts` → `RecipeQueryService.getRecommended(userId, limit)` (`recipes.service.ts`). |
 | **응답 DTO** | `RecommendedRecipeItemDto[]` — `recipe`(RecipeSummary), `rank`, `score`, `reason`, `calculatedAt`. OpenAPI `RecipeRecommendationItem`과 동기화. |
 | **조회** | `RecipeRepository` 등에서 `UserRecipeRecommendation` SSOT 조회 후 RecipeSummary·RecipeStats 조인. 필요 필드만 select/include. |

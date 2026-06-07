@@ -6,6 +6,7 @@ import {
   cacheKeyDedupeSearchClick,
   cacheKeyDedupeSearchQuery,
   KAFKA_TOPICS,
+  MAX_RECOMMENDATION_ROWS,
   RedisService,
 } from '@mealio/shared';
 import {
@@ -102,14 +103,17 @@ export class RecipeQueryService {
     userId: number,
     limit: number,
   ): Promise<{ data: RecommendedRecipeItemDto[] }> {
-    const normalizedLimit = Math.min(Math.max(limit, 1), 30);
+    const normalizedLimit = Math.min(
+      Math.max(limit, 1),
+      MAX_RECOMMENDATION_ROWS,
+    );
 
     const cached = await this.cacheService.getOrSet(
       this.recommendationCacheStrategy,
       async () => {
         const fromSsot = await this.recipeRepository.findRecommendedByUser(
           userId,
-          30,
+          MAX_RECOMMENDATION_ROWS,
         );
 
         return fromSsot.map((item) => ({

@@ -459,12 +459,12 @@ paths:
           example: "{{apiKey}}"
         - name: limit
           in: query
-          description: 반환할 추천 개수 (기본 12, 최대 30)
+          description: 반환할 추천 개수 (기본 10, 최대 10)
           schema:
             type: integer
             minimum: 1
-            maximum: 30
-            default: 12
+            maximum: 10
+            default: 10
       responses:
         '200':
           description: 추천 목록 조회 성공
