@@ -8,8 +8,6 @@ describe('HttpMetricsMiddleware', () => {
     serviceName: 'producer',
     metricsEnabled: true,
     slowQueryThresholdMs: 500,
-    logSampleRate: 1,
-    traceSampleRate: 1,
   };
 
   it('should not record metrics for /metrics', () => {

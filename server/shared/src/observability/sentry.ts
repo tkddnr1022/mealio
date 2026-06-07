@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/node';
 import type { NodeOptions } from '@sentry/node';
 import type { ObservabilityConfig } from '../config/observability.config';
+import { getSentryInitOptions } from '../config/sentry.config';
 import {
   SENTRY_TAG_CONSUMER_GROUP,
   SENTRY_TAG_CORRELATION_ID,
@@ -43,14 +44,8 @@ export function initSentry(options: InitSentryOptions): boolean {
     return false;
   }
 
-  const environment = process.env.NODE_ENV ?? 'development';
-  const tracesSampleRate = config.traceSampleRate ?? 0;
-
   Sentry.init({
-    dsn: config.sentryDsn,
-    environment,
-    release: process.env.SENTRY_RELEASE,
-    tracesSampleRate,
+    ...getSentryInitOptions(config.serviceName, config.sentryDsn),
     beforeSend(event) {
       return scrubSentryEvent(event);
     },

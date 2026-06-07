@@ -16,6 +16,12 @@ export {
   type ObservabilityServiceName,
 } from './config/observability.config';
 export {
+  createBackendTracesSampler,
+  getSentryInitOptions,
+  isProductionRuntime,
+  isSentryEnabled,
+} from './config/sentry.config';
+export {
   buildObservabilityEnvRules,
   isMetricsEnabledEnv,
 } from './config/observability.env-validation';

@@ -86,14 +86,15 @@ datasource: `postgresql`. generator: `prisma-client`, output `generated`.
 | server/shared/src/utils/correlation-context.ts | AsyncLocalStorage 기반 Correlation Context 전파 |
 | server/shared/src/constants/ | cache-keys.ts, asset-url-prefixes.ts, recipe-ingestion.ts(계약), sentry.constants.ts, ⚠️ 미구현: error-codes.ts |
 | server/shared/src/policy/ | recipe-ingestion.policy.ts, user-credits.policy.ts |
-| server/shared/src/config/ | observability.config.ts, observability.env-validation.ts (3.1의 kafka, redis 외 추가) |
-| server/shared/src/config/observability.config.ts | Sentry DSN·환경·샘플링 등 관측성 설정 |
-| server/shared/src/config/observability.env-validation.ts | 관측성 관련 환경 변수 Joi 스키마 검증 |
+| server/shared/src/config/ | observability.config.ts, observability.env-validation.ts, sentry.config.ts (3.1의 kafka, redis 외 추가) |
+| server/shared/src/config/observability.config.ts | METRICS_ENABLED·슬로우 쿼리·Sentry DSN 등 env 기반 관측성 설정 |
+| server/shared/src/config/observability.env-validation.ts | 관측성 관련 환경 변수 Joi 스키마 검증 (`METRICS_ENABLED`, `SLOW_QUERY_THRESHOLD_MS` 등) |
+| server/shared/src/config/sentry.config.ts | Sentry SDK init 옵션(`getSentryInitOptions`, `createBackendTracesSampler`) |
 | server/shared/src/constants/sentry.constants.ts | Sentry 태그·민감 키 패턴 상수 |
 | **server/shared/src/observability/** | Sentry 초기화·유틸 묶음 |
-| server/shared/src/observability/sentry.ts | Sentry `init` 래퍼 (Producer/Consumer 공용) |
+| server/shared/src/observability/sentry.ts | Sentry `init` 래퍼 — `sentry.config.ts` 옵션 + scrub 훅 (Producer/Consumer 공용) |
 | server/shared/src/observability/sentry-scrub.ts | Sentry 이벤트 전송 전 PII·비밀 스크러빙 |
-| server/shared/src/observability/sentry-feature.ts | Sentry 피처 플래그 (환경별 기능 토글) |
+| server/shared/src/observability/sentry-feature.ts | HTTP path·Kafka topic → Sentry `feature` 태그 추론 |
 
 ## 3.5 추천 캐시·무효화 계약
 

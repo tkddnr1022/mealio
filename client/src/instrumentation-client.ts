@@ -4,12 +4,10 @@ import { getSentryInitOptions } from '@/lib/config/sentry.config';
 
 const REDACTED = '[Filtered]';
 
-const sentryInit = getSentryInitOptions('client');
-
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
 
 Sentry.init({
-  ...sentryInit,
+  ...getSentryInitOptions('client', 'client'),
 
   beforeSend(event) {
     if (event.request?.headers) {

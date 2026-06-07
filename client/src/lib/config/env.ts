@@ -41,11 +41,6 @@ export interface AppEnv {
   /** DSN이 설정되어 Sentry를 사용할 수 있는지 */
   readonly sentryEnabled: boolean;
   /**
-   * Sentry performance traces 샘플 비율 (0–1).
-   * 미설정 시 production 0.1, 그 외 1.
-   */
-  readonly sentryTracesSampleRate: number;
-  /**
    * GA4 Measurement ID (예: G-XXXXXXXXXX). staging/production 권장.
    */
   readonly gaMeasurementId: string;
@@ -70,16 +65,12 @@ const DEFAULTS = {
   sentryDsn: '',
   gaMeasurementId: '',
   siteUrl: '',
-  sentryTracesSampleRateProduction: 0.1,
-  sentryTracesSampleRateDevelopment: 1,
 } as const;
 
 const RAW_ENV_MAP: Record<string, string | undefined> = {
   NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   NEXT_PUBLIC_API_PREFIX: process.env.NEXT_PUBLIC_API_PREFIX,
   NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE:
-    process.env.NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE,
   NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
   NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
 };
@@ -150,22 +141,6 @@ function parseSentryDsn(): string {
       `Invalid NEXT_PUBLIC_SENTRY_DSN: "${raw}". 유효한 URL이어야 합니다.`,
     );
   }
-}
-
-function parseSentryTracesSampleRate(runtime: RuntimeEnv): number {
-  const raw = readRaw('NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE');
-  if (raw === undefined) {
-    return runtime === 'production'
-      ? DEFAULTS.sentryTracesSampleRateProduction
-      : DEFAULTS.sentryTracesSampleRateDevelopment;
-  }
-  const parsed = parseFloat(raw);
-  if (!Number.isFinite(parsed) || parsed < 0 || parsed > 1) {
-    throw new EnvValidationError(
-      `Invalid NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE: "${raw}". 0–1 사이 숫자여야 합니다.`,
-    );
-  }
-  return parsed;
 }
 
 function parseGaMeasurementId(): string {
@@ -274,14 +249,6 @@ function buildEnv(): AppEnv {
     errors,
     runtime,
   );
-  const sentryTracesSampleRate = safeParse(
-    () => parseSentryTracesSampleRate(runtime),
-    runtime === 'production'
-      ? DEFAULTS.sentryTracesSampleRateProduction
-      : DEFAULTS.sentryTracesSampleRateDevelopment,
-    errors,
-    runtime,
-  );
   const gaMeasurementId = safeParse(
     parseGaMeasurementId,
     DEFAULTS.gaMeasurementId,
@@ -299,7 +266,6 @@ function buildEnv(): AppEnv {
     apiPrefix,
     sentryDsn,
     sentryEnabled: sentryDsn.length > 0,
-    sentryTracesSampleRate,
     gaMeasurementId,
     siteUrl,
     vercelHost,

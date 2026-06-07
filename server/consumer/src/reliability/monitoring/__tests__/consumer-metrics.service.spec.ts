@@ -7,8 +7,6 @@ describe('ConsumerMetricsService', () => {
     metricsEnabled: true,
     metricsPort: 9091,
     slowQueryThresholdMs: 500,
-    logSampleRate: 1,
-    traceSampleRate: 1,
   };
 
   it('should record processed and failed message metrics', async () => {

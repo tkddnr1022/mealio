@@ -15,6 +15,8 @@
 | `NEXT_PUBLIC_SENTRY_DSN` | Client `.env` | 설정 | 비워도 됨 |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Client `.env` | 설정 | 비워도 됨 |
 | `METRICS_ENABLED` | Producer `.env`, Consumer `.env` | `true` | `true` |
+| `SLOW_QUERY_THRESHOLD_MS` | Producer `.env`, Consumer `.env` | 설정 (`METRICS_ENABLED=true` 시) | 예: `500` |
+| `METRICS_PORT` | Consumer `.env` | 설정 (`METRICS_ENABLED=true` 시) | 예: `9091` |
 | `SLACK_OPS_WEBHOOK_URL` | Grafana / alerting | 설정 | 선택 |
 | `SLACK_PRODUCT_WEBHOOK_URL` | Grafana / alerting | 설정 | 선택 |
 
@@ -82,6 +84,26 @@
 ---
 
 ## 5. 에러 추적 (Sentry)
+
+### 5.0 샘플링·init 설정 (코드 SSOT)
+
+| 런타임 | init 진입점 | 샘플링 설정 |
+|--------|-------------|-------------|
+| Client (browser) | `client/src/instrumentation-client.ts` | `client/src/lib/config/sentry.config.ts` |
+| Client (Next server/edge) | `client/sentry.server.config.ts`, `client/sentry.edge.config.ts` | 동일 |
+| Producer / Consumer | `initSentry()` in `main.ts` | `server/shared/src/config/sentry.config.ts` |
+
+**Production 권장값 (코드 상수)**:
+
+| 옵션 | Client | Server (Next·Nest) |
+|------|--------|---------------------|
+| `sampleRate` | 1.0 | 1.0 |
+| `profilesSampleRate` | 0.2 | 0.2 |
+| `replaysSessionSampleRate` | 0.01 | — |
+| `replaysOnErrorSampleRate` | 1.0 | — |
+| `tracesSampler` | `/api/health`, `/api/metrics` → 0; `/api/*` → 0.2; 페이지 → 0.05 | `/health`, `/metrics` → 0; 그 외 → 0.1 |
+
+Development에서는 위 비율·트레이스 샘플링을 1.0(또는 health/metrics 제외 0)으로 둔다.
 
 ### 5.1 Producer
 

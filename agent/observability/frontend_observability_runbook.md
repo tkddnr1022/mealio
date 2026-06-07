@@ -75,6 +75,7 @@ GA4만으로는 도메인 CVR·추천 지연을 확정할 수 없다. staging에
 
 ## 관련 코드
 
+- Sentry init 옵션(SSOT): `client/src/lib/config/sentry.config.ts`
 - Sentry 초기화 (L1): `client/src/instrumentation-client.ts`
 - Sentry 서버/엣지: `client/sentry.server.config.ts`, `client/sentry.edge.config.ts`
 - Sentry 레이어 헬퍼 (L3/L4): `client/src/lib/observability/sentry.client.ts`, `client/src/lib/observability/api-error-sentry.ts`

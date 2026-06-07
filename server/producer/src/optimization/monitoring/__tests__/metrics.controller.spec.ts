@@ -9,8 +9,6 @@ describe('MetricsController', () => {
     metricsEnabled: true,
     metricsPort: 9091,
     slowQueryThresholdMs: 500,
-    logSampleRate: 1,
-    traceSampleRate: 1,
   };
 
   const disabledConfig: ObservabilityConfig = {

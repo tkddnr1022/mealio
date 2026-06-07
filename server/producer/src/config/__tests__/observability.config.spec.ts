@@ -51,8 +51,6 @@ describe('createObservabilityConfig', () => {
   it('should parse producer observability vars when METRICS_ENABLED=true', () => {
     process.env.METRICS_ENABLED = 'true';
     process.env.SLOW_QUERY_THRESHOLD_MS = '750';
-    process.env.LOG_SAMPLE_RATE = '0.5';
-    process.env.TRACE_SAMPLE_RATE = '1';
 
     const config = createObservabilityConfig('producer', {
       requireMetricsPort: false,
@@ -60,7 +58,6 @@ describe('createObservabilityConfig', () => {
 
     expect(config.metricsEnabled).toBe(true);
     expect(config.slowQueryThresholdMs).toBe(750);
-    expect(config.logSampleRate).toBe(0.5);
     expect(config.metricsPort).toBeUndefined();
   });
 
@@ -68,8 +65,6 @@ describe('createObservabilityConfig', () => {
     process.env.METRICS_ENABLED = 'true';
     process.env.METRICS_PORT = '9091';
     process.env.SLOW_QUERY_THRESHOLD_MS = '500';
-    process.env.LOG_SAMPLE_RATE = '1';
-    process.env.TRACE_SAMPLE_RATE = '1';
 
     const config = createObservabilityConfig('consumer', {
       requireMetricsPort: true,

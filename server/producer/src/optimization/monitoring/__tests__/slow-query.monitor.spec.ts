@@ -9,8 +9,6 @@ describe('SlowQueryMonitor', () => {
     metricsEnabled: true,
     metricsPort: 9091,
     slowQueryThresholdMs: 100,
-    logSampleRate: 1,
-    traceSampleRate: 1,
   };
 
   let metrics: MetricsService;

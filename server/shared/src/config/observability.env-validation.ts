@@ -6,20 +6,6 @@ import {
 
 const metricsEnabledOn = Joi.string().valid('true', '1');
 
-const sampleRateSchema = Joi.string()
-  .required()
-  .custom((value: string, helpers) => {
-    const parsed = parseFloat(value);
-    if (!Number.isFinite(parsed) || parsed < 0 || parsed > 1) {
-      return helpers.error('any.invalid');
-    }
-    return value;
-  })
-  .messages({
-    'any.invalid': 'must be a number between 0 and 1',
-    'any.required': 'is required when METRICS_ENABLED=true',
-  });
-
 export interface ObservabilityEnvValidationOptions {
   serviceName: ObservabilityServiceName;
   /** Consumer는 METRICS_PORT 필수, Producer는 HTTP PORT로 /metrics 노출 */
@@ -50,16 +36,6 @@ export function buildObservabilityEnvRules(
         'any.required':
           'SLOW_QUERY_THRESHOLD_MS is required when METRICS_ENABLED=true',
       }),
-      otherwise: Joi.optional(),
-    }),
-    LOG_SAMPLE_RATE: Joi.when('METRICS_ENABLED', {
-      is: metricsEnabledOn,
-      then: sampleRateSchema,
-      otherwise: Joi.optional(),
-    }),
-    TRACE_SAMPLE_RATE: Joi.when('METRICS_ENABLED', {
-      is: metricsEnabledOn,
-      then: sampleRateSchema,
       otherwise: Joi.optional(),
     }),
   };

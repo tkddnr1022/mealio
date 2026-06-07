@@ -14,8 +14,6 @@ x-app-common-env: &app-common-env
   REDIS_URL: ${REDIS_URL:?REDIS_URL is required}
   KAFKA_BROKERS: ${KAFKA_BROKERS:?KAFKA_BROKERS is required}
   SLOW_QUERY_THRESHOLD_MS: ${SLOW_QUERY_THRESHOLD_MS:?SLOW_QUERY_THRESHOLD_MS is required}
-  LOG_SAMPLE_RATE: ${LOG_SAMPLE_RATE:?LOG_SAMPLE_RATE is required}
-  TRACE_SAMPLE_RATE: ${TRACE_SAMPLE_RATE:?TRACE_SAMPLE_RATE is required}
 
 services:
   producer:
