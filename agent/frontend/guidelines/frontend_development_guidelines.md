@@ -7,13 +7,13 @@
 ## 1. 라우팅 구현 (Next.js App Router)
 
 - **SSG**: `getStaticProps` 대신 기본 정적 생성. `generateStaticParams`로 동적 세그먼트 정적 경로 정의.
-- **ISR**: `revalidate` export로 재검증 주기 설정. `/api/revalidate` 웹훅으로 온디맨드 재검증.
+- **ISR**: `revalidate` export로 재검증 주기 설정. 레시피 상세(`/recipe/[id]`)는 `revalidate = false`로 주기 재검증 없이 **`POST /api/revalidate` 웹훅**(`revalidatePath`)으로만 무효화한다.
 - **SSR**: 기본이 서버 컴포넌트. `cookies()`, `headers()` 등으로 개인화 데이터 조회.
 - **CSR**: `'use client'` + 클라이언트 전용 컴포넌트. 챗봇·재료 관리·폼 등 인터랙티브 UI.
 
 ### 1.1 `revalidate` 선언 규칙
 
-- `app/**/page.tsx`의 ISR 선언은 **항상 숫자 리터럴**로 작성한다. 예: `export const revalidate = 300`.
+- `app/**/page.tsx`의 ISR 선언은 **항상 숫자 리터럴 또는 `false`** 로 작성한다. 예: `export const revalidate = 300`, `export const revalidate = false`(온디맨드 전용).
 - `export const revalidate = SOME_CONST` 형태(상수 참조)는 빌드 타임 정적 분석 실패 원인이 될 수 있으므로 금지한다.
 - 공개 ISR 페이지에서는 `cookies()` 의존 함수를 호출하지 않고, 쿠키 비의존 서버 API 래퍼만 사용한다.
 
@@ -62,26 +62,25 @@
 
 ### 2.1 레시피 상세 (ISR·메타데이터)
 
-레시피 상세 페이지는 상위 N개 인기 레시피를 빌드 타임에 생성하고, 나머지는 온디맨드·ISR로 처리한다.
+레시피 상세(`/recipe/[id]`)는 **온디맨드 ISR** 전략을 사용한다.
+
+1. **빌드 타임**: `generateStaticParams` + `getRecipeStaticIds({ size: 10 })`로 상위 인기 레시피 id만 사전 생성.
+2. **최초 요청**: 사전 생성되지 않은 id는 첫 방문 시 on-demand로 HTML 생성·캐시.
+3. **캐시 유지**: `export const revalidate = false` — 주기 재검증 없음, 캐시는 명시적 무효화까지 유지.
+4. **데이터 변경 시**: 백엔드·관리 도구가 `POST /api/revalidate`(본문 `{ secret, id }`, `REVALIDATE_SECRET`)를 호출 → `revalidatePath('/recipe/{id}')`. 계약은 `agent/common/openapi_spec_frontend.yaml`.
 
 ```typescript
-// app/(main)/recipes/[id]/page.tsx
+// app/(main)/recipe/[id]/page.tsx
 export async function generateStaticParams() {
-  const topRecipes = await getTopRecipes(1000);
-  return topRecipes.map(recipe => ({ id: recipe.id.toString() }));
+  const result = await getRecipeStaticIds({ size: 10 });
+  return result.data.map((id) => ({ id: String(id) }));
 }
 
-export const revalidate = 600; // 10분마다 ISR
+export const revalidate = false; // 주기 ISR 없음 — /api/revalidate 웹훅으로만 무효화
 
 export async function generateMetadata({ params }): Promise<Metadata> {
-  const recipe = await getRecipe(params.id);
-  return {
-    title: recipe.title,
-    description: recipe.description,
-    openGraph: {
-      images: [recipe.image_url],
-    },
-  };
+  const recipe = await getRecipeById(Number.parseInt((await params).id, 10));
+  return { title: recipe.title, description: recipe.description, /* ... */ };
 }
 ```
 
@@ -127,9 +126,8 @@ export default async function RecipesPage() {
 
 ### 3.2 페이지별 캐싱 요약
 
-- `/home`: Redis `user:${id}:dashboard`, TTL 5분
-- `/recipes`: ISR revalidate 300초, Redis 쿼리 캐시
-- `/recipes/[id]`: ISR revalidate 600초, CDN 24시간
+- `/recipe`: ISR `revalidate = 300`, Redis 쿼리 캐시
+- `/recipe/[id]`: 온디맨드 ISR(`revalidate = false`, `generateStaticParams` size 10). 데이터 변경 시 `POST /api/revalidate` → `revalidatePath`
 - `/recipe` 개인화 추천 섹션: CSR(`GET /api/v1/recipes/recommended`) + Redis 결과 캐시 TTL 1시간
 
 ---
