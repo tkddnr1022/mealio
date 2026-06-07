@@ -125,6 +125,21 @@ describe('RecipeRepository', () => {
     });
   });
 
+  describe('findPublishedIdsByPopularity', () => {
+    it('공개 레시피 ID를 조회수+좋아요 합산 인기순으로 반환한다', async () => {
+      mockPrismaService.$queryRaw.mockResolvedValueOnce([
+        { id: 3 },
+        { id: 1 },
+        { id: 2 },
+      ]);
+
+      const result = await repository.findPublishedIdsByPopularity({ size: 3 });
+
+      expect(prisma.$queryRaw).toHaveBeenCalled();
+      expect(result).toEqual([3, 1, 2]);
+    });
+  });
+
   describe('searchByKeyword', () => {
     it('키워드가 없으면 제목·설명 OR·AND 없이 공개 여부만 조건으로 조회한다', async () => {
       await repository.searchByKeyword({

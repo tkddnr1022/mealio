@@ -63,7 +63,7 @@ export function getRecommendedRecipes(
 }
 
 /**
- * 정적 경로 생성용 레시피 ID 목록 조회.
+ * 정적 경로 생성용 레시피 ID 목록 조회 (인기순: 조회수 + 좋아요 수).
  */
 export function getRecipeStaticIds(
   params: RecipeStaticIdsQuery = {},

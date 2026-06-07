@@ -180,7 +180,7 @@ export class RecipeQueryService {
     const data = await this.cacheService.getOrSet(
       this.recipeCacheStrategy,
       async () =>
-        this.recipeRepository.findPublishedIdsLatest({
+        this.recipeRepository.findPublishedIdsByPopularity({
           size,
         }),
       CACHE_KEY_SEGMENT.LIST,

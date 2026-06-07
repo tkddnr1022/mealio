@@ -174,15 +174,20 @@ export class RecipeRepository {
     return { data, total };
   }
 
-  async findPublishedIdsLatest(
+  async findPublishedIdsByPopularity(
     params: RecipeStaticIdsParams,
   ): Promise<number[]> {
-    const rows = await this.prisma.recipe.findMany({
-      where: { isPublished: true },
-      select: { id: true },
-      orderBy: { createdAt: 'desc' },
-      take: params.size,
-    });
+    const rows = await this.prisma.$queryRaw<{ id: number }[]>`
+      SELECT r.id
+      FROM "Recipe" r
+      INNER JOIN "RecipeStats" rs ON rs.recipe_id = r.id
+      WHERE r.is_published = true
+      ORDER BY (rs.view_count + rs.like_count) DESC,
+               rs.view_count DESC,
+               rs.like_count DESC,
+               r.id DESC
+      LIMIT ${params.size}
+    `;
 
     return rows.map((row) => row.id);
   }

@@ -107,7 +107,11 @@ export class RecipesController {
   }
 
   @Get('static-ids')
-  @ApiOperation({ summary: '정적 경로 생성용 레시피 ID 목록 조회' })
+  @ApiOperation({
+    summary: '정적 경로 생성용 레시피 ID 목록 조회',
+    description:
+      '공개 레시피 ID를 인기순(조회수 + 좋아요 수)으로 정렬해 반환한다.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: '정적 경로 생성용 ID 목록 조회 성공',

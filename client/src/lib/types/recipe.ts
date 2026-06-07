@@ -131,7 +131,7 @@ export interface RecipeSearchQuery extends RecipeListQuery {
   dishType?: string;
 }
 
-/** `GET /recipes/static-ids` 쿼리 파라미터 */
+/** `GET /recipes/static-ids` 쿼리 파라미터 (응답 ID는 인기순 정렬) */
 export interface RecipeStaticIdsQuery {
   size?: number;
 }

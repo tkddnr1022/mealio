@@ -74,7 +74,7 @@
 | server/producer/src/modules/recipes/dto/recommended-recipes-query.dto.ts | 개인화 추천 조회 쿼리 DTO (`limit`) |
 | server/producer/src/modules/recipes/dto/recommended-recipe-item.dto.ts | 추천 아이템 DTO (`recipe`, `rank`, `score`, `reason`, `calculatedAt`) |
 | server/producer/src/modules/recipes/dto/recipe-search-query.dto.ts | 검색 쿼리 DTO |
-| server/producer/src/modules/recipes/dto/recipe-static-ids-query.dto.ts | 정적 경로 생성용 ID 목록 조회 쿼리 DTO |
+| server/producer/src/modules/recipes/dto/recipe-static-ids-query.dto.ts | 정적 경로 생성용 ID 목록 조회 쿼리 DTO (`size`, 인기순 정렬) |
 | server/producer/src/modules/recipes/dto/recipe-summary.dto.ts | 레시피 요약 응답 DTO |
 | server/producer/src/modules/recipes/dto/recipe-category.dto.ts | 레시피 카테고리 응답 DTO |
 | server/producer/src/modules/recipes/policies/recipe-sort.policy.ts | 레시피 정렬 정책 (latest/cookTime/difficulty/viewCount/likeCount) 및 Prisma orderBy 규칙 |
@@ -111,7 +111,7 @@
 | server/producer/src/modules/chatbot/dto/suggested-recipe.dto.ts | 챗봇이 제안하는 레시피 DTO |
 | **server/producer/src/infrastructure/database/repositories/postgresql/** | |
 | server/producer/src/infrastructure/database/repositories/postgresql/user.repository.ts | User 조회·생성(OAuth 로그인용)·갱신 (PrismaService, @mealio/shared/prisma-client) |
-| server/producer/src/infrastructure/database/repositories/postgresql/recipe.repository.ts | Recipe 조회/검색 리포지토리. RecipeStats 조인(attach) 및 통계 기반 정렬(viewCount/likeCount) 지원 |
+| server/producer/src/infrastructure/database/repositories/postgresql/recipe.repository.ts | Recipe 조회/검색 리포지토리. RecipeStats 조인(attach) 및 통계 기반 정렬(viewCount/likeCount) 지원. `findPublishedIdsByPopularity`(static-ids)는 `viewCount + likeCount` 합산 인기순 |
 | server/producer/src/infrastructure/database/repositories/postgresql/ingredient.repository.ts | Ingredient 조회 |
 | server/producer/src/infrastructure/database/repositories/postgresql/recipe-ingredient.repository.ts | RecipeIngredient 조회/생성 |
 | server/producer/src/infrastructure/database/repositories/postgresql/auth-refresh-session.repository.ts | Refresh Token 세션 CRUD (SSOT=PostgreSQL `auth_refresh_sessions`) |

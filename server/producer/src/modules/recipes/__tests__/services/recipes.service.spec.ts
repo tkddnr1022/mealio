@@ -92,7 +92,7 @@ describe('RecipeQueryService', () => {
         data: [mockRecipe],
         total: 1,
       }),
-      findPublishedIdsLatest: jest.fn().mockResolvedValue([3, 2, 1]),
+      findPublishedIdsByPopularity: jest.fn().mockResolvedValue([3, 2, 1]),
       existsPublishedById: jest.fn().mockResolvedValue(true),
       searchByKeyword: jest.fn().mockResolvedValue({
         data: [mockRecipe],
@@ -513,7 +513,7 @@ describe('RecipeQueryService', () => {
         'static-ids',
         100,
       );
-      expect(recipeRepository.findPublishedIdsLatest).toHaveBeenCalledWith({
+      expect(recipeRepository.findPublishedIdsByPopularity).toHaveBeenCalledWith({
         size: 100,
       });
       expect(result).toEqual({ data: [3, 2, 1] });
@@ -525,7 +525,7 @@ describe('RecipeQueryService', () => {
       const result = await service.getStaticIds(3);
 
       expect(result).toEqual({ data: [10, 9, 8] });
-      expect(recipeRepository.findPublishedIdsLatest).not.toHaveBeenCalled();
+      expect(recipeRepository.findPublishedIdsByPopularity).not.toHaveBeenCalled();
     });
   });
 

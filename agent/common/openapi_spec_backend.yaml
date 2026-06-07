@@ -513,7 +513,7 @@ paths:
       tags:
         - Recipe
       summary: 정적 경로 생성용 레시피 ID 목록 조회
-      description: 최신 공개 레시피 ID만 경량 응답으로 반환한다. Next.js `generateStaticParams`에서 사용한다.
+      description: 공개 레시피 ID를 인기순(조회수 + 좋아요 수 합산, 동점 시 조회수·좋아요·id 내림차순)으로 정렬해 경량 응답으로 반환한다. Next.js `generateStaticParams`에서 사용한다.
       security:
         - cookieAuth: []
         - {}
