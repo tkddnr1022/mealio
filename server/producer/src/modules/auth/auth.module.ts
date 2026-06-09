@@ -14,6 +14,7 @@ import { NaverStrategy } from './strategies/naver.strategy';
 import { UserRepository } from '../../infrastructure/database/repositories/postgresql/user.repository';
 import { AuthRefreshSessionRepository } from '../../infrastructure/database/repositories/postgresql/auth-refresh-session.repository';
 import { KafkaModule } from '../../infrastructure/kafka/kafka.module';
+import { ACCESS_TOKEN_TTL_SECONDS } from '../../policy/auth.policy';
 
 @Module({
   imports: [
@@ -25,10 +26,7 @@ import { KafkaModule } from '../../infrastructure/kafka/kafka.module';
       useFactory: (config: ConfigService) => ({
         secret: config.getOrThrow<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: Number.parseInt(
-            config.getOrThrow<string>('ACCESS_TOKEN_TTL_SEC'),
-            10,
-          ),
+          expiresIn: ACCESS_TOKEN_TTL_SECONDS,
         },
       }),
       inject: [ConfigService],

@@ -14,11 +14,7 @@ describe('AuthService', () => {
   const mockConfigService = {
     getOrThrow: jest.fn((key: string) => {
       const values: Record<string, string> = {
-        ACCESS_TOKEN_TTL_SEC: '900',
-        REFRESH_TOKEN_TTL_SEC: '1209600',
-        REFRESH_TOKEN_BYTES: '32',
         FRONTEND_APP_BASE_URL: 'http://localhost:4000',
-        OAUTH_STATE_TTL_SEC: '600',
       };
       return values[key] ?? 'test';
     }),

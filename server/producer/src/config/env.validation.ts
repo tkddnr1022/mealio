@@ -22,21 +22,6 @@ export const envValidationSchema = Joi.object({
     'any.required': 'JWT_SECRET is required',
   }),
 
-  ACCESS_TOKEN_TTL_SEC: Joi.string().pattern(/^\d+$/).required().messages({
-    'string.pattern.base': 'ACCESS_TOKEN_TTL_SEC must be a positive integer',
-    'any.required': 'ACCESS_TOKEN_TTL_SEC is required',
-  }),
-
-  REFRESH_TOKEN_TTL_SEC: Joi.string().pattern(/^\d+$/).required().messages({
-    'string.pattern.base': 'REFRESH_TOKEN_TTL_SEC must be a positive integer',
-    'any.required': 'REFRESH_TOKEN_TTL_SEC is required',
-  }),
-
-  REFRESH_TOKEN_BYTES: Joi.string().pattern(/^\d+$/).required().messages({
-    'string.pattern.base': 'REFRESH_TOKEN_BYTES must be a positive integer',
-    'any.required': 'REFRESH_TOKEN_BYTES is required',
-  }),
-
   MONGODB_URL: Joi.string().min(1).required().messages({
     'string.empty': 'MONGODB_URL must not be empty',
     'any.required': 'MONGODB_URL is required',
@@ -76,28 +61,9 @@ export const envValidationSchema = Joi.object({
     'any.required': 'OAUTH_CALLBACK_BASE_URL is required',
   }),
 
-  OAUTH_STATE_TTL_SEC: Joi.string().pattern(/^\d+$/).required().messages({
-    'string.pattern.base': 'OAUTH_STATE_TTL_SEC must be a positive integer',
-    'any.required': 'OAUTH_STATE_TTL_SEC is required',
-  }),
-
   FRONTEND_APP_BASE_URL: Joi.string().uri().required().messages({
     'any.required': 'FRONTEND_APP_BASE_URL is required',
   }),
-
-  FRONTEND_OAUTH_ERROR_PATH: Joi.string().pattern(/^\/.+/).required().messages({
-    'any.required': 'FRONTEND_OAUTH_ERROR_PATH is required',
-    'string.pattern.base':
-      'FRONTEND_OAUTH_ERROR_PATH must be a path starting with / (e.g. /oauth/error)',
-  }),
-
-  FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH: Joi.string()
-    .pattern(/^\/.+/)
-    .default('/recipe')
-    .messages({
-      'string.pattern.base':
-        'FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH must be a path starting with /',
-    }),
 
   KAKAO_CLIENT_ID: Joi.string().min(1).required().messages({
     'string.empty': 'KAKAO_CLIENT_ID must not be empty',

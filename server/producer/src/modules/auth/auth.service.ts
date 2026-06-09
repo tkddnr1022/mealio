@@ -13,6 +13,16 @@ import { AuthRefreshSessionRepository } from '../../infrastructure/database/repo
 import { KafkaProducerService } from '../../infrastructure/kafka/producer.service';
 import { OAuthProfile } from './types/oauth.types';
 import {
+  FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH,
+  FRONTEND_OAUTH_ERROR_PATH,
+} from '../../constants/auth.constants';
+import {
+  ACCESS_TOKEN_TTL_SECONDS,
+  OAUTH_STATE_TTL_SECONDS,
+  REFRESH_TOKEN_BYTES,
+  REFRESH_TOKEN_TTL_SECONDS,
+} from '../../policy/auth.policy';
+import {
   AUTH_PROVIDERS,
   AuthProvider,
   isSupportedProvider,
@@ -89,10 +99,7 @@ export class AuthService {
    */
   buildLoginSuccessRedirectUrl(safeNext: string | null): string {
     const base = this.getFrontendAppBaseUrl();
-    const defaultPath =
-      this.config.get<string>('FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH')?.trim() ||
-      '/recipe';
-    const path = safeNext ?? defaultPath;
+    const path = safeNext ?? FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH;
     return new URL(path, `${base}/`).toString();
   }
 
@@ -111,10 +118,7 @@ export class AuthService {
     next?: string | null;
   }): string {
     const base = this.getFrontendAppBaseUrl();
-    const errorPath = this.config.getOrThrow<string>(
-      'FRONTEND_OAUTH_ERROR_PATH',
-    );
-    const redirectUrl = new URL(errorPath, `${base}/`);
+    const redirectUrl = new URL(FRONTEND_OAUTH_ERROR_PATH, `${base}/`);
     redirectUrl.searchParams.set(OAUTH_FAILURE_QUERY_KEYS.errorCode, errorCode);
     redirectUrl.searchParams.set(
       OAUTH_FAILURE_QUERY_KEYS.errorMessage,
@@ -335,12 +339,12 @@ export class AuthService {
 
   /** accessToken JWT·쿠키 Max-Age(초). */
   getAccessTokenTtlSeconds(): number {
-    return this.getPositiveIntEnv('ACCESS_TOKEN_TTL_SEC');
+    return ACCESS_TOKEN_TTL_SECONDS;
   }
 
   /** refresh 세션·쿠키 TTL(초). */
   getRefreshTokenTtlSeconds(): number {
-    return this.getPositiveIntEnv('REFRESH_TOKEN_TTL_SEC');
+    return REFRESH_TOKEN_TTL_SECONDS;
   }
 
   /** Set-Cookie `refreshToken` maxAge(ms). */
@@ -517,17 +521,7 @@ export class AuthService {
 
   /** opaque secret 랜덤 바이트 수. */
   private getRefreshTokenBytes(): number {
-    return this.getPositiveIntEnv('REFRESH_TOKEN_BYTES');
-  }
-
-  /** env 정수 파싱(0 이하이면 기동 시 검증 실패). */
-  private getPositiveIntEnv(name: string): number {
-    const value = this.config.getOrThrow<string>(name);
-    const parsed = Number.parseInt(value, 10);
-    if (!Number.isFinite(parsed) || parsed <= 0) {
-      throw new Error(`${name} must be a positive integer`);
-    }
-    return parsed;
+    return REFRESH_TOKEN_BYTES;
   }
 
   /** Provider에 전달할 OAuth state(CSRF 토큰). */
@@ -542,7 +536,7 @@ export class AuthService {
 
   /** OAuth state TTL(초). */
   getOAuthStateTtlSeconds(): number {
-    return this.getPositiveIntEnv('OAUTH_STATE_TTL_SEC');
+    return OAUTH_STATE_TTL_SECONDS;
   }
 
   private getGoogleAuthUrl(state?: string): string {
