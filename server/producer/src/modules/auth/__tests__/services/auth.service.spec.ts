@@ -18,6 +18,7 @@ describe('AuthService', () => {
         REFRESH_TOKEN_TTL_SEC: '1209600',
         REFRESH_TOKEN_BYTES: '32',
         FRONTEND_APP_BASE_URL: 'http://localhost:4000',
+        OAUTH_STATE_TTL_SEC: '600',
       };
       return values[key] ?? 'test';
     }),
@@ -134,5 +135,23 @@ describe('AuthService', () => {
     expect(mockRedisService.del).toHaveBeenCalledWith(
       'auth:refresh:session:session-1',
     );
+  });
+
+  it('buildOAuthState는 64자 hex CSRF 토큰을 반환한다', () => {
+    const state = service.buildOAuthState();
+    expect(state).toMatch(/^[0-9a-f]{64}$/);
+    expect(service.buildOAuthState()).not.toBe(state);
+  });
+
+  it('resolveOAuthCallbackSafeNext는 query next를 storedNext보다 우선한다', () => {
+    expect(
+      service.resolveOAuthCallbackSafeNext('/query', '/stored'),
+    ).toBe('/query');
+    expect(service.resolveOAuthCallbackSafeNext(undefined, '/stored')).toBe(
+      '/stored',
+    );
+    expect(
+      service.resolveOAuthCallbackSafeNext('//evil', '/stored'),
+    ).toBe('/stored');
   });
 });

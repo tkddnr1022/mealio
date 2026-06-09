@@ -76,6 +76,11 @@ export const envValidationSchema = Joi.object({
     'any.required': 'OAUTH_CALLBACK_BASE_URL is required',
   }),
 
+  OAUTH_STATE_TTL_SEC: Joi.string().pattern(/^\d+$/).required().messages({
+    'string.pattern.base': 'OAUTH_STATE_TTL_SEC must be a positive integer',
+    'any.required': 'OAUTH_STATE_TTL_SEC is required',
+  }),
+
   FRONTEND_APP_BASE_URL: Joi.string().uri().required().messages({
     'any.required': 'FRONTEND_APP_BASE_URL is required',
   }),

@@ -6,8 +6,10 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { BaseExceptionFilter, HttpAdapterHost } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
 import { getCorrelationId } from '@mealio/shared';
+import { OAUTH_NEXT_COOKIE_NAME, OAUTH_STATE_COOKIE_NAME } from '../../../constants/auth-cookie.constants';
 import { AuthService } from '../auth.service';
 import { SentryService } from '../../../optimization/monitoring/sentry.service';
 import type { RequestWithCorrelationId } from '../../middleware/request.types';
@@ -34,6 +36,7 @@ export class OAuthCallbackExceptionFilter
     private readonly adapterHost: HttpAdapterHost,
     private readonly authService: AuthService,
     private readonly sentryService: SentryService,
+    private readonly config: ConfigService,
   ) {
     super(adapterHost.httpAdapter);
   }
@@ -57,7 +60,7 @@ export class OAuthCallbackExceptionFilter
     const { code, message } = this.resolveErrorInfo(exception);
     const safeNext = this.authService.resolveOAuthCallbackSafeNext(
       this.getQueryParam(request, 'next'),
-      this.getQueryParam(request, 'state'),
+      this.getOAuthNextFromRequest(request),
     );
     const redirectUrl = this.authService.buildOAuthFailureRedirectUrl({
       errorCode: code,
@@ -65,6 +68,7 @@ export class OAuthCallbackExceptionFilter
       next: safeNext,
     });
 
+    this.clearOAuthFlowCookies(response);
     response.redirect(HttpStatus.FOUND, redirectUrl);
   }
 
@@ -99,6 +103,31 @@ export class OAuthCallbackExceptionFilter
     if (typeof value !== 'string') return undefined;
     const trimmed = value.trim();
     return trimmed.length > 0 ? trimmed : undefined;
+  }
+
+  private getOAuthNextFromRequest(request: Request): string | undefined {
+    const cookies = request.cookies as
+      | Record<string, string | undefined>
+      | undefined;
+    const value = cookies?.[OAUTH_NEXT_COOKIE_NAME];
+    if (typeof value !== 'string') return undefined;
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : undefined;
+  }
+
+  private clearOAuthFlowCookies(response: Response): void {
+    const options = {
+      httpOnly: true as const,
+      secure: this.isSecureCookie(),
+      sameSite: 'lax' as const,
+      path: '/',
+    };
+    response.clearCookie(OAUTH_STATE_COOKIE_NAME, options);
+    response.clearCookie(OAUTH_NEXT_COOKIE_NAME, options);
+  }
+
+  private isSecureCookie(): boolean {
+    return this.config.getOrThrow<string>('NODE_ENV') !== 'development';
   }
 
   private resolveErrorInfo(exception: unknown): {

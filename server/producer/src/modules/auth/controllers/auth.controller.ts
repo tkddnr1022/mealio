@@ -33,6 +33,8 @@ import type {
 } from '../types/request.types';
 import {
   ACCESS_TOKEN_COOKIE_NAME,
+  OAUTH_NEXT_COOKIE_NAME,
+  OAUTH_STATE_COOKIE_NAME,
   REFRESH_TOKEN_COOKIE_NAME,
 } from '../../../constants/auth-cookie.constants';
 
@@ -96,7 +98,12 @@ export class AuthController {
     @Query('next') next: string | undefined,
     @Res({ passthrough: false }) res: Response,
   ): void {
-    const state = this.authService.buildOAuthState(next);
+    const state = this.authService.buildOAuthState();
+    const safeNext = this.authService.resolveSafeNextPath(next);
+    this.setOAuthStateCookie(res, state);
+    if (safeNext) {
+      this.setOAuthNextCookie(res, safeNext);
+    }
     const url = this.authService.getAuthUrl(provider, state);
     res.redirect(HttpStatus.FOUND, url);
   }
@@ -118,26 +125,32 @@ export class AuthController {
   async callback(
     @Param('provider') _provider: string,
     @Query('code') _code: string | undefined,
-    @Query('state') state: string | undefined,
+    @Query('state') _state: string | undefined,
     @Query('next') next: string | undefined,
     @Query('error') oauthError: string | undefined,
     @Query('error_description') oauthErrorDescription: string | undefined,
     @Req() req: RequestWithOAuthProfile,
     @Res({ passthrough: false }) res: Response,
   ): Promise<void> {
+    const storedNext = this.getOAuthNextFromRequest(req);
+
     const providerErrorRedirect =
       this.authService.buildOAuthProviderErrorRedirectUrl({
         next,
-        state,
+        storedNext,
         oauthError,
         oauthErrorDescription,
       });
     if (providerErrorRedirect) {
+      this.clearOAuthFlowCookies(res);
       res.redirect(HttpStatus.FOUND, providerErrorRedirect);
       return;
     }
 
-    const safeNext = this.authService.resolveOAuthCallbackSafeNext(next, state);
+    const safeNext = this.authService.resolveOAuthCallbackSafeNext(
+      next,
+      storedNext,
+    );
 
     const profile = req.user;
     const user = await this.authService.findOrCreateUser(profile);
@@ -145,6 +158,7 @@ export class AuthController {
       userAgent: req.get('user-agent') || undefined,
       ipAddress: req.ip || undefined,
     });
+    this.clearOAuthFlowCookies(res);
     this.setAuthCookies(res, issued.accessToken, issued.refreshToken);
 
     const redirectUrl = this.authService.buildLoginSuccessRedirectUrl(safeNext);
@@ -244,5 +258,49 @@ export class AuthController {
 
   private isSecureCookie(): boolean {
     return this.config.getOrThrow<string>('NODE_ENV') !== 'development';
+  }
+
+  private getOAuthCookieOptions(): {
+    httpOnly: true;
+    secure: boolean;
+    sameSite: 'lax';
+    path: '/';
+  } {
+    return {
+      httpOnly: true,
+      secure: this.isSecureCookie(),
+      sameSite: 'lax',
+      path: '/',
+    };
+  }
+
+  private setOAuthStateCookie(res: Response, state: string): void {
+    res.cookie(OAUTH_STATE_COOKIE_NAME, state, {
+      ...this.getOAuthCookieOptions(),
+      maxAge: this.authService.getOAuthStateCookieMaxAgeMs(),
+    });
+  }
+
+  private setOAuthNextCookie(res: Response, nextPath: string): void {
+    res.cookie(OAUTH_NEXT_COOKIE_NAME, nextPath, {
+      ...this.getOAuthCookieOptions(),
+      maxAge: this.authService.getOAuthStateCookieMaxAgeMs(),
+    });
+  }
+
+  private clearOAuthFlowCookies(res: Response): void {
+    const options = this.getOAuthCookieOptions();
+    res.clearCookie(OAUTH_STATE_COOKIE_NAME, options);
+    res.clearCookie(OAUTH_NEXT_COOKIE_NAME, options);
+  }
+
+  private getOAuthNextFromRequest(req: Request): string | undefined {
+    const cookies = req.cookies as
+      | Record<string, string | undefined>
+      | undefined;
+    const value = cookies?.[OAUTH_NEXT_COOKIE_NAME];
+    if (typeof value !== 'string') return undefined;
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : undefined;
   }
 }

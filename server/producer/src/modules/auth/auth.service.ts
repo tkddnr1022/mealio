@@ -141,13 +141,15 @@ export class AuthService {
   }
 
   /**
-   * 콜백 쿼리의 `next`·`state` 중 안전한 상대 경로를 하나 고른다 (`next` 우선).
+   * 콜백 쿼리 `next`와 로그인 진입 시 저장한 쿠키 `next` 중 안전한 상대 경로를 고른다 (`next` 우선).
    */
   resolveOAuthCallbackSafeNext(
     next?: string | null,
-    state?: string | null,
+    storedNext?: string | null,
   ): string | null {
-    return this.resolveSafeNextPath(next) ?? this.resolveSafeNextPath(state);
+    return (
+      this.resolveSafeNextPath(next) ?? this.resolveSafeNextPath(storedNext)
+    );
   }
 
   /**
@@ -156,16 +158,16 @@ export class AuthService {
    */
   buildOAuthProviderErrorRedirectUrl({
     next,
-    state,
+    storedNext,
     oauthError,
     oauthErrorDescription,
   }: {
     next?: string | null | undefined;
-    state?: string | null | undefined;
+    storedNext?: string | null | undefined;
     oauthError?: string | null | undefined;
     oauthErrorDescription?: string | null | undefined;
   }): string | null {
-    const safeNext = this.resolveOAuthCallbackSafeNext(next, state);
+    const safeNext = this.resolveOAuthCallbackSafeNext(next, storedNext);
     if (!oauthError || oauthError.trim().length === 0) {
       return null;
     }
@@ -528,22 +530,19 @@ export class AuthService {
     return parsed;
   }
 
-  /**
-   * CSRF용 state 값 생성 (선택 사용).
-   */
-  generateState(): string {
+  /** Provider에 전달할 OAuth state(CSRF 토큰). */
+  buildOAuthState(): string {
     return randomBytes(32).toString('hex');
   }
 
-  /**
-   * OAuth state 생성.
-   * - next가 안전한 경로이면 해당 값을 그대로 state에 넣어 콜백까지 전달한다.
-   * - 그 외에는 랜덤 state를 사용한다.
-   */
-  buildOAuthState(next?: string | null): string {
-    const safeNext = this.resolveSafeNextPath(next);
-    if (safeNext) return safeNext;
-    return this.generateState();
+  /** OAuth state 쿠키 Max-Age(ms). */
+  getOAuthStateCookieMaxAgeMs(): number {
+    return this.getOAuthStateTtlSeconds() * 1000;
+  }
+
+  /** OAuth state TTL(초). */
+  getOAuthStateTtlSeconds(): number {
+    return this.getPositiveIntEnv('OAUTH_STATE_TTL_SEC');
   }
 
   private getGoogleAuthUrl(state?: string): string {
