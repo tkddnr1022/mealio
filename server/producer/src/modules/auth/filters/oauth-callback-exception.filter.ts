@@ -9,7 +9,10 @@ import { BaseExceptionFilter, HttpAdapterHost } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
 import { getCorrelationId } from '@mealio/shared';
-import { OAUTH_NEXT_COOKIE_NAME, OAUTH_STATE_COOKIE_NAME } from '../../../constants/auth-cookie.constants';
+import {
+  OAUTH_NEXT_COOKIE_NAME,
+  OAUTH_STATE_COOKIE_NAME,
+} from '../../../constants/auth-cookie.constants';
 import { AuthService } from '../auth.service';
 import { SentryService } from '../../../optimization/monitoring/sentry.service';
 import type { RequestWithCorrelationId } from '../../middleware/request.types';

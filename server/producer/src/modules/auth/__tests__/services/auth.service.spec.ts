@@ -140,14 +140,14 @@ describe('AuthService', () => {
   });
 
   it('resolveOAuthCallbackSafeNext는 query next를 storedNext보다 우선한다', () => {
-    expect(
-      service.resolveOAuthCallbackSafeNext('/query', '/stored'),
-    ).toBe('/query');
+    expect(service.resolveOAuthCallbackSafeNext('/query', '/stored')).toBe(
+      '/query',
+    );
     expect(service.resolveOAuthCallbackSafeNext(undefined, '/stored')).toBe(
       '/stored',
     );
-    expect(
-      service.resolveOAuthCallbackSafeNext('//evil', '/stored'),
-    ).toBe('/stored');
+    expect(service.resolveOAuthCallbackSafeNext('//evil', '/stored')).toBe(
+      '/stored',
+    );
   });
 });

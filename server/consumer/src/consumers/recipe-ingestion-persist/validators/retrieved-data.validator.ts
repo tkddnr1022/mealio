@@ -2,7 +2,10 @@
  * OpenAI Batch retrieved_data JSON 검증 (camelCase SSOT)
  * @see recipe-ingestion.system-prompt.ts
  */
-import { RECIPE_INGESTION_DEFAULT_COOK_TIME_MINUTES, RECIPE_INGESTION_DEFAULT_DIFFICULTY } from '@mealio/shared';
+import {
+  RECIPE_INGESTION_DEFAULT_COOK_TIME_MINUTES,
+  RECIPE_INGESTION_DEFAULT_DIFFICULTY,
+} from '@mealio/shared';
 
 /** recipe ingestion retrieved_data difficulty 허용 범위 (Mealio 1-3) */
 export const RECIPE_INGESTION_DIFFICULTY_MIN = 1;
@@ -21,10 +24,7 @@ export function resolveRecipeIngestionDifficulty(
   }
   return Math.min(
     RECIPE_INGESTION_DIFFICULTY_MAX,
-    Math.max(
-      RECIPE_INGESTION_DIFFICULTY_MIN,
-      Math.round(difficulty),
-    ),
+    Math.max(RECIPE_INGESTION_DIFFICULTY_MIN, Math.round(difficulty)),
   );
 }
 
@@ -37,10 +37,7 @@ export function resolveRecipeIngestionCookTimeMinutes(
   }
   return Math.min(
     RECIPE_INGESTION_COOK_TIME_MAX,
-    Math.max(
-      RECIPE_INGESTION_COOK_TIME_MIN,
-      Math.round(cookingTimeMinutes),
-    ),
+    Math.max(RECIPE_INGESTION_COOK_TIME_MIN, Math.round(cookingTimeMinutes)),
   );
 }
 

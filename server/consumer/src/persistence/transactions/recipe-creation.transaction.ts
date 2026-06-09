@@ -1,9 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@mealio/shared';
 import { Prisma } from '@mealio/shared/prisma-client';
-import {
-  RECIPE_INGESTION_RECIPE_SOURCE,
-} from '@mealio/shared';
+import { RECIPE_INGESTION_RECIPE_SOURCE } from '@mealio/shared';
 import type { RecipeIngestionJobDocument } from '@mealio/shared';
 import {
   RecipeIngredientRepository,

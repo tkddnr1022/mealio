@@ -198,7 +198,9 @@ export class RecipeEmbeddingService {
         }
         const step = item as RecipeInstructionStep;
         const stepNum =
-          typeof step.step === 'number' && step.step > 0 ? step.step : index + 1;
+          typeof step.step === 'number' && step.step > 0
+            ? step.step
+            : index + 1;
         const content =
           typeof step.content === 'string' ? step.content.trim() : '';
         if (!content) {
