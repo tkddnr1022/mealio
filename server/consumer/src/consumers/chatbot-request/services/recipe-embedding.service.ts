@@ -8,6 +8,19 @@ export interface RecipeEmbeddingSyncResult {
   skippedRecipeIds: number[];
 }
 
+type RecipeInstructionStep = {
+  step?: number;
+  content?: string;
+};
+
+type RecipeNutrition = {
+  calories?: number;
+  carbohydrates?: number;
+  protein?: number;
+  fat?: number;
+  sodium?: number;
+};
+
 @Injectable()
 export class RecipeEmbeddingService {
   private readonly logger = new Logger(RecipeEmbeddingService.name);
@@ -99,9 +112,14 @@ export class RecipeEmbeddingService {
     id: number;
     title: string;
     description: string | null;
+    instructions: unknown;
     cookTime: number;
     difficulty: number;
     servings: number;
+    cookingMethod: string | null;
+    dishType: string | null;
+    nutrition: unknown;
+    cookingTip: string | null;
     categoryMeta: { key: string; name: string };
     recipeIngredients: Array<{
       ingredient: {
@@ -133,7 +151,7 @@ export class RecipeEmbeddingService {
       .join(', ');
 
     const description = recipe.description ?? '';
-    return [
+    const lines = [
       `recipe_id: ${recipe.id}`,
       `title: ${recipe.title}`,
       `description: ${description}`,
@@ -141,7 +159,83 @@ export class RecipeEmbeddingService {
       `cook_time_minutes: ${recipe.cookTime}`,
       `difficulty: ${recipe.difficulty}`,
       `servings: ${recipe.servings}`,
-      `ingredients: ${ingredients}`,
-    ].join('\n');
+    ];
+
+    if (recipe.cookingMethod) {
+      lines.push(`cooking_method: ${recipe.cookingMethod}`);
+    }
+    if (recipe.dishType) {
+      lines.push(`dish_type: ${recipe.dishType}`);
+    }
+
+    const nutritionText = this.formatNutrition(recipe.nutrition);
+    if (nutritionText) {
+      lines.push(`nutrition_per_serving: ${nutritionText}`);
+    }
+    if (recipe.cookingTip) {
+      lines.push(`cooking_tip: ${recipe.cookingTip}`);
+    }
+
+    lines.push(`ingredients: ${ingredients}`);
+
+    const instructionsText = this.formatInstructions(recipe.instructions);
+    if (instructionsText) {
+      lines.push(`instructions: ${instructionsText}`);
+    }
+
+    return lines.join('\n');
+  }
+
+  private formatInstructions(instructions: unknown): string {
+    if (!Array.isArray(instructions) || instructions.length === 0) {
+      return '';
+    }
+
+    return instructions
+      .map((item, index) => {
+        if (!item || typeof item !== 'object') {
+          return null;
+        }
+        const step = item as RecipeInstructionStep;
+        const stepNum =
+          typeof step.step === 'number' && step.step > 0 ? step.step : index + 1;
+        const content =
+          typeof step.content === 'string' ? step.content.trim() : '';
+        if (!content) {
+          return null;
+        }
+        return `${stepNum}. ${content}`;
+      })
+      .filter((line): line is string => line != null)
+      .join(' ');
+  }
+
+  private formatNutrition(nutrition: unknown): string {
+    if (
+      nutrition == null ||
+      typeof nutrition !== 'object' ||
+      Array.isArray(nutrition)
+    ) {
+      return '';
+    }
+
+    const values = nutrition as RecipeNutrition;
+    const parts: string[] = [];
+    if (typeof values.calories === 'number') {
+      parts.push(`calories ${values.calories}kcal`);
+    }
+    if (typeof values.carbohydrates === 'number') {
+      parts.push(`carbohydrates ${values.carbohydrates}g`);
+    }
+    if (typeof values.protein === 'number') {
+      parts.push(`protein ${values.protein}g`);
+    }
+    if (typeof values.fat === 'number') {
+      parts.push(`fat ${values.fat}g`);
+    }
+    if (typeof values.sodium === 'number') {
+      parts.push(`sodium ${values.sodium}mg`);
+    }
+    return parts.join(', ');
   }
 }
