@@ -25,7 +25,8 @@ Convert the user's raw public API recipe JSON into a single JSON object (no mark
     "title": "string (required, Korean recipe name)",
     "description": "string (optional, 1-2 sentences in ~요체)",
     "servings": "number | null",
-    "cookingTimeMinutes": "number | null",
+    "difficulty": "number (required, integer 1-3 — inferred from recipe complexity)",
+    "cookingTimeMinutes": "number (required, integer minutes — inferred total active + passive cook time)",
     "categoryId": "number | null (existing recipe category id)",
     "proposedCategory": { "key": "string", "name": "string" } | null,
     "imageUrl": "string | null (recipe thumbnail URL from ATT_FILE_NO_MK or ATT_FILE_NO_MAIN)",
@@ -107,6 +108,39 @@ Set recipe.servings (integer, minimum 1) using this priority:
    - Broths/soups: liquid volume (e.g. 4컵≈2~4인 depending on dish type).
    - Combine multiple signals; prefer conservative (lower) estimates when ambiguous.
 2. **Null** — only if quantities are missing or too ambiguous to estimate; add a parseIssues entry explaining why.
+
+## Difficulty inference
+Set recipe.difficulty (integer 1-3, always required) from steps, techniques, and ingredients. Mealio labels: 1 쉬움, 2 보통, 3 어려움.
+
+Use these signals together (do not rely on a single factor):
+1. **Step count & complexity** — non-empty MANUAL steps; multi-phase flows (재료 손질 → 양념 → 조리 → 마무리) raise difficulty.
+2. **Techniques** — simple (데우기, 섞기, 삶기, 간단히 볶기) vs advanced (튀기기, 오븐/굽기, 반죽·빚기, 발효·숙성, 정교한 온도·시간 조절, 면·육수 분리 조리).
+3. **Ingredient count & prep** — few common items vs many items; 손질·채 썰기·다지기·절임 등 prep 부담.
+4. **Dish type context** — 반찬·간단 국/찌개는 often lower; main dishes with multiple components often higher.
+
+Rating guide:
+- **1 (쉬움)**: ≤5 simple steps; basic techniques only; ≤8 ingredients; no special knife or timing skills.
+- **2 (보통)**: 6-9 steps; moderate prep; multiple phases or one advanced technique (e.g. 튀김, 굽기).
+- **3 (어려움)**: 10+ steps or several advanced techniques; precise timing/temperature; many ingredients; professional-level or long multi-stage process.
+
+When signals conflict, prefer conservative middle values (1-2). Add a parseIssues entry only when steps are too sparse to judge confidently (still output best estimate).
+
+## Cook time inference
+Set recipe.cookingTimeMinutes (integer minutes, always required) as **total elapsed cook time** including prep-heavy steps that involve heating/waiting.
+
+Use this priority:
+1. **Explicit durations in MANUAL steps** — parse and sum when sequential:
+   - "30분", "약 20분", "1시간", "1시간 30분", "30초" (round seconds up to 1 minute minimum per mention).
+   - "중불에서 5분 볶" + "15분 더 끓" → combine active phases; do not double-count parallel waits unless steps are sequential.
+2. **Infer from cooking method & dish type** when step text lacks numbers:
+   - 반찬·무침·간단 볶음: 10-20분.
+   - 국·찌개·탕: 20-40분.
+   - 찜·조림·장조림: 40-90분.
+   - 튀김·굽기 포함: add 10-20분 vs plain boil/stir-fry.
+3. **Step count fallback** — only when no times and method is ambiguous:
+   - 1-3 steps → 10-15분, 4-6 → 20-30분, 7+ → 30-45분 (adjust up for 끓이기/찌기/오븐 keywords).
+
+Prefer conservative (lower) estimates when ambiguous. Add a parseIssues entry only when steps lack both explicit times and inferable method (still output best estimate).
 
 ## Quality signals
 - parseConfidence: "high" when mapping is unambiguous; "low" when data is incomplete, ambiguous, or heavily noisy.

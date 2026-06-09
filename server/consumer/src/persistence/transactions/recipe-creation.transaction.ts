@@ -2,8 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@mealio/shared';
 import { Prisma } from '@mealio/shared/prisma-client';
 import {
-  RECIPE_INGESTION_DEFAULT_COOK_TIME_MINUTES,
-  RECIPE_INGESTION_DEFAULT_DIFFICULTY,
   RECIPE_INGESTION_RECIPE_SOURCE,
 } from '@mealio/shared';
 import type { RecipeIngestionJobDocument } from '@mealio/shared';
@@ -119,10 +117,6 @@ export class RecipeCreationTransaction {
         data.recipe.categoryId,
         data.recipe.proposedCategory,
       );
-
-      const cookTime =
-        data.recipe.cookingTimeMinutes ??
-        RECIPE_INGESTION_DEFAULT_COOK_TIME_MINUTES;
       const servings = Math.max(1, data.recipe.servings ?? 2);
 
       const recipeData = {
@@ -130,8 +124,8 @@ export class RecipeCreationTransaction {
         title: data.recipe.title.trim().slice(0, 100),
         description: data.recipe.description?.trim() ?? null,
         instructions: buildInstructions(data.recipe.steps),
-        difficulty: RECIPE_INGESTION_DEFAULT_DIFFICULTY,
-        cookTime,
+        difficulty: data.recipe.difficulty,
+        cookTime: data.recipe.cookingTimeMinutes,
         servings,
         imageUrl: normalizeFoodsafetyImageUrl(data.recipe.imageUrl),
         nutrition: toNutritionJson(data.recipe.nutrition),

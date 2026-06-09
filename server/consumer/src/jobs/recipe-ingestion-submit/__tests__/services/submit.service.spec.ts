@@ -278,7 +278,11 @@ describe('buildRecipeIngestionSystemPrompt', () => {
     expect(prompt).toContain('id=10, key="vegetable", name="채소"');
     expect(prompt).toContain('~요체');
     expect(prompt).toContain('Servings inference');
+    expect(prompt).toContain('Difficulty inference');
+    expect(prompt).toContain('Cook time inference');
     expect(prompt).toContain('Infer from ingredient quantities');
+    expect(prompt).toContain('integer 1-3');
+    expect(prompt).toContain('cookingTimeMinutes');
     expect(prompt).toContain('Count over weight/volume');
     expect(prompt).toContain('달걀 30g(1/2개)');
   });

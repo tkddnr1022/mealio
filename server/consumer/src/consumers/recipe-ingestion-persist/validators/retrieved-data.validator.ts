@@ -2,6 +2,47 @@
  * OpenAI Batch retrieved_data JSON 검증 (camelCase SSOT)
  * @see recipe-ingestion.system-prompt.ts
  */
+import { RECIPE_INGESTION_DEFAULT_COOK_TIME_MINUTES, RECIPE_INGESTION_DEFAULT_DIFFICULTY } from '@mealio/shared';
+
+/** recipe ingestion retrieved_data difficulty 허용 범위 (Mealio 1-3) */
+export const RECIPE_INGESTION_DIFFICULTY_MIN = 1;
+export const RECIPE_INGESTION_DIFFICULTY_MAX = 3;
+
+/** recipe ingestion retrieved_data cookTime 허용 범위 (분) */
+export const RECIPE_INGESTION_COOK_TIME_MIN = 5;
+export const RECIPE_INGESTION_COOK_TIME_MAX = 180;
+
+/** LLM 추론·레거시 payload → DB difficulty (1-3 정수, 범위 밖은 clamp) */
+export function resolveRecipeIngestionDifficulty(
+  difficulty: number | null | undefined,
+): number {
+  if (difficulty == null || !Number.isFinite(difficulty)) {
+    return RECIPE_INGESTION_DEFAULT_DIFFICULTY;
+  }
+  return Math.min(
+    RECIPE_INGESTION_DIFFICULTY_MAX,
+    Math.max(
+      RECIPE_INGESTION_DIFFICULTY_MIN,
+      Math.round(difficulty),
+    ),
+  );
+}
+
+/** LLM 추론·레거시 payload → DB cookTime (분, 정수, 범위 밖은 clamp) */
+export function resolveRecipeIngestionCookTimeMinutes(
+  cookingTimeMinutes: number | null | undefined,
+): number {
+  if (cookingTimeMinutes == null || !Number.isFinite(cookingTimeMinutes)) {
+    return RECIPE_INGESTION_DEFAULT_COOK_TIME_MINUTES;
+  }
+  return Math.min(
+    RECIPE_INGESTION_COOK_TIME_MAX,
+    Math.max(
+      RECIPE_INGESTION_COOK_TIME_MIN,
+      Math.round(cookingTimeMinutes),
+    ),
+  );
+}
 
 export interface ProposedCategoryPayload {
   key: string;
@@ -25,6 +66,7 @@ export interface RetrievedRecipePayload {
   title: string;
   description?: string | null;
   servings?: number | null;
+  difficulty?: number | null;
   cookingTimeMinutes?: number | null;
   categoryId?: number | null;
   proposedCategory?: ProposedCategoryPayload | null;
@@ -39,9 +81,11 @@ export interface RetrievedRecipePayload {
 
 export interface ValidatedRetrievedRecipePayload extends Omit<
   RetrievedRecipePayload,
-  'steps'
+  'steps' | 'difficulty' | 'cookingTimeMinutes'
 > {
   steps: RetrievedRecipeStepPayload[];
+  difficulty: number;
+  cookingTimeMinutes: number;
 }
 
 export interface RetrievedIngredientPayload {
@@ -135,12 +179,26 @@ function isProposedCategory(value: unknown): value is ProposedCategoryPayload {
   );
 }
 
+function isValidDifficulty(value: unknown): boolean {
+  return value == null || (typeof value === 'number' && Number.isFinite(value));
+}
+
+function isValidCookTimeMinutes(value: unknown): boolean {
+  return value == null || (typeof value === 'number' && Number.isFinite(value));
+}
+
 function isRetrievedRecipe(value: unknown): value is RetrievedRecipePayload {
   if (!value || typeof value !== 'object') {
     return false;
   }
   const o = value as Record<string, unknown>;
   if (typeof o.title !== 'string' || o.title.trim().length === 0) {
+    return false;
+  }
+  if (!isValidDifficulty(o.difficulty)) {
+    return false;
+  }
+  if (!isValidCookTimeMinutes(o.cookingTimeMinutes)) {
     return false;
   }
   if (!Array.isArray(o.steps) || o.steps.length === 0) {
@@ -213,6 +271,10 @@ export function validateRetrievedData(
     recipe: {
       ...raw.recipe,
       steps: normalizeRecipeSteps(raw.recipe.steps),
+      difficulty: resolveRecipeIngestionDifficulty(raw.recipe.difficulty),
+      cookingTimeMinutes: resolveRecipeIngestionCookTimeMinutes(
+        raw.recipe.cookingTimeMinutes,
+      ),
     },
     ingredients: raw.ingredients,
     parseConfidence: raw.parseConfidence,

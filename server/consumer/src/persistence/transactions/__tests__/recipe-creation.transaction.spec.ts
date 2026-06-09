@@ -9,6 +9,8 @@ import type { RetrievedDataPayload } from 'src/consumers/recipe-ingestion-persis
 const retrievedData: RetrievedDataPayload = {
   recipe: {
     title: '된장찌개',
+    difficulty: 3,
+    cookingTimeMinutes: 25,
     imageUrl: 'http://www.foodsafetykorea.go.kr/uploadimg/cook/main.png',
     nutrition: {
       calories: 250,
@@ -100,6 +102,8 @@ describe('RecipeCreationTransaction', () => {
 
     expect(prisma.recipe.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
+        difficulty: 3,
+        cookTime: 25,
         imageUrl: retrievedData.recipe.imageUrl,
         cookingMethod: '끓이기',
         dishType: '찌개',
