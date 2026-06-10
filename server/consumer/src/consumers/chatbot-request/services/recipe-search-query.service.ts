@@ -2,9 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@mealio/shared/prisma-client';
 import { PrismaService } from '@mealio/shared';
 
+export type NumericRangeInput = {
+  gte?: number;
+  lte?: number;
+};
+
 export interface RecipeSearchQueryInput {
-  maxCookTime?: number;
-  servings?: number;
+  cookTime?: NumericRangeInput;
+  servings?: NumericRangeInput;
   recipeCategoryIds?: number[];
   ingredientCategoryIds?: number[];
   includeIngredientIds?: number[];
@@ -55,9 +60,25 @@ export class RecipeSearchQueryService {
     const normalizedExcludeIngredientNames = this.normalizeLowerCaseValues(
       input.excludeIngredientNames ?? [],
     );
-    const normalizedServings = this.normalizePositiveNumber(input.servings);
 
-    const andConditions: Prisma.RecipeWhereInput[] = [];
+    const andConditions: Prisma.RecipeWhereInput[] = [{ isPublished: true }];
+
+    this.pushNumericRangeCondition(
+      andConditions,
+      'cookTime',
+      this.resolveCookTimeRange(input),
+    );
+    this.pushNumericRangeCondition(
+      andConditions,
+      'servings',
+      this.resolveServingsRange(input),
+    );
+
+    if (normalizedRecipeCategoryIds.length > 0) {
+      andConditions.push({
+        categoryId: { in: normalizedRecipeCategoryIds },
+      });
+    }
 
     if (normalizedIngredientCategoryIds.length > 0) {
       andConditions.push({
@@ -123,19 +144,7 @@ export class RecipeSearchQueryService {
       });
     }
 
-    const where: Prisma.RecipeWhereInput = {
-      isPublished: true,
-      ...(input.maxCookTime != null && {
-        cookTime: { lte: input.maxCookTime },
-      }),
-      ...(normalizedServings != null && {
-        servings: normalizedServings,
-      }),
-      ...(normalizedRecipeCategoryIds.length > 0 && {
-        categoryId: { in: normalizedRecipeCategoryIds },
-      }),
-      ...(andConditions.length > 0 && { AND: andConditions }),
-    };
+    const where: Prisma.RecipeWhereInput = { AND: andConditions };
 
     return this.prisma.recipe.findMany({
       where,
@@ -152,6 +161,67 @@ export class RecipeSearchQueryService {
       take: 80,
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  private resolveCookTimeRange(
+    input: RecipeSearchQueryInput,
+  ): NumericRangeInput | undefined {
+    return this.normalizeNumericRange(input.cookTime);
+  }
+
+  private resolveServingsRange(
+    input: RecipeSearchQueryInput,
+  ): NumericRangeInput | undefined {
+    return this.normalizeNumericRange(input.servings);
+  }
+
+  private normalizeNumericRange(
+    range?: NumericRangeInput,
+  ): NumericRangeInput | undefined {
+    if (!range) {
+      return undefined;
+    }
+
+    return this.mergeNumericRange(
+      this.normalizePositiveNumber(range.gte),
+      this.normalizePositiveNumber(range.lte),
+    );
+  }
+
+  private mergeNumericRange(
+    gte?: number,
+    lte?: number,
+  ): NumericRangeInput | undefined {
+    if (gte == null && lte == null) {
+      return undefined;
+    }
+    return {
+      ...(gte != null && { gte }),
+      ...(lte != null && { lte }),
+    };
+  }
+
+  private pushNumericRangeCondition(
+    andConditions: Prisma.RecipeWhereInput[],
+    field: 'cookTime' | 'servings',
+    range: NumericRangeInput | undefined,
+  ): void {
+    if (!range) {
+      return;
+    }
+
+    const filter: Prisma.IntFilter = {};
+    if (range.gte != null) {
+      filter.gte = range.gte;
+    }
+    if (range.lte != null) {
+      filter.lte = range.lte;
+    }
+    if (Object.keys(filter).length === 0) {
+      return;
+    }
+
+    andConditions.push({ [field]: filter });
   }
 
   private normalizePositiveNumber(value: unknown): number | undefined {

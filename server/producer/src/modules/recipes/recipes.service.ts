@@ -7,6 +7,7 @@ import {
   cacheKeyDedupeSearchQuery,
   KAFKA_TOPICS,
   MAX_RECOMMENDATION_ROWS,
+  parseRecipeNutrition,
   RedisService,
 } from '@mealio/shared';
 import {
@@ -24,7 +25,6 @@ import {
   RecipeDetailDto,
   RecipeIngredientItemDto,
   RecipeInstructionStepDto,
-  RecipeNutritionDto,
 } from './dto/recipe-detail.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { RecipeCategoryDto } from './dto/recipe-category.dto';
@@ -421,44 +421,13 @@ export class RecipeQueryService {
       categoryName: recipe.categoryMeta.name,
       cookingMethod: recipe.cookingMethod ?? null,
       dishType: recipe.dishType ?? null,
-      nutrition: this.parseNutrition(recipe.nutrition),
+      nutrition: parseRecipeNutrition(recipe.nutrition),
       cookingTip: recipe.cookingTip ?? null,
       source: recipe.source ?? null,
       sourceRecipeId: recipe.sourceRecipeId ?? null,
       instructions,
       ingredients,
     };
-  }
-
-  private parseNutrition(nutrition: unknown): RecipeNutritionDto | null {
-    if (
-      !nutrition ||
-      typeof nutrition !== 'object' ||
-      Array.isArray(nutrition)
-    ) {
-      return null;
-    }
-    const record = nutrition as Record<string, unknown>;
-    const parsed: RecipeNutritionDto = {
-      calories: this.parseNutritionValue(record.calories),
-      carbohydrates: this.parseNutritionValue(record.carbohydrates),
-      protein: this.parseNutritionValue(record.protein),
-      fat: this.parseNutritionValue(record.fat),
-      sodium: this.parseNutritionValue(record.sodium),
-    };
-    const hasValue = Object.values(parsed).some((value) => value != null);
-    return hasValue ? parsed : null;
-  }
-
-  private parseNutritionValue(value: unknown): number | null {
-    if (typeof value === 'number' && Number.isFinite(value)) {
-      return value;
-    }
-    if (typeof value === 'string' && value.trim().length > 0) {
-      const parsed = Number(value);
-      return Number.isFinite(parsed) ? parsed : null;
-    }
-    return null;
   }
 
   private parseInstructions(instructions: unknown): RecipeInstructionStepDto[] {

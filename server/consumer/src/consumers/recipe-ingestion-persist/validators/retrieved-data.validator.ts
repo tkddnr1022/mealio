@@ -3,8 +3,10 @@
  * @see recipe-ingestion.system-prompt.ts
  */
 import {
+  isRecipeNutritionPayload,
   RECIPE_INGESTION_DEFAULT_COOK_TIME_MINUTES,
   RECIPE_INGESTION_DEFAULT_DIFFICULTY,
+  type RecipeNutritionPayload,
 } from '@mealio/shared';
 
 /** recipe ingestion retrieved_data difficulty 허용 범위 (Mealio 1-3) */
@@ -46,13 +48,7 @@ export interface ProposedCategoryPayload {
   name: string;
 }
 
-export interface RetrievedNutritionPayload {
-  calories?: number | null;
-  carbohydrates?: number | null;
-  protein?: number | null;
-  fat?: number | null;
-  sodium?: number | null;
-}
+export type RetrievedNutritionPayload = RecipeNutritionPayload;
 
 export interface RetrievedRecipeStepPayload {
   content: string;
@@ -107,26 +103,6 @@ export class RetrievedDataValidationError extends Error {
     super(message);
     this.name = 'RetrievedDataValidationError';
   }
-}
-
-function isNutritionNumber(value: unknown): boolean {
-  return value == null || (typeof value === 'number' && Number.isFinite(value));
-}
-
-function isRetrievedNutrition(
-  value: unknown,
-): value is RetrievedNutritionPayload {
-  if (!value || typeof value !== 'object') {
-    return false;
-  }
-  const o = value as Record<string, unknown>;
-  return (
-    isNutritionNumber(o.calories) &&
-    isNutritionNumber(o.carbohydrates) &&
-    isNutritionNumber(o.protein) &&
-    isNutritionNumber(o.fat) &&
-    isNutritionNumber(o.sodium)
-  );
 }
 
 function isRetrievedRecipeStep(
@@ -210,7 +186,7 @@ function isRetrievedRecipe(value: unknown): value is RetrievedRecipePayload {
   if (o.proposedCategory != null && !isProposedCategory(o.proposedCategory)) {
     return false;
   }
-  if (o.nutrition != null && !isRetrievedNutrition(o.nutrition)) {
+  if (o.nutrition != null && !isRecipeNutritionPayload(o.nutrition)) {
     return false;
   }
   return true;

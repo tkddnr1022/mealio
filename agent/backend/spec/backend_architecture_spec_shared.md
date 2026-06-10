@@ -80,10 +80,11 @@ datasource: `postgresql`. generator: `prisma-client`, output `generated`.
 
 | 경로 | 역할 |
 |------|------------|
-| server/shared/src/utils/ | logger, error-handler, prisma-helpers, mongoose-helpers, validator |
+| server/shared/src/utils/ | structured-logger, correlation-id, correlation-context, **recipe-nutrition** |
 | server/shared/src/utils/structured-logger.ts | 구조화 로거 (JSON 출력, 레벨·컨텍스트·Correlation-ID) |
 | server/shared/src/utils/correlation-id.ts | Correlation-ID 생성 유틸 |
 | server/shared/src/utils/correlation-context.ts | AsyncLocalStorage 기반 Correlation Context 전파 |
+| server/shared/src/utils/recipe-nutrition.ts | `Recipe.nutrition` JSON 파싱·검증·compact·요약 문자열 SSOT (`@mealio/shared` re-export). 상세 §3.4.1 |
 | server/shared/src/constants/ | cache-keys.ts, asset-url-prefixes.ts, recipe-ingestion.ts(계약), sentry.constants.ts, ⚠️ 미구현: error-codes.ts |
 | server/shared/src/policy/ | recipe-ingestion.policy.ts, user-credits.policy.ts |
 | server/shared/src/config/ | observability.config.ts, observability.env-validation.ts, sentry.config.ts (3.1의 kafka, redis 외 추가) |

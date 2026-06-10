@@ -30,9 +30,8 @@ describe('ToolDispatcher', () => {
         mustHaveIngredients: ['닭가슴살'],
         avoidIngredientIds: [3],
         avoidIngredients: ['우유'],
-        maxCookTime: 30,
-        servings: 2,
-        dietaryTags: ['고단백'],
+        cookTime: { gte: 10, lte: 30 },
+        servings: { gte: 2, lte: 4 },
         recipeCategoryIds: [4],
         ingredientCategoryIds: [7],
       },
@@ -46,11 +45,47 @@ describe('ToolDispatcher', () => {
         mustHaveIngredients: ['닭가슴살'],
         avoidIngredientIds: [3],
         avoidIngredients: ['우유'],
-        maxCookTime: 30,
-        servings: 2,
-        dietaryTags: ['고단백'],
+        cookTime: { gte: 10, lte: 30 },
+        servings: { gte: 2, lte: 4 },
         recipeCategoryIds: [4],
         ingredientCategoryIds: [7],
+      },
+      { userId: 11 },
+    );
+  });
+
+  it('유효하지 않은 cookTime/servings 범위는 필터 없이 전달한다', async () => {
+    const searchRecipesHandler = {
+      execute: jest.fn().mockResolvedValue([]),
+    };
+
+    const dispatcher = new ToolDispatcher(
+      searchRecipesHandler as never,
+      { execute: jest.fn() } as never,
+      { execute: jest.fn() } as never,
+      { execute: jest.fn() } as never,
+    );
+
+    await dispatcher.execute(
+      'search_recipes',
+      {
+        cookTime: { gte: -5, lte: 0 },
+        servings: 2,
+      },
+      { userId: 11 },
+    );
+
+    expect(searchRecipesHandler.execute).toHaveBeenCalledWith(
+      {
+        keywords: undefined,
+        ingredientIds: undefined,
+        mustHaveIngredients: undefined,
+        avoidIngredientIds: undefined,
+        avoidIngredients: undefined,
+        cookTime: undefined,
+        servings: undefined,
+        recipeCategoryIds: undefined,
+        ingredientCategoryIds: undefined,
       },
       { userId: 11 },
     );

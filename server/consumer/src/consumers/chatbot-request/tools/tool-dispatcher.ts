@@ -1,14 +1,65 @@
 import { Injectable } from '@nestjs/common';
 import { SearchRecipesHandler } from '../handlers/SearchRecipesHandler';
+import type { SearchRecipesPayload } from '../handlers/SearchRecipesHandler';
 import { FoodCategoriesHandler } from '../handlers/FoodCategoriesHandler';
 import { InventoryHandler } from '../handlers/InventoryHandler';
 import { FinalizeRecipeSelectionHandler } from '../handlers/FinalizeRecipeSelectionHandler';
 import type { SearchedRecipe } from '../handlers/SearchRecipesHandler';
+import type { NumericRangeInput } from '../services/recipe-search-query.service';
 
 export interface ToolContext {
   userId: number;
   candidateRecipes?: SearchedRecipe[];
   selectedRecipes?: SearchedRecipe[];
+}
+
+function parsePositiveNumber(value: unknown): number | undefined {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
+    return undefined;
+  }
+  return Math.floor(value);
+}
+
+function parseNumericRange(value: unknown): NumericRangeInput | undefined {
+  if (value == null || typeof value !== 'object' || Array.isArray(value)) {
+    return undefined;
+  }
+
+  const record = value as Record<string, unknown>;
+  const gte = parsePositiveNumber(record.gte);
+  const lte = parsePositiveNumber(record.lte);
+  if (gte == null && lte == null) {
+    return undefined;
+  }
+
+  return {
+    ...(gte != null && { gte }),
+    ...(lte != null && { lte }),
+  };
+}
+
+function parseStringArray(value: unknown): string[] | undefined {
+  return Array.isArray(value) ? (value as string[]) : undefined;
+}
+
+function parseNumberArray(value: unknown): number[] | undefined {
+  return Array.isArray(value) ? (value as number[]) : undefined;
+}
+
+function parseSearchRecipesToolArgs(
+  args: Record<string, unknown>,
+): SearchRecipesPayload {
+  return {
+    keywords: parseStringArray(args.keywords),
+    ingredientIds: parseNumberArray(args.ingredientIds),
+    mustHaveIngredients: parseStringArray(args.mustHaveIngredients),
+    avoidIngredientIds: parseNumberArray(args.avoidIngredientIds),
+    avoidIngredients: parseStringArray(args.avoidIngredients),
+    cookTime: parseNumericRange(args.cookTime),
+    servings: parseNumericRange(args.servings),
+    recipeCategoryIds: parseNumberArray(args.recipeCategoryIds),
+    ingredientCategoryIds: parseNumberArray(args.ingredientCategoryIds),
+  };
 }
 
 /**
@@ -38,36 +89,7 @@ export class ToolDispatcher {
         return JSON.stringify(result);
       }
       case 'search_recipes': {
-        const payload = {
-          keywords: Array.isArray(args.keywords)
-            ? (args.keywords as string[])
-            : undefined,
-          ingredientIds: Array.isArray(args.ingredientIds)
-            ? (args.ingredientIds as number[])
-            : undefined,
-          mustHaveIngredients: Array.isArray(args.mustHaveIngredients)
-            ? (args.mustHaveIngredients as string[])
-            : undefined,
-          avoidIngredientIds: Array.isArray(args.avoidIngredientIds)
-            ? (args.avoidIngredientIds as number[])
-            : undefined,
-          avoidIngredients: Array.isArray(args.avoidIngredients)
-            ? (args.avoidIngredients as string[])
-            : undefined,
-          maxCookTime:
-            typeof args.maxCookTime === 'number' ? args.maxCookTime : undefined,
-          servings:
-            typeof args.servings === 'number' ? args.servings : undefined,
-          dietaryTags: Array.isArray(args.dietaryTags)
-            ? (args.dietaryTags as string[])
-            : undefined,
-          recipeCategoryIds: Array.isArray(args.recipeCategoryIds)
-            ? (args.recipeCategoryIds as number[])
-            : undefined,
-          ingredientCategoryIds: Array.isArray(args.ingredientCategoryIds)
-            ? (args.ingredientCategoryIds as number[])
-            : undefined,
-        };
+        const payload = parseSearchRecipesToolArgs(args);
         const result = await this.searchRecipesHandler.execute(payload, {
           userId: context.userId,
         });

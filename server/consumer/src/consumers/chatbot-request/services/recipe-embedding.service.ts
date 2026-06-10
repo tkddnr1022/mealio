@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '@mealio/shared';
+import { formatRecipeNutritionSummary, PrismaService } from '@mealio/shared';
 import { OpenAIService } from 'src/integrations/openai/openai.service';
 import { RecipeEmbeddingRepository } from 'src/persistence/repositories/postgresql/recipe-embedding.repository';
 
@@ -11,14 +11,6 @@ export interface RecipeEmbeddingSyncResult {
 type RecipeInstructionStep = {
   step?: number;
   content?: string;
-};
-
-type RecipeNutrition = {
-  calories?: number;
-  carbohydrates?: number;
-  protein?: number;
-  fat?: number;
-  sodium?: number;
 };
 
 @Injectable()
@@ -168,7 +160,9 @@ export class RecipeEmbeddingService {
       lines.push(`dish_type: ${recipe.dishType}`);
     }
 
-    const nutritionText = this.formatNutrition(recipe.nutrition);
+    const nutritionText = formatRecipeNutritionSummary(recipe.nutrition, {
+      locale: 'en',
+    });
     if (nutritionText) {
       lines.push(`nutrition_per_serving: ${nutritionText}`);
     }
@@ -212,32 +206,4 @@ export class RecipeEmbeddingService {
       .join(' ');
   }
 
-  private formatNutrition(nutrition: unknown): string {
-    if (
-      nutrition == null ||
-      typeof nutrition !== 'object' ||
-      Array.isArray(nutrition)
-    ) {
-      return '';
-    }
-
-    const values = nutrition as RecipeNutrition;
-    const parts: string[] = [];
-    if (typeof values.calories === 'number') {
-      parts.push(`calories ${values.calories}kcal`);
-    }
-    if (typeof values.carbohydrates === 'number') {
-      parts.push(`carbohydrates ${values.carbohydrates}g`);
-    }
-    if (typeof values.protein === 'number') {
-      parts.push(`protein ${values.protein}g`);
-    }
-    if (typeof values.fat === 'number') {
-      parts.push(`fat ${values.fat}g`);
-    }
-    if (typeof values.sodium === 'number') {
-      parts.push(`sodium ${values.sodium}mg`);
-    }
-    return parts.join(', ');
-  }
 }

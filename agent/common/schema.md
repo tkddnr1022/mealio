@@ -133,6 +133,16 @@
 | content | string | 조리 설명 |
 | imageUrl | string \| null | 단계별 참고 이미지 URL (optional) |
 
+**`nutrition` JSON 항목** (1인분 기준)
+
+| 필드 | 타입 | 단위 | 의미 |
+| --- | --- | --- | --- |
+| calories | number | kcal | 열량 |
+| carbohydrates | number | g | 탄수화물 |
+| protein | number | g | 단백질 |
+| fat | number | g | 지방 |
+| sodium | number | mg | 나트륨 |
+
 **제약**: `FK(category) -> RecipeCategory(id)` (Prisma: `categoryId` → `@map("category")`)
 **인덱스(추가)**: `UNIQUE(source, source_recipe_id)` — 동일 출처 레시피 중복 방지 (nullable 조합 허용)  
 **인덱스**: `(category, difficulty, cook_time, created_at)`, `(difficulty, cook_time, created_at)`, `(created_at DESC)`

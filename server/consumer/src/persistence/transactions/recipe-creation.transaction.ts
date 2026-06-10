@@ -1,7 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '@mealio/shared';
+import {
+  compactRecipeNutritionForJson,
+  PrismaService,
+  RECIPE_INGESTION_RECIPE_SOURCE,
+  type RecipeNutritionPayload,
+} from '@mealio/shared';
 import { Prisma } from '@mealio/shared/prisma-client';
-import { RECIPE_INGESTION_RECIPE_SOURCE } from '@mealio/shared';
 import type { RecipeIngestionJobDocument } from '@mealio/shared';
 import {
   RecipeIngredientRepository,
@@ -14,7 +18,6 @@ import {
 import { CategoryResolverService } from 'src/consumers/recipe-ingestion-persist/services/category-resolver.service';
 import type {
   RetrievedDataPayload,
-  RetrievedNutritionPayload,
   RetrievedRecipeStepPayload,
 } from 'src/consumers/recipe-ingestion-persist/validators/retrieved-data.validator';
 import { normalizeFoodsafetyImageUrl } from 'src/integrations/public-data/foodsafety-image-url.util';
@@ -68,24 +71,10 @@ function buildInstructions(
 }
 
 function toNutritionJson(
-  nutrition: RetrievedNutritionPayload | null | undefined,
+  nutrition: RecipeNutritionPayload | null | undefined,
 ): Prisma.InputJsonValue | typeof Prisma.JsonNull {
-  if (!nutrition) {
-    return Prisma.JsonNull;
-  }
-
-  const payload: RetrievedNutritionPayload = {};
-  if (nutrition.calories != null) payload.calories = nutrition.calories;
-  if (nutrition.carbohydrates != null) {
-    payload.carbohydrates = nutrition.carbohydrates;
-  }
-  if (nutrition.protein != null) payload.protein = nutrition.protein;
-  if (nutrition.fat != null) payload.fat = nutrition.fat;
-  if (nutrition.sodium != null) payload.sodium = nutrition.sodium;
-
-  return Object.keys(payload).length > 0
-    ? (payload as Prisma.InputJsonValue)
-    : Prisma.JsonNull;
+  const payload = compactRecipeNutritionForJson(nutrition);
+  return payload ? (payload as Prisma.InputJsonValue) : Prisma.JsonNull;
 }
 
 /**

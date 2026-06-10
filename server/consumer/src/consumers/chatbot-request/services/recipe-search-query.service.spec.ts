@@ -4,7 +4,7 @@ import { Prisma } from '@mealio/shared/prisma-client';
 import { RecipeSearchQueryService } from './recipe-search-query.service';
 
 describe('RecipeSearchQueryService', () => {
-  it('포함/제외 재료와 기본 조건을 where에 함께 조합한다', async () => {
+  const createService = () => {
     const findMany = jest
       .fn<Promise<unknown[]>, [Prisma.RecipeFindManyArgs]>()
       .mockResolvedValue([]);
@@ -14,17 +14,18 @@ describe('RecipeSearchQueryService', () => {
       },
     };
 
-    const module = await Test.createTestingModule({
-      providers: [
-        RecipeSearchQueryService,
-        { provide: PrismaService, useValue: prismaService },
-      ],
-    }).compile();
+    return {
+      findMany,
+      service: new RecipeSearchQueryService(prismaService as never),
+    };
+  };
 
-    const service = module.get(RecipeSearchQueryService);
+  it('포함/제외 재료와 기본 조건을 AND 배열로 조합한다', async () => {
+    const { findMany, service } = createService();
+
     await service.searchRecipes({
-      maxCookTime: 20,
-      servings: 2,
+      cookTime: { lte: 20 },
+      servings: { gte: 2 },
       recipeCategoryIds: [1, 1, -1],
       ingredientCategoryIds: [2, 0],
       includeIngredientIds: [10, 10, 0],
@@ -35,11 +36,11 @@ describe('RecipeSearchQueryService', () => {
 
     const findManyArg = findMany.mock.calls[0][0];
     expect(findManyArg.where).toEqual({
-      isPublished: true,
-      cookTime: { lte: 20 },
-      servings: 2,
-      categoryId: { in: [1] },
       AND: [
+        { isPublished: true },
+        { cookTime: { lte: 20 } },
+        { servings: { gte: 2 } },
+        { categoryId: { in: [1] } },
         {
           recipeIngredients: {
             some: {
@@ -107,51 +108,46 @@ describe('RecipeSearchQueryService', () => {
     });
   });
 
-  it('servings가 유효하지 않으면 인분 필터를 적용하지 않는다', async () => {
-    const findMany = jest
-      .fn<Promise<unknown[]>, [Prisma.RecipeFindManyArgs]>()
-      .mockResolvedValue([]);
-    const prismaService = {
-      recipe: {
-        findMany,
-      },
-    };
+  it('cookTime·servings 범위 객체로 gte/lte를 동시에 적용한다', async () => {
+    const { findMany, service } = createService();
 
-    const module = await Test.createTestingModule({
-      providers: [
-        RecipeSearchQueryService,
-        { provide: PrismaService, useValue: prismaService },
-      ],
-    }).compile();
-
-    const service = module.get(RecipeSearchQueryService);
-    await service.searchRecipes({ servings: 0 });
+    await service.searchRecipes({
+      cookTime: { gte: 10, lte: 30 },
+      servings: { gte: 2, lte: 4 },
+    });
 
     const findManyArg = findMany.mock.calls[0][0];
-    expect(findManyArg.where).toEqual({ isPublished: true });
+    expect(findManyArg.where).toEqual({
+      AND: [
+        { isPublished: true },
+        { cookTime: { gte: 10, lte: 30 } },
+        { servings: { gte: 2, lte: 4 } },
+      ],
+    });
   });
 
-  it('조건이 없으면 AND 없이 기본 published 조건만 조회한다', async () => {
-    const findMany = jest
-      .fn<Promise<unknown[]>, [Prisma.RecipeFindManyArgs]>()
-      .mockResolvedValue([]);
-    const prismaService = {
-      recipe: {
-        findMany,
-      },
-    };
+  it('유효하지 않은 범위 값은 필터에 반영하지 않는다', async () => {
+    const { findMany, service } = createService();
 
-    const module = await Test.createTestingModule({
-      providers: [
-        RecipeSearchQueryService,
-        { provide: PrismaService, useValue: prismaService },
-      ],
-    }).compile();
+    await service.searchRecipes({
+      servings: { gte: 0 },
+      cookTime: { lte: -1 },
+    });
 
-    const service = module.get(RecipeSearchQueryService);
+    const findManyArg = findMany.mock.calls[0][0];
+    expect(findManyArg.where).toEqual({
+      AND: [{ isPublished: true }],
+    });
+  });
+
+  it('조건이 없으면 published 조건만 AND로 조회한다', async () => {
+    const { findMany, service } = createService();
+
     await service.searchRecipes({});
 
     const findManyArg = findMany.mock.calls[0][0];
-    expect(findManyArg.where).toEqual({ isPublished: true });
+    expect(findManyArg.where).toEqual({
+      AND: [{ isPublished: true }],
+    });
   });
 });

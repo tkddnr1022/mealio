@@ -3,8 +3,10 @@ import { PrismaService } from '@mealio/shared';
 import { RecipeEmbeddingService } from '../services/recipe-embedding.service';
 import { RecipeSearchQueryService } from '../services/recipe-search-query.service';
 import { RecipeEmbeddingRepository } from 'src/persistence/repositories/postgresql/recipe-embedding.repository';
+import { formatNutritionSummary } from '@mealio/shared';
+import type { NumericRangeInput } from '../services/recipe-search-query.service';
 
-/** `search_recipes` 도구가 반환하는 레시피 요약(검색 결과). 추천·랭킹 점수는 포함하지 않는다. */
+/** `search_recipes` 도구가 반환하는 레시피 요약(검색 결과). */
 export interface SearchedRecipe {
   id: number;
   title: string;
@@ -16,6 +18,10 @@ export interface SearchedRecipe {
   /** RecipeCategory.id */
   categoryId: number;
   categoryName: string;
+  cookingMethod?: string | null;
+  dishType?: string | null;
+  nutritionSummary?: string | null;
+  topInstructionSnippet?: string | null;
   semanticScore?: number;
   keywordScore?: number;
   inventoryMatchScore?: number;
@@ -31,9 +37,8 @@ export interface SearchRecipesPayload {
   mustHaveIngredients?: string[];
   avoidIngredientIds?: number[];
   avoidIngredients?: string[];
-  maxCookTime?: number;
-  servings?: number;
-  dietaryTags?: string[];
+  cookTime?: NumericRangeInput;
+  servings?: NumericRangeInput;
   recipeCategoryIds?: number[];
   ingredientCategoryIds?: number[];
 }
@@ -69,14 +74,12 @@ export class SearchRecipesHandler {
     options: SearchRecipesOptions,
   ): Promise<SearchedRecipe[]> {
     const keywords = this.buildKeywords(payload);
-    const maxCookTime = this.normalizePositiveNumber(payload.maxCookTime);
-    const servings = this.normalizePositiveNumber(payload.servings);
     const recipeCategoryIds = payload.recipeCategoryIds ?? [];
     const ingredientCategoryIds = payload.ingredientCategoryIds ?? [];
     const ingredientIds = payload.ingredientIds ?? [];
     const recipes = await this.recipeSearchQueryService.searchRecipes({
-      maxCookTime,
-      servings,
+      cookTime: payload.cookTime,
+      servings: payload.servings,
       recipeCategoryIds,
       ingredientCategoryIds,
       includeIngredientIds: ingredientIds,
@@ -124,11 +127,8 @@ export class SearchRecipesHandler {
 
     const reranked = recipes
       .map((recipe) => {
-        const keywordScore = this.computeKeywordScore(
-          recipe.title,
-          recipe.description,
-          keywords,
-        );
+        const keywordSearchText = this.buildKeywordSearchText(recipe);
+        const keywordScore = this.computeKeywordScore(keywordSearchText, keywords);
         const inventoryMatchScore = this.computeInventoryMatchScore(
           payload.ingredientIds ?? [],
           recipe.recipeIngredients.map((row) => row.ingredientId),
@@ -158,6 +158,10 @@ export class SearchRecipesHandler {
           userPreferenceScore,
           finalScore,
           missingIngredients,
+          nutritionSummary: formatNutritionSummary(recipe.nutrition),
+          topInstructionSnippet: this.extractTopInstructionSnippet(
+            recipe.instructions,
+          ),
           reasonSignals: this.buildReasonSignals({
             semanticScore,
             keywordScore,
@@ -179,6 +183,10 @@ export class SearchRecipesHandler {
       servings: r.servings,
       categoryId: r.categoryId,
       categoryName: r.categoryMeta.name,
+      cookingMethod: r.cookingMethod,
+      dishType: r.dishType,
+      nutritionSummary: r.nutritionSummary,
+      topInstructionSnippet: r.topInstructionSnippet,
       semanticScore: r.semanticScore,
       keywordScore: r.keywordScore,
       inventoryMatchScore: r.inventoryMatchScore,
@@ -210,30 +218,42 @@ export class SearchRecipesHandler {
       `keywords: ${keywords.join(', ')}`,
       `must_have: ${(payload.mustHaveIngredients ?? []).join(', ')}`,
       `avoid: ${(payload.avoidIngredients ?? []).join(', ')}`,
-      `dietary_tags: ${(payload.dietaryTags ?? []).join(', ')}`,
-      `servings: ${this.normalizePositiveNumber(payload.servings) ?? ''}`,
+      `cook_time: ${this.formatRangeContext(
+        payload.cookTime?.gte,
+        payload.cookTime?.lte,
+      )}`,
+      `servings: ${this.formatRangeContext(
+        payload.servings?.gte,
+        payload.servings?.lte,
+      )}`,
     ];
     return sections.join('\n').trim();
   }
 
-  private normalizePositiveNumber(value: unknown): number | undefined {
-    if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
-      return undefined;
+  private formatRangeContext(
+    gte: number | undefined,
+    lte: number | undefined,
+  ): string {
+    const parts: string[] = [];
+    if (gte != null) {
+      parts.push(`min ${gte}`);
     }
-    return Math.floor(value);
+    if (lte != null) {
+      parts.push(`max ${lte}`);
+    }
+    return parts.join(', ');
   }
 
   private computeKeywordScore(
-    title: string,
-    description: string | null,
+    searchableText: string,
     keywords: string[],
   ): number {
     if (keywords.length === 0) {
       return 0;
     }
-    const source = `${title} ${description ?? ''}`.toLowerCase();
     const hitCount = keywords.reduce(
-      (count, keyword) => (source.includes(keyword) ? count + 1 : count),
+      (count, keyword) =>
+        searchableText.includes(keyword) ? count + 1 : count,
       0,
     );
     return Math.max(0, Math.min(1, hitCount / keywords.length));
@@ -286,5 +306,53 @@ export class SearchRecipesHandler {
       reasons.push('user_preference');
     }
     return reasons;
+  }
+
+  private extractTopInstructionSnippet(
+    instructions: unknown,
+    maxLength = 120,
+  ): string | null {
+    if (!Array.isArray(instructions) || instructions.length === 0) {
+      return null;
+    }
+
+    for (const [index, item] of instructions.entries()) {
+      if (!item || typeof item !== 'object') {
+        continue;
+      }
+      const step = item as { step?: number; content?: string };
+      const content =
+        typeof step.content === 'string' ? step.content.trim() : '';
+      if (!content) {
+        continue;
+      }
+      const stepNum =
+        typeof step.step === 'number' && step.step > 0 ? step.step : index + 1;
+      const prefixed = `${stepNum}. ${content}`;
+      if (prefixed.length <= maxLength) {
+        return prefixed;
+      }
+      return `${prefixed.slice(0, maxLength - 1)}…`;
+    }
+
+    return null;
+  }
+
+  private buildKeywordSearchText(recipe: {
+    title: string;
+    description: string | null;
+    cookingMethod: string | null;
+    dishType: string | null;
+    cookingTip: string | null;
+  }): string {
+    return [
+      recipe.title,
+      recipe.description ?? '',
+      recipe.cookingMethod ?? '',
+      recipe.dishType ?? '',
+      recipe.cookingTip ?? '',
+    ]
+      .join(' ')
+      .toLowerCase();
   }
 }

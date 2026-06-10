@@ -59,20 +59,34 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
             description:
               '제외할 재료 이름 목록(예: 우유, 땅콩). 이름 기반 제외 필터에 반영.',
           },
-          maxCookTime: {
-            type: 'number',
-            description: '최대 조리 시간(분). 예: "30분 이내"는 30.',
+          cookTime: {
+            type: 'object',
+            properties: {
+              gte: {
+                type: 'number',
+                description: '최소 조리 시간(분).',
+              },
+              lte: {
+                type: 'number',
+                description:
+                  '최대 조리 시간(분). 예: "30분 이내"는 { "lte": 30 }.',
+              },
+            },
+            description: '조리 시간 범위(분). gte/lte로 최소·최대를 지정.',
           },
           servings: {
-            type: 'number',
-            description:
-              '희망 인분(예: 2). Recipe.servings와 일치하는 레시피만 조회.',
-          },
-          dietaryTags: {
-            type: 'array',
-            items: { type: 'string' },
-            description:
-              '식단/취향 태그(예: 저탄고지, 고단백, 비건). 현재는 검색 랭킹 힌트로 활용.',
+            type: 'object',
+            properties: {
+              gte: {
+                type: 'number',
+                description: '최소 인분.',
+              },
+              lte: {
+                type: 'number',
+                description: '최대 인분.',
+              },
+            },
+            description: '인분 범위. gte/lte로 최소·최대를 지정.',
           },
           recipeCategoryIds: {
             type: 'array',

@@ -42,6 +42,19 @@ export {
   type StructuredLogFields,
   type StructuredLogLevel,
 } from './utils/structured-logger';
+export {
+  RECIPE_NUTRITION_FIELD_KEYS,
+  parseRecipeNutritionValue,
+  parseRecipeNutrition,
+  isRecipeNutritionPayload,
+  compactRecipeNutritionForJson,
+  formatRecipeNutritionSummary,
+  formatNutritionSummary,
+  type RecipeNutritionField,
+  type RecipeNutrition,
+  type RecipeNutritionPayload,
+  type RecipeNutritionFormatLocale,
+} from './utils/recipe-nutrition';
 
 // Sentry (Phase C)
 export {
