@@ -109,7 +109,7 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
     function: {
       name: 'finalize_recipe_selection',
       description:
-        'search_recipes 후보 안에서 최종 추천 레시피를 확정합니다. 반드시 후보에 포함된 recipe id만 selectedRecipeIds로 전달하세요.',
+        'search_recipes 후보 안에서 최종 추천 레시피를 확정합니다. 반드시 후보에 포함된 recipe id만 selectedRecipeIds로 전달하세요. selectedRecipeIds 배열 순서는 추천 우선순위이며, 앞쪽일수록 더 강하게 추천합니다(1번째=1순위). 최종 답변에서 레시피를 소개할 때도 이 순서를 그대로 따르세요.',
       parameters: {
         type: 'object',
         properties: {
@@ -117,7 +117,7 @@ export const CHATBOT_TOOLS: ChatCompletionTool[] = [
             type: 'array',
             items: { type: 'number' },
             description:
-              'search_recipes 결과 중 최종 추천으로 확정한 recipe id 목록(권장 3~5개).',
+              'search_recipes 결과 중 최종 추천으로 확정한 recipe id 목록(권장 3~5개). 배열 순서=추천 순위(1번째 id가 1순위, 마지막이 순위가 가장 낮음). 사용자에게 소개할 순서와 동일하게 배치하세요.',
           },
         },
         required: ['selectedRecipeIds'],
