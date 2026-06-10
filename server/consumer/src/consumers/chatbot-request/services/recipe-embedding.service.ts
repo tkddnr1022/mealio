@@ -212,5 +212,4 @@ export class RecipeEmbeddingService {
       .filter((line): line is string => line != null)
       .join(' ');
   }
-
 }

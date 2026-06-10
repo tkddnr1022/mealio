@@ -31,12 +31,14 @@ describe('SearchRecipesHandler', () => {
     ...overrides,
   });
 
-  const createHandler = (overrides: {
-    recipeEmbeddingService?: Record<string, jest.Mock>;
-    recipeEmbeddingRepository?: Record<string, jest.Mock>;
-    recipeSearchQueryService?: Record<string, jest.Mock>;
-    recipeSearchQueryExpansionService?: Record<string, jest.Mock>;
-  } = {}) => {
+  const createHandler = (
+    overrides: {
+      recipeEmbeddingService?: Record<string, jest.Mock>;
+      recipeEmbeddingRepository?: Record<string, jest.Mock>;
+      recipeSearchQueryService?: Record<string, jest.Mock>;
+      recipeSearchQueryExpansionService?: Record<string, jest.Mock>;
+    } = {},
+  ) => {
     const prismaService = {
       userRecipeRecommendation: {
         findMany: jest.fn().mockResolvedValue([]),
@@ -44,9 +46,10 @@ describe('SearchRecipesHandler', () => {
     };
     const recipeEmbeddingService = {
       ensureEmbeddingsForRecipeIds: jest.fn().mockResolvedValue(undefined),
-      createQueryEmbeddings: jest
-        .fn()
-        .mockResolvedValue([[0.1, 0.2], [0.2, 0.3]]),
+      createQueryEmbeddings: jest.fn().mockResolvedValue([
+        [0.1, 0.2],
+        [0.2, 0.3],
+      ]),
       ...overrides.recipeEmbeddingService,
     };
     const recipeEmbeddingRepository = {
@@ -132,22 +135,19 @@ describe('SearchRecipesHandler', () => {
   });
 
   it('query expansion이 원질의만 반환해도 semantic 검색을 계속한다', async () => {
-    const {
-      handler,
-      recipeEmbeddingService,
-      recipeEmbeddingRepository,
-    } = createHandler({
-      recipeEmbeddingService: {
-        createQueryEmbeddings: jest.fn().mockResolvedValue([[0.1, 0.2]]),
-      },
-      recipeSearchQueryExpansionService: {
-        expandQueries: jest
-          .fn()
-          .mockResolvedValue([
-            'keywords: 고단백\nmust_have: \navoid: \ncook_time: \nservings: ',
-          ]),
-      },
-    });
+    const { handler, recipeEmbeddingService, recipeEmbeddingRepository } =
+      createHandler({
+        recipeEmbeddingService: {
+          createQueryEmbeddings: jest.fn().mockResolvedValue([[0.1, 0.2]]),
+        },
+        recipeSearchQueryExpansionService: {
+          expandQueries: jest
+            .fn()
+            .mockResolvedValue([
+              'keywords: 고단백\nmust_have: \navoid: \ncook_time: \nservings: ',
+            ]),
+        },
+      });
 
     await handler.execute({ keywords: ['고단백'] }, { userId: 10 });
 
@@ -164,7 +164,10 @@ describe('SearchRecipesHandler', () => {
       },
     });
 
-    const result = await handler.execute({ keywords: ['간단'] }, { userId: 10 });
+    const result = await handler.execute(
+      { keywords: ['간단'] },
+      { userId: 10 },
+    );
 
     expect(result).toEqual([]);
   });
@@ -233,15 +236,20 @@ describe('SearchRecipesHandler', () => {
           ]),
       },
       recipeSearchQueryService: {
-        fetchRecipesByIds: jest.fn().mockResolvedValue([
-          createRecipe({ id: 101 }),
-          createRecipe({ id: 202, title: '두번째' }),
-          createRecipe({ id: 303, title: '세번째' }),
-        ]),
+        fetchRecipesByIds: jest
+          .fn()
+          .mockResolvedValue([
+            createRecipe({ id: 101 }),
+            createRecipe({ id: 202, title: '두번째' }),
+            createRecipe({ id: 303, title: '세번째' }),
+          ]),
       },
     });
 
-    const result = await handler.execute({ keywords: ['고단백'] }, { userId: 10 });
+    const result = await handler.execute(
+      { keywords: ['고단백'] },
+      { userId: 10 },
+    );
 
     expect(result[0]?.id).toBe(303);
     expect(result[1]?.id).toBe(101);

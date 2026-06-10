@@ -79,7 +79,9 @@ export function isRecipeNutritionPayload(
   );
 }
 
-export function parseRecipeNutrition(nutrition: unknown): RecipeNutrition | null {
+export function parseRecipeNutrition(
+  nutrition: unknown,
+): RecipeNutrition | null {
   if (
     nutrition == null ||
     typeof nutrition !== 'object' ||
