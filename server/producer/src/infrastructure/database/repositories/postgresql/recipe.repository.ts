@@ -21,7 +21,7 @@ export interface RecipeStaticIdsParams {
 }
 
 export interface RecipeSearchParams {
-  /** 비어 있거나 생략이면 제목·설명 contains 조건 없음 */
+  /** 비어 있거나 생략이면 제목·설명·조리방법·요리종류 contains 조건 없음 */
   keyword?: string;
   page: number;
   size: number;
@@ -30,8 +30,6 @@ export interface RecipeSearchParams {
   maxCookTime?: number;
   /** RecipeCategory.id (활성 카테고리만 매칭) */
   categoryId?: number;
-  cookingMethod?: string;
-  dishType?: string;
   sort?: RecipeListOrder;
 }
 
@@ -204,8 +202,6 @@ export class RecipeRepository {
       minCookTime,
       maxCookTime,
       categoryId,
-      cookingMethod,
-      dishType,
       sort = DEFAULT_RECIPE_SORT,
     } = params;
     const skip = (page - 1) * size;
@@ -217,6 +213,8 @@ export class RecipeRepository {
         OR: [
           { title: { contains: keyword, mode: 'insensitive' } },
           { description: { contains: keyword, mode: 'insensitive' } },
+          { cookingMethod: { contains: keyword, mode: 'insensitive' } },
+          { dishType: { contains: keyword, mode: 'insensitive' } },
         ],
       });
     }
@@ -235,15 +233,6 @@ export class RecipeRepository {
         categoryMeta: { isActive: true },
       });
     }
-    const normalizedCookingMethod = cookingMethod?.trim();
-    if (normalizedCookingMethod) {
-      andConditions.push({ cookingMethod: normalizedCookingMethod });
-    }
-    const normalizedDishType = dishType?.trim();
-    if (normalizedDishType) {
-      andConditions.push({ dishType: normalizedDishType });
-    }
-
     const where: Prisma.RecipeWhereInput = {
       isPublished: true,
       ...(andConditions.length > 0 ? { AND: andConditions } : {}),

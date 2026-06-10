@@ -54,8 +54,6 @@ interface RecipeSearchClientPageProps {
   cookTimeMax?: number;
   categoryId?: number;
   categoryName?: string;
-  cookingMethod?: string;
-  dishType?: string;
   recipes: RecipeSummary[];
   initialPagination: Pagination;
   totalCount: number;
@@ -89,8 +87,6 @@ export function RecipeSearchClientPage({
   cookTimeMax,
   categoryId,
   categoryName,
-  cookingMethod,
-  dishType,
   recipes: initialRecipes,
   initialPagination,
   totalCount,
@@ -107,20 +103,9 @@ export function RecipeSearchClientPage({
       cookTimeMin,
       cookTimeMax,
       categoryId,
-      cookingMethod,
-      dishType,
       size: RECIPE_SEARCH_PAGE_SIZE,
     }),
-    [
-      query,
-      sort,
-      difficulty,
-      cookTimeMin,
-      cookTimeMax,
-      categoryId,
-      cookingMethod,
-      dishType,
-    ],
+    [query, sort, difficulty, cookTimeMin, cookTimeMax, categoryId],
   );
 
   const currentUrl = useMemo(
@@ -174,8 +159,6 @@ export function RecipeSearchClientPage({
     ...difficultyLabels,
     ...(cookTimeChipLabel ? [cookTimeChipLabel] : []),
     ...(categoryName ? [categoryName] : []),
-    ...(cookingMethod ? [cookingMethod] : []),
-    ...(dishType ? [dishType] : []),
   ];
 
   const pushSearch = (nextQuery: RecipeSearchQuery) => {
@@ -192,8 +175,6 @@ export function RecipeSearchClientPage({
     cookTimeMin,
     cookTimeMax,
     categoryId,
-    cookingMethod,
-    dishType,
   });
 
   const handleRemoveChip = (_index: number, label: string) => {
@@ -231,22 +212,6 @@ export function RecipeSearchClientPage({
       pushSearch({
         ...current,
         categoryId: undefined,
-      });
-      return;
-    }
-
-    if (cookingMethod === label) {
-      pushSearch({
-        ...current,
-        cookingMethod: undefined,
-      });
-      return;
-    }
-
-    if (dishType === label) {
-      pushSearch({
-        ...current,
-        dishType: undefined,
       });
     }
   };

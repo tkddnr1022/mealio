@@ -272,8 +272,6 @@ export class RecipeQueryService {
       cookTimeMin?: number;
       cookTimeMax?: number;
       categoryId?: number;
-      cookingMethod?: string;
-      dishType?: string;
       sort?: RecipeListOrder;
     },
     context?: ActivityContext,
@@ -286,9 +284,6 @@ export class RecipeQueryService {
         : CACHE_KEY_SEGMENT.ALL;
     const cookTimeRangeKey = `${params.cookTimeMin ?? CACHE_KEY_SEGMENT.ALL}-${params.cookTimeMax ?? CACHE_KEY_SEGMENT.ALL}`;
     const categoryKey = params.categoryId ?? CACHE_KEY_SEGMENT.ALL;
-    const cookingMethodKey =
-      params.cookingMethod?.trim() || CACHE_KEY_SEGMENT.ALL;
-    const dishTypeKey = params.dishType?.trim() || CACHE_KEY_SEGMENT.ALL;
     const sortKey = params.sort ?? DEFAULT_RECIPE_SORT;
     const payload: RecipeSearchParams = {
       keyword,
@@ -298,8 +293,6 @@ export class RecipeQueryService {
       minCookTime: params.cookTimeMin,
       maxCookTime: params.cookTimeMax,
       categoryId: params.categoryId,
-      cookingMethod: params.cookingMethod,
-      dishType: params.dishType,
       sort: sortKey,
     };
     const keywordKey = keyword ?? CACHE_KEY_SEGMENT.ALL;
@@ -324,8 +317,6 @@ export class RecipeQueryService {
       difficultyKey,
       cookTimeRangeKey,
       categoryKey,
-      cookingMethodKey,
-      dishTypeKey,
       sortKey,
       params.page,
       params.size,

@@ -704,7 +704,7 @@ paths:
         - Recipe
       summary: 레시피 검색
       description: |
-        레시피 검색 (키워드·난이도·조리시간·카테고리·정렬 선택). 키워드를 생략하면 제목·설명 텍스트 검색 없이 필터·정렬만 적용합니다.
+        레시피 검색 (키워드·난이도·조리시간·카테고리·정렬 선택). 키워드(`q`)는 제목·설명·조리방법·요리종류 필드에 부분 일치로 적용되며, 생략하면 텍스트 검색 없이 필터·정렬만 적용합니다.
         검색 API 호출 시 `search.query` activity 이벤트를 발행하며, dedupe는 **키워드(q)만** + actor(`userId` 우선, 비로그인 `ipAddress`, 미확인 `unknown-ip`) 기준 30분 윈도우로 중복을 차단한다(필터·정렬·페이지 변경은 동일 키워드면 추가 발행 없음).
       security:
         - cookieAuth: []
@@ -720,7 +720,7 @@ paths:
         - name: q
           in: query
           required: false
-          description: 검색 키워드 (제목·설명 부분 일치, 생략 가능)
+          description: 검색 키워드 (제목·설명·조리방법·요리종류 부분 일치, 생략 가능)
           schema:
             type: string
             minLength: 1
@@ -767,18 +767,6 @@ paths:
             type: integer
             format: int64
             minimum: 1
-        - name: cookingMethod
-          in: query
-          description: 조리 방법 (예 - 찌기, 볶기)
-          schema:
-            type: string
-            minLength: 1
-        - name: dishType
-          in: query
-          description: 요리 종류 (예 - 반찬, 국)
-          schema:
-            type: string
-            minLength: 1
         - name: sort
           in: query
           description: 정렬 기준

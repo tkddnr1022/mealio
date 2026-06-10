@@ -92,8 +92,6 @@ function parseSearchQuery(searchParams?: SearchParamRecord): {
     cookTimeMin?: number;
     cookTimeMax?: number;
     categoryId?: number;
-    cookingMethod?: string;
-    dishType?: string;
   };
 } {
   const q = (getSingleSearchParam(searchParams?.q) ?? '').trim();
@@ -108,8 +106,6 @@ function parseSearchQuery(searchParams?: SearchParamRecord): {
   const categoryId = toPositiveInt(
     getSingleSearchParam(searchParams?.categoryId),
   );
-  const cookingMethod = getTrimmedSearchParam(searchParams?.cookingMethod);
-  const dishType = getTrimmedSearchParam(searchParams?.dishType);
   const page = toPositiveInt(getSingleSearchParam(searchParams?.page));
   const size = toPositiveInt(getSingleSearchParam(searchParams?.size));
 
@@ -121,8 +117,6 @@ function parseSearchQuery(searchParams?: SearchParamRecord): {
       cookTimeMin,
       cookTimeMax,
       categoryId,
-      cookingMethod: cookingMethod || undefined,
-      dishType: dishType || undefined,
       page,
       size,
     },
@@ -133,8 +127,6 @@ function parseSearchQuery(searchParams?: SearchParamRecord): {
       cookTimeMin,
       cookTimeMax,
       categoryId,
-      cookingMethod: cookingMethod || undefined,
-      dishType: dishType || undefined,
     },
   };
 }
@@ -186,8 +178,6 @@ export default async function RecipeSearchPage({
       cookTimeMax={display.cookTimeMax}
       categoryId={display.categoryId}
       categoryName={categoryName}
-      cookingMethod={display.cookingMethod}
-      dishType={display.dishType}
       recipes={recipes}
       initialPagination={initialPagination}
       totalCount={totalCount}

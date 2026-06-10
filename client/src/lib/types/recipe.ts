@@ -123,12 +123,9 @@ export interface RecipeListQuery {
 
 /** `GET /recipes/search` 쿼리 파라미터 */
 export interface RecipeSearchQuery extends RecipeListQuery {
+  /** 제목·설명·조리방법·요리종류 키워드 검색 */
   q?: string;
   categoryId?: number;
-  /** 조리 방법 (예: 찌기, 볶기) */
-  cookingMethod?: string;
-  /** 요리 종류 (예: 반찬, 국) */
-  dishType?: string;
 }
 
 /** `GET /recipes/static-ids` 쿼리 파라미터 (응답 ID는 인기순 정렬) */

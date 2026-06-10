@@ -34,7 +34,6 @@ interface RecipeDetailClientPageProps {
   recipe: RecipeDetail;
 }
 
-// TODO: cookingMethod, dishType 쿼리를 q로 바꾸고 실제 검색 로직에 반영
 function buildRecipeClassificationHashTags(
   recipe: RecipeDetail,
 ): HashTagItem[] {
@@ -50,14 +49,14 @@ function buildRecipeClassificationHashTags(
   if (cookingMethod) {
     items.push({
       label: cookingMethod,
-      href: buildRecipeSearchHref({ cookingMethod }),
+      href: buildRecipeSearchHref({ q: cookingMethod }),
     });
   }
   const dishType = recipe.dishType?.trim();
   if (dishType) {
     items.push({
       label: dishType,
-      href: buildRecipeSearchHref({ dishType }),
+      href: buildRecipeSearchHref({ q: dishType }),
     });
   }
   return items;

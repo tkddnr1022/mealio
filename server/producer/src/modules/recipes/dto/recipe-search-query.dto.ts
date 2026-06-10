@@ -26,7 +26,8 @@ function toNumberArray(value: unknown): number[] | undefined {
 
 export class RecipeSearchQueryDto {
   @ApiPropertyOptional({
-    description: '검색 키워드 (생략 시 제목·설명 텍스트 검색 없음)',
+    description:
+      '검색 키워드 (제목·설명·조리방법·요리종류 부분 일치, 생략 시 텍스트 검색 없음)',
     minLength: 1,
   })
   @IsOptional()
@@ -92,34 +93,6 @@ export class RecipeSearchQueryDto {
   @IsInt()
   @Min(1)
   categoryId?: number;
-
-  @ApiPropertyOptional({
-    description: '조리 방법 (예: 찌기, 볶기)',
-    example: '찌기',
-  })
-  @IsOptional()
-  @Transform(({ value }) => {
-    if (value === undefined || value === null || value === '') return undefined;
-    const s = String(value).trim();
-    return s.length === 0 ? undefined : s;
-  })
-  @IsString()
-  @MinLength(1)
-  cookingMethod?: string;
-
-  @ApiPropertyOptional({
-    description: '요리 종류 (예: 반찬, 국)',
-    example: '반찬',
-  })
-  @IsOptional()
-  @Transform(({ value }) => {
-    if (value === undefined || value === null || value === '') return undefined;
-    const s = String(value).trim();
-    return s.length === 0 ? undefined : s;
-  })
-  @IsString()
-  @MinLength(1)
-  dishType?: string;
 
   @ApiPropertyOptional({
     description: '정렬 기준',

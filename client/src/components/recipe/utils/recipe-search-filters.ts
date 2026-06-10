@@ -106,8 +106,6 @@ export function buildRecipeSearchHref(searchQuery: RecipeSearchQuery): string {
       cookTimeMin: searchQuery.cookTimeMin,
       cookTimeMax: searchQuery.cookTimeMax,
       categoryId: searchQuery.categoryId,
-      cookingMethod: searchQuery.cookingMethod,
-      dishType: searchQuery.dishType,
       sort: searchQuery.sort,
     }),
   );
@@ -125,8 +123,6 @@ export function buildRecipeFilterHref(searchQuery: RecipeSearchQuery): string {
       cookTimeMin: searchQuery.cookTimeMin,
       cookTimeMax: searchQuery.cookTimeMax,
       categoryId: searchQuery.categoryId,
-      cookingMethod: searchQuery.cookingMethod,
-      dishType: searchQuery.dishType,
     }),
   );
 
