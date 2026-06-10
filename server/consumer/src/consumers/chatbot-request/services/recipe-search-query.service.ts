@@ -7,13 +7,7 @@ export type NumericRangeInput = {
   lte?: number;
 };
 
-export interface RecipeSearchQueryInput {
-  cookTime?: NumericRangeInput;
-  servings?: NumericRangeInput;
-  recipeCategoryIds?: number[];
-  ingredientCategoryIds?: number[];
-  includeIngredientIds?: number[];
-  includeIngredientNames?: string[];
+export interface RecipeHardConstraintInput {
   excludeIngredientIds?: number[];
   excludeIngredientNames?: string[];
 }
@@ -28,6 +22,7 @@ export type RecipeSearchCandidate = Prisma.RecipeGetPayload<{
         ingredient: {
           select: {
             name: true;
+            categoryId: true;
           };
         };
       };
@@ -35,87 +30,61 @@ export type RecipeSearchCandidate = Prisma.RecipeGetPayload<{
   };
 }>;
 
+const RECIPE_SEARCH_INCLUDE = {
+  categoryMeta: { select: { id: true, name: true } },
+  recipeIngredients: {
+    select: {
+      ingredientId: true,
+      isOptional: true,
+      ingredient: { select: { name: true, categoryId: true } },
+    },
+  },
+} as const;
+
 @Injectable()
 export class RecipeSearchQueryService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async searchRecipes(
-    input: RecipeSearchQueryInput,
+  /**
+   * semantic 검색 후보 ID 목록에 대해 하드 제약만 적용해 상세를 조회한다.
+   */
+  async fetchRecipesByIds(
+    recipeIds: number[],
+    hardConstraints: RecipeHardConstraintInput = {},
   ): Promise<RecipeSearchCandidate[]> {
-    const normalizedRecipeCategoryIds = this.normalizePositiveIds(
-      input.recipeCategoryIds ?? [],
-    );
-    const normalizedIngredientCategoryIds = this.normalizePositiveIds(
-      input.ingredientCategoryIds ?? [],
-    );
-    const normalizedIncludeIngredientIds = this.normalizePositiveIds(
-      input.includeIngredientIds ?? [],
-    );
+    const normalizedRecipeIds = this.normalizePositiveIds(recipeIds);
+    if (normalizedRecipeIds.length === 0) {
+      return [];
+    }
+
+    const where = this.buildHardConstraintWhere(hardConstraints);
+    where.id = { in: normalizedRecipeIds };
+
+    return this.prisma.recipe.findMany({
+      where,
+      include: RECIPE_SEARCH_INCLUDE,
+    });
+  }
+
+  private buildHardConstraintWhere(
+    hardConstraints: RecipeHardConstraintInput,
+  ): Prisma.RecipeWhereInput {
+    return {
+      AND: this.buildHardConstraintAndConditions(hardConstraints),
+    };
+  }
+
+  private buildHardConstraintAndConditions(
+    hardConstraints: RecipeHardConstraintInput,
+  ): Prisma.RecipeWhereInput[] {
     const normalizedExcludeIngredientIds = this.normalizePositiveIds(
-      input.excludeIngredientIds ?? [],
-    );
-    const normalizedIncludeIngredientNames = this.normalizeLowerCaseValues(
-      input.includeIngredientNames ?? [],
+      hardConstraints.excludeIngredientIds ?? [],
     );
     const normalizedExcludeIngredientNames = this.normalizeLowerCaseValues(
-      input.excludeIngredientNames ?? [],
+      hardConstraints.excludeIngredientNames ?? [],
     );
 
     const andConditions: Prisma.RecipeWhereInput[] = [{ isPublished: true }];
-
-    this.pushNumericRangeCondition(
-      andConditions,
-      'cookTime',
-      this.resolveCookTimeRange(input),
-    );
-    this.pushNumericRangeCondition(
-      andConditions,
-      'servings',
-      this.resolveServingsRange(input),
-    );
-
-    if (normalizedRecipeCategoryIds.length > 0) {
-      andConditions.push({
-        categoryId: { in: normalizedRecipeCategoryIds },
-      });
-    }
-
-    if (normalizedIngredientCategoryIds.length > 0) {
-      andConditions.push({
-        recipeIngredients: {
-          some: {
-            ingredient: {
-              categoryId: { in: normalizedIngredientCategoryIds },
-            },
-          },
-        },
-      });
-    }
-
-    if (normalizedIncludeIngredientIds.length > 0) {
-      andConditions.push({
-        recipeIngredients: {
-          some: {
-            ingredientId: { in: normalizedIncludeIngredientIds },
-          },
-        },
-      });
-    }
-
-    for (const includeName of normalizedIncludeIngredientNames) {
-      andConditions.push({
-        recipeIngredients: {
-          some: {
-            ingredient: {
-              name: {
-                contains: includeName,
-                mode: Prisma.QueryMode.insensitive,
-              },
-            },
-          },
-        },
-      });
-    }
 
     if (normalizedExcludeIngredientIds.length > 0) {
       andConditions.push({
@@ -144,91 +113,7 @@ export class RecipeSearchQueryService {
       });
     }
 
-    const where: Prisma.RecipeWhereInput = { AND: andConditions };
-
-    return this.prisma.recipe.findMany({
-      where,
-      include: {
-        categoryMeta: { select: { id: true, name: true } },
-        recipeIngredients: {
-          select: {
-            ingredientId: true,
-            isOptional: true,
-            ingredient: { select: { name: true } },
-          },
-        },
-      },
-      take: 80,
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
-  private resolveCookTimeRange(
-    input: RecipeSearchQueryInput,
-  ): NumericRangeInput | undefined {
-    return this.normalizeNumericRange(input.cookTime);
-  }
-
-  private resolveServingsRange(
-    input: RecipeSearchQueryInput,
-  ): NumericRangeInput | undefined {
-    return this.normalizeNumericRange(input.servings);
-  }
-
-  private normalizeNumericRange(
-    range?: NumericRangeInput,
-  ): NumericRangeInput | undefined {
-    if (!range) {
-      return undefined;
-    }
-
-    return this.mergeNumericRange(
-      this.normalizePositiveNumber(range.gte),
-      this.normalizePositiveNumber(range.lte),
-    );
-  }
-
-  private mergeNumericRange(
-    gte?: number,
-    lte?: number,
-  ): NumericRangeInput | undefined {
-    if (gte == null && lte == null) {
-      return undefined;
-    }
-    return {
-      ...(gte != null && { gte }),
-      ...(lte != null && { lte }),
-    };
-  }
-
-  private pushNumericRangeCondition(
-    andConditions: Prisma.RecipeWhereInput[],
-    field: 'cookTime' | 'servings',
-    range: NumericRangeInput | undefined,
-  ): void {
-    if (!range) {
-      return;
-    }
-
-    const filter: Prisma.IntFilter = {};
-    if (range.gte != null) {
-      filter.gte = range.gte;
-    }
-    if (range.lte != null) {
-      filter.lte = range.lte;
-    }
-    if (Object.keys(filter).length === 0) {
-      return;
-    }
-
-    andConditions.push({ [field]: filter });
-  }
-
-  private normalizePositiveNumber(value: unknown): number | undefined {
-    if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
-      return undefined;
-    }
-    return Math.floor(value);
+    return andConditions;
   }
 
   private normalizePositiveIds(values: number[]): number[] {

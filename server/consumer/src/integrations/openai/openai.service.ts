@@ -55,16 +55,28 @@ export class OpenAIService {
   }
 
   async createEmbedding(input: string): Promise<number[]> {
+    const [embedding] = await this.createEmbeddings([input]);
+    return embedding ?? [];
+  }
+
+  async createEmbeddings(inputs: string[]): Promise<number[][]> {
+    const normalized = inputs
+      .map((input) => input.trim())
+      .filter((input) => input.length > 0);
+    if (normalized.length === 0) {
+      return [];
+    }
+
     await this.rateLimiter?.acquire();
     const response = await this.client.embeddings.create({
       model: this.embeddingModel,
-      input,
+      input: normalized,
     });
-    const embedding = response.data[0]?.embedding;
-    if (!embedding) {
-      return [];
-    }
-    return embedding;
+
+    return response.data
+      .sort((left, right) => left.index - right.index)
+      .map((item) => item.embedding ?? [])
+      .filter((embedding) => embedding.length > 0);
   }
 
   /**

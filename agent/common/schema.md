@@ -273,7 +273,7 @@
 **의미**
 
 * 레시피 문서를 pgvector 임베딩으로 저장하는 검색 인덱스
-* 챗봇 `search_recipes`의 semantic retrieval용 기반 데이터
+* 챗봇 `search_recipes`의 semantic-first ANN 검색 기반 데이터
 
 **필드 설명** (PostgreSQL `RecipeEmbedding`)
 
@@ -291,7 +291,7 @@
 **인덱스**
 
 * `(updated_at DESC)` — 최신 재색인 추적
-* `ivfflat (embedding vector_cosine_ops)` — 코사인 유사도 검색
+* ANN 검색은 Prisma raw query(`ORDER BY embedding <=> query_vector LIMIT k`)로 수행. 별도 ivfflat 인덱스는 현행 마이그레이션 기준 미사용.
 
 ---
 

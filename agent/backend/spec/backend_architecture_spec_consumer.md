@@ -23,6 +23,7 @@
 | server/consumer/src/policy/prisma-pool.policy.ts | Prisma 커넥션 풀 (PRISMA_POOL_CONFIG 주입용) |
 | server/consumer/src/policy/openai.policy.ts | OpenAI RPM 기본값 |
 | server/consumer/src/policy/chatbot-cache.policy.ts | 챗봇 Redis 캐시 TTL |
+| server/consumer/src/policy/recipe-search.policy.ts | `search_recipes` ANN·Query Expansion·재랭킹 가중치·`reasonSignals` 임계값 |
 | server/consumer/src/policy/monitoring.policy.ts | lag 폴링 주기 |
 | **server/consumer/src/consumers/consumers.module.ts** | 그룹 모듈(ChatbotRequest, UserEvents, ActivityEvents, CacheInvalidation, RecipeIngestionPersist) 통합 |
 | **server/consumer/src/consumers/base/** | |
@@ -36,13 +37,14 @@
 | server/consumer/src/consumers/chatbot-request/handlers/ProcessChatHandler.ts | GPT Function Calling·스트리밍, tool_calls 디스패치, Redis ChatbotStreamEvent 발행. 턴 성공 종료 직전 `ChatbotCreditService.debitForCompletedChatbotTurn`으로 멱등 크레딧 차감 후 `done` 이벤트에 `isCreditDepleted` 포함 |
 | server/consumer/src/consumers/chatbot-request/services/chatbot-credit.service.ts | 챗봇 턴 완료 시 Prisma 트랜잭션으로 `chatbot_credit_deductions`(streamChannelId PK) 멱등 삽입·`User.creditBalance` 차감·차감 크레딧 기록. `@mealio/shared`의 `computeChatbotCreditCost` 사용. 신규 차감 시 `cache-invalidation`(USER_PROFILE) 토픽 발행 |
 | server/consumer/src/consumers/chatbot-request/handlers/InventoryHandler.ts | get_user_inventory — Inventory 조회(`ingredients.owned`, `ingredients.favorite`, `recipes.favorite`), Ingredient id→name(Redis 캐시) 반환 |
-| server/consumer/src/consumers/chatbot-request/handlers/SearchRecipesHandler.ts | search_recipes — Prisma 레시피 검색, 명시적 필터(`keywords`, `maxCookTime`, `mustHaveIngredients`, `avoidIngredients`, 카테고리/재료 id) 기반 후보 조회·재랭킹 |
+| server/consumer/src/consumers/chatbot-request/handlers/SearchRecipesHandler.ts | search_recipes — semantic-first 후보 수집(pgvector ANN + Query Expansion) 후 hard/soft 제약 기반 재랭킹. 상세 §2.7 |
 | server/consumer/src/consumers/chatbot-request/handlers/FinalizeRecipeSelectionHandler.ts | finalize_recipe_selection — 챗봇 추천 레시피 최종 선택·확정 처리 |
 | server/consumer/src/consumers/chatbot-request/handlers/FoodCategoriesHandler.ts | get_food_categories — 레시피·재료 카테고리 마스터 조회(Redis 캐시 1시간) |
 | server/consumer/src/consumers/chatbot-request/handlers/SaveChatLogHandler.ts | 스트림 종료 후 ChatbotLog 저장 |
 | server/consumer/src/consumers/chatbot-request/handlers/SyncConversationMetaHandler.ts | 성공 턴 후 `chatbot_conversations` 동기화: `chatbot.start`면 LLM 제목·메타 생성, `chatbot.message`면 `updatedAt` 갱신 |
 | server/consumer/src/consumers/chatbot-request/services/recipe-embedding.service.ts | 레시피 문서화·OpenAI 임베딩 생성·pgvector 업서트(증분 동기화) |
-| server/consumer/src/consumers/chatbot-request/services/recipe-search-query.service.ts | search_recipes 핸들러용 Prisma 쿼리 빌더 (필터·정렬·페이지네이션 조합) |
+| server/consumer/src/consumers/chatbot-request/services/recipe-search-query.service.ts | search_recipes 핸들러용 Prisma 조회 — ANN 후보 `recipeId` 목록에 hard constraint(`isPublished`, 기피 재료) 적용 후 상세 fetch |
+| server/consumer/src/consumers/chatbot-request/services/recipe-search-query-expansion.service.ts | search_recipes Query Expansion — 원질의 보존 + LLM 확장 질의 생성(실패 시 원질의 fallback) |
 | server/consumer/src/persistence/repositories/mongodb/chatbot-conversation.repository.ts | ChatbotConversation 메타 (`createWithTitle` 생성·제목 없는 스텁 보정, `chatbot.message` 시 `touchUpdatedAt`) |
 | server/consumer/src/consumers/chatbot-request/tools/chatbot-tools.definition.ts | OpenAI tools 배열 (search_recipes, get_user_inventory 등) |
 | server/consumer/src/consumers/chatbot-request/tools/tool-dispatcher.ts | function name → Handler 매핑·실행 |
@@ -101,7 +103,7 @@
 | server/consumer/src/persistence/repositories/postgresql/user.repository.ts | User 업데이트 (Prisma) |
 | server/consumer/src/persistence/repositories/postgresql/recipe-ingredient.repository.ts | ⚠️ 미구현 · RecipeIngredient 쓰기 |
 | server/consumer/src/persistence/repositories/postgresql/recommendation.repository.ts | UserRecipeRecommendation upsert·랭크 재정렬·top N 조회 |
-| server/consumer/src/persistence/repositories/postgresql/recipe-embedding.repository.ts | RecipeEmbedding(pgvector) raw query 조회/업서트 |
+| server/consumer/src/persistence/repositories/postgresql/recipe-embedding.repository.ts | RecipeEmbedding(pgvector) raw query — 업서트·전체 코퍼스 ANN `searchTopK`(published·기피 재료 ID hard exclude) |
 | **server/consumer/src/persistence/repositories/mongodb/** | |
 | server/consumer/src/persistence/repositories/mongodb/event-log.repository.ts | EventLog 저장 (Mongoose) |
 | server/consumer/src/persistence/repositories/mongodb/chatbot-log.repository.ts | ChatbotLog 저장 (Mongoose) |

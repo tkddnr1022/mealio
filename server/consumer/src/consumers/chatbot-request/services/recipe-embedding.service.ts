@@ -93,11 +93,18 @@ export class RecipeEmbeddingService {
   }
 
   async createQueryEmbedding(queryText: string): Promise<number[]> {
-    const normalized = queryText.trim();
+    const [embedding] = await this.createQueryEmbeddings([queryText]);
+    return embedding ?? [];
+  }
+
+  async createQueryEmbeddings(queryTexts: string[]): Promise<number[][]> {
+    const normalized = queryTexts
+      .map((queryText) => queryText.trim())
+      .filter((queryText) => queryText.length > 0);
     if (normalized.length === 0) {
       return [];
     }
-    return this.openaiService.createEmbedding(normalized);
+    return this.openaiService.createEmbeddings(normalized);
   }
 
   private buildRecipeDocument(recipe: {
