@@ -25,8 +25,10 @@ describe('observability-http-paths', () => {
     ).toBe(true);
   });
 
-  it('isExcludedFromAppHttpObservability should match /metrics only', () => {
+  it('isExcludedFromAppHttpObservability should match infra/observability paths', () => {
     expect(isExcludedFromAppHttpObservability('/metrics')).toBe(true);
+    expect(isExcludedFromAppHttpObservability('/health')).toBe(true);
+    expect(isExcludedFromAppHttpObservability('/ready')).toBe(true);
     expect(isExcludedFromAppHttpObservability('/api/v1/recipes')).toBe(false);
     expect(isExcludedFromAppHttpObservability('/')).toBe(false);
   });

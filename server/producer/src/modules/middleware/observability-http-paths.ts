@@ -11,12 +11,16 @@ export function getHttpRequestPathname(
   return candidate.split('?')[0] ?? candidate;
 }
 
-/**
- * 애플리케이션 HTTP 로깅·메트릭에서 제외할 인프라/관측 경로.
- */
+/** 애플리케이션 HTTP 로깅·메트릭에서 제외할 인프라/관측 경로. */
+const APP_HTTP_OBSERVABILITY_EXCLUDED_PATHS = new Set([
+  '/metrics',
+  '/health',
+  '/ready',
+]);
+
 export function isExcludedFromAppHttpObservability(pathOrUrl: string): boolean {
   const path = pathOrUrl.split('?')[0] ?? pathOrUrl;
-  return path === '/metrics';
+  return APP_HTTP_OBSERVABILITY_EXCLUDED_PATHS.has(path);
 }
 
 export function shouldExcludeRequestFromAppHttpObservability(

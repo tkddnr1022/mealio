@@ -10,7 +10,9 @@ describe('HttpMetricsMiddleware', () => {
     slowQueryThresholdMs: 500,
   };
 
-  it('should not record metrics for /metrics', () => {
+  it.each(['/metrics', '/health', '/ready'])(
+    'should not record metrics for %s',
+    (path) => {
     const metricsService = new MetricsService(enabledConfig);
     metricsService.onModuleInit();
     const recordSpy = jest.spyOn(metricsService, 'recordHttpRequest');
@@ -24,23 +26,24 @@ describe('HttpMetricsMiddleware', () => {
     res.statusCode = 200;
     const next = jest.fn();
 
-    middleware.use(
-      {
-        method: 'GET',
-        path: '/',
-        originalUrl: '/metrics',
-        url: '/metrics',
-      } as never,
-      res as never,
-      next,
-    );
-    res.emit('finish');
+      middleware.use(
+        {
+          method: 'GET',
+          path: '/',
+          originalUrl: path,
+          url: path,
+        } as never,
+        res as never,
+        next,
+      );
+      res.emit('finish');
 
-    expect(next).toHaveBeenCalled();
-    expect(incSpy).not.toHaveBeenCalled();
-    expect(recordSpy).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalled();
+      expect(incSpy).not.toHaveBeenCalled();
+      expect(recordSpy).not.toHaveBeenCalled();
 
-    recordSpy.mockRestore();
-    incSpy.mockRestore();
-  });
+      recordSpy.mockRestore();
+      incSpy.mockRestore();
+    },
+  );
 });
