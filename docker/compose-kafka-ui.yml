@@ -33,4 +33,4 @@ services:
 
 networks:
   mealio-net:
-    driver: bridge
+    name: mealio-net

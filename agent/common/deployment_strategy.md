@@ -12,7 +12,7 @@ Mealio MVP·초기 프로덕션 배포는 아래 스택으로 **고정**한다.
 | 관계 DB | **Neon** | User, Recipe, Ingredient 등 PostgreSQL (Prisma) |
 | 캐시 | **Upstash** | Redis (세션·캐시·분산 락) |
 
-개발 환경은 Compose로 `mongodb` / `postgres` / `redis` / `kafka` / `kafka-ui` 등 인프라만 로컬에 띄우고, `producer` / `consumer`는 **`compose-server` 없이 호스트에서 기동**한다. 프로덕션 EC2에는 DB·Kafka UI 컨테이너를 **배포하지 않는다**.
+개발 환경은 Compose로 `mongodb` / `postgres` / `redis` / `kafka` / `kafka-ui` 등 인프라만 로컬에 띄우고, `producer` / `consumer`는 **`compose-producer`·`compose-consumer` 없이 호스트에서 기동**한다. 프로덕션 EC2에는 DB·Kafka UI 컨테이너를 **배포하지 않는다**.
 
 ### 프론트엔드 배포 선택
 
@@ -76,7 +76,8 @@ Vercel 배포 시 `Client`는 EC2 외부(Vercel 엣지)에 위치하고 API만 N
 | 컴포넌트 | 배포 위치 | 비고 |
 |---|---|---|
 | `client` | **Vercel** 또는 **EC2** | Vercel: Git 연동 · EC2: `docker/compose-client.yml` |
-| `producer`, `consumer` | EC2 | `docker/compose-server.yml` |
+| `producer` | EC2 | `docker/compose-producer.yml` |
+| `consumer` | EC2 | `docker/compose-consumer.yml` |
 | `Kafka` | EC2 | `docker/compose-kafka.yml` |
 | `Prometheus`, `Grafana` | EC2 | `docker/compose-monitoring.yml` |
 | MongoDB | Atlas | `MONGODB_URL` (TLS, IP allowlist 또는 VPC peering 검토) |
@@ -88,9 +89,9 @@ Vercel 배포 시 `Client`는 EC2 외부(Vercel 엣지)에 위치하고 API만 N
 
 | 컴포넌트 | 배포 위치 | 비고 |
 |---|---|---|
-| `producer`, `consumer` | 호스트 | `docker/compose-server.yml` **미기동** |
+| `producer`, `consumer` | 호스트 | `docker/compose-producer.yml`·`compose-consumer.yml` **미기동** |
 | `client` | 호스트 (`pnpm run start:client`) | `CLIENT_PORT` 기본 `4000` |
-| DB·캐시·Kafka·Kafka UI·관측 | Docker Compose | 아래 §4 Compose 표 참고 (`compose-server`·`compose-client` 제외) |
+| DB·캐시·Kafka·Kafka UI·관측 | Docker Compose | 아래 §4 Compose 표 참고 (`compose-producer`·`compose-consumer`·`compose-client` 제외) |
 | DB·캐시 URL | `docker/compose-database.yml` 또는 매니지드 | Atlas/Neon/Upstash URL로 하이브리드 가능 |
 
 ---
@@ -134,49 +135,128 @@ Vercel 배포 시 `Client`는 EC2 외부(Vercel 엣지)에 위치하고 API만 N
 
 ## 4) Compose 파일 및 기동 방식
 
-Compose는 **`docker/`** 아래 역할별 파일 분리가 SSOT이다.
+Compose는 **`docker/`** 아래 역할별 파일 분리가 SSOT이다. 모든 compose 파일은 `networks.mealio-net.name: mealio-net`으로 **동일한 이름의 브리지 네트워크**를 공유한다(`external: true` 사용 안 함). 인프라 compose를 **먼저** 기동해 네트워크·DB·Kafka를 준비한 뒤 `compose-producer`·`compose-consumer`·`compose-client`를 기동한다(`README.md` Usage · Production 순서).
+
+환경 변수 파일 준비 (`README.md` Installation):
+
+```bash
+cp .env.example .env.docker
+cp client/.env.example client/.env
+cp server/producer/.env.example server/producer/.env
+cp server/consumer/.env.example server/consumer/.env
+cp client/.env.docker.example client/.env.docker
+cp server/producer/.env.docker.example server/producer/.env.docker
+cp server/consumer/.env.docker.example server/consumer/.env.docker
+```
 
 | Compose 파일 | 기동 대상 | 프로덕션 | 개발 |
 |---|---|---|---|
-| `docker/compose-server.yml` | `producer`, `consumer` | EC2 | **미기동** |
+| `docker/compose-producer.yml` | `producer` | EC2 | **미기동** |
+| `docker/compose-consumer.yml` | `consumer` | EC2 | **미기동** |
 | `docker/compose-client.yml` | `client` | EC2 (Vercel 미사용 시) | 선택 |
 | `docker/compose-database.yml` | `mongodb`, `postgres`, `redis` | **사용 안 함** | 로컬/CI |
 | `docker/compose-kafka.yml` | `kafka` | EC2 | 로컬/CI |
 | `docker/compose-kafka-ui.yml` | `kafka-ui` | **사용 안 함** | 로컬/CI |
 | `docker/compose-monitoring.yml` | `prometheus`, `grafana` | EC2 | 로컬/CI |
 
-### 프로덕션 EC2 (백엔드)
+### 환경 변수 파일 역할
 
-```bash
-docker compose --env-file .env -f docker/compose-server.yml -f docker/compose-kafka.yml -f docker/compose-monitoring.yml up -d
-```
+| 파일 | 용도 |
+|---|---|
+| 루트 `.env.docker` | **인프라 Compose 전용** — DB·Kafka·관측 (`compose-database`, `compose-kafka`, `compose-monitoring` 등). 템플릿: `cp .env.example .env.docker` |
+| `client/.env` | 호스트에서 `pnpm run start:client` 실행 시. 템플릿: `cp client/.env.example client/.env` |
+| `server/producer/.env` | 호스트에서 `pnpm run start:producer` 실행 시. 템플릿: `cp server/producer/.env.example server/producer/.env` |
+| `server/consumer/.env` | 호스트에서 `pnpm run start:consumer` 실행 시. 템플릿: `cp server/consumer/.env.example server/consumer/.env` |
+| `client/.env.docker` | `compose-client` 기동 시 client 컨테이너 env. 템플릿: `cp client/.env.docker.example client/.env.docker` |
+| `server/producer/.env.docker` | `compose-producer` 컨테이너 env. 템플릿: `cp server/producer/.env.docker.example server/producer/.env.docker` |
+| `server/consumer/.env.docker` | `compose-consumer` 컨테이너 env. 템플릿: `cp server/consumer/.env.docker.example server/consumer/.env.docker` |
 
-### 프로덕션 EC2 (프론트엔드 — Vercel 대신 Docker 선택 시)
-
-```bash
-docker compose --env-file .env -f docker/compose-client.yml up -d --build
-```
-
-`NEXT_PUBLIC_*`는 **이미지 빌드 시** Dockerfile `ARG`로 주입된다. 값 변경 시 `--build`로 재빌드한다. 런타임 시크릿은 `REVALIDATE_SECRET` 등 서버 전용 env만 compose `environment`로 전달한다.
-
-필수 환경 변수(예시):
-
-- `MONGODB_URL` → Atlas connection string
-- `POSTGRESQL_URL` → Neon connection string (pooler URL 권장)
-- `REDIS_URL` → Upstash Redis URL (`rediss://`)
-- `KAFKA_BROKERS` → EC2 내부 Kafka (`kafka:19092` 등 compose 서비스명)
-- `PRODUCER_PORT`, `CONSUMER_METRICS_PORT`, `CLIENT_PORT` — 서비스별 포트 (루트 `.env`에서 이름 충돌 없음)
-- `JWT_SECRET`, OAuth, `OPENAI_API_KEY` 등 앱 시크릿
+`compose-client`·`compose-producer`·`compose-consumer`는 Compose YAML에 env 파일 경로를 고정하지 않는다. 기동 시 `--env-file`로 각 패키지 `.env.docker`(앱)를 전달하면 `${VAR}` 치환·`environment`·빌드 arg에 반영된다. 인프라 Compose는 별도로 `--env-file .env.docker`를 사용한다.
 
 ### 개발 환경
 
+인프라 기동 (`README.md` Usage · Development):
+
 ```bash
-docker compose --env-file .env -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
+docker compose --env-file .env.docker \
+  -f docker/compose-database.yml -f docker/compose-kafka.yml \
+  -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
 ```
 
-- `producer` / `consumer`: 호스트에서 실행. `KAFKA_BROKERS` 등은 published 포트 기준(예: `localhost:9092`)으로 `.env` 설정.
-- DB·Redis 기본값은 Compose 내부. `.env`에 Atlas/Neon/Upstash URL만 두면 **하이브리드 개발** 가능.
-- `docker/compose-database.yml` 볼륨은 개발 전용; 프로덕션 데이터 SSOT는 매니지드이다.
+DB 시드·마이그레이션 후 앱은 호스트에서 기동:
+
+```bash
+pnpm run db:prisma:generate
+pnpm run db:prisma:migrate:dev
+pnpm run db:prisma:seed
+pnpm run db:mongoose:seed
+
+pnpm run start:producer
+pnpm run start:consumer
+pnpm run start:client
+```
+
+- `producer` / `consumer` / `client`: 각 패키지 `.env` 사용. `KAFKA_BROKERS` 등은 published 포트 기준(예: `localhost:9092`).
+- DB·Redis 기본값은 Compose 내부. 패키지 `.env`에 Atlas/Neon/Upstash URL만 두면 **하이브리드 개발** 가능.
+- `docker/compose-database.yml` 볼륨은 개발 전용; EC2 매니지드 DB 프로덕션의 데이터 SSOT는 Atlas/Neon/Upstash이다.
+
+### 프로덕션 (Docker Compose — `README.md` Usage · Production)
+
+인프라:
+
+```bash
+docker compose --env-file .env.docker \
+  -f docker/compose-database.yml -f docker/compose-kafka.yml \
+  -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
+```
+
+마이그레이션:
+
+```bash
+pnpm run db:prisma:migrate:deploy
+```
+
+앱 (인프라 Compose가 선행되어야 `mealio-net`에 Kafka 등이 준비됨):
+
+```bash
+docker compose --env-file server/producer/.env.docker \
+  -f docker/compose-producer.yml up -d --build
+
+docker compose --env-file server/consumer/.env.docker \
+  -f docker/compose-consumer.yml up -d --build
+
+docker compose --env-file client/.env.docker \
+  -f docker/compose-client.yml up -d --build
+```
+
+`NEXT_PUBLIC_*`는 **이미지 빌드 시** Dockerfile `ARG`로 주입된다. 값은 `client/.env.docker`에 두고 `--env-file client/.env.docker`로 전달하며, 변경 시 `--build`로 재빌드한다. 런타임 시크릿(`REVALIDATE_SECRET` 등)은 compose `environment`의 `${VAR}` 치환으로 컨테이너에 전달된다.
+
+Docker Compose로 앱을 띄울 때 패키지 `.env.docker` 연결 URL 예시:
+
+- 로컬 Compose DB: `postgres` / `mongodb` / `redis` / `kafka:19092` 등 **서비스명** 기준
+- EC2 + 매니지드 DB: `MONGODB_URL`(Atlas), `POSTGRESQL_URL`(Neon pooler), `REDIS_URL`(Upstash `rediss://`), `KAFKA_BROKERS`(`kafka:19092`)
+- `PRODUCER_PORT`, `CONSUMER_METRICS_PORT`, `CLIENT_PORT` — 패키지 `.env.docker`에서 관리
+- Docker 앱 배포 시 `.env.docker`의 `PROMETHEUS_TARGETS_MODE=compose` (호스트 개발은 `host`)
+
+### 프로덕션 EC2 (매니지드 DB — Vercel 대신 Docker 선택 시)
+
+EC2에는 `compose-database`·`kafka-ui`를 **배포하지 않는다**. 인프라는 Kafka·관측만 `.env.docker`로 기동하고, 앱 compose 명령은 위 Production 절과 동일하다.
+
+```bash
+docker compose --env-file .env.docker \
+  -f docker/compose-kafka.yml -f docker/compose-monitoring.yml up -d
+
+docker compose --env-file server/producer/.env.docker \
+  -f docker/compose-producer.yml up -d --build
+
+docker compose --env-file server/consumer/.env.docker \
+  -f docker/compose-consumer.yml up -d --build
+
+docker compose --env-file client/.env.docker \
+  -f docker/compose-client.yml up -d --build
+```
+
+패키지 `.env.docker`에는 Atlas/Neon/Upstash URL·`JWT_SECRET`·OAuth·`OPENAI_API_KEY` 등 앱 시크릿을 설정한다.
 
 ---
 
@@ -210,7 +290,7 @@ docker compose --env-file .env -f docker/compose-database.yml -f docker/compose-
 | `POSTGRESQL_URL` | Neon | `postgresql://...@postgres:5432/...` (기본) |
 | `REDIS_URL` | Upstash | `redis://redis:6379` (기본) |
 
-`.env.example` 및 배포 시크릿 저장소(AWS SSM Parameter Store, GitHub Actions secrets 등)와 동기화한다.
+루트 `.env.example`(인프라 → `.env.docker`)와 각 패키지 `.env.example`·`.env.docker`, 배포 시크릿 저장소(AWS SSM Parameter Store, GitHub Actions secrets 등)를 동기화한다.
 
 ---
 
@@ -237,10 +317,10 @@ docker compose --env-file .env -f docker/compose-database.yml -f docker/compose-
 
 ### EC2 (수동 → 자동화)
 
-1. EC2에 Docker·Compose 설치, `.env` 또는 SSM에서 시크릿 주입
+1. EC2에 Docker·Compose 설치, 루트 `.env.docker`(인프라)와 패키지 `.env.docker`(앱) 또는 SSM에서 시크릿 주입
 2. 이미지: `docker compose build` 또는 CI에서 ECR 푸시 후 `pull`
 3. DB 마이그레이션: Neon 대상 `prisma migrate deploy`
-4. 기동: §4 프로덕션 compose 명령
+4. 기동: §4 프로덕션 EC2 compose 명령 (인프라 → `compose-producer`·`compose-consumer` → `compose-client`)
 5. 헬스: Producer `/health`, Consumer 메트릭·Kafka lag 확인
 
 ### Vercel
@@ -307,8 +387,8 @@ EC2 Docker로 프론트를 같이 호스팅하면 Vercel 비용은 $0이지만, 
 ### Phase 1 — 현재 (확정)
 
 - 프론트: Vercel **또는** EC2 `compose-client`
-- 백엔드: EC2(`compose-server` · `compose-kafka` · `compose-monitoring`) + Atlas + Neon + Upstash
-- 개발: Compose 인프라 + 호스트 `producer`/`consumer` (`compose-server` 미기동)
+- 백엔드: EC2(`compose-producer` · `compose-consumer` · `compose-kafka` · `compose-monitoring`) + Atlas + Neon + Upstash
+- 개발: Compose 인프라 + 호스트 `producer`/`consumer` (`compose-producer`·`compose-consumer` 미기동)
 - End-to-End 운영·KPI 검증
 
 ### Phase 2 — 트래픽·안정성
@@ -333,9 +413,9 @@ EC2 Docker로 프론트를 같이 호스팅하면 Vercel 비용은 $0이지만, 
 - [ ] API·OAuth URL: `FRONTEND_APP_BASE_URL`, `OAUTH_CALLBACK_BASE_URL`, `NEXT_PUBLIC_API_BASE_URL`
 - [ ] EC2 + Nginx TLS, Security Group
 - [ ] Atlas / Neon / Upstash 프로젝트 생성, EC2 IP allowlist
-- [ ] `.env`: `MONGODB_URL`, `POSTGRESQL_URL`, `REDIS_URL`, `KAFKA_BROKERS`, 시크릿
+- [ ] 루트 `.env.docker`(인프라), 패키지 `.env.docker`: `MONGODB_URL`, `POSTGRESQL_URL`, `REDIS_URL`, `KAFKA_BROKERS`, 시크릿
 - [ ] `prisma migrate deploy` (Neon)
-- [ ] `compose-server` + `compose-kafka` + `compose-monitoring` 기동
+- [ ] `compose-kafka` + `compose-monitoring` 기동 후 `compose-producer`·`compose-consumer`·`compose-client` 기동
 - [ ] Prometheus 타겟 UP, Grafana 대시보드·인증
 - [ ] Producer `/health`, 샘플 API·Kafka consume 확인
 - [ ] `recipe-ingestion` cron·Redis 락·로그 확인

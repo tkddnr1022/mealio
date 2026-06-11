@@ -46,7 +46,18 @@ corepack enable
 corepack prepare pnpm@latest --activate
 pnpm install
 
-cp .env.example .env
+# 인프라 Compose용 (DB·Kafka·관측)
+cp .env.example .env.docker
+
+# 호스트에서 앱 실행용
+cp client/.env.example client/.env
+cp server/producer/.env.example server/producer/.env
+cp server/consumer/.env.example server/consumer/.env
+
+# Docker Compose로 앱 기동용
+cp client/.env.example client/.env.docker
+cp server/producer/.env.example server/producer/.env.docker
+cp server/consumer/.env.example server/consumer/.env.docker
 ```
 
 ## 사용 방법 (Usage)
@@ -57,7 +68,7 @@ cp .env.example .env
 
 ```bash
 # 인프라 (DB/Kafka/Redis/Kafka UI/관측)
-docker compose --env-file .env -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
+docker compose --env-file .env.docker -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
 ```
 
 ```bash
@@ -77,7 +88,7 @@ pnpm run start:client
 
 ```bash
 # 인프라 (DB/Kafka/Redis/Kafka UI/관측)
-docker compose --env-file .env -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
+docker compose --env-file .env.docker -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
 ```
 
 ```bash
@@ -85,8 +96,11 @@ pnpm run db:prisma:migrate:deploy
 ```
 
 ```bash
-# 프론트/백엔드
-docker compose --env-file .env -f docker/compose-server.yml -f docker/compose-client.yml up -d --build
+docker compose --env-file server/producer/.env.docker -f docker/compose-producer.yml up -d --build
+
+docker compose --env-file server/consumer/.env.docker -f docker/compose-consumer.yml up -d --build
+
+docker compose --env-file client/.env.docker -f docker/compose-client.yml up -d --build
 ```
 
 ## 기술 스택 (Tech Stack)

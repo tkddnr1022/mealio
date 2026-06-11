@@ -1,0 +1,59 @@
+name: mealio
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  producer:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.server
+      args:
+        APP: producer
+    container_name: mealio-producer
+    restart: unless-stopped
+    logging: *default-logging
+    ports:
+      - "127.0.0.1:${PRODUCER_PORT:?PRODUCER_PORT is required}:${PRODUCER_PORT:?PRODUCER_PORT is required}"
+    environment:
+      NODE_ENV: ${NODE_ENV:?NODE_ENV is required}
+      METRICS_ENABLED: ${METRICS_ENABLED:?METRICS_ENABLED is required}
+      POSTGRESQL_URL: ${POSTGRESQL_URL:?POSTGRESQL_URL is required}
+      MONGODB_URL: ${MONGODB_URL:?MONGODB_URL is required}
+      REDIS_URL: ${REDIS_URL:?REDIS_URL is required}
+      KAFKA_BROKERS: ${KAFKA_BROKERS:?KAFKA_BROKERS is required}
+      SLOW_QUERY_THRESHOLD_MS: ${SLOW_QUERY_THRESHOLD_MS:?SLOW_QUERY_THRESHOLD_MS is required}
+      PRODUCER_PORT: ${PRODUCER_PORT:?PRODUCER_PORT is required}
+      KAFKA_CLIENT_ID: ${KAFKA_CLIENT_ID:?KAFKA_CLIENT_ID is required}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?GOOGLE_CLIENT_ID is required}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?GOOGLE_CLIENT_SECRET is required}
+      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID:?KAKAO_CLIENT_ID is required}
+      KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET:?KAKAO_CLIENT_SECRET is required}
+      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID:?NAVER_CLIENT_ID is required}
+      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET:?NAVER_CLIENT_SECRET is required}
+      OAUTH_CALLBACK_BASE_URL: ${OAUTH_CALLBACK_BASE_URL:?OAUTH_CALLBACK_BASE_URL is required}
+      FRONTEND_APP_BASE_URL: ${FRONTEND_APP_BASE_URL:?FRONTEND_APP_BASE_URL is required}
+      SENTRY_ENABLED: ${SENTRY_ENABLED:?SENTRY_ENABLED is required}
+      SENTRY_DSN_PRODUCER: ${SENTRY_DSN_PRODUCER:?SENTRY_DSN_PRODUCER is required}
+    networks:
+      - mealio-net
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "const p=process.env.PRODUCER_PORT;fetch('http://127.0.0.1:'+p+'/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+networks:
+  mealio-net:
+    name: mealio-net

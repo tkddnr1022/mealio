@@ -1,5 +1,5 @@
 # PROMETHEUS_TARGETS_MODE=host → 호스트 producer/consumer (개발)
-# PROMETHEUS_TARGETS_MODE=compose → compose-server 컨테이너 스크랩 (프로덕션)
+# PROMETHEUS_TARGETS_MODE=compose → compose-producer/compose-consumer 컨테이너 스크랩 (프로덕션)
 name: mealio
 
 x-logging: &default-logging
@@ -104,4 +104,4 @@ volumes:
 
 networks:
   mealio-net:
-    driver: bridge
+    name: mealio-net

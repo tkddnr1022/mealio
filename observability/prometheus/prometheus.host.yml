@@ -1,4 +1,4 @@
-# Host-run producer/consumer (dev: docker/compose-monitoring without compose-server)
+# Host-run producer/consumer (dev: docker/compose-monitoring without compose-producer/compose-consumer)
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
