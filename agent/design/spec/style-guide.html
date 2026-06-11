@@ -2,13 +2,13 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <title>Design System - Style Guide</title>
+    <title>Mealio Design System - Style Guide</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- Capture 안정화를 위한 글꼴 의존성: 캡처 환경에서 Noto Sans KR이 올바르게 렌더링되도록 -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@800&display=swap"
       rel="stylesheet"
     />
     <style>
@@ -16,21 +16,42 @@
         --color-bg: #fafaf9;
         --color-surface: #ffffff;
         --color-placeholder: #f5f5f4;
-        --color-border: #8a8480;
+        --color-accent: #fff7ed;
+        --color-accent-hover: #f8f0e6;
+        --color-border-subtle: #e5e5e5;
+        --color-border-muted: #f5f5f4;
+        --color-border-accent: #c2410c;
+        --color-border-ext: #8a8480;
         --color-text-primary: #1c1a17;
         --color-text-secondary: #575352;
         --color-text-caption: #9ca3af;
+        --color-text-placeholder: #737373;
+        --color-text-disabled: #a3a3a3;
+        --color-text-accent: #c2410c;
         --color-primary: #c2410c;
         --color-primary-hover: #9a3412;
-        --color-secondary: #6b7250;
+        --color-primary-inactive: #d4d4d4;
+        --color-secondary-surface: #fafaf9;
+        --color-secondary-hover: #f5f5f4;
+        --color-on-primary: #ffffff;
+        --color-on-secondary: #575352;
+        --color-brand-secondary: #6b7250;
+        --color-link: #2b6ba3;
         --color-success: #15803d;
         --color-error: #b91c1c;
         --color-warning: #92400e;
         --color-info: #2b6ba3;
+        --color-chip-default: #fafaf9;
+        --color-chip-hover: #f5f5f4;
+        --color-provider-google: #f2f2f2;
+        --color-provider-kakao: #fee500;
+        --color-provider-naver: #03a94d;
 
         --font-family-sans:
           'Noto Sans KR', system-ui, -apple-system, BlinkMacSystemFont,
           'Segoe UI', sans-serif;
+        --font-family-logo:
+          'Plus Jakarta Sans', var(--font-family-sans);
 
         --space-1: 4px;
         --space-2: 8px;
@@ -45,14 +66,21 @@
         --space-12: 48px;
         --space-16: 64px;
 
+        --radius-sm: 4px;
+        --radius-md: 6px;
         --radius-lg: 8px;
         --radius-xl: 12px;
         --radius-2xl: 16px;
         --radius-full: 9999px;
 
         --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
-        --shadow-md: 0 4px 8px rgba(15, 23, 42, 0.08);
+        --shadow-md: 0 1px 4px rgba(15, 23, 42, 0.08);
+        --shadow-card: 0 4px 8px rgba(15, 23, 42, 0.08);
         --shadow-lg: 0 10px 15px rgba(15, 23, 42, 0.12);
+
+        --card-gap: 12px;
+        --card-padding: 16px;
+        --card-radius: 12px;
 
         --content-max-width: 1200px;
       }
@@ -113,7 +141,7 @@
         align-items: center;
         justify-content: flex-start;
         gap: var(--space-4);
-        border-bottom: 1px solid var(--color-border);
+        border-bottom: 1px solid var(--color-border-subtle);
         padding-bottom: var(--space-4);
         margin-bottom: var(--space-2);
         flex: 0 0 100%;
@@ -206,7 +234,7 @@
         width: 132px;
         border-radius: var(--radius-lg);
         overflow: hidden;
-        border: 1px solid var(--color-border);
+        border: 1px solid var(--color-border-subtle);
         background: var(--color-surface);
         box-shadow: var(--shadow-sm);
         display: flex;
@@ -306,6 +334,50 @@
         line-height: 16px;
         font-weight: 400;
         color: var(--color-text-secondary);
+        margin: 0;
+      }
+
+      .type-body-medium {
+        font-size: 16px;
+        line-height: 24px;
+        font-weight: 500;
+        margin: 0;
+      }
+
+      .type-body-bold {
+        font-size: 16px;
+        line-height: 24px;
+        font-weight: 700;
+        margin: 0;
+      }
+
+      .type-caption-medium {
+        font-size: 14px;
+        line-height: 21px;
+        font-weight: 500;
+        margin: 0;
+      }
+
+      .type-card-heading {
+        font-size: 18px;
+        line-height: 27px;
+        font-weight: 500;
+        margin: 0;
+      }
+
+      .type-logo-large {
+        font-family: var(--font-family-logo);
+        font-size: 32px;
+        line-height: 42px;
+        font-weight: 800;
+        margin: 0;
+      }
+
+      .type-logo-small {
+        font-family: var(--font-family-logo);
+        font-size: 20px;
+        line-height: 31px;
+        font-weight: 800;
         margin: 0;
       }
 
@@ -477,6 +549,9 @@
       .shadow-chip--md {
         box-shadow: var(--shadow-md);
       }
+      .shadow-chip--card {
+        box-shadow: var(--shadow-card);
+      }
       .shadow-chip--lg {
         box-shadow: var(--shadow-lg);
       }
@@ -586,6 +661,12 @@
         box-shadow: var(--shadow-sm);
       }
 
+      .radius-pill--sm {
+        border-radius: var(--radius-sm);
+      }
+      .radius-pill--md {
+        border-radius: var(--radius-md);
+      }
       .radius-pill--lg {
         border-radius: var(--radius-lg);
       }
@@ -773,23 +854,65 @@
 
       .chat-bubble--user {
         background: var(--color-primary);
-        color: #ffffff;
+        color: var(--color-on-primary);
+      }
+
+      .alert-preview {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+      }
+
+      .alert {
+        display: flex;
+        gap: var(--space-4);
+        padding: var(--space-4);
+        border-radius: var(--radius-lg);
+        border: 1px solid;
+        font-size: 14px;
+      }
+
+      .alert--error {
+        background: #fee2e2;
+        border-color: #fca5a5;
+        color: #b91c1c;
+      }
+
+      .alert--warning {
+        background: #fff7ed;
+        border-color: #fed7aa;
+        color: #c2410c;
+      }
+
+      .alert--info {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+        color: #2b6ba3;
+      }
+
+      .card-preview {
+        display: flex;
+        flex-direction: column;
+        gap: var(--card-gap);
+        border-radius: var(--card-radius);
+        background: var(--color-surface);
+        padding: var(--card-padding);
+        box-shadow: var(--shadow-card);
       }
 
       .chat-bubble--bot {
-        background: #ffffff;
+        background: var(--color-surface);
         color: var(--color-text-primary);
-        border: 1px solid #e5e7eb;
+        box-shadow: var(--shadow-sm);
       }
 
       .chat-card {
         margin-top: 4px;
-        border-radius: var(--radius-xl);
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        padding: 8px 10px;
+        border-radius: var(--radius-2xl);
+        background: var(--color-surface);
+        padding: var(--space-3) var(--space-4);
         font-size: 12px;
-        box-shadow: var(--shadow-sm);
+        box-shadow: var(--shadow-md);
       }
 
       /* Components (button, chip, field) */
@@ -820,32 +943,38 @@
 
       .btn--primary {
         background: var(--color-primary);
-        color: #ffffff;
+        color: var(--color-on-primary);
         box-shadow: var(--shadow-md);
       }
 
       .btn--primary:hover {
         background: var(--color-primary-hover);
-        transform: translateY(-1px);
-        box-shadow: 0 10px 18px rgba(248, 113, 22, 0.35);
       }
 
-      .btn--ghost {
-        background: #f3f4f6;
-        color: var(--color-text-secondary);
+      .btn--secondary {
+        background: var(--color-secondary-surface);
+        color: var(--color-on-secondary);
         box-shadow: none;
+      }
+
+      .btn--secondary:hover {
+        background: var(--color-secondary-hover);
       }
 
       .chip {
         display: inline-flex;
         align-items: center;
-        padding: 2px var(--space-3);
+        padding: var(--space-1) var(--space-3);
         border-radius: var(--radius-full);
-        border: 1px solid #e5e7eb;
+        border: none;
         font-size: 12px;
         color: var(--color-text-secondary);
-        background: #f9fafb;
+        background: var(--color-chip-default);
         gap: 6px;
+      }
+
+      .chip:hover {
+        background: var(--color-chip-hover);
       }
 
       .chip-dot {
@@ -869,9 +998,9 @@
       }
 
       .field-input {
-        border-radius: 999px;
+        border-radius: var(--radius-md);
         padding: 10px 14px;
-        border: 1px solid var(--color-border);
+        border: 1px solid var(--color-border-subtle);
         font-size: 14px;
         outline: none;
         transition:
@@ -880,8 +1009,8 @@
       }
 
       .field-input:focus {
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 2px rgba(232, 93, 43, 0.18);
+        border-color: var(--color-border-accent);
+        box-shadow: 0 0 0 2px rgba(194, 65, 12, 0.18);
       }
 
       .field-caption {
@@ -973,7 +1102,7 @@
       <section class="sheet">
         <header class="sheet-header">
           <div>
-            <div class="sheet-title">Design System</div>
+            <div class="sheet-title">Mealio Design System</div>
             <div
               style="
                 margin-top: 4px;
@@ -988,7 +1117,8 @@
             <span class="tag">Primary device · Mobile</span>
             <span class="tag">WCAG 2.1 AA</span>
             <span class="tag">Touch target ≥ 44px</span>
-            <span class="tag">Token v2.3 · 2026-04-21</span>
+            <span class="tag">Token v2.4 · 2026-05-14</span>
+            <span class="tag">Light · Dark</span>
           </div>
         </header>
 
@@ -1002,7 +1132,7 @@
             </div>
 
             <div>
-              <div class="subsection-title">Theme surface</div>
+              <div class="subsection-title">Background</div>
               <div class="grid grid--colors">
                 <div class="color-swatch">
                   <div
@@ -1010,7 +1140,8 @@
                     style="background: #fafaf9"
                   ></div>
                   <div class="color-swatch__body">
-                    <div class="color-swatch__name">Background</div>
+                    <div class="color-swatch__name">Primary</div>
+                    <div class="color-swatch__meta">#FAFAF9</div>
                   </div>
                 </div>
                 <div class="color-swatch">
@@ -1020,15 +1151,7 @@
                   ></div>
                   <div class="color-swatch__body">
                     <div class="color-swatch__name">Surface</div>
-                  </div>
-                </div>
-                <div class="color-swatch color-swatch--outline">
-                  <div
-                    class="color-swatch__chip"
-                    style="background: #8a8480"
-                  ></div>
-                  <div class="color-swatch__body">
-                    <div class="color-swatch__name">Border</div>
+                    <div class="color-swatch__meta">#FFFFFF</div>
                   </div>
                 </div>
                 <div class="color-swatch">
@@ -1038,6 +1161,53 @@
                   ></div>
                   <div class="color-swatch__body">
                     <div class="color-swatch__name">Placeholder</div>
+                    <div class="color-swatch__meta">#F5F5F4</div>
+                  </div>
+                </div>
+                <div class="color-swatch">
+                  <div
+                    class="color-swatch__chip"
+                    style="background: #fff7ed"
+                  ></div>
+                  <div class="color-swatch__body">
+                    <div class="color-swatch__name">Accent</div>
+                    <div class="color-swatch__meta">#FFF7ED</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="subsection-title">Border</div>
+              <div class="grid grid--grays">
+                <div class="color-swatch color-swatch--outline">
+                  <div
+                    class="color-swatch__chip"
+                    style="background: #e5e5e5"
+                  ></div>
+                  <div class="color-swatch__body">
+                    <div class="color-swatch__name">Subtle</div>
+                    <div class="color-swatch__meta">1px · 폼·구획</div>
+                  </div>
+                </div>
+                <div class="color-swatch">
+                  <div
+                    class="color-swatch__chip"
+                    style="background: #f5f5f4"
+                  ></div>
+                  <div class="color-swatch__body">
+                    <div class="color-swatch__name">Muted</div>
+                    <div class="color-swatch__meta">placeholder alias</div>
+                  </div>
+                </div>
+                <div class="color-swatch">
+                  <div
+                    class="color-swatch__chip"
+                    style="background: #c2410c"
+                  ></div>
+                  <div class="color-swatch__body">
+                    <div class="color-swatch__name">Accent</div>
+                    <div class="color-swatch__meta">2px · focus</div>
                   </div>
                 </div>
               </div>
@@ -1052,7 +1222,7 @@
                     style="background: #1c1a17"
                   ></div>
                   <div class="color-swatch__body">
-                    <div class="color-swatch__name">Text / Primary</div>
+                    <div class="color-swatch__name">Primary</div>
                   </div>
                 </div>
                 <div class="color-swatch">
@@ -1061,23 +1231,50 @@
                     style="background: #575352"
                   ></div>
                   <div class="color-swatch__body">
-                    <div class="color-swatch__name">Text / Secondary</div>
+                    <div class="color-swatch__name">Secondary</div>
                   </div>
                 </div>
                 <div class="color-swatch">
                   <div
                     class="color-swatch__chip"
-                    style="background: #8a8a8a"
+                    style="background: #9ca3af"
                   ></div>
                   <div class="color-swatch__body">
-                    <div class="color-swatch__name">Text / Caption</div>
+                    <div class="color-swatch__name">Caption</div>
+                  </div>
+                </div>
+                <div class="color-swatch">
+                  <div
+                    class="color-swatch__chip"
+                    style="background: #737373"
+                  ></div>
+                  <div class="color-swatch__body">
+                    <div class="color-swatch__name">Placeholder</div>
+                  </div>
+                </div>
+                <div class="color-swatch">
+                  <div
+                    class="color-swatch__chip"
+                    style="background: #a3a3a3"
+                  ></div>
+                  <div class="color-swatch__body">
+                    <div class="color-swatch__name">Disabled</div>
+                  </div>
+                </div>
+                <div class="color-swatch">
+                  <div
+                    class="color-swatch__chip"
+                    style="background: #c2410c"
+                  ></div>
+                  <div class="color-swatch__body">
+                    <div class="color-swatch__name">Accent</div>
                   </div>
                 </div>
               </div>
             </div>
 
             <div>
-              <div class="subsection-title">Semantic</div>
+              <div class="subsection-title">Action &amp; State</div>
               <div class="grid grid--brand">
                 <div class="color-swatch">
                   <div
@@ -1091,10 +1288,10 @@
                 <div class="color-swatch">
                   <div
                     class="color-swatch__chip"
-                    style="background: #6b7250"
+                    style="background: #9a3412"
                   ></div>
                   <div class="color-swatch__body">
-                    <div class="color-swatch__name">Secondary</div>
+                    <div class="color-swatch__name">Primary / Hover</div>
                   </div>
                 </div>
                 <div class="color-swatch">
@@ -1130,7 +1327,17 @@
                     style="background: #2b6ba3"
                   ></div>
                   <div class="color-swatch__body">
-                    <div class="color-swatch__name">Info</div>
+                    <div class="color-swatch__name">Info / Link</div>
+                  </div>
+                </div>
+                <div class="color-swatch">
+                  <div
+                    class="color-swatch__chip"
+                    style="background: #6b7250"
+                  ></div>
+                  <div class="color-swatch__body">
+                    <div class="color-swatch__name">Brand Secondary</div>
+                    <div class="color-swatch__meta">extensions.brand</div>
                   </div>
                 </div>
               </div>
@@ -1141,43 +1348,48 @@
           <section class="section">
             <div class="section-header">
               <h2 class="section-title">Typography</h2>
-              <p class="section-caption">Noto Sans KR · mobile first</p>
+              <p class="section-caption">
+                Noto Sans KR · Plus Jakarta Sans (Logo)
+              </p>
             </div>
 
             <div class="type-row">
-              <div>
-                <p class="type-display-1">H1 · 28/42 · Bold</p>
-              </div>
+              <p class="type-display-1">H1 · 28/42 · Bold</p>
             </div>
-
             <div class="type-row">
-              <div>
-                <p class="type-display-2">H2 · 20/30 · Bold</p>
-              </div>
+              <p class="type-display-2">H2 · 20/30 · Bold</p>
             </div>
-
             <div class="type-row">
-              <div>
-                <p class="type-heading-1">H3 · 18/27 · Bold</p>
-              </div>
+              <p class="type-heading-1">H3 · 18/27 · Bold</p>
             </div>
-
             <div class="type-row">
-              <div>
-                <p class="type-body">Body · 16/24 · Regular</p>
-              </div>
+              <p class="type-body">Body/Regular · 16/24</p>
             </div>
-
             <div class="type-row">
-              <div>
-                <p class="type-caption">Caption · 14/21 · Regular</p>
-              </div>
+              <p class="type-body-medium">Body/Medium · 16/24</p>
             </div>
-
             <div class="type-row">
-              <div>
-                <p class="type-small">Small · 12/16 · Regular</p>
-              </div>
+              <p class="type-body-bold">Body/Bold · 16/24</p>
+            </div>
+            <div class="type-row">
+              <p class="type-caption">Caption/Regular · 14/21</p>
+            </div>
+            <div class="type-row">
+              <p class="type-caption-medium">Caption/Medium · 14/21</p>
+            </div>
+            <div class="type-row">
+              <p class="type-small">Small · 12/16 · Regular</p>
+            </div>
+            <div class="type-row">
+              <p class="type-card-heading">Card/Heading · 18/27 · Medium</p>
+            </div>
+            <div class="type-row">
+              <p class="type-logo-large">Mealio</p>
+              <span class="type-token">Logo/Large · Plus Jakarta Sans 32/42</span>
+            </div>
+            <div class="type-row">
+              <p class="type-logo-small">Mealio</p>
+              <span class="type-token">Logo/Small · Plus Jakarta Sans 20/31</span>
             </div>
           </section>
         </div>
@@ -1372,11 +1584,71 @@
             <div>
               <div class="subsection-title">Radius</div>
               <div class="radius-row">
-                <div class="radius-pill radius-pill--lg">lg</div>
-                <div class="radius-pill radius-pill--xl">xl</div>
-                <div class="radius-pill radius-pill--2xl">2xl</div>
+                <div class="radius-pill radius-pill--sm">sm · 4</div>
+                <div class="radius-pill radius-pill--md">md · 6</div>
+                <div class="radius-pill radius-pill--lg">lg · 8</div>
+                <div class="radius-pill radius-pill--xl">xl · 12</div>
+                <div class="radius-pill radius-pill--2xl">2xl · 16</div>
                 <div class="radius-pill radius-pill--full">full</div>
               </div>
+            </div>
+          </section>
+
+          <!-- Components -->
+          <section class="section">
+            <div class="section-header">
+              <h2 class="section-title">Components</h2>
+              <p class="section-caption">
+                button · chip · field · card · chat · alert
+              </p>
+            </div>
+
+            <div class="component-row">
+              <button type="button" class="btn btn--primary">Primary</button>
+              <button type="button" class="btn btn--secondary">Secondary</button>
+            </div>
+
+            <div class="component-row">
+              <span class="chip"><span class="chip-dot"></span>Chip</span>
+              <span class="chip">필터</span>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="demo-input">재료 검색</label>
+              <input
+                id="demo-input"
+                class="field-input"
+                type="text"
+                placeholder="재료를 입력해 주세요"
+              />
+              <span class="field-caption">form-field · radius/md</span>
+            </div>
+
+            <div class="card-preview">
+              <div class="type-card-heading">레시피 카드</div>
+              <p class="type-caption" style="margin: 0; color: var(--color-text-secondary)">
+                card · padding 16 · gap 12 · radius xl · elevation/card
+              </p>
+            </div>
+
+            <div class="chat-preview">
+              <div class="chat-row chat-row--user">
+                <div class="chat-bubble chat-bubble--user">
+                  오늘 저녁 뭐 만들까요?
+                </div>
+              </div>
+              <div class="chat-row">
+                <div class="chat-bubble chat-bubble--bot">
+                  보유 재료로 추천해 드릴게요.
+                  <div class="chat-card">된장찌개 · 30분</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert-preview">
+              <div class="alert alert--error">연결에 실패했어요. 다시 시도해 주세요.</div>
+              <div class="alert alert--warning">재료가 부족해요.</div>
+              <div class="alert alert--info">새 레시피가 추가됐어요.</div>
             </div>
           </section>
         </div>
@@ -1398,7 +1670,12 @@
               <div class="shadow-card">
                 <div class="shadow-chip shadow-chip--md"></div>
                 <div class="shadow-label">Elevation / md</div>
-                <div class="shadow-meta">0 4px 8px · cards</div>
+                <div class="shadow-meta">0 1px 4px · surface lift</div>
+              </div>
+              <div class="shadow-card">
+                <div class="shadow-chip shadow-chip--card"></div>
+                <div class="shadow-label">Elevation / card</div>
+                <div class="shadow-meta">0 4px 8px · card alias</div>
               </div>
               <div class="shadow-card">
                 <div class="shadow-chip shadow-chip--lg"></div>
@@ -1459,10 +1736,13 @@
             <div>
               <div class="subsection-title">Icons</div>
               <div class="icon-row">
-                <div class="icon-circle icon-circle--sm">16</div>
-                <div class="icon-circle icon-circle--md">20</div>
-                <div class="icon-circle icon-circle--lg">24</div>
+                <div class="icon-circle icon-circle--sm">sm · 16</div>
+                <div class="icon-circle icon-circle--md">md · 20</div>
+                <div class="icon-circle icon-circle--lg">lg · 24</div>
               </div>
+              <p class="section-caption" style="margin-top: 4px">
+                size/2xl · 32px (터치 아이콘 래퍼는 spacing/11 · 44px)
+              </p>
             </div>
 
             <div>
@@ -1548,6 +1828,18 @@
                     <td>variables.color.light.background.surface</td>
                   </tr>
                   <tr>
+                    <td>Background/Accent/Default</td>
+                    <td>variables.color.light.background.accent</td>
+                  </tr>
+                  <tr>
+                    <td>Background/Accent/Hover</td>
+                    <td>variables.color.light.background.accent-hover</td>
+                  </tr>
+                  <tr>
+                    <td>Gradation/Primary</td>
+                    <td>styles.color.gradation.primary (CSS gradient)</td>
+                  </tr>
+                  <tr>
                     <td>Border/Accent</td>
                     <td>
                       color: variables.color.light.border.accent + width:
@@ -1627,14 +1919,6 @@
                   <tr>
                     <td>Scrollbar/Thumb</td>
                     <td>variables.color.light.scrollbar.thumb</td>
-                  </tr>
-                  <tr>
-                    <td>Tag/Accent</td>
-                    <td>variables.color.light.tag.accent</td>
-                  </tr>
-                  <tr>
-                    <td>Tag/Default</td>
-                    <td>variables.color.light.tag.default</td>
                   </tr>
                   <tr>
                     <td>Text/Accent</td>
@@ -1772,6 +2056,13 @@
                     </td>
                   </tr>
                   <tr>
+                    <td>Caption/Medium</td>
+                    <td>
+                      size: variables.typography.fontSize.caption · line-height:
+                      21 · weight: variables.typography.fontWeight.medium
+                    </td>
+                  </tr>
+                  <tr>
                     <td>Card/Body</td>
                     <td>
                       size: variables.typography.fontSize.caption · line-height:
@@ -1873,7 +2164,7 @@
                   <tr>
                     <td>Elevation/Medium</td>
                     <td>
-                      shadow: 0 4px 8px rgba(15, 23, 42, 0.08) · atoms:
+                      shadow: 0 1px 4px rgba(15, 23, 42, 0.08) · atoms:
                       variables.elevation.md.color/x/y/blur
                     </td>
                   </tr>
@@ -1899,6 +2190,69 @@
                   <tr>
                     <td>Dark/Large</td>
                     <td>shadow: 0 12px 24px rgba(0, 0, 0, 0.55)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="catalog-group">
+              <div class="catalog-title">Component Tokens</div>
+              <table class="catalog-table">
+                <thead>
+                  <tr>
+                    <th>Component</th>
+                    <th>Key Tokens</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>button</td>
+                    <td>
+                      padding: spacing/4·3 · radius/full · min-height: spacing/11
+                      · Action/Primary · Text/Button
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>chip</td>
+                    <td>
+                      padding: spacing/3·1 · radius/full · Chip/Default·Hover
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>card</td>
+                    <td>
+                      padding/gap: 16/12 · radius: 12 · elevation/md (card alias)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>alert</td>
+                    <td>
+                      padding/gap: spacing/4 · color/state/* · Caption/Medium ·
+                      Small
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>form-field</td>
+                    <td>gap-y: spacing/2 · group: spacing/4 · radius/md</td>
+                  </tr>
+                  <tr>
+                    <td>chat/bubble</td>
+                    <td>
+                      user: primary+on-primary · bot: surface · radius/2xl · max
+                      80%
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>recipe-grid-item</td>
+                    <td>
+                      thumbnail 1:1 · radius/xl · h3 · label/tab · caption color
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>recipe-search-card</td>
+                    <td>
+                      thumbnail 16:9 · gap/spacing/3 · card/body · card/caption
+                    </td>
                   </tr>
                 </tbody>
               </table>
