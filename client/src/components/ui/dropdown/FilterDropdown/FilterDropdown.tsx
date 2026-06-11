@@ -56,7 +56,7 @@ export function FilterDropdown({
       <DropdownButton label={label} open={isOpen} onClick={handleToggle} />
       {isOpen ? (
         <DropdownList
-          className="absolute top-10 right-0 w-[120%] min-w-auto"
+          className="absolute top-10 right-0"
           options={options}
           selectedValue={selectedValue}
           onSelect={handleSelect}

@@ -22,7 +22,7 @@ export function DropdownItem({
     <button
       type={type}
       className={cn(
-        'typo-label-dropdown inline-flex w-full items-start px-4 py-3 text-left outline-none transition-colors',
+        'typo-label-dropdown inline-flex w-full items-start whitespace-nowrap px-4 py-3 text-left outline-none transition-colors',
         selected
           ? 'bg-dropdown-selected-default style-text-accent hover:bg-dropdown-selected-hover'
           : 'bg-dropdown-unselected-default style-text-primary hover:bg-dropdown-unselected-hover',

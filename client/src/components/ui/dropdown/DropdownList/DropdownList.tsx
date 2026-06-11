@@ -22,7 +22,7 @@ export function DropdownList({
   return (
     <ul
       className={cn(
-        'overflow-hidden rounded-xl bg-background-surface shadow-md',
+        'w-max min-w-[120%] overflow-hidden rounded-xl bg-background-surface shadow-md z-50',
         className,
       )}
     >

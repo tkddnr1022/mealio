@@ -24,7 +24,7 @@ export function SearchResultHeader({
   return (
     <header
       className={cn(
-        'flex w-full flex-col items-start gap-4 overflow-hidden bg-background-surface p-4',
+        'flex w-full flex-col items-start gap-4 bg-background-surface p-4',
         className,
       )}
       data-name="SearchResultHeader"

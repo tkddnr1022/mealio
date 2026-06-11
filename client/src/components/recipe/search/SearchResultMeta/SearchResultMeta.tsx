@@ -29,7 +29,7 @@ export function SearchResultMeta({
       <p className="typo-caption-regular style-text-secondary">
         총 <span className="style-text-accent">{totalCount}</span>개
       </p>
-      <FilterDropdown className="min-w-0 flex-1" {...filterDropdownProps} />
+      <FilterDropdown className="min-w-0" {...filterDropdownProps} />
     </section>
   );
 }
