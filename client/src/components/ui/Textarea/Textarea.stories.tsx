@@ -70,7 +70,8 @@ export const NoAutoGrow = {
   name: '자동 높이 조절 없음',
   args: {
     autoGrow: false,
-    defaultValue: '높이가 고정된 textarea입니다.\n줄바꿈해도 높이는 변하지 않아요.',
+    defaultValue:
+      '높이가 고정된 textarea입니다.\n줄바꿈해도 높이는 변하지 않아요.',
   },
 } satisfies Story;
 

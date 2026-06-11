@@ -13,18 +13,18 @@ describe('HttpMetricsMiddleware', () => {
   it.each(['/metrics', '/health', '/ready'])(
     'should not record metrics for %s',
     (path) => {
-    const metricsService = new MetricsService(enabledConfig);
-    metricsService.onModuleInit();
-    const recordSpy = jest.spyOn(metricsService, 'recordHttpRequest');
-    const incSpy = jest.spyOn(metricsService, 'incHttpInflight');
+      const metricsService = new MetricsService(enabledConfig);
+      metricsService.onModuleInit();
+      const recordSpy = jest.spyOn(metricsService, 'recordHttpRequest');
+      const incSpy = jest.spyOn(metricsService, 'incHttpInflight');
 
-    const middleware = new HttpMetricsMiddleware(metricsService);
-    const res = new EventEmitter() as EventEmitter & {
-      statusCode: number;
-      on: EventEmitter['on'];
-    };
-    res.statusCode = 200;
-    const next = jest.fn();
+      const middleware = new HttpMetricsMiddleware(metricsService);
+      const res = new EventEmitter() as EventEmitter & {
+        statusCode: number;
+        on: EventEmitter['on'];
+      };
+      res.statusCode = 200;
+      const next = jest.fn();
 
       middleware.use(
         {

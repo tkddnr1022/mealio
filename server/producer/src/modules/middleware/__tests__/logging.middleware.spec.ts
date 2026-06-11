@@ -39,13 +39,13 @@ describe('LoggingMiddleware', () => {
   it.each(['/metrics', '/health', '/ready'])(
     'should skip logging for %s',
     (path) => {
-    const logSpy = jest.spyOn(middleware['logger'], 'log');
-    const next = jest.fn();
-    const res = new EventEmitter() as EventEmitter & {
-      statusCode: number;
-      on: EventEmitter['on'];
-    };
-    res.statusCode = 200;
+      const logSpy = jest.spyOn(middleware['logger'], 'log');
+      const next = jest.fn();
+      const res = new EventEmitter() as EventEmitter & {
+        statusCode: number;
+        on: EventEmitter['on'];
+      };
+      res.statusCode = 200;
 
       middleware.use(
         {

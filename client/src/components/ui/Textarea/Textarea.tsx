@@ -89,14 +89,15 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       textarea.style.height = `${nextHeight}px`;
       textarea.style.overflowY =
         textarea.scrollHeight > maxHeightPx ? 'auto' : 'hidden';
-
     }, [autoGrow, maxHeightPx]);
 
     useLayoutEffect(() => {
       adjustHeight();
     }, [value, defaultValue, adjustHeight]);
 
-    const handleKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = (event) => {
+    const handleKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = (
+      event,
+    ) => {
       onKeyDown?.(event);
       if (event.defaultPrevented) return;
       if (event.key !== 'Enter' || event.shiftKey || !onEnterSubmit) return;
