@@ -12,6 +12,7 @@ AI 기반 맞춤형 레시피 추천 플랫폼
 - 보유 재료/관심 재료 기반 레시피 추천
 - 레시피 검색 및 개인화 챗봇 지원
 - Producer/Consumer 기반 이벤트 처리 구조
+- 디자인 시스템: [Figma](https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Mealio?node-id=0-1&t=4XgNpJMecLQKOQcX-1)
 - 데모: 준비 중
 
 ## 폴더 및 파일 구조
@@ -150,13 +151,6 @@ docker compose --env-file client/.env.docker -f docker/compose-client.yml up -d 
 - Infra: Redis, Kafka, Docker Compose
 - Observability: Sentry, Prometheus, Grafana
 - AI: OpenAI API
-
-## 기여 방법 (Contributing)
-
-1. Issue 등록 또는 기존 Issue 확인
-2. 브랜치 생성 (`feat/*`, `fix/*`, `chore/*`)
-3. 변경 후 테스트 (`pnpm run ci`)
-4. Pull Request 생성
 
 ## 라이선스 (License)
 
