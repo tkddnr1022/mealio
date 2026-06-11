@@ -4,7 +4,7 @@ import { Send } from 'lucide-react';
 import type { HTMLAttributes, SubmitEventHandler } from 'react';
 import { cn } from '@/lib/utils/cn';
 import { buildAriaLabel } from '@/lib/utils/a11y';
-import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Textarea';
 
 export interface ChatComposerProps extends Omit<
   HTMLAttributes<HTMLElement>,
@@ -40,6 +40,11 @@ export function ChatComposer({
     onSubmitMessage?.(inputValue);
   };
 
+  const handleEnterSubmit = () => {
+    if (disabled || !isFilled) return;
+    onSubmitMessage?.(inputValue);
+  };
+
   return (
     <footer
       className={cn(
@@ -50,10 +55,10 @@ export function ChatComposer({
       {...rest}
     >
       <form
-        className="flex w-full items-center justify-end gap-3"
+        className="flex w-full items-end justify-end gap-3"
         onSubmit={handleSubmit}
       >
-        <Input
+        <Textarea
           wrapperClassName="flex-1"
           focusWithinRing
           placeholder={effectivePlaceholder}
@@ -61,8 +66,8 @@ export function ChatComposer({
           value={inputValue}
           disabled={disabled}
           onChange={(event) => onValueChange?.(event.target.value)}
+          onEnterSubmit={handleEnterSubmit}
           className={cn(
-            'typo-body-regular',
             isFilled
               ? 'typo-search-bar-value style-text-primary'
               : 'style-text-placeholder',
@@ -73,7 +78,7 @@ export function ChatComposer({
           aria-label={buildAriaLabel('button', '메시지 전송')}
           disabled={disabled || !isFilled}
           className={cn(
-            'inline-flex size-12 shrink-0 items-center justify-center rounded-full transition-colors',
+            'inline-flex size-12 shrink-0 items-center justify-center rounded-2xl transition-colors',
             isFilled
               ? 'bg-primary-default style-text-button-primary'
               : 'bg-indicator-inactive style-text-button-primary',
