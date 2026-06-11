@@ -12,7 +12,7 @@ import { buildBlurDataUrl } from '@/lib/utils/image';
 
 const FALLBACK_RECIPE_IMAGE = buildBlurDataUrl({ width: 16, height: 16 });
 
-export interface SuggestedRecipeCardProps extends Omit<
+export interface SuggestedRecipeBubbleProps extends Omit<
   HTMLAttributes<HTMLElement>,
   'children'
 > {
@@ -23,14 +23,14 @@ export interface SuggestedRecipeCardProps extends Omit<
   tags?: readonly MiniTagItem[];
 }
 
-export function SuggestedRecipeCard({
+export function SuggestedRecipeBubble({
   className = '',
   recipe,
   imageUrl,
   imageAlt,
   tags,
   ...rest
-}: SuggestedRecipeCardProps) {
+}: SuggestedRecipeBubbleProps) {
   const detailHref = toRecipeDetailHref(recipe.id);
   const title = recipe.title;
   const resolvedTags = tags ?? toSuggestedRecipeTagItems(recipe);
@@ -43,12 +43,12 @@ export function SuggestedRecipeCard({
     <NavLink
       href={detailHref}
       className={cn(linkClassName, className)}
-      data-name="SuggestedRecipeCard"
+      data-name="SuggestedRecipeBubble"
       data-recipe-id={String(recipe.id)}
       {...rest}
     >
       <article className="contents">
-        <div className="card flex flex-col">
+        <div className="flex flex-col overflow-hidden rounded-2xl bg-background-surface p-4 shadow-(--semantic-shadow-md)">
           <div className="flex w-full items-center gap-4">
             <div className="w-20 shrink-0 overflow-hidden rounded-lg">
               <Thumbnail
@@ -59,7 +59,7 @@ export function SuggestedRecipeCard({
               />
             </div>
             <div className="flex min-w-0 flex-1 flex-col items-start gap-2">
-              <h3 className="w-full truncate typo-card-heading style-text-primary">
+              <h3 className="w-full truncate typo-h3 style-text-primary">
                 {title ?? ''}
               </h3>
               <MiniTagsRow items={resolvedTags} className="w-full" />

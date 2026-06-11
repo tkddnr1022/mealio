@@ -1,5 +1,5 @@
-export { RecipeGridCard } from './cards/RecipeGridCard';
-export type { RecipeGridCardProps } from './cards/RecipeGridCard';
+export { RecipeGridItem } from './cards/RecipeGridItem';
+export type { RecipeGridItemProps } from './cards/RecipeGridItem';
 
 export { SearchBarCard } from './cards/SearchBarCard';
 export type { SearchBarCardProps } from './cards/SearchBarCard';

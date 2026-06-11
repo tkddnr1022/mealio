@@ -1,6 +1,6 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
 import type { SuggestedRecipe } from '@/lib/types/chatbot';
-import { SuggestedRecipeCard } from '@/components/chatbot/conversation/SuggestedRecipeCard';
+import { SuggestedRecipeBubble } from '@/components/chatbot/conversation/SuggestedRecipeBubble';
 
 const figmaWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,22rem)]">
@@ -20,8 +20,8 @@ const sampleRecipe: SuggestedRecipe = {
 };
 
 const meta = {
-  title: 'Chatbot/Conversation/SuggestedRecipeCard',
-  component: SuggestedRecipeCard,
+  title: 'Chatbot/Conversation/SuggestedRecipeBubble',
+  component: SuggestedRecipeBubble,
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
@@ -32,7 +32,7 @@ const meta = {
     recipe: sampleRecipe,
     imageUrl: sampleImage,
   },
-} satisfies Meta<typeof SuggestedRecipeCard>;
+} satisfies Meta<typeof SuggestedRecipeBubble>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

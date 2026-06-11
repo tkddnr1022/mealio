@@ -2,7 +2,7 @@ import type { HTMLAttributes } from 'react';
 import type { RecipeSummary } from '@/lib/types/recipe';
 import { cn } from '@/lib/utils/cn';
 
-import { RecipeGridCard } from '@/components/recipe/cards/RecipeGridCard';
+import { RecipeGridItem } from '@/components/recipe/cards/RecipeGridItem';
 import {
   DEFAULT_RECIPE_GRID_LAYOUT,
   getRecipeGridColsClass,
@@ -42,7 +42,7 @@ export function RecipeGrid({
     >
       {recipes.map((recipe) => {
         return (
-          <RecipeGridCard
+          <RecipeGridItem
             key={recipe.id}
             recipe={recipe}
             className={cardClassName}

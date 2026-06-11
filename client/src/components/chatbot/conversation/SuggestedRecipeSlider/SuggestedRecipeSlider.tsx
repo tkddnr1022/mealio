@@ -8,7 +8,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import type { SuggestedRecipe } from '@/lib/types/chatbot';
 import { cn } from '@/lib/utils/cn';
 import { SliderPagination } from '@/components/ui/SliderPagination';
-import { SuggestedRecipeCard } from '@/components/chatbot/conversation/SuggestedRecipeCard';
+import { SuggestedRecipeBubble } from '@/components/chatbot/conversation/SuggestedRecipeBubble';
 import { isValidSuggestedRecipe } from '@/components/chatbot/utils/chatbot-format';
 
 import 'swiper/css';
@@ -88,7 +88,7 @@ export function SuggestedRecipeSlider({
               className="box-border! shrink-0"
               style={slideWidthStyle}
             >
-              <SuggestedRecipeCard
+              <SuggestedRecipeBubble
                 recipe={item}
                 imageUrl={getImageUrl?.(item) ?? item.imageUrl ?? undefined}
                 imageAlt={getImageAlt?.(item)}

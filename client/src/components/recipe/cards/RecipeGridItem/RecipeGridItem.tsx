@@ -12,7 +12,7 @@ import {
   toRecipeServingsLabel,
 } from '@/components/recipe/utils/recipe-format';
 
-export interface RecipeGridCardProps extends Omit<
+export interface RecipeGridItemProps extends Omit<
   HTMLAttributes<HTMLElement>,
   'children'
 > {
@@ -21,14 +21,14 @@ export interface RecipeGridCardProps extends Omit<
 }
 
 /**
- * 그리드용 레시피 카드 (Figma RecipeGridCard, node 166:2030).
- * 이미지 + 제목(H3) + 메타 한 줄(카드 캡션 타이포).
+ * 그리드용 레시피 아이템 (Figma RecipeGridItem, node 166:2030).
+ * 이미지 + 제목(H3) + 메타 한 줄(캡션 타이포).
  */
-export function RecipeGridCard({
+export function RecipeGridItem({
   className = '',
   recipe,
   ...rest
-}: RecipeGridCardProps) {
+}: RecipeGridItemProps) {
   const imageUrl = toRecipeImageUrl(recipe.imageUrl);
   const title = recipe.title;
   const cookingTime = toRecipeCookingTimeLabel(recipe.cookTime);
@@ -46,7 +46,7 @@ export function RecipeGridCard({
     <NavLink
       href={detailHref}
       className={cn(linkClassName, className)}
-      data-name="RecipeGridCard"
+      data-name="RecipeGridItem"
       {...rest}
     >
       <article className="contents">
@@ -63,11 +63,11 @@ export function RecipeGridCard({
           </div>
         </div>
         <div className="flex w-full min-w-0 flex-col gap-1">
-          <h3 className="line-clamp-2 min-w-0 wrap-break-word style-text-primary">
+          <h3 className="line-clamp-2 min-w-0 wrap-break-word typo-h3 style-text-primary">
             {title}
           </h3>
           {metaLine ? (
-            <p className="typo-card-caption whitespace-normal style-text-caption">
+            <p className="typo-label-tab whitespace-normal style-text-caption">
               {metaLine}
             </p>
           ) : null}

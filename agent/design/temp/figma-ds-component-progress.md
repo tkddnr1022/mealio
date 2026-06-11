@@ -23,7 +23,7 @@
 
 ### 레시피 노출 · 캐러셀
 
-- [ ] `RecipeGridCard`
+- [ ] `RecipeGridItem`
 - [ ] `RecipeGrid`
 - [ ] `PaginationDot` 세트 (`state=inactive` / `active`)
 - [ ] `SliderPagination` 세트 (`activeIndex=1|2|3`)
@@ -82,7 +82,7 @@
 - [ ] `ChatConversationRow` 세트 (`role=assistant` / `user`)
 - [ ] `MiniTag`
 - [ ] `MiniTagsRow`
-- [ ] `SuggestedRecipeCard`
+- [ ] `SuggestedRecipeBubble`
 - [ ] `SuggestedRecipeSlider`
 - [ ] `ChatConversation`
 - [ ] `ChatComposer` 세트 (`filled=true` / `false`)

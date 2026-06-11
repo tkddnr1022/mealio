@@ -13,8 +13,8 @@ export type {
 export { ChatComposer } from './ChatComposer';
 export type { ChatComposerProps } from './ChatComposer';
 
-export { SuggestedRecipeCard } from './SuggestedRecipeCard';
-export type { SuggestedRecipeCardProps } from './SuggestedRecipeCard';
+export { SuggestedRecipeBubble } from './SuggestedRecipeBubble';
+export type { SuggestedRecipeBubbleProps } from './SuggestedRecipeBubble';
 
 export { SuggestedRecipeSlider } from './SuggestedRecipeSlider';
 export type { SuggestedRecipeSliderProps } from './SuggestedRecipeSlider';

@@ -90,7 +90,7 @@
 |------|------|
 | **client/src/components/recipe/** | 레시피 도메인 컴포넌트 묶음 |
 | **client/src/components/recipe/cards/** | 레시피 카드 계열 |
-| client/src/components/recipe/cards/RecipeGridCard/ | 그리드 카드 |
+| client/src/components/recipe/cards/RecipeGridItem/ | 그리드 아이템 |
 | client/src/components/recipe/cards/RecipeCard/ | 검색 결과 카드 |
 | client/src/components/recipe/cards/SearchBarCard/ | 검색바 연계 카드 |
 | **client/src/components/recipe/lists/** | 레시피 노출 목록·캐러셀 |
@@ -127,7 +127,7 @@
 | client/src/components/chatbot/conversation/ChatConversationRow/ | 대화 행 세트(`role`) |
 | client/src/components/chatbot/conversation/ChatConversation/ | 대화 본문 |
 | client/src/components/chatbot/conversation/ChatComposer/ | 입력 컴포저 세트(`filled`) |
-| client/src/components/chatbot/conversation/SuggestedRecipeCard/ | 추천 레시피 카드 |
+| client/src/components/chatbot/conversation/SuggestedRecipeBubble/ | 추천 레시피 버블 |
 | client/src/components/chatbot/conversation/SuggestedRecipeSlider/ | 추천 레시피 슬라이더 |
 
 ### 2.5 보관함 도메인 (`client/src/components/inventory/`)

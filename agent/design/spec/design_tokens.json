@@ -863,13 +863,13 @@
       "elevation-dark-token": "styles.elevation.dark.medium",
       "figma-note": "레이아웃 토큰만. 면·타이포는 Figma 컴포넌트별로 `styles.color`·`styles.typography` 참조."
     },
-    "recipe-grid-card": {
+    "recipe-grid-item": {
       "thumbnail-aspect": "1:1",
-      "usage-note": "RecipeMainPage 등 그리드·슬라이더용 RecipeGridCard. Figma 표에 없는 화면 규칙.",
+      "usage-note": "RecipeMainPage 등 그리드·슬라이더용 RecipeGridItem. Figma 표에 없는 화면 규칙.",
       "gap-token": "variables.spacing.2",
       "title-lines-max": 2,
       "title-typography-token": "styles.typography.h3",
-      "meta-typography-token": "styles.typography.card.caption",
+      "meta-typography-token": "styles.typography.label.tab",
       "meta-color-token": "variables.color.light.text.caption",
       "meta-color-dark-token": "variables.color.dark.text.caption",
       "thumbnail-radius-token": "variables.radius.xl",
@@ -959,12 +959,16 @@
       },
       "message-gap-token": "variables.spacing.2",
       "section-padding-token": "variables.spacing.4",
-      "suggested-recipe-card": {
+      "suggested-recipe-bubble": {
         "padding-x-token": "variables.spacing.4",
         "padding-y-token": "variables.spacing.3",
-        "radius-token": "variables.radius.xl",
-        "elevation-token": "styles.elevation.small",
-        "elevation-dark-token": "styles.elevation.dark.small"
+        "radius-token": "variables.radius.2xl",
+        "background-color-token": "variables.color.light.background.surface",
+        "background-color-dark-token": "variables.color.dark.background.surface",
+        "title-typography-token": "styles.typography.h3",
+        "elevation-token": "styles.elevation.medium",
+        "elevation-dark-token": "styles.elevation.dark.medium",
+        "usage-note": "채팅 추천 레시피 버블. card 토큰·`.card` 유틸 미사용."
       }
     }
   },

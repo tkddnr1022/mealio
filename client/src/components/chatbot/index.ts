@@ -22,8 +22,8 @@ export type {
 export { ChatComposer } from './conversation/ChatComposer';
 export type { ChatComposerProps } from './conversation/ChatComposer';
 
-export { SuggestedRecipeCard } from './conversation/SuggestedRecipeCard';
-export type { SuggestedRecipeCardProps } from './conversation/SuggestedRecipeCard';
+export { SuggestedRecipeBubble } from './conversation/SuggestedRecipeBubble';
+export type { SuggestedRecipeBubbleProps } from './conversation/SuggestedRecipeBubble';
 
 export { SuggestedRecipeSlider } from './conversation/SuggestedRecipeSlider';
 export type { SuggestedRecipeSliderProps } from './conversation/SuggestedRecipeSlider';

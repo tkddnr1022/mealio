@@ -1,7 +1,7 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
 import type { RecipeSummary } from '@/lib/types/recipe';
 
-import { RecipeGridCard } from '@/components/recipe';
+import { RecipeGridItem } from '@/components/recipe';
 
 /** Figma 그리드 열 폭에 가깝게 두기 (~170px) */
 const gridColumn: Decorator = (Story) => (
@@ -11,14 +11,14 @@ const gridColumn: Decorator = (Story) => (
 );
 
 const meta = {
-  title: 'Recipe/Cards/RecipeGridCard',
-  component: RecipeGridCard,
+  title: 'Recipe/Cards/RecipeGridItem',
+  component: RecipeGridItem,
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
   },
   decorators: [gridColumn],
-} satisfies Meta<typeof RecipeGridCard>;
+} satisfies Meta<typeof RecipeGridItem>;
 
 export default meta;
 
