@@ -8,7 +8,7 @@ const metricsEnabledOn = Joi.string().valid('true', '1');
 
 export interface ObservabilityEnvValidationOptions {
   serviceName: ObservabilityServiceName;
-  /** Consumer는 METRICS_PORT 필수, Producer는 HTTP PORT로 /metrics 노출 */
+  /** Consumer는 CONSUMER_METRICS_PORT 필수, Producer는 PRODUCER_PORT로 /metrics 노출 */
   requireMetricsPort: boolean;
 }
 
@@ -48,10 +48,11 @@ export function buildObservabilityEnvRules(
   };
 
   if (options.requireMetricsPort) {
-    rules.METRICS_PORT = Joi.when('METRICS_ENABLED', {
+    rules.CONSUMER_METRICS_PORT = Joi.when('METRICS_ENABLED', {
       is: metricsEnabledOn,
       then: Joi.string().pattern(/^\d+$/).required().messages({
-        'any.required': 'METRICS_PORT is required when METRICS_ENABLED=true',
+        'any.required':
+          'CONSUMER_METRICS_PORT is required when METRICS_ENABLED=true',
       }),
       otherwise: Joi.optional(),
     });

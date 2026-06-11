@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "dotenv -c -- next dev",
+    "dev": "dotenv -c -- node scripts/run-next.mjs dev",
     "build": "next build",
-    "start": "dotenv -c -- next start",
+    "start": "dotenv -c -- node scripts/run-next.mjs start",
     "lint": "eslint",
     "test:unit": "vitest run --project unit",
     "test:unit:observability": "vitest run --project unit src/lib/observability",

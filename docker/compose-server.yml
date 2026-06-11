@@ -26,10 +26,10 @@ services:
     restart: unless-stopped
     logging: *default-logging
     ports:
-      - "127.0.0.1:${PORT:?PORT is required}:${PORT:?PORT is required}"
+      - "127.0.0.1:${PRODUCER_PORT:?PRODUCER_PORT is required}:${PRODUCER_PORT:?PRODUCER_PORT is required}"
     environment:
       <<: *app-common-env
-      PORT: ${PORT:?PORT is required}
+      PRODUCER_PORT: ${PRODUCER_PORT:?PRODUCER_PORT is required}
       KAFKA_CLIENT_ID: mealio-producer
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?GOOGLE_CLIENT_ID is required}
@@ -40,6 +40,7 @@ services:
       NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET:?NAVER_CLIENT_SECRET is required}
       OAUTH_CALLBACK_BASE_URL: ${OAUTH_CALLBACK_BASE_URL:?OAUTH_CALLBACK_BASE_URL is required}
       FRONTEND_APP_BASE_URL: ${FRONTEND_APP_BASE_URL:?FRONTEND_APP_BASE_URL is required}
+      SENTRY_ENABLED: ${SENTRY_ENABLED:?SENTRY_ENABLED is required}
       SENTRY_DSN_PRODUCER: ${SENTRY_DSN_PRODUCER:?SENTRY_DSN_PRODUCER is required}
     networks:
       - mealio-net
@@ -49,7 +50,7 @@ services:
           "CMD",
           "node",
           "-e",
-          "const p=process.env.PORT;fetch('http://127.0.0.1:'+p+'/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+          "const p=process.env.PRODUCER_PORT;fetch('http://127.0.0.1:'+p+'/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
         ]
       interval: 15s
       timeout: 5s
@@ -68,12 +69,13 @@ services:
     environment:
       <<: *app-common-env
       KAFKA_CLIENT_ID: mealio-consumer
-      METRICS_PORT: ${METRICS_PORT:?METRICS_PORT is required}
+      CONSUMER_METRICS_PORT: ${CONSUMER_METRICS_PORT:?CONSUMER_METRICS_PORT is required}
       OPENAI_API_KEY: ${OPENAI_API_KEY:?OPENAI_API_KEY is required}
       OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL:?OPENAI_CHAT_MODEL is required}
       OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:?OPENAI_EMBEDDING_MODEL is required}
       OPENAI_BATCH_MODEL: ${OPENAI_BATCH_MODEL:?OPENAI_BATCH_MODEL is required}
       PUBLIC_DATA_API_KEY: ${PUBLIC_DATA_API_KEY:?PUBLIC_DATA_API_KEY is required}
+      SENTRY_ENABLED: ${SENTRY_ENABLED:?SENTRY_ENABLED is required}
       SENTRY_DSN_CONSUMER: ${SENTRY_DSN_CONSUMER:?SENTRY_DSN_CONSUMER is required}
     networks:
       - mealio-net
@@ -83,7 +85,7 @@ services:
           "CMD",
           "node",
           "-e",
-          "const p=process.env.METRICS_PORT;fetch('http://127.0.0.1:'+p+'/metrics').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+          "const p=process.env.CONSUMER_METRICS_PORT;fetch('http://127.0.0.1:'+p+'/metrics').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
         ]
       interval: 15s
       timeout: 5s

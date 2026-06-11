@@ -1,4 +1,7 @@
-client
+client/node_modules
+client/.next
+client/coverage
+client/storybook-static
 node_modules
 **/node_modules
 **/dist

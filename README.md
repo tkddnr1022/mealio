@@ -23,7 +23,7 @@ mealio/
 │  ├─ producer/            # NestJS API 서버
 │  ├─ consumer/            # Kafka Consumer 워커
 │  └─ shared/              # 공용 모듈(Prisma/Mongoose/Redis/Types)
-├─ docker/                 # Docker Compose 및 서버 Dockerfile
+├─ docker/                 # Docker Compose 및 client/server Dockerfile
 ├─ agent/                  # 아키텍처/명세/가이드 문서
 └─ README.md
 ```
@@ -39,7 +39,7 @@ mealio/
 ### Installation
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/tkddnr1022/mealio.git
 cd mealio
 
 corepack enable
@@ -51,19 +51,16 @@ cp .env.example .env
 
 ## 사용 방법 (Usage)
 
+환경 변수는 `.env.example`을 기준으로 설정합니다.
+
+### Development
+
 ```bash
-# 1) 인프라 기동 (DB/Kafka/Redis 등)
-docker compose -f docker/compose-database.yml -f docker/compose-kafka.yml up -d
-
-# 2) 서버(Producer/Consumer) 기동
-docker compose -f docker/compose-app.yml up -d --build
-
-# 3) 클라이언트 개발 서버
-pnpm run start:client
+# 인프라 (DB/Kafka/Redis/Kafka UI/관측)
+docker compose --env-file .env -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
 ```
 
 ```bash
-# DB 작업
 pnpm run db:prisma:generate
 pnpm run db:prisma:migrate:dev
 pnpm run db:prisma:seed
@@ -71,14 +68,26 @@ pnpm run db:mongoose:seed
 ```
 
 ```bash
-# 개발 환경
-pnpm run ci
 pnpm run start:producer
 pnpm run start:consumer
 pnpm run start:client
 ```
 
-환경 변수는 `.env.example`을 기준으로 설정합니다.
+### Production
+
+```bash
+# 인프라 (DB/Kafka/Redis/Kafka UI/관측)
+docker compose --env-file .env -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
+```
+
+```bash
+pnpm run db:prisma:migrate:deploy
+```
+
+```bash
+# 프론트/백엔드
+docker compose --env-file .env -f docker/compose-server.yml -f docker/compose-client.yml up -d --build
+```
 
 ## 기술 스택 (Tech Stack)
 
@@ -96,7 +105,6 @@ pnpm run start:client
 3. 변경 후 테스트 (`pnpm run ci`)
 4. Pull Request 생성
 
-## 라이선스 및 문의 (License)
+## 라이선스 (License)
 
-- License: Private repository (All rights reserved)
-- Contact: Issue 또는 PR 코멘트
+- License: MIT

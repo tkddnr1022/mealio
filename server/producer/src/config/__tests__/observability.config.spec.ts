@@ -62,9 +62,9 @@ describe('createObservabilityConfig', () => {
     expect(config.metricsPort).toBeUndefined();
   });
 
-  it('should require METRICS_PORT for consumer when METRICS_ENABLED=true', () => {
+  it('should require CONSUMER_METRICS_PORT for consumer when METRICS_ENABLED=true', () => {
     process.env.METRICS_ENABLED = 'true';
-    process.env.METRICS_PORT = '9091';
+    process.env.CONSUMER_METRICS_PORT = '9091';
     process.env.SLOW_QUERY_THRESHOLD_MS = '500';
 
     const config = createObservabilityConfig('consumer', {

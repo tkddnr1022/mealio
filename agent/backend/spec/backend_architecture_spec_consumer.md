@@ -132,7 +132,7 @@
 | server/consumer/src/reliability/monitoring/monitoring.module.ts | 모니터링 통합 모듈 |
 | server/consumer/src/reliability/monitoring/consumer-metrics.service.ts | 처리량·에러율·처리 지연 Prometheus 메트릭 |
 | server/consumer/src/reliability/monitoring/consumer-lag.monitor.ts | Kafka lag |
-| server/consumer/src/reliability/monitoring/metrics-exporter.service.ts | 워커용 GET /metrics (METRICS_PORT) |
+| server/consumer/src/reliability/monitoring/metrics-exporter.service.ts | 워커용 GET /metrics (CONSUMER_METRICS_PORT) |
 | server/consumer/src/reliability/monitoring/topic-consumer-group.map.ts | 토픽 → Consumer Group 매핑 상수 (lag 모니터링용) |
 | **server/consumer/src/reliability/dead-letter/** | |
 | server/consumer/src/reliability/dead-letter/dlq.handler.ts | DLQ 처리 |

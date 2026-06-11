@@ -13,7 +13,7 @@ import {
 } from './consumer-metrics.service';
 
 /**
- * Consumer 워커용 Prometheus scrape HTTP 엔드포인트 (METRICS_PORT).
+ * Consumer 워커용 Prometheus scrape HTTP 엔드포인트 (CONSUMER_METRICS_PORT).
  */
 @Injectable()
 export class MetricsExporterService implements OnModuleInit, OnModuleDestroy {

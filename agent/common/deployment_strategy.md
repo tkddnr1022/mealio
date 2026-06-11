@@ -6,13 +6,22 @@ Mealio MVP·초기 프로덕션 배포는 아래 스택으로 **고정**한다.
 
 | 계층 | 플랫폼 | 담당 컴포넌트 |
 |---|---|---|
-| 프론트엔드 | **Vercel** | `client` (Next.js) |
+| 프론트엔드 | **Vercel** 또는 **AWS EC2** (Docker Compose) | `client` (Next.js) — 배포 시 **둘 중 하나 선택** |
 | 백엔드·메시지·관측 | **AWS EC2** (Docker Compose) | `producer`, `consumer`, `Kafka`, `Prometheus`, `Grafana` |
 | 문서 DB | **MongoDB Atlas** | EventLog, ChatbotLog, NoSQL 도메인 |
 | 관계 DB | **Neon** | User, Recipe, Ingredient 등 PostgreSQL (Prisma) |
 | 캐시 | **Upstash** | Redis (세션·캐시·분산 락) |
 
-개발 환경은 Compose로 `mongodb` / `postgres` / `redis` / `kafka` / `kafka-ui` 등 인프라만 로컬에 띄우고, `producer` / `consumer`는 **`compose-app` 없이 호스트에서 기동**한다. 프로덕션 EC2에는 DB·Kafka UI 컨테이너를 **배포하지 않는다**.
+개발 환경은 Compose로 `mongodb` / `postgres` / `redis` / `kafka` / `kafka-ui` 등 인프라만 로컬에 띄우고, `producer` / `consumer`는 **`compose-server` 없이 호스트에서 기동**한다. 프로덕션 EC2에는 DB·Kafka UI 컨테이너를 **배포하지 않는다**.
+
+### 프론트엔드 배포 선택
+
+| 옵션 | 적합한 경우 | Compose / 플랫폼 |
+|---|---|---|
+| **Vercel** (기본 권장) | Preview·ISR·CDN·제로옵스 운영, 트래픽 변동 | Vercel 프로젝트 (`client/`) |
+| **EC2 Docker** | 단일 EC2에 프론트·백엔드 통합, Vercel 미사용 | `docker/compose-client.yml` + Nginx |
+
+두 옵션 모두 `NEXT_PUBLIC_API_BASE_URL`은 EC2 API 도메인을 가리킨다. EC2 Docker 선택 시 `FRONTEND_APP_BASE_URL`(OAuth·CORS)은 Nginx 뒤 클라이언트 URL로 맞춘다.
 
 ### 설계 원칙
 
@@ -24,7 +33,7 @@ Mealio MVP·초기 프로덕션 배포는 아래 스택으로 **고정**한다.
 
 ```mermaid
 flowchart LR
-  subgraph vercel [Vercel]
+  subgraph frontend [Frontend — Vercel or EC2 Docker]
     Client[client]
   end
   subgraph ec2 [AWS EC2]
@@ -35,6 +44,7 @@ flowchart LR
     Prom[Prometheus]
     Graf[Grafana]
     Nginx --> Producer
+    Nginx --> Client
     Producer --> Kafka
     Consumer --> Kafka
     Prom --> Producer
@@ -55,6 +65,8 @@ flowchart LR
   Consumer --> Upstash
 ```
 
+Vercel 배포 시 `Client`는 EC2 외부(Vercel 엣지)에 위치하고 API만 Nginx(또는 API 도메인)로 향한다.
+
 ---
 
 ## 2) 환경별 컴포넌트 배치
@@ -63,8 +75,8 @@ flowchart LR
 
 | 컴포넌트 | 배포 위치 | 비고 |
 |---|---|---|
-| `client` | Vercel | `NEXT_PUBLIC_*` API 베이스 URL → EC2 API 도메인 |
-| `producer`, `consumer` | EC2 | `docker/compose-app.yml` |
+| `client` | **Vercel** 또는 **EC2** | Vercel: Git 연동 · EC2: `docker/compose-client.yml` |
+| `producer`, `consumer` | EC2 | `docker/compose-server.yml` |
 | `Kafka` | EC2 | `docker/compose-kafka.yml` |
 | `Prometheus`, `Grafana` | EC2 | `docker/compose-monitoring.yml` |
 | MongoDB | Atlas | `MONGODB_URL` (TLS, IP allowlist 또는 VPC peering 검토) |
@@ -76,8 +88,9 @@ flowchart LR
 
 | 컴포넌트 | 배포 위치 | 비고 |
 |---|---|---|
-| `producer`, `consumer` | 호스트 | `docker/compose-app.yml` **미기동** |
-| DB·캐시·Kafka·Kafka UI·관측 | Docker Compose | 아래 §4 Compose 표 참고 (`compose-app` 제외) |
+| `producer`, `consumer` | 호스트 | `docker/compose-server.yml` **미기동** |
+| `client` | 호스트 (`pnpm run start:client`) | `CLIENT_PORT` 기본 `4000` |
+| DB·캐시·Kafka·Kafka UI·관측 | Docker Compose | 아래 §4 Compose 표 참고 (`compose-server`·`compose-client` 제외) |
 | DB·캐시 URL | `docker/compose-database.yml` 또는 매니지드 | Atlas/Neon/Upstash URL로 하이브리드 가능 |
 
 ---
@@ -88,13 +101,13 @@ flowchart LR
 
 - 인스턴스: `t4g.medium` (2 vCPU, 4 GiB) + gp3 80~120 GB
 - OS: Ubuntu 22.04 LTS
-- 리버스 프록시: Nginx (80/443), API 라우팅·TLS 종료
+- 리버스 프록시: Nginx (80/443), API·프론트(선택) 라우팅·TLS 종료
 - 오케스트레이션: Docker Compose (역할별 compose 파일)
 
 ### Security Group
 
 - Inbound 허용: `80`, `443`, `22`(관리 IP만)
-- 앱·Kafka·메트릭 포트(`3000`, `9092`, `9090` 등)는 **외부 미노출**, Nginx 또는 localhost 바인딩
+- 앱·Kafka·메트릭 포트(`PRODUCER_PORT`, `9092`, `9090` 등)는 **외부 미노출**, Nginx 또는 localhost 바인딩
 - Atlas / Neon / Upstash는 각 콘솔에서 EC2 egress IP allowlist 또는 공개 엔드포인트 + 자격 증명으로 접근
 
 ### Grafana 접근
@@ -125,17 +138,26 @@ Compose는 **`docker/`** 아래 역할별 파일 분리가 SSOT이다.
 
 | Compose 파일 | 기동 대상 | 프로덕션 | 개발 |
 |---|---|---|---|
-| `docker/compose-app.yml` | `producer`, `consumer` | EC2 | **미기동** |
+| `docker/compose-server.yml` | `producer`, `consumer` | EC2 | **미기동** |
+| `docker/compose-client.yml` | `client` | EC2 (Vercel 미사용 시) | 선택 |
 | `docker/compose-database.yml` | `mongodb`, `postgres`, `redis` | **사용 안 함** | 로컬/CI |
 | `docker/compose-kafka.yml` | `kafka` | EC2 | 로컬/CI |
 | `docker/compose-kafka-ui.yml` | `kafka-ui` | **사용 안 함** | 로컬/CI |
 | `docker/compose-monitoring.yml` | `prometheus`, `grafana` | EC2 | 로컬/CI |
 
-### 프로덕션 EC2
+### 프로덕션 EC2 (백엔드)
 
 ```bash
-docker compose --env-file .env -f docker/compose-app.yml -f docker/compose-kafka.yml -f docker/compose-monitoring.yml up -d
+docker compose --env-file .env -f docker/compose-server.yml -f docker/compose-kafka.yml -f docker/compose-monitoring.yml up -d
 ```
+
+### 프로덕션 EC2 (프론트엔드 — Vercel 대신 Docker 선택 시)
+
+```bash
+docker compose --env-file .env -f docker/compose-client.yml up -d --build
+```
+
+`NEXT_PUBLIC_*`는 **이미지 빌드 시** Dockerfile `ARG`로 주입된다. 값 변경 시 `--build`로 재빌드한다. 런타임 시크릿은 `REVALIDATE_SECRET` 등 서버 전용 env만 compose `environment`로 전달한다.
 
 필수 환경 변수(예시):
 
@@ -143,6 +165,7 @@ docker compose --env-file .env -f docker/compose-app.yml -f docker/compose-kafka
 - `POSTGRESQL_URL` → Neon connection string (pooler URL 권장)
 - `REDIS_URL` → Upstash Redis URL (`rediss://`)
 - `KAFKA_BROKERS` → EC2 내부 Kafka (`kafka:19092` 등 compose 서비스명)
+- `PRODUCER_PORT`, `CONSUMER_METRICS_PORT`, `CLIENT_PORT` — 서비스별 포트 (루트 `.env`에서 이름 충돌 없음)
 - `JWT_SECRET`, OAuth, `OPENAI_API_KEY` 등 앱 시크릿
 
 ### 개발 환경
@@ -191,13 +214,22 @@ docker compose --env-file .env -f docker/compose-database.yml -f docker/compose-
 
 ---
 
-## 6) Vercel (프론트엔드)
+## 6) 프론트엔드 배포
+
+### 옵션 A — Vercel (기본 권장)
 
 - `client` 저장소 루트 또는 `client/` 경로를 Vercel 프로젝트에 연결
 - `FRONTEND_APP_BASE_URL`: Vercel 프로덕션 URL
 - `OAUTH_CALLBACK_BASE_URL` / API 호출: EC2 API 도메인 (`https://api.<domain>`)
 - Preview 배포: Preview URL을 OAuth·CORS allowlist에 등록
-- 환경 변수: `NEXT_PUBLIC_*`만 클라이언트 노출; 시크릿은 서버 전용 env에만 둔다
+- 환경 변수: `client/.env.example`의 `NEXT_PUBLIC_*`·`REVALIDATE_SECRET`; 시크릿은 서버 전용 env에만 둔다
+
+### 옵션 B — EC2 Docker
+
+- `docker/Dockerfile.client` + `docker/compose-client.yml`
+- Nginx가 `CLIENT_PORT` 컨테이너로 프록시; `FRONTEND_APP_BASE_URL`은 공개 HTTPS URL
+- `NEXT_PUBLIC_*`는 build-arg로 이미지에 bake; API URL은 EC2 API 도메인
+- `REVALIDATE_SECRET`: compose 런타임 env
 
 ---
 
@@ -264,6 +296,8 @@ Slack 웹훅(`SLACK_OPS_WEBHOOK_URL` 등)은 선택 연동.
 | Upstash Free / Pay-as-you-go | $0~10 |
 | **합계** | **약 $38~90 / 월** |
 
+EC2 Docker로 프론트를 같이 호스팅하면 Vercel 비용은 $0이지만, 동일 EC2 리소스를 공유한다.
+
 ---
 
 ## 11) 확장 로드맵 (확정 스택 이후)
@@ -272,8 +306,9 @@ Slack 웹훅(`SLACK_OPS_WEBHOOK_URL` 등)은 선택 연동.
 
 ### Phase 1 — 현재 (확정)
 
-- Vercel + EC2(`compose-app` · `compose-kafka` · `compose-monitoring`) + Atlas + Neon + Upstash
-- 개발: Compose 인프라 + 호스트 `producer`/`consumer` (`compose-app` 미기동)
+- 프론트: Vercel **또는** EC2 `compose-client`
+- 백엔드: EC2(`compose-server` · `compose-kafka` · `compose-monitoring`) + Atlas + Neon + Upstash
+- 개발: Compose 인프라 + 호스트 `producer`/`consumer` (`compose-server` 미기동)
 - End-to-End 운영·KPI 검증
 
 ### Phase 2 — 트래픽·안정성
@@ -294,12 +329,13 @@ Slack 웹훅(`SLACK_OPS_WEBHOOK_URL` 등)은 선택 연동.
 
 ## 12) 체크리스트 (프로덕션 최초 기동)
 
-- [ ] Vercel 프로젝트 연결, API·OAuth URL 설정
+- [ ] 프론트: Vercel 연결 **또는** `compose-client` + Nginx 라우팅
+- [ ] API·OAuth URL: `FRONTEND_APP_BASE_URL`, `OAUTH_CALLBACK_BASE_URL`, `NEXT_PUBLIC_API_BASE_URL`
 - [ ] EC2 + Nginx TLS, Security Group
 - [ ] Atlas / Neon / Upstash 프로젝트 생성, EC2 IP allowlist
 - [ ] `.env`: `MONGODB_URL`, `POSTGRESQL_URL`, `REDIS_URL`, `KAFKA_BROKERS`, 시크릿
 - [ ] `prisma migrate deploy` (Neon)
-- [ ] `compose-app` + `compose-kafka` + `compose-monitoring` 기동
+- [ ] `compose-server` + `compose-kafka` + `compose-monitoring` 기동
 - [ ] Prometheus 타겟 UP, Grafana 대시보드·인증
 - [ ] Producer `/health`, 샘플 API·Kafka consume 확인
 - [ ] `recipe-ingestion` cron·Redis 락·로그 확인
