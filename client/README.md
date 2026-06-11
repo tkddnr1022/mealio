@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mealio Client
 
-## Getting Started
+Next.js 기반 프론트엔드 앱
 
-First, run the development server:
+![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=next.js&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 소개
+
+- 레시피 검색·상세·필터, 재료 관리, 챗봇 UI
+- App Router, TanStack Query, Storybook
+- 모노레포 루트 [README.md](../README.md)의 설치·인프라 절차를 먼저 따릅니다.
+
+## 폴더 구조
+
+```text
+client/
+├─ src/app/           # App Router 페이지·Route Handler
+├─ src/components/    # UI·도메인 컴포넌트
+├─ src/lib/           # API·설정·쿼리·유틸
+├─ scripts/           # Next 실행 스크립트
+└─ .env.example
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Configuration
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cp .env.example .env          # 호스트 개발
+cp .env.example .env.docker   # Docker Compose
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| 변수 | 설명 | 기본값(예시) |
+| --- | --- | --- |
+| `NODE_ENV` | 실행 환경 | `development` |
+| `CLIENT_PORT` | 개발·프로덕션 서버 포트 | `4000` |
+| `INTERNAL_API_BASE_URL` | SSR·Route Handler 전용 내부 API URL (비우면 `NEXT_PUBLIC_API_BASE_URL` 사용) | (비움) |
+| `NEXT_PUBLIC_API_BASE_URL` | 브라우저·CSR용 백엔드 API base URL (비우면 same-origin) | (비움) |
+| `NEXT_PUBLIC_API_PREFIX` | REST API prefix | `/api/v1` |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | GA4 Measurement ID | (비움) |
+| `NEXT_PUBLIC_SENTRY_ENABLED` | Sentry 활성화 (`true` / `false`) | (비움) |
+| `NEXT_PUBLIC_SENTRY_DSN` | Sentry 브라우저 DSN | (비움) |
+| `NEXT_PUBLIC_SITE_URL` | 메타·OG용 사이트 URL | (비움) |
+| `REVALIDATE_SECRET` | `/api/revalidate` ISR 재검증 시크릿 | (비움) |
 
-## Learn More
+## 사용 방법
 
-To learn more about Next.js, take a look at the following resources:
+모노레포 루트에서 실행합니다.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm run start:client
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+pnpm run build:client
+pnpm run start:storybook
+```
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+기본 접속: `http://localhost:4000`
