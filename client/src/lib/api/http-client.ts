@@ -1,4 +1,4 @@
-import { env } from '@/lib/config/env';
+import { resolveApiBaseUrl } from '@/lib/config/env';
 import {
   API_REQUEST_TIMEOUT_MS,
   API_RETRY_POLICY,
@@ -33,8 +33,9 @@ import { buildQueryString, type Query } from './query';
  * - `retry`: GET에 한해 idempotent 정책({@link API_RETRY_POLICY})을 기본 적용.
  *   비-GET(POST/PUT/PATCH/DELETE)은 기본 off — 부작용 이중 실행 방지.
  *
- * base URL은 `@/lib/config/env`의 `env.apiBaseUrl`을 단일 원천으로 사용한다.
- * 설정되지 않은 경우 빈 문자열(same-origin, 예: Next.js 리라이트·로컬 개발)을 사용한다.
+ * base URL은 `@/lib/config/env`의 {@link resolveApiBaseUrl}을 단일 원천으로 사용한다.
+ * SSR은 `INTERNAL_API_BASE_URL`, CSR은 `NEXT_PUBLIC_API_BASE_URL`을 우선한다.
+ * 둘 다 비어 있으면 same-origin(`''`, Next.js 리라이트·로컬 개발)을 사용한다.
  *
  * 의존성 주입:
  * - 앱 전역 기본 인스턴스 `httpClient`를 노출한다.
@@ -108,7 +109,7 @@ export class HttpClient {
   private refreshInFlight: Promise<boolean> | null = null;
 
   constructor(config: HttpClientConfig = {}) {
-    this.baseUrl = stripTrailingSlash(config.baseUrl ?? env.apiBaseUrl);
+    this.baseUrl = stripTrailingSlash(config.baseUrl ?? resolveApiBaseUrl());
     this.generateCorrelationId =
       config.generateCorrelationId ?? defaultCorrelationIdGenerator;
     this.defaultTimeoutMs = config.defaultTimeoutMs ?? API_REQUEST_TIMEOUT_MS;

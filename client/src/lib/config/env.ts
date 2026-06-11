@@ -2,7 +2,8 @@
  * 프론트엔드 런타임·빌드 타임 환경 변수 로드·검증.
  *
  * Next.js는 브라우저에 노출할 값만 `NEXT_PUBLIC_*` 접두어로 빌드 타임에 인라이닝하므로,
- * 본 모듈의 앱 설정값은 `NEXT_PUBLIC_*`를 사용한다(`NODE_ENV`는 런타임 판별용 예외).
+ * 공개 앱 설정은 `NEXT_PUBLIC_*`를 사용한다. SSR 전용 내부 API URL은
+ * `INTERNAL_API_BASE_URL`(서버 런타임만)로 분리한다(`NODE_ENV`는 런타임 판별용 예외).
  *
  * - 외부 의존성을 더하지 않기 위해 Zod 대신 수동 파서를 사용한다.
  * - 모든 값은 모듈 로드 시 한 번만 평가되어 불변 객체 {@link env}로 노출된다.
@@ -25,10 +26,16 @@ export interface AppEnv {
   /** development 모드 여부 (편의 플래그) */
   readonly isDevelopment: boolean;
   /**
-   * 백엔드 API base URL. 비어 있으면 same-origin(`''`)으로 동작한다.
+   * 백엔드 API base URL (브라우저·CSR). 비어 있으면 same-origin(`''`)으로 동작한다.
    * 예: `https://api.cook.example.com`
    */
   readonly apiBaseUrl: string;
+  /**
+   * SSR·Route Handler 전용 내부 API base URL. 서버 런타임 env(`INTERNAL_API_BASE_URL`)만 읽는다.
+   * Docker 등에서 컨테이너 루프백·서비스 DNS로 producer에 직접 붙을 때 사용한다.
+   * 비어 있으면 {@link apiBaseUrl}로 대체된다.
+   */
+  readonly internalApiBaseUrl: string;
   /**
    * 백엔드 REST API prefix.
    * 기본값: `/api/v1`
@@ -59,6 +66,7 @@ export interface AppEnv {
 
 const DEFAULTS = {
   apiBaseUrl: '',
+  internalApiBaseUrl: '',
   apiPrefix: '/api/v1',
   sentryDsn: '',
   gaMeasurementId: '',
@@ -98,6 +106,15 @@ function parseRuntime(): RuntimeEnv {
 function parseApiBaseUrl(): string {
   const raw = readRaw('NEXT_PUBLIC_API_BASE_URL');
   return parseHttpUrl('NEXT_PUBLIC_API_BASE_URL', raw, {
+    allowEmpty: true,
+    trimTrailingSlash: true,
+  });
+}
+
+function parseInternalApiBaseUrl(): string {
+  const raw = process.env.INTERNAL_API_BASE_URL?.trim();
+  if (!raw) return DEFAULTS.internalApiBaseUrl;
+  return parseHttpUrl('INTERNAL_API_BASE_URL', raw, {
     allowEmpty: true,
     trimTrailingSlash: true,
   });
@@ -167,7 +184,10 @@ function parseVercelHost(): string {
 }
 
 function parseHttpUrl(
-  envName: 'NEXT_PUBLIC_API_BASE_URL' | 'NEXT_PUBLIC_SITE_URL',
+  envName:
+    | 'NEXT_PUBLIC_API_BASE_URL'
+    | 'INTERNAL_API_BASE_URL'
+    | 'NEXT_PUBLIC_SITE_URL',
   raw: string | undefined,
   options: { allowEmpty: boolean; trimTrailingSlash: boolean },
 ): string {
@@ -235,6 +255,12 @@ function buildEnv(): AppEnv {
     errors,
     runtime,
   );
+  const internalApiBaseUrl = safeParse(
+    parseInternalApiBaseUrl,
+    DEFAULTS.internalApiBaseUrl,
+    errors,
+    runtime,
+  );
   const apiPrefix = safeParse(
     parseApiPrefix,
     DEFAULTS.apiPrefix,
@@ -261,6 +287,7 @@ function buildEnv(): AppEnv {
     isProduction: runtime === 'production',
     isDevelopment: runtime === 'development',
     apiBaseUrl,
+    internalApiBaseUrl,
     apiPrefix,
     sentryDsn,
     gaMeasurementId,
@@ -271,6 +298,19 @@ function buildEnv(): AppEnv {
 }
 
 export const env: AppEnv = buildEnv();
+
+/**
+ * 현재 런타임(서버/브라우저)에 맞는 API base URL을 반환한다.
+ *
+ * - **서버(SSR·Route Handler)**: `INTERNAL_API_BASE_URL` → `NEXT_PUBLIC_API_BASE_URL` 순으로 사용.
+ * - **브라우저(CSR)**: `NEXT_PUBLIC_API_BASE_URL`만 사용(내부 URL은 노출·인라이닝하지 않음).
+ */
+export function resolveApiBaseUrl(): string {
+  if (typeof window === 'undefined') {
+    return env.internalApiBaseUrl || env.apiBaseUrl;
+  }
+  return env.apiBaseUrl;
+}
 
 /**
  * 수집된 환경 변수 검증 오류 배열을 반환한다.

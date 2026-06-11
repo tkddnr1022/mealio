@@ -27,6 +27,7 @@ services:
       NODE_ENV: ${NODE_ENV:?NODE_ENV is required}
       PORT: ${CLIENT_PORT:?CLIENT_PORT is required}
       HOSTNAME: 0.0.0.0
+      INTERNAL_API_BASE_URL: ${INTERNAL_API_BASE_URL:?INTERNAL_API_BASE_URL is required}
       REVALIDATE_SECRET: ${REVALIDATE_SECRET:?REVALIDATE_SECRET is required}
     networks:
       - mealio-net

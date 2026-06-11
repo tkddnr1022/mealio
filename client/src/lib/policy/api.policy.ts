@@ -1,7 +1,7 @@
 /**
  * API·SSE 호출 정책.
  *
- * base URL은 {@link env.apiBaseUrl}(`@/lib/config/env`)을 사용한다.
+ * base URL은 {@link resolveApiBaseUrl}(`@/lib/config/env`)을 사용한다.
  * 소비처: `http-client.ts`, `sse-client.ts` 등.
  */
 

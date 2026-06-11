@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
-import { env } from '@/lib/config/env';
+import { resolveApiBaseUrl } from '@/lib/config/env';
 import { NEXT_QUERY_PARAM, buildLoginUrl } from '@/lib/auth/routes';
 
 function resolveRefreshUrl(request: NextRequest): string {
-  if (env.apiBaseUrl) {
-    return `${env.apiBaseUrl}${API_ENDPOINTS.auth.refresh}`;
+  const apiBaseUrl = resolveApiBaseUrl();
+  if (apiBaseUrl) {
+    return `${apiBaseUrl}${API_ENDPOINTS.auth.refresh}`;
   }
   return new URL(API_ENDPOINTS.auth.refresh, request.nextUrl.origin).toString();
 }
