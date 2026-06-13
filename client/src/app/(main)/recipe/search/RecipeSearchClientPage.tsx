@@ -36,6 +36,10 @@ import { useMyFavoriteRecipeIds } from '@/lib/queries/inventory.queries';
 import { recordRecipeSearchClick, recordRecipeSearchQuery } from '@/lib/api/domains';
 import { useRecipeSearchInfinite } from '@/lib/queries/recipe.queries';
 import {
+  hasSentSearchClick,
+  markSearchClickSent,
+} from './recipe-search-click-tracking';
+import {
   hasSentSearchQuery,
   markSearchQuerySent,
 } from './recipe-search-query-tracking';
@@ -238,6 +242,19 @@ export function RecipeSearchClientPage({
     }
   };
 
+  const handleRecipeClick = (recipe: RecipeSummary) => {
+    try {
+      if (hasSentSearchClick(window.sessionStorage, recipe.id)) {
+        return;
+      }
+      markSearchClickSent(window.sessionStorage, recipe.id);
+    } catch {
+      // sessionStorage 접근 불가 환경에서는 서버 dedupe 정책에 위임한다.
+    }
+
+    void recordRecipeSearchClick(recipe.id);
+  };
+
   return (
     <div className="flex h-full min-h-0 flex-col bg-background-primary">
       <Navbar
@@ -280,9 +297,7 @@ export function RecipeSearchClientPage({
           <>
             <RecipeList
               recipes={recipes}
-              onRecipeClick={(recipe) => {
-                void recordRecipeSearchClick(recipe.id);
-              }}
+              onRecipeClick={handleRecipeClick}
               favoriteButtonRenderer={(recipe) => (
                 <RecipeFavoriteButton
                   recipeId={recipe.id}
