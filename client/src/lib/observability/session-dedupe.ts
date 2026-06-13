@@ -4,7 +4,10 @@ const SESSION_DEDUPE_SENT_VALUE = '1' as const;
  * 세션당 한 번만 `action`을 실행한다.
  * sessionStorage 접근이 불가하면 서버 dedupe 정책에 위임하기 위해 항상 `action`을 호출한다.
  */
-export function runOncePerSession(sessionKey: string, action: () => void): void {
+export function runOncePerSession(
+  sessionKey: string,
+  action: () => void,
+): void {
   if (typeof window === 'undefined') return;
 
   try {

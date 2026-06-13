@@ -33,7 +33,10 @@ import {
 } from '@/components/recipe/utils/recipe-search-filters';
 import { useIsAuthenticated } from '@/lib/auth/auth-context';
 import { useMyFavoriteRecipeIds } from '@/lib/queries/inventory.queries';
-import { recordRecipeSearchClick, recordRecipeSearchQuery } from '@/lib/api/domains';
+import {
+  recordRecipeSearchClick,
+  recordRecipeSearchQuery,
+} from '@/lib/api/domains';
 import {
   RECIPE_SESSION_TRACKING_KEY_PREFIX,
   SEARCH_QUERY_NO_KEYWORD,

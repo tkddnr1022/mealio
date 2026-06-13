@@ -22,9 +22,7 @@ import {
   AnalyticsEvents,
 } from '@/lib/observability/analytics-events';
 import { trackEvent } from '@/lib/observability/analytics';
-import {
-  RECIPE_SESSION_TRACKING_KEY_PREFIX,
-} from '@/lib/constants/session-dedupe.constants';
+import { RECIPE_SESSION_TRACKING_KEY_PREFIX } from '@/lib/constants/session-dedupe.constants';
 import { runOncePerSession } from '@/lib/observability/session-dedupe';
 import {
   toRecipeCookingTimeLabel,

@@ -54,11 +54,7 @@ function renderAuthProvider(): { root: Root; queryClient: QueryClient } {
       createElement(
         QueryClientProvider,
         { client: queryClient },
-        createElement(
-          AuthProvider,
-          null,
-          createElement(AuthProbe),
-        ),
+        createElement(AuthProvider, null, createElement(AuthProbe)),
       ),
     );
   });

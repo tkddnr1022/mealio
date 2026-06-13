@@ -18,9 +18,7 @@ export function notifyAuthSessionCleared(): void {
 }
 
 /** 세션 정리 신호를 구독한다. 반환값은 구독 해제 함수. */
-export function subscribeAuthSessionCleared(
-  listener: () => void,
-): () => void {
+export function subscribeAuthSessionCleared(listener: () => void): () => void {
   if (typeof window === 'undefined') return () => undefined;
   window.addEventListener(AUTH_SESSION_CLEARED_EVENT, listener);
   return () => window.removeEventListener(AUTH_SESSION_CLEARED_EVENT, listener);

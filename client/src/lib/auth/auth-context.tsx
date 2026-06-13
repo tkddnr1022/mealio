@@ -29,9 +29,7 @@ import { QUERY_CACHE } from '@/lib/policy/cache.policy';
 import { useCurrentUser, userQueries } from '@/lib/queries/user.queries';
 import { logger } from '@/lib/utils/logger';
 
-import {
-  subscribeAuthSessionCleared,
-} from './auth-session';
+import { subscribeAuthSessionCleared } from './auth-session';
 import { AuthStatus } from './auth-status';
 import {
   readPersistedAuthStatus,
@@ -151,9 +149,7 @@ export function AuthProvider({
   }, [queryClient, setStatus]);
 
   const user =
-    sessionStatus === AuthStatus.Unauthenticated
-      ? null
-      : (query.data ?? null);
+    sessionStatus === AuthStatus.Unauthenticated ? null : (query.data ?? null);
 
   const value = useMemo<AuthContextValue>(
     () => ({
