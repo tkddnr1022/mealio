@@ -25,18 +25,6 @@ export function MypageClientPage() {
   const { status, user } = useAuth();
   const loginHref = buildLoginUrl('/mypage');
 
-  if (status === AuthStatus.Loading) {
-    return (
-      <div className="flex h-full min-h-0 w-full flex-col bg-background-primary">
-        <Navbar />
-        <MainContent centered innerClassName="gap-4">
-          <p className="typo-body-regular style-text-secondary">불러오는 중…</p>
-        </MainContent>
-        <Tabbar activeId="mypage" />
-      </div>
-    );
-  }
-
   const loggedIn = status === AuthStatus.Authenticated && user != null;
   const nickname = user?.nickname;
   const email = user?.email;
