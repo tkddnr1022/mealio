@@ -13,8 +13,8 @@ import { AuthRefreshSessionRepository } from '../../infrastructure/database/repo
 import { KafkaProducerService } from '../../infrastructure/kafka/producer.service';
 import { OAuthProfile } from './types/oauth.types';
 import {
-  FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH,
   FRONTEND_OAUTH_ERROR_PATH,
+  FRONTEND_OAUTH_SUCCESS_CALLBACK_PATH,
 } from '../../constants/auth.constants';
 import {
   ACCESS_TOKEN_TTL_SECONDS,
@@ -95,12 +95,19 @@ export class AuthService {
   }
 
   /**
-   * OAuth 성공 후 302 목적지: 검증된 `next` 상대 경로 또는 기본 성공 경로.
+   * OAuth 성공 후 302 목적지: `/oauth/callback`(검증된 `next`가 있으면 `?next=` 포함).
+   * 기본 `next`는 프론트 콜백 페이지가 결정한다.
    */
   buildLoginSuccessRedirectUrl(safeNext: string | null): string {
     const base = this.getFrontendAppBaseUrl();
-    const path = safeNext ?? FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH;
-    return new URL(path, `${base}/`).toString();
+    const callbackUrl = new URL(
+      FRONTEND_OAUTH_SUCCESS_CALLBACK_PATH,
+      `${base}/`,
+    );
+    if (safeNext) {
+      callbackUrl.searchParams.set(OAUTH_FAILURE_QUERY_KEYS.next, safeNext);
+    }
+    return callbackUrl.toString();
   }
 
   /**

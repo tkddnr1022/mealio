@@ -35,13 +35,13 @@
 |------|------|
 | **Method / Path** | `GET /api/v1/auth/{provider}/callback` |
 | **Query** | 성공 시 `code`(필수), `state`(선택). 실패 시 `error`, `error_description` 가능 |
-| **동작(성공)** | 1) Authorization Code로 OAuth Token 요청 2) OAuth Token으로 사용자 정보 요청 3) 사용자 생성/조회 4) 자체 JWT 발급 5) **302 Redirect** to `FRONTEND_APP_BASE_URL` + 검증된 `next` 상대 경로(없으면 `FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH`) + **Set-Cookie**로 `accessToken`/`refreshToken` 전달 (HttpOnly, Secure, SameSite=Lax, Path=/) |
+| **동작(성공)** | 1) Authorization Code로 OAuth Token 요청 2) OAuth Token으로 사용자 정보 요청 3) 사용자 생성/조회 4) 자체 JWT 발급 5) **302 Redirect** to `FRONTEND_APP_BASE_URL` + `FRONTEND_OAUTH_SUCCESS_CALLBACK_PATH`(검증된 `next`가 있으면 `?next=` 포함) + **Set-Cookie**로 `accessToken`/`refreshToken` 전달 (HttpOnly, Secure, SameSite=Lax, Path=/) |
 | **동작(실패)** | OAuth 실패를 `FRONTEND_APP_BASE_URL` + `FRONTEND_OAUTH_ERROR_PATH`로 **302 Redirect**하고 쿼리로 `errorCode`, `errorMessage`, optional `next`(안전한 경로만)를 전달 |
 
 - 프론트로 돌아갈 URL은 **베이스 + 경로**로 나눈다.
   - `FRONTEND_APP_BASE_URL`: 프론트 앱 오리진(예: `https://app.example.com`). CORS 허용 오리진 계산에도 사용한다.
   - `FRONTEND_OAUTH_ERROR_PATH`: 실패 시 붙일 경로(예: `/oauth/error`, 반드시 `/`로 시작).
-  - `FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH`: 성공 시 `next`가 없거나 검증 실패 시 이동할 상대 경로(예: `/recipe`).
+  - `FRONTEND_OAUTH_SUCCESS_CALLBACK_PATH`: 성공 시 붙일 프론트 콜백 경로(예: `/oauth/callback`). 클라이언트가 AuthStatus 마킹 후 `next`(없으면 프론트 기본 경로)로 이동한다.
 - `next` 검증(상대 경로만, `//` 금지 등)은 **백엔드**에서만 수행한다. 클라이언트는 진입 시 `next`를 그대로 넘길 수 있으며, 서버의 `buildOAuthState`·`resolveSafeNextPath`가 근거다.
 
 ### 2.3 토큰 갱신 (Refresh)

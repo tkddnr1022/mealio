@@ -274,6 +274,6 @@ const RecipeEditor = dynamic(
 
 ### 10.1 OAuth·로그인 리다이렉트
 
-- **성공·실패 목적지**는 백엔드가 나눈다: 성공은 검증된 `next`(또는 기본 성공 경로)로 **직접 302**, 실패는 오류 전용 프론트 경로로 302. 세부는 백엔드 가이드·OpenAPI를 본다.
+- **성공·실패 목적지**는 백엔드가 나눈다: 성공은 `/oauth/callback?next=`(클라이언트 AuthStatus 마킹 후 `next`로 `replace`), 실패는 오류 전용 프론트 경로로 302. 세부는 백엔드 가이드·OpenAPI를 본다.
 - **`next` 안전 검증**(오픈 리다이렉트 방지)은 **백엔드**가 담당한다. 프론트는 계약에 맞는 진입·표시만 한다.
 - OAuth 성공 시 백엔드가 `accessToken`(JWT)·`refreshToken`(opaque) HttpOnly 쿠키를 함께 설정한다.

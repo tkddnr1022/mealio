@@ -5,4 +5,5 @@
  * Client `(auth)/oauth/error` 라우트·OpenAPI OAuth 계약과 정렬한다.
  */
 export const FRONTEND_OAUTH_ERROR_PATH = '/oauth/error' as const;
-export const FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH = '/recipe' as const;
+/** OAuth 성공 후 Set-Cookie와 함께 리다이렉트할 프론트 콜백(클라이언트 state 마킹). */
+export const FRONTEND_OAUTH_SUCCESS_CALLBACK_PATH = '/oauth/callback' as const;

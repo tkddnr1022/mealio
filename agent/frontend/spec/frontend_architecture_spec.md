@@ -27,7 +27,8 @@
 | ------------- | -------- | ------------------------------ | ------ | ---- |
 | **(루트)** | `/` | `page.tsx` | SSR | `redirect('/recipe')`만 수행. 별도 랜딩 UI 없음 |
 | **(auth)** | `/login` | `(auth)/login/page.tsx` | CSR | 로그인 |
-| (auth) | `/oauth/error` | `(auth)/oauth/error/page.tsx` | CSR | OAuth **실패** 시 백엔드가 `FRONTEND_OAUTH_ERROR_PATH`로 302. 쿼리: `errorCode`/`errorMessage` 또는 OAuth 표준 `error`/`error_description`, 선택 `next`. `InfoScreen`·로그인 복귀 링크. **성공** 시 백엔드가 `next` 또는 기본 성공 경로로 직접 302하며 이 페이지를 거치지 않음 |
+| (auth) | `/oauth/callback` | `(auth)/oauth/callback/page.tsx` | CSR | OAuth **성공** 시 백엔드가 `FRONTEND_OAUTH_SUCCESS_CALLBACK_PATH`로 302(`Set-Cookie` + `?next=`). `AuthContext.refresh()`로 Authenticated 마킹·`/me` 재조회 후 `next`(없으면 `/recipe`)로 `replace` |
+| (auth) | `/oauth/error` | `(auth)/oauth/error/page.tsx` | CSR | OAuth **실패** 시 백엔드가 `FRONTEND_OAUTH_ERROR_PATH`로 302. 쿼리: `errorCode`/`errorMessage` 또는 OAuth 표준 `error`/`error_description`, 선택 `next`. `InfoScreen`·로그인 복귀 링크 |
 | **(main)** | — | — | — | 라우트 그룹. **전용 `layout.tsx`는 없음** — 하단 탭·`Navbar` 등은 각 `page.tsx`에서 `Tabbar`·레이아웃 컴포넌트로 조합 (`layout.tsx`는 루트 `layout.tsx`만 존재) |
 | (main) · 레시피 탭 | `/recipe` | `(main)/recipe/page.tsx` | ISR + CSR 조합 | `revalidate = 300`. 레시피 메인(공개 섹션 ISR + 개인화 추천 섹션 CSR) |
 | (main) · 레시피 탭 | `/recipe/filter` | `(main)/recipe/filter/page.tsx` | ISR | `revalidate = 300`. 레시피 카테고리·필터 UI |
@@ -53,6 +54,7 @@
 | 라우트 디렉터리 | 클라이언트 페이지 파일 |
 |----------------|----------------------|
 | `(auth)/login/` | `LoginClientPage.tsx` |
+| `(auth)/oauth/callback/` | `OAuthCallbackClientPage.tsx` |
 | `(auth)/oauth/error/` | `OAuthErrorClientPage.tsx` |
 | `(main)/recipe/` | `RecipeMainClientPage.tsx` |
 | `(main)/recipe/search/` | `RecipeSearchClientPage.tsx` |
@@ -80,7 +82,7 @@
 | 그룹 | 역할 | 하위 URL/경로 |
 | ---- | ---- | -------------- |
 | (루트) | 진입 리다이렉트 | `/` → `/recipe` |
-| (auth) | 인증 (로그인·OAuth 실패 안내) | `/login`, `/oauth/error` |
+| (auth) | 인증 (로그인·OAuth 성공/실패 안내) | `/login`, `/oauth/callback`, `/oauth/error` |
 | (main) | 앱 본체 (하단 탭 네비게이션) | `/recipe`·하위, `/ingredient`·하위, `/chatbot`·하위, `/inventory`·하위, `/mypage` |
 | (루트) | 앱 전역 에러·404 | `not-found.tsx`, `error.tsx`, `global-error.tsx` (`client/src/app/` 직속, URL 없음) |
 
@@ -95,7 +97,8 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 | 경로 | 렌더링 | 설명 | 주요 기능 |
 |------|--------|------|-----------|
 | `/login` | CSR | 로그인 | OAuth: 소셜 로그인 버튼이 백엔드 `GET /api/v1/auth/{provider}`(또는 동일 계약)로 이동. URL에 `?next=`가 있으면 진입 링크에 전달; **안전 여부는 백엔드**가 `resolveSafeNextPath`로 검증. Provider 설정은 백엔드에만 둠. 이메일 로그인(해당 시) |
-| `/oauth/error` | CSR | OAuth 실패 안내 | 백엔드가 `FRONTEND_OAUTH_ERROR_PATH`로 302. `errorCode`/`errorMessage` 또는 `error`/`error_description`, 선택 `next` → `InfoScreen`, `로그인으로 돌아가기`에 `next` 유지. **성공** 플로우는 백엔드가 `accessToken`/`refreshToken` `Set-Cookie` 후 최종 앱 경로로 직접 302 |
+| `/oauth/callback` | CSR | OAuth 성공 콜백 | 백엔드가 `FRONTEND_OAUTH_SUCCESS_CALLBACK_PATH`로 302(`Set-Cookie` + `?next=`). `useAuth().refresh()`로 Authenticated 마킹·`/me` 재조회 후 `next`(없으면 `/recipe`)로 `replace` |
+| `/oauth/error` | CSR | OAuth 실패 안내 | 백엔드가 `FRONTEND_OAUTH_ERROR_PATH`로 302. `errorCode`/`errorMessage` 또는 `error`/`error_description`, 선택 `next` → `InfoScreen`, `로그인으로 돌아가기`에 `next` 유지 |
 
 회원가입 `/signup`은 명세·OpenAPI에 따라 추가될 수 있으나, 현재 `client/src/app`에는 해당 `page.tsx`가 없다.
 
@@ -215,7 +218,7 @@ OAuth는 **백엔드 주도** 흐름을 따른다(§3.1, `../../backend/guidelin
 |------|------|
 | **client/src/lib/auth/** | 인증 상태·세션·보호 라우트 |
 | client/src/lib/auth/providers.ts | OAuth Provider 식별자 상수(`google` \| `kakao` \| `naver`), 진입 URL 빌드(`buildOAuthEntryUrl`, 비어 있지 않은 `next`면 `?next=` — 검증은 백엔드) |
-| client/src/lib/auth/routes.ts | 보호 경로·`LOGIN_PATH`, `NEXT_QUERY_PARAM`, `SESSION_EXPIRED_QUERY_PARAM`, `SSR_REFRESH_BRIDGE_PATH`, `SSR_REFRESH_GUARD_QUERY_PARAM`, `buildLoginUrl`, `buildSsrRefreshBridgeUrl` |
+| client/src/lib/auth/routes.ts | 보호 경로·`LOGIN_PATH`, `OAUTH_CALLBACK_PATH`, `DEFAULT_POST_LOGIN_PATH`, `NEXT_QUERY_PARAM`, `SESSION_EXPIRED_QUERY_PARAM`, `SSR_REFRESH_BRIDGE_PATH`, `SSR_REFRESH_GUARD_QUERY_PARAM`, `buildLoginUrl`, `buildSsrRefreshBridgeUrl`, `resolveSafeNextPath` |
 | client/src/lib/auth/session.ts | access/refresh 쿠키 이름 re-export(`@/lib/constants/auth.constants`) 및 `fetchCurrentUser` re-export |
 | client/src/lib/auth/session.server.ts | `'server-only'`. `hasAuthCookie()`(refresh 쿠키 존재), `getServerSession()`(`GET /api/v1/users/me`, 401→`null`) |
 | client/src/lib/auth/session.client.ts | CSR 전용 세션 유틸. 클라이언트에서 현재 유저 조회·캐시 연동 |

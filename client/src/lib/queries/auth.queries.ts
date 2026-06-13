@@ -13,6 +13,7 @@ import {
 } from '@tanstack/react-query';
 
 import { logout } from '@/lib/api/domains';
+import { notifyAuthSessionCleared } from '@/lib/auth/auth-session';
 
 import { userQueries } from '@/lib/queries/user.queries';
 
@@ -35,7 +36,8 @@ export function useLogoutMutation(
       ...metaOption,
     },
     onSettled: (...args) => {
-      void queryClient.invalidateQueries({ queryKey: userQueries.me() });
+      notifyAuthSessionCleared();
+      queryClient.setQueryData(userQueries.me(), null);
       void onSettled?.(...args);
     },
   });

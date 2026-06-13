@@ -5,6 +5,7 @@ import {
   type ApiRetryPolicy,
 } from '@/lib/policy/api.policy';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
+import { notifyAuthSessionCleared } from '@/lib/auth/auth-session';
 
 import {
   CORRELATION_ID_HEADER,
@@ -231,6 +232,7 @@ export class HttpClient {
               attempt -= 1;
               continue;
             }
+            notifyAuthSessionCleared();
           }
           const apiError = await parseErrorResponse(response, correlationId);
           if (

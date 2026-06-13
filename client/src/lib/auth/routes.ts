@@ -28,9 +28,15 @@ export const PROTECTED_PATH_PREFIXES: readonly string[] = [
 /** 비인증 리다이렉트 목적지 */
 export const LOGIN_PATH = '/login';
 
+/** OAuth 성공 후 백엔드가 리다이렉트하는 콜백 경로(클라이언트 AuthStatus 마킹). */
+export const OAUTH_CALLBACK_PATH = '/oauth/callback';
+
+/** OAuth 성공 후 `next`가 없을 때 기본 목적지 (프론트 SSOT). */
+export const DEFAULT_POST_LOGIN_PATH = '/recipe';
+
 /** 로그인 후 복귀할 원래 경로를 담는 쿼리 파라미터 이름 */
 export const NEXT_QUERY_PARAM = 'next';
-/** 세션 만료 플래그 쿼리 키 */
+/** 세션 만료 플래그 쿼리 키 (`sessionExpired=1`) */
 export const SESSION_EXPIRED_QUERY_PARAM = 'sessionExpired';
 /** SSR 토큰 갱신 브리지 경로 */
 export const SSR_REFRESH_BRIDGE_PATH = '/api/auth/refresh-bridge';
@@ -52,6 +58,21 @@ export function isProtectedPath(pathname: string): boolean {
   return PROTECTED_PATH_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
+}
+
+/**
+ * 오픈 리다이렉트 방지를 위해 안전한 next 경로만 허용한다.
+ * - `/`로 시작
+ * - `//`로 시작하지 않음
+ */
+export function resolveSafeNextPath(
+  raw: string | null | undefined,
+  fallback: string = DEFAULT_POST_LOGIN_PATH,
+): string {
+  if (!raw) return fallback;
+  const trimmed = raw.trim();
+  if (!trimmed.startsWith('/') || trimmed.startsWith('//')) return fallback;
+  return trimmed;
 }
 
 /**

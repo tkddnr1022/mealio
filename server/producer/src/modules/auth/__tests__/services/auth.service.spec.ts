@@ -150,4 +150,13 @@ describe('AuthService', () => {
       '/stored',
     );
   });
+
+  it('buildLoginSuccessRedirectUrl은 /oauth/callback?next= 로 리다이렉트한다', () => {
+    expect(service.buildLoginSuccessRedirectUrl('/mypage')).toBe(
+      'http://localhost:4000/oauth/callback?next=%2Fmypage',
+    );
+    expect(service.buildLoginSuccessRedirectUrl(null)).toBe(
+      'http://localhost:4000/oauth/callback',
+    );
+  });
 });

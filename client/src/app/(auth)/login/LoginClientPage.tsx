@@ -12,6 +12,7 @@ import {
 } from '@/lib/auth/routes';
 import { notifyApiError } from '@/lib/toast';
 import { ApiError } from '@/lib/api/error';
+import { notifyAuthSessionCleared } from '@/lib/auth/auth-session';
 
 function LoginPageContent() {
   const searchParams = useSearchParams();
@@ -22,6 +23,7 @@ function LoginPageContent() {
 
   useEffect(() => {
     if (isSessionExpired) {
+      notifyAuthSessionCleared();
       notifyApiError(
         new ApiError({
           status: 401,

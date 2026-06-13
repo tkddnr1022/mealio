@@ -3,12 +3,15 @@
 /**
  * 클라이언트 전역 인증 상태 Provider.
  *
- * - 상태 SSOT은 **React Query 캐시**(`userQueries.me`)이며, 본 Provider는 그 위의 얇은
- *   어댑터다: 상태 관리(useState/useEffect)를 별도로 두지 않아 중복 소스를 제거한다.
- * - `GET /api/v1/users/me`를 `fetchCurrentUser`로 호출하며 비로그인(401)은 `null`로 정규화된다.
- * - 초기 유저(`initialUser`)를 주입하면 서버 컴포넌트에서 미리 조회한 세션을
- *   `initialData`로 하이드레이션해 깜빡임을 줄인다.
- * - `loginWithProvider`는 백엔드 OAuth 진입 URL로 브라우저를 이동시킨다(리다이렉트 기반 플로우).
+ * - `AuthStatus`는 localStorage(`status` 키)에 영속화되며, `Loading`은 비영속·파생 상태다.
+ * - SSR·hydration 첫 렌더는 localStorage를 읽지 않고 `Unauthenticated`(또는 `initialUser` 시 Authenticated)로 맞춘다.
+ * - mount 후 useEffect에서 localStorage의 `Authenticated`를 복원한다.
+ * - `Unauthenticated`·localStorage 미설정(`null`)일 때는 `/me`를 호출하지 않는다.
+ * - `Authenticated`(로그인 직후·localStorage 복원)에서만 `/me`를 fetch한다.
+ * - 노출 `status`의 `Loading`은 `Authenticated` + 프로필 bootstrap 중(`query.isPending`)일 때만 파생된다.
+ * - 유저 데이터 SSOT는 React Query 캐시(`userQueries.me`)이며, 본 Provider는 status·캐시를 동기화한다.
+ * - OAuth 성공 후 `/oauth/callback`에서 `refresh()`로 Authenticated 마킹·`/me` 재조회 후 `next`로 이동한다.
+ * - refresh 실패·로그아웃·SSR refresh 실패(`sessionExpired=1`)는 `auth-session` 브리지로 수렴한다.
  */
 
 import { useQueryClient } from '@tanstack/react-query';
@@ -16,36 +19,45 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useState,
   type ReactNode,
 } from 'react';
 
+import { QUERY_CACHE } from '@/lib/policy/cache.policy';
 import { useCurrentUser, userQueries } from '@/lib/queries/user.queries';
 import { logger } from '@/lib/utils/logger';
 
-import { buildOAuthEntryUrl } from './providers';
+import {
+  subscribeAuthSessionCleared,
+} from './auth-session';
+import { AuthStatus } from './auth-status';
+import {
+  readPersistedAuthStatus,
+  writePersistedAuthStatus,
+} from './auth-status.storage';
+import { fetchCurrentUser } from './session.client';
 import type { SessionUser } from './session';
-import type { OAuthProvider } from './providers';
 
-export enum AuthStatus {
-  Loading,
-  Authenticated,
-  Unauthenticated,
-}
+export { AuthStatus } from './auth-status';
 
 export interface AuthContextValue {
   user: SessionUser | null;
   status: AuthStatus;
-  /** 서버에서 최신 세션을 다시 조회한다. (예: 닉네임 변경 후) */
+  /** 서버에서 최신 세션을 다시 조회한다. (예: OAuth 콜백, 닉네임 변경 후) */
   refresh: () => Promise<void>;
-  /**
-   * 소셜 로그인 진입 — 백엔드 진입 URL로 브라우저를 이동시킨다.
-   * (Authorization Code 교환은 백엔드에서 수행)
-   */
-  loginWithProvider: (provider: OAuthProvider) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+function resolveInitialStatus(initialUser?: SessionUser | null): AuthStatus {
+  if (initialUser) {
+    return AuthStatus.Authenticated;
+  }
+  // SSR·hydration 첫 렌더는 항상 Unauthenticated. localStorage 복원은 mount 후 useEffect.
+  return AuthStatus.Unauthenticated;
+}
 
 export interface AuthProviderProps {
   children: ReactNode;
@@ -58,45 +70,98 @@ export function AuthProvider({
   initialUser,
 }: AuthProviderProps): React.JSX.Element {
   const queryClient = useQueryClient();
+  const [sessionStatus, setSessionStatus] = useState<AuthStatus>(() =>
+    resolveInitialStatus(initialUser),
+  );
 
-  // TODO: 새로고침 마다 `/me` + `/refresh` 호출하게 되는 문제
+  useEffect(() => {
+    if (initialUser) return;
+    const persisted = readPersistedAuthStatus();
+    if (persisted === AuthStatus.Authenticated) {
+      setSessionStatus(AuthStatus.Authenticated);
+    }
+  }, [initialUser]);
+
+  const setStatus = useCallback((next: AuthStatus) => {
+    setSessionStatus(next);
+    if (
+      next === AuthStatus.Authenticated ||
+      next === AuthStatus.Unauthenticated
+    ) {
+      writePersistedAuthStatus(next);
+    }
+  }, []);
+
+  const shouldFetchUser = sessionStatus === AuthStatus.Authenticated;
+
   const query = useCurrentUser({
     initialData: initialUser === undefined ? undefined : initialUser,
+    enabled: shouldFetchUser,
   });
 
-  if (query.isError) {
-    // 비로그인(401)은 fetchCurrentUser가 null로 정규화하므로 여기 도달하지 않는다.
-    // 따라서 이 분기는 네트워크·서버 오류(5xx 등)만을 표시한다.
-    logger.error('[AuthProvider] session query failed', {
-      error: query.error,
+  const status =
+    sessionStatus === AuthStatus.Authenticated &&
+    query.isPending &&
+    query.data === undefined
+      ? AuthStatus.Loading
+      : sessionStatus;
+
+  useEffect(() => {
+    if (!shouldFetchUser) return;
+
+    if (query.isSuccess) {
+      if (!query.data) {
+        setStatus(AuthStatus.Unauthenticated);
+        queryClient.setQueryData(userQueries.me(), null);
+      }
+      return;
+    }
+
+    if (query.isError) {
+      logger.error('[AuthProvider] session query failed', {
+        error: query.error,
+      });
+      setStatus(AuthStatus.Unauthenticated);
+      queryClient.setQueryData(userQueries.me(), null);
+    }
+  }, [
+    shouldFetchUser,
+    query.isSuccess,
+    query.isError,
+    query.data,
+    query.error,
+    setStatus,
+    queryClient,
+  ]);
+
+  useEffect(() => {
+    return subscribeAuthSessionCleared(() => {
+      setSessionStatus(AuthStatus.Unauthenticated);
+      queryClient.setQueryData(userQueries.me(), null);
     });
-  }
-
-  const status = query.isSuccess
-    ? query.data
-      ? AuthStatus.Authenticated
-      : AuthStatus.Unauthenticated
-    : query.isError
-      ? AuthStatus.Unauthenticated
-      : AuthStatus.Loading;
-
-  const refresh = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: userQueries.me() });
   }, [queryClient]);
 
-  const loginWithProvider = useCallback((provider: OAuthProvider) => {
-    if (typeof window === 'undefined') return;
-    window.location.assign(buildOAuthEntryUrl(provider));
-  }, []);
+  const refresh = useCallback(async () => {
+    setStatus(AuthStatus.Authenticated);
+    await queryClient.fetchQuery({
+      queryKey: userQueries.me(),
+      queryFn: ({ signal }) => fetchCurrentUser({ signal }),
+      staleTime: QUERY_CACHE.user.staleTime,
+    });
+  }, [queryClient, setStatus]);
+
+  const user =
+    sessionStatus === AuthStatus.Unauthenticated
+      ? null
+      : (query.data ?? null);
 
   const value = useMemo<AuthContextValue>(
     () => ({
-      user: query.data ?? null,
+      user,
       status,
       refresh,
-      loginWithProvider,
     }),
-    [query.data, status, refresh, loginWithProvider],
+    [user, status, refresh],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -101,7 +101,7 @@ paths:
         Provider 인증 완료 후 Provider가 리다이렉트하는 백엔드 URL.
         클라이언트가 직접 호출하지 않으며, GET /api/v1/auth/{provider} 진입 후 브라우저가 Provider를 거쳐 이 URL로 이동한다.
         서버가 Authorization Code로 Access Token 교환 → 사용자 정보 조회 → 사용자 생성/조회 → JWT 발급 후
-        성공 시 프론트 앱의 최종 경로(`FRONTEND_APP_BASE_URL` + 검증된 상대 경로 또는 `FRONTEND_OAUTH_DEFAULT_SUCCESS_PATH`)로 302 리다이렉트하며,
+        성공 시 프론트 앱의 OAuth 콜백(`FRONTEND_APP_BASE_URL` + `FRONTEND_OAUTH_SUCCESS_CALLBACK_PATH`, 검증된 `next`가 있으면 `?next=` 포함)으로 302 리다이렉트하며,
         실패 시 `FRONTEND_APP_BASE_URL` + `FRONTEND_OAUTH_ERROR_PATH`로 302 하고 오류 쿼리를 붙인다.
         성공 응답에 Set-Cookie로 accessToken/refreshToken을 함께 전달한다.
       operationId: getAuthProviderCallback
