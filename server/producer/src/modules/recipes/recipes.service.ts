@@ -263,19 +263,16 @@ export class RecipeQueryService {
 
   // TODO: 조인 비용 및 캐시 정책(Write Behind) 검토
   //? 현재는 Cache-Aside에 가깝고, 짧은 캐시 TTL을 사용하고 있어 조회 부담이 클 수 있다.
-  async search(
-    params: {
-      q?: string;
-      page: number;
-      size: number;
-      difficulty?: number[];
-      cookTimeMin?: number;
-      cookTimeMax?: number;
-      categoryId?: number;
-      sort?: RecipeListOrder;
-    },
-    context?: ActivityContext,
-  ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
+  async search(params: {
+    q?: string;
+    page: number;
+    size: number;
+    difficulty?: number[];
+    cookTimeMin?: number;
+    cookTimeMax?: number;
+    categoryId?: number;
+    sort?: RecipeListOrder;
+  }): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
     const raw = params.q?.trim() ?? '';
     const keyword = raw.length > 0 ? raw : undefined;
     const difficultyKey =
@@ -322,13 +319,38 @@ export class RecipeQueryService {
       params.size,
     );
 
-    this.recordSearchQuery(payload, context).catch(() => {
-      /* fire-and-forget */
-    });
     return result;
   }
 
-  private async recordSearchQuery(
+  async recordSearchQuery(
+    params: {
+      q?: string;
+      page: number;
+      size: number;
+      difficulty?: number[];
+      cookTimeMin?: number;
+      cookTimeMax?: number;
+      categoryId?: number;
+      sort?: RecipeListOrder;
+    },
+    context?: ActivityContext,
+  ): Promise<void> {
+    const raw = params.q?.trim() ?? '';
+    const keyword = raw.length > 0 ? raw : undefined;
+    const payload: RecipeSearchParams = {
+      keyword,
+      page: params.page,
+      size: params.size,
+      difficulty: params.difficulty,
+      minCookTime: params.cookTimeMin,
+      maxCookTime: params.cookTimeMax,
+      categoryId: params.categoryId,
+      sort: params.sort ?? DEFAULT_RECIPE_SORT,
+    };
+    await this.recordSearchQueryFromPayload(payload, context);
+  }
+
+  private async recordSearchQueryFromPayload(
     payload: RecipeSearchParams,
     context?: ActivityContext,
   ): Promise<void> {

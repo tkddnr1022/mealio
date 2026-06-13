@@ -7,6 +7,7 @@
  * - GET  /api/v1/recipes/static-ids   → {@link getRecipeStaticIds}
  * - GET  /api/v1/recipes/categories   → {@link getRecipeCategories}
  * - GET  /api/v1/recipes/search       → {@link searchRecipes}
+ * - POST /api/v1/recipes/search-queries → {@link recordRecipeSearchQuery}
  * - GET  /api/v1/recipes/:recipeId    → {@link getRecipeById}
  * - POST /api/v1/recipes/:recipeId/views → {@link increaseRecipeViewCount}
  * - POST /api/v1/recipes/summaries    → {@link getRecipeSummaries}
@@ -124,6 +125,20 @@ export function increaseRecipeViewCount(
   return httpClient.post<void>(
     API_ENDPOINTS.recipes.view(recipeId),
     {},
+    fetchOptions,
+  );
+}
+
+/**
+ * 레시피 검색 페이지 진입 시 search.query 이벤트를 기록한다.
+ */
+export function recordRecipeSearchQuery(
+  params: RecipeSearchQuery = {},
+  fetchOptions?: RequestOptions,
+): Promise<void> {
+  return httpClient.post<void>(
+    API_ENDPOINTS.recipes.searchQueries,
+    params,
     fetchOptions,
   );
 }

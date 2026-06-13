@@ -698,6 +698,76 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /api/v1/recipes/search-queries:
+    post:
+      tags:
+        - Recipe
+      summary: 레시피 검색 쿼리 이벤트 기록
+      description: |
+        레시피 검색 페이지 진입 시 클라이언트가 호출한다.
+        `search.query` activity 이벤트를 발행하며, KPI `kpi_search_click_rate` 분모에 사용된다.
+        서버 dedupe 정책은 **키워드(q)만** + actor(`userId` 우선, 비로그인 `ipAddress`, 미확인 `unknown-ip`) 기준 30분 윈도우로
+        중복을 차단한다(필터·정렬·페이지 변경은 동일 키워드면 추가 발행 없음).
+        클라이언트는 sessionStorage로 키워드 기준 1차 dedupe를 수행할 수 있다.
+      security:
+        - cookieAuth: []
+        - {}
+      parameters:
+        - name: accessToken
+          in: cookie
+          required: false
+          description: JWT 액세스 토큰 (선택사항)
+          schema:
+            type: string
+          example: "{{apiKey}}"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                q:
+                  type: string
+                  minLength: 1
+                  description: 검색 키워드 (생략 가능)
+                page:
+                  type: integer
+                  minimum: 1
+                  default: 1
+                size:
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+                  default: 20
+                difficulty:
+                  type: array
+                  items:
+                    type: integer
+                    minimum: 1
+                    maximum: 5
+                cookTimeMin:
+                  type: integer
+                  minimum: 1
+                cookTimeMax:
+                  type: integer
+                  minimum: 1
+                categoryId:
+                  type: integer
+                  format: int64
+                  minimum: 1
+                sort:
+                  type: string
+                  enum: [latest, cookTime, difficulty, viewCount, likeCount]
+                  default: latest
+      responses:
+        '202':
+          description: 이벤트 수락(중복 요청은 무시될 수 있음)
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /api/v1/recipes/search:
     get:
       tags:
@@ -705,7 +775,7 @@ paths:
       summary: 레시피 검색
       description: |
         레시피 검색 (키워드·난이도·조리시간·카테고리·정렬 선택). 키워드(`q`)는 제목·설명·조리방법·요리종류 필드에 부분 일치로 적용되며, 생략하면 텍스트 검색 없이 필터·정렬만 적용합니다.
-        검색 API 호출 시 `search.query` activity 이벤트를 발행하며, dedupe는 **키워드(q)만** + actor(`userId` 우선, 비로그인 `ipAddress`, 미확인 `unknown-ip`) 기준 30분 윈도우로 중복을 차단한다(필터·정렬·페이지 변경은 동일 키워드면 추가 발행 없음).
+        `search.query` activity 이벤트는 본 API가 아닌 `POST /api/v1/recipes/search-queries`에서 발행한다.
       security:
         - cookieAuth: []
         - {}

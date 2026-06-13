@@ -1,7 +1,7 @@
 'use client';
 
 import { Search } from 'lucide-react';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
@@ -33,8 +33,12 @@ import {
 } from '@/components/recipe/utils/recipe-search-filters';
 import { useIsAuthenticated } from '@/lib/auth/auth-context';
 import { useMyFavoriteRecipeIds } from '@/lib/queries/inventory.queries';
-import { recordRecipeSearchClick } from '@/lib/api/domains';
+import { recordRecipeSearchClick, recordRecipeSearchQuery } from '@/lib/api/domains';
 import { useRecipeSearchInfinite } from '@/lib/queries/recipe.queries';
+import {
+  hasSentSearchQuery,
+  markSearchQuerySent,
+} from './recipe-search-query-tracking';
 
 const SORT_OPTIONS: readonly DropdownOption[] = [
   { value: 'latest', label: '최신순' },
@@ -107,6 +111,24 @@ export function RecipeSearchClientPage({
     }),
     [query, sort, difficulty, cookTimeMin, cookTimeMax, categoryId],
   );
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      if (hasSentSearchQuery(window.sessionStorage, query)) {
+        return;
+      }
+      markSearchQuerySent(window.sessionStorage, query);
+    } catch {
+      // sessionStorage 접근 불가 환경에서는 서버 dedupe 정책에 위임한다.
+    }
+
+    void recordRecipeSearchQuery({
+      ...apiSearchParams,
+      page: 1,
+    });
+  }, [query, apiSearchParams]);
 
   const currentUrl = useMemo(
     () => `${pathname}?${buildQueryString(objectToQuery(apiSearchParams))}`,

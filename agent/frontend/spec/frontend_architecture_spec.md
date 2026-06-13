@@ -196,7 +196,7 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 | client/src/lib/api/domains/index.ts | 도메인 API 배럴 export(`@/lib/api/domains` 단축 import 제공) |
 | client/src/lib/api/domains/auth.api.ts | 로그아웃 (`POST /api/v1/auth/logout`, 204) |
 | client/src/lib/api/domains/users.api.ts | 유저 프로필 조회·닉네임 수정 (`GET /api/v1/users/me`, `PATCH /api/v1/users/me/nickname`) |
-| client/src/lib/api/domains/recipes.api.ts | 레시피 목록·상세·검색·요약·카테고리·개인화 추천 (`GET /api/v1/recipes`, `GET /api/v1/recipes/recommended`, `GET /api/v1/recipes/categories`, `GET /api/v1/recipes/search`, `GET /api/v1/recipes/:recipeId`, `POST /api/v1/recipes/summaries`) |
+| client/src/lib/api/domains/recipes.api.ts | 레시피 목록·상세·검색·요약·카테고리·개인화 추천 (`GET /api/v1/recipes`, `GET /api/v1/recipes/recommended`, `GET /api/v1/recipes/categories`, `GET /api/v1/recipes/search`, `POST /api/v1/recipes/search-queries`, `GET /api/v1/recipes/:recipeId`, `POST /api/v1/recipes/summaries`) |
 | client/src/lib/api/domains/ingredients.api.ts | 재료 목록·검색 (`GET /api/v1/ingredients`, `GET /api/v1/ingredients/search`) |
 | client/src/lib/api/domains/inventory.api.ts | 유저 보관함 조회(보유/관심 재료 + 관심 레시피) + 관심 레시피 ID 전용 조회 + 보유/관심 재료 변경 + 관심 레시피 추가/삭제 (`GET /api/v1/users/me/inventory`, `GET /api/v1/users/me/favorite-recipes/ids`, `PUT/POST/DELETE /api/v1/users/me/inventory/ingredients/{owned\|favorites}`, `POST/DELETE /api/v1/users/me/inventory/recipes/favorites`) |
 | client/src/lib/api/domains/chatbot.api.ts | 챗봇 대화 목록·상세 조회 (`GET /api/v1/chatbot/conversations`, `GET /api/v1/chatbot/conversations/:id`). SSE 전송은 §5.5 sse-client 사용 |

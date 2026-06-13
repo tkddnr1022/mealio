@@ -72,6 +72,7 @@ describe('RecipesController', () => {
       getById: jest.fn().mockResolvedValue(mockDetail),
       recordRecipeView: jest.fn().mockResolvedValue(undefined),
       recordSearchClick: jest.fn().mockResolvedValue(undefined),
+      recordSearchQuery: jest.fn().mockResolvedValue(undefined),
       getStaticIds: jest.fn().mockResolvedValue({ data: [5, 4, 3] }),
       search: jest.fn().mockResolvedValue({
         data: [mockSummary],
@@ -158,92 +159,74 @@ describe('RecipesController', () => {
   describe('search', () => {
     it('키워드로 검색 결과와 페이지네이션을 반환한다', async () => {
       const query = { q: '김치', page: 1, size: 20 };
-      const result = await controller.search(query, undefined);
+      const result = await controller.search(query);
 
-      expect(recipeQueryService.search).toHaveBeenCalledWith(
-        {
-          q: '김치',
-          page: 1,
-          size: 20,
-          difficulty: undefined,
-          cookTimeMin: undefined,
-          cookTimeMax: undefined,
-          categoryId: undefined,
-          sort: 'latest',
-        },
-        undefined,
-      );
+      expect(recipeQueryService.search).toHaveBeenCalledWith({
+        q: '김치',
+        page: 1,
+        size: 20,
+        difficulty: undefined,
+        cookTimeMin: undefined,
+        cookTimeMax: undefined,
+        categoryId: undefined,
+        sort: 'latest',
+      });
       expect(result.data).toHaveLength(1);
       expect(result.pagination).toEqual(mockPagination);
     });
 
     it('q 없이 검색할 수 있다', async () => {
       const query = { page: 2, size: 10, sort: 'cookTime' as const };
-      await controller.search(query, undefined);
+      await controller.search(query);
 
-      expect(recipeQueryService.search).toHaveBeenCalledWith(
-        {
-          q: undefined,
-          page: 2,
-          size: 10,
-          difficulty: undefined,
-          cookTimeMin: undefined,
-          cookTimeMax: undefined,
-          categoryId: undefined,
-          sort: 'cookTime',
-        },
-        undefined,
-      );
+      expect(recipeQueryService.search).toHaveBeenCalledWith({
+        q: undefined,
+        page: 2,
+        size: 10,
+        difficulty: undefined,
+        cookTimeMin: undefined,
+        cookTimeMax: undefined,
+        categoryId: undefined,
+        sort: 'cookTime',
+      });
     });
 
     it('cookTimeMax만 전달하면 max 필터만 전달한다', async () => {
       const query = { q: '김치', page: 1, size: 20, cookTimeMax: 25 };
-      await controller.search(query, undefined);
+      await controller.search(query);
 
-      expect(recipeQueryService.search).toHaveBeenCalledWith(
+      expect(recipeQueryService.search).toHaveBeenCalledWith({
+        q: '김치',
+        page: 1,
+        size: 20,
+        difficulty: undefined,
+        cookTimeMin: undefined,
+        cookTimeMax: 25,
+        categoryId: undefined,
+        sort: 'latest',
+      });
+    });
+  });
+
+  describe('recordSearchQuery', () => {
+    it('search-query API는 user/ip/userAgent 컨텍스트를 전달한다', async () => {
+      await controller.recordSearchQuery(
+        { q: '김치', page: 1, size: 20 },
+        { id: 42 },
+        { ip: '127.0.0.1', headers: { 'user-agent': 'jest-agent' } },
+      );
+
+      expect(recipeQueryService.recordSearchQuery).toHaveBeenCalledWith(
         {
           q: '김치',
           page: 1,
           size: 20,
           difficulty: undefined,
           cookTimeMin: undefined,
-          cookTimeMax: 25,
+          cookTimeMax: undefined,
           categoryId: undefined,
           sort: 'latest',
         },
-        undefined,
-      );
-    });
-
-    it('사용자 컨텍스트가 있으면 userId를 서비스에 전달한다', async () => {
-      const query = { q: '김치', page: 1, size: 20 };
-
-      await controller.search(query, { id: 42 });
-
-      expect(recipeQueryService.search).toHaveBeenCalledWith(
-        expect.objectContaining({
-          q: '김치',
-          page: 1,
-          size: 20,
-        }),
-        undefined,
-      );
-    });
-
-    it('요청 컨텍스트가 있으면 userId/ip/userAgent를 함께 전달한다', async () => {
-      const query = { q: '김치', page: 1, size: 20 };
-      await controller.search(
-        query,
-        { id: 42 },
-        { ip: '127.0.0.1', headers: { 'user-agent': 'jest-agent' } },
-      );
-
-      expect(recipeQueryService.search).toHaveBeenCalledWith(
-        expect.objectContaining({
-          q: '김치',
-          page: 1,
-          size: 20,
-        }),
         {
           userId: 42,
           ipAddress: '127.0.0.1',

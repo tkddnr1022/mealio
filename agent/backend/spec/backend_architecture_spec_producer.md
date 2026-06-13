@@ -66,7 +66,7 @@
 | **server/producer/src/modules/recipes/** | 레시피 조회 모듈 |
 | server/producer/src/modules/recipes/recipes.module.ts | RecipesModule 정의 |
 | server/producer/src/modules/recipes/recipes.service.ts | RecipeQueryService. 상세 조회(read-only)·캐시 활용 + 조회수 이벤트 기록 API(record view, dedupe key: `user:{id}` 우선, 비로그인은 `ip:{ip}` / 미확인 `ip:unknown-ip`) |
-| server/producer/src/modules/recipes/recipes.controller.ts | GET /api/v1/recipes, GET /api/v1/recipes/recommended, GET /api/v1/recipes/static-ids, GET /api/v1/recipes/:recipeId, POST /api/v1/recipes/:recipeId/views, POST /api/v1/recipes/:recipeId/search-clicks, GET /api/v1/recipes/search, POST /api/v1/recipes/summaries |
+| server/producer/src/modules/recipes/recipes.controller.ts | GET /api/v1/recipes, GET /api/v1/recipes/recommended, GET /api/v1/recipes/static-ids, GET /api/v1/recipes/:recipeId, POST /api/v1/recipes/:recipeId/views, POST /api/v1/recipes/:recipeId/search-clicks, POST /api/v1/recipes/search-queries, GET /api/v1/recipes/search, POST /api/v1/recipes/summaries |
 | server/producer/src/modules/recipes/dto/pagination.dto.ts | 페이지네이션 공통 DTO |
 | server/producer/src/modules/recipes/dto/recipe-detail.dto.ts | 레시피 상세 응답 DTO |
 | server/producer/src/modules/recipes/dto/recipe-ids.dto.ts | 레시피 ID 리스트 DTO |

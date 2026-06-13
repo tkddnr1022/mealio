@@ -203,17 +203,11 @@ export class RecipesController {
   })
   async search(
     @Query() query: RecipeSearchQueryDto,
-    @CurrentUserOptional() user?: AuthUser,
-    @Req()
-    req?: {
-      ip?: string;
-      headers: { [key: string]: string | string[] | undefined };
-    },
   ): Promise<{ data: RecipeSummaryDto[]; pagination: PaginationDto }> {
     const page = query.page ?? 1;
     const size = query.size ?? 20;
     const sort = query.sort ?? DEFAULT_RECIPE_SORT;
-    const params = {
+    return this.recipeQueryService.search({
       q: query.q,
       page,
       size,
@@ -222,19 +216,51 @@ export class RecipesController {
       cookTimeMax: query.cookTimeMax,
       categoryId: query.categoryId,
       sort,
-    };
+    });
+  }
 
-    if (!req) {
-      return this.recipeQueryService.search(params, undefined);
-    }
-
-    const ua = req.headers?.['user-agent'];
+  @Post('search-queries')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({ summary: '레시피 검색 쿼리 이벤트 기록' })
+  @ApiResponse({
+    status: HttpStatus.ACCEPTED,
+    description: '검색 쿼리 이벤트 수락',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: '서버 내부 오류',
+  })
+  async recordSearchQuery(
+    @Body() body: RecipeSearchQueryDto,
+    @CurrentUserOptional() user?: AuthUser,
+    @Req()
+    req?: {
+      ip?: string;
+      headers: { [key: string]: string | string[] | undefined };
+    },
+  ): Promise<void> {
+    const page = body.page ?? 1;
+    const size = body.size ?? 20;
+    const sort = body.sort ?? DEFAULT_RECIPE_SORT;
+    const ua = req?.headers?.['user-agent'];
     const context = {
       userId: user?.id,
-      ipAddress: req.ip,
+      ipAddress: req?.ip,
       userAgent: Array.isArray(ua) ? ua[0] : ua,
     };
-    return this.recipeQueryService.search(params, context);
+    await this.recipeQueryService.recordSearchQuery(
+      {
+        q: body.q,
+        page,
+        size,
+        difficulty: body.difficulty,
+        cookTimeMin: body.cookTimeMin,
+        cookTimeMax: body.cookTimeMax,
+        categoryId: body.categoryId,
+        sort,
+      },
+      context,
+    );
   }
 
   @Get(':recipeId')

@@ -558,7 +558,6 @@ describe('RecipeQueryService', () => {
         page: 1,
         size: 20,
       });
-      await flushActivityEventQueue();
 
       expect(recipeRepository.searchByKeyword).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -570,35 +569,13 @@ describe('RecipeQueryService', () => {
       );
       expect(result.data).toHaveLength(1);
       expect(result.pagination.total).toBe(1);
-      expect(redisClient.set).toHaveBeenCalledWith(
-        expect.stringContaining('dedupe:search:query:김치:ip:unknown-ip'),
-        '1',
-        'EX',
-        1800,
-        'NX',
-      );
-      expect(kafkaProducer.emit).toHaveBeenCalledWith(
-        KAFKA_TOPICS.ACTIVITY_EVENTS,
-        expect.objectContaining({
-          type: 'search.query',
-          payload: {
-            keyword: '김치',
-            page: 1,
-            size: 20,
-            sort: 'latest',
-            difficulty: undefined,
-            minCookTime: undefined,
-            maxCookTime: undefined,
-            categoryId: undefined,
-          },
-        }),
-      );
+      expect(kafkaProducer.emit).not.toHaveBeenCalled();
     });
 
     it('dedupe 선점에 실패하면 search.query 이벤트를 발행하지 않는다', async () => {
       redisClient.set.mockResolvedValue(null);
 
-      await service.search({ q: '김치', page: 1, size: 20 });
+      await service.recordSearchQuery({ q: '김치', page: 1, size: 20 });
       await flushActivityEventQueue();
 
       expect(kafkaProducer.emit).not.toHaveBeenCalled();
@@ -607,7 +584,7 @@ describe('RecipeQueryService', () => {
     it('dedupe Redis 오류 시 search.query를 fail-open으로 발행한다', async () => {
       redisClient.set.mockRejectedValue(new Error('redis down'));
 
-      await service.search({ q: '김치', page: 1, size: 20 });
+      await service.recordSearchQuery({ q: '김치', page: 1, size: 20 });
       await flushActivityEventQueue();
 
       expect(kafkaProducer.emit).toHaveBeenCalledWith(
@@ -630,7 +607,7 @@ describe('RecipeQueryService', () => {
     });
 
     it('search.query payload에 필터·페이지 정보를 포함한다', async () => {
-      await service.search({
+      await service.recordSearchQuery({
         q: '볶음',
         page: 2,
         size: 10,
@@ -702,7 +679,69 @@ describe('RecipeQueryService', () => {
         categoryId: 2,
         sort: 'latest',
       });
+      expect(kafkaProducer.emit).not.toHaveBeenCalled();
+    });
+
+    it('cookTimeMax만 전달하면 max만 반영해 검색한다', async () => {
+      await service.search({
+        q: '국',
+        page: 1,
+        size: 20,
+        cookTimeMax: 25,
+      });
+
+      expect(recipeRepository.searchByKeyword).toHaveBeenCalledWith({
+        keyword: '국',
+        page: 1,
+        size: 20,
+        difficulty: undefined,
+        minCookTime: undefined,
+        maxCookTime: 25,
+        categoryId: undefined,
+        sort: 'latest',
+      });
+    });
+  });
+
+  describe('recordSearchQuery', () => {
+    it('키워드 검색 쿼리 이벤트를 발행한다', async () => {
+      await service.recordSearchQuery({ q: '김치', page: 1, size: 20 });
       await flushActivityEventQueue();
+
+      expect(redisClient.set).toHaveBeenCalledWith(
+        expect.stringContaining('dedupe:search:query:김치:ip:unknown-ip'),
+        '1',
+        'EX',
+        1800,
+        'NX',
+      );
+      expect(kafkaProducer.emit).toHaveBeenCalledWith(
+        KAFKA_TOPICS.ACTIVITY_EVENTS,
+        expect.objectContaining({
+          type: 'search.query',
+          payload: {
+            keyword: '김치',
+            page: 1,
+            size: 20,
+            sort: 'latest',
+            difficulty: undefined,
+            minCookTime: undefined,
+            maxCookTime: undefined,
+            categoryId: undefined,
+          },
+        }),
+      );
+    });
+
+    it('키워드 없는 필터 검색도 search.query 이벤트를 발행한다', async () => {
+      await service.recordSearchQuery({
+        page: 1,
+        size: 15,
+        categoryId: 2,
+        sort: 'latest',
+      });
+      await flushActivityEventQueue();
+
       expect(kafkaProducer.emit).toHaveBeenCalledWith(
         KAFKA_TOPICS.ACTIVITY_EVENTS,
         expect.objectContaining({
@@ -724,26 +763,6 @@ describe('RecipeQueryService', () => {
         1800,
         'NX',
       );
-    });
-
-    it('cookTimeMax만 전달하면 max만 반영해 검색한다', async () => {
-      await service.search({
-        q: '국',
-        page: 1,
-        size: 20,
-        cookTimeMax: 25,
-      });
-
-      expect(recipeRepository.searchByKeyword).toHaveBeenCalledWith({
-        keyword: '국',
-        page: 1,
-        size: 20,
-        difficulty: undefined,
-        minCookTime: undefined,
-        maxCookTime: 25,
-        categoryId: undefined,
-        sort: 'latest',
-      });
     });
   });
 

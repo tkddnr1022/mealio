@@ -1,14 +1,12 @@
 import type { Metadata } from 'next';
 import { RecipeSearchClientPage } from './RecipeSearchClientPage';
 import { getRecipeCategories, searchRecipes } from '@/lib/api/domains';
-import { serverFetchWrapper, withForwardedHeaders } from '@/lib/api/server';
 import {
   RECIPE_SORT_KEYS,
   type RecipeSearchQuery,
   type RecipeSortKey,
 } from '@/lib/types/recipe';
 import {
-  buildCurrentUrlFromSearchParams,
   getMultiSearchParam,
   getSingleSearchParam,
   getTrimmedSearchParam,
@@ -142,16 +140,7 @@ export default async function RecipeSearchPage({
     size: query.size ?? RECIPE_SEARCH_PAGE_SIZE,
   };
 
-  const currentUrl = buildCurrentUrlFromSearchParams(
-    '/recipe/search',
-    resolvedSearchParams,
-  );
-  const forwardedHeaders = await withForwardedHeaders();
-
-  const searchResult = await serverFetchWrapper({
-    fetch: searchRecipes(searchQuery, forwardedHeaders),
-    currentUrl,
-  });
+  const searchResult = await searchRecipes(searchQuery);
   const categoriesResult = await getRecipeCategories();
 
   const recipes = searchResult?.data ?? [];
