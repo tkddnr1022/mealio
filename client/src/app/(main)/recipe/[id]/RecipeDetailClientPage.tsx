@@ -22,7 +22,10 @@ import {
   AnalyticsEvents,
 } from '@/lib/observability/analytics-events';
 import { trackEvent } from '@/lib/observability/analytics';
-import { hasSentRecipeView, markRecipeViewSent } from './recipe-view-tracking';
+import {
+  RECIPE_SESSION_TRACKING_KEY_PREFIX,
+} from '@/lib/constants/session-dedupe.constants';
+import { runOncePerSession } from '@/lib/observability/session-dedupe';
 import {
   toRecipeCookingTimeLabel,
   toRecipeDifficultyLabel,
@@ -120,21 +123,15 @@ export function RecipeDetailClientPage({
   }, [isAuthenticated, favoriteIdsData, recipe.id]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    try {
-      if (hasSentRecipeView(window.sessionStorage, recipe.id)) {
-        return;
-      }
-      markRecipeViewSent(window.sessionStorage, recipe.id);
-    } catch {
-      // sessionStorage 접근 불가 환경에서는 서버 dedupe 정책에 위임한다.
-    }
-
-    void increaseRecipeViewCount(recipe.id);
-    trackEvent(AnalyticsEvents.RECIPE_VIEWED, {
-      [AnalyticsEventProps.RECIPE_ID]: recipe.id,
-    });
+    runOncePerSession(
+      `${RECIPE_SESSION_TRACKING_KEY_PREFIX.view}${recipe.id}`,
+      () => {
+        void increaseRecipeViewCount(recipe.id);
+        trackEvent(AnalyticsEvents.RECIPE_VIEWED, {
+          [AnalyticsEventProps.RECIPE_ID]: recipe.id,
+        });
+      },
+    );
   }, [recipe.id]);
 
   return (

@@ -34,15 +34,12 @@ import {
 import { useIsAuthenticated } from '@/lib/auth/auth-context';
 import { useMyFavoriteRecipeIds } from '@/lib/queries/inventory.queries';
 import { recordRecipeSearchClick, recordRecipeSearchQuery } from '@/lib/api/domains';
+import {
+  RECIPE_SESSION_TRACKING_KEY_PREFIX,
+  SEARCH_QUERY_NO_KEYWORD,
+} from '@/lib/constants/session-dedupe.constants';
+import { runOncePerSession } from '@/lib/observability/session-dedupe';
 import { useRecipeSearchInfinite } from '@/lib/queries/recipe.queries';
-import {
-  hasSentSearchClick,
-  markSearchClickSent,
-} from './recipe-search-click-tracking';
-import {
-  hasSentSearchQuery,
-  markSearchQuerySent,
-} from './recipe-search-query-tracking';
 
 const SORT_OPTIONS: readonly DropdownOption[] = [
   { value: 'latest', label: '최신순' },
@@ -117,21 +114,18 @@ export function RecipeSearchClientPage({
   );
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    const keywordSegment =
+      query.trim().length > 0 ? query.trim() : SEARCH_QUERY_NO_KEYWORD;
 
-    try {
-      if (hasSentSearchQuery(window.sessionStorage, query)) {
-        return;
-      }
-      markSearchQuerySent(window.sessionStorage, query);
-    } catch {
-      // sessionStorage 접근 불가 환경에서는 서버 dedupe 정책에 위임한다.
-    }
-
-    void recordRecipeSearchQuery({
-      ...apiSearchParams,
-      page: 1,
-    });
+    runOncePerSession(
+      `${RECIPE_SESSION_TRACKING_KEY_PREFIX.searchQuery}${keywordSegment}`,
+      () => {
+        void recordRecipeSearchQuery({
+          ...apiSearchParams,
+          page: 1,
+        });
+      },
+    );
   }, [query, apiSearchParams]);
 
   const currentUrl = useMemo(
@@ -243,16 +237,12 @@ export function RecipeSearchClientPage({
   };
 
   const handleRecipeClick = (recipe: RecipeSummary) => {
-    try {
-      if (hasSentSearchClick(window.sessionStorage, recipe.id)) {
-        return;
-      }
-      markSearchClickSent(window.sessionStorage, recipe.id);
-    } catch {
-      // sessionStorage 접근 불가 환경에서는 서버 dedupe 정책에 위임한다.
-    }
-
-    void recordRecipeSearchClick(recipe.id);
+    runOncePerSession(
+      `${RECIPE_SESSION_TRACKING_KEY_PREFIX.searchClick}${recipe.id}`,
+      () => {
+        void recordRecipeSearchClick(recipe.id);
+      },
+    );
   };
 
   return (
