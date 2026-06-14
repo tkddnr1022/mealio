@@ -46,6 +46,27 @@ function isButtonAsLink(props: ButtonProps): props is ButtonAsLinkProps {
   return typeof props.href === 'string' && props.href.length > 0;
 }
 
+const BUTTON_OWN_PROP_KEYS = [
+  'className',
+  'variant',
+  'size',
+  'label',
+  'children',
+  'href',
+  'disabled',
+  'type',
+] as const satisfies readonly (keyof ButtonProps)[];
+
+function omitButtonOwnProps<T extends ButtonProps>(
+  props: T,
+): Omit<T, (typeof BUTTON_OWN_PROP_KEYS)[number]> {
+  const rest = { ...props };
+  for (const key of BUTTON_OWN_PROP_KEYS) {
+    delete rest[key];
+  }
+  return rest;
+}
+
 /** `label` → 문자열 `children` 순으로 접근 가능한 이름 후보 */
 function a11yNameFromContent(
   label: string | undefined,
@@ -112,16 +133,8 @@ export function Button(props: ButtonProps) {
   );
 
   if (isButtonAsLink(props)) {
-    const {
-      href,
-      disabled: linkDisabled,
-      className: _c,
-      variant: _v,
-      size: _s,
-      label: _l,
-      children: _ch,
-      ...anchorRest
-    } = props;
+    const { href, disabled: linkDisabled } = props;
+    const anchorRest = omitButtonOwnProps(props);
 
     if (linkDisabled) {
       return (
@@ -149,16 +162,8 @@ export function Button(props: ButtonProps) {
     );
   }
 
-  const {
-    type = 'button',
-    disabled,
-    className: _c2,
-    variant: _v2,
-    size: _s2,
-    label: _l2,
-    children: _ch2,
-    ...buttonRest
-  } = props;
+  const { type = 'button', disabled } = props;
+  const buttonRest = omitButtonOwnProps(props);
 
   const isDisabled = !!disabled;
 

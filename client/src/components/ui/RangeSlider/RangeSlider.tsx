@@ -188,11 +188,10 @@ export function RangeSlider({
     updateMaxValue(next);
   };
 
-  const handleThumbPointerDown =
-    (_thumb: 'min' | 'max') => (event: PointerEvent<HTMLButtonElement>) => {
-      event.preventDefault();
-      event.currentTarget.setPointerCapture(event.pointerId);
-    };
+  const handleThumbPointerDown = (event: PointerEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
 
   const handleThumbPointerMove =
     (thumb: 'min' | 'max') => (event: PointerEvent<HTMLButtonElement>) => {
@@ -296,7 +295,7 @@ export function RangeSlider({
             aria-valuemin={normalizedMin}
             aria-valuemax={showSecondThumb ? maxValue : normalizedMax}
             aria-valuenow={Math.round(minValue)}
-            onPointerDown={handleThumbPointerDown('min')}
+            onPointerDown={handleThumbPointerDown}
             onPointerMove={handleThumbPointerMove('min')}
             onPointerUp={handleThumbPointerUp}
             onPointerCancel={handleThumbPointerUp}
@@ -314,7 +313,7 @@ export function RangeSlider({
               aria-valuemin={minValue}
               aria-valuemax={normalizedMax}
               aria-valuenow={Math.round(maxValue)}
-              onPointerDown={handleThumbPointerDown('max')}
+              onPointerDown={handleThumbPointerDown}
               onPointerMove={handleThumbPointerMove('max')}
               onPointerUp={handleThumbPointerUp}
               onPointerCancel={handleThumbPointerUp}

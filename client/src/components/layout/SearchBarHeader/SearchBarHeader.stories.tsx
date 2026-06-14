@@ -1,5 +1,4 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
-import { fn } from 'storybook/test';
 
 import { SearchBarHeader } from '@/components/layout/SearchBarHeader';
 

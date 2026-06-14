@@ -1,5 +1,4 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
-import { fn } from 'storybook/test';
 import type { RecipeSummary } from '@/lib/types/recipe';
 import { RecipeCard } from '@/components/recipe';
 import { LikeButton } from '@/components/ui/buttons/LikeButton';
@@ -37,7 +36,7 @@ const meta = {
   decorators: [figmaWidth],
   args: {
     recipe: sampleRecipe,
-    favoriteButtonRenderer: (recipe) => <LikeButton isFavorite={false} />,
+    favoriteButtonRenderer: () => <LikeButton isFavorite={false} />,
   },
 } satisfies Meta<typeof RecipeCard>;
 

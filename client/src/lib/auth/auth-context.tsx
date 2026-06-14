@@ -28,6 +28,7 @@ import {
 
 import { QUERY_CACHE } from '@/lib/policy/cache.policy';
 import { useCurrentUser, userQueries } from '@/lib/queries/user.queries';
+import type { UserProfile } from '@/lib/types/user';
 import { logger } from '@/lib/utils/logger';
 
 import { subscribeAuthSessionCleared } from './auth-session';
@@ -65,14 +66,43 @@ export interface AuthProviderProps {
   children: ReactNode;
 }
 
+function useIsHydrated(): boolean {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+}
+
+function resolveBaseSessionStatus(
+  isHydrated: boolean,
+  manualSessionStatus: AuthStatus | null,
+  persistedStatus: AuthStatus | null,
+): AuthStatus {
+  if (!isHydrated) return AuthStatus.Loading;
+
+  if (manualSessionStatus !== null) {
+    if (
+      manualSessionStatus === AuthStatus.Unauthenticated &&
+      persistedStatus === AuthStatus.Authenticated
+    ) {
+      return AuthStatus.Authenticated;
+    }
+    return manualSessionStatus;
+  }
+
+  return persistedStatus === AuthStatus.Authenticated
+    ? AuthStatus.Authenticated
+    : AuthStatus.Unauthenticated;
+}
+
 export function AuthProvider({
   children,
 }: AuthProviderProps): React.JSX.Element {
   const queryClient = useQueryClient();
-  const [isHydrated, setIsHydrated] = useState(false);
-  const [sessionStatus, setSessionStatus] = useState<AuthStatus>(
-    AuthStatus.Loading,
-  );
+  const isHydrated = useIsHydrated();
+  const [manualSessionStatus, setManualSessionStatus] =
+    useState<AuthStatus | null>(null);
 
   const persistedStatus = useSyncExternalStore(
     subscribePersistedAuthStatus,
@@ -80,67 +110,80 @@ export function AuthProvider({
     () => null,
   );
 
-  const setStatus = useCallback((next: AuthStatus) => {
-    setSessionStatus(next);
-    if (
-      next === AuthStatus.Authenticated ||
-      next === AuthStatus.Unauthenticated
-    ) {
-      writePersistedAuthStatus(next);
-    }
-  }, []);
+  const setStatus = useCallback(
+    (next: AuthStatus) => {
+      setManualSessionStatus(next);
+      if (
+        next === AuthStatus.Authenticated ||
+        next === AuthStatus.Unauthenticated
+      ) {
+        writePersistedAuthStatus(next);
+      }
+      if (
+        next === AuthStatus.Authenticated &&
+        queryClient.getQueryData(userQueries.me()) === null
+      ) {
+        queryClient.removeQueries({ queryKey: userQueries.me() });
+      }
+    },
+    [queryClient],
+  );
 
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
+  const baseSessionStatus = useMemo(
+    () =>
+      resolveBaseSessionStatus(
+        isHydrated,
+        manualSessionStatus,
+        persistedStatus,
+      ),
+    [isHydrated, manualSessionStatus, persistedStatus],
+  );
 
-  useEffect(() => {
-    if (!isHydrated) return;
-
-    if (sessionStatus === AuthStatus.Loading) {
-      setStatus(
-        persistedStatus === AuthStatus.Authenticated
-          ? AuthStatus.Authenticated
-          : AuthStatus.Unauthenticated,
-      );
-      return;
-    }
-
-    if (
-      sessionStatus === AuthStatus.Unauthenticated &&
-      persistedStatus === AuthStatus.Authenticated
-    ) {
-      setStatus(AuthStatus.Authenticated);
-    }
-  }, [isHydrated, sessionStatus, persistedStatus, setStatus]);
+  const cachedMe = queryClient.getQueryData<UserProfile | null>(userQueries.me());
+  const hasInvalidSessionCache = cachedMe === null;
 
   const shouldFetchUser =
-    isHydrated && sessionStatus === AuthStatus.Authenticated;
+    isHydrated &&
+    baseSessionStatus === AuthStatus.Authenticated &&
+    !hasInvalidSessionCache;
 
   const query = useCurrentUser({
     enabled: shouldFetchUser,
   });
 
   const isSessionDemotedByQuery =
-    shouldFetchUser && query.isSuccess && query.data === null;
+    isHydrated &&
+    baseSessionStatus === AuthStatus.Authenticated &&
+    hasInvalidSessionCache &&
+    manualSessionStatus !== AuthStatus.Authenticated;
+
+  const sessionStatus = isSessionDemotedByQuery
+    ? AuthStatus.Unauthenticated
+    : baseSessionStatus;
 
   const status =
     !isHydrated || sessionStatus === AuthStatus.Loading
       ? AuthStatus.Loading
-      : isSessionDemotedByQuery
-    ? AuthStatus.Unauthenticated
-    : sessionStatus === AuthStatus.Authenticated &&
-        query.isPending &&
-        query.data === undefined
-      ? AuthStatus.Loading
-      : sessionStatus;
+      : sessionStatus === AuthStatus.Authenticated &&
+          shouldFetchUser &&
+          query.isPending &&
+          query.data === undefined
+        ? AuthStatus.Loading
+        : sessionStatus;
 
   useEffect(() => {
     if (!isSessionDemotedByQuery) return;
 
-    setStatus(AuthStatus.Unauthenticated);
-    queryClient.setQueryData(userQueries.me(), null);
-  }, [isSessionDemotedByQuery, queryClient, setStatus]);
+    writePersistedAuthStatus(AuthStatus.Unauthenticated);
+  }, [isSessionDemotedByQuery]);
+
+  useEffect(() => {
+    if (persistedStatus !== AuthStatus.Authenticated) return;
+
+    if (queryClient.getQueryData(userQueries.me()) === null) {
+      queryClient.removeQueries({ queryKey: userQueries.me() });
+    }
+  }, [persistedStatus, queryClient]);
 
   useEffect(() => {
     if (!shouldFetchUser || !query.isError) return;

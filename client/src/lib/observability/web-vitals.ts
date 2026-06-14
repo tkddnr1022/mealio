@@ -1,6 +1,5 @@
 import type { Metric, MetricType } from 'web-vitals';
 
-import { env } from '@/lib/config/env';
 import { logger } from '@/lib/utils/logger';
 
 /**
