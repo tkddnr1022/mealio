@@ -5,6 +5,7 @@ import { FullPageSuspenseFallback } from '@/components/layout/FullPageSuspenseFa
 import { RecipeFilterClientPage } from './RecipeFilterClientPage';
 import { getRecipeCategories } from '@/lib/api/domains';
 import { fetchForIsr } from '@/lib/api/server';
+import { ISR_FETCH_PERIODIC } from '@/lib/policy/cache.policy';
 import { createEmptyDataList } from '@/lib/utils/isr-fallback';
 import type { RecipeCategory } from '@/lib/types/recipe';
 
@@ -14,11 +15,9 @@ export const metadata: Metadata = {
     '카테고리·난이도·조리 시간 등 조건으로 레시피를 좁혀 찾아보세요.',
 };
 
-export const revalidate = 300;
-
 export default async function RecipeFilterPage() {
   const categoriesResult = await fetchForIsr({
-    fetcher: () => getRecipeCategories(),
+    fetcher: () => getRecipeCategories(ISR_FETCH_PERIODIC),
     fallback: createEmptyDataList<RecipeCategory>(),
   });
   const categories = categoriesResult.data;

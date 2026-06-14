@@ -50,3 +50,21 @@ export const QUERY_CACHE = {
 
 export type QueryDefaults = typeof QUERY_DEFAULTS;
 export type QueryCache = typeof QUERY_CACHE;
+
+/**
+ * Next.js Data Cache(ISR) fetch 정책.
+ *
+ * 근거: `agent/frontend/guidelines/frontend_development_guidelines.md` §1·§2.1
+ * 단위: 초(s) — `fetch` `next.revalidate`에 전달
+ */
+export const ISR_FETCH_REVALIDATE_SEC = 300;
+
+/** 주기 ISR(레시피 메인·필터·재료 필터·빌드타임 static-ids) */
+export const ISR_FETCH_PERIODIC = {
+  next: { revalidate: ISR_FETCH_REVALIDATE_SEC },
+} as const;
+
+/** 온디맨드 ISR(레시피 상세) — `POST /api/revalidate`로만 무효화 */
+export const ISR_FETCH_ON_DEMAND = {
+  next: { revalidate: false as const },
+} as const;

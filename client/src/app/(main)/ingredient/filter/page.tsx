@@ -5,6 +5,7 @@ import { FullPageSuspenseFallback } from '@/components/layout/FullPageSuspenseFa
 import { IngredientFilterClientPage } from './IngredientFilterClientPage';
 import { getIngredientCategories } from '@/lib/api/domains';
 import { fetchForIsr } from '@/lib/api/server';
+import { ISR_FETCH_PERIODIC } from '@/lib/policy/cache.policy';
 import { createEmptyDataList } from '@/lib/utils/isr-fallback';
 import type { IngredientCategory } from '@/lib/types/ingredient';
 
@@ -14,11 +15,9 @@ export const metadata: Metadata = {
     '카테고리별로 재료를 찾아 보관함의 관심·보유 재료로 추가할 수 있습니다.',
 };
 
-export const revalidate = 300;
-
 export default async function IngredientFilterPage() {
   const categoriesResult = await fetchForIsr({
-    fetcher: () => getIngredientCategories(),
+    fetcher: () => getIngredientCategories(ISR_FETCH_PERIODIC),
     fallback: createEmptyDataList<IngredientCategory>(),
   });
   const categories = categoriesResult.data;

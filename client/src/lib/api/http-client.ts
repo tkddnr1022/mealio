@@ -45,6 +45,12 @@ import { buildQueryString, type Query } from './query';
 
 export type { Query, QueryValue } from './query';
 
+/** Next.js Data Cache 옵션. SSR `fetch`에만 적용된다. */
+export interface NextFetchRequestConfig {
+  revalidate?: number | false;
+  tags?: string[];
+}
+
 export interface RequestContext {
   readonly method: HttpMethod;
   readonly url: string;
@@ -80,6 +86,9 @@ export interface RequestOptions {
    * - 미지정: GET만 기본 정책 적용, 그 외 메서드는 off
    */
   retry?: false | Partial<ApiRetryPolicy>;
+  /** Next.js Data Cache. SSR `fetch`에만 전달된다. */
+  cache?: RequestCache;
+  next?: NextFetchRequestConfig;
 }
 
 export interface HttpClientConfig {
@@ -220,6 +229,8 @@ export class HttpClient {
           attempt,
           signal: options.signal,
           timeoutMs,
+          cache: options.cache,
+          next: options.next,
         });
 
         if (!response.ok) {
@@ -279,6 +290,8 @@ export class HttpClient {
     attempt: number;
     signal: AbortSignal | undefined;
     timeoutMs: number;
+    cache?: RequestCache;
+    next?: NextFetchRequestConfig;
   }): Promise<Response> {
     const ctx = await this.applyRequestInterceptors({
       method: args.method,
@@ -294,13 +307,24 @@ export class HttpClient {
     const composed = composeSignalsWithTimeout(ctx.signal, args.timeoutMs);
 
     try {
-      const response = await fetch(ctx.url, {
+      const fetchInit: RequestInit & { next?: NextFetchRequestConfig } = {
         method: ctx.method,
         headers: ctx.headers,
         body: ctx.body,
         credentials: 'include',
         signal: composed.signal,
-      });
+      };
+
+      if (typeof window === 'undefined') {
+        if (args.cache !== undefined) {
+          fetchInit.cache = args.cache;
+        }
+        if (args.next !== undefined) {
+          fetchInit.next = args.next;
+        }
+      }
+
+      const response = await fetch(ctx.url, fetchInit);
 
       return await this.applyResponseInterceptors(response, ctx);
     } catch (error) {

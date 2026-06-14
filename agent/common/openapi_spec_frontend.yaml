@@ -96,7 +96,7 @@ paths:
         - 본문 `secret`은 서버 환경 변수 `REVALIDATE_SECRET`과 일치해야 한다.
         - 본문 `path`는 `/`로 시작하는 앱 상대 경로여야 하며, `..`·`//` 등 경로 조작 패턴은 거부한다.
         - 성공 시 `revalidatePath(path)`를 호출한다.
-        - 레시피 상세(`/recipe/[id]`)는 `revalidate = false` 온디맨드 ISR의 주요 사용처이며, 주기 ISR(`export const revalidate = 300`) 페이지와 병행한다.
+        - 레시피 상세(`/recipe/[id]`)는 `ISR_FETCH_ON_DEMAND`(`next.revalidate: false`) 온디맨드 ISR의 주요 사용처이며, 주기 ISR(`ISR_FETCH_PERIODIC`, 300초) 페이지와 병행한다.
       operationId: postRevalidatePath
       security: []
       requestBody:

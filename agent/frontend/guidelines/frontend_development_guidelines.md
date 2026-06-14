@@ -7,14 +7,16 @@
 ## 1. 라우팅 구현 (Next.js App Router)
 
 - **SSG**: `getStaticProps` 대신 기본 정적 생성. `generateStaticParams`로 동적 세그먼트 정적 경로 정의.
-- **ISR**: `revalidate` export로 재검증 주기 설정. 레시피 상세(`/recipe/[id]`)는 `revalidate = false`로 주기 재검증 없이 **`POST /api/revalidate` 웹훅**(`revalidatePath`)으로만 무효화한다.
+- **ISR**: 공개 데이터 fetch에 `next.revalidate`(Next.js Data Cache)로 재검증 주기를 선언한다. 레시피 상세(`/recipe/[id]`)는 `ISR_FETCH_ON_DEMAND`(`revalidate: false`)로 주기 재검증 없이 **`POST /api/revalidate` 웹훅**(`revalidatePath`)으로만 무효화한다. `app/**/page.tsx`에 `export const revalidate`를 두지 않는다.
 - **SSR**: 기본이 서버 컴포넌트. `cookies()`, `headers()` 등으로 개인화 데이터 조회.
 - **CSR**: `'use client'` + 클라이언트 전용 컴포넌트. 챗봇·재료 관리·폼 등 인터랙티브 UI.
 
-### 1.1 `revalidate` 선언 규칙
+### 1.1 ISR `fetch` 재검증 선언 규칙
 
-- `app/**/page.tsx`의 ISR 선언은 **항상 숫자 리터럴 또는 `false`** 로 작성한다. 예: `export const revalidate = 300`, `export const revalidate = false`(온디맨드 전용).
-- `export const revalidate = SOME_CONST` 형태(상수 참조)는 빌드 타임 정적 분석 실패 원인이 될 수 있으므로 금지한다.
+- ISR 페이지의 재검증 주기는 **도메인 API 호출 시** `client/src/lib/policy/cache.policy.ts`의 `ISR_FETCH_PERIODIC`·`ISR_FETCH_ON_DEMAND`를 `RequestOptions` 두 번째 인자로 전달한다.
+- `HttpClient`는 SSR에서만 `fetch`의 `next`·`cache` 옵션을 전달한다(`client/src/lib/api/http-client.ts`).
+- `ISR_FETCH_PERIODIC`: `next: { revalidate: 300 }` — `/recipe`, `/recipe/filter`, `/ingredient/filter`, `generateStaticParams`용 `getRecipeStaticIds`
+- `ISR_FETCH_ON_DEMAND`: `next: { revalidate: false }` — `/recipe/[id]`의 `getRecipeById`
 - 공개 ISR 페이지에서는 `cookies()` 의존 함수를 호출하지 않고, 쿠키 비의존 서버 API 래퍼만 사용한다.
 
 ### 1.2 네비게이션 UI와 `Link`
@@ -66,30 +68,33 @@
 
 1. **빌드 타임**: `generateStaticParams` + `getRecipeStaticIds({ size: 10 })`로 상위 인기 레시피 id만 사전 생성.
 2. **최초 요청**: 사전 생성되지 않은 id는 첫 방문 시 on-demand로 HTML 생성·캐시.
-3. **캐시 유지**: `export const revalidate = false` — 주기 재검증 없음, 캐시는 명시적 무효화까지 유지.
+3. **캐시 유지**: `getRecipeById(..., ISR_FETCH_ON_DEMAND)` — `next.revalidate: false`, 주기 재검증 없음, 캐시는 명시적 무효화까지 유지.
 4. **데이터 변경 시**: 백엔드·관리 도구가 `POST /api/revalidate`(본문 `{ secret, path: '/recipe/{id}' }`, `REVALIDATE_SECRET`)를 호출 → `revalidatePath(path)`. 계약은 `agent/common/openapi_spec_frontend.yaml`.
 
 ```typescript
 // app/(main)/recipe/[id]/page.tsx
+import { ISR_FETCH_ON_DEMAND, ISR_FETCH_PERIODIC } from '@/lib/policy/cache.policy';
+
 export async function generateStaticParams() {
   const result = await fetchForIsr({
-    fetcher: () => getRecipeStaticIds({ size: 10 }),
+    fetcher: () => getRecipeStaticIds({ size: 10 }, ISR_FETCH_PERIODIC),
     fallback: { data: [] },
   });
   return result.data.map((id) => ({ id: String(id) }));
 }
 
-export const revalidate = false; // 주기 ISR 없음 — /api/revalidate 웹훅으로만 무효화
-
 export async function generateMetadata({ params }): Promise<Metadata> {
-  const recipe = await getRecipeById(Number.parseInt((await params).id, 10));
+  const recipe = await getRecipeById(
+    Number.parseInt((await params).id, 10),
+    ISR_FETCH_ON_DEMAND,
+  );
   return { title: recipe.title, description: recipe.description, /* ... */ };
 }
 ```
 
 #### ISR fetch 예외처리
 
-ISR 페이지(`/recipe`, `/recipe/filter`, `/ingredient/filter`, `/recipe/[id]`)의 서버 데이터 fetch는 **`fetchForIsr`**(`client/src/lib/api/server/isr-fetch.server.ts`)로 통일한다. CI 빌드(`process.env.CI === 'true'`)에서 fetch 실패 시에만 `fallback`을 반환한다.
+ISR 페이지(`/recipe`, `/recipe/filter`, `/ingredient/filter`, `/recipe/[id]`)의 서버 데이터 fetch는 **`fetchForIsr`**(`client/src/lib/api/server/isr-fetch.server.ts`)로 통일한다. CI 빌드(`process.env.CI === 'true'`)에서 fetch 실패 시에만 `fallback`을 반환한다. 재검증 주기는 `fetchForIsr`가 아니라 fetcher 내부 도메인 API 호출의 `ISR_FETCH_*` 옵션으로 선언한다.
 
 | 단계 | fetch 실패 시 동작 |
 | ------ | ------------------- |
@@ -102,7 +107,7 @@ ISR 페이지(`/recipe`, `/recipe/filter`, `/ingredient/filter`, `/recipe/[id]`)
 - **`generateStaticParams`**: `fetchForIsr` 사용. CI 프리렌더에서만 `{ data: [] }` 폴백.
 - **CSR·SSR 비-ISR 페이지**(예: `/recipe/search`, 개인화 추천): 본 절 범위 밖. 기존 React Query·`serverFetchWrapper` 전략 유지.
 
-CI 프리렌더 soft-fallback 한계: 백엔드 미연결 상태로 배포되면 초기 공개 섹션이 비어 있을 수 있다. `revalidate=300` 주기·첫 방문 on-demand 생성·`POST /api/revalidate` 후 정상 API 연결 시 복구된다.
+CI 프리렌더 soft-fallback 한계: 백엔드 미연결 상태로 배포되면 초기 공개 섹션이 비어 있을 수 있다. `ISR_FETCH_PERIODIC`(300초) 주기·첫 방문 on-demand 생성·`POST /api/revalidate` 후 정상 API 연결 시 복구된다.
 
 ### 2.2 챗봇 아키텍처
 
@@ -146,9 +151,9 @@ export default async function RecipesPage() {
 
 ### 3.2 페이지별 캐싱 요약
 
-- `/recipe`: ISR `revalidate = 300`, Redis 쿼리 캐시. 재검증 fetch 실패 시 stale HTML 유지(§2.1 ISR fetch 예외처리).
-- `/recipe/[id]`: 온디맨드 ISR(`revalidate = false`, `generateStaticParams` size 10). 데이터 변경 시 `POST /api/revalidate`(본문 `{ secret, path }`) → `revalidatePath(path)`. 재생성 실패 시 기존 캐시 유지.
-- `/recipe/filter`, `/ingredient/filter`: ISR `revalidate = 300`. 재검증 실패 시 stale 유지.
+- `/recipe`: ISR `ISR_FETCH_PERIODIC`(300초), Redis 쿼리 캐시. 재검증 fetch 실패 시 stale HTML 유지(§2.1 ISR fetch 예외처리).
+- `/recipe/[id]`: 온디맨드 ISR(`ISR_FETCH_ON_DEMAND`, `generateStaticParams` size 10). 데이터 변경 시 `POST /api/revalidate`(본문 `{ secret, path }`) → `revalidatePath(path)`. 재생성 실패 시 기존 캐시 유지.
+- `/recipe/filter`, `/ingredient/filter`: ISR `ISR_FETCH_PERIODIC`(300초). 재검증 실패 시 stale 유지.
 - `/recipe` 개인화 추천 섹션: CSR(`GET /api/v1/recipes/recommended`) + Redis 결과 캐시 TTL 1시간
 
 ---

@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { RecipeMainClientPage } from './RecipeMainClientPage';
 import { getRecipeList } from '@/lib/api/domains';
 import { fetchForIsr } from '@/lib/api/server';
+import { ISR_FETCH_PERIODIC } from '@/lib/policy/cache.policy';
 import { createEmptyPaginated } from '@/lib/utils/isr-fallback';
 import type { RecipeSummary } from '@/lib/types/recipe';
 
@@ -11,8 +12,6 @@ export const metadata: Metadata = {
   description:
     '조회수·좋아요 기준 인기 레시피를 둘러보고, 맞춤 추천을 받을 수 있습니다.',
 };
-
-export const revalidate = 300;
 
 const SECTION_SIZE = 12;
 
@@ -24,11 +23,13 @@ export default async function RecipeMainPage() {
 
   const [viewedResult, likedResult] = await Promise.all([
     fetchForIsr({
-      fetcher: () => getRecipeList({ ...listParams, sort: 'viewCount' }),
+      fetcher: () =>
+        getRecipeList({ ...listParams, sort: 'viewCount' }, ISR_FETCH_PERIODIC),
       fallback: createEmptyPaginated<RecipeSummary>(),
     }),
     fetchForIsr({
-      fetcher: () => getRecipeList({ ...listParams, sort: 'likeCount' }),
+      fetcher: () =>
+        getRecipeList({ ...listParams, sort: 'likeCount' }, ISR_FETCH_PERIODIC),
       fallback: createEmptyPaginated<RecipeSummary>(),
     }),
   ]);

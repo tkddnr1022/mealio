@@ -29,4 +29,29 @@ describe('HttpClient SSR auth behavior', () => {
       'https://api.mealio.test/api/v1/users/me',
     );
   });
+
+  it('passes Next.js Data Cache options to fetch on SSR', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ data: [] }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const client = createHttpClient({ baseUrl: 'https://api.mealio.test' });
+
+    await client.get(API_ENDPOINTS.recipes.categories, {
+      next: { revalidate: 300 },
+      cache: 'force-cache',
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://api.mealio.test/api/v1/recipes/categories',
+      expect.objectContaining({
+        next: { revalidate: 300 },
+        cache: 'force-cache',
+      }),
+    );
+  });
 });
