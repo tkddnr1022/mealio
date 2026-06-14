@@ -32,9 +32,13 @@ pnpm --filter mealio-docs start
 
 ## 1차 작성 우선순위
 
-1. 로컬 개발/온보딩
-2. 도메인 개요
-3. E2E 시나리오/화면 흐름
-4. 추천 시스템
-5. 에러 처리 (client)
-6. 이벤트/분석 (consumer)
+| 문서 | 상태 |
+| --- | --- |
+| [로컬 개발/온보딩](./project/getting-started) | ✅ 작성 완료 |
+| [도메인 개요](./project/domain) | ✅ 작성 완료 |
+| [E2E 시나리오/화면 흐름](./project/e2e-scenarios) | ✅ 작성 완료 |
+| [추천 시스템](./project/recommendation) | ✅ 작성 완료 |
+| [에러 처리/Toast](./client/error-toast) | ✅ 작성 완료 |
+| [이벤트/분석 파이프라인](./consumer/analytics-pipeline) | ✅ 작성 완료 |
+
+나머지 페이지는 스텁 상태입니다.

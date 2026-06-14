@@ -1,12 +1,109 @@
 ---
 title: 에러 처리/Toast
+sidebar_position: 7
 ---
 
 # 에러 처리/Toast
 
-> 상태: 스텁
+## 이 문서로 해결할 질문
 
-## 우선 참조
+- API 실패·렌더 예외·404는 각각 어떻게 처리하는가?
+- React Query 전역 오류 Toast를 끄거나 메시지를 바꾸려면?
+- 새 액션 실패 UX를 추가할 때 어디에 코드를 넣는가?
+
+## 역할 분담
+
+| 수단 | 사용 시점 | 구현 위치 |
+| --- | --- | --- |
+| `error.tsx` | 라우트 트리 복구 불가 렌더 예외 | `client/src/app/error.tsx` |
+| `global-error.tsx` | 루트 layout 포함 치명적 예외 | `client/src/app/global-error.tsx` |
+| `not-found.tsx` | 404 (리소스 없음) | `client/src/app/not-found.tsx` |
+| **인라인 Alert** | 화면 고정 안내 (크레딧 소진 등) | 해당 페이지 컴포넌트 |
+| **전역 Toast** | 복구 가능한 API·백그라운드 실패 | `client/src/lib/toast/` |
+
+원칙: **라우트는 죽이지 않고 컨텍스트를 유지**해야 하는 오류는 Toast로 처리합니다.
+
+## React Query 전역 오류
+
+`QueryClient` 생성 시 `QueryCache` / `MutationCache`의 `onError`에서 `notifyApiError`를 호출합니다.
+
+```text
+AppQueryClientProvider
+  └─ QueryCache.onError → showGlobalQueryErrorToast
+  └─ MutationCache.onError → showGlobalMutationErrorToast
+```
+
+구현: `client/src/lib/queries/query-client.provider.tsx`, `global-query-error-toast.ts`
+
+### meta 옵션
+
+개별 `useQuery` / `useMutation`에서 전역 Toast를 제어합니다.
+
+| meta 필드 | 의미 |
+| --- | --- |
+| `suppressGlobalErrorToast: true` | 전역 Toast 비활성 (화면에서 직접 처리) |
+| `errorToastTitle` | Toast 제목 오버라이드 |
+
+예: `useCurrentUser`는 기본 `errorToastTitle: '세션을 불러오지 못했어요'`를 설정합니다.
+
+타입 확장: `client/src/lib/queries/react-query-meta.d.ts`
+
+## API
+
+| 함수/훅 | 용도 |
+| --- | --- |
+| `notifyApiError(error, options?)` | `ApiError` → 사용자 메시지 + Toast enqueue |
+| `useErrorToast()` | 훅 래퍼 (의존성 배열에 넣기 쉬움) |
+| `useToast()` | `enqueue` / `dismiss` / `clear` 직접 제어 |
+
+메시지 변환: `client/src/lib/api/error.ts` (`getUserMessage`)
+
+## Toast 옵션 패턴
+
+| 옵션 | 동작 |
+| --- | --- |
+| `dedupeKey` | 동일 키 Toast upsert; 2.5초 내 재호출 무시 |
+| `skipDedupe: true` | 시간 기반 중복 억제 해제 |
+| `durationMs: 0` | 자동 닫힘 없음 |
+| `action: { label, onAction }` | 예: 챗봇 "다시 시도" |
+
+## Provider 순서
+
+`client/src/app/layout.tsx`:
+
+```text
+AppQueryClientProvider → ToastProvider → AuthProvider → AppRootFrame
+```
+
+Toast 브리지가 Query 오류 콜백 시점에 등록되도록 이 순서를 유지합니다.
+
+## 접근성
+
+| variant | ARIA |
+| --- | --- |
+| `error` | `role="alert"`, `aria-live="assertive"` |
+| 그 외 | `role="status"`, `aria-live="polite"` |
+
+## 새 기능 추가 시 가이드
+
+1. **백그라운드 fetch 실패** → React Query + 전역 Toast (기본). 화면 인라인 처리 필요 시 `suppressGlobalErrorToast`
+2. **사용자 액션 실패** (저장·삭제) → `useMutation` + 필요 시 `errorToastTitle`
+3. **페이지 전체 불가** → Error Boundary 또는 `notFound()`
+4. **인증 만료** → `http-client` 401 refresh 흐름 ([인증](./auth)) — Toast와 별도
+
+## 테스트
+
+```bash
+pnpm --filter client test:unit
+```
+
+## 관련 문서
+
+- [상태 관리](./state)
+- [API 클라이언트/BFF](./api-bff)
+- [접근성/성능 기준](./accessibility-performance)
+
+## SSOT
 
 - `agent/frontend/guidelines/error_toast_guidelines.md`
 - `agent/frontend/spec/frontend_architecture_spec.md` (§5.4)

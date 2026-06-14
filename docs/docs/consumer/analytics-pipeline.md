@@ -1,12 +1,129 @@
 ---
 title: 이벤트/분석 파이프라인
+sidebar_position: 7
 ---
 
 # 이벤트/분석 파이프라인
 
-> 상태: 스텁
+## 이 문서로 해결할 질문
 
-## 우선 참조
+- 사용자 행동 이벤트는 어디서 수집되고 어디에 저장되는가?
+- GA4와 EventLog·Kafka의 역할 분리는?
+- KPI 롤업은 어떻게 동작하는가?
+
+## 파이프라인 개요
+
+```mermaid
+flowchart TB
+    subgraph front [Frontend]
+        GA[GA4 page_view / recipe_viewed 등]
+    end
+    subgraph api [Producer API]
+        P[POST views / favorites / search 등]
+    end
+    subgraph broker [Kafka]
+        AE[activity-events]
+        UE[user-events]
+        CR[chatbot-requests]
+    end
+    subgraph consumer [Consumer]
+        ELH[EventLog 기록]
+        REC[추천 보정]
+        CHAT[챗봇 처리]
+    end
+    subgraph store [Storage]
+        EL[(event_logs MongoDB)]
+        ROLL[kpi_rollups]
+    end
+    GA --> PD[Product Dashboard]
+    P --> AE
+    P --> UE
+    P --> CR
+    AE --> ELH --> EL
+    UE --> ELH
+    UE --> REC
+    CR --> CHAT
+    EL --> ROLL --> PD
+```
+
+## 수집 경로 분리 (SSOT)
+
+| 계층 | 형식 | 용도 |
+| --- | --- | --- |
+| **GA4** | `snake_case` (`recipe_viewed`) | UI 퍼널·탐색 분석 |
+| **EventLog** | `domain.action` (`recipe.view`) | 도메인 확정·추천·KPI SSOT |
+| **Kafka 토픽** | `kebab-case` (`activity-events`) | 비동기 처리 버스 |
+
+동일 의미를 GA와 EventLog에 **이중 정의하지 않습니다**. 이름만 다를 수 있으나 SSOT는 EventLog입니다.
+
+## 주요 Kafka 토픽
+
+| 토픽 | 발행 주체 | Consumer 처리 |
+| --- | --- | --- |
+| `activity-events` | Producer (조회·검색·좋아요 등) | EventLog + 추천 보정 |
+| `user-events` | Producer (관심·재료 CRUD·프로필) | EventLog + Inventory + 추천 |
+| `chatbot-requests` | Producer (챗봇 메시지) | GPT 처리 + ChatbotLog |
+
+토픽 상세: [Kafka 소비/신뢰성](./kafka-reliability)
+
+## EventLog 저장
+
+- 컬렉션: `event_logs` (MongoDB)
+- TTL: 90일
+- Handler: `TrackUserActivityHandler`, activity-events processor 등
+
+이벤트 추가 시 **반드시** `agent/observability/event_dictionary.md`에 먼저 등록합니다.
+
+## GA4 ↔ EventLog 매핑 (구현 완료)
+
+| GA4 | EventLog | 발행 |
+| --- | --- | --- |
+| `recipe_viewed` | `recipe.view` | Producer views API |
+| `recipe_saved` | `recipe.favorites_add` | Producer favorites API |
+| `chatbot_message_sent` | `chatbot.message` | Consumer processor |
+
+코드 앵커: `client/src/lib/observability/analytics-events.ts`
+
+## KPI 롤업
+
+EventLog TTL 90일을 보완하기 위해 일별 롤업 잡이 KPI를 집계합니다.
+
+| KPI | 원본 | 롤업 잡 |
+| --- | --- | --- |
+| `kpi_recipe_favorite_cvr` | `recipe.view`, `recipe.favorites_add` | `rollupRecipeFavoriteCvr()` |
+| `kpi_recommendation_e2e_latency` | `recipe.favorites_add` (occurredAt→processedAt) | `rollupRecommendationLatency()` |
+| `kpi_search_click_rate` | `search.query`, `search.click` | search CTR 롤업 |
+
+구현: `server/consumer/src/jobs/kpi-rollup/kpi-rollup.service.ts`
+
+```bash
+pnpm run kpi:rollup
+```
+
+## 운영·검증
+
+| 항목 | 문서/도구 |
+| --- | --- |
+| 통합 검증 시나리오 | `agent/observability/validation.md` §7~8 |
+| KPI 계약 | `agent/observability/product_kpi_contract.md` |
+| 알림·장애 대응 | `agent/observability/product_kpi_runbook.md` |
+| Grafana 대시보드 | `observability/grafana/` |
+
+## 신규 이벤트 추가 절차
+
+1. `agent/observability/event_dictionary.md`에 행 추가
+2. shared event enum 또는 `analytics-events.ts` 갱신
+3. Producer 발행 또는 Consumer 기록 구현
+4. `frontend_event_instrumentation.md` 체크리스트 반영 (GA 연동 시)
+5. PR 리뷰 — 사전 미등록 이벤트 차단
+
+## 관련 문서
+
+- [추천 파이프라인](./recommendation-pipeline)
+- [이벤트 발행](../producer/event-publishing)
+- [Observability](../other/observability)
+
+## SSOT
 
 - `agent/observability/event_dictionary.md`
 - `agent/observability/aggregation_pipeline.md`
