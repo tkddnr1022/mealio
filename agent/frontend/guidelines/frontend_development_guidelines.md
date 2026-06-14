@@ -72,7 +72,10 @@
 ```typescript
 // app/(main)/recipe/[id]/page.tsx
 export async function generateStaticParams() {
-  const result = await getRecipeStaticIds({ size: 10 });
+  const result = await fetchForIsr({
+    fetcher: () => getRecipeStaticIds({ size: 10 }),
+    fallback: { data: [] },
+  });
   return result.data.map((id) => ({ id: String(id) }));
 }
 
@@ -83,6 +86,23 @@ export async function generateMetadata({ params }): Promise<Metadata> {
   return { title: recipe.title, description: recipe.description, /* ... */ };
 }
 ```
+
+#### ISR fetch 예외처리
+
+ISR 페이지(`/recipe`, `/recipe/filter`, `/ingredient/filter`, `/recipe/[id]`)의 서버 데이터 fetch는 **`fetchForIsr`**(`client/src/lib/api/server/isr-fetch.server.ts`)로 통일한다. CI 빌드(`process.env.CI === 'true'`)에서 fetch 실패 시에만 `fallback`을 반환한다.
+
+| 단계 | fetch 실패 시 동작 |
+| ------ | ------------------- |
+| **CI 프리렌더** (`next build`, `CI=true`) | `fallback`(예: `createEmptyPaginated`·`createEmptyDataList`, `client/src/lib/utils/isr-fallback.ts`) 반환 — 빌드 통과 |
+| **로컬/비-CI 프리렌더** | `throw` — 빌드 실패(조기 발견) |
+| **런타임 재검증** (주기 ISR·온디맨드 재생성) | `throw` — 기존 캐시(stale) 유지, 빈 화면으로 덮어쓰지 않음 |
+
+- **필수 본문 데이터**(`default` export): 위 헬퍼 사용. 재검증 실패 시 stale 유지가 목표이므로 `Promise.allSettled` + `[]` 폴백 금지.
+- **`generateMetadata`**: 메타만 완화 가능. API 실패 시 기본 title/description 폴백 허용(본문 캐시와 분리).
+- **`generateStaticParams`**: `fetchForIsr` 사용. CI 프리렌더에서만 `{ data: [] }` 폴백.
+- **CSR·SSR 비-ISR 페이지**(예: `/recipe/search`, 개인화 추천): 본 절 범위 밖. 기존 React Query·`serverFetchWrapper` 전략 유지.
+
+CI 프리렌더 soft-fallback 한계: 백엔드 미연결 상태로 배포되면 초기 공개 섹션이 비어 있을 수 있다. `revalidate=300` 주기·첫 방문 on-demand 생성·`POST /api/revalidate` 후 정상 API 연결 시 복구된다.
 
 ### 2.2 챗봇 아키텍처
 
@@ -126,8 +146,9 @@ export default async function RecipesPage() {
 
 ### 3.2 페이지별 캐싱 요약
 
-- `/recipe`: ISR `revalidate = 300`, Redis 쿼리 캐시
-- `/recipe/[id]`: 온디맨드 ISR(`revalidate = false`, `generateStaticParams` size 10). 데이터 변경 시 `POST /api/revalidate`(본문 `{ secret, path }`) → `revalidatePath(path)`
+- `/recipe`: ISR `revalidate = 300`, Redis 쿼리 캐시. 재검증 fetch 실패 시 stale HTML 유지(§2.1 ISR fetch 예외처리).
+- `/recipe/[id]`: 온디맨드 ISR(`revalidate = false`, `generateStaticParams` size 10). 데이터 변경 시 `POST /api/revalidate`(본문 `{ secret, path }`) → `revalidatePath(path)`. 재생성 실패 시 기존 캐시 유지.
+- `/recipe/filter`, `/ingredient/filter`: ISR `revalidate = 300`. 재검증 실패 시 stale 유지.
 - `/recipe` 개인화 추천 섹션: CSR(`GET /api/v1/recipes/recommended`) + Redis 결과 캐시 TTL 1시간
 
 ---

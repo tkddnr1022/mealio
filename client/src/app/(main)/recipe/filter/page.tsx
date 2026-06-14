@@ -4,6 +4,9 @@ import { Suspense } from 'react';
 import { FullPageSuspenseFallback } from '@/components/layout/FullPageSuspenseFallback';
 import { RecipeFilterClientPage } from './RecipeFilterClientPage';
 import { getRecipeCategories } from '@/lib/api/domains';
+import { fetchForIsr } from '@/lib/api/server';
+import { createEmptyDataList } from '@/lib/utils/isr-fallback';
+import type { RecipeCategory } from '@/lib/types/recipe';
 
 export const metadata: Metadata = {
   title: '레시피 필터',
@@ -14,11 +17,11 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default async function RecipeFilterPage() {
-  const categoriesResult = await Promise.allSettled([getRecipeCategories()]);
-  const categories =
-    categoriesResult[0]?.status === 'fulfilled'
-      ? categoriesResult[0].value.data
-      : [];
+  const categoriesResult = await fetchForIsr({
+    fetcher: () => getRecipeCategories(),
+    fallback: createEmptyDataList<RecipeCategory>(),
+  });
+  const categories = categoriesResult.data;
 
   return (
     <Suspense fallback={<FullPageSuspenseFallback />}>

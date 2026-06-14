@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 
 import { RecipeMainClientPage } from './RecipeMainClientPage';
 import { getRecipeList } from '@/lib/api/domains';
+import { fetchForIsr } from '@/lib/api/server';
+import { createEmptyPaginated } from '@/lib/utils/isr-fallback';
+import type { RecipeSummary } from '@/lib/types/recipe';
 
 export const metadata: Metadata = {
   title: '레시피',
@@ -19,16 +22,19 @@ export default async function RecipeMainPage() {
     size: SECTION_SIZE,
   } as const;
 
-  const [viewedResult, likedResult] = await Promise.allSettled([
-    getRecipeList({ ...listParams, sort: 'viewCount' }),
-    getRecipeList({ ...listParams, sort: 'likeCount' }),
+  const [viewedResult, likedResult] = await Promise.all([
+    fetchForIsr({
+      fetcher: () => getRecipeList({ ...listParams, sort: 'viewCount' }),
+      fallback: createEmptyPaginated<RecipeSummary>(),
+    }),
+    fetchForIsr({
+      fetcher: () => getRecipeList({ ...listParams, sort: 'likeCount' }),
+      fallback: createEmptyPaginated<RecipeSummary>(),
+    }),
   ]);
 
-  const mostViewedRecipes =
-    viewedResult.status === 'fulfilled' ? viewedResult.value.data : [];
-
-  const mostLikedRecipes =
-    likedResult.status === 'fulfilled' ? likedResult.value.data : [];
+  const mostViewedRecipes = viewedResult.data;
+  const mostLikedRecipes = likedResult.data;
 
   return (
     <RecipeMainClientPage

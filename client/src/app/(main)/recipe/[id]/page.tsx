@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { RecipeDetailClientPage } from './RecipeDetailClientPage';
 import { getRecipeById, getRecipeStaticIds } from '@/lib/api/domains';
+import { fetchForIsr } from '@/lib/api/server';
 import { isApiError } from '@/lib/api/error';
 import { truncateForMeta } from '@/lib/metadata/meta-text';
 import type { RecipeDetail } from '@/lib/types/recipe';
@@ -16,15 +17,12 @@ export const revalidate = false;
 const STATIC_PARAMS_SIZE = 100;
 
 export async function generateStaticParams(): Promise<{ id: string }[]> {
-  try {
-    const result = await getRecipeStaticIds({
-      size: STATIC_PARAMS_SIZE,
-    });
+  const result = await fetchForIsr({
+    fetcher: () => getRecipeStaticIds({ size: STATIC_PARAMS_SIZE }),
+    fallback: { data: [] },
+  });
 
-    return result.data.map((id) => ({ id: String(id) }));
-  } catch {
-    return [];
-  }
+  return result.data.map((id) => ({ id: String(id) }));
 }
 
 export async function generateMetadata({
