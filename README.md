@@ -64,11 +64,11 @@ pnpm install
 
 ### Configuration
 
-`.env.example`을 복사해 실제 환경 파일을 만듭니다.
+`.env.example`·`.env.docker.example`을 복사해 실제 환경 파일을 만듭니다.
 
 ```bash
 # 인프라 Compose용 (DB·Kafka·관측)
-cp .env.example .env.docker
+cp .env.docker.example .env.docker
 
 # 호스트에서 앱 실행용
 cp client/.env.example client/.env
@@ -76,12 +76,12 @@ cp server/producer/.env.example server/producer/.env
 cp server/consumer/.env.example server/consumer/.env
 
 # Docker Compose로 앱 기동용
-cp client/.env.example client/.env.docker
-cp server/producer/.env.example server/producer/.env.docker
-cp server/consumer/.env.example server/consumer/.env.docker
+cp client/.env.docker.example client/.env.docker
+cp server/producer/.env.docker.example server/producer/.env.docker
+cp server/consumer/.env.docker.example server/consumer/.env.docker
 ```
 
-프로젝트 루트 `.env.example`은 Docker Compose 인프라(DB, Kafka, 관측) 전용입니다. 앱 패키지별 환경 변수는 각 패키지 README를 참고하세요.
+프로젝트 루트 `.env.docker.example`은 Docker Compose 인프라(DB, Kafka, 관측) 전용입니다. 앱 패키지별 환경 변수는 각 패키지 README를 참고하세요.
 
 | 변수 | 설명 | 기본값(예시) |
 | --- | --- | --- |

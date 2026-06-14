@@ -20,14 +20,15 @@ server/consumer/
 │  ├─ jobs/             # 배치 잡 (KPI, 레시피 수집)
 │  └─ config/           # 환경 변수 검증
 ├─ test/
-└─ .env.example
+├─ .env.example
+└─ .env.docker.example
 ```
 
 ## Configuration
 
 ```bash
-cp .env.example .env          # 호스트 개발
-cp .env.example .env.docker   # Docker Compose
+cp .env.example .env                    # 호스트 개발
+cp .env.docker.example .env.docker      # Docker Compose
 ```
 
 | 변수 | 설명 | 기본값(예시) |

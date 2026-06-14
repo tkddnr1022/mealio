@@ -18,21 +18,22 @@ client/
 ├─ src/app/           # App Router 페이지·Route Handler
 ├─ src/components/    # UI·도메인 컴포넌트
 ├─ src/lib/           # API·설정·쿼리·유틸
-└─ .env.example
+├─ .env.example
+└─ .env.docker.example
 ```
 
 ## Configuration
 
 ```bash
-cp .env.example .env          # 호스트 개발
-cp .env.example .env.docker   # Docker Compose
+cp .env.example .env                    # 호스트 개발
+cp .env.docker.example .env.docker      # Docker Compose
 ```
 
 | 변수 | 설명 | 기본값(예시) |
 | --- | --- | --- |
 | `APP_ENV` | 실행 환경 | `development` |
 | `PORT` | 개발·프로덕션 서버 포트 | `4000` |
-| `INTERNAL_API_BASE_URL` | SSR·Route Handler 전용 내부 API URL (비우면 `NEXT_PUBLIC_API_BASE_URL` 사용) | (비움) |
+| `INTERNAL_API_BASE_URL` | SSR·ISR·Route Handler용 백엔드 API base URL (비우면 `NEXT_PUBLIC_API_BASE_URL` 사용) | (비움) |
 | `NEXT_PUBLIC_API_BASE_URL` | 브라우저·CSR용 백엔드 API base URL (비우면 same-origin) | (비움) |
 | `NEXT_PUBLIC_API_PREFIX` | REST API prefix | `/api/v1` |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | GA4 Measurement ID | (비움) |

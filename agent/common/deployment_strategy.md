@@ -140,7 +140,7 @@ Compose는 **`docker/`** 아래 역할별 파일 분리가 SSOT이다. 모든 co
 환경 변수 파일 준비 (`README.md` Installation):
 
 ```bash
-cp .env.example .env.docker
+cp .env.docker.example .env.docker
 cp client/.env.example client/.env
 cp server/producer/.env.example server/producer/.env
 cp server/consumer/.env.example server/consumer/.env
@@ -163,7 +163,7 @@ cp server/consumer/.env.docker.example server/consumer/.env.docker
 
 | 파일 | 용도 |
 |---|---|
-| 루트 `.env.docker` | **인프라 Compose 전용** — DB·Kafka·관측 (`compose-database`, `compose-kafka`, `compose-monitoring` 등). 템플릿: `cp .env.example .env.docker` |
+| 루트 `.env.docker` | **인프라 Compose 전용** — DB·Kafka·관측 (`compose-database`, `compose-kafka`, `compose-monitoring` 등). 템플릿: `cp .env.docker.example .env.docker` |
 | `client/.env` | 호스트에서 `pnpm run start:client` 실행 시. 템플릿: `cp client/.env.example client/.env` |
 | `server/producer/.env` | 호스트에서 `pnpm run start:producer` 실행 시. 템플릿: `cp server/producer/.env.example server/producer/.env` |
 | `server/consumer/.env` | 호스트에서 `pnpm run start:consumer` 실행 시. 템플릿: `cp server/consumer/.env.example server/consumer/.env` |
@@ -290,7 +290,7 @@ docker compose --env-file client/.env.docker \
 | `POSTGRESQL_URL` | Neon | `postgresql://...@postgres:5432/...` (기본) |
 | `REDIS_URL` | Upstash | `redis://redis:6379` (기본) |
 
-루트 `.env.example`(인프라 → `.env.docker`)와 각 패키지 `.env.example`·`.env.docker`, 배포 시크릿 저장소(AWS SSM Parameter Store, GitHub Actions secrets 등)를 동기화한다.
+루트 `.env.docker.example`(인프라 → `.env.docker`)와 각 패키지 `.env.example`·`.env.docker.example`, 배포 시크릿 저장소(AWS SSM Parameter Store, GitHub Actions secrets 등)를 동기화한다.
 
 ---
 
