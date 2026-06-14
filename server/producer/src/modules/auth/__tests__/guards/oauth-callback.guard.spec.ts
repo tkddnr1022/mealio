@@ -17,7 +17,7 @@ describe('OAuthCallbackGuard', () => {
   const validState = 'a'.repeat(64);
   const mockConfigService = {
     getOrThrow: jest.fn((key: string) => {
-      if (key === 'NODE_ENV') return 'development';
+      if (key === 'APP_ENV') return 'development';
       return 'test';
     }),
   };

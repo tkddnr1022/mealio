@@ -3,7 +3,7 @@
  *
  * Next.js는 브라우저에 노출할 값만 `NEXT_PUBLIC_*` 접두어로 빌드 타임에 인라이닝하므로,
  * 공개 앱 설정은 `NEXT_PUBLIC_*`를 사용한다. SSR 전용 내부 API URL은
- * `INTERNAL_API_BASE_URL`(서버 런타임만)로 분리한다(`NODE_ENV`는 런타임 판별용 예외).
+ * `INTERNAL_API_BASE_URL`(서버 런타임만)로 분리한다(`APP_ENV`는 런타임 판별용 예외).
  *
  * - 외부 의존성을 더하지 않기 위해 Zod 대신 수동 파서를 사용한다.
  * - 모든 값은 모듈 로드 시 한 번만 평가되어 불변 객체 {@link env}로 노출된다.
@@ -19,7 +19,7 @@
 export type RuntimeEnv = 'development' | 'production' | 'test';
 
 export interface AppEnv {
-  /** 현재 실행 환경. `NODE_ENV`에서 파생. */
+  /** 현재 실행 환경. `APP_ENV`에서 파생. */
   readonly runtime: RuntimeEnv;
   /** production 빌드 여부 (편의 플래그) */
   readonly isProduction: boolean;
@@ -98,7 +98,7 @@ function readRaw(name: string): string | undefined {
 }
 
 function parseRuntime(): RuntimeEnv {
-  const raw = process.env.NODE_ENV;
+  const raw = process.env.APP_ENV;
   if (raw === 'production' || raw === 'test') return raw;
   return 'development';
 }

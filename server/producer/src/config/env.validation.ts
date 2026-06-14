@@ -6,11 +6,11 @@ import { buildObservabilityEnvRules } from '@mealio/shared';
  * 모든 환경 변수는 필수. 검증 실패 시 구동을 중단하고 오류 메시지를 출력한다.
  */
 export const envValidationSchema = Joi.object({
-  NODE_ENV: Joi.string()
+  APP_ENV: Joi.string()
     .valid('development', 'production', 'test')
     .required()
     .messages({
-      'any.required': 'NODE_ENV is required',
+      'any.required': 'APP_ENV is required',
     }),
 
   PORT: Joi.string().pattern(/^\d+$/).required().messages({

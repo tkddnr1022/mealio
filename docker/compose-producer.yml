@@ -17,7 +17,7 @@ services:
     ports:
       - "127.0.0.1:${PORT:?PORT is required}:${PORT:?PORT is required}"
     environment:
-      NODE_ENV: ${NODE_ENV:?NODE_ENV is required}
+      APP_ENV: ${APP_ENV:?APP_ENV is required}
       METRICS_ENABLED: ${METRICS_ENABLED:?METRICS_ENABLED is required}
       POSTGRESQL_URL: ${POSTGRESQL_URL:?POSTGRESQL_URL is required}
       MONGODB_URL: ${MONGODB_URL:?MONGODB_URL is required}

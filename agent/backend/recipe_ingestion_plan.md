@@ -112,7 +112,7 @@ flowchart LR
 - [ ] `@mealio/shared` Kafka 상수 등록 (기존 토픽과 동일 — `backend_architecture_spec_consumer.md` §2.2)
   - `KAFKA_TOPICS.RECIPE_INGESTION_RETRIEVED`: `recipe-ingestion-retrieved`
   - `KAFKA_DLQ_TOPICS.RECIPE_INGESTION_RETRIEVED_DLQ`: `recipe-ingestion-retrieved-dlq`
-  - 로컬: Producer `KafkaAdminService`가 상수 목록 기준 메인·DLQ 자동 생성 (`NODE_ENV === production`에서는 생성 스킵)
+  - 로컬: Producer `KafkaAdminService`가 상수 목록 기준 메인·DLQ 자동 생성 (`APP_ENV === production`에서는 생성 스킵)
 - [ ] `CONSUMER_GROUPS.RECIPE_INGESTION_PERSIST` 추가 (`recipe-ingestion-persist-group`)
 - [ ] lag·메트릭용 토픽↔그룹 매핑 **양쪽** 갱신
   - `reliability/monitoring/topic-consumer-group.map.ts` (processor 메트릭·DLQ 라벨)

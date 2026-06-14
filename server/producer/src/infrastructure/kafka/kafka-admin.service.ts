@@ -20,10 +20,10 @@ export class KafkaAdminService implements OnModuleInit {
   constructor(private readonly configService: ConfigService) {}
 
   async onModuleInit(): Promise<void> {
-    const nodeEnv = this.configService.getOrThrow<string>('NODE_ENV');
+    const appEnv = this.configService.getOrThrow<string>('APP_ENV');
 
     // 프로덕션 환경에서는 토픽 생성을 수행하지 않는다.
-    if (nodeEnv === 'production') {
+    if (appEnv === 'production') {
       this.logger.log(
         'Skipping Kafka topic creation in production environment',
       );

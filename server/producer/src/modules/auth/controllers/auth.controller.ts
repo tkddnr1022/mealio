@@ -257,7 +257,7 @@ export class AuthController {
   }
 
   private isSecureCookie(): boolean {
-    return this.config.getOrThrow<string>('NODE_ENV') !== 'development';
+    return this.config.getOrThrow<string>('APP_ENV') !== 'development';
   }
 
   private getOAuthCookieOptions(): {

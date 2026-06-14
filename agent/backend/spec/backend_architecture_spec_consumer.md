@@ -15,7 +15,7 @@
 | 경로 | 역할 |
 |------|------|
 | **server/consumer/src/config/** | env 검증 |
-| server/consumer/src/config/env.validation.ts | 앱 시작 시 환경 변수 검증 (Joi 스키마, NODE_ENV·MONGODB_URL·REDIS_URL·KAFKA_*·POSTGRESQL_URL·OPENAI_*·PUBLIC_DATA_*·OPENAI_BATCH_MODEL 등) |
+| server/consumer/src/config/env.validation.ts | 앱 시작 시 환경 변수 검증 (Joi 스키마, APP_ENV·MONGODB_URL·REDIS_URL·KAFKA_*·POSTGRESQL_URL·OPENAI_*·PUBLIC_DATA_*·OPENAI_BATCH_MODEL 등) |
 | **server/consumer/src/constants/** | 불변 계약 상수 (`*.constants.ts`) |
 | server/consumer/src/constants/consumer-groups.constants.ts | Kafka consumer 그룹 ID (`CONSUMER_GROUPS`, §2.2 그룹과 매핑) |
 | **server/consumer/src/policy/** | 운영·제품 튜닝 정책 (`*.policy.ts`) |

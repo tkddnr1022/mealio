@@ -49,7 +49,7 @@ export const SENTRY_BACKEND_SAMPLING_DEVELOPMENT = {
 } as const;
 
 export function isProductionRuntime(): boolean {
-  return (process.env.NODE_ENV ?? 'development') === 'production';
+  return (process.env.APP_ENV ?? 'development') === 'production';
 }
 
 /** `initSentry` 전용 — SENTRY_ENABLED env와 DSN으로 SDK enabled 플래그를 계산한다. */
@@ -106,7 +106,7 @@ export function getSentryInitOptions(
 
   return {
     dsn,
-    environment: process.env.NODE_ENV ?? 'development',
+    environment: process.env.APP_ENV ?? 'development',
     release: process.env.SENTRY_RELEASE,
     enabled,
     sampleRate: rates.sampleRate,
