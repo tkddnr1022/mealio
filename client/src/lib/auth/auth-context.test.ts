@@ -101,7 +101,7 @@ describe('AuthProvider lazy-fetch', () => {
     clearPersistedAuthStatus();
   });
 
-  it('does not fetch /me when localStorage is empty', async () => {
+  it('resolves to Unauthenticated without fetching /me when localStorage is empty', async () => {
     ({ root } = renderAuthProvider());
 
     await waitFor(() => authSnapshot?.status === AuthStatus.Unauthenticated);
@@ -144,11 +144,25 @@ describe('AuthProvider lazy-fetch', () => {
     expect(authSnapshot?.user).toBeNull();
   });
 
+  it('keeps Authenticated when /me fetch fails', async () => {
+    writePersistedAuthStatus(AuthStatus.Authenticated);
+    fetchCurrentUserMock.mockRejectedValue(new Error('network error'));
+
+    ({ root } = renderAuthProvider());
+
+    await waitFor(() => authSnapshot?.status === AuthStatus.Authenticated);
+
+    expect(fetchCurrentUserMock).toHaveBeenCalledTimes(1);
+    expect(authSnapshot?.user).toBeNull();
+  });
+
   it('refresh() fetches /me and exposes the user (OAuth flow)', async () => {
     fetchCurrentUserMock.mockResolvedValue(mockUser);
 
     ({ root } = renderAuthProvider());
-    await waitFor(() => authSnapshot?.status === AuthStatus.Unauthenticated);
+    await waitFor(
+      () => authSnapshot?.status === AuthStatus.Unauthenticated,
+    );
     expect(fetchCurrentUserMock).not.toHaveBeenCalled();
 
     await act(async () => {

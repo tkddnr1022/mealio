@@ -3,15 +3,15 @@
 /**
  * 클라이언트 전역 인증 상태 Provider.
  *
- * - `AuthStatus`는 localStorage(`status` 키)에 영속화되며, `Loading`은 비영속·파생 상태다.
- * - SSR·hydration 첫 렌더는 localStorage를 읽지 않고 `Unauthenticated`(또는 `initialUser` 시 Authenticated)로 맞춘다.
- * - mount 후 useSyncExternalStore로 localStorage의 `Authenticated`를 복원한다.
+ * - `AuthStatus`는 localStorage(`status` 키)에 영속화되며, `Loading`은 비영속 상태다.
+ * - SSR·hydration 첫 렌더는 `Loading`으로 맞춘다. mount 후 localStorage·`/me` 결과로 확정한다.
  * - `Unauthenticated`·localStorage 미설정(`null`)일 때는 `/me`를 호출하지 않는다.
  * - `Authenticated`(로그인 직후·localStorage 복원)에서만 `/me`를 fetch한다.
- * - 노출 `status`의 `Loading`은 `Authenticated` + 프로필 bootstrap 중(`query.isPending`)일 때만 파생된다.
+ * - 노출 `status`의 `Loading`은 (1) hydration bootstrap 중, (2) `Authenticated` + 프로필 bootstrap 중(`query.isPending`)일 때다.
  * - 유저 데이터 SSOT는 React Query 캐시(`userQueries.me`)이며, 본 Provider는 status·캐시를 동기화한다.
  * - OAuth 성공 후 `/oauth/callback`에서 `refresh()`로 Authenticated 마킹·`/me` 재조회 후 `next`로 이동한다.
- * - refresh 실패·로그아웃·SSR refresh 실패(`sessionExpired=1`)는 `auth-session` 브리지로 수렴한다.
+ * - `/me`가 null(비로그인)이면 Unauthenticated로 강등한다. 네트워크·서버 오류 시에는 Authenticated를 유지한다.
+ * - 로그아웃·SSR refresh 실패(`sessionExpired=1`) 등은 `auth-session` 브리지로 수렴한다.
  */
 
 import { useQueryClient } from '@tanstack/react-query';
@@ -61,27 +61,17 @@ function subscribePersistedAuthStatus(onStoreChange: () => void): () => void {
   return () => window.removeEventListener('storage', handler);
 }
 
-function resolveInitialStatus(initialUser?: SessionUser | null): AuthStatus {
-  if (initialUser) {
-    return AuthStatus.Authenticated;
-  }
-  // SSR·hydration 첫 렌더는 항상 Unauthenticated. localStorage 복원은 useSyncExternalStore.
-  return AuthStatus.Unauthenticated;
-}
-
 export interface AuthProviderProps {
   children: ReactNode;
-  /** 서버 컴포넌트에서 미리 조회한 유저(있으면 초기 상태로 사용) */
-  initialUser?: SessionUser | null;
 }
 
 export function AuthProvider({
   children,
-  initialUser,
 }: AuthProviderProps): React.JSX.Element {
   const queryClient = useQueryClient();
-  const [sessionStatus, setSessionStatus] = useState<AuthStatus>(() =>
-    resolveInitialStatus(initialUser),
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [sessionStatus, setSessionStatus] = useState<AuthStatus>(
+    AuthStatus.Loading,
   );
 
   const persistedStatus = useSyncExternalStore(
@@ -89,19 +79,6 @@ export function AuthProvider({
     readPersistedAuthStatus,
     () => null,
   );
-
-  const restoredSessionStatus = useMemo(() => {
-    if (initialUser) {
-      return sessionStatus;
-    }
-    if (
-      sessionStatus === AuthStatus.Unauthenticated &&
-      persistedStatus === AuthStatus.Authenticated
-    ) {
-      return AuthStatus.Authenticated;
-    }
-    return sessionStatus;
-  }, [initialUser, sessionStatus, persistedStatus]);
 
   const setStatus = useCallback((next: AuthStatus) => {
     setSessionStatus(next);
@@ -113,44 +90,72 @@ export function AuthProvider({
     }
   }, []);
 
-  const shouldFetchUser = restoredSessionStatus === AuthStatus.Authenticated;
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    if (sessionStatus === AuthStatus.Loading) {
+      setStatus(
+        persistedStatus === AuthStatus.Authenticated
+          ? AuthStatus.Authenticated
+          : AuthStatus.Unauthenticated,
+      );
+      return;
+    }
+
+    if (
+      sessionStatus === AuthStatus.Unauthenticated &&
+      persistedStatus === AuthStatus.Authenticated
+    ) {
+      setStatus(AuthStatus.Authenticated);
+    }
+  }, [isHydrated, sessionStatus, persistedStatus, setStatus]);
+
+  const shouldFetchUser =
+    isHydrated && sessionStatus === AuthStatus.Authenticated;
 
   const query = useCurrentUser({
-    initialData: initialUser === undefined ? undefined : initialUser,
     enabled: shouldFetchUser,
   });
 
   const isSessionDemotedByQuery =
-    shouldFetchUser &&
-    ((query.isSuccess && query.data === null) || query.isError);
+    shouldFetchUser && query.isSuccess && query.data === null;
 
-  const status = isSessionDemotedByQuery
+  const status =
+    !isHydrated || sessionStatus === AuthStatus.Loading
+      ? AuthStatus.Loading
+      : isSessionDemotedByQuery
     ? AuthStatus.Unauthenticated
-    : restoredSessionStatus === AuthStatus.Authenticated &&
+    : sessionStatus === AuthStatus.Authenticated &&
         query.isPending &&
         query.data === undefined
       ? AuthStatus.Loading
-      : restoredSessionStatus;
+      : sessionStatus;
 
   useEffect(() => {
     if (!isSessionDemotedByQuery) return;
 
-    writePersistedAuthStatus(AuthStatus.Unauthenticated);
+    setStatus(AuthStatus.Unauthenticated);
     queryClient.setQueryData(userQueries.me(), null);
+  }, [isSessionDemotedByQuery, queryClient, setStatus]);
 
-    if (query.isError) {
-      logger.error('[AuthProvider] session query failed', {
-        error: query.error,
-      });
-    }
-  }, [isSessionDemotedByQuery, query.isError, query.error, queryClient]);
+  useEffect(() => {
+    if (!shouldFetchUser || !query.isError) return;
+
+    logger.error('[AuthProvider] session query failed', {
+      error: query.error,
+    });
+  }, [shouldFetchUser, query.isError, query.error]);
 
   useEffect(() => {
     return subscribeAuthSessionCleared(() => {
-      setSessionStatus(AuthStatus.Unauthenticated);
+      setStatus(AuthStatus.Unauthenticated);
       queryClient.setQueryData(userQueries.me(), null);
     });
-  }, [queryClient]);
+  }, [queryClient, setStatus]);
 
   const refresh = useCallback(async () => {
     setStatus(AuthStatus.Authenticated);
