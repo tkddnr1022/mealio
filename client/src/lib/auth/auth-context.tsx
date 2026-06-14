@@ -139,7 +139,9 @@ export function AuthProvider({
     [isHydrated, manualSessionStatus, persistedStatus],
   );
 
-  const cachedMe = queryClient.getQueryData<UserProfile | null>(userQueries.me());
+  const cachedMe = queryClient.getQueryData<UserProfile | null>(
+    userQueries.me(),
+  );
   const hasInvalidSessionCache = cachedMe === null;
 
   const shouldFetchUser =

@@ -51,8 +51,7 @@ export function buildObservabilityEnvRules(
     rules.METRICS_PORT = Joi.when('METRICS_ENABLED', {
       is: metricsEnabledOn,
       then: Joi.string().pattern(/^\d+$/).required().messages({
-        'any.required':
-          'METRICS_PORT is required when METRICS_ENABLED=true',
+        'any.required': 'METRICS_PORT is required when METRICS_ENABLED=true',
       }),
       otherwise: Joi.optional(),
     });

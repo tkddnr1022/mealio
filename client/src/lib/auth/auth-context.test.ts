@@ -160,9 +160,7 @@ describe('AuthProvider lazy-fetch', () => {
     fetchCurrentUserMock.mockResolvedValue(mockUser);
 
     ({ root } = renderAuthProvider());
-    await waitFor(
-      () => authSnapshot?.status === AuthStatus.Unauthenticated,
-    );
+    await waitFor(() => authSnapshot?.status === AuthStatus.Unauthenticated);
     expect(fetchCurrentUserMock).not.toHaveBeenCalled();
 
     await act(async () => {
