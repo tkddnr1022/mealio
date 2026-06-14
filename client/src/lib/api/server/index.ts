@@ -10,7 +10,4 @@ export {
   type ForwardKind,
 } from './with-forwarded-headers';
 export { serverFetchWrapper } from './server-fetch-wrapper';
-export {
-  fetchForIsr,
-  type FetchForIsrOptions,
-} from './isr-fetch.server';
+export { fetchForIsr, type FetchForIsrOptions } from './isr-fetch.server';
