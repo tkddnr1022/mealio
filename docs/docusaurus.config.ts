@@ -2,12 +2,14 @@ import { themes as prismThemes } from 'prism-react-renderer';
 import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
+const isGithubPages = process.env.GITHUB_PAGES === 'true';
+
 const config: Config = {
   title: 'Mealio Docs',
   tagline: 'AI 기반 맞춤형 레시피 추천 플랫폼',
-  url: 'https://mealio.example.com',
-  baseUrl: '/',
-  organizationName: 'mealio',
+  url: 'https://tkddnr1022.github.io',
+  baseUrl: isGithubPages ? '/mealio/' : '/',
+  organizationName: 'tkddnr1022',
   projectName: 'mealio',
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
