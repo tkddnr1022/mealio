@@ -46,7 +46,7 @@ cp .env.example .env.docker   # Docker Compose
 | `SENTRY_ENABLED` | Sentry 활성화 | `false` |
 | `SENTRY_DSN_CONSUMER` | Consumer Sentry DSN | (비움) |
 | `METRICS_ENABLED` | Prometheus 메트릭 노출 | `true` |
-| `CONSUMER_METRICS_PORT` | 메트릭 HTTP 포트, `METRICS_ENABLED=true` 시 필수 | `9091` |
+| `METRICS_PORT` | 메트릭 HTTP 포트, `METRICS_ENABLED=true` 시 필수 | `9091` |
 | `SLOW_QUERY_THRESHOLD_MS` | 느린 쿼리 임계값(ms), `METRICS_ENABLED=true` 시 필수 | `500` |
 
 ## 사용 방법

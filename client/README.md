@@ -18,7 +18,6 @@ client/
 ├─ src/app/           # App Router 페이지·Route Handler
 ├─ src/components/    # UI·도메인 컴포넌트
 ├─ src/lib/           # API·설정·쿼리·유틸
-├─ scripts/           # Next 실행 스크립트
 └─ .env.example
 ```
 
@@ -32,7 +31,7 @@ cp .env.example .env.docker   # Docker Compose
 | 변수 | 설명 | 기본값(예시) |
 | --- | --- | --- |
 | `NODE_ENV` | 실행 환경 | `development` |
-| `CLIENT_PORT` | 개발·프로덕션 서버 포트 | `4000` |
+| `PORT` | 개발·프로덕션 서버 포트 | `4000` |
 | `INTERNAL_API_BASE_URL` | SSR·Route Handler 전용 내부 API URL (비우면 `NEXT_PUBLIC_API_BASE_URL` 사용) | (비움) |
 | `NEXT_PUBLIC_API_BASE_URL` | 브라우저·CSR용 백엔드 API base URL (비우면 same-origin) | (비움) |
 | `NEXT_PUBLIC_API_PREFIX` | REST API prefix | `/api/v1` |

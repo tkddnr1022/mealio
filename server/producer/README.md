@@ -33,7 +33,7 @@ cp .env.example .env.docker   # Docker Compose
 | 변수 | 설명 | 기본값(예시) |
 | --- | --- | --- |
 | `NODE_ENV` | 실행 환경 | `development` |
-| `PRODUCER_PORT` | HTTP 서버 포트 | `3000` |
+| `PORT` | HTTP 서버 포트 | `3000` |
 | `JWT_SECRET` | JWT 서명 시크릿 (256비트 이상 권장) | `a-string-secret-at-least-256-bits-long` |
 | `POSTGRESQL_URL` | PostgreSQL 연결 URL | `postgresql://devuser:devpassword@localhost:5432/devdb` |
 | `MONGODB_URL` | MongoDB 연결 URL | `mongodb://devuser:devpassword@localhost:27017/devdb?authSource=admin` |

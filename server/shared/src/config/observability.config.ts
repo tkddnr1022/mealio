@@ -53,7 +53,7 @@ function readRequiredEnv(name: string): string {
 /**
  * 환경 변수에서 관측 설정을 생성한다.
  * METRICS_ENABLED=true 이면 SLOW_QUERY_THRESHOLD_MS
- * (및 Consumer의 CONSUMER_METRICS_PORT)가 반드시 설정되어 있어야 한다.
+ * (및 Consumer의 METRICS_PORT)가 반드시 설정되어 있어야 한다.
  *
  * @param serviceName 실행 중인 서비스 식별자
  * @param options.requireMetricsPort Consumer는 true
@@ -86,8 +86,8 @@ export function createObservabilityConfig(
     ...(requireMetricsPort
       ? {
           metricsPort: parsePositiveInt(
-            readRequiredEnv('CONSUMER_METRICS_PORT'),
-            'CONSUMER_METRICS_PORT',
+            readRequiredEnv('METRICS_PORT'),
+            'METRICS_PORT',
           ),
         }
       : {}),

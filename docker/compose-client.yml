@@ -22,10 +22,10 @@ services:
     restart: unless-stopped
     logging: *default-logging
     ports:
-      - "127.0.0.1:${CLIENT_PORT:?CLIENT_PORT is required}:${CLIENT_PORT:?CLIENT_PORT is required}"
+      - "127.0.0.1:${PORT:?PORT is required}:${PORT:?PORT is required}"
     environment:
       NODE_ENV: ${NODE_ENV:?NODE_ENV is required}
-      PORT: ${CLIENT_PORT:?CLIENT_PORT is required}
+      PORT: ${PORT:?PORT is required}
       HOSTNAME: 0.0.0.0
       INTERNAL_API_BASE_URL: ${INTERNAL_API_BASE_URL:?INTERNAL_API_BASE_URL is required}
       REVALIDATE_SECRET: ${REVALIDATE_SECRET:?REVALIDATE_SECRET is required}

@@ -23,7 +23,7 @@ services:
       KAFKA_BROKERS: ${KAFKA_BROKERS:?KAFKA_BROKERS is required}
       SLOW_QUERY_THRESHOLD_MS: ${SLOW_QUERY_THRESHOLD_MS:?SLOW_QUERY_THRESHOLD_MS is required}
       KAFKA_CLIENT_ID: ${KAFKA_CLIENT_ID:?KAFKA_CLIENT_ID is required}
-      CONSUMER_METRICS_PORT: ${CONSUMER_METRICS_PORT:?CONSUMER_METRICS_PORT is required}
+      METRICS_PORT: ${METRICS_PORT:?METRICS_PORT is required}
       OPENAI_API_KEY: ${OPENAI_API_KEY:?OPENAI_API_KEY is required}
       OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL:?OPENAI_CHAT_MODEL is required}
       OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:?OPENAI_EMBEDDING_MODEL is required}
@@ -39,7 +39,7 @@ services:
           "CMD",
           "node",
           "-e",
-          "const p=process.env.CONSUMER_METRICS_PORT;fetch('http://127.0.0.1:'+p+'/metrics').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+          "const p=process.env.METRICS_PORT;fetch('http://127.0.0.1:'+p+'/metrics').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
         ]
       interval: 15s
       timeout: 5s

@@ -90,7 +90,7 @@ Vercel 배포 시 `Client`는 EC2 외부(Vercel 엣지)에 위치하고 API만 N
 | 컴포넌트 | 배포 위치 | 비고 |
 |---|---|---|
 | `producer`, `consumer` | 호스트 | `docker/compose-producer.yml`·`compose-consumer.yml` **미기동** |
-| `client` | 호스트 (`pnpm run start:client`) | `CLIENT_PORT` 기본 `4000` |
+| `client` | 호스트 (`pnpm run start:client`) | `PORT` 기본 `4000` |
 | DB·캐시·Kafka·Kafka UI·관측 | Docker Compose | 아래 §4 Compose 표 참고 (`compose-producer`·`compose-consumer`·`compose-client` 제외) |
 | DB·캐시 URL | `docker/compose-database.yml` 또는 매니지드 | Atlas/Neon/Upstash URL로 하이브리드 가능 |
 
@@ -108,7 +108,7 @@ Vercel 배포 시 `Client`는 EC2 외부(Vercel 엣지)에 위치하고 API만 N
 ### Security Group
 
 - Inbound 허용: `80`, `443`, `22`(관리 IP만)
-- 앱·Kafka·메트릭 포트(`PRODUCER_PORT`, `9092`, `9090` 등)는 **외부 미노출**, Nginx 또는 localhost 바인딩
+- 앱·Kafka·메트릭 포트(`PORT`, `9092`, `9090` 등)는 **외부 미노출**, Nginx 또는 localhost 바인딩
 - Atlas / Neon / Upstash는 각 콘솔에서 EC2 egress IP allowlist 또는 공개 엔드포인트 + 자격 증명으로 접근
 
 ### Grafana 접근
@@ -235,7 +235,7 @@ Docker Compose로 앱을 띄울 때 패키지 `.env.docker` 연결 URL 예시:
 
 - 로컬 Compose DB: `postgres` / `mongodb` / `redis` / `kafka:19092` 등 **서비스명** 기준
 - EC2 + 매니지드 DB: `MONGODB_URL`(Atlas), `POSTGRESQL_URL`(Neon pooler), `REDIS_URL`(Upstash `rediss://`), `KAFKA_BROKERS`(`kafka:19092`)
-- `PRODUCER_PORT`, `CONSUMER_METRICS_PORT`, `CLIENT_PORT` — 패키지 `.env.docker`에서 관리
+- `PORT`(client·producer), `METRICS_PORT`(consumer) — 패키지 `.env.docker`에서 관리
 - Docker 앱 배포 시 `.env.docker`의 `PROMETHEUS_TARGETS_MODE=compose` (호스트 개발은 `host`)
 
 ### 프로덕션 EC2 (매니지드 DB — Vercel 대신 Docker 선택 시)
@@ -307,7 +307,7 @@ docker compose --env-file client/.env.docker \
 ### 옵션 B — EC2 Docker
 
 - `docker/Dockerfile.client` + `docker/compose-client.yml`
-- Nginx가 `CLIENT_PORT` 컨테이너로 프록시; `FRONTEND_APP_BASE_URL`은 공개 HTTPS URL
+- Nginx가 `PORT` 컨테이너로 프록시; `FRONTEND_APP_BASE_URL`은 공개 HTTPS URL
 - `NEXT_PUBLIC_*`는 build-arg로 이미지에 bake; API URL은 EC2 API 도메인
 - `REVALIDATE_SECRET`: compose 런타임 env
 

@@ -7,7 +7,7 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
 
-  # Producer (docker/compose-producer + compose-monitoring: producer:PRODUCER_PORT — entrypoint에서 치환)
+  # Producer (docker/compose-producer + compose-monitoring: producer:PORT — entrypoint에서 치환)
   - job_name: mealio-producer
     metrics_path: /metrics
     static_configs:
@@ -15,7 +15,7 @@ scrape_configs:
         labels:
           service: producer
 
-  # Consumer (Compose: consumer:9091 — CONSUMER_METRICS_PORT env와 동기화)
+  # Consumer (Compose: consumer:9091 — METRICS_PORT env와 동기화)
   - job_name: mealio-consumer
     metrics_path: /metrics
     static_configs:

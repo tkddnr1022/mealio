@@ -24,7 +24,7 @@ async function bootstrap() {
   app.use(cookieParser());
 
   const config = app.get(ConfigService);
-  const port = parseInt(config.getOrThrow<string>('PRODUCER_PORT'), 10);
+  const port = parseInt(config.getOrThrow<string>('PORT'), 10);
 
   const frontendAppBaseUrl = config.getOrThrow<string>('FRONTEND_APP_BASE_URL');
   const frontendOrigin = new URL(

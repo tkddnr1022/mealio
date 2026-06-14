@@ -224,7 +224,7 @@ Consumer 챗봇 모듈은 GPT 호출 전 **대화 히스토리 컨텍스트**를
 | 예시 | 각 패키지 루트 `.env.example` | 필수 변수 목록·예시 값 |
 | Shared | env 직접 검증 없음 | createKafkaConfig 등은 process.env 읽어 설정 반환 |
 
-**Producer 필수 환경 변수**: NODE_ENV, PRODUCER_PORT, JWT_SECRET, MONGODB_URL, POSTGRESQL_URL, REDIS_URL, KAFKA_BROKERS, KAFKA_CLIENT_ID.
+**Producer 필수 환경 변수**: NODE_ENV, PORT, JWT_SECRET, MONGODB_URL, POSTGRESQL_URL, REDIS_URL, KAFKA_BROKERS, KAFKA_CLIENT_ID.
 
 **Consumer 필수 환경 변수**: NODE_ENV, MONGODB_URL, REDIS_URL, KAFKA_BROKERS, KAFKA_CLIENT_ID, KAFKA_CONSUMER_GROUP_ID, OPENAI_API_KEY, OPENAI_CHAT_MODEL, OPENAI_EMBEDDING_MODEL.
 
