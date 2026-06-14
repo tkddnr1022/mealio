@@ -7,13 +7,27 @@ AI 기반 맞춤형 레시피 추천 플랫폼
 ![Monorepo](https://img.shields.io/badge/Monorepo-pnpm-4A4A4A)
 ![Status](https://img.shields.io/badge/status-active-2ea44f)
 
-## 소개 및 데모
+## 주요 기능 (Features)
 
 - 보유 재료/관심 재료 기반 레시피 추천
 - 레시피 검색 및 개인화 챗봇 지원
+- LLM 기반 레시피 데이터 ETL
 - Producer/Consumer 기반 이벤트 처리 구조
+
+## 링크
+
+- 레피시 데이터 소스: [식약처 공공데이터](https://www.foodsafetykorea.go.kr/apiMain.do)
 - 디자인 시스템: [Figma](https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Mealio?node-id=0-1&t=4XgNpJMecLQKOQcX-1)
 - 데모: 준비 중
+
+## 기술 스택 (Tech Stack)
+
+- Frontend: Next.js, TypeScript
+- Backend: NestJS, Node.js
+- Database: PostgreSQL(Prisma), MongoDB(Mongoose)
+- Infra: Redis, Kafka, Docker Compose
+- Observability: Sentry, Prometheus, Grafana
+- AI: OpenAI API
 
 ## 폴더 및 파일 구조
 
@@ -142,15 +156,6 @@ docker compose --env-file server/consumer/.env.docker -f docker/compose-consumer
 
 docker compose --env-file client/.env.docker -f docker/compose-client.yml up -d --build
 ```
-
-## 기술 스택 (Tech Stack)
-
-- Frontend: Next.js, TypeScript
-- Backend: NestJS, Node.js
-- Database: PostgreSQL(Prisma), MongoDB(Mongoose)
-- Infra: Redis, Kafka, Docker Compose
-- Observability: Sentry, Prometheus, Grafana
-- AI: OpenAI API
 
 ## 라이선스 (License)
 
