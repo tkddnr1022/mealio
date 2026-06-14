@@ -15,6 +15,8 @@
     "start:storybook": "npm run storybook -w client",
     "start:producer": "npm run start:dev -w server/producer",
     "start:consumer": "npm run start:dev -w server/consumer",
+    "start:docs": "npm run start -w docs",
+    "build:docs": "npm run build -w docs",
     "format": "prettier --write .",
     "verify:design-contrast": "node agent/common/verify-design-token-contrast.mjs",
     "kpi:rollup": "pnpm --filter consumer run job:kpi-rollup",
@@ -49,6 +51,7 @@
   },
   "workspaces": [
     "client",
+    "docs",
     "server/shared",
     "server/producer",
     "server/consumer"

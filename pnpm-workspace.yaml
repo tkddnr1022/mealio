@@ -1,5 +1,6 @@
 packages:
   - "client"
+  - "docs"
   - "server/shared"
   - "server/producer"
   - "server/consumer"
