@@ -7,48 +7,8 @@ on:
     branches: [master, main]
 
 jobs:
-  # ── Lint ──────────────────────────────────────────────
-  lint:
-    name: Lint (${{ matrix.package }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - package: client
-            script: ci:lint:client
-            needs_shared: false
-          - package: producer
-            script: ci:lint:producer
-            needs_shared: true
-          - package: consumer
-            script: ci:lint:consumer
-            needs_shared: true
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9.15.0
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm run ci:install
-
-      - name: Build @mealio/shared
-        if: matrix.needs_shared
-        run: pnpm run ci:build:shared
-
-      - name: Run lint
-        run: pnpm run ${{ matrix.script }}
-
-  # ── Client build ──────────────────────────────────────
-  build-client:
-    name: Build client
+  client:
+    name: Client
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -65,43 +25,18 @@ jobs:
       - name: Install dependencies
         run: pnpm run ci:install
 
-      - name: Build client (Next.js)
+      - name: Lint
+        run: pnpm run ci:lint:client
+
+      - name: Build
         run: pnpm run ci:build:client
 
-  # ── Client test ───────────────────────────────────────
-  test-client:
-    name: Test client
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9.15.0
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm run ci:install
-
-      - name: Run client unit tests
+      - name: Test
         run: pnpm run ci:test:client
 
-  # ── Server build (shared → producer / consumer) ──────
-  build-server:
-    name: Build server (${{ matrix.package }})
+  server:
+    name: Server
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - package: producer
-            script: ci:build:producer
-          - package: consumer
-            script: ci:build:consumer
     steps:
       - uses: actions/checkout@v4
 
@@ -120,41 +55,22 @@ jobs:
       - name: Build @mealio/shared
         run: pnpm run ci:build:shared
 
-      - name: Build @mealio/${{ matrix.package }}
-        run: pnpm run ${{ matrix.script }}
+      - name: Lint producer
+        run: pnpm run ci:lint:producer
 
-  # ── Server test (shared → producer / consumer) ───────
-  test-server:
-    name: Test server (${{ matrix.package }})
-    runs-on: ubuntu-latest
-    needs: build-server
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - package: producer
-            script: ci:test:producer
-          - package: consumer
-            script: ci:test:consumer
-    steps:
-      - uses: actions/checkout@v4
+      - name: Lint consumer
+        run: pnpm run ci:lint:consumer
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9.15.0
+      - name: Build producer
+        run: pnpm run ci:build:producer
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: pnpm
+      - name: Build consumer
+        run: pnpm run ci:build:consumer
 
-      - name: Install dependencies
-        run: pnpm run ci:install
+      - name: Test producer
+        run: pnpm run ci:test:producer
 
-      - name: Build @mealio/shared
-        run: pnpm run ci:build:shared
-
-      - name: Run ${{ matrix.package }} tests
-        run: pnpm run ${{ matrix.script }}
+      - name: Test consumer
+        run: pnpm run ci:test:consumer
 
   # Vercel handles client release builds & Sentry source map uploads
