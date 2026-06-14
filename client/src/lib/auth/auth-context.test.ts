@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, createElement } from 'react';
+import { act, createElement, useEffect } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -33,7 +33,12 @@ vi.mock('./session.client', () => ({
 let authSnapshot: AuthContextValue | null = null;
 
 function AuthProbe(): null {
-  authSnapshot = useAuth();
+  const auth = useAuth();
+
+  useEffect(() => {
+    authSnapshot = auth;
+  }, [auth]);
+
   return null;
 }
 

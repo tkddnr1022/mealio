@@ -5,7 +5,7 @@
  *
  * - `AuthStatus`는 localStorage(`status` 키)에 영속화되며, `Loading`은 비영속·파생 상태다.
  * - SSR·hydration 첫 렌더는 localStorage를 읽지 않고 `Unauthenticated`(또는 `initialUser` 시 Authenticated)로 맞춘다.
- * - mount 후 useEffect에서 localStorage의 `Authenticated`를 복원한다.
+ * - mount 후 useSyncExternalStore로 localStorage의 `Authenticated`를 복원한다.
  * - `Unauthenticated`·localStorage 미설정(`null`)일 때는 `/me`를 호출하지 않는다.
  * - `Authenticated`(로그인 직후·localStorage 복원)에서만 `/me`를 fetch한다.
  * - 노출 `status`의 `Loading`은 `Authenticated` + 프로필 bootstrap 중(`query.isPending`)일 때만 파생된다.
@@ -22,6 +22,7 @@ import {
   useEffect,
   useMemo,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from 'react';
 
@@ -32,6 +33,7 @@ import { logger } from '@/lib/utils/logger';
 import { subscribeAuthSessionCleared } from './auth-session';
 import { AuthStatus } from './auth-status';
 import {
+  AUTH_STATUS_STORAGE_KEY,
   readPersistedAuthStatus,
   writePersistedAuthStatus,
 } from './auth-status.storage';
@@ -49,11 +51,21 @@ export interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+function subscribePersistedAuthStatus(onStoreChange: () => void): () => void {
+  const handler = (event: StorageEvent) => {
+    if (event.key === AUTH_STATUS_STORAGE_KEY || event.key === null) {
+      onStoreChange();
+    }
+  };
+  window.addEventListener('storage', handler);
+  return () => window.removeEventListener('storage', handler);
+}
+
 function resolveInitialStatus(initialUser?: SessionUser | null): AuthStatus {
   if (initialUser) {
     return AuthStatus.Authenticated;
   }
-  // SSR·hydration 첫 렌더는 항상 Unauthenticated. localStorage 복원은 mount 후 useEffect.
+  // SSR·hydration 첫 렌더는 항상 Unauthenticated. localStorage 복원은 useSyncExternalStore.
   return AuthStatus.Unauthenticated;
 }
 
@@ -72,13 +84,24 @@ export function AuthProvider({
     resolveInitialStatus(initialUser),
   );
 
-  useEffect(() => {
-    if (initialUser) return;
-    const persisted = readPersistedAuthStatus();
-    if (persisted === AuthStatus.Authenticated) {
-      setSessionStatus(AuthStatus.Authenticated);
+  const persistedStatus = useSyncExternalStore(
+    subscribePersistedAuthStatus,
+    readPersistedAuthStatus,
+    () => null,
+  );
+
+  const restoredSessionStatus = useMemo(() => {
+    if (initialUser) {
+      return sessionStatus;
     }
-  }, [initialUser]);
+    if (
+      sessionStatus === AuthStatus.Unauthenticated &&
+      persistedStatus === AuthStatus.Authenticated
+    ) {
+      return AuthStatus.Authenticated;
+    }
+    return sessionStatus;
+  }, [initialUser, sessionStatus, persistedStatus]);
 
   const setStatus = useCallback((next: AuthStatus) => {
     setSessionStatus(next);
@@ -90,47 +113,37 @@ export function AuthProvider({
     }
   }, []);
 
-  const shouldFetchUser = sessionStatus === AuthStatus.Authenticated;
+  const shouldFetchUser = restoredSessionStatus === AuthStatus.Authenticated;
 
   const query = useCurrentUser({
     initialData: initialUser === undefined ? undefined : initialUser,
     enabled: shouldFetchUser,
   });
 
-  const status =
-    sessionStatus === AuthStatus.Authenticated &&
-    query.isPending &&
-    query.data === undefined
+  const isSessionDemotedByQuery =
+    shouldFetchUser &&
+    ((query.isSuccess && query.data === null) || query.isError);
+
+  const status = isSessionDemotedByQuery
+    ? AuthStatus.Unauthenticated
+    : restoredSessionStatus === AuthStatus.Authenticated &&
+        query.isPending &&
+        query.data === undefined
       ? AuthStatus.Loading
-      : sessionStatus;
+      : restoredSessionStatus;
 
   useEffect(() => {
-    if (!shouldFetchUser) return;
+    if (!isSessionDemotedByQuery) return;
 
-    if (query.isSuccess) {
-      if (!query.data) {
-        setStatus(AuthStatus.Unauthenticated);
-        queryClient.setQueryData(userQueries.me(), null);
-      }
-      return;
-    }
+    writePersistedAuthStatus(AuthStatus.Unauthenticated);
+    queryClient.setQueryData(userQueries.me(), null);
 
     if (query.isError) {
       logger.error('[AuthProvider] session query failed', {
         error: query.error,
       });
-      setStatus(AuthStatus.Unauthenticated);
-      queryClient.setQueryData(userQueries.me(), null);
     }
-  }, [
-    shouldFetchUser,
-    query.isSuccess,
-    query.isError,
-    query.data,
-    query.error,
-    setStatus,
-    queryClient,
-  ]);
+  }, [isSessionDemotedByQuery, query.isError, query.error, queryClient]);
 
   useEffect(() => {
     return subscribeAuthSessionCleared(() => {
@@ -149,7 +162,7 @@ export function AuthProvider({
   }, [queryClient, setStatus]);
 
   const user =
-    sessionStatus === AuthStatus.Unauthenticated ? null : (query.data ?? null);
+    status === AuthStatus.Unauthenticated ? null : (query.data ?? null);
 
   const value = useMemo<AuthContextValue>(
     () => ({
