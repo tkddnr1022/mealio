@@ -10,9 +10,7 @@ services:
   producer:
     build:
       context: ..
-      dockerfile: docker/Dockerfile.server
-      args:
-        APP: producer
+      dockerfile: docker/Dockerfile.producer
     container_name: mealio-producer
     restart: unless-stopped
     logging: *default-logging

@@ -10,9 +10,7 @@ services:
   consumer:
     build:
       context: ..
-      dockerfile: docker/Dockerfile.server
-      args:
-        APP: consumer
+      dockerfile: docker/Dockerfile.consumer
     container_name: mealio-consumer
     restart: unless-stopped
     logging: *default-logging
