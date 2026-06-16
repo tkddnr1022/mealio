@@ -15,10 +15,12 @@ const config: Config = {
   projectName: 'mealio',
   onBrokenLinks: brokenLinkPolicy,
   markdown: {
+    mermaid: true,
     hooks: {
       onBrokenMarkdownLinks: brokenLinkPolicy,
     },
   },
+  themes: ['@docusaurus/theme-mermaid'],
   i18n: {
     defaultLocale: 'ko',
     locales: ['ko'],
@@ -58,6 +60,9 @@ const config: Config = {
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
+    },
+    mermaid: {
+      theme: { light: 'neutral', dark: 'dark' },
     },
   } satisfies Preset.ThemeConfig,
 };
