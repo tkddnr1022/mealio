@@ -46,6 +46,7 @@ alwaysApply: true
 | **screen_flowchart.mermaid** | 화면 플로우 다이어그램 (Mermaid) | `agent/frontend/spec/frontend_architecture_spec.md` §2 라우팅 맵을 기반으로 한 화면 전환·탭 간 이동 흐름을 시각적으로 파악할 때 |
 | **openapi_spec_backend.yaml** | OpenAPI 3.0 백엔드 API 명세 (Producer) | `GET/POST /api/v1/...` 인증·엔드포인트·요청/응답 스키마·DTO·Swagger 연동을 구현·검증할 때 |
 | **openapi_spec_frontend.yaml** | OpenAPI 3.0 프론트엔드 Route Handler 명세 | Next.js `client/src/app/api/` (`/api/auth/refresh-bridge`, `/api/revalidate` 등) BFF·인프라 엔드포인트 계약을 구현·검증할 때 |
+| **docusaurus_documentation_writing_guide.md** | Docusaurus 문서 작성 가이드 (SSOT) | `docs/docs/` Markdown 페이지 작성·동기화 규칙, 워크플로 |
 | **spec_driven_development_guidelines.md** | 스펙 주도 개발 지침 (공통) | 명세 대비 파일·페이지 생성/생략/이름 변경 금지 원칙, 명세 동기화 의무를 적용할 때 |
 
 ### 프론트엔드 — 지침 (`agent/frontend/guidelines/`)

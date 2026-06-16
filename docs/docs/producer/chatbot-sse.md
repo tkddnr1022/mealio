@@ -83,8 +83,8 @@ title: 챗봇/SSE
 - [챗봇 처리](../consumer/chatbot)
 - [이벤트 발행](./event-publishing)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/backend/spec/backend_architecture_spec_producer.md` (§1.2)
-- `agent/backend/guidelines/backend_development_guidelines.md` (§5)
-- `agent/common/openapi_spec_backend.yaml`
+- [Producer 아키텍처](../producer/architecture) · server/producer/src/ (§1.2)
+- [개발 규약](../other/development-conventions) (§5)
+- [Producer API](../producer/api) · server/producer/src/modules/

@@ -77,7 +77,7 @@ Handler는 **Kafka를 직접 발행하지 않음** — 무효화는 RequestServi
 
 | 저장소 | 용도 |
 | --- | --- |
-| PostgreSQL | Recipe 도메인, 추천 SSOT, 크레딧 차감 |
+| PostgreSQL | Recipe 도메인, 추천 원본 테이블, 크레딧 차감 |
 | MongoDB | EventLog, ChatbotLog, ingestion jobs |
 | Redis | Handler 캐시, 스트림 발행 |
 
@@ -88,7 +88,7 @@ Handler는 **Kafka를 직접 발행하지 않음** — 무효화는 RequestServi
 - [배치/스케줄 작업](./batch-jobs)
 - [레시피 수집 상세](./recipe-ingestion)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/backend/spec/backend_architecture_spec_consumer.md` (§2.1)
-- `agent/backend/guidelines/backend_development_guidelines.md`
+- [Consumer 아키텍처](../consumer/architecture) · server/consumer/src/ (§2.1)
+- [개발 규약](../other/development-conventions)

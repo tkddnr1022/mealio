@@ -41,7 +41,7 @@ title: 운영/복구
 2. `RecommendationHandler` 트랜잭션 경합
 3. `activity-events` warn 로그 (추천만 실패 가능)
 
-→ `agent/observability/product_kpi_runbook.md` §2.3
+→ [Observability](../other/observability), [Consumer 운영](../consumer/operations) §2.3
 
 ## Recipe Ingestion 복구
 
@@ -72,7 +72,7 @@ pnpm run recipe-ingestion:fetch  # ingestion 단계별
 - [배치/스케줄 작업](./batch-jobs)
 - [Observability](../other/observability)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/observability/product_kpi_runbook.md`
-- `agent/observability/validation.md`
+- [Observability](../other/observability), [Consumer 운영](../consumer/operations)
+- [Observability](../other/observability)

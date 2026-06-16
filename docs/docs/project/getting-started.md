@@ -118,7 +118,7 @@ pnpm start:docs    # Docusaurus 개발 서버
 - [모노레포 구조](./monorepo)
 - [도메인 개요](./domain)
 
-## SSOT
+## 참고 코드·계약
 
 - `README.md`
-- `agent/common/deployment_strategy.md` (§2 개발 환경, §4 Compose)
+- [배포](../project/deployment) · docker/ (§2 개발 환경, §4 Compose)

@@ -13,7 +13,7 @@ sidebar_position: 4
 
 ## 컴포넌트 다이어그램 (운영 기준)
 
-`agent/common/deployment_strategy.md`의 확정 아키텍처를 반영합니다. (다이어그램 원본 `architecture.mermaid`는 일부 레거시 명칭을 포함할 수 있음)
+[배포](../project/deployment) · docker/의 확정 아키텍처를 반영합니다. (다이어그램 원본 `architecture.mermaid`는 일부 레거시 명칭을 포함할 수 있음)
 
 ```mermaid
 flowchart LR
@@ -119,7 +119,7 @@ producer → Kafka topic
 - [추천 시스템](./recommendation)
 - [E2E 시나리오](./e2e-scenarios)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/common/deployment_strategy.md` (§1)
-- `agent/common/architecture.mermaid` (참고용, 배포 전략과 불일치 시 deployment_strategy 우선)
+- [배포](../project/deployment) · docker/ (§1)
+- [시스템 아키텍처](../project/architecture) (참고용, 배포 전략과 불일치 시 deployment_strategy 우선)

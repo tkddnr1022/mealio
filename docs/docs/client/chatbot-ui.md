@@ -46,7 +46,7 @@ title: 챗봇 UI/스트리밍
 | `/chatbot/[id]` | `ChatbotConversationClientPage.tsx` | 메시지 전송·SSE 구독 |
 | 컴포넌트 | `client/src/components/chatbot/` | 버블·입력·슬라이더 등 |
 
-컴포넌트 배치: `agent/frontend/spec/frontend_components_structure_spec.md` (chatbot)
+컴포넌트 배치: [컴포넌트 구조](../client/components) · client/src/components/ (chatbot)
 
 ## React Query 연동
 
@@ -82,8 +82,8 @@ title: 챗봇 UI/스트리밍
 - [챗봇 처리](../consumer/chatbot)
 - [에러 처리/Toast](./error-toast)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/frontend/guidelines/frontend_development_guidelines.md` (§2.2)
-- `agent/frontend/spec/frontend_components_structure_spec.md` (chatbot)
-- `agent/backend/spec/backend_architecture_spec_producer.md` (§1.2)
+- [클라이언트 아키텍처](../client/architecture) (§2.2)
+- [컴포넌트 구조](../client/components) · client/src/components/ (chatbot)
+- [Producer 아키텍처](../producer/architecture) · server/producer/src/ (§1.2)

@@ -23,7 +23,7 @@ client/src/components/
 └── auth/        # 인증 화면
 ```
 
-라우팅 그룹과 매핑: `agent/frontend/spec/frontend_components_structure_spec.md` §3
+라우팅 그룹과 매핑: [컴포넌트 구조](../client/components) · client/src/components/ §3
 
 ## 폴더 컨벤션
 
@@ -75,14 +75,14 @@ pnpm run start:storybook
 | 레시피 카드·검색 UI? | `recipe/` |
 | 챗봇 버블? | `chatbot/` |
 
-명세에 경로가 정의되어 있으면 **명세 우선** (`spec_driven_development_guidelines.md`).
+아키텍처 문서에 경로가 정의되어 있으면 **문서 우선**. [기여 가이드](../other/contributing)를 참고하세요.
 
 ## 관련 문서
 
 - [클라이언트 아키텍처](./architecture)
 - [Design System](../other/design-system)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/frontend/spec/frontend_components_structure_spec.md`
-- `agent/frontend/guidelines/frontend_component_conventions_guidelines.md`
+- [컴포넌트 구조](../client/components) · client/src/components/
+- [컴포넌트 구조](../client/components)

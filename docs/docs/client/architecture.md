@@ -31,7 +31,7 @@ title: 클라이언트 아키텍처
 | **SSR** | `/recipe/search` |
 | **CSR** | 챗봇, 보관함, 마이페이지, 인증 |
 
-정책 SSOT: `client/src/lib/policy/cache.policy.ts`
+정책 정의: `client/src/lib/policy/cache.policy.ts`
 
 ## 디렉터리 구조
 
@@ -48,7 +48,7 @@ client/src/
 └── proxy.ts          # 보호 라우트 (refreshToken 검사)
 ```
 
-컴포넌트 배치: `agent/frontend/spec/frontend_components_structure_spec.md`
+컴포넌트 배치: [컴포넌트 구조](../client/components) · client/src/components/
 
 ## 전역 Provider 트리
 
@@ -86,7 +86,7 @@ AppQueryClientProvider → ToastProvider → AuthProvider → AppRootFrame
 - [상태 관리](./state)
 - [E2E 시나리오](../project/e2e-scenarios)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/frontend/spec/frontend_architecture_spec.md`
-- `agent/frontend/guidelines/frontend_development_guidelines.md`
+- [클라이언트 아키텍처](../client/architecture) · client/src/app/
+- [클라이언트 아키텍처](../client/architecture)

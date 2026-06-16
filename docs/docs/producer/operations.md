@@ -50,14 +50,14 @@ title: 운영 포인트
 
 ## 검증 시나리오
 
-`agent/observability/validation.md` §2~§4 — 헬스, Correlation-Id, Prometheus.
+[Observability](../other/observability) §2~§4 — 헬스, Correlation-Id, Prometheus.
 
 ## 관련 문서
 
 - [Observability](../other/observability)
 - [Consumer 운영/복구](../consumer/operations)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/observability/validation.md`
-- `agent/common/deployment_strategy.md`
+- [Observability](../other/observability)
+- [배포](../project/deployment) · docker/

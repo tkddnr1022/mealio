@@ -21,7 +21,7 @@ sidebar_position: 9
 | 관계 DB | **Neon** | User, Recipe, Ingredient |
 | 캐시 | **Upstash** | Redis |
 
-설계 원칙: **저비용·저트래픽**, EC2는 앱·Kafka·관측만, 데이터는 매니지드 SSOT.
+설계 원칙: **저비용·저트래픽**, EC2는 앱·Kafka·관측만, 데이터는 매니지드 서비스.
 
 ## 환경별 배치
 
@@ -98,14 +98,14 @@ sidebar_position: 9
 4. Vercel: client 배포 (또는 compose-client)
 5. 헬스·메트릭·validation 시나리오 확인
 
-상세: `agent/common/deployment_strategy.md` §7
+상세: [배포](../project/deployment) · docker/ §7
 
 ## 관련 문서
 
 - [시스템 아키텍처](./architecture)
 - [Observability](../other/observability)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/common/deployment_strategy.md`
+- [배포](../project/deployment) · docker/
 - `README.md` (Usage)

@@ -8,7 +8,7 @@ title: 인증/인가
 
 - Producer OAuth·JWT·Refresh 흐름은?
 - Guard 종류와 적용 기준은?
-- Refresh Token SSOT와 회전 정책은?
+- Refresh Token 저장소와 회전 정책은?
 
 ## OAuth (백엔드 주도)
 
@@ -53,10 +53,10 @@ Provider: `google`, `kakao`, `naver`
 
 ## Refresh Token
 
-| 항목 | 명세 |
+| 항목 | 계약 |
 | --- | --- |
 | 형식 | Opaque `sessionId.secret` |
-| SSOT | PostgreSQL `auth_refresh_sessions` |
+| 저장소 | PostgreSQL `auth_refresh_sessions` |
 | 캐시 | Redis `auth:refresh:session:{sessionId}` (가속용) |
 | 회전 | refresh 성공 시 기존 revoke + 신규 발급 |
 | 재사용 탐지 | revoke된 세션 재사용 → 해당 유저 활성 세션 일괄 revoke + 401 |
@@ -86,8 +86,8 @@ Provider: `google`, `kakao`, `naver`
 - [인증 (client)](../client/auth)
 - [API 문서](./api)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/backend/guidelines/oauth_implementation_guidelines.md`
-- `agent/backend/spec/backend_architecture_spec_producer.md` (§1.3)
-- `agent/common/openapi_spec_backend.yaml`
+- [Producer 인증](../producer/auth), [Client 인증](../client/auth)
+- [Producer 아키텍처](../producer/architecture) · server/producer/src/ (§1.3)
+- [Producer API](../producer/api) · server/producer/src/modules/

@@ -10,18 +10,7 @@ Mealio 모노레포(`client`, `producer`, `consumer`, `shared`)의 공식 문서
 
 ## 문서 구조
 
-| 섹션 | 설명 |
-| --- | --- |
-| **프로젝트** | 개요, 아키텍처, 온보딩, 배포 등 전체 관점 |
-| **client** | Next.js 프론트엔드 |
-| **producer** | NestJS API 서버 |
-| **consumer** | Kafka Consumer·배치 작업 |
-| **shared** | 공용 타입·DB·상수 |
-| **기타** | Observability, 디자인 시스템, 기여 가이드 |
-
-## 목차 계획 (SSOT)
-
-문서 목차·작성 방향은 [`agent/docusaurus_documentation_plan.md`](https://github.com/tkddnr1022/mealio/blob/main/agent/docusaurus_documentation_plan.md)를 따릅니다.
+목차는 docs/sidebars.ts와 본 사이트 섹션(프로젝트·client·producer·consumer·shared·기타)으로 구성됩니다.
 
 ## 로컬 실행
 

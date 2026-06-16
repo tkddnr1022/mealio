@@ -25,7 +25,7 @@ fetch → submit → retrieve → persist
 | **retrieve** | standalone job | `retrieved_data` + Kafka |
 | **persist** | Kafka consumer | PostgreSQL Recipe |
 
-SSOT: MongoDB `recipe_ingestion_jobs` · API 커서 `recipe_ingestion_state`
+기준: MongoDB `recipe_ingestion_jobs` · API 커서 `recipe_ingestion_state`
 
 ## 데이터 원천
 
@@ -72,14 +72,14 @@ pnpm run recipe-ingestion:retrieve
 
 ## 운영 검증
 
-`agent/observability/validation.md` §8-A — happy path, partial fail, Kafka redelivery.
+[Observability](../other/observability) §8-A — happy path, partial fail, Kafka redelivery.
 
 ## 관련 문서
 
 - [배치/스케줄 작업](./batch-jobs)
 - [Kafka 소비/신뢰성](./kafka-reliability)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/backend/recipe_ingestion_plan.md`
-- `agent/backend/guidelines/recipe_ingestion_guidelines.md`
+- [레시피 수집 파이프라인](../project/recipe-ingestion)
+- [레시피 수집](../project/recipe-ingestion)

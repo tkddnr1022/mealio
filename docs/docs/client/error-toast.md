@@ -103,7 +103,7 @@ pnpm --filter client test:unit
 - [API 클라이언트/BFF](./api-bff)
 - [접근성/성능 기준](./accessibility-performance)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/frontend/guidelines/error_toast_guidelines.md`
-- `agent/frontend/spec/frontend_architecture_spec.md` (§5.4)
+- [에러·토스트](../client/error-toast)
+- [클라이언트 아키텍처](../client/architecture) · client/src/app/ (§5.4)

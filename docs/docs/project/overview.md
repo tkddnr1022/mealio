@@ -21,7 +21,7 @@ sidebar_position: 2
 | --- | --- |
 | 보유·관심 재료 관리 | Inventory(MongoDB)로 사용자별 재료 상태 관리 |
 | 관심 레시피 | 즐겨찾기·추천 점수 반영 |
-| 맞춤 레시피 | `UserRecipeRecommendation` SSOT + 이벤트 기반 갱신 |
+| 맞춤 레시피 | `UserRecipeRecommendation` 원본 테이블 + 이벤트 기반 갱신 |
 | 레시피 검색·상세 | PostgreSQL + Redis 캐시, ISR 페이지 |
 | 레시피 추천 챗봇 | OpenAI Function Calling, SSE 스트리밍 |
 | 레시피 데이터 ETL | 공공데이터 → OpenAI Batch → persist 파이프라인 |
@@ -83,7 +83,7 @@ Producer는 **명령(쓰기) API 성공 = Kafka 발행**까지 책임집니다. 
 | `server/consumer` | Kafka Consumer·배치 |
 | `server/shared` | Prisma/Mongoose/Redis/타입 |
 | `docs` | Docusaurus 문서 사이트 |
-| `agent` | 명세·가이드 (SSOT) |
+| `docs/` | 공개 문서 사이트 |
 
 → [모노레포 구조](./monorepo)
 
@@ -93,7 +93,7 @@ Producer는 **명령(쓰기) API 성공 = Kafka 발행**까지 책임집니다. 
 - [로컬 개발/온보딩](./getting-started)
 - [배포/환경 전략](./deployment)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/common/proposal.md`
+- [프로젝트 개요](../project/overview)
 - `README.md`

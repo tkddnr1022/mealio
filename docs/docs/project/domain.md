@@ -15,7 +15,7 @@ sidebar_position: 3
 
 | 저장소 | ORM | 담당 데이터 |
 | --- | --- | --- |
-| **PostgreSQL** | Prisma | 정형 도메인 — User, Recipe, Ingredient, 추천 SSOT |
+| **PostgreSQL** | Prisma | 정형 도메인 — User, Recipe, Ingredient, 추천 원본 테이블 |
 | **MongoDB** | Mongoose | 상태·로그 — Inventory, ChatbotLog, EventLog |
 | **Redis** | — | 캐시, 세션, 챗봇 스트림, 분산 락 |
 
@@ -34,7 +34,7 @@ sidebar_position: 3
 
 ### UserRecipeRecommendation
 
-**개인화 추천 SSOT**. 사용자별 `recipeId`·`rank`·`score`·`reason`을 저장합니다. Producer API가 이 테이블을 조회하고, Consumer가 이벤트에 따라 갱신합니다.
+**개인화 추천 원본 테이블**. 사용자별 `recipeId`·`rank`·`score`·`reason`을 저장합니다. Producer API가 이 테이블을 조회하고, Consumer가 이벤트에 따라 갱신합니다.
 
 → [추천 시스템](./recommendation)
 
@@ -80,13 +80,13 @@ erDiagram
 
 ## 변경 시 참고 경로
 
-| 변경 대상 | 코드 SSOT |
+| 변경 대상 | 코드 기준 |
 | --- | --- |
 | RDB 스키마 | `server/shared/src/database/prisma/schema.prisma` |
 | NoSQL 스키마 | `server/shared/src/database/mongoose/schemas/` |
-| 의미·필드 설명 | `agent/common/schema.md` |
+| 의미·필드 설명 | [데이터 모델](../shared/data-models) · server/shared/src/database/prisma/schema.prisma |
 
-스키마 변경 후 `agent/common/schema.md`와 Docusaurus [데이터 모델/스키마](../shared/data-models)를 함께 갱신합니다.
+스키마 변경 후 [데이터 모델](../shared/data-models) · server/shared/src/database/prisma/schema.prisma와 Docusaurus [데이터 모델/스키마](../shared/data-models)를 함께 갱신합니다.
 
 ## 관련 문서
 
@@ -94,7 +94,7 @@ erDiagram
 - [추천 시스템](./recommendation)
 - [데이터/계약 인덱스](./contracts-index)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/common/schema.md`
-- `agent/common/proposal.md`
+- [데이터 모델](../shared/data-models) · server/shared/src/database/prisma/schema.prisma
+- [프로젝트 개요](../project/overview)

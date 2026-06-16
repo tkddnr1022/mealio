@@ -35,7 +35,7 @@ flowchart LR
 | retrieve | cron / CLI | `retrieved` + Kafka 이벤트 |
 | persist | always-on consumer | `persisted` + Recipe row |
 
-## SSOT
+## 참고 코드·계약
 
 | 저장소 | 내용 |
 | --- | --- |
@@ -54,7 +54,7 @@ flowchart LR
 - [레시피 수집 상세](../consumer/recipe-ingestion) — 상태 전이·CLI·persist
 - [배치/스케줄 작업](../consumer/batch-jobs) — 실행 명령
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/backend/recipe_ingestion_plan.md`
-- `agent/backend/guidelines/recipe_ingestion_guidelines.md`
+- [레시피 수집 파이프라인](../project/recipe-ingestion)
+- [레시피 수집](../project/recipe-ingestion)

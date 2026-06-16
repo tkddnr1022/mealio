@@ -62,7 +62,7 @@ Next.js `client/src/app/api/` — 인프라·인증 브리지 전용.
 | `/api/auth/refresh-bridge` | GET | SSR refresh: Cookie → Producer refresh → Set-Cookie → `next` 복귀 |
 | `/api/revalidate` | POST | 온디맨드 ISR: `{ secret, path }` → `revalidatePath` |
 
-프론트엔드 OpenAPI SSOT: `agent/common/openapi_spec_frontend.yaml`
+프론트엔드 BFF Route Handler: [BFF Route Handler](../client/api-bff) · client/src/app/api/
 
 ### refresh-bridge 흐름
 
@@ -86,7 +86,7 @@ SSR API 401
 - [캐시](./cache) (ISR fetch)
 - [도메인 API 가이드](../producer/domain-api)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/frontend/spec/frontend_architecture_spec.md` (§5.1)
-- `agent/common/openapi_spec_frontend.yaml`
+- [클라이언트 아키텍처](../client/architecture) · client/src/app/ (§5.1)
+- [BFF Route Handler](../client/api-bff) · client/src/app/api/

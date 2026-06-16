@@ -20,7 +20,7 @@ title: Kafka 소비/신뢰성
 | `cache-invalidation` | `cache-invalidation-dlq` | `cache-invalidation-group` |
 | `recipe-ingestion-retrieved` | `recipe-ingestion-retrieved-dlq` | `recipe-ingestion-persist-group` |
 
-상수 SSOT: `@mealio/shared` `KAFKA_TOPICS`, `KAFKA_DLQ_TOPICS`
+상수 정의: `@mealio/shared` `KAFKA_TOPICS`, `KAFKA_DLQ_TOPICS`
 
 ## 처리 파이프라인
 
@@ -51,11 +51,11 @@ Kafka consume (at-least-once)
 
 ## DLQ 운영
 
-- DLQ 메시지는 원본 토픽 처리 실패의 SSOT
+- DLQ 메시지는 원본 토픽 처리 실패 기록
 - 로그에 `correlationId`, `sentryEventId` 포함
 - 재처리: 원인 수정 후 수동 replay (runbook 참고)
 
-알림: `ALERT_DLQ_SPIKE` — `agent/observability/product_kpi_runbook.md`
+알림: `ALERT_DLQ_SPIKE` — [Observability](../other/observability), [Consumer 운영](../consumer/operations)
 
 ## Lag 모니터링
 
@@ -76,7 +76,7 @@ Kafka consume (at-least-once)
 - [운영/복구](./operations)
 - [Consumer 아키텍처](./architecture)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/backend/spec/backend_architecture_spec_consumer.md` (§2.2)
-- `agent/backend/guidelines/backend_development_guidelines.md`
+- [Consumer 아키텍처](../consumer/architecture) · server/consumer/src/ (§2.2)
+- [개발 규약](../other/development-conventions)

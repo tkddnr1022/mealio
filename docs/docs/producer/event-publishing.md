@@ -75,8 +75,8 @@ Consumer가 GPT 처리 후 Redis 스트림 → Producer SSE.
 - [이벤트/분석 파이프라인](../consumer/analytics-pipeline)
 - [도메인 API 가이드](./domain-api)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/backend/spec/backend_architecture_spec_consumer.md` (§2.2)
+- [Consumer 아키텍처](../consumer/architecture) · server/consumer/src/ (§2.2)
 - `server/shared/src/constants/kafka-topics.ts`
-- `agent/observability/event_dictionary.md`
+- [Observability](../other/observability)

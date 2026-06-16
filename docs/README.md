@@ -1,6 +1,6 @@
 # Mealio Docs (Docusaurus)
 
-Mealio 공식 문서 사이트. 목차 SSOT는 `agent/docusaurus_documentation_plan.md`입니다.
+Mealio 공식 문서 사이트. 사이드바 목차는 `docs/sidebars.ts`와 `docs/docs/` Markdown 파일이 1:1로 대응합니다.
 
 ## 로컬 실행
 
@@ -23,15 +23,18 @@ pnpm build:docs
 
 | 경로 | 역할 |
 | --- | --- |
-| `sidebars.ts` | 사이드바 목차 (계획서와 1:1 대응) |
+| `sidebars.ts` | 사이드바 목차 |
 | `docusaurus.config.ts` | 사이트 설정 |
 | `docs/` | Markdown 문서 본문 |
 
 ## slug 매핑
 
-계획서 목차명 → Docusaurus doc ID:
+주요 페이지 doc ID 예시:
 
 - `로컬 개발/온보딩` → `project/getting-started`
 - `프로젝트 개요` → `project/overview`
 - `도메인 개요` → `project/domain`
-- … (전체 매핑은 `agent/docusaurus_documentation_plan.md` §10 참고)
+- `인증 (client)` → `client/auth`
+- `Producer API` → `producer/api`
+
+전체 목차는 `sidebars.ts`를 참고하세요.

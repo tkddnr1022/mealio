@@ -34,7 +34,7 @@ DLQ: `KAFKA_DLQ_TOPICS.*` — 메인 토픽별 `-dlq` suffix.
 | `chatbot-stream-event.event.ts` | SSE chunk/done/error |
 | `cache-invalidation.event.ts` | USER_PROFILE, INVENTORY, RECIPE, RECOMMENDATION |
 
-이벤트 이름·KPI 매핑: `agent/observability/event_dictionary.md`
+이벤트 이름·KPI 매핑: [Observability](../other/observability)
 
 ## Redis 채널
 
@@ -68,7 +68,7 @@ DLQ: `KAFKA_DLQ_TOPICS.*` — 메인 토픽별 `-dlq` suffix.
 
 1. shared 타입·상수 수정
 2. Producer 발행 / Consumer 소비 코드 동기화
-3. `event_dictionary.md`·OpenAPI·패키지 명세 갱신
+3. [Observability](../other/observability)·API 계약·패키지 문서 갱신
 4. 로컬 Kafka 토픽 재생성 (dev) 또는 마이그레이션 계획 (prod)
 
 ## 관련 문서
@@ -76,8 +76,8 @@ DLQ: `KAFKA_DLQ_TOPICS.*` — 메인 토픽별 `-dlq` suffix.
 - [이벤트 발행](../producer/event-publishing)
 - [Kafka 소비/신뢰성](../consumer/kafka-reliability)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/backend/spec/backend_architecture_spec_shared.md`
+- [Shared 개요](../shared/overview) · server/shared/src/
 - `server/shared/src/types/events/`
-- `agent/observability/event_dictionary.md`
+- [Observability](../other/observability)

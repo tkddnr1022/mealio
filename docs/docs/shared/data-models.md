@@ -7,7 +7,7 @@ title: 데이터 모델/스키마
 ## 이 문서로 해결할 질문
 
 - PostgreSQL vs MongoDB에 무엇이 저장되는가?
-- 스키마 코드·문서 SSOT는?
+- 스키마 코드·문서 기준은?
 
 ## 저장소 분리
 
@@ -20,7 +20,7 @@ title: 데이터 모델/스키마
 
 ## PostgreSQL (Prisma)
 
-**코드 SSOT**: `server/shared/src/database/prisma/schema.prisma`
+**코드 기준**: `server/shared/src/database/prisma/schema.prisma`
 
 | 모델 | 핵심 필드·관계 |
 | --- | --- |
@@ -41,7 +41,7 @@ pnpm run db:prisma:migrate:deploy  # prod
 
 ## MongoDB (Mongoose)
 
-**코드 SSOT**: `server/shared/src/database/mongoose/schemas/`
+**코드 기준**: `server/shared/src/database/mongoose/schemas/`
 
 | 컬렉션 | 스키마 파일 | TTL |
 | --- | --- | --- |
@@ -51,9 +51,9 @@ pnpm run db:prisma:migrate:deploy  # prod
 | recipe_ingestion_jobs | `recipe-ingestion-job.schema.ts` | — |
 | kpi_rollups | `kpi-rollup.schema.ts` | — |
 
-## 통합 문서
+## 필드 의미·동기화
 
-`agent/common/schema.md` — LLM·에이전트용 **의미 중심** 설명. Prisma/Mongoose와 **일치 유지** 의무.
+[도메인 개요](../project/domain)와 `server/shared/src/database/prisma/schema.prisma`를 함께 참고합니다. Prisma/Mongoose 스키마와 **일치 유지**가 필요합니다.
 
 ## 시드
 
@@ -66,8 +66,8 @@ pnpm run db:mongoose:seed
 
 1. `schema.prisma` 또는 Mongoose schema 수정
 2. 마이그레이션 생성·적용
-3. `agent/common/schema.md` 갱신
-4. OpenAPI DTO·명세 동기화
+3. [도메인 개요](../project/domain) 및 본 문서 갱신
+4. OpenAPI DTO·문서 동기화
 5. Docusaurus 본 문서·도메인 개요 갱신
 
 ## 관련 문서
@@ -75,8 +75,8 @@ pnpm run db:mongoose:seed
 - [데이터/계약 인덱스](../project/contracts-index)
 - [Shared 패키지 개요](./overview)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/common/schema.md`
+- [데이터 모델](../shared/data-models) · server/shared/src/database/prisma/schema.prisma
 - `server/shared/src/database/prisma/schema.prisma`
 - `server/shared/src/database/mongoose/schemas/`

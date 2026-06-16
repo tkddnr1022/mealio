@@ -8,8 +8,8 @@ title: 추천 파이프라인
 
 ## 우선 참조
 
-- `agent/backend/spec/backend_architecture_spec_consumer.md` (§2.6)
-- `agent/observability/product_kpi_runbook.md` (§2.3)
+- [Consumer 아키텍처](../consumer/architecture) · server/consumer/src/ (§2.6)
+- [Observability](../other/observability), [Consumer 운영](../consumer/operations) (§2.3)
 
 ## 관련 문서
 

@@ -46,15 +46,15 @@ flowchart TB
     EL --> ROLL --> PD
 ```
 
-## 수집 경로 분리 (SSOT)
+## 수집 경로 분리
 
 | 계층 | 형식 | 용도 |
 | --- | --- | --- |
 | **GA4** | `snake_case` (`recipe_viewed`) | UI 퍼널·탐색 분석 |
-| **EventLog** | `domain.action` (`recipe.view`) | 도메인 확정·추천·KPI SSOT |
+| **EventLog** | `domain.action` (`recipe.view`) | 도메인 확정·추천·KPI 원본 |
 | **Kafka 토픽** | `kebab-case` (`activity-events`) | 비동기 처리 버스 |
 
-동일 의미를 GA와 EventLog에 **이중 정의하지 않습니다**. 이름만 다를 수 있으나 SSOT는 EventLog입니다.
+동일 의미를 GA와 EventLog에 **이중 정의하지 않습니다**. 이름만 다를 수 있으나 기준 저장소는 EventLog입니다.
 
 ## 주요 Kafka 토픽
 
@@ -72,7 +72,7 @@ flowchart TB
 - TTL: 90일
 - Handler: `TrackUserActivityHandler`, activity-events processor 등
 
-이벤트 추가 시 **반드시** `agent/observability/event_dictionary.md`에 먼저 등록합니다.
+이벤트 추가 시 **반드시** [Observability](../other/observability)에 먼저 등록합니다.
 
 ## GA4 ↔ EventLog 매핑 (구현 완료)
 
@@ -104,14 +104,14 @@ pnpm run kpi:rollup
 
 | 항목 | 문서/도구 |
 | --- | --- |
-| 통합 검증 시나리오 | `agent/observability/validation.md` §7~8 |
-| KPI 계약 | `agent/observability/product_kpi_contract.md` |
-| 알림·장애 대응 | `agent/observability/product_kpi_runbook.md` |
+| 통합 검증 시나리오 | [Observability](../other/observability) §7~8 |
+| KPI 계약 | [Observability](../other/observability) |
+| 알림·장애 대응 | [Observability](../other/observability), [Consumer 운영](../consumer/operations) |
 | Grafana 대시보드 | `observability/grafana/` |
 
 ## 신규 이벤트 추가 절차
 
-1. `agent/observability/event_dictionary.md`에 행 추가
+1. [Observability](../other/observability)에 행 추가
 2. shared event enum 또는 `analytics-events.ts` 갱신
 3. Producer 발행 또는 Consumer 기록 구현
 4. `frontend_event_instrumentation.md` 체크리스트 반영 (GA 연동 시)
@@ -123,8 +123,8 @@ pnpm run kpi:rollup
 - [이벤트 발행](../producer/event-publishing)
 - [Observability](../other/observability)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/observability/event_dictionary.md`
-- `agent/observability/aggregation_pipeline.md`
-- `agent/observability/validation.md` (§7~8)
+- [Observability](../other/observability)
+- [분석 파이프라인](../consumer/analytics-pipeline)
+- [Observability](../other/observability) (§7~8)

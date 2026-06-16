@@ -51,7 +51,7 @@ server/producer/src/
 
 | 인프라 | 용도 |
 | --- | --- |
-| PostgreSQL (Prisma) | User, Recipe, Ingredient, 추천 SSOT |
+| PostgreSQL (Prisma) | User, Recipe, Ingredient, 추천 원본 테이블 |
 | MongoDB (Mongoose) | Inventory 조회 연동 |
 | Redis | Cache-Aside, rate limit, refresh 세션 캐시 |
 | Kafka | user-events, activity-events, chatbot-requests |
@@ -74,7 +74,7 @@ server/producer/src/
 - `metrics.service.ts` — Prometheus `/metrics`
 - Sentry — `@mealio/shared/observability`
 
-## 정책 파일 (SSOT)
+## 정책 파일
 
 | 파일 | 내용 |
 | --- | --- |
@@ -89,7 +89,7 @@ server/producer/src/
 - [캐시](./cache)
 - [이벤트 발행](./event-publishing)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/backend/spec/backend_architecture_spec_producer.md` (§1.1)
-- `agent/common/openapi_spec_backend.yaml`
+- [Producer 아키텍처](../producer/architecture) · server/producer/src/ (§1.1)
+- [Producer API](../producer/api) · server/producer/src/modules/

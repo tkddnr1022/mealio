@@ -2,7 +2,7 @@ import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
 
 /**
  * Mealio Docusaurus 사이드바.
- * 목차 SSOT: agent/docusaurus_documentation_plan.md
+ * 사이드바 목차 — docs/docs/ Markdown과 1:1 대응
  */
 const sidebars: SidebarsConfig = {
   docsSidebar: [

@@ -34,7 +34,7 @@ Authorization: Cookie accessToken (JWT 필수)
 | `rank` | 추천 순위 (1부터) |
 | `score` | 추천 점수 |
 | `reason` | 추천 근거 문구 |
-| `calculatedAt` | SSOT 갱신 시각 |
+| `calculatedAt` | 원본 갱신 시각 |
 
 OpenAPI: `RecipeRecommendationItem`
 
@@ -42,9 +42,9 @@ OpenAPI: `RecipeRecommendationItem`
 
 ```text
 1. Redis recommendation:{userId} 조회 (TTL 3600s)
-2. miss → PostgreSQL UserRecipeRecommendation SSOT 조회
+2. miss → PostgreSQL UserRecipeRecommendation 원본 테이블 조회
 3. RecipeSummary + RecipeStats 조인
-4. SSOT 행 없음 → likeCount DESC 인기 레시피 fallback
+4. 원본 행 없음 → likeCount DESC 인기 레시피 fallback
 5. Redis에 저장 후 반환
 ```
 
@@ -65,15 +65,15 @@ Fallback 시 `reason`에 초기 추천 데이터 없음을 명시합니다.
 - `/recipe` CSR 섹션: `useRecommendedRecipes()` — React Query `QUERY_CACHE.recommended`
 - 로그인 필수 — 비로그인 시 섹션 미표시 또는 로그인 유도
 
-## SSOT 갱신 (Consumer)
+## 원본 갱신 (Consumer)
 
 `user-events`·`activity-events` → `RecommendationHandler` → PostgreSQL upsert + Top N 재정렬 → 캐시 무효화.
 
-가중치: `agent/backend/spec/backend_architecture_spec_consumer.md` §2.6.2
+가중치: [Consumer 아키텍처](../consumer/architecture) · server/consumer/src/ §2.6.2
 
 ## 확장 시 유의
 
-챗봇 `SuggestedRecipe`와 추천 SSOT를 **직접 동기화하지 않습니다**. 필요 시 챗봇 tool이 본 API를 호출하는 방식으로 확장합니다.
+챗봇 `SuggestedRecipe`와 추천 원본 테이블를 **직접 동기화하지 않습니다**. 필요 시 챗봇 tool이 본 API를 호출하는 방식으로 확장합니다.
 
 ## 관련 문서
 
@@ -81,7 +81,7 @@ Fallback 시 `reason`에 초기 추천 데이터 없음을 명시합니다.
 - [Redis 키/캐시 계약](../shared/redis-cache-contract)
 - [캐시 (client)](../client/cache)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/backend/spec/backend_architecture_spec_producer.md` (§1.4)
-- `agent/common/openapi_spec_backend.yaml` (`/api/v1/recipes/recommended`)
+- [Producer 아키텍처](../producer/architecture) · server/producer/src/ (§1.4)
+- [Producer API](../producer/api) · server/producer/src/modules/ (`/api/v1/recipes/recommended`)

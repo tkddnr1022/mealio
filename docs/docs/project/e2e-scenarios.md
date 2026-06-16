@@ -38,7 +38,7 @@ flowchart TB
     ERR -.-> LOGIN
 ```
 
-상세 다이어그램: `agent/common/screen_flowchart.mermaid`
+상세 다이어그램: [E2E 시나리오](../project/e2e-scenarios)
 
 ## 시나리오 1: OAuth 로그인
 
@@ -101,7 +101,7 @@ Proxy는 `/chatbot`, `/inventory`, `/mypage/*`(루트 `/mypage` 제외)에서 `r
 - [인증](../client/auth)
 - [캐시](../client/cache)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/common/screen_flowchart.mermaid`
-- `agent/frontend/spec/frontend_architecture_spec.md` (§2, §3)
+- [E2E 시나리오](../project/e2e-scenarios)
+- [클라이언트 아키텍처](../client/architecture) · client/src/app/ (§2, §3)

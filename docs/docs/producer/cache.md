@@ -21,7 +21,7 @@ title: 캐시
 
 구현: `server/producer/src/infrastructure/cache/`
 
-## TTL SSOT
+## TTL 정의
 
 `server/producer/src/policy/cache.policy.ts` (초 단위)
 
@@ -45,7 +45,7 @@ title: 캐시
 | `recommendation-cache-strategy.ts` | `recommendation:{userId}` | §1.4 추천 API |
 | recipe/ingredient 전략 | `recipe:*`, `ingredient:*` | list/search/categories |
 
-키 헬퍼 SSOT: `@mealio/shared` `cache-keys.ts` → [Redis 키/캐시 계약](../shared/redis-cache-contract)
+키 헬퍼 정의: `@mealio/shared` `cache-keys.ts` → [Redis 키/캐시 계약](../shared/redis-cache-contract)
 
 ## 무효화 (Consumer 연동)
 
@@ -78,8 +78,8 @@ Producer는 캐시를 **직접 삭제하지 않습니다**. Consumer가 `cache-i
 - [Redis 키/캐시 계약](../shared/redis-cache-contract)
 - [추천 API](./recommendation-api)
 
-## SSOT
+## 참고 코드·계약
 
 - `server/producer/src/policy/cache.policy.ts`
-- `agent/backend/spec/backend_architecture_spec_producer.md` (§1.4)
-- `agent/backend/guidelines/backend_development_guidelines.md`
+- [Producer 아키텍처](../producer/architecture) · server/producer/src/ (§1.4)
+- [개발 규약](../other/development-conventions)

@@ -12,7 +12,7 @@ title: 접근성/성능 기준
 
 ## 접근성 (WCAG 2.1 AA)
 
-상위 원칙: `agent/design/spec/design_principle.json` — `accessibility`, `platform` 섹션
+상위 원칙: [접근성·성능](../client/accessibility-performance) · client/src/app/globals.css — `accessibility`, `platform` 섹션
 
 | 항목 | 기준 |
 | --- | --- |
@@ -56,7 +56,7 @@ buildAriaLabel(type, name)
 
 ## 성능 목표 (Web Vitals)
 
-`agent/frontend/spec/frontend_architecture_spec.md` §4
+[클라이언트 아키텍처](../client/architecture) · client/src/app/ §4
 
 | 지표 | 목표 |
 | --- | --- |
@@ -100,8 +100,8 @@ pnpm --filter client test:unit
 - [Design System](../other/design-system)
 - [컴포넌트 구조/규칙](./components)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/frontend/guidelines/frontend_development_guidelines.md` (§8, §9)
-- `agent/frontend/spec/frontend_architecture_spec.md` (§4)
-- `agent/design/spec/design_principle.json`
+- [클라이언트 아키텍처](../client/architecture) (§8, §9)
+- [클라이언트 아키텍처](../client/architecture) · client/src/app/ (§4)
+- [접근성·성능](../client/accessibility-performance) · client/src/app/globals.css

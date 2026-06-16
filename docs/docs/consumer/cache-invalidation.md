@@ -43,7 +43,7 @@ sequenceDiagram
 | `USER_PROFILE` | `user:{userId}` | 닉네임 변경, 챗봇 크레딧 차감 |
 | `INVENTORY` | `inventory:{userId}` | 재료·관심 레시피 CRUD |
 | `RECIPE` | `recipe:{id}`, list/search/static-ids 패턴 | 레시피 데이터 변경 |
-| `RECOMMENDATION` | `recommendation:{userId}` | 추천 SSOT 갱신 후 |
+| `RECOMMENDATION` | `recommendation:{userId}` | 추천 원본 테이블 갱신 후 |
 
 구현: `redis-invalidation.handler.ts` — `@mealio/shared` `cachePatternRecipeInvalidation()` 등 사용
 
@@ -78,7 +78,7 @@ Producer Cache-Aside와 동일 Redis를 사용하므로:
 - [추천 파이프라인](./recommendation-pipeline)
 - [Redis 키/캐시 계약](../shared/redis-cache-contract)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/backend/spec/backend_architecture_spec_consumer.md` (§2.2, §2.5)
+- [Consumer 아키텍처](../consumer/architecture) · server/consumer/src/ (§2.2, §2.5)
 - `server/shared/src/constants/cache-keys.ts`

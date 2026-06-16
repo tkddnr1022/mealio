@@ -20,16 +20,16 @@ title: Observability
 [Data]    MongoDB event_logs → KPI rollup → kpi_rollups
 ```
 
-## 문서 맵 (`agent/observability/`)
+## Observability 문서 맵
 
-| 문서 | 용도 |
-| --- | --- |
-| `validation.md` | 통합 수동 검증 시나리오 |
-| `event_dictionary.md` | GA ↔ EventLog ↔ Kafka 매핑 |
-| `product_kpi_contract.md` | KPI ID·계산식 SSOT |
-| `aggregation_pipeline.md` | EventLog → 롤업 → 대시보드 |
-| `product_kpi_runbook.md` | 알림·장애 대응 |
-| `frontend_event_instrumentation.md` | GA4 계측 체크리스트 |
+| 주제 | 설명 | 관련 문서 |
+| --- | --- | --- |
+| 통합 검증 | 헬스·메트릭·EventLog·KPI 수동 검증 시나리오 | 본 문서 §검증 |
+| 이벤트 사전 | GA ↔ EventLog ↔ Kafka 이벤트 매핑 | [분석 파이프라인](../consumer/analytics-pipeline) |
+| KPI 계약 | KPI ID·계산식 정의 | 본 문서 §핵심 KPI |
+| 집계 파이프라인 | EventLog → 롤업 → 대시보드 | [분석 파이프라인](../consumer/analytics-pipeline) |
+| Runbook | 알림·장애 대응 | [Consumer 운영](../consumer/operations) |
+| 프론트 계측 | GA4 이벤트 체크리스트 | client/src/lib/analytics/ |
 
 ## 핵심 KPI (요약)
 
@@ -58,7 +58,7 @@ title: Observability
 
 ## 검증 (배포 후)
 
-`validation.md` 체크리스트:
+배포 후 아래 항목을 순서대로 확인합니다:
 
 1. `/health`, `/ready`
 2. Correlation-Id 전파
@@ -74,7 +74,8 @@ title: Observability
 - [Producer 운영](../producer/operations)
 - [Consumer 운영/복구](../consumer/operations)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/observability/validation.md`
-- `agent/observability/event_dictionary.md`
+- observability/grafana/ — Grafana provisioning
+- server/shared/src/types/events/ — 이벤트 타입
+- [분석 파이프라인](../consumer/analytics-pipeline)

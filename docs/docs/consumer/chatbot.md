@@ -44,7 +44,7 @@ Kafka consume
 | `FoodCategoriesHandler` | `get_food_categories` | 카테고리 마스터 (Redis 1h) |
 | `SearchRecipesHandler` | `search_recipes` | 레시피 검색 |
 
-도구 정의 SSOT: `chatbot-tools.definition.ts`
+도구 정의: `chatbot-tools.definition.ts`
 
 설계 원칙: Kafka 페이로드에 대용량 배열을 넣지 않고, tool 호출 시 DB/Redis에서 조회합니다.
 
@@ -56,7 +56,7 @@ Kafka consume
 
 ## 크레딧 멱등 차감
 
-| 항목 | 명세 |
+| 항목 | 계약 |
 | --- | --- |
 | 테이블 | `chatbot_credit_deductions` (PK: `stream_channel_id`) |
 | 서비스 | `ChatbotCreditService` |
@@ -87,7 +87,7 @@ Kafka consume
 - [챗봇 UI/스트리밍](../client/chatbot-ui)
 - [캐시](./cache)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/backend/spec/backend_architecture_spec_consumer.md` (§2.3, §2.4)
-- `agent/backend/guidelines/backend_development_guidelines.md` (§5)
+- [Consumer 아키텍처](../consumer/architecture) · server/consumer/src/ (§2.3, §2.4)
+- [개발 규약](../other/development-conventions) (§5)

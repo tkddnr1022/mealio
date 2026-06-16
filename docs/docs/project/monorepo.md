@@ -9,7 +9,7 @@ sidebar_position: 8
 
 - 패키지별 역할과 의존 방향은?
 - 루트에서 자주 쓰는 명령은?
-- 명세·코드 SSOT는 어디에 있는가?
+- 코드·문서 근거는 어디에 있는가?
 
 ## 디렉터리 구조
 
@@ -22,7 +22,6 @@ mealio/
 │   └── shared/             # @mealio/shared — 공용 라이브러리
 ├── docs/                   # mealio-docs — Docusaurus
 ├── docker/                 # Compose·Dockerfile
-├── agent/                  # 명세·가이드·OpenAPI
 ├── observability/          # Grafana provisioning 등
 └── package.json            # 루트 워크스페이스 스크립트
 ```
@@ -66,17 +65,17 @@ packages:
 | `pnpm run db:prisma:migrate:dev` | Prisma 마이그레이션 |
 | `pnpm run ci` | install + build + lint + test |
 
-## agent 폴더 (명세 SSOT)
+## 문서·코드 근거
 
-| 경로 | 용도 |
+| 영역 | 공개 근거 |
 | --- | --- |
-| `agent/common/` | proposal, schema, OpenAPI, deployment |
-| `agent/frontend/spec/` | 프론트 아키텍처·컴포넌트 명세 |
-| `agent/backend/spec/` | producer/consumer/shared 명세 |
-| `agent/observability/` | 이벤트·KPI·검증 |
-| `agent/docusaurus_documentation_plan.md` | 문서 목차 계획 |
+| API·도메인 | server/producer/src/modules/, [Producer API](../producer/api) |
+| 프론트 | client/src/app/, [클라이언트 아키텍처](../client/architecture) |
+| 데이터 | server/shared/src/database/, [데이터 모델](../shared/data-models) |
+| 이벤트·KPI | [Observability](../other/observability) |
+| 문서 | docs/docs/, docs/sidebars.ts |
 
-**스펙 주도 개발**: 구현·명세·Docusaurus 문서를 동일 단위로 동기화합니다.
+**문서·코드 정합성**: 구현·Docusaurus 문서를 동일 PR 단위로 동기화합니다.
 
 ## shared 패키지 범위
 
@@ -103,8 +102,8 @@ GitHub Actions 워크플로: `.github/workflows/`
 - [Producer 아키텍처](../producer/architecture)
 - [Consumer 아키텍처](../consumer/architecture)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/backend/spec/backend_architecture_spec.md`
-- `agent/frontend/spec/frontend_architecture_spec.md`
+- [Producer](../producer/architecture)·[Consumer](../consumer/architecture)·[Shared](../shared/overview) 아키텍처 문서
+- [클라이언트 아키텍처](../client/architecture) · client/src/app/
 - `README.md`

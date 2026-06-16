@@ -6,24 +6,24 @@ title: API 문서
 
 ## 이 문서로 해결할 질문
 
-- OpenAPI 명세는 어디에 있고 어떻게 확인하는가?
+- API 계약은 어디에 있고 어떻게 확인하는가?
 - 공통 에러 응답·Rate Limiting 규칙은?
 - Swagger 로컬 접근 방법은?
 
-## OpenAPI SSOT
+## API 계약 참고
 
 | 파일 | 범위 |
 | --- | --- |
-| `agent/common/openapi_spec_backend.yaml` | Producer REST API |
-| `agent/common/openapi_spec_frontend.yaml` | Next.js Route Handler (BFF) |
+| [Producer API](../producer/api) · server/producer/src/modules/ | Producer REST API |
+| [BFF Route Handler](../client/api-bff) · client/src/app/api/ | Next.js Route Handler (BFF) |
 
-코드와 명세 불일치 시 **명세 또는 구현을 동기화**합니다 (`spec_driven_development_guidelines.md`).
+코드와 문서 불일치 시 **문서 또는 구현을 동기화**합니다. [기여 가이드](../other/contributing)를 참고하세요.
 
 ## Swagger UI (로컬)
 
 Producer 기동 후 Swagger 엔드포인트 접근 (환경에 따라 `/api/docs` 등 — `swagger.config.ts` 참고).
 
-Apidog 등 외부 도구로 `openapi_spec_backend.yaml` import 가능.
+Apidog 등 외부 도구로 server/producer Swagger 스펙 export 후 import 가능.
 
 ## API 버전·경로
 
@@ -69,7 +69,7 @@ Apidog 등 외부 도구로 `openapi_spec_backend.yaml` import 가능.
 - [인증/인가](./auth)
 - [데이터/계약 인덱스](../project/contracts-index)
 
-## SSOT
+## 참고 코드·계약
 
-- `agent/common/openapi_spec_backend.yaml`
-- `agent/backend/spec/backend_architecture_spec_producer.md`
+- [Producer API](../producer/api) · server/producer/src/modules/
+- [Producer 아키텍처](../producer/architecture) · server/producer/src/

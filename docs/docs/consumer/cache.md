@@ -14,7 +14,7 @@ title: 캐시
 
 Consumer는 **조회 성능 최적화**를 위해 Handler 단에서 Redis를 직접 사용합니다. Producer Cache-Aside와 **동일 Redis 인스턴스**를 공유합니다.
 
-| 용도 | 키 예 | TTL SSOT |
+| 용도 | 키 예 | TTL 정의 |
 | --- | --- | --- |
 | 챗봇 재료 메타 | `ingredient:by-id:{id}` | `CHATBOT_INGREDIENT_BY_ID_CACHE_TTL_SECONDS` (3600초) |
 | 챗봇 카테고리 | `recipe:chatbot:food-categories` | `CHATBOT_FOOD_CATEGORIES_CACHE_TTL_SECONDS` (3600초) |
@@ -55,8 +55,8 @@ Consumer Handler 캐시는 **무효화 토픽 대상이 아닐 수 있습니다*
 - [캐시 무효화](./cache-invalidation)
 - [Redis 키/캐시 계약](../shared/redis-cache-contract)
 
-## SSOT
+## 참고 코드·계약
 
 - `server/consumer/src/policy/chatbot-cache.policy.ts`
-- `agent/backend/spec/backend_architecture_spec_consumer.md` (§2.5)
+- [Consumer 아키텍처](../consumer/architecture) · server/consumer/src/ (§2.5)
 - `server/shared/src/constants/cache-keys.ts`
