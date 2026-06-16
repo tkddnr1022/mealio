@@ -68,9 +68,3 @@ pnpm run build:storybook
 
 - [접근성/성능 기준](../client/accessibility-performance)
 - Figma: [Mealio 디자인 파일](https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Mealio)
-
-## 참고 코드·계약
-
-- [디자인 시스템](../other/design-system)
-- [디자인 시스템](../other/design-system) · client/src/app/globals.css
-- [디자인 시스템](../other/design-system)
