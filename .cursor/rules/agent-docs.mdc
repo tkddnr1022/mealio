@@ -12,6 +12,16 @@ alwaysApply: true
 
 ---
 
+## 문서 정합성
+
+코드 수정 후 반드시 `agent`(명세 SSOT) 및 `docs/docs`(오픈소스 공개용 Docusaurus) 문서에서 반영 필요성을 검토한다.
+
+**작업 단위**: 코드 수정 → 대응 문서 검토 → 필요 시 문서 반영
+
+**작성 시**: 기존 문서 톤 유지, `docs/docs` 의 경우 `Last Updated`·`Related Docs` 메타 갱신
+
+---
+
 ## 디렉터리 구조 (2 depth)
 
 | 영역 | 경로 | 비고 |
