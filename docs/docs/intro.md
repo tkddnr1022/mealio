@@ -72,4 +72,31 @@ pnpm --filter mealio-docs start
 | [도메인 API 가이드](./producer/domain-api) | ✅ |
 | [추천 API](./producer/recommendation-api) | ✅ |
 
-나머지 페이지는 스텁 상태입니다.
+### 4차 — API·운영·계약 (완료)
+
+| 문서 | 상태 |
+| --- | --- |
+| [API 클라이언트/BFF](./client/api-bff) | ✅ |
+| [상태 관리](./client/state) | ✅ |
+| [컴포넌트 구조/규칙](./client/components) | ✅ |
+| [이벤트 발행](./producer/event-publishing) | ✅ |
+| [API 문서](./producer/api) | ✅ |
+| [운영 포인트 (producer)](./producer/operations) | ✅ |
+| [Kafka 소비/신뢰성](./consumer/kafka-reliability) | ✅ |
+| [배치/스케줄 작업](./consumer/batch-jobs) | ✅ |
+| [운영/복구](./consumer/operations) | ✅ |
+| [레시피 수집 상세](./consumer/recipe-ingestion) | ✅ |
+| [레시피 수집(ETL)](./project/recipe-ingestion) | ✅ |
+| [데이터/계약 인덱스](./project/contracts-index) | ✅ |
+| [Observability](./other/observability) | ✅ |
+| [기여 가이드](./other/contributing) | ✅ |
+| [Shared 패키지 개요](./shared/overview) | ✅ |
+| [데이터 모델/스키마](./shared/data-models) | ✅ |
+| [공유 계약](./shared/contracts) | ✅ |
+
+### 스텁 (미작성)
+
+- [접근성/성능 기준](./client/accessibility-performance)
+- [Design System](./other/design-system)
+- [개발 규약](./other/development-conventions)
+- [용어집/FAQ](./other/glossary-faq)
