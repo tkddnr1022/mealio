@@ -94,9 +94,13 @@ pnpm --filter mealio-docs start
 | [데이터 모델/스키마](./shared/data-models) | ✅ |
 | [공유 계약](./shared/contracts) | ✅ |
 
-### 스텁 (미작성)
+### 5차 — 마무리 (완료)
 
-- [접근성/성능 기준](./client/accessibility-performance)
-- [Design System](./other/design-system)
-- [개발 규약](./other/development-conventions)
-- [용어집/FAQ](./other/glossary-faq)
+| 문서 | 상태 |
+| --- | --- |
+| [접근성/성능 기준](./client/accessibility-performance) | ✅ |
+| [Design System](./other/design-system) | ✅ |
+| [개발 규약](./other/development-conventions) | ✅ |
+| [용어집/FAQ](./other/glossary-faq) | ✅ |
+
+**47개 문서 본문 작성 완료.**
