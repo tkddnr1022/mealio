@@ -14,7 +14,7 @@ AI 기반 맞춤형 레시피 추천 플랫폼
 - LLM 기반 레시피 데이터 ETL
 - Producer/Consumer 기반 이벤트 처리 구조
 
-## 링크
+## 링크 (Links)
 
 - 레피시 데이터 소스: [식약처 공공데이터](https://www.foodsafetykorea.go.kr/apiMain.do)
 - 디자인 시스템: [Figma](https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Mealio?node-id=0-1&t=4XgNpJMecLQKOQcX-1)
@@ -30,7 +30,7 @@ AI 기반 맞춤형 레시피 추천 플랫폼
 - Observability: Sentry, Prometheus, Grafana
 - AI: OpenAI API
 
-## 폴더 및 파일 구조
+## 폴더 및 파일 구조 (File Structure)
 
 ```text
 mealio/
@@ -44,7 +44,7 @@ mealio/
 └─ README.md
 ```
 
-## 설치 방법 (Prerequisites & Installation)
+## 설치 방법 (Installation)
 
 ### Prerequisites
 
@@ -160,4 +160,4 @@ docker compose --env-file client/.env.docker -f docker/compose-client.yml up -d 
 
 ## 라이선스 (License)
 
-- License: MIT
+MIT
