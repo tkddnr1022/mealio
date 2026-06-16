@@ -61,7 +61,8 @@ DLQ: `KAFKA_DLQ_TOPICS.*` — 메인 토픽별 `-dlq` suffix.
 
 ## Observability
 
-- `observability.config.ts` — METRICS_ENABLED, SLOW_QUERY_THRESHOLD_MS
+- `observability.config.ts` — METRICS_ENABLED
+- `observability.policy.ts` — `SLOW_QUERY_THRESHOLD_MS` (슬로우 쿼리 임계값)
 - `sentry.constants.ts` — 태그·민감 키 패턴
 
 ## 변경 절차

@@ -15,7 +15,6 @@
 | `NEXT_PUBLIC_SENTRY_DSN` | Client `.env` | 설정 | 비워도 됨 |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Client `.env` | 설정 | 비워도 됨 |
 | `METRICS_ENABLED` | Producer `.env`, Consumer `.env` | `true` | `true` |
-| `SLOW_QUERY_THRESHOLD_MS` | Producer `.env`, Consumer `.env` | 설정 (`METRICS_ENABLED=true` 시) | 예: `500` |
 | `METRICS_PORT` | Consumer `.env` | 설정 (`METRICS_ENABLED=true` 시) | 예: `9091` |
 | `SLACK_OPS_WEBHOOK_URL` | Grafana / alerting | 설정 | 선택 |
 | `SLACK_PRODUCT_WEBHOOK_URL` | Grafana / alerting | 설정 | 선택 |

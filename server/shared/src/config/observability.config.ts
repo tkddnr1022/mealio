@@ -5,6 +5,7 @@
  * 기본값 없음 — METRICS_ENABLED 및 (활성 시) 관련 env는 Joi에서 검증한다.
  */
 
+import { SLOW_QUERY_THRESHOLD_MS } from '../policy/observability.policy';
 import { isMetricsEnabledEnv } from './observability.env-validation';
 
 export type ObservabilityServiceName = 'producer' | 'consumer';
@@ -52,8 +53,8 @@ function readRequiredEnv(name: string): string {
 
 /**
  * 환경 변수에서 관측 설정을 생성한다.
- * METRICS_ENABLED=true 이면 SLOW_QUERY_THRESHOLD_MS
- * (및 Consumer의 METRICS_PORT)가 반드시 설정되어 있어야 한다.
+ * METRICS_ENABLED=true 이면 Consumer의 METRICS_PORT가 반드시 설정되어 있어야 한다.
+ * 슬로우 쿼리 임계값은 `observability.policy.ts`의 SLOW_QUERY_THRESHOLD_MS를 사용한다.
  *
  * @param serviceName 실행 중인 서비스 식별자
  * @param options.requireMetricsPort Consumer는 true
@@ -91,10 +92,7 @@ export function createObservabilityConfig(
           ),
         }
       : {}),
-    slowQueryThresholdMs: parsePositiveInt(
-      readRequiredEnv('SLOW_QUERY_THRESHOLD_MS'),
-      'SLOW_QUERY_THRESHOLD_MS',
-    ),
+    slowQueryThresholdMs: SLOW_QUERY_THRESHOLD_MS,
   };
 }
 

@@ -2,6 +2,7 @@ import {
   createObservabilityConfig,
   isMetricsEnabledFromEnv,
   resolveBackendSentryEnabled,
+  SLOW_QUERY_THRESHOLD_MS,
 } from '@mealio/shared';
 
 describe('createObservabilityConfig', () => {
@@ -17,7 +18,6 @@ describe('createObservabilityConfig', () => {
 
   it('should return metrics-disabled config when METRICS_ENABLED=false', () => {
     process.env.METRICS_ENABLED = 'false';
-    delete process.env.SLOW_QUERY_THRESHOLD_MS;
 
     const config = createObservabilityConfig('producer', {
       requireMetricsPort: false,
@@ -51,21 +51,19 @@ describe('createObservabilityConfig', () => {
 
   it('should parse producer observability vars when METRICS_ENABLED=true', () => {
     process.env.METRICS_ENABLED = 'true';
-    process.env.SLOW_QUERY_THRESHOLD_MS = '750';
 
     const config = createObservabilityConfig('producer', {
       requireMetricsPort: false,
     });
 
     expect(config.metricsEnabled).toBe(true);
-    expect(config.slowQueryThresholdMs).toBe(750);
+    expect(config.slowQueryThresholdMs).toBe(SLOW_QUERY_THRESHOLD_MS);
     expect(config.metricsPort).toBeUndefined();
   });
 
   it('should require METRICS_PORT for consumer when METRICS_ENABLED=true', () => {
     process.env.METRICS_ENABLED = 'true';
     process.env.METRICS_PORT = '9091';
-    process.env.SLOW_QUERY_THRESHOLD_MS = '500';
 
     const config = createObservabilityConfig('consumer', {
       requireMetricsPort: true,

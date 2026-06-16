@@ -137,6 +137,7 @@ export {
   RECIPE_INGESTION_DEFAULT_INGREDIENT_CATEGORY_ID,
 } from './constants/recipe-ingestion';
 export { MAX_RECOMMENDATION_ROWS } from './policy/recommendation.policy';
+export { SLOW_QUERY_THRESHOLD_MS } from './policy/observability.policy';
 export {
   MAX_RECIPE_INGESTION_RETRY_COUNT,
   RECIPE_INGESTION_RETRY_BASE_DELAY_MS,

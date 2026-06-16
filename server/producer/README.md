@@ -52,7 +52,6 @@ cp .env.docker.example .env.docker      # Docker Compose
 | `SENTRY_ENABLED` | Sentry 활성화 | `false` |
 | `SENTRY_DSN_PRODUCER` | Producer Sentry DSN | (비움) |
 | `METRICS_ENABLED` | Prometheus 메트릭 노출 | `true` |
-| `SLOW_QUERY_THRESHOLD_MS` | 느린 쿼리 임계값(ms), `METRICS_ENABLED=true` 시 필수 | `500` |
 
 ## 사용 방법
 

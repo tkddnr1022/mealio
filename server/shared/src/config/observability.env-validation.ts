@@ -37,14 +37,6 @@ export function buildObservabilityEnvRules(
       .uri()
       .optional()
       .allow(''),
-    SLOW_QUERY_THRESHOLD_MS: Joi.when('METRICS_ENABLED', {
-      is: metricsEnabledOn,
-      then: Joi.string().pattern(/^\d+$/).required().messages({
-        'any.required':
-          'SLOW_QUERY_THRESHOLD_MS is required when METRICS_ENABLED=true',
-      }),
-      otherwise: Joi.optional(),
-    }),
   };
 
   if (options.requireMetricsPort) {
