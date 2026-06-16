@@ -6,9 +6,9 @@ title: 레시피 수집 상세
 
 ## 이 문서로 해결할 질문
 
-- fetch→submit→retrieve→persist 각 단계의 책임은?
-- job 상태 전이와 멱등 키는?
-- 운영·검증은 어떻게 하는가?
+- fetch→submit→retrieve→persist 각 단계의 책임은 무엇인가요?
+- job 상태 전이와 멱등 키는 무엇인가요?
+- 운영·검증은 어떻게 하나요?
 
 개요: [레시피 수집(ETL)](../project/recipe-ingestion)
 

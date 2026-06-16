@@ -6,8 +6,8 @@ title: 배치/스케줄 작업
 
 ## 이 문서로 해결할 질문
 
-- Consumer standalone job은 무엇이 있고 어떻게 실행하는가?
-- cron·ECS Scheduled Task와의 관계는?
+- Consumer standalone job은 무엇이 있고 어떻게 실행하나요?
+- cron·ECS Scheduled Task와의 관계는 무엇인가요?
 
 ## Always-on vs Job
 

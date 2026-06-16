@@ -7,9 +7,9 @@ sidebar_position: 9
 
 ## 이 문서로 해결할 질문
 
-- dev와 prod에서 컴포넌트는 어디에 올라가는가?
-- 프론트엔드 배포 옵션(Vercel vs EC2)은?
-- Compose 파일 역할과 기동 순서는?
+- dev와 prod에서 컴포넌트는 어디에 올라가나요?
+- 프론트엔드 배포 옵션(Vercel vs EC2)은 무엇인가요?
+- Compose 파일 역할과 기동 순서는 무엇인가요?
 
 ## 확정 스택 (MVP·초기 프로덕션)
 

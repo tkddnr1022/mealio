@@ -6,8 +6,8 @@ title: 공유 계약
 
 ## 이 문서로 해결할 질문
 
-- Kafka·SSE·도메인 이벤트 타입은 어디에 정의되는가?
-- Producer와 Consumer가 공유하는 계약 목록은?
+- Kafka·SSE·도메인 이벤트 타입은 어디에 정의되나요?
+- Producer와 Consumer가 공유하는 계약 목록은 무엇인가요?
 
 ## Kafka 토픽
 

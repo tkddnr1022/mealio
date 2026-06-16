@@ -7,9 +7,9 @@ sidebar_position: 1
 
 ## 이 문서로 해결할 질문
 
-- 로컬에서 Mealio를 처음 실행하려면 무엇이 필요한가?
-- Docker Compose와 앱(client/producer/consumer)은 어떻게 기동하는가?
-- `.env` 파일은 어디에 두고 무엇을 설정하는가?
+- 로컬에서 Mealio를 처음 실행하려면 무엇이 필요한가요?
+- Docker Compose와 앱(client/producer/consumer)은 어떻게 기동하나요?
+- `.env` 파일은 어디에 두고 무엇을 설정하나요?
 
 ## Prerequisites
 

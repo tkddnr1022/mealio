@@ -7,9 +7,9 @@ sidebar_position: 6
 
 ## 이 문서로 해결할 질문
 
-- 개인화 추천은 어떻게 생성·조회·갱신되는가?
-- Producer·Consumer·Redis·PostgreSQL 각각의 역할은?
-- 추천이 느리거나 stale할 때 어디를 확인하는가?
+- 개인화 추천은 어떻게 생성·조회·갱신되나요?
+- Producer·Consumer·Redis·PostgreSQL 각각의 역할은 무엇인가요?
+- 추천이 느리거나 stale할 때 어디를 확인하나요?
 
 ## 전체 흐름
 

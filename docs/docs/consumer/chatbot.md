@@ -6,9 +6,9 @@ title: 챗봇 처리
 
 ## 이 문서로 해결할 질문
 
-- Consumer가 챗봇 메시지를 어떻게 처리하는가?
-- GPT Function Calling·tool handler 구조는?
-- 크레딧 멱등 차감은 어떻게 보장하는가?
+- Consumer가 챗봇 메시지를 어떻게 처리하나요?
+- GPT Function Calling·tool handler 구조는 무엇인가요?
+- 크레딧 멱등 차감은 어떻게 보장하나요?
 
 ## 처리 파이프라인
 

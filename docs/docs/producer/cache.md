@@ -6,9 +6,9 @@ title: 캐시
 
 ## 이 문서로 해결할 질문
 
-- Producer Redis Cache-Aside 패턴은?
-- 도메인별 TTL·캐시 키는?
-- 캐시 miss·무효화 후 동작은?
+- Producer Redis Cache-Aside 패턴은 무엇인가요?
+- 도메인별 TTL·캐시 키는 무엇인가요?
+- 캐시 miss·무효화 후 동작은 어떻게 되나요?
 
 ## Cache-Aside 패턴
 

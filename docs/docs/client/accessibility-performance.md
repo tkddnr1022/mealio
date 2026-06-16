@@ -6,9 +6,9 @@ title: 접근성/성능 기준
 
 ## 이 문서로 해결할 질문
 
-- Mealio 프론트엔드의 접근성·성능 목표는?
-- `buildAriaLabel`은 어떻게 쓰는가?
-- Web Vitals·번들 예산은?
+- Mealio 프론트엔드의 접근성·성능 목표는 무엇인가요?
+- `buildAriaLabel`은 어떻게 쓰나요?
+- Web Vitals·번들 예산은 무엇인가요?
 
 ## 접근성 (WCAG 2.1 AA)
 

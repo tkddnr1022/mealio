@@ -6,9 +6,9 @@ title: 캐시
 
 ## 이 문서로 해결할 질문
 
-- Consumer에서 Redis 캐시를 쓰는 곳은?
-- Producer 캐시와 어떻게 정합을 맞추는가?
-- 챗봇 Handler 캐시 TTL은?
+- Consumer에서 Redis 캐시를 쓰는 곳은 어디인가요?
+- Producer 캐시와 어떻게 정합을 맞추나요?
+- 챗봇 Handler 캐시 TTL은 무엇인가요?
 
 ## Consumer 캐시 역할
 

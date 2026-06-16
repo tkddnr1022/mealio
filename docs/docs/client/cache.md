@@ -6,9 +6,9 @@ title: 캐시
 
 ## 이 문서로 해결할 질문
 
-- Next.js ISR/Data Cache와 React Query 캐시는 어떻게 구분되는가?
-- `cache.policy.ts` 기준 값은?
-- 레시피 상세 온디맨드 revalidate는 어떻게 트리거하는가?
+- Next.js ISR/Data Cache와 React Query 캐시는 어떻게 구분되나요?
+- `cache.policy.ts` 기준 값은 무엇인가요?
+- 레시피 상세 온디맨드 revalidate는 어떻게 트리거하나요?
 
 ## 캐시 레이어 개요
 

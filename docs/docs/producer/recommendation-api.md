@@ -6,9 +6,9 @@ title: 추천 API
 
 ## 이 문서로 해결할 질문
 
-- `GET /recipes/recommended` 계약과 응답 필드는?
-- 캐시·fallback·무효화는 어떻게 동작하는가?
-- Consumer 추천 파이프라인과의 관계는?
+- `GET /recipes/recommended` 계약과 응답 필드는 무엇인가요?
+- 캐시·fallback·무효화는 어떻게 동작하나요?
+- Consumer 추천 파이프라인과의 관계는 무엇인가요?
 
 전체 흐름: [추천 시스템](../project/recommendation)
 

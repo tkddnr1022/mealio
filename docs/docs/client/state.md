@@ -6,9 +6,9 @@ title: 상태 관리
 
 ## 이 문서로 해결할 질문
 
-- React Query와 Auth 상태는 어떻게 나뉘는가?
-- 쿼리 키·캐시 정책은 어디서 관리하는가?
-- Optimistic Update 원칙은?
+- React Query와 Auth 상태는 어떻게 나뉘나요?
+- 쿼리 키·캐시 정책은 어디서 관리하나요?
+- Optimistic Update 원칙은 무엇인가요?
 
 ## 상태 경계
 

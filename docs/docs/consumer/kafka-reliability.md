@@ -6,9 +6,9 @@ title: Kafka 소비/신뢰성
 
 ## 이 문서로 해결할 질문
 
-- Consumer group·토픽·DLQ 구조는?
-- at-least-once·멱등성은 어떻게 보장하는가?
-- lag 모니터링은?
+- Consumer group·토픽·DLQ 구조는 무엇인가요?
+- at-least-once·멱등성은 어떻게 보장하나요?
+- lag 모니터링은 어떻게 하나요?
 
 ## 토픽·그룹 매핑
 

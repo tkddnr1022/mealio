@@ -6,9 +6,9 @@ title: API 문서
 
 ## 이 문서로 해결할 질문
 
-- API 계약은 어디에 있고 어떻게 확인하는가?
-- 공통 에러 응답·Rate Limiting 규칙은?
-- Swagger 로컬 접근 방법은?
+- API 계약은 어디에 있고 어떻게 확인하나요?
+- 공통 에러 응답·Rate Limiting 규칙은 무엇인가요?
+- Swagger 로컬 접근 방법은 무엇인가요?
 
 ## API 계약 참고
 

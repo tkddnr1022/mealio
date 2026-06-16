@@ -6,9 +6,9 @@ title: Shared 패키지 개요
 
 ## 이 문서로 해결할 질문
 
-- `@mealio/shared`는 무엇을 제공하는가?
-- Producer/Consumer가 어떻게 import하는가?
-- 빌드 순서는?
+- `@mealio/shared`는 무엇을 제공하나요?
+- Producer/Consumer가 어떻게 import하나요?
+- 빌드 순서는 무엇인가요?
 
 ## 패키지 정보
 

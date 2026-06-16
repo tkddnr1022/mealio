@@ -6,8 +6,8 @@ title: 데이터 모델/스키마
 
 ## 이 문서로 해결할 질문
 
-- PostgreSQL vs MongoDB에 무엇이 저장되는가?
-- 스키마 코드·문서 기준은?
+- PostgreSQL vs MongoDB에 무엇이 저장되나요?
+- 스키마 코드·문서 기준은 무엇인가요?
 
 ## 저장소 분리
 

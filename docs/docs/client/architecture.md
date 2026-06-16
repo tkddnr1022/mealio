@@ -6,9 +6,9 @@ title: 클라이언트 아키텍처
 
 ## 이 문서로 해결할 질문
 
-- Next.js App Router 구조와 렌더링 전략은?
-- `client/src` 주요 디렉터리 역할은?
-- 전역 Provider·API 레이어는 어떻게 구성되는가?
+- Next.js App Router 구조와 렌더링 전략은 무엇인가요?
+- `client/src` 주요 디렉터리 역할은 무엇인가요?
+- 전역 Provider·API 레이어는 어떻게 구성되나요?
 
 ## 앱 디렉터리
 

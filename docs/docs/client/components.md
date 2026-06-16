@@ -6,9 +6,9 @@ title: 컴포넌트 구조/규칙
 
 ## 이 문서로 해결할 질문
 
-- `client/src/components/` 폴더 구조는?
-- import 방향 규칙은?
-- 새 컴포넌트를 어디에 두는가?
+- `client/src/components/` 폴더 구조는 무엇인가요?
+- import 방향 규칙은 무엇인가요?
+- 새 컴포넌트를 어디에 두나요?
 
 ## 최상위 구조
 

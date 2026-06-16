@@ -6,9 +6,9 @@ title: 인증/인가
 
 ## 이 문서로 해결할 질문
 
-- Producer OAuth·JWT·Refresh 흐름은?
-- Guard 종류와 적용 기준은?
-- Refresh Token 저장소와 회전 정책은?
+- Producer OAuth·JWT·Refresh 흐름은 무엇인가요?
+- Guard 종류와 적용 기준은 무엇인가요?
+- Refresh Token 저장소와 회전 정책은 무엇인가요?
 
 ## OAuth (백엔드 주도)
 

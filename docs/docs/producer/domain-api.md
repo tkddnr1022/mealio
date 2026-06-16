@@ -6,9 +6,9 @@ title: 도메인 API 가이드
 
 ## 이 문서로 해결할 질문
 
-- Producer 도메인 모듈별 엔드포인트와 DB 사용은?
-- 인증이 필요한 API는?
-- 쓰기 API의 Kafka 연동은?
+- Producer 도메인 모듈별 엔드포인트와 DB 사용은 무엇인가요?
+- 인증이 필요한 API는 무엇인가요?
+- 쓰기 API의 Kafka 연동은 무엇인가요?
 
 API 계약: [Producer API](../producer/api) · server/producer/src/modules/
 

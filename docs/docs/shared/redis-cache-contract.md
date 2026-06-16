@@ -6,9 +6,9 @@ title: Redis 키/캐시 계약
 
 ## 이 문서로 해결할 질문
 
-- Producer·Consumer가 공유하는 Redis 키 규칙은?
-- prefix·헬퍼 함수는 어디에 정의되는가?
-- 무효화 시 삭제되는 패턴은?
+- Producer·Consumer가 공유하는 Redis 키 규칙은 무엇인가요?
+- prefix·헬퍼 함수는 어디에 정의되나요?
+- 무효화 시 삭제되는 패턴은 무엇인가요?
 
 ## 참고 코드·계약
 

@@ -6,9 +6,9 @@ title: Consumer 아키텍처
 
 ## 이 문서로 해결할 질문
 
-- Consumer 패키지의 전체 구조는?
-- Kafka consumer vs standalone job 차이는?
-- 내결함성(DLQ·멱등)은 어디서 처리하는가?
+- Consumer 패키지의 전체 구조는 무엇인가요?
+- Kafka consumer vs standalone job 차이는 무엇인가요?
+- 내결함성(DLQ·멱등)은 어디서 처리하나요?
 
 ## 역할
 
