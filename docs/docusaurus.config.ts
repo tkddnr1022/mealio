@@ -44,14 +44,6 @@ const config: Config = {
   themeConfig: {
     navbar: {
       title: 'Mealio Docs',
-      items: [
-        {
-          type: 'docSidebar',
-          sidebarId: 'docsSidebar',
-          position: 'left',
-          label: '문서',
-        },
-      ],
     },
     footer: {
       style: 'dark',
