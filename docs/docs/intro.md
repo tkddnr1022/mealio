@@ -58,4 +58,18 @@ pnpm --filter mealio-docs start
 | [챗봇 처리](./consumer/chatbot) | ✅ |
 | [Redis 키/캐시 계약](./shared/redis-cache-contract) | ✅ |
 
+### 3차 — 프로젝트·아키텍처·API (완료)
+
+| 문서 | 상태 |
+| --- | --- |
+| [프로젝트 개요](./project/overview) | ✅ |
+| [시스템 아키텍처](./project/architecture) | ✅ |
+| [모노레포 구조](./project/monorepo) | ✅ |
+| [배포/환경 전략](./project/deployment) | ✅ |
+| [클라이언트 아키텍처](./client/architecture) | ✅ |
+| [Producer 아키텍처](./producer/architecture) | ✅ |
+| [Consumer 아키텍처](./consumer/architecture) | ✅ |
+| [도메인 API 가이드](./producer/domain-api) | ✅ |
+| [추천 API](./producer/recommendation-api) | ✅ |
+
 나머지 페이지는 스텁 상태입니다.
