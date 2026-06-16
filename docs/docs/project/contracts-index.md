@@ -6,7 +6,7 @@
 
 | 문서 | 내용 |
 | --- | --- |
-| [도메인 개요](./domain) | 엔티티 관계 요약 |
+| [도메인](./domain) | 엔티티 관계 요약 |
 | [데이터 모델/스키마](../shared/data-models) | Prisma/Mongoose |
 | [데이터 모델](../shared/data-models) · server/shared/src/database/prisma/schema.prisma | 의미 중심 통합 스키마 |
 | `server/shared/.../schema.prisma` | PostgreSQL 코드 기준 |

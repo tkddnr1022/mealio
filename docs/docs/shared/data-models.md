@@ -12,7 +12,7 @@
 | **PostgreSQL** | Prisma | User, Recipe, Ingredient, UserRecipeRecommendation, ChatbotCreditDeduction |
 | **MongoDB** | Mongoose | Inventory, ChatbotLog, EventLog, ChatbotConversation, recipe_ingestion_* |
 
-의미·필드 설명: [도메인 개요](../project/domain)
+의미·필드 설명: [도메인](../project/domain)
 
 ## PostgreSQL (Prisma)
 
@@ -49,7 +49,7 @@ pnpm run db:prisma:migrate:deploy  # prod
 
 ## 필드 의미·동기화
 
-[도메인 개요](../project/domain)와 `server/shared/src/database/prisma/schema.prisma`를 함께 참고합니다. Prisma/Mongoose 스키마와 **일치 유지**가 필요합니다.
+[도메인](../project/domain)와 `server/shared/src/database/prisma/schema.prisma`를 함께 참고합니다. Prisma/Mongoose 스키마와 **일치 유지**가 필요합니다.
 
 ## 시드
 
@@ -62,14 +62,14 @@ pnpm run db:mongoose:seed
 
 1. `schema.prisma` 또는 Mongoose schema 수정
 2. 마이그레이션 생성·적용
-3. [도메인 개요](../project/domain) 및 본 문서 갱신
+3. [도메인](../project/domain) 및 본 문서 갱신
 4. OpenAPI DTO·문서 동기화
-5. Docusaurus 본 문서·도메인 개요 갱신
+5. Docusaurus 본 문서·도메인 갱신
 
 ## 관련 문서
 
 - [데이터/계약 인덱스](../project/contracts-index)
-- [Shared 패키지 개요](./overview)
+- [개요](./overview)
 
 ## 참고 코드·계약
 

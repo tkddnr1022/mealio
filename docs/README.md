@@ -33,7 +33,7 @@ pnpm build:docs
 
 - `로컬 개발/온보딩` → `project/getting-started`
 - `프로젝트 개요` → `project/overview`
-- `도메인 개요` → `project/domain`
+- `도메인` → `project/domain`
 - `인증 (client)` → `client/auth`
 - `Producer API` → `producer/api`
 

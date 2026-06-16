@@ -87,7 +87,7 @@ producer → Kafka topic
 | Kafka | 도메인 이벤트 버스 (영속 아님) |
 | S3 | 레시피 이미지 (확장) |
 
-→ [도메인 개요](./domain)
+→ [도메인](./domain)
 
 ## 외부 서비스
 
