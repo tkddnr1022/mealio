@@ -3,6 +3,9 @@ title: 로컬 개발/온보딩
 sidebar_position: 1
 ---
 
+import CodeBlock from '@theme/CodeBlock';
+import { GITHUB_REPO, GITHUB_REPO_CLONE_URL } from '@site/src/constants/github';
+
 # 로컬 개발/온보딩
 
 ## 이 문서로 해결할 질문
@@ -21,14 +24,12 @@ sidebar_position: 1
 
 ## 1. 저장소 클론 및 의존성 설치
 
-```bash
-git clone https://github.com/tkddn1022/mealio.git
-cd mealio
+<CodeBlock language="bash">{`git clone ${GITHUB_REPO_CLONE_URL}
+cd ${GITHUB_REPO}
 
 corepack enable
 corepack prepare pnpm@latest --activate
-pnpm install
-```
+pnpm install`}</CodeBlock>
 
 ## 2. 환경 변수 준비
 
