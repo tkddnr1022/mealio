@@ -1,8 +1,3 @@
----
-title: 레시피 수집(ETL)
-sidebar_position: 7
----
-
 # 레시피 수집(ETL)
 
 ## 이 문서로 해결할 질문

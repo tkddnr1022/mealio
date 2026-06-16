@@ -1,7 +1,3 @@
----
-title: Consumer 아키텍처
----
-
 # Consumer 아키텍처
 
 ## 이 문서로 해결할 질문

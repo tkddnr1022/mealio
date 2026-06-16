@@ -1,7 +1,5 @@
 ---
 slug: /
-sidebar_position: 0
-title: 소개
 ---
 
 # Mealio 문서

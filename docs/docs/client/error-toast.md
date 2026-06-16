@@ -1,8 +1,3 @@
----
-title: 에러 처리/Toast
-sidebar_position: 7
----
-
 # 에러 처리/Toast
 
 ## 이 문서로 해결할 질문
