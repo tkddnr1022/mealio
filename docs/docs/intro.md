@@ -30,15 +30,32 @@ pnpm install
 pnpm --filter mealio-docs start
 ```
 
-## 1차 작성 우선순위
+## 작성 현황
+
+### 1차 (완료)
 
 | 문서 | 상태 |
 | --- | --- |
-| [로컬 개발/온보딩](./project/getting-started) | ✅ 작성 완료 |
-| [도메인 개요](./project/domain) | ✅ 작성 완료 |
-| [E2E 시나리오/화면 흐름](./project/e2e-scenarios) | ✅ 작성 완료 |
-| [추천 시스템](./project/recommendation) | ✅ 작성 완료 |
-| [에러 처리/Toast](./client/error-toast) | ✅ 작성 완료 |
-| [이벤트/분석 파이프라인](./consumer/analytics-pipeline) | ✅ 작성 완료 |
+| [로컬 개발/온보딩](./project/getting-started) | ✅ |
+| [도메인 개요](./project/domain) | ✅ |
+| [E2E 시나리오/화면 흐름](./project/e2e-scenarios) | ✅ |
+| [추천 시스템](./project/recommendation) | ✅ |
+| [에러 처리/Toast](./client/error-toast) | ✅ |
+| [이벤트/분석 파이프라인](./consumer/analytics-pipeline) | ✅ |
+
+### 2차 — 인증·캐시·챗봇 (완료)
+
+| 문서 | 상태 |
+| --- | --- |
+| [인증 (client)](./client/auth) | ✅ |
+| [캐시 (client)](./client/cache) | ✅ |
+| [챗봇 UI/스트리밍](./client/chatbot-ui) | ✅ |
+| [인증/인가 (producer)](./producer/auth) | ✅ |
+| [캐시 (producer)](./producer/cache) | ✅ |
+| [챗봇/SSE (producer)](./producer/chatbot-sse) | ✅ |
+| [캐시 (consumer)](./consumer/cache) | ✅ |
+| [캐시 무효화](./consumer/cache-invalidation) | ✅ |
+| [챗봇 처리](./consumer/chatbot) | ✅ |
+| [Redis 키/캐시 계약](./shared/redis-cache-contract) | ✅ |
 
 나머지 페이지는 스텁 상태입니다.
