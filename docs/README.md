@@ -25,7 +25,7 @@ pnpm build:docs
 | --- | --- |
 | `sidebars.ts` | 사이드바 목차 (계획서와 1:1 대응) |
 | `docusaurus.config.ts` | 사이트 설정 |
-| `docs/` | Markdown 문서 (현재 스텁) |
+| `docs/` | Markdown 문서 본문 |
 
 ## slug 매핑
 

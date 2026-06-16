@@ -3,6 +3,8 @@ import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 const isGithubPages = process.env.GITHUB_PAGES === 'true';
+const isCI = process.env.CI === 'true';
+const brokenLinkPolicy = isCI ? 'throw' : 'warn';
 
 const config: Config = {
   title: 'Mealio Docs',
@@ -11,8 +13,12 @@ const config: Config = {
   baseUrl: isGithubPages ? '/mealio/' : '/',
   organizationName: 'tkddnr1022',
   projectName: 'mealio',
-  onBrokenLinks: 'warn',
-  onBrokenMarkdownLinks: 'warn',
+  onBrokenLinks: brokenLinkPolicy,
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: brokenLinkPolicy,
+    },
+  },
   i18n: {
     defaultLocale: 'ko',
     locales: ['ko'],

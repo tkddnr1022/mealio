@@ -5,6 +5,9 @@ on:
     branches: [master, main]
     paths:
       - 'docs/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
       - '.github/workflows/docs.yml'
   workflow_dispatch:
 
@@ -34,12 +37,13 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm run ci:install
+        run: pnpm install --frozen-lockfile --filter mealio-docs...
+
+      - name: Typecheck
+        run: pnpm --filter mealio-docs typecheck
 
       - name: Build docs
-        run: pnpm run build:docs
-        env:
-          GITHUB_PAGES: 'true'
+        run: pnpm run ci:build:docs
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

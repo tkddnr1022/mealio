@@ -41,7 +41,8 @@ pnpm install
 pnpm run start:producer
 pnpm run start:consumer
 pnpm run start:client
-pnpm run ci
+pnpm run ci          # docs 빌드(ci:build:docs) 포함
+pnpm run ci:build:docs   # 문서만 검증할 때
 ```
 
 ## 패키지별 가이드
