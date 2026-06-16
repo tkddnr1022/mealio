@@ -1,3 +1,8 @@
+---
+slug: /
+title: 개요
+---
+
 # 개요
 
 ## 이 문서로 해결할 질문
@@ -46,7 +51,7 @@ client → producer (실시간 API + 캐시 + Kafka 발행)
     PostgreSQL / MongoDB / Redis / OpenAI
 ```
 
-상세: [시스템 아키텍처](./architecture)
+상세: [시스템 아키텍처](project/architecture)
 
 ## 이벤트 드리븐 설계
 
@@ -67,7 +72,7 @@ Producer는 **명령(쓰기) API 성공 = Kafka 발행**까지 책임집니다. 
 - **수집**: Consumer standalone job (fetch → submit → retrieve → persist)
 - **가공**: OpenAI Batch API로 정규화·매핑
 
-→ [레시피 수집(ETL)](./recipe-ingestion)
+→ [레시피 수집(ETL)](project/recipe-ingestion)
 
 ## 모노레포 패키지
 
@@ -80,15 +85,14 @@ Producer는 **명령(쓰기) API 성공 = Kafka 발행**까지 책임집니다. 
 | `docs` | Docusaurus 문서 사이트 |
 | `docs/` | 공개 문서 사이트 |
 
-→ [모노레포 구조](./monorepo)
+→ [모노레포 구조](project/monorepo)
 
 ## 관련 문서
 
-- [도메인](./domain)
-- [로컬 개발/온보딩](./getting-started)
-- [배포/환경 전략](./deployment)
+- [도메인](project/domain)
+- [로컬 개발/온보딩](project/getting-started)
+- [배포/환경 전략](project/deployment)
 
 ## 참고 코드·계약
 
-- [프로젝트 개요](../project/overview)
 - `README.md`

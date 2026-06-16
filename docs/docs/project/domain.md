@@ -92,4 +92,4 @@ erDiagram
 ## 참고 코드·계약
 
 - [데이터 모델](../shared/data-models) · server/shared/src/database/prisma/schema.prisma
-- [프로젝트 개요](../project/overview)
+- [프로젝트 개요](../../)
