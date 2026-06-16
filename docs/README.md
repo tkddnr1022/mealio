@@ -1,6 +1,6 @@
 # Mealio Docs (Docusaurus)
 
-Mealio 공식 문서 사이트. 사이드바 목차는 `docs/sidebars.ts`와 `docs/docs/` Markdown 파일이 1:1로 대응합니다.
+Mealio 문서 사이트
 
 ## 로컬 실행
 
