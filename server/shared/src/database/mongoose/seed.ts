@@ -3,8 +3,10 @@
  * Prisma 시드(재료·레시피) 후 실행 권장. userId·ingredientId는 RDS User·Ingredient와 맞춤.
  * 실행: npm run mongoose:seed
  */
-import 'dotenv/config';
+import { loadEnvFiles } from '../../config/load-env-files';
 import mongoose from 'mongoose';
+
+loadEnvFiles();
 import { InventorySchema, ChatbotLogSchema } from '@mealio/shared';
 
 const InventoryModel = mongoose.model(

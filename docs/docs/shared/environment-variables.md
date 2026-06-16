@@ -10,8 +10,10 @@
 `@mealio/shared`는 독립 실행 앱이 아니며, **Prisma·Mongoose CLI** 가 DB에 접속할 때 env를 읽습니다.
 
 ```bash
-cp server/shared/.env.example server/shared/.env
+cp server/shared/.env.example server/shared/.env.local
 ```
+
+`APP_ENV`는 루트 `package.json`의 `db:*` 스크립트에서 런타임 주입합니다. Prisma·Mongoose CLI는 `server/shared/.env.local`(local) 또는 `.env.{APP_ENV}.local` + `.env.local` fallback 순으로 env를 로드합니다.
 
 런타임 DB 연결은 producer·consumer 각자의 `.env.local`에 동일한 URL을 설정합니다.
 
@@ -67,6 +69,7 @@ shared 패키지가 정의하는 관측 env 검증 규칙은 producer·consumer 
 ## 참고 코드·계약
 
 - `server/shared/.env.example`, `server/shared/README.md`
+- `server/shared/prisma.config.ts`, `server/shared/src/config/load-env-files.ts`
 - `server/shared/src/database/prisma/seed.ts`
 - `server/shared/src/database/mongoose/seed.ts`
 - `server/shared/src/config/observability.env-validation.ts`

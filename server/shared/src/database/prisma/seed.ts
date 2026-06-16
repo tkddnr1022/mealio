@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
-import 'dotenv/config';
+import { loadEnvFiles } from '../../config/load-env-files';
 import { Client } from 'pg';
+
+loadEnvFiles();
 import {
   DEFAULT_USER_CREDIT_BALANCE,
   DEFAULT_USER_CREDIT_MONTHLY_LIMIT,
