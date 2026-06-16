@@ -27,7 +27,7 @@ server/shared/
 
 ## Configuration
 
-Prisma·Mongoose CLI(마이그레이션·시드) 실행 시 사용합니다. 앱 런타임 env는 producer·consumer `.env`에 동일한 DB URL을 설정합니다.
+Prisma·Mongoose CLI(마이그레이션·시드) 실행 시 사용합니다. 앱 런타임 env는 producer·consumer `.env.local`에 동일한 DB URL을 설정합니다.
 
 ```bash
 cp .env.example .env

@@ -8,10 +8,10 @@
 
 ## 개요
 
-Next.js App Router 프론트엔드. env 파일: `client/.env` (호스트) · `client/.env.docker` (Docker).
+Next.js App Router 프론트엔드. env 파일: `client/.env.local` (호스트) · `client/.env.docker.local` (Docker).
 
 ```bash
-cp client/.env.example client/.env
+cp client/.env.example client/.env.local
 ```
 
 기본 포트 **4000**. 검증·파싱: `client/src/lib/config/env.ts` — 실패 시 `env.validationErrors`에 수집, `assertEnv()`로 엄격 검증 가능.
@@ -30,9 +30,9 @@ cp client/.env.example client/.env
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | 실행 환경 식별 |
-| 허용 값 | `development` (기본) · `production` · `test` |
-| 예시 | `development` |
+| 설명 | 실행 환경 식별 (`package.json`/Compose에서 런타임 주입) |
+| 허용 값 | `local` (기본) · `development` · `production` · `test` |
+| 예시 | `local` |
 | 사용처 | `client/src/lib/config/env.ts` → `env.runtime`, Sentry 샘플링 분기 |
 | 패턴 | 미설정·알 수 없는 값은 `development`로 처리 |
 

@@ -22,6 +22,12 @@ import { prismaConnectionPoolConfig } from './policy/prisma-pool.policy';
       isGlobal: true,
       validationSchema: envValidationSchema,
       validationOptions: envValidationOptions,
+      envFilePath: [
+        `.env.${process.env.APP_ENV}.local`,
+        '.env.local',
+        `.env.${process.env.APP_ENV}`,
+        '.env',
+      ],
     }),
     // PostgreSQL (Prisma) — SearchRecipesHandler (config 주입)
     PrismaModule.forRoot(prismaConnectionPoolConfig),

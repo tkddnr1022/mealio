@@ -11,6 +11,7 @@ export function createRedisConfig(): RedisOptions {
 
   // URL 파싱
   const url = new URL(redisUrl);
+  const isSecure = url.protocol === 'rediss:';
 
   return {
     host: url.hostname,
@@ -26,5 +27,6 @@ export function createRedisConfig(): RedisOptions {
     enableOfflineQueue: false,
     connectTimeout: 10000,
     lazyConnect: true,
+    tls: isSecure ? {} : undefined,
   };
 }

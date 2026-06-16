@@ -39,7 +39,7 @@
 ## 배포·환경
 
 - EC2 Docker: `docker/compose-producer.yml`
-- env: `server/producer/.env.docker`
+- env: `server/producer/.env.docker.local`
 - DB·Redis: Neon / Upstash URL (매니지드)
 
 → [배포/환경 전략](../project/deployment)

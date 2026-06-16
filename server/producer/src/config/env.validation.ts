@@ -7,7 +7,7 @@ import { buildObservabilityEnvRules } from '@mealio/shared';
  */
 export const envValidationSchema = Joi.object({
   APP_ENV: Joi.string()
-    .valid('development', 'production', 'test')
+    .valid('local', 'development', 'production', 'test')
     .required()
     .messages({
       'any.required': 'APP_ENV is required',

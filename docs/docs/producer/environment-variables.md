@@ -8,10 +8,10 @@
 
 ## 개요
 
-NestJS REST API. env 파일: `server/producer/.env` (호스트) · `server/producer/.env.docker` (Docker).
+NestJS REST API. env 파일: `server/producer/.env.local` (호스트) · `server/producer/.env.docker.local` (Docker).
 
 ```bash
-cp server/producer/.env.example server/producer/.env
+cp server/producer/.env.example server/producer/.env.local
 ```
 
 기본 포트 **3000**. 부팅 시 Joi로 **전 변수 필수** 검증 — `server/producer/src/config/env.validation.ts`, 실패 시 프로세스 종료.
@@ -22,7 +22,7 @@ cp server/producer/.env.example server/producer/.env
 
 | 항목 | 내용 |
 | --- | --- |
-| `APP_ENV` | `development` · `production` · `test` — Sentry environment, 샘플링 |
+| `APP_ENV` | `local` · `development` · `production` · `test` — 런타임 주입(`package.json`/Compose), Sentry environment, 샘플링 |
 | `PORT` | HTTP listen 포트. 예: `3000`. `server/producer/src/main.ts`에서 `parseInt` 후 listen |
 | Docker | `compose-producer.yml`이 `127.0.0.1:${PORT}` 바인딩 |
 

@@ -16,7 +16,7 @@
  * - Sentry init: `client/src/lib/config/sentry.config.ts`
  * - 메타 URL: `client/src/lib/config/app.config.ts` (고정 문구는 `constants/app.constants.ts`)
  */
-export type RuntimeEnv = 'development' | 'production' | 'test';
+export type RuntimeEnv = 'local' | 'development' | 'production' | 'test';
 
 export interface AppEnv {
   /** 현재 실행 환경. `APP_ENV`에서 파생. */
@@ -99,8 +99,15 @@ function readRaw(name: string): string | undefined {
 
 function parseRuntime(): RuntimeEnv {
   const raw = process.env.APP_ENV;
-  if (raw === 'production' || raw === 'test') return raw;
-  return 'development';
+  if (
+    raw === 'local' ||
+    raw === 'development' ||
+    raw === 'production' ||
+    raw === 'test'
+  ) {
+    return raw;
+  }
+  return 'local';
 }
 
 function parseApiBaseUrl(): string {
@@ -285,7 +292,7 @@ function buildEnv(): AppEnv {
   return Object.freeze<AppEnv>({
     runtime,
     isProduction: runtime === 'production',
-    isDevelopment: runtime === 'development',
+    isDevelopment: runtime === 'development' || runtime === 'local',
     apiBaseUrl,
     internalApiBaseUrl,
     apiPrefix,

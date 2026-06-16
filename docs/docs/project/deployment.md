@@ -79,11 +79,11 @@
 
 | 파일 | 용도 |
 | --- | --- |
-| `.env.docker` | 인프라 Compose |
-| `client/.env` | 호스트 client |
-| `server/producer/.env` | 호스트 producer |
-| `server/consumer/.env` | 호스트 consumer |
-| `*.env.docker` | Docker로 앱 기동 시 |
+| `.env.docker.local` | 인프라 Compose |
+| `client/.env.local` | 호스트 client |
+| `server/producer/.env.local` | 호스트 producer |
+| `server/consumer/.env.local` | 호스트 consumer |
+| `*.env.docker.local` | Docker로 앱 기동 시 |
 
 변수별 사용처·예시·환경별 패턴은 [환경 변수](./environment-variables) 허브와 패키지별 문서를 참고하세요.
 

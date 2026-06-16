@@ -7,7 +7,7 @@ import { GITHUB_REPO, GITHUB_REPO_CLONE_URL } from '@site/src/constants/github';
 
 - 로컬에서 Mealio를 처음 실행하려면 무엇이 필요한가요?
 - Docker Compose와 앱(client/producer/consumer)은 어떻게 기동하나요?
-- `.env` 파일은 어디에 두고 무엇을 설정하나요?
+- `.env.local` 파일은 어디에 두고 무엇을 설정하나요?
 
 ## Prerequisites
 
@@ -32,20 +32,20 @@ pnpm install`}</CodeBlock>
 
 ```bash
 # 인프라 Compose용 (DB·Kafka·관측)
-cp .env.docker.example .env.docker
+cp .env.docker.example .env.docker.local
 
 # 호스트에서 앱 실행용
-cp client/.env.example client/.env
-cp server/producer/.env.example server/producer/.env
-cp server/consumer/.env.example server/consumer/.env
+cp client/.env.example client/.env.local
+cp server/producer/.env.example server/producer/.env.local
+cp server/consumer/.env.example server/consumer/.env.local
 ```
 
 | 파일 | 용도 |
 | --- | --- |
-| `.env.docker` | MongoDB·PostgreSQL·Redis·Kafka·Prometheus·Grafana |
-| `client/.env` | Next.js API URL, OAuth 콜백 경로 등 |
-| `server/producer/.env` | DB URL, Redis, Kafka, JWT, OAuth 클라이언트 |
-| `server/consumer/.env` | DB URL, Redis, Kafka, OpenAI 등 |
+| `.env.docker.local` | MongoDB·PostgreSQL·Redis·Kafka·Prometheus·Grafana |
+| `client/.env.local` | Next.js API URL, OAuth 콜백 경로 등 |
+| `server/producer/.env.local` | DB URL, Redis, Kafka, JWT, OAuth 클라이언트 |
+| `server/consumer/.env.local` | DB URL, Redis, Kafka, OpenAI 등 |
 
 패키지별 상세 변수는 [환경 변수](./environment-variables) 허브와 각 패키지 문서를 참고하세요.
 
@@ -56,10 +56,12 @@ cp server/consumer/.env.example server/consumer/.env
 - [shared 환경 변수](../shared/environment-variables)
 - [인프라 환경 변수](./infrastructure-environment-variables)
 
+`APP_ENV`는 루트 `package.json` 스크립트/Compose에서 런타임 주입합니다.
+
 ## 3. 인프라 기동 (Docker Compose)
 
 ```bash
-docker compose --env-file .env.docker \
+docker compose --env-file .env.docker.local \
   -f docker/compose-database.yml \
   -f docker/compose-kafka.yml \
   -f docker/compose-kafka-ui.yml \

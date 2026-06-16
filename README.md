@@ -69,17 +69,17 @@ pnpm install
 
 ```bash
 # 인프라 Compose용 (DB·Kafka·관측)
-cp .env.docker.example .env.docker
+cp .env.docker.example .env.docker.local
 
 # 호스트에서 앱 실행용
-cp client/.env.example client/.env
-cp server/producer/.env.example server/producer/.env
-cp server/consumer/.env.example server/consumer/.env
+cp client/.env.example client/.env.local
+cp server/producer/.env.example server/producer/.env.local
+cp server/consumer/.env.example server/consumer/.env.local
 
 # Docker Compose로 앱 기동용
-cp client/.env.docker.example client/.env.docker
-cp server/producer/.env.docker.example server/producer/.env.docker
-cp server/consumer/.env.docker.example server/consumer/.env.docker
+cp client/.env.docker.example client/.env.docker.local
+cp server/producer/.env.docker.example server/producer/.env.docker.local
+cp server/consumer/.env.docker.example server/consumer/.env.docker.local
 ```
 
 프로젝트 루트 `.env.docker.example`은 Docker Compose 인프라(DB, Kafka, 관측) 전용입니다. 앱 패키지별 환경 변수는 각 패키지 README를 참고하세요.
@@ -123,7 +123,7 @@ cp server/consumer/.env.docker.example server/consumer/.env.docker
 
 ```bash
 # 인프라 (DB/Kafka/Redis/Kafka UI/관측)
-docker compose --env-file .env.docker -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
+docker compose --env-file .env.docker.local -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
 ```
 
 ```bash
@@ -143,7 +143,7 @@ pnpm run start:client
 
 ```bash
 # 인프라 (DB/Kafka/Redis/Kafka UI/관측)
-docker compose --env-file .env.docker -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
+docker compose --env-file .env.docker.local -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
 ```
 
 ```bash
@@ -151,11 +151,11 @@ pnpm run db:prisma:migrate:deploy
 ```
 
 ```bash
-docker compose --env-file server/producer/.env.docker -f docker/compose-producer.yml up -d --build
+docker compose --env-file server/producer/.env.docker.local -f docker/compose-producer.yml up -d --build
 
-docker compose --env-file server/consumer/.env.docker -f docker/compose-consumer.yml up -d --build
+docker compose --env-file server/consumer/.env.docker.local -f docker/compose-consumer.yml up -d --build
 
-docker compose --env-file client/.env.docker -f docker/compose-client.yml up -d --build
+docker compose --env-file client/.env.docker.local -f docker/compose-client.yml up -d --build
 ```
 
 ## 라이선스 (License)

@@ -16,6 +16,7 @@ import {
 import { AuthService } from '../auth.service';
 import { SentryService } from '../../../optimization/monitoring/sentry.service';
 import type { RequestWithCorrelationId } from '../../middleware/request.types';
+import { isSecureCookie } from '../utils/cookie-security.util';
 
 type ErrorBody = {
   error?: {
@@ -121,16 +122,12 @@ export class OAuthCallbackExceptionFilter
   private clearOAuthFlowCookies(response: Response): void {
     const options = {
       httpOnly: true as const,
-      secure: this.isSecureCookie(),
+      secure: isSecureCookie(this.config),
       sameSite: 'lax' as const,
       path: '/',
     };
     response.clearCookie(OAUTH_STATE_COOKIE_NAME, options);
     response.clearCookie(OAUTH_NEXT_COOKIE_NAME, options);
-  }
-
-  private isSecureCookie(): boolean {
-    return this.config.getOrThrow<string>('APP_ENV') !== 'development';
   }
 
   private resolveErrorInfo(exception: unknown): {

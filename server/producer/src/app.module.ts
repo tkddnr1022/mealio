@@ -29,6 +29,12 @@ import { HttpMetricsMiddleware } from './optimization/monitoring/http-metrics.mi
       isGlobal: true,
       validationSchema: envValidationSchema,
       validationOptions: envValidationOptions,
+      envFilePath: [
+        `.env.${process.env.APP_ENV}.local`,
+        '.env.local',
+        `.env.${process.env.APP_ENV}`,
+        '.env',
+      ],
     }),
     PrismaModule.forRoot(prismaConnectionPoolConfig),
     MongooseSchemasModule.forRoot(mongooseConnectionPoolConfig),

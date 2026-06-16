@@ -2,18 +2,18 @@
 
 ## 이 문서로 해결할 질문
 
-- Docker Compose 인프라용 `.env.docker`에는 어떤 변수가 있나요?
+- Docker Compose 인프라용 `.env.docker.local`에는 어떤 변수가 있나요?
 - 각 변수는 어떤 Compose 파일에서 쓰이나요?
 - 앱 패키지 env와 어떻게 맞춰야 하나요?
 
 ## 개요
 
-루트 `.env.docker`는 **앱 패키지 env와 별도**이며, MongoDB·PostgreSQL·Redis·Kafka·Kafka UI·Prometheus·Grafana Compose 기동에 사용합니다.
+루트 `.env.docker.local`은 **앱 패키지 env와 별도**이며, MongoDB·PostgreSQL·Redis·Kafka·Kafka UI·Prometheus·Grafana Compose 기동에 사용합니다.
 
 ```bash
-cp .env.docker.example .env.docker
+cp .env.docker.example .env.docker.local
 
-docker compose --env-file .env.docker \
+docker compose --env-file .env.docker.local \
   -f docker/compose-database.yml \
   -f docker/compose-kafka.yml \
   -f docker/compose-kafka-ui.yml \
@@ -53,7 +53,7 @@ docker compose --env-file .env.docker \
 | 설명 | **호스트(개발 PC)** 에서 Kafka에 접속할 때 광고되는 주소 |
 | 예시 (호스트 개발) | `localhost` / `9092` |
 | 사용처 | `docker/compose-kafka.yml` → `KAFKA_ADVERTISED_LISTENERS` EXTERNAL 리스너 |
-| 패턴 | producer·consumer `.env`의 `KAFKA_BROKERS`는 `localhost:9092` 형태로 이 값과 일치 |
+| 패턴 | producer·consumer `.env.local`의 `KAFKA_BROKERS`는 `localhost:9092` 형태로 이 값과 일치 |
 
 ### `KAFKA_UI_PORT` / `KAFKA_UI_CLUSTER_NAME` / `KAFKA_UI_BOOTSTRAP_SERVERS`
 

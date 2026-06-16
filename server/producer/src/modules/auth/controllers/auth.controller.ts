@@ -37,6 +37,7 @@ import {
   OAUTH_STATE_COOKIE_NAME,
   REFRESH_TOKEN_COOKIE_NAME,
 } from '../../../constants/auth-cookie.constants';
+import { isSecureCookie } from '../utils/cookie-security.util';
 
 @ApiTags('Authentication')
 @Controller('api/v1/auth')
@@ -226,7 +227,7 @@ export class AuthController {
   ): void {
     res.cookie(ACCESS_TOKEN_COOKIE_NAME, accessToken, {
       httpOnly: true,
-      secure: this.isSecureCookie(),
+      secure: isSecureCookie(this.config),
       sameSite: 'lax',
       maxAge: this.authService.getAccessTokenCookieMaxAgeMs(),
       path: '/',
@@ -234,7 +235,7 @@ export class AuthController {
 
     res.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
       httpOnly: true,
-      secure: this.isSecureCookie(),
+      secure: isSecureCookie(this.config),
       sameSite: 'lax',
       maxAge: this.authService.getRefreshTokenCookieMaxAgeMs(),
       path: '/',
@@ -244,20 +245,16 @@ export class AuthController {
   private clearAuthCookies(res: Response): void {
     res.clearCookie(ACCESS_TOKEN_COOKIE_NAME, {
       httpOnly: true,
-      secure: this.isSecureCookie(),
+      secure: isSecureCookie(this.config),
       sameSite: 'lax',
       path: '/',
     });
     res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, {
       httpOnly: true,
-      secure: this.isSecureCookie(),
+      secure: isSecureCookie(this.config),
       sameSite: 'lax',
       path: '/',
     });
-  }
-
-  private isSecureCookie(): boolean {
-    return this.config.getOrThrow<string>('APP_ENV') !== 'development';
   }
 
   private getOAuthCookieOptions(): {
@@ -268,7 +265,7 @@ export class AuthController {
   } {
     return {
       httpOnly: true,
-      secure: this.isSecureCookie(),
+      secure: isSecureCookie(this.config),
       sameSite: 'lax',
       path: '/',
     };

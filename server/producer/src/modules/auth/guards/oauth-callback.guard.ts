@@ -13,6 +13,7 @@ import { isSupportedProvider } from '../constants/auth-providers';
 import { OAuthProfile } from '../types/oauth.types';
 import passport from 'passport';
 import { RequestWithOAuthProfile } from '../types/request.types';
+import { isSecureCookie } from '../utils/cookie-security.util';
 
 @Injectable()
 export class OAuthCallbackGuard implements CanActivate {
@@ -106,7 +107,7 @@ export class OAuthCallbackGuard implements CanActivate {
   private clearOAuthStateCookie(response: Response): void {
     response.clearCookie(OAUTH_STATE_COOKIE_NAME, {
       httpOnly: true,
-      secure: this.isSecureCookie(),
+      secure: isSecureCookie(this.config),
       sameSite: 'lax',
       path: '/',
     });
@@ -161,9 +162,5 @@ export class OAuthCallbackGuard implements CanActivate {
       return false;
     }
     return timingSafeEqual(leftBuffer, rightBuffer);
-  }
-
-  private isSecureCookie(): boolean {
-    return this.config.getOrThrow<string>('APP_ENV') !== 'development';
   }
 }

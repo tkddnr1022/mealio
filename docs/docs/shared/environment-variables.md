@@ -13,7 +13,7 @@
 cp server/shared/.env.example server/shared/.env
 ```
 
-런타임 DB 연결은 producer·consumer 각자의 `.env`에 동일한 URL을 설정합니다.
+런타임 DB 연결은 producer·consumer 각자의 `.env.local`에 동일한 URL을 설정합니다.
 
 ## 변수
 
@@ -25,7 +25,7 @@ cp server/shared/.env.example server/shared/.env
 | 예시 (호스트) | `postgresql://devuser:devpassword@localhost:5432/devdb` |
 | 예시 (Docker 인프라) | `postgresql://devuser:devpassword@localhost:5432/devdb` (호스트에서 CLI 실행 시) |
 | 사용처 | `server/shared/src/database/prisma/seed.ts`, Prisma schema, `PrismaService`(producer·consumer 런타임) |
-| 패턴 | producer·consumer `.env`와 **동일한 DB**를 가리켜야 시드·앱 데이터가 일치 |
+| 패턴 | producer·consumer `.env.local`과 **동일한 DB**를 가리켜야 시드·앱 데이터가 일치 |
 
 ### `MONGODB_URL`
 
@@ -47,7 +47,7 @@ pnpm run db:mongoose:seed  # MONGODB_URL
 
 ## 관측성 (런타임 — producer·consumer env)
 
-shared 패키지가 정의하는 관측 env 검증 규칙은 producer·consumer `.env`에서 사용됩니다.
+shared 패키지가 정의하는 관측 env 검증 규칙은 producer·consumer `.env.local`에서 사용됩니다.
 
 | 변수 | producer | consumer |
 | --- | --- | --- |

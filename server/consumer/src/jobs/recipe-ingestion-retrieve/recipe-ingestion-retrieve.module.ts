@@ -28,6 +28,12 @@ import { RetrieveService } from './services/retrieve.service';
       isGlobal: true,
       validationSchema: envValidationSchema,
       validationOptions: envValidationOptions,
+      envFilePath: [
+        `.env.${process.env.APP_ENV}.local`,
+        '.env.local',
+        `.env.${process.env.APP_ENV}`,
+        '.env',
+      ],
     }),
     MongooseSchemasModule.forRoot(mongooseConnectionPoolConfig),
     OpenAIModule,

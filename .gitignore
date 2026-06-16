@@ -35,13 +35,19 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# dotenv environment variable files
+# dotenv environment variable files - LocalHost
 .env
-.env.docker
 .env.development.local
 .env.test.local
 .env.production.local
 .env.local
+
+# dotenv environment variable files - Docker Compose
+.env.docker
+.env.docker.development.local
+.env.docker.test.local
+.env.docker.production.local
+.env.docker.local
 
 # temp directory
 .temp

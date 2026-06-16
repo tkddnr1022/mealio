@@ -8,10 +8,10 @@
 
 ## 개요
 
-Kafka Consumer·배치 워커. env 파일: `server/consumer/.env` (호스트) · `server/consumer/.env.docker` (Docker).
+Kafka Consumer·배치 워커. env 파일: `server/consumer/.env.local` (호스트) · `server/consumer/.env.docker.local` (Docker).
 
 ```bash
-cp server/consumer/.env.example server/consumer/.env
+cp server/consumer/.env.example server/consumer/.env.local
 ```
 
 HTTP API 포트 없음. 부팅 시 Joi로 **전 변수 필수** 검증 — `server/consumer/src/config/env.validation.ts`.
@@ -25,8 +25,8 @@ HTTP API 포트 없음. 부팅 시 Joi로 **전 변수 필수** 검증 — `serv
 | 항목 | 내용 |
 | --- | --- |
 | 설명 | 실행 환경 식별 |
-| 허용 값 | `development` · `production` · `test` |
-| 예시 | `development` |
+| 허용 값 | `local` · `development` · `production` · `test` |
+| 예시 | `local` |
 | 사용처 | Sentry environment, 샘플링 (`@mealio/shared` `sentry.config.ts`) |
 
 ## 데이터·메시징

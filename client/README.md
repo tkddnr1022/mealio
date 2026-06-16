@@ -25,13 +25,13 @@ client/
 ## Configuration
 
 ```bash
-cp .env.example .env                    # 호스트 개발
-cp .env.docker.example .env.docker      # Docker Compose
+cp .env.example .env.local                    # 호스트 개발
+cp .env.docker.example .env.docker.local      # Docker Compose
 ```
 
 | 변수 | 설명 | 기본값(예시) |
 | --- | --- | --- |
-| `APP_ENV` | 실행 환경 | `development` |
+| `APP_ENV` | 실행 환경 (`package.json`에서 런타임 주입) | `local` |
 | `PORT` | 개발·프로덕션 서버 포트 | `4000` |
 | `INTERNAL_API_BASE_URL` | SSR·ISR·Route Handler용 백엔드 API base URL (비우면 `NEXT_PUBLIC_API_BASE_URL` 사용) | (비움) |
 | `NEXT_PUBLIC_API_BASE_URL` | 브라우저·CSR용 백엔드 API base URL (비우면 same-origin) | (비움) |
