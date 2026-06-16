@@ -13,6 +13,7 @@ const sidebars: SidebarsConfig = {
       collapsed: false,
       items: [
         'project/getting-started',
+        'project/infrastructure-environment-variables',
         'project/overview',
         'project/domain',
         'project/architecture',
@@ -28,6 +29,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'client',
       items: [
+        'client/environment-variables',
         'client/architecture',
         'client/components',
         'client/auth',
@@ -43,6 +45,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'producer',
       items: [
+        'producer/environment-variables',
         'producer/architecture',
         'producer/auth',
         'producer/cache',
@@ -58,6 +61,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'consumer',
       items: [
+        'consumer/environment-variables',
         'consumer/architecture',
         'consumer/kafka-reliability',
         'consumer/cache',
@@ -74,6 +78,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'shared',
       items: [
+        'shared/environment-variables',
         'shared/overview',
         'shared/data-models',
         'shared/redis-cache-contract',

@@ -90,6 +90,8 @@ sidebar_position: 9
 | `server/consumer/.env` | 호스트 consumer |
 | `*.env.docker` | Docker로 앱 기동 시 |
 
+변수별 사용처·예시·환경별 패턴은 [환경 변수](./environment-variables) 허브와 패키지별 문서를 참고하세요.
+
 ## 릴리스 흐름 (요약)
 
 1. CI 통과 (`pnpm run ci`)
