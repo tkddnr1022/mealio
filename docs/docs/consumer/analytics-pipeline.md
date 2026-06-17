@@ -77,7 +77,7 @@ flowchart TB
 | `recipe_saved` | `recipe.favorites_add` | Producer favorites API |
 | `chatbot_message_sent` | `chatbot.message` | Consumer processor |
 
-코드 앵커: `client/src/lib/observability/analytics-events.ts`
+코드 앵커: `client/src/.../analytics-events.ts`
 
 ## KPI 롤업
 
@@ -89,7 +89,7 @@ EventLog TTL 90일을 보완하기 위해 일별 롤업 잡이 KPI를 집계합�
 | `kpi_recommendation_e2e_latency` | `recipe.favorites_add` (occurredAt→processedAt) | `rollupRecommendationLatency()` |
 | `kpi_search_click_rate` | `search.query`, `search.click` | search CTR 롤업 |
 
-구현: `server/consumer/src/jobs/kpi-rollup/kpi-rollup.service.ts`
+구현: `server/consumer/.../kpi-rollup.service.ts`
 
 ```bash
 pnpm run kpi:rollup

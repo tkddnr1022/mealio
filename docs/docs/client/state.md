@@ -23,11 +23,11 @@ flowchart TB
     Q[AppQueryClientProvider] --> T[ToastProvider] --> A[AuthProvider] --> F[AppRootFrame]
 ```
 
-`client/src/app/layout.tsx`에서 합성. Query 오류 Toast는 ToastProvider 이후에 등록됩니다.
+`client/src/.../layout.tsx`에서 합성. Query 오류 Toast는 ToastProvider 이후에 등록됩니다.
 
 ## React Query 구조
 
-`client/src/lib/queries/`
+`client/src/.../queries/`
 
 | 파일 | 역할 |
 | --- | --- |
@@ -50,7 +50,7 @@ recipeQueries.all → lists() → list(filters)
 
 ## 캐시 정책
 
-기준: `client/src/lib/policy/cache.policy.ts`
+기준: `client/src/.../cache.policy.ts`
 
 - `QUERY_DEFAULTS` — staleTime 5분, gcTime 30분
 - `QUERY_CACHE.*` — 도메인별 override (recommended 20분, inventory 30초 등)

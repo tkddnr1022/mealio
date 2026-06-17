@@ -45,7 +45,7 @@ Provider: `google`, `kakao`, `naver`
 
 데코레이터: `@CurrentUser()`, `@CurrentUserOptional()`
 
-구현: `server/producer/src/modules/auth/guards/`
+구현: `server/producer/.../guards/`
 
 ## Refresh Token
 
@@ -73,8 +73,8 @@ Provider: `google`, `kakao`, `naver`
 
 | 경로 | 역할 |
 | --- | --- |
-| `modules/auth/controllers/auth.controller.ts` | OAuth·refresh·logout |
-| `modules/auth/strategies/*.strategy.ts` | Google/Kakao/Naver Passport |
+| `modules/.../auth.controller.ts` | OAuth·refresh·logout |
+| `modules/.../*.strategy.ts` | Google/Kakao/Naver Passport |
 | `modules/auth/auth.service.ts` | 사용자 생성/조회, JWT 발급 |
 
 ## 관련 문서

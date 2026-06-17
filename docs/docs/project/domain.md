@@ -77,11 +77,11 @@ erDiagram
 
 | 변경 대상 | 코드 기준 |
 | --- | --- |
-| RDB 스키마 | `server/shared/src/database/prisma/schema.prisma` |
-| NoSQL 스키마 | `server/shared/src/database/mongoose/schemas/` |
-| 의미·필드 설명 | [데이터 모델](../shared/data-models) · `server/shared/src/database/prisma/schema.prisma` |
+| RDB 스키마 | `server/shared/.../schema.prisma` |
+| NoSQL 스키마 | `server/shared/.../schemas/` |
+| 의미·필드 설명 | [데이터 모델](../shared/data-models) · `server/shared/.../schema.prisma` |
 
-스키마 변경 후 [데이터 모델](../shared/data-models) · `server/shared/src/database/prisma/schema.prisma`를 함께 갱신합니다.
+스키마 변경 후 [데이터 모델](../shared/data-models) · `server/shared/.../schema.prisma`를 함께 갱신합니다.
 
 ## 관련 문서
 

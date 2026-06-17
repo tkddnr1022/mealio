@@ -141,6 +141,19 @@ sidebar_position: 1      # 선택. 같은 카테고리 내 정렬 (intro만 slug
 - **CLI 명령어**: 셸·`docker compose` 등 **한 줄로 작성**한다. 줄바꿈 연속(`\`)은 쓰지 않는다. 복사·붙여넣기 편의를 위해 공백으로 옵션을 이어 붙인다.
 - **Mermaid**: `docusaurus.config.ts`에서 활성화됨. 시퀀스·플로우는 fenced block으로 작성한다.
 
+### 코드 경로 표기 (`docs/docs/` 본문)
+
+마크다운 **코드 블록·Mermaid fenced block 밖** 본문(표·목록·문단)에서 저장소 파일·디렉터리 경로를 쓸 때 아래를 따른다.
+
+| 규칙 | 설명 |
+| --- | --- |
+| **백틱 필수** | 코드 블록이 아닌 본문에서는 경로를 반드시 `` ` `` 로 감싼다. |
+| **깊이 4 이상 축약** | 경로 segment가 **4개 이상**이면 패키지 루트와 파일(또는 최종 디렉터리)명만 남기고 중간은 `...`로 축약한다. |
+| **패키지 루트** | `client/src`, `server/producer`, `server/consumer`, `server/shared` — 문서 맥락상 패키지 내부 상대 경로(`modules/`, `lib/` 등)는 해당 패키지 기준으로 동일 규칙을 적용한다. |
+| **코드 블록 예외** | ```text``` 디렉터리 트리·```bash``` 복사 명령 등 fenced block 안에서는 전체 경로를 그대로 쓸 수 있다. |
+
+API URL·HTTP 경로(`/api/v1/...`)는 파일 경로가 아니므로 이 규칙 대상이 아니다.
+
 ```mermaid
 sequenceDiagram
     participant A
@@ -349,3 +362,4 @@ pnpm run ci:build:docs   # CI·GitHub Pages와 동일 (baseUrl: /mealio/)
 - [ ] CLI·셸 명령어는 `\` 줄바꿈 없이 한 줄로 작성
 - [ ] 코드 변경 PR이면 `agent/` 명세·OpenAPI 동기화 완료
 - [ ] `§` 절 번호 참조 없이 Docusaurus doc·헤딩 링크만 사용
+- [ ] 본문 코드 경로: 백틱 적용, segment 4개 이상이면 `...` 축약 (코드 블록·API URL 제외)

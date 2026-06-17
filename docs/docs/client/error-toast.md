@@ -10,11 +10,11 @@
 
 | 수단 | 사용 시점 | 구현 위치 |
 | --- | --- | --- |
-| `error.tsx` | 라우트 트리 복구 불가 렌더 예외 | `client/src/app/error.tsx` |
-| `global-error.tsx` | 루트 layout 포함 치명적 예외 | `client/src/app/global-error.tsx` |
-| `not-found.tsx` | 404 (리소스 없음) | `client/src/app/not-found.tsx` |
+| `error.tsx` | 라우트 트리 복구 불가 렌더 예외 | `client/src/.../error.tsx` |
+| `global-error.tsx` | 루트 layout 포함 치명적 예외 | `client/src/.../global-error.tsx` |
+| `not-found.tsx` | 404 (리소스 없음) | `client/src/.../not-found.tsx` |
 | **인라인 Alert** | 화면 고정 안내 (크레딧 소진 등) | 해당 페이지 컴포넌트 |
-| **전역 Toast** | 복구 가능한 API·백그라운드 실패 | `client/src/lib/toast/` |
+| **전역 Toast** | 복구 가능한 API·백그라운드 실패 | `client/src/.../toast/` |
 
 원칙: **라우트는 죽이지 않고 컨텍스트를 유지**해야 하는 오류는 Toast로 처리합니다.
 
@@ -29,7 +29,7 @@ flowchart TB
     Q --> MC[MutationCache.onError → showGlobalMutationErrorToast]
 ```
 
-구현: `client/src/lib/queries/query-client.provider.tsx`, `global-query-error-toast.ts`
+구현: `client/src/.../query-client.provider.tsx`, `global-query-error-toast.ts`
 
 ### meta 옵션
 
@@ -42,7 +42,7 @@ flowchart TB
 
 예: `useCurrentUser`는 기본 `errorToastTitle: '세션을 불러오지 못했어요'`를 설정합니다.
 
-타입 확장: `client/src/lib/queries/react-query-meta.d.ts`
+타입 확장: `client/src/.../react-query-meta.d.ts`
 
 ## API
 
@@ -52,7 +52,7 @@ flowchart TB
 | `useErrorToast()` | 훅 래퍼 (의존성 배열에 넣기 쉬움) |
 | `useToast()` | `enqueue` / `dismiss` / `clear` 직접 제어 |
 
-메시지 변환: `client/src/lib/api/error.ts` (`getUserMessage`)
+메시지 변환: `client/src/.../error.ts` (`getUserMessage`)
 
 ## Toast 옵션 패턴
 
@@ -65,7 +65,7 @@ flowchart TB
 
 ## Provider 순서
 
-`client/src/app/layout.tsx`:
+`client/src/.../layout.tsx`:
 
 ```mermaid
 flowchart TB

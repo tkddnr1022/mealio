@@ -36,7 +36,7 @@ flowchart TB
 | KPI 계약 | KPI ID·계산식 정의 | [핵심 KPI (요약)](#핵심-kpi-요약) |
 | 집계 파이프라인 | EventLog → 롤업 → 대시보드 | [분석 파이프라인](../consumer/analytics-pipeline) |
 | Runbook | 알림·장애 대응 | [Consumer 운영](../consumer/operations) |
-| 프론트 계측 | GA4 이벤트 체크리스트 | client/src/lib/analytics/ |
+| 프론트 계측 | GA4 이벤트 체크리스트 | `client/src/.../analytics/` |
 
 ## 핵심 KPI (요약)
 

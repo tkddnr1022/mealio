@@ -6,7 +6,7 @@
 - prefix·헬퍼 함수는 어디에 정의되나요?
 - 무효화 시 삭제되는 패턴은 무엇인가요?
 
-`server/shared/src/constants/cache-keys.ts` — Producer CacheService, Consumer Handler, 무효화 핸들러가 **동일 파일**을 import합니다.
+`server/shared/.../cache-keys.ts` — Producer CacheService, Consumer Handler, 무효화 핸들러가 **동일 파일**을 import합니다.
 
 키 형식: `{prefix}:{segment...}` (`:` 구분)
 

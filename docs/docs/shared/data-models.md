@@ -16,7 +16,7 @@
 
 ## PostgreSQL (Prisma)
 
-**코드 기준**: `server/shared/src/database/prisma/schema.prisma`
+**코드 기준**: `server/shared/.../schema.prisma`
 
 | 모델 | 핵심 필드·관계 |
 | --- | --- |
@@ -28,7 +28,7 @@
 | UserRecipeRecommendation | userId, recipeId, rank, score, reason |
 | ChatbotCreditDeduction | streamChannelId PK, credits |
 
-마이그레이션: `server/shared/src/database/prisma/migrations/`
+마이그레이션: `server/shared/.../migrations/`
 
 ```bash
 pnpm run db:prisma:migrate:dev
@@ -37,7 +37,7 @@ pnpm run db:prisma:migrate:deploy  # prod
 
 ## MongoDB (Mongoose)
 
-**코드 기준**: `server/shared/src/database/mongoose/schemas/`
+**코드 기준**: `server/shared/.../schemas/`
 
 | 컬렉션 | 스키마 파일 | TTL |
 | --- | --- | --- |
@@ -49,7 +49,7 @@ pnpm run db:prisma:migrate:deploy  # prod
 
 ## 필드 의미·동기화
 
-[도메인](../project/domain)와 `server/shared/src/database/prisma/schema.prisma`를 함께 참고합니다. Prisma/Mongoose 스키마와 **일치 유지**가 필요합니다.
+[도메인](../project/domain)와 `server/shared/.../schema.prisma`를 함께 참고합니다. Prisma/Mongoose 스키마와 **일치 유지**가 필요합니다.
 
 ## 시드
 

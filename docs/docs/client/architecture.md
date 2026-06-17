@@ -27,7 +27,7 @@
 | **SSR** | `/recipe/search` |
 | **CSR** | 챗봇, 보관함, 마이페이지, 인증 |
 
-정책 정의: `client/src/lib/policy/cache.policy.ts`
+정책 정의: `client/src/.../cache.policy.ts`
 
 ## 디렉터리 구조
 
@@ -44,11 +44,11 @@ client/src/
 └── proxy.ts          # 보호 라우트 (refreshToken 검사)
 ```
 
-컴포넌트 배치: [컴포넌트 구조](../client/components) · client/src/components/
+컴포넌트 배치: [컴포넌트 구조](../client/components) · `client/src/components/`
 
 ## 전역 Provider 트리
 
-`client/src/app/layout.tsx`:
+`client/src/.../layout.tsx`:
 
 ```mermaid
 flowchart TB
@@ -62,9 +62,9 @@ flowchart TB
 | 레이어 | 경로 | 역할 |
 | --- | --- | --- |
 | HTTP 클라이언트 | `lib/api/http-client.ts` | fetch, 401 refresh, Correlation-Id |
-| 도메인 API | `lib/api/domains/*.api.ts` | recipes, ingredients, chatbot 등 |
-| SSR 래퍼 | `lib/api/server/server-fetch-wrapper.ts` | 쿠키 전파, 401 → refresh-bridge |
-| BFF | `app/api/auth/refresh-bridge`, `app/api/revalidate` | 인프라 Route Handler |
+| 도메인 API | `lib/.../*.api.ts` | recipes, ingredients, chatbot 등 |
+| SSR 래퍼 | `lib/.../server-fetch-wrapper.ts` | 쿠키 전파, 401 → refresh-bridge |
+| BFF | `app/.../refresh-bridge`, `app/.../revalidate` | 인프라 Route Handler |
 
 ## CSR 페이지 컨벤션
 

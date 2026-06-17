@@ -14,7 +14,7 @@ OAuth는 **백엔드 주도**입니다. 프론트는 Authorization Code·토큰 
 | --- | --- | --- |
 | **Proxy** | `refreshToken` 쿠키 **존재 여부**만 검사 | `client/src/proxy.ts` |
 | **SSR** | API 401 시 refresh-bridge 리다이렉트 | `serverFetchWrapper`, `/api/auth/refresh-bridge` |
-| **CSR** | API 401 시 `POST /auth/refresh` 1회 재시도 | `client/src/lib/api/http-client.ts` |
+| **CSR** | API 401 시 `POST /auth/refresh` 1회 재시도 | `client/src/.../http-client.ts` |
 
 토큰 유효성·회전은 **백엔드 API 호출 단계**에서 검증합니다.
 
@@ -34,7 +34,7 @@ sequenceDiagram
     C->>U: next로 replace (기본 /recipe)
 ```
 
-- 진입 URL: `buildOAuthEntryUrl(provider, next)` — `client/src/lib/auth/providers.ts`
+- 진입 URL: `buildOAuthEntryUrl(provider, next)` — `client/src/.../providers.ts`
 - `next` 안전 검증은 **백엔드** (`resolveSafeNextPath`)
 - 실패: `/oauth/error` — `OAuthErrorClientPage.tsx`
 
@@ -57,7 +57,7 @@ sequenceDiagram
 | `ProtectedRoute` | 페이지 단위 래퍼 |
 | `useProtectedAction` | 버튼·액션 단위 가드 |
 
-경로 상수 정의: `client/src/lib/auth/routes.ts` (`isProtectedPath`, `LOGIN_PATH` 등)
+경로 상수 정의: `client/src/.../routes.ts` (`isProtectedPath`, `LOGIN_PATH` 등)
 
 ## 세션 조회
 
@@ -87,10 +87,10 @@ Route Handler가 들어온 `Cookie`로 Producer refresh 호출 → `Set-Cookie` 
 
 | 경로 | 역할 |
 | --- | --- |
-| `client/src/lib/auth/auth-context.tsx` | `AuthProvider`, `useAuth()` |
-| `client/src/lib/auth/session.server.ts` | 서버 세션 유틸 |
-| `client/src/lib/auth/session.client.ts` | 클라이언트 세션 유틸 |
-| `client/src/app/api/auth/refresh-bridge/route.ts` | SSR refresh 브리지 |
+| `client/src/.../auth-context.tsx` | `AuthProvider`, `useAuth()` |
+| `client/src/.../session.server.ts` | 서버 세션 유틸 |
+| `client/src/.../session.client.ts` | 클라이언트 세션 유틸 |
+| `client/src/.../route.ts` | SSR refresh 브리지 |
 | `client/src/proxy.ts` | Next.js Proxy |
 
 ## 관련 문서

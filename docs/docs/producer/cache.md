@@ -19,11 +19,11 @@ flowchart TD
     S8 --> S9[다음 요청 시 DB 폴백]
 ```
 
-구현: `server/producer/src/infrastructure/cache/`
+구현: `server/producer/.../cache/`
 
 ## TTL 정의
 
-`server/producer/src/policy/cache.policy.ts` (초 단위)
+`server/producer/.../cache.policy.ts` (초 단위)
 
 | 상수 | TTL | 도메인 |
 | --- | --- | --- |
@@ -69,7 +69,7 @@ Producer는 캐시를 **직접 삭제하지 않습니다**. Consumer가 `cache-i
 ## 변경 시 체크리스트
 
 1. TTL 변경 → `cache.policy.ts` + 해당 `*-cache-strategy.ts`
-2. 새 캐시 키 → `server/shared/src/constants/cache-keys.ts` + 무효화 패턴
+2. 새 캐시 키 → `server/shared/.../cache-keys.ts` + 무효화 패턴
 3. 무효화 트리거 추가 → Consumer `CacheInvalidationRequestService`
 
 ## 관련 문서

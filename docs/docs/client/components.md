@@ -50,7 +50,7 @@ flowchart LR
 
 ## 타입·유틸
 
-- Props 타입: 가능하면 `client/src/lib/types/*` 도메인 타입 직접 사용
+- Props 타입: 가능하면 `client/src/.../*` 도메인 타입 직접 사용
 - 도메인 포맷 로직: `components/<domain>/utils/` — 범용화 시 `lib/utils/`로 승격
 
 ## Storybook

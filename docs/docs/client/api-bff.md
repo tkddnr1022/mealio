@@ -51,14 +51,14 @@ const recipe = await getRecipeDetail(recipeId, { signal });
 
 ## BFF Route Handler
 
-Next.js `client/src/app/api/` — 인프라·인증 브리지 전용.
+Next.js `client/src/.../api/` — 인프라·인증 브리지 전용.
 
 | Path | Method | 역할 |
 | --- | --- | --- |
 | `/api/auth/refresh-bridge` | GET | SSR refresh: Cookie → Producer refresh → Set-Cookie → `next` 복귀 |
 | `/api/revalidate` | POST | 온디맨드 ISR: `{ secret, path }` → `revalidatePath` |
 
-프론트엔드 BFF Route Handler: client/src/app/api/
+프론트엔드 BFF Route Handler: `client/src/.../api/`
 
 ### refresh-bridge 흐름
 

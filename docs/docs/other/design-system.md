@@ -10,9 +10,9 @@
 
 | 순서 | 파일 | 역할 |
 | --- | --- | --- |
-| 1 | design_tokens.json · client/src/app/globals.css | 컬러·타이포·스페이싱·컴포넌트 토큰 |
-| 2 | `client/src/app/globals.css` | `:root`, `@theme`, 컴포넌트 recipe |
-| 3 | [접근성·성능](../client/accessibility-performance) · client/src/app/globals.css | UX·a11y·성능·톤 원칙 |
+| 1 | `design_tokens.json` · `client/src/.../globals.css` | 컬러·타이포·스페이싱·컴포넌트 토큰 |
+| 2 | `client/src/.../globals.css` | `:root`, `@theme`, 컴포넌트 recipe |
+| 3 | [접근성·성능](../client/accessibility-performance) · `client/src/.../globals.css` | UX·a11y·성능·톤 원칙 |
 
 Figma MCP 출력(React+Tailwind)은 **참고용** — 프로젝트 스택에 맞게 변환합니다.
 
@@ -42,12 +42,12 @@ Figma → 코드 편집·캡처: `code_to_design_guidelines.md`
 2. **시맨틱 HTML + 전역 타이포** — Figma 텍스트 스타일 → 태그·유틸 클래스
 3. **variant 1:1** — Figma 컴포넌트 프로퍼티 ↔ 코드 `variant` prop
 4. **아이콘** — `lucide-react`, 개별 import
-5. **날짜/시간** — `client/src/lib/utils/date.ts` 포맷 함수 사용
+5. **날짜/시간** — `client/src/.../date.ts` 포맷 함수 사용
 
 ## 컴포넌트 배치
 
-- UI 프리미티브: `client/src/components/ui/`
-- 도메인 UI: `client/src/components/{recipe|chatbot|...}/`
+- UI 프리미티브: `client/src/.../ui/`
+- 도메인 UI: `client/src/.../{recipe|chatbot|...}/`
 
 → [컴포넌트 구조/규칙](../client/components)
 

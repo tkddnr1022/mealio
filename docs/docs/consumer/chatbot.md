@@ -30,7 +30,7 @@ flowchart TD
 | 4 | 응답 chunk를 Redis `chatbot:stream:{streamChannelId}`에 발행 |
 | 5 | 턴 완료 시 `done` 이벤트 + 크레딧 차감 |
 
-경로: `consumers/chatbot-request/handlers/ProcessChatHandler.ts`
+경로: `consumers/.../ProcessChatHandler.ts`
 
 ## Tool Handlers
 

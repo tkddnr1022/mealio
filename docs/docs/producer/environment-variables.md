@@ -14,7 +14,7 @@ NestJS REST API. env 파일: `server/producer/.env.local` (호스트) · `server
 cp server/producer/.env.example server/producer/.env.local
 ```
 
-기본 포트 **3000**. 부팅 시 Joi로 **전 변수 필수** 검증 — `server/producer/src/config/env.validation.ts`, 실패 시 프로세스 종료.
+기본 포트 **3000**. 부팅 시 Joi로 **전 변수 필수** 검증 — `server/producer/.../env.validation.ts`, 실패 시 프로세스 종료.
 
 ## 공통
 
@@ -23,7 +23,7 @@ cp server/producer/.env.example server/producer/.env.local
 | 항목 | 내용 |
 | --- | --- |
 | `APP_ENV` | `local` · `development` · `production` · `test` — 런타임 주입(`package.json`/Compose), Sentry environment, 샘플링 |
-| `PORT` | HTTP listen 포트. 예: `3000`. `server/producer/src/main.ts`에서 `parseInt` 후 listen |
+| `PORT` | HTTP listen 포트. 예: `3000`. `server/producer/.../main.ts`에서 `parseInt` 후 listen |
 | Docker | `compose-producer.yml`이 `127.0.0.1:${PORT}` 바인딩 |
 
 ## 인증
@@ -34,7 +34,7 @@ cp server/producer/.env.example server/producer/.env.local
 | --- | --- |
 | 설명 | Access JWT 서명 시크릿 |
 | 예시 | 256비트 이상 랜덤 문자열 |
-| 사용처 | `server/producer/src/modules/auth/auth.module.ts` — `JwtModule.registerAsync` |
+| 사용처 | `server/producer/.../auth.module.ts` — `JwtModule.registerAsync` |
 | 패턴 | 프로덕션에서는 반드시 강한 시크릿으로 교체 |
 
 ### `OAUTH_CALLBACK_BASE_URL`
@@ -53,7 +53,7 @@ cp server/producer/.env.example server/producer/.env.local
 | --- | --- |
 | 설명 | 로그인 성공·실패 후 리다이렉트 대상 (Client URL) |
 | 예시 | `http://localhost:4000` |
-| 사용처 | `server/producer/src/main.ts` CORS `origin`, `AuthService` 리다이렉트 URL |
+| 사용처 | `server/producer/.../main.ts` CORS `origin`, `AuthService` 리다이렉트 URL |
 | 패턴 | URI 검증(Joi `.uri()`). Client origin과 일치 |
 
 ### `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`
@@ -124,7 +124,7 @@ cp server/producer/.env.example server/producer/.env.local
 | --- | --- |
 | 설명 | Sentry 활성화·Producer DSN |
 | 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
-| 사용처 | `server/producer/src/main.ts`, `@mealio/shared` `sentry.config.ts` |
+| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
 
 ## 관련 문서
 

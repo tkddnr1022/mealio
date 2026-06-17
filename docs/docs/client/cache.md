@@ -19,7 +19,7 @@ flowchart TB
 
 ## Next.js Data Cache (ISR)
 
-기준: `client/src/lib/policy/cache.policy.ts`
+기준: `client/src/.../cache.policy.ts`
 
 | 상수 | 값 | 용도 |
 | --- | --- | --- |
@@ -44,7 +44,7 @@ flowchart TB
 | 로컬 빌드 | fetch 실패 시 throw — 조기 발견 |
 | 런타임 재검증 실패 | throw — **stale HTML 유지** (빈 화면 덮어쓰기 금지) |
 
-헬퍼: `fetchForIsr()` — `client/src/lib/api/server/isr-fetch.server.ts`
+헬퍼: `fetchForIsr()` — `client/src/.../isr-fetch.server.ts`
 
 ### 온디맨드 revalidate
 
@@ -59,7 +59,7 @@ Content-Type: application/json
 
 ## React Query 캐시
 
-기준: `client/src/lib/policy/cache.policy.ts` — `QUERY_DEFAULTS`, `QUERY_CACHE`
+기준: `client/src/.../cache.policy.ts` — `QUERY_DEFAULTS`, `QUERY_CACHE`
 
 | 도메인 | staleTime | gcTime |
 | --- | --- | --- |

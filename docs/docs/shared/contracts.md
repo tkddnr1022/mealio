@@ -7,7 +7,7 @@
 
 ## Kafka 토픽
 
-`server/shared/src/constants/kafka-topics.ts`
+`server/shared/.../kafka-topics.ts`
 
 | 상수 | 토픽명 |
 | --- | --- |
@@ -34,7 +34,7 @@ DLQ: `KAFKA_DLQ_TOPICS.*` — 메인 토픽별 `-dlq` suffix.
 
 ## Redis 채널
 
-`server/shared/src/constants/redis-channels.ts`
+`server/shared/.../redis-channels.ts`
 
 - `getChatbotStreamChannel(streamChannelId)` → `chatbot:stream:{id}`
 
@@ -44,14 +44,14 @@ DLQ: `KAFKA_DLQ_TOPICS.*` — 메인 토픽별 `-dlq` suffix.
 
 ## 챗봇 크레딧
 
-`server/shared/src/policy/user-credits.policy.ts`
+`server/shared/.../user-credits.policy.ts`
 
 - `DEFAULT_USER_CREDIT_BALANCE`, `computeChatbotCreditCost()`
 - Producer User 생성·Consumer 차감에서 동일 정책 사용
 
 ## Recipe Ingestion
 
-`server/shared/src/constants/recipe-ingestion.ts` — status enum, source 상수
+`server/shared/.../recipe-ingestion.ts` — status enum, source 상수
 
 `recipe-ingestion.policy.ts` — retry, batch size, TTL
 

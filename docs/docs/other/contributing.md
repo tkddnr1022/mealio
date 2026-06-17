@@ -11,9 +11,9 @@
 
 | 영역 | 아키텍처 문서 |
 | --- | --- |
-| 백엔드 | server/producer/src/, server/consumer/src/, server/shared/src/ |
-| 프론트 | [클라이언트 아키텍처](../client/architecture) · client/src/app/ |
-| 컴포넌트 | [컴포넌트 구조](../client/components) · client/src/components/ |
+| 백엔드 | `server/producer/src/`, `server/consumer/src/`, `server/shared/src/` |
+| 프론트 | [클라이언트 아키텍처](../client/architecture) · `client/src/app/` |
+| 컴포넌트 | [컴포넌트 구조](../client/components) · `client/src/components/` |
 
 예외 작업 후 **반드시 문서 동기화**.
 

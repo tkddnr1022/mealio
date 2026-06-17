@@ -8,7 +8,7 @@
 
 ## 접근성 (WCAG 2.1 AA)
 
-상위 원칙: client/src/app/globals.css — `accessibility`, `platform` 섹션
+상위 원칙: `client/src/.../globals.css` — `accessibility`, `platform` 섹션
 
 | 항목 | 기준 |
 | --- | --- |
@@ -23,7 +23,7 @@
 
 ## `buildAriaLabel`
 
-**단일 진입점**: `client/src/lib/utils/a11y.ts`
+**단일 진입점**: `client/src/.../a11y.ts`
 
 ```typescript
 buildAriaLabel(type, name)
@@ -52,7 +52,7 @@ buildAriaLabel(type, name)
 
 ## 성능 목표 (Web Vitals)
 
-렌더링·캐시 정책: [클라이언트 아키텍처 — 렌더링 전략](../client/architecture#렌더링-전략) · `client/src/lib/policy/cache.policy.ts`
+렌더링·캐시 정책: [클라이언트 아키텍처 — 렌더링 전략](../client/architecture#렌더링-전략) · `client/src/.../cache.policy.ts`
 
 | 지표 | 목표 |
 | --- | --- |
@@ -78,7 +78,7 @@ buildAriaLabel(type, name)
 | 코드 분할 | 라우트·무거운 컴포넌트 dynamic import |
 | 측정 | `web-vitals`, Vercel Analytics, Storybook Lighthouse |
 
-`client/src/lib/observability/web-vitals.ts` — Vitals 수집
+`client/src/.../web-vitals.ts` — Vitals 수집
 
 ## Storybook·검증
 

@@ -18,9 +18,9 @@
 
 | 영역 | 아키텍처 문서 |
 | --- | --- |
-| 백엔드 | server/producer/src/, server/consumer/src/, server/shared/src/ |
-| 프론트 | [클라이언트 아키텍처](../client/architecture) · client/src/app/ |
-| 컴포넌트 | [컴포넌트 구조](../client/components) · client/src/components/ |
+| 백엔드 | `server/producer/src/`, `server/consumer/src/`, `server/shared/src/` |
+| 프론트 | [클라이언트 아키텍처](../client/architecture) · `client/src/app/` |
+| 컴포넌트 | [컴포넌트 구조](../client/components) · `client/src/components/` |
 
 ## 백엔드
 
@@ -31,7 +31,7 @@
 | 이벤트 | Handler가 Kafka 직접 발행 금지 (무효화는 RequestService) |
 | 환경 변수 | `env.validation.ts` Joi 검증 |
 
-문서: server/producer/src/, server/consumer/src/
+문서: `server/producer/src/`, `server/consumer/src/`
 
 ## 프론트엔드
 
@@ -47,8 +47,8 @@
 
 ## API·이벤트 계약
 
-- REST: [Producer API](../producer/api) · server/producer/src/modules/
-- BFF: [BFF Route Handler](../client/api-bff) · client/src/app/api/
+- REST: [Producer API](../producer/api) · `server/producer/.../modules/`
+- BFF: [BFF Route Handler](../client/api-bff) · `client/src/.../api/`
 - 이벤트: [Observability](../other/observability) — **신규 이벤트는 사전 등록 후 코드**
 
 ## Git·PR
@@ -62,9 +62,9 @@
 구현 변경 시 동기화 대상:
 
 1. 아키텍처·API 계약 문서 확인
-2. server/producer Swagger DTO 및 client Route Handler
+2. `server/producer` Swagger DTO 및 Client Route Handler
 3. `docs/docs/` Docusaurus 페이지
-4. (해당 시) client/src/app/globals.css
+4. (해당 시) `client/src/.../globals.css`
 
 ## 관련 문서
 

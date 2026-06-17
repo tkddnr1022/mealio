@@ -16,7 +16,7 @@ Consumer는 **조회 성능 최적화**를 위해 Handler 단에서 Redis를 직
 | 챗봇 카테고리 | `recipe:chatbot:food-categories` | `CHATBOT_FOOD_CATEGORIES_CACHE_TTL_SECONDS` (3600초) |
 | recipe ingestion 카테고리 | `recipe:ingestion:food-categories` | submit job 전용 |
 
-정책 파일: `server/consumer/src/policy/chatbot-cache.policy.ts`
+정책 파일: `server/consumer/.../chatbot-cache.policy.ts`
 
 ## 사용 Handler
 
