@@ -58,8 +58,6 @@ BFF Route Handler는 Next.js `client/src/.../api/`에 두며, 인프라·인증 
 | `/api/auth/refresh-bridge` | GET | SSR refresh: Cookie → Producer refresh → Set-Cookie → `next` 복귀 |
 | `/api/revalidate` | POST | 온디맨드 ISR: `{ secret, path }` → `revalidatePath` |
 
-프론트엔드 BFF Route Handler는 `client/src/.../api/`에 위치합니다.
-
 ### refresh-bridge 흐름
 
 ```mermaid

@@ -22,10 +22,11 @@
 
 | 전략 | 페이지 |
 | --- | --- |
-| **ISR** (300초) | `/recipe`, `/recipe/filter`, `/ingredient/filter` |
+| **ISR** (300초) | `/recipe/filter`, `/ingredient/filter` |
+| **ISR + CSR** | `/recipe` (공개 섹션 ISR + 개인화 추천 CSR) |
 | **온디맨드 ISR** | `/recipe/[id]` |
-| **SSR** | `/recipe/search` |
-| **CSR** | 챗봇, 보관함, 마이페이지, 인증 |
+| **SSR** | `/`, `/recipe/search` |
+| **CSR** | 로그인·OAuth, 챗봇, 보관함, 마이페이지 |
 
 렌더링·캐시 정책은 `client/src/.../cache.policy.ts`에 정의되어 있습니다.
 

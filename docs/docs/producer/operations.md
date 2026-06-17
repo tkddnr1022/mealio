@@ -50,5 +50,8 @@
 
 ## 관련 문서
 
+- [아키텍처](./architecture)
+- [환경 변수](./environment-variables)
 - [Observability](../other/observability)
 - [Consumer 운영/복구](../consumer/operations)
+- [배포/환경 전략](../project/deployment)

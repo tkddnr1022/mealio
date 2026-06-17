@@ -78,4 +78,6 @@
 ## 관련 문서
 
 - [시스템 아키텍처](./architecture)
+- [로컬 개발/온보딩](./getting-started)
+- [인프라 환경 변수](./infrastructure-environment-variables)
 - [Observability](../other/observability)

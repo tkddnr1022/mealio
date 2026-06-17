@@ -14,7 +14,7 @@
 | 경로 | `server/shared` |
 | 역할 | Producer·Consumer 공통 설정·DB·타입·상수 |
 
-`client`는 shared를 **직접 import하지 않습니다**.
+`client` 패키지는 `@mealio/shared`를 직접 import하지 않습니다.
 
 ## 제공 범위
 
@@ -74,5 +74,7 @@ Producer와 Consumer의 `app.module`에서 `forRoot` 또는 `forRootAsync`로 po
 ## 관련 문서
 
 - [데이터 모델/스키마](./data-models)
-- [Redis 키/캐시 계약](./redis-cache-contract)
 - [공유 계약](./contracts)
+- [Redis 키/캐시 계약](./redis-cache-contract)
+- [환경 변수](./environment-variables)
+- [모노레포 구조](../project/monorepo)

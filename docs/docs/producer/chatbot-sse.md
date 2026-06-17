@@ -16,21 +16,25 @@ sequenceDiagram
     participant CV as consumer
     participant R as Redis
     C->>P: POST /api/v1/chatbot/messages
-    P->>C: streamChannelId
+    Note over P,C: Content-Type text/event-stream
+    P->>P: streamChannelId 생성
     P->>K: chatbot-requests 발행
+    P->>R: Redis 구독 chatbot:stream:{id}
     K->>CV: ProcessChatHandler (GPT 스트리밍 + tool calls)
     CV->>R: chatbot:stream:{streamChannelId}
-    P->>R: Redis 구독
     P->>C: SSE data: {JSON}
-    Note over P,C: done/error/타임아웃 시 구독 해제
+    Note over P,C: done/error/타임아웃 시 구독 해제·연결 종료
 ```
+
+`POST /chatbot/messages` 한 요청이 SSE 응답을 반환합니다. 별도의 스트림 구독 엔드포인트는 없습니다.
 
 ## API
 
 | Method | Path | 역할 |
 | --- | --- | --- |
-| POST | `/api/v1/chatbot/messages` | 메시지 전송, `streamChannelId` 반환 |
-| GET | `/api/v1/chatbot/stream/{streamChannelId}` | SSE 스트림 구독 |
+| POST | `/api/v1/chatbot/messages` | 메시지 전송 + SSE 스트림 응답 (`text/event-stream`) |
+| GET | `/api/v1/chatbot/conversations` | 대화 목록 |
+| GET | `/api/v1/chatbot/conversations/{id}` | 대화 상세 |
 
 인증은 JWT가 필수이며 `JwtAuthGuard`를 적용합니다.
 
@@ -61,8 +65,8 @@ sequenceDiagram
 {
   "userId": 1,
   "message": "오늘 뭐 먹지?",
-  "conversationId": "optional-uuid",
-  "streamChannelId": "uuid"
+  "conversationId": "conv_...",
+  "streamChannelId": "stream_..."
 }
 ```
 
@@ -72,8 +76,10 @@ sequenceDiagram
 
 | 경로 | 역할 |
 | --- | --- |
-| `modules/chatbot/chatbot.controller.ts` | messages·stream 엔드포인트 |
-| `modules/chatbot/chatbot.service.ts` | Kafka 발행, Redis 구독, SSE 전달 |
+| `server/producer/.../chatbot.controller.ts` | messages(SSE)·conversations 엔드포인트 |
+| `server/producer/.../chatbot.service.ts` | Kafka 발행, Redis 구독, SSE 전달 |
+
+SSE 타임아웃은 `server/producer/.../chatbot.policy.ts`의 `CHATBOT_STREAM_TIMEOUT_MS`로 제한됩니다.
 
 ## 설계 원칙
 
@@ -86,3 +92,4 @@ sequenceDiagram
 - [챗봇 UI/스트리밍](../client/chatbot-ui)
 - [챗봇 처리](../consumer/chatbot)
 - [이벤트 발행](./event-publishing)
+- [도메인 API 가이드](./domain-api)

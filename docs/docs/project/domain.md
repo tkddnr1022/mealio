@@ -35,7 +35,7 @@
 
 ## 상태·로그 도메인 (NoSQL)
 
-### Inventory (`inventories`)
+### Inventory (`inventory`)
 
 사용자별 **보유 재료·관심 재료·관심 레시피** ID 목록을 담은 로그인 유저 전용 상태 문서입니다.
 
@@ -75,13 +75,13 @@ erDiagram
 
 ## 변경 시 참고 경로
 
+스키마를 변경할 때는 코드·공개 문서·내부 명세를 같은 작업 단위로 갱신합니다.
+
 | 변경 대상 | 코드 기준 |
 | --- | --- |
 | RDB 스키마 | `server/shared/.../schema.prisma` |
 | NoSQL 스키마 | `server/shared/.../schemas/` |
-| 의미·필드 설명 | [데이터 모델](../shared/data-models) · `server/shared/.../schema.prisma` |
-
-스키마 변경 후 [데이터 모델](../shared/data-models) · `server/shared/.../schema.prisma`를 함께 갱신합니다.
+| 의미·필드 설명 | [데이터 모델](../shared/data-models) |
 
 ## 관련 문서
 

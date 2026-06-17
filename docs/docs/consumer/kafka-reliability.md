@@ -23,10 +23,10 @@
 ```mermaid
 flowchart TD
     K[Kafka consume at-least-once] --> B[BaseTopicProcessor]
-    B -->|성공| OC[offset commit]
-    B -->|재시도| B
-    B -->|실패| DLQ[DLQ]
     B --> H[Handler 멱등 upsert / skipDuplicates]
+    H -->|성공| OC[offset commit]
+    B -->|재시도| B
+    B -->|최종 실패| DLQ[DLQ]
 ```
 
 ## 멱등성 패턴
@@ -49,13 +49,13 @@ flowchart TD
 
 - DLQ 메시지는 원본 토픽 처리 실패를 기록합니다.
 - 로그에는 `correlationId`, `sentryEventId`가 포함됩니다.
-- 재처리는 원인을 수정한 뒤 수동 replay합니다(runbook 참고).
+- 재처리는 원인을 수정한 뒤 수동 replay합니다. 대응 절차는 [Consumer 운영 — DLQ 급증](./operations#dlq-급증-alert_dlq_spike)을 참고하세요.
 
 `ALERT_DLQ_SPIKE` 알림과 대응 절차는 [Observability](../other/observability)와 [Consumer 운영](./operations)을 참고하세요.
 
 ## Lag 모니터링
 
-- `consumer-lag.monitor.ts`가 `GROUP_TOPIC_MAP`을 폴링합니다.
+- `server/consumer/.../consumer-lag.monitor.ts`가 `GROUP_TOPIC_MAP`을 폴링합니다.
 - Prometheus 메트릭 `kafka_consumer_lag`로 수집합니다.
 - `ALERT_KAFKA_LAG` 알림은 lag가 1000을 15분 이상 초과할 때 발생합니다.
 
@@ -63,11 +63,12 @@ flowchart TD
 
 ## 로컬 개발
 
-- `docker/compose-kafka.yml`과 Kafka UI(`:8080`)로 로컬 브로커를 띄웁니다.
+- `docker compose -f docker/compose-kafka.yml up -d`로 로컬 브로커를 띄우고, Kafka UI(`:8080`)로 토픽을 확인합니다.
 - Producer를 기동하면 로컬 토픽·DLQ가 자동으로 생성됩니다.
 
 ## 관련 문서
 
+- [공유 계약(Kafka·타입)](../shared/contracts)
 - [이벤트 발행](../producer/event-publishing)
-- [운영/복구](./operations)
 - [Consumer 아키텍처](./architecture)
+- [운영/복구](./operations)

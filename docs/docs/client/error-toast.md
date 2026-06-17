@@ -29,7 +29,7 @@ flowchart TB
     Q --> MC[MutationCache.onError → showGlobalMutationErrorToast]
 ```
 
-구현은 `client/src/.../query-client.provider.tsx`와 `global-query-error-toast.ts`에 있습니다.
+구현은 `client/src/.../query-client.provider.tsx`와 `client/src/.../global-query-error-toast.ts`에 있습니다.
 
 ### meta 옵션
 

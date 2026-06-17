@@ -3,7 +3,8 @@
 ## 이 문서로 해결할 질문
 
 - Mealio 레시피 데이터는 어디서 오고 어떻게 가공되나요?
-- 파이프라인 단계별 상세 문서는 어디에 있나요?
+- fetch·submit·retrieve·persist 단계는 각각 무엇을 하나요?
+- 로컬에서 파이프라인 job을 어떻게 실행하나요?
 
 ## 목적
 
@@ -42,8 +43,21 @@ flowchart LR
 
 - `fetch`, `submit`, `retrieve`는 **독립 job**이며 cron으로 조율합니다.
 - `fetchLimit`은 `submitBatchSize` 이상을 권장합니다.
+- `persist`는 always-on Consumer가 Kafka 이벤트를 소비해 PostgreSQL에 반영합니다.
+
+## 로컬 실행 (CLI)
+
+인프라·Consumer가 기동된 상태에서 루트 스크립트로 각 단계를 실행할 수 있습니다.
+
+```bash
+pnpm run recipe-ingestion:fetch
+pnpm run recipe-ingestion:submit
+pnpm run recipe-ingestion:retrieve
+```
 
 ## 관련 문서
 
 - [레시피 수집 상세](../consumer/recipe-ingestion)
 - [배치/스케줄 작업](../consumer/batch-jobs)
+- [시스템 아키텍처](./architecture)
+- [도메인](./domain)

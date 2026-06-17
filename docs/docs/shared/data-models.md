@@ -3,14 +3,15 @@
 ## 이 문서로 해결할 질문
 
 - PostgreSQL vs MongoDB에 무엇이 저장되나요?
-- 스키마 코드·문서 기준은 무엇인가요?
+- Prisma·Mongoose 스키마의 코드 기준은 어디인가요?
+- 스키마를 변경할 때 어떤 문서를 함께 갱신해야 하나요?
 
 ## 저장소 분리
 
 | 저장소 | ORM | 주요 모델 |
 | --- | --- | --- |
 | **PostgreSQL** | Prisma | User, Recipe, Ingredient, UserRecipeRecommendation, ChatbotCreditDeduction |
-| **MongoDB** | Mongoose | Inventory, ChatbotLog, EventLog, ChatbotConversation, recipe_ingestion_* |
+| **MongoDB** | Mongoose | Inventory, ChatbotLog, ChatbotConversation, EventLog, recipe_ingestion_*, kpi_rollups |
 
 엔티티 의미와 필드 설명은 [도메인](../project/domain) 문서를 참고하세요.
 
@@ -21,8 +22,10 @@ Prisma 스키마의 코드 기준은 `server/shared/.../schema.prisma`입니다.
 | 모델 | 핵심 필드·관계 |
 | --- | --- |
 | User | email, platformName/Id, creditBalance |
+| RecipeCategory | key, name, displayOrder |
 | Recipe | instructions(JSON), nutrition(JSON), categoryId |
 | RecipeStats | viewCount, likeCount (1:1 Recipe) |
+| IngredientCategory | key, name, displayOrder |
 | Ingredient | name, categoryId |
 | RecipeIngredient | recipeId, ingredientId, amount |
 | UserRecipeRecommendation | userId, recipeId, rank, score, reason |
@@ -41,11 +44,13 @@ Mongoose 스키마의 코드 기준은 `server/shared/.../schemas/`입니다.
 
 | 컬렉션 | 스키마 파일 | TTL |
 | --- | --- | --- |
-| inventories | `inventory.schema.ts` | — |
-| chatbot_logs | `chatbot-log.schema.ts` | 30일 |
-| event_logs | `event-log.schema.ts` | 90일 |
-| recipe_ingestion_jobs | `recipe-ingestion-job.schema.ts` | — |
-| kpi_rollups | `kpi-rollup.schema.ts` | — |
+| `inventory` | `inventory.schema.ts` | — |
+| `chatbot_logs` | `chatbot-log.schema.ts` | 30일 |
+| `chatbot_conversations` | `chatbot-conversation.schema.ts` | — |
+| `event_logs` | `event-log.schema.ts` | 90일 |
+| `recipe_ingestion_jobs` | `recipe-ingestion-job.schema.ts` | — |
+| `recipe_ingestion_state` | `recipe-ingestion-state.schema.ts` | — |
+| `kpi_rollups` | `kpi-rollup.schema.ts` | 400일 |
 
 ## 필드 의미·동기화
 
@@ -69,3 +74,6 @@ pnpm run db:mongoose:seed
 ## 관련 문서
 
 - [개요](./overview)
+- [도메인](../project/domain)
+- [공유 계약](./contracts)
+- [환경 변수](./environment-variables)

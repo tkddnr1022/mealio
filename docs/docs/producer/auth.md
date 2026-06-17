@@ -33,7 +33,7 @@ sequenceDiagram
 
 지원 Provider는 `google`, `kakao`, `naver`입니다.
 
-필요한 환경 변수는 Client ID/Secret, `FRONTEND_APP_BASE_URL`, `FRONTEND_OAUTH_SUCCESS_CALLBACK_PATH`, `FRONTEND_OAUTH_ERROR_PATH`입니다.
+필요한 환경 변수는 Provider Client ID/Secret, `OAUTH_CALLBACK_BASE_URL`, `FRONTEND_APP_BASE_URL`입니다. OAuth 성공·실패 경로(`/oauth/callback`, `/oauth/error`)는 `server/producer/.../auth.constants.ts` 상수로 정의됩니다.
 
 ## JWT·Guard
 
@@ -57,7 +57,7 @@ sequenceDiagram
 | 회전 | refresh 성공 시 기존 revoke + 신규 발급 |
 | 재사용 탐지 | revoke된 세션 재사용 → 해당 유저 활성 세션 일괄 revoke + 401 |
 
-쿠키 속성은 HttpOnly, Secure, SameSite=Lax, Path=/로 설정합니다.
+쿠키 속성은 HttpOnly, Secure(HTTPS), SameSite=Lax, Path=/로 설정합니다.
 
 ## `next` 리다이렉트 안전 정책
 
@@ -67,17 +67,19 @@ sequenceDiagram
 
 ## OAuth 실패 처리
 
-`oauth-callback-exception.filter.ts`는 Provider 에러나 state 불일치 시 `FRONTEND_OAUTH_ERROR_PATH`로 302 리다이렉트합니다(`errorCode`, `errorMessage` 포함).
+`server/producer/.../oauth-callback-exception.filter.ts`는 Provider 에러나 state 불일치 시 `/oauth/error`로 302 리다이렉트합니다(`errorCode`, `errorMessage` 포함).
 
 ## 주요 모듈 경로
 
 | 경로 | 역할 |
 | --- | --- |
-| `modules/.../auth.controller.ts` | OAuth·refresh·logout |
-| `modules/.../*.strategy.ts` | Google/Kakao/Naver Passport |
-| `modules/auth/auth.service.ts` | 사용자 생성/조회, JWT 발급 |
+| `server/producer/.../auth.controller.ts` | OAuth·refresh·logout |
+| `server/producer/.../*.strategy.ts` | Google/Kakao/Naver Passport |
+| `server/producer/.../auth.service.ts` | 사용자 생성/조회, JWT 발급 |
 
 ## 관련 문서
 
 - [인증 (client)](../client/auth)
 - [API 문서](./api)
+- [환경 변수](./environment-variables)
+- [E2E·화면 흐름](../project/e2e-scenarios)

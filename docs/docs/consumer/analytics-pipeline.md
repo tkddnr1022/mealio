@@ -109,11 +109,12 @@ pnpm run kpi:rollup
 1. [Observability](../other/observability)에 이벤트 행을 추가합니다.
 2. shared event enum 또는 `analytics-events.ts`를 갱신합니다.
 3. Producer에서 발행하거나 Consumer에서 기록하는 처리를 구현합니다.
-4. GA 연동 시 내부 프론트 이벤트 계측 체크리스트를 반영합니다.
+4. GA 연동 시 [Observability](../other/observability)의 프론트 이벤트 계측 항목을 반영합니다.
 5. PR 리뷰에서 사전 미등록 이벤트를 차단합니다.
 
 ## 관련 문서
 
+- [Consumer 아키텍처](./architecture)
 - [추천 파이프라인](./recommendation-pipeline)
 - [이벤트 발행](../producer/event-publishing)
 - [Observability](../other/observability)

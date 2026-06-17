@@ -64,6 +64,7 @@ pnpm run recipe-ingestion:fetch  # ingestion 단계별
 
 ## 관련 문서
 
+- [Consumer 아키텍처](./architecture)
 - [Kafka 소비/신뢰성](./kafka-reliability)
 - [배치/스케줄 작업](./batch-jobs)
 - [Observability](../other/observability)

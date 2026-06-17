@@ -14,7 +14,7 @@ Consumer는 **조회 성능 최적화**를 위해 Handler 단에서 Redis를 직
 | --- | --- | --- |
 | 챗봇 재료 메타 | `ingredient:by-id:{id}` | `CHATBOT_INGREDIENT_BY_ID_CACHE_TTL_SECONDS` (3600초) |
 | 챗봇 카테고리 | `recipe:chatbot:food-categories` | `CHATBOT_FOOD_CATEGORIES_CACHE_TTL_SECONDS` (3600초) |
-| recipe ingestion 카테고리 | `recipe:ingestion:food-categories` | submit job 전용 |
+| recipe ingestion 카테고리 | `recipe:ingestion:food-categories` | `RECIPE_INGESTION_CATEGORY_CACHE_TTL_SECONDS` (3600초) |
 
 TTL 등 캐시 정책은 `server/consumer/.../chatbot-cache.policy.ts`에 정의되어 있습니다.
 
@@ -24,7 +24,7 @@ TTL 등 캐시 정책은 `server/consumer/.../chatbot-cache.policy.ts`에 정의
 | --- | --- |
 | `InventoryHandler` | 재료 id→name (Producer 키와 구분) |
 | `FoodCategoriesHandler` | 레시피·재료 활성 카테고리 JSON |
-| `category-context.service` (ingestion) | submit 단계 LLM 컨텍스트 |
+| `category-context.service` (ingestion submit) | LLM 배치용 카테고리 컨텍스트 |
 
 ## Producer와의 관계
 
@@ -44,6 +44,8 @@ Consumer Handler 캐시는 **무효화 토픽 대상이 아닐 수 있습니다*
 
 ## 관련 문서
 
-- [캐시 (producer)](../producer/cache)
+- [Consumer 아키텍처](./architecture)
 - [캐시 무효화](./cache-invalidation)
+- [챗봇 처리](./chatbot)
+- [캐시 (producer)](../producer/cache)
 - [Redis 키/캐시 계약](../shared/redis-cache-contract)

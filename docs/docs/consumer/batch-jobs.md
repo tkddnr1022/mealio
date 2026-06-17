@@ -24,7 +24,7 @@ pnpm --filter consumer run job:kpi-rollup
 
 | 항목 | 내용 |
 | --- | --- |
-| 구현 | `jobs/kpi-rollup/kpi-rollup.service.ts` |
+| 구현 | `server/consumer/.../kpi-rollup.service.ts` |
 | 입력 | MongoDB `event_logs` |
 | 출력 | `kpi_rollups` 컬렉션 |
 | KPI 예 | favorite CVR, recommendation latency, search CTR |
@@ -63,12 +63,13 @@ pnpm run recipe-ingestion:retrieve
 
 ## 새 Job 추가 시
 
-1. `jobs/<name>/` 모듈과 `run-*.ts` CLI를 추가합니다.
-2. `package.json`에 script를 등록합니다.
-3. Consumer 내부 명세를 동기화합니다.
-4. 필요하면 validation 시나리오를 추가합니다.
+1. `server/consumer/.../` job 모듈과 `run-*.ts` CLI를 추가합니다.
+2. `server/consumer/package.json`에 script를 등록합니다.
+3. 관련 consumer 문서(아키텍처·배치·운영)를 갱신합니다.
+4. 필요하면 [Observability](../other/observability) 검증 시나리오를 추가합니다.
 
 ## 관련 문서
 
-- [레시피 수집 상세](./recipe-ingestion)
 - [Consumer 아키텍처](./architecture)
+- [환경 변수](./environment-variables)
+- [레시피 수집 상세](./recipe-ingestion)

@@ -34,10 +34,10 @@ sequenceDiagram
 
 | type | UI 동작 |
 | --- | --- |
-| `chunk` | 어시스턴트 메시지 스트리밍 텍스트 append |
-| `tool_call` | 도구 호출 중 상태 표시 (선택) |
-| `done` | 턴 완료. `conversationId`, `isCreditDepleted`, `suggestedRecipes` 반영 |
-| `error` | 오류 메시지 + 재시도 액션 (Toast `action`) |
+| `chunk` | 스트리밍 텍스트 append |
+| `tool_call` | 도구 호출 중 상태 (선택) |
+| `done` | 턴 완료·메타데이터 반영 |
+| `error` | 오류 메시지·재시도 액션 |
 
 `done.data.suggestedRecipes`가 있으면 `SuggestedRecipeBubble` / `SuggestedRecipeSlider`로 표시합니다.
 
@@ -47,9 +47,9 @@ sequenceDiagram
 | --- | --- | --- |
 | `/chatbot/list` | `ChatbotConversationListClientPage.tsx` | 대화 목록 |
 | `/chatbot/[id]` | `ChatbotConversationClientPage.tsx` | 메시지 전송·SSE 구독 |
-| 컴포넌트 | `client/src/.../chatbot/` | 버블·입력·슬라이더 등 |
+| 컴포넌트 | `client/src/.../chatbot/` | 버블·입력·슬라이더 |
 
-컴포넌트는 [컴포넌트 구조](./components)와 `client/src/components/`(chatbot) 기준으로 배치합니다.
+컴포넌트는 [컴포넌트 구조](./components)와 `client/src/.../chatbot/` 기준으로 배치합니다.
 
 ## React Query 연동
 

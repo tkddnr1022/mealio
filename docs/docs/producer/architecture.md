@@ -28,10 +28,12 @@ server/producer/src/
 │   ├── chatbot/      # 메시지, SSE
 │   ├── health/       # /health, /ready
 │   └── middleware/   # rate-limit, logging, correlation-id
-└── infrastructure/
-    ├── cache/        # Cache-Aside 전략
-    ├── database/     # Prisma/Mongoose repositories
-    └── kafka/        # Producer service
+├── infrastructure/
+│   ├── cache/        # Cache-Aside 전략
+│   ├── database/     # Prisma/Mongoose repositories
+│   └── kafka/        # Producer service
+└── optimization/
+    └── monitoring/   # Prometheus /metrics
 ```
 
 ## 도메인 모듈 패턴
@@ -48,9 +50,9 @@ server/producer/src/
 | 인프라 | 용도 |
 | --- | --- |
 | PostgreSQL (Prisma) | User, Recipe, Ingredient, 추천 원본 테이블 |
-| MongoDB (Mongoose) | Inventory 조회 연동 |
+| MongoDB (Mongoose) | Inventory, EventLog, ChatbotLog, ChatbotConversation |
 | Redis | Cache-Aside, rate limit, refresh 세션 캐시 |
-| Kafka | user-events, activity-events, chatbot-requests |
+| Kafka | `user-events`, `activity-events`, `chatbot-requests` |
 
 ## 쓰기 API 패턴
 
@@ -66,21 +68,25 @@ flowchart TD
 
 ## 관측성
 
-- `correlation-id.middleware.ts`는 요청을 추적합니다.
-- `metrics.service.ts`는 Prometheus용 `/metrics` 엔드포인트를 제공합니다.
+- `server/producer/.../correlation-id.middleware.ts`는 요청을 추적합니다.
+- `server/producer/.../metrics.controller.ts`는 `METRICS_ENABLED=true`일 때 `PORT`와 동일 포트의 `/metrics`를 노출합니다.
 - Sentry 연동은 `@mealio/shared/observability`를 사용합니다.
 
 ## 정책 파일
 
 | 파일 | 내용 |
 | --- | --- |
-| `policy/cache.policy.ts` | Redis TTL(초) |
-| `policy/rate-limit.policy.ts` | 윈도우·최대 요청 |
-| `policy/chatbot.policy.ts` | SSE 타임아웃 |
+| `server/producer/.../cache.policy.ts` | Redis TTL(초) |
+| `server/producer/.../rate-limit.policy.ts` | 윈도우·최대 요청 |
+| `server/producer/.../chatbot.policy.ts` | SSE 타임아웃 |
 
 ## 관련 문서
 
+- [환경 변수](./environment-variables)
 - [도메인 API 가이드](./domain-api)
 - [인증/인가](./auth)
 - [캐시](./cache)
 - [이벤트 발행](./event-publishing)
+- [챗봇/SSE](./chatbot-sse)
+- [운영](./operations)
+- [시스템 아키텍처](../project/architecture)

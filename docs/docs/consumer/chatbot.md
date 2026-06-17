@@ -24,13 +24,13 @@ flowchart TD
 
 | 단계 | 동작 |
 | --- | --- |
-| 1 | `conversation.manager` — `buildMessagesForGpt()`로 메시지 배열 구성 |
+| 1 | `buildMessagesForGpt()`로 메시지 배열 구성 (`server/consumer/.../conversation.manager.ts`) |
 | 2 | OpenAI Chat Completions 스트리밍 호출 |
 | 3 | `tool_calls` 발생 시 해당 Handler 디스패치 |
 | 4 | 응답 chunk를 Redis `chatbot:stream:{streamChannelId}`에 발행 |
 | 5 | 턴 완료 시 `done` 이벤트 + 크레딧 차감 |
 
-핵심 구현은 `consumers/.../ProcessChatHandler.ts`에 있습니다.
+핵심 구현은 `server/consumer/.../ProcessChatHandler.ts`에 있습니다.
 
 ## Tool Handlers
 
@@ -38,9 +38,10 @@ flowchart TD
 | --- | --- | --- |
 | `InventoryHandler` | `get_user_inventory` | 보유/관심 재료·레시피 조회 |
 | `FoodCategoriesHandler` | `get_food_categories` | 카테고리 마스터 (Redis 1h) |
-| `SearchRecipesHandler` | `search_recipes` | 레시피 검색 |
+| `SearchRecipesHandler` | `search_recipes` | semantic-first ANN·재랭킹 검색 |
+| `FinalizeRecipeSelectionHandler` | `finalize_recipe_selection` | 후보 중 최종 추천 레시피 확정 |
 
-도구 스키마는 `chatbot-tools.definition.ts`에 정의되어 있습니다.
+도구 스키마는 `server/consumer/.../chatbot-tools.definition.ts`에 정의되어 있습니다.
 
 설계상 Kafka 페이로드에 대용량 배열을 넣지 않고, tool 호출 시 DB/Redis에서 조회합니다.
 
@@ -75,10 +76,11 @@ flowchart TD
 
 - at-least-once Kafka 전달을 전제로 하며, 크레딧·로그는 멱등 키로 중복 처리에 안전합니다.
 - 처리 실패 시 메시지는 `chatbot-requests-dlq`로 보냅니다.
-- consumer lag는 `consumer-lag.monitor.ts`로 모니터링합니다.
+- consumer lag는 `server/consumer/.../consumer-lag.monitor.ts`로 모니터링합니다.
 
 ## 관련 문서
 
+- [Kafka 소비/신뢰성](./kafka-reliability)
 - [챗봇/SSE](../producer/chatbot-sse)
 - [챗봇 UI/스트리밍](../client/chatbot-ui)
 - [캐시](./cache)

@@ -14,7 +14,7 @@ OAuth는 **백엔드 주도**입니다. 프론트는 Authorization Code·토큰 
 | --- | --- | --- |
 | **Proxy** | `refreshToken` 쿠키 **존재 여부**만 검사 | `client/src/proxy.ts` |
 | **SSR** | API 401 시 refresh-bridge 리다이렉트 | `serverFetchWrapper`, `/api/auth/refresh-bridge` |
-| **CSR** | API 401 시 `POST /auth/refresh` 1회 재시도 | `client/src/.../http-client.ts` |
+| **CSR** | API 401 시 `POST /api/v1/auth/refresh` 1회 재시도 | `client/src/.../http-client.ts` |
 
 토큰 유효성·회전은 **백엔드 API 호출 단계**에서 검증합니다.
 
@@ -90,7 +90,7 @@ Route Handler가 들어온 `Cookie`로 Producer refresh를 호출하고, `Set-Co
 | `client/src/.../auth-context.tsx` | `AuthProvider`, `useAuth()` |
 | `client/src/.../session.server.ts` | 서버 세션 유틸 |
 | `client/src/.../session.client.ts` | 클라이언트 세션 유틸 |
-| `client/src/.../route.ts` | SSR refresh 브리지 |
+| `client/src/.../refresh-bridge/route.ts` | SSR refresh 브리지 |
 | `client/src/proxy.ts` | Next.js Proxy |
 
 ## 관련 문서

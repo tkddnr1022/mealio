@@ -72,7 +72,7 @@ pnpm run start:storybook
 | 레시피 카드·검색 UI? | `recipe/` |
 | 챗봇 버블? | `chatbot/` |
 
-아키텍처 문서에 경로가 정의되어 있으면 **문서를 우선**합니다. [기여 가이드](../other/contributing)를 참고하세요.
+아키텍처 문서에 경로가 정의되어 있으면 해당 문서를 우선합니다. [기여 가이드](../other/contributing)를 참고하세요.
 
 ## 관련 문서
 

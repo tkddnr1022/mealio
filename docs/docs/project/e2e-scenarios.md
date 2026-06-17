@@ -89,6 +89,8 @@ Proxy는 `/chatbot`, `/inventory`, `/mypage/*`(루트 `/mypage` 제외)에서 `r
 
 ## 관련 문서
 
+- [도메인](./domain)
+- [추천 시스템](./recommendation)
 - [클라이언트 아키텍처](../client/architecture)
 - [인증](../client/auth)
 - [캐시](../client/cache)

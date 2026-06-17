@@ -14,17 +14,27 @@ Producer는 NestJS REST API이며, env 파일은 호스트용 `server/producer/.
 cp server/producer/.env.example server/producer/.env.local
 ```
 
-기본 포트는 **3000**입니다. 부팅 시 Joi로 **전 변수를 필수 검증**하며(`server/producer/.../env.validation.ts`), 실패 시 프로세스가 종료됩니다.
+기본 포트는 **3000**입니다. 부팅 시 `server/producer/.../env.validation.ts`의 Joi 스키마로 **전 변수를 필수 검증**하며, 실패 시 프로세스가 종료됩니다.
+
+`POSTGRESQL_URL`, `MONGODB_URL`, `REDIS_URL`, `KAFKA_BROKERS`는 [consumer 환경 변수](../consumer/environment-variables)와 **동일한 연결 정보**를 사용합니다. 호스트명만 환경에 맞게 바꿉니다.
 
 ## 공통
 
-### `APP_ENV` / `PORT`
+### `APP_ENV`
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | Sentry 활성화·Producer DSN |
-| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
-| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
+| 설명 | 런타임 환경 구분 |
+| 허용 값 | `local`, `development`, `production`, `test` |
+| 사용처 | Kafka 토픽 자동 생성 여부, Sentry 환경 태그 등 |
+
+### `PORT`
+
+| 항목 | 내용 |
+| --- | --- |
+| 설명 | HTTP API 및 `/metrics` 노출 포트 |
+| 예시 | `3000` |
+| 사용처 | `server/producer/.../main.ts` |
 
 ## 인증
 
@@ -32,25 +42,27 @@ cp server/producer/.env.example server/producer/.env.local
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | Sentry 활성화·Producer DSN |
-| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
-| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
+| 설명 | Access Token 서명 비밀키 |
+| 패턴 | 비어 있으면 안 됨 |
+| 사용처 | `server/producer/.../auth.service.ts` |
 
 ### `OAUTH_CALLBACK_BASE_URL`
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | Sentry 활성화·Producer DSN |
-| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
-| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
+| 설명 | OAuth Provider에 등록하는 Redirect URI 베이스 (Producer 호스트) |
+| 예시 | `http://localhost:3000` |
+| 사용처 | Passport 전략·Provider 콜백 URL 조합 |
 
 ### `FRONTEND_APP_BASE_URL`
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | Sentry 활성화·Producer DSN |
-| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
-| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
+| 설명 | OAuth 성공·실패 후 리다이렉트 대상 (Next.js client) |
+| 예시 | `http://localhost:4000` |
+| 사용처 | `server/producer/.../auth.service.ts`, CORS `origin` (`main.ts`) |
+
+OAuth 성공·실패 경로(`/oauth/callback`, `/oauth/error`)는 env가 아니라 `server/producer/.../auth.constants.ts` 상수로 정의됩니다.
 
 ### `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`
 
@@ -60,9 +72,9 @@ cp server/producer/.env.example server/producer/.env.local
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | Sentry 활성화·Producer DSN |
-| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
-| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
+| 설명 | 소셜 로그인 Provider 자격 증명 |
+| 패턴 | 비어 있으면 안 됨 |
+| 사용처 | `server/producer/.../*.strategy.ts` |
 
 → [producer 인증](./auth) · [client 환경 변수](../client/environment-variables)를 참고하세요.
 
@@ -72,33 +84,30 @@ cp server/producer/.env.example server/producer/.env.local
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | Sentry 활성화·Producer DSN |
-| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
-| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
+| 설명 | Prisma(RDB) 연결 문자열 |
+| 사용처 | User, Recipe, Ingredient, 추천 원본 테이블 |
 
 ### `MONGODB_URL`
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | Sentry 활성화·Producer DSN |
-| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
-| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
+| 설명 | Mongoose(NoSQL) 연결 문자열 |
+| 사용처 | Inventory, EventLog, ChatbotLog, ChatbotConversation |
 
 ### `REDIS_URL`
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | Sentry 활성화·Producer DSN |
-| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
-| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
+| 설명 | Cache-Aside, rate limit, refresh 세션 캐시 |
+| 사용처 | `server/producer/.../cache/`, `rate-limit.middleware.ts` |
 
 ### `KAFKA_BROKERS` / `KAFKA_CLIENT_ID`
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | Sentry 활성화·Producer DSN |
-| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
-| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
+| 설명 | Kafka 브로커 목록·클라이언트 ID |
+| 예시 | `localhost:9092`, `mealio-producer` |
+| 사용처 | `server/producer/.../kafka/producer.service.ts` |
 
 ## 관측성
 
@@ -106,9 +115,9 @@ cp server/producer/.env.example server/producer/.env.local
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | Sentry 활성화·Producer DSN |
-| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
-| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
+| 설명 | Prometheus `/metrics` 노출 여부 |
+| 허용 값 | `true`, `false`, `1`, `0` |
+| 사용처 | `server/producer/.../metrics.controller.ts` (`PORT`와 동일 포트) |
 
 ### `SENTRY_ENABLED` / `SENTRY_DSN_PRODUCER`
 

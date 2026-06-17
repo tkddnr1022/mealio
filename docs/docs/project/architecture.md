@@ -109,7 +109,8 @@ flowchart LR
 
 ## 관련 문서
 
+- [레시피 수집(ETL)](./recipe-ingestion)
+- [추천 시스템](./recommendation)
 - [모노레포 구조](./monorepo)
 - [배포/환경 전략](./deployment)
-- [추천 시스템](./recommendation)
 - [E2E 시나리오](./e2e-scenarios)

@@ -16,19 +16,20 @@
 
 | 토픽 | 발행 트리거 (Producer API) | payload 요약 |
 | --- | --- | --- |
-| `user-events` | 닉네임 변경, 재료·관심 레시피 CRUD | `UserEvent` / `InventoryEvent` |
-| `activity-events` | 조회수, 검색어, 검색 클릭, 좋아요·공유 | `ActivityEvent` |
-| `chatbot-requests` | `POST /chatbot/messages` | userId, message, conversationId?, streamChannelId |
+| `user-events` | OAuth login/signup, 닉네임 변경, 재료·관심 레시피 CRUD | `UserEvent` / `InventoryEvent` |
+| `activity-events` | 조회수, 검색어, 검색 클릭 | `ActivityEvent` |
+| `chatbot-requests` | `POST /chatbot/messages` | userId, message, conversationId, streamChannelId |
 
 `cache-invalidation`은 **Producer가 직접 발행하지 않으며**, Consumer `CacheInvalidationRequestService`가 발행합니다.
 
 ## user-events 예
 
-| API | 이벤트 type |
+| API / 흐름 | 이벤트 type |
 | --- | --- |
-| POST `.../views` | `recipe.view` |
-| POST `search-queries` | `search.query` |
-| POST `search-clicks` | `search.click` |
+| OAuth 최초 가입 | `signup` |
+| OAuth 재로그인 | `login` |
+| PATCH `/users/me/nickname` | `nickname_update` |
+| Inventory 쓰기 API | `inventory.update`, `inventory.add`, `inventory.remove` 등 |
 
 Consumer는 프로필 갱신, Inventory 처리, EventLog 기록, **추천 점수** 갱신, 캐시 무효화 요청을 수행합니다.
 
@@ -48,19 +49,19 @@ Consumer는 프로필 갱신, Inventory 처리, EventLog 기록, **추천 점수
 {
   "userId": 1,
   "message": "오늘 뭐 먹지?",
-  "conversationId": "optional",
-  "streamChannelId": "uuid"
+  "conversationId": "conv_...",
+  "streamChannelId": "stream_..."
 }
 ```
 
-Consumer가 GPT 처리 후 Redis 스트림으로 이벤트를 발행하면 Producer가 SSE로 전달합니다.
+`streamChannelId`는 Producer가 요청 시 생성하며, Consumer가 GPT 처리 후 Redis 채널 `chatbot:stream:{streamChannelId}`로 이벤트를 발행하면 같은 HTTP 연결의 SSE로 전달됩니다.
 
 ## 구현 위치
 
 | 경로 | 역할 |
 | --- | --- |
-| `infrastructure/kafka/producer.service.ts` | Kafka produce |
-| `modules/*/...service.ts` | 도메인별 발행 호출 |
+| `server/producer/.../producer.service.ts` | Kafka produce |
+| `server/producer/.../*service.ts` | 도메인별 발행 호출 |
 
 로컬 환경에서는 `KafkaAdminService`가 토픽·DLQ를 자동 생성합니다(`APP_ENV !== production`).
 
@@ -69,3 +70,4 @@ Consumer가 GPT 처리 후 Redis 스트림으로 이벤트를 발행하면 Produ
 - [Kafka 소비/신뢰성](../consumer/kafka-reliability)
 - [이벤트/분석 파이프라인](../consumer/analytics-pipeline)
 - [도메인 API 가이드](./domain-api)
+- [공유 계약](../shared/contracts)

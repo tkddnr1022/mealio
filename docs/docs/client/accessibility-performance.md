@@ -57,7 +57,8 @@ buildAriaLabel(type, name)
 | 지표 | 목표 |
 | --- | --- |
 | LCP | &lt; 2.5초 |
-| FID | &lt; 100ms |
+| INP | &lt; 200ms (상호작용 응답성의 기준 지표) |
+| FID | &lt; 100ms (과거 참고용; 실제 수집·판정은 INP를 사용) |
 | CLS | &lt; 0.1 |
 
 ### 페이지별 번들 예산

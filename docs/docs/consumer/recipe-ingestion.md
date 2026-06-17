@@ -71,13 +71,27 @@ stateDiagram-v2
 pnpm run recipe-ingestion:fetch
 pnpm run recipe-ingestion:submit --submit-batch-size 50
 pnpm run recipe-ingestion:retrieve
+pnpm --filter consumer run job:recipe-ingestion-persist --job-id <jobId>
 ```
 
 ## 운영 검증
 
-[운영 검증](#운영-검증) 절에서 정상 경로(happy path), 부분 실패, Kafka 재전달 시나리오를 확인합니다.
+아래 시나리오로 fetch→submit→retrieve→persist happy path와 복구 경로를 확인합니다.
+
+| # | 시나리오 | 확인 포인트 |
+| --- | --- | --- |
+| 1 | fetch (소량 `--fetch-limit`) | MongoDB `recipe_ingestion_jobs`에 `fetched` 증가 |
+| 2 | submit (`--submit-batch-size`) | `submitted`·OpenAI `batch_id` 기록 |
+| 3 | retrieve | `retrieved`·`recipe-ingestion-retrieved` 토픽 발행 |
+| 4 | persist consumer (상시) | PostgreSQL Recipe upsert·job `persisted` |
+| 5 | submit `--retry-failed --retry-failed-limit N` | `failed` job 재큐잉 후 재submit |
+| 6 | Kafka 재전달·`persist --job-id` | 멱등 persist·수동 복구 |
+
+메트릭(`recipe_ingestion_stage_total` 등) 확인 절차는 [Observability](../other/observability)를 참고하세요.
 
 ## 관련 문서
 
+- [레시피 수집(ETL)](../project/recipe-ingestion)
 - [배치/스케줄 작업](./batch-jobs)
 - [Kafka 소비/신뢰성](./kafka-reliability)
+- [Consumer 운영](./operations)

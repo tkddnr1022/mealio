@@ -69,10 +69,10 @@ packages:
 | 제공 | 경로 예 |
 | --- | --- |
 | Prisma client | `@mealio/shared/prisma-client` |
-| Mongoose schemas | `database/mongoose/` |
-| Kafka 상수 | `constants/kafka-topics.ts` |
-| Redis 키 | `constants/cache-keys.ts` |
-| 이벤트 타입 | `types/events/` |
+| Mongoose schemas | `server/shared/.../database/mongoose/` |
+| Kafka 상수 | `server/shared/.../kafka-topics.ts` |
+| Redis 키 | `server/shared/.../cache-keys.ts` |
+| 이벤트 타입 | `server/shared/.../types/events/` |
 
 → [Shared 패키지 개요](../shared/overview)
 
@@ -85,6 +85,7 @@ GitHub Actions 워크플로는 `.github/workflows/`에 정의되어 있습니다
 ## 관련 문서
 
 - [로컬 개발/온보딩](./getting-started)
+- [인프라 환경 변수](./infrastructure-environment-variables)
 - [클라이언트 아키텍처](../client/architecture)
 - [Producer 아키텍처](../producer/architecture)
 - [Consumer 아키텍처](../consumer/architecture)

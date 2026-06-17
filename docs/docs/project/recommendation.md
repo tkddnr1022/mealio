@@ -60,15 +60,16 @@ PostgreSQL `user_recipe_recommendations` 테이블이 **추천 결과의 단일 
 
 상세 표와 처리 조건은 [Consumer 추천 파이프라인 — 이벤트별 가중치](../consumer/recommendation-pipeline#user-events-가중치) 문서를 참고하세요.
 
-**user-events**는 강한 선호 신호입니다.
+**user-events**는 관심 레시피·재료함 변경 등 강한 선호 신호입니다.
 
 | 이벤트 | delta |
 | --- | --- |
-| `recipe.view` | +0.1 |
-| `recipe.share` | +0.4 |
-| `search.click` | +0.25 |
+| `recipe.favorites_add` | +1.8 |
+| `recipe.favorites_remove` | -1.8 |
+| `ingredient.favorites_add` | +0.8 |
+| `ingredient.add` | +0.25 |
 
-**activity-events**는 행동 보정용이며, 로그인 사용자와 recipeId가 필요합니다.
+**activity-events**는 조회·공유·검색 클릭 등 행동 보정용이며, 로그인 사용자와 `recipeId`가 필요합니다.
 
 | 이벤트 | delta |
 | --- | --- |
@@ -103,3 +104,5 @@ PostgreSQL `user_recipe_recommendations` 테이블이 **추천 결과의 단일 
 - [추천 API](../producer/recommendation-api)
 - [추천 파이프라인](../consumer/recommendation-pipeline)
 - [캐시 무효화](../consumer/cache-invalidation)
+- [도메인](./domain)
+- [시스템 아키텍처](./architecture)

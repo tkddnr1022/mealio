@@ -17,9 +17,11 @@ Authorization: Cookie accessToken (JWT 필수)
 
 | 항목 | 값 |
 | --- | --- |
-| 전략 | `recommendation-cache-strategy.ts` |
+| 전략 | `server/producer/.../recommendation-cache-strategy.ts` |
 | 키 | `recommendation:{userId}` |
 | TTL | 3600초 (`CACHE_TTL_RECOMMENDATION_SECONDS`) |
+
+무효화는 Consumer `RECOMMENDATION` 타입으로 수행하며, [캐시 무효화](../consumer/cache-invalidation)를 참고하세요.
 
 ## 응답 (`RecommendedRecipeItemDto[]`)
 
@@ -48,16 +50,6 @@ flowchart TD
 
 Fallback 시 `reason`에 초기 추천 데이터 없음을 명시합니다.
 
-## 캐시
-
-| 항목 | 값 |
-| --- | --- |
-| 전략 | `recommendation-cache-strategy.ts` |
-| 키 | `recommendation:{userId}` |
-| TTL | 3600초 (`CACHE_TTL_RECOMMENDATION_SECONDS`) |
-
-무효화는 Consumer `RECOMMENDATION` 타입으로 수행하며, [캐시 무효화](../consumer/cache-invalidation)를 참고하세요.
-
 ## 프론트엔드 연동
 
 - `/recipe` CSR 섹션은 `useRecommendedRecipes()`를 사용하며, React Query `QUERY_CACHE.recommended`를 적용합니다.
@@ -71,10 +63,12 @@ Fallback 시 `reason`에 초기 추천 데이터 없음을 명시합니다.
 
 ## 확장 시 유의
 
-챗봇 `SuggestedRecipe`와 추천 원본 테이블를 **직접 동기화하지 않습니다**. 필요 시 챗봇 tool이 본 API를 호출하는 방식으로 확장합니다.
+챗봇 `SuggestedRecipe`와 추천 원본 테이블을 **직접 동기화하지 않습니다**. 필요 시 챗봇 tool이 본 API를 호출하는 방식으로 확장합니다.
 
 ## 관련 문서
 
+- [도메인 API 가이드](./domain-api)
+- [캐시](./cache)
 - [추천 파이프라인](../consumer/recommendation-pipeline)
 - [Redis 키/캐시 계약](../shared/redis-cache-contract)
 - [캐시 (client)](../client/cache)

@@ -64,7 +64,7 @@ Producer는 캐시를 **직접 삭제하지 않습니다**. Consumer가 `cache-i
 
 `rate_limit:api:{identifier}:{windowId}` 키로 Redis 기반 API 요청 제한을 적용하며, 애플리케이션 데이터 캐시와 분리됩니다.
 
-구현은 `modules/middleware/rate-limit.middleware.ts`에 있습니다.
+구현은 `server/producer/.../rate-limit.middleware.ts`에 있습니다.
 
 ## 변경 시 체크리스트
 
@@ -75,5 +75,7 @@ Producer는 캐시를 **직접 삭제하지 않습니다**. Consumer가 `cache-i
 ## 관련 문서
 
 - [캐시 (client)](../client/cache)
+- [캐시 무효화 (consumer)](../consumer/cache-invalidation)
 - [Redis 키/캐시 계약](../shared/redis-cache-contract)
 - [추천 API](./recommendation-api)
+- [도메인 API 가이드](./domain-api)

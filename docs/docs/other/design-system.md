@@ -10,29 +10,31 @@
 
 | 순서 | 근거 | 역할 |
 | --- | --- | --- |
-| 1 | 내부 디자인 토큰 JSON · `client/src/.../globals.css` | 컬러·타이포·스페이싱·컴포넌트 토큰 |
-| 2 | `client/src/.../globals.css` | `:root`, `@theme`, 컴포넌트 recipe |
-| 3 | [접근성·성능](../client/accessibility-performance) | UX·a11y·성능·톤 원칙 |
+| 1 | 내부 디자인 토큰 JSON | 컬러·타이포·스페이싱·컴포넌트 토큰의 구조화 정본 |
+| 2 | `client/src/.../globals.css` | `:root`, `@theme`, 컴포넌트 recipe로 토큰을 코드에 연동 |
+| 3 | [접근성/성능 기준](../client/accessibility-performance) | UX·a11y·성능·톤 원칙 |
 
 Figma MCP 출력(React+Tailwind)은 **참고용**이며, 프로젝트 스택과 컨벤션에 맞게 변환해야 합니다.
 
 ## Design-to-Code 워크플로우
 
+디자인 시스템은 **수집 → 변환 → 연동 → 구현** 순서로 동기화합니다.
+
 ```mermaid
 flowchart LR
     F[Figma Variables·Styles·Components]
-    F --> S1[수집 내부 변수·스타일 목록]
-    S1 --> S2[변환 디자인 토큰 JSON]
-    S2 --> S3[연동 globals.css]
-    S3 --> C[client/src/components/ui/]
+    F --> S1[수집: 변수·스타일 목록]
+    S1 --> S2[변환: 디자인 토큰 JSON]
+    S2 --> S3[연동: globals.css]
+    S3 --> C[구현: UI·도메인 컴포넌트]
 ```
 
 | 단계 | 내용 |
 | --- | --- |
-| 1. 수집 | Figma 변수·로컬 스타일을 내부 목록 문서로 정리 |
-| 2. 변환 | 목록을 구조화된 디자인 토큰 JSON으로 반영 |
-| 3. 연동 | 토큰을 `globals.css`에 매핑 |
-| 4. 구현 | 컴포넌트·페이지에 토큰·variant 적용 |
+| 1. 수집 | Figma 변수·로컬 스타일을 내부 목록 문서로 정리합니다. |
+| 2. 변환 | 목록을 구조화된 디자인 토큰 JSON으로 반영합니다. |
+| 3. 연동 | 토큰을 `globals.css`에 매핑합니다. |
+| 4. 구현 | 컴포넌트·페이지에 토큰·variant를 적용합니다. |
 
 코드·웹을 Figma에 반영할 때는 내부 Code-to-Design 가이드를 따릅니다.
 
@@ -49,7 +51,7 @@ flowchart LR
 - UI 프리미티브는 `client/src/.../ui/`에 둡니다.
 - 도메인 UI는 `client/src/.../{recipe|chatbot|...}/`처럼 도메인별 폴더에 둡니다.
 
-→ [컴포넌트 구조/규칙](../client/components)
+배치 규칙 상세는 [컴포넌트 구조](../client/components) 문서를 참고합니다.
 
 ## Storybook
 
@@ -66,6 +68,7 @@ pnpm run build:storybook
 
 ## 관련 문서
 
-- [접근성/성능 기준](../client/accessibility-performance) 문서에서 구현 기준을 확인합니다.
-- [컴포넌트 구조](../client/components) 문서에서 배치 규칙을 확인합니다.
+- [접근성/성능 기준](../client/accessibility-performance)
+- [컴포넌트 구조](../client/components)
+- [개발 규약](./development-conventions)
 - Figma 디자인 원본은 [Mealio 디자인 파일](https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Mealio)에서 확인합니다.
