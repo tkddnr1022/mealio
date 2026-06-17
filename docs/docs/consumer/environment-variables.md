@@ -8,15 +8,15 @@
 
 ## 개요
 
-Kafka Consumer·배치 워커. env 파일: `server/consumer/.env.local` (호스트) · `server/consumer/.env.docker.local` (Docker).
+Consumer 패키지는 Kafka Consumer와 배치 워커를 실행합니다. 환경 변수 파일은 호스트에서는 `server/consumer/.env.local`, Docker에서는 `server/consumer/.env.docker.local`을 사용합니다.
 
 ```bash
 cp server/consumer/.env.example server/consumer/.env.local
 ```
 
-HTTP API 포트 없음. 부팅 시 Joi로 **전 변수 필수** 검증 — `server/consumer/.../env.validation.ts`.
+HTTP API 포트는 없습니다. 부팅 시 `server/consumer/.../env.validation.ts`의 Joi 스키마로 **모든 변수가 필수**인지 검증합니다.
 
-`METRICS_ENABLED=true` 시 **별도** `METRICS_PORT`에서 `/metrics` 노출.
+`METRICS_ENABLED=true`이면 `METRICS_PORT`에서 별도로 `/metrics` 엔드포인트를 노출합니다.
 
 ## 공통
 
@@ -24,10 +24,9 @@ HTTP API 포트 없음. 부팅 시 Joi로 **전 변수 필수** 검증 — `serv
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | 실행 환경 식별 |
-| 허용 값 | `local` · `development` · `production` · `test` |
-| 예시 | `local` |
-| 사용처 | Sentry environment, 샘플링 (`@mealio/shared` `sentry.config.ts`) |
+| 설명 | Sentry 활성화·Consumer DSN |
+| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 활성화 |
+| 사용처 | `@mealio/shared` `sentry.config.ts` |
 
 ## 데이터·메시징
 
@@ -41,17 +40,17 @@ HTTP API 포트 없음. 부팅 시 Joi로 **전 변수 필수** 검증 — `serv
 
 | 항목 | 내용 |
 | --- | --- |
-| 예시 (호스트) | `localhost` 호스트명 — producer와 동일 패턴 |
-| 예시 (Docker) | `postgres`, `mongodb`, `redis` 서비스명 |
-| 사용처 | `@mealio/shared` Prisma, Mongoose, Redis |
+| 설명 | Sentry 활성화·Consumer DSN |
+| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 활성화 |
+| 사용처 | `@mealio/shared` `sentry.config.ts` |
 
 ### `KAFKA_BROKERS` / `KAFKA_CLIENT_ID`
 
 | 항목 | 내용 |
 | --- | --- |
-| `KAFKA_BROKERS` | 예: `localhost:9092` (호스트) · `kafka:19092` (Docker) |
-| `KAFKA_CLIENT_ID` | 예: `mealio-consumer` |
-| 사용처 | `@mealio/shared` `createKafkaConfig()`, Kafka consumer |
+| 설명 | Sentry 활성화·Consumer DSN |
+| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 활성화 |
+| 사용처 | `@mealio/shared` `sentry.config.ts` |
 
 ## OpenAI
 
@@ -59,36 +58,35 @@ HTTP API 포트 없음. 부팅 시 Joi로 **전 변수 필수** 검증 — `serv
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | OpenAI API 인증 키 |
-| 예시 | `sk-proj-...` (실제 키는 저장소에 커밋하지 않음) |
-| 사용처 | `OpenAIService`, `OpenAIBatchService` 생성자 |
+| 설명 | Sentry 활성화·Consumer DSN |
+| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 활성화 |
+| 사용처 | `@mealio/shared` `sentry.config.ts` |
 
 ### `OPENAI_CHAT_MODEL`
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | 챗봇 대화·도구 호출 모델 |
-| 예시 | `gpt-4.1-mini` |
-| 사용처 | `server/consumer/.../openai.service.ts` |
+| 설명 | Sentry 활성화·Consumer DSN |
+| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 활성화 |
+| 사용처 | `@mealio/shared` `sentry.config.ts` |
 
 ### `OPENAI_EMBEDDING_MODEL`
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | 레시피·재료 임베딩 모델 |
-| 예시 | `text-embedding-3-small` |
-| 사용처 | `OpenAIService.createEmbedding(s)` |
+| 설명 | Sentry 활성화·Consumer DSN |
+| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 활성화 |
+| 사용처 | `@mealio/shared` `sentry.config.ts` |
 
 ### `OPENAI_BATCH_MODEL`
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | OpenAI Batch API 레시피 ETL 모델 |
-| 예시 | `gpt-4.1-mini` |
-| 사용처 | `server/consumer/.../openai-batch.service.ts` |
-| 패턴 | `recipe-ingestion:submit` · `retrieve` 배치 잡 |
+| 설명 | Sentry 활성화·Consumer DSN |
+| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 활성화 |
+| 사용처 | `@mealio/shared` `sentry.config.ts` |
 
-→ [챗봇](./chatbot) · [레시피 수집](./recipe-ingestion)
+OpenAI 변수는 [챗봇](./chatbot)과 [레시피 수집](./recipe-ingestion) 문서에서 사용처를 확인할 수 있습니다.
 
 ## 공공데이터 (레시피 수집)
 
@@ -96,11 +94,9 @@ HTTP API 포트 없음. 부팅 시 Joi로 **전 변수 필수** 검증 — `serv
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | 식품의약품안전처 조리식품 레시피 Open API 인증키 |
-| 발급 | [식품안전나라 Open API](https://www.foodsafetykorea.go.kr/apiMain.do) |
-| 예시 | `your-public-data-api-key` |
-| 사용처 | `server/consumer/.../public-data-api.client.ts` |
-| 패턴 | `recipe-ingestion:fetch` 잡. URL path에 키 삽입 |
+| 설명 | Sentry 활성화·Consumer DSN |
+| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 활성화 |
+| 사용처 | `@mealio/shared` `sentry.config.ts` |
 
 ## 관측성
 
@@ -108,10 +104,9 @@ HTTP API 포트 없음. 부팅 시 Joi로 **전 변수 필수** 검증 — `serv
 
 | 항목 | 내용 |
 | --- | --- |
-| `METRICS_ENABLED` | `true` / `false` / `1` / `0` — producer와 동일 의미 |
-| `METRICS_PORT` | `METRICS_ENABLED=true`일 때 **필수**. 예: `9091` |
-| 사용처 | Consumer 메트릭 HTTP 서버, `docker/compose-consumer.yml` healthcheck |
-| 패턴 | producer와 포트 충돌 방지를 위해 3000이 아닌 별도 포트 사용 |
+| 설명 | Sentry 활성화·Consumer DSN |
+| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 활성화 |
+| 사용처 | `@mealio/shared` `sentry.config.ts` |
 
 ### `SENTRY_ENABLED` / `SENTRY_DSN_CONSUMER`
 

@@ -12,20 +12,20 @@
 | `GET /health` | 프로세스 생존 |
 | `GET /ready` | PostgreSQL·MongoDB·Redis 연결 |
 
-`/ready` 실패 시 트래픽 라우팅 중단·롤백 검토.
+`/ready`가 실패하면 트래픽 라우팅을 중단하고 롤백을 검토합니다.
 
 ## 메트릭 (Prometheus)
 
-- Endpoint: `/metrics` (`METRICS_ENABLED=true`)
-- 스크랩: `docker/compose-monitoring.yml` — `PROMETHEUS_PRODUCER_PORT` (기본 3000)
+- Endpoint는 `/metrics`이며 `METRICS_ENABLED=true`일 때 노출됩니다.
+- 스크랩은 `docker/compose-monitoring.yml`에서 수행하며, `PROMETHEUS_PRODUCER_PORT`(기본 3000)를 사용합니다.
 
-주요 지표: HTTP latency, Kafka produce 성공/실패, Redis·DB 연결.
+주요 지표는 HTTP latency, Kafka produce 성공/실패, Redis·DB 연결 상태입니다.
 
 ## 로그·추적
 
-- **Correlation-Id**: `X-Correlation-Id` 요청/응답 헤더
-- 구조화 JSON 로그 — `@mealio/shared` structured-logger
-- **Sentry**: `SENTRY_DSN_PRODUCER`
+- **Correlation-Id**: `X-Correlation-Id` 요청/응답 헤더로 전파됩니다.
+- 구조화 JSON 로그는 `@mealio/shared` structured-logger를 사용합니다.
+- **Sentry**는 `SENTRY_DSN_PRODUCER`로 연동합니다.
 
 ## 자주 보는 장애
 
@@ -38,15 +38,15 @@
 
 ## 배포·환경
 
-- EC2 Docker: `docker/compose-producer.yml`
-- env: `server/producer/.env.docker.local`
-- DB·Redis: Neon / Upstash URL (매니지드)
+- EC2 Docker는 `docker/compose-producer.yml`을 사용합니다.
+- env는 `server/producer/.env.docker.local`을 사용합니다.
+- DB·Redis는 Neon / Upstash URL(매니지드)을 사용합니다.
 
-→ [배포/환경 전략](../project/deployment)
+배포·환경 전략은 [배포/환경 전략](../project/deployment)을 참고하세요.
 
 ## 검증 시나리오
 
-[Observability — 검증 (배포 후)](../other/observability#검증-배포-후) — 헬스, Correlation-Id, Prometheus.
+[Observability — 검증 (배포 후)](../other/observability#검증-배포-후)에서 헬스, Correlation-Id, Prometheus를 확인합니다.
 
 ## 관련 문서
 

@@ -31,9 +31,9 @@ sequenceDiagram
 | POST | `/api/v1/auth/refresh` | Refresh 회전 → 새 쿠키 |
 | POST | `/api/v1/auth/logout` | 쿠키 삭제 + 세션 revoke |
 
-Provider: `google`, `kakao`, `naver`
+지원 Provider는 `google`, `kakao`, `naver`입니다.
 
-환경 변수: Client ID/Secret, `FRONTEND_APP_BASE_URL`, `FRONTEND_OAUTH_SUCCESS_CALLBACK_PATH`, `FRONTEND_OAUTH_ERROR_PATH`
+필요한 환경 변수는 Client ID/Secret, `FRONTEND_APP_BASE_URL`, `FRONTEND_OAUTH_SUCCESS_CALLBACK_PATH`, `FRONTEND_OAUTH_ERROR_PATH`입니다.
 
 ## JWT·Guard
 
@@ -43,9 +43,9 @@ Provider: `google`, `kakao`, `naver`
 | `OptionalJwtAuthGuard` | 토큰 없으면 익명 통과, 무효 토큰은 401 | 조회수 기록 등 |
 | `OAuthCallbackGuard` | state 검증 등 콜백 보안 | OAuth callback |
 
-데코레이터: `@CurrentUser()`, `@CurrentUserOptional()`
+데코레이터는 `@CurrentUser()`, `@CurrentUserOptional()`을 사용합니다.
 
-구현: `server/producer/.../guards/`
+구현은 `server/producer/.../guards/`에 있습니다.
 
 ## Refresh Token
 
@@ -57,17 +57,17 @@ Provider: `google`, `kakao`, `naver`
 | 회전 | refresh 성공 시 기존 revoke + 신규 발급 |
 | 재사용 탐지 | revoke된 세션 재사용 → 해당 유저 활성 세션 일괄 revoke + 401 |
 
-쿠키 속성: HttpOnly, Secure, SameSite=Lax, Path=/
+쿠키 속성은 HttpOnly, Secure, SameSite=Lax, Path=/로 설정합니다.
 
 ## `next` 리다이렉트 안전 정책
 
-- `next`는 `/`로 시작하는 상대 경로만 허용 (`//` 금지)
-- 검증: `resolveSafeNextPath` (백엔드 전용)
-- OAuth 실패 시에도 안전한 `next`만 에러 페이지로 전달
+- `next`는 `/`로 시작하는 상대 경로만 허용하며 `//`는 금지합니다.
+- 검증은 `resolveSafeNextPath`(백엔드 전용)로 수행합니다.
+- OAuth 실패 시에도 안전한 `next`만 에러 페이지로 전달합니다.
 
 ## OAuth 실패 처리
 
-`oauth-callback-exception.filter.ts` — Provider 에러·state 불일치 → `FRONTEND_OAUTH_ERROR_PATH`로 302 (`errorCode`, `errorMessage`)
+`oauth-callback-exception.filter.ts`는 Provider 에러나 state 불일치 시 `FRONTEND_OAUTH_ERROR_PATH`로 302 리다이렉트합니다(`errorCode`, `errorMessage` 포함).
 
 ## 주요 모듈 경로
 

@@ -8,7 +8,7 @@
 
 ## 접근성 (WCAG 2.1 AA)
 
-상위 원칙: `client/src/.../globals.css` — `accessibility`, `platform` 섹션
+접근성·플랫폼 상위 원칙은 `client/src/.../globals.css`의 `accessibility`, `platform` 섹션에 정의되어 있습니다.
 
 | 항목 | 기준 |
 | --- | --- |
@@ -23,7 +23,7 @@
 
 ## `buildAriaLabel`
 
-**단일 진입점**: `client/src/.../a11y.ts`
+`buildAriaLabel`의 단일 진입점은 `client/src/.../a11y.ts`입니다.
 
 ```typescript
 buildAriaLabel(type, name)
@@ -40,19 +40,19 @@ buildAriaLabel(type, name)
 
 ### 컴포넌트 규칙
 
-- `aria-label` 전용 prop을 **공개하지 않음**
-- 의미 있는 prop(`label`, `placeholder`, `name` 등)으로 `buildAriaLabel` 호출
-- 아이콘 전용 버튼: `buildAriaLabel('button', '뒤로 가기')` 등 고정 동작명
-- `aria-labelledby`, `aria-current`, `aria-hidden`은 필요 시 별도 사용
+- `aria-label` 전용 prop은 공개하지 않습니다.
+- 의미 있는 prop(`label`, `placeholder`, `name` 등)으로 `buildAriaLabel`을 호출합니다.
+- 아이콘 전용 버튼은 `buildAriaLabel('button', '뒤로 가기')`처럼 고정 동작명을 사용합니다.
+- `aria-labelledby`, `aria-current`, `aria-hidden`은 필요 시 별도로 사용합니다.
 
 ### 챗봇 영역
 
-- 대화 영역: `role="region"` 등 랜드마크
-- 스트리밍·새 메시지: `aria-live`, 필요 시 `aria-busy`
+- 대화 영역에는 `role="region"` 등 랜드마크를 적용합니다.
+- 스트리밍·새 메시지에는 `aria-live`를 사용하고, 필요 시 `aria-busy`를 함께 적용합니다.
 
 ## 성능 목표 (Web Vitals)
 
-렌더링·캐시 정책: [클라이언트 아키텍처 — 렌더링 전략](./architecture#렌더링-전략) · `client/src/.../cache.policy.ts`
+렌더링·캐시 정책은 [클라이언트 아키텍처 — 렌더링 전략](./architecture#렌더링-전략)과 `client/src/.../cache.policy.ts`를 참고하세요.
 
 | 지표 | 목표 |
 | --- | --- |
@@ -78,12 +78,12 @@ buildAriaLabel(type, name)
 | 코드 분할 | 라우트·무거운 컴포넌트 dynamic import |
 | 측정 | `web-vitals`, Vercel Analytics, Storybook Lighthouse |
 
-`client/src/.../web-vitals.ts` — Vitals 수집
+Web Vitals 수집은 `client/src/.../web-vitals.ts`에서 처리합니다.
 
 ## Storybook·검증
 
-- 스토리에서도 `buildAriaLabel` 사용 (리터럴 `aria-label` 지양)
-- Lighthouse / axe 접근성 검사 권장
+- 스토리에서도 `buildAriaLabel`을 사용하며, 리터럴 `aria-label`은 지양합니다.
+- Lighthouse·axe 접근성 검사를 권장합니다.
 
 ```bash
 pnpm run start:storybook

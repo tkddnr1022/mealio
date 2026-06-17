@@ -15,7 +15,7 @@
 | 관계 DB | **Neon** | `User` `Recipe` `Ingredient` |
 | 캐시 | **Upstash** | Redis |
 
-설계 원칙: **저비용·저트래픽**, EC2는 앱·Kafka·관측만, 데이터는 매니지드 서비스.
+설계 원칙은 **저비용·저트래픽**이며, EC2에는 앱·Kafka·관측만 두고 데이터는 매니지드 서비스를 사용합니다.
 
 ## 환경별 배치
 
@@ -53,7 +53,7 @@
 | `compose-consumer.yml` | consumer | ✓ | ✗ |
 | `compose-client.yml` | client | EC2 시 | 선택 |
 
-기동 순서: **인프라 Compose 먼저** → 앱 Compose.
+기동 순서는 **인프라 Compose를 먼저** 기동한 뒤 앱 Compose를 기동합니다.
 
 ## 환경 변수 파일
 
@@ -69,11 +69,11 @@
 
 ## 릴리스 흐름 (요약)
 
-1. CI 통과 (`pnpm run ci`)
-2. DB 마이그레이션 (`db:prisma:migrate:deploy`)
-3. EC2: producer → consumer 이미지 빌드·기동
-4. Vercel: client 배포 (또는 compose-client)
-5. 헬스·메트릭·validation 시나리오 확인
+1. CI가 통과해야 합니다 (`pnpm run ci`).
+2. DB 마이그레이션을 적용합니다 (`db:prisma:migrate:deploy`).
+3. EC2에서 producer와 consumer 이미지를 빌드·기동합니다.
+4. Vercel에 client를 배포합니다(또는 compose-client를 사용합니다).
+5. 헬스·메트릭·validation 시나리오를 확인합니다.
 
 ## 관련 문서
 

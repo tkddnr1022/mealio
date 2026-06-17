@@ -41,7 +41,7 @@ sequenceDiagram
 | `RECIPE` | `recipe:{id}`, list/search/static-ids 패턴 | 레시피 데이터 변경 |
 | `RECOMMENDATION` | `recommendation:{userId}` | 추천 원본 테이블 갱신 후 |
 
-구현: `redis-invalidation.handler.ts` — `@mealio/shared` `cachePatternRecipeInvalidation()` 등 사용
+삭제 로직은 `redis-invalidation.handler.ts`에 구현되어 있으며, `@mealio/shared`의 `cachePatternRecipeInvalidation()` 등을 사용합니다.
 
 ## 주요 발행 트리거
 
@@ -55,18 +55,15 @@ sequenceDiagram
 
 ## 일관성 보장
 
-Producer Cache-Aside와 동일 Redis를 사용하므로:
-
-1. 무효화 → Redis 키 삭제
-2. 다음 API 요청 → cache miss → DB 폴백 → 새 값 캐시
+Producer Cache-Aside와 동일 Redis를 사용하므로, 무효화가 발행되면 Redis 키가 삭제됩니다. 이후 API 요청은 cache miss로 DB에서 값을 읽어온 뒤 새 값을 캐시에 저장합니다.
 
 프론트 React Query·ISR은 별도 레이어이며, staleTime 만료 또는 사용자 재방문 시 갱신됩니다.
 
 ## RECIPE 패턴 삭제
 
-`recipe:list:*`, `recipe:search:*`, `recipe:list:static-ids:*` 패턴 + `recipe:categories` 단건 키.
+`RECIPE` 타입은 `recipe:list:*`, `recipe:search:*`, `recipe:list:static-ids:*` 패턴과 `recipe:categories` 단건 키를 삭제합니다.
 
-→ `cachePatternRecipeInvalidation()` in `cache-keys.ts`
+패턴 정의는 `cache-keys.ts`의 `cachePatternRecipeInvalidation()`을 참고하세요.
 
 ## 관련 문서
 

@@ -6,7 +6,7 @@
 - 인증이 필요한 API는 무엇인가요?
 - 쓰기 API의 Kafka 연동은 무엇인가요?
 
-API 계약: [Producer API](./api) · `server/producer/.../modules/`
+API 계약은 [Producer API](./api)와 `server/producer/.../modules/`를 참고하세요.
 
 ## 모듈 요약
 
@@ -23,20 +23,21 @@ API 계약: [Producer API](./api) · `server/producer/.../modules/`
 
 | Method | Path | 설명 |
 | --- | --- | --- |
-| GET | `/api/v1/auth/{provider}` | OAuth 진입 |
-| GET | `/api/v1/auth/{provider}/callback` | OAuth 콜백 |
-| POST | `/api/v1/auth/refresh` | 토큰 갱신 |
-| POST | `/api/v1/auth/logout` | 로그아웃 |
+| POST | `/api/v1/chatbot/messages` | 메시지 전송 |
+| GET | `/api/v1/chatbot/stream/{streamChannelId}` | SSE 구독 |
+| GET | `/api/v1/chatbot/conversations` | 대화 목록 |
+| GET | `/api/v1/chatbot/conversations/{id}` | 대화 상세 |
 
-→ [인증/인가](./auth)
+→ [인증/인가](./auth)를 참고하세요.
 
 ## users
 
 | Method | Path | 설명 |
 | --- | --- | --- |
-| GET | `/api/v1/users/me` | 내 프로필 |
-| PATCH | `/api/v1/users/me/nickname` | 닉네임 변경 |
-| GET | `/api/v1/users/me/activities` | 활동 내역 |
+| POST | `/api/v1/chatbot/messages` | 메시지 전송 |
+| GET | `/api/v1/chatbot/stream/{streamChannelId}` | SSE 구독 |
+| GET | `/api/v1/chatbot/conversations` | 대화 목록 |
+| GET | `/api/v1/chatbot/conversations/{id}` | 대화 상세 |
 
 ## recipes (조회·검색·이벤트)
 
@@ -52,26 +53,27 @@ API 계약: [Producer API](./api) · `server/producer/.../modules/`
 | POST | `/api/v1/recipes/search-queries` | 선택 | 검색어 이벤트 |
 | POST | `/api/v1/recipes/{recipeId}/search-clicks` | 선택 | 검색 클릭 |
 
-→ [추천 API](./recommendation-api)
+→ [추천 API](./recommendation-api)를 참고하세요.
 
 ## ingredients
 
 | Method | Path | 설명 |
 | --- | --- | --- |
-| GET | `/api/v1/ingredients/search` | 재료 검색 |
-| GET | `/api/v1/ingredients/categories` | 카테고리 |
+| POST | `/api/v1/chatbot/messages` | 메시지 전송 |
+| GET | `/api/v1/chatbot/stream/{streamChannelId}` | SSE 구독 |
+| GET | `/api/v1/chatbot/conversations` | 대화 목록 |
+| GET | `/api/v1/chatbot/conversations/{id}` | 대화 상세 |
 
 ## inventory
 
 | Method | Path | 설명 |
 | --- | --- | --- |
-| GET | `/api/v1/users/me/inventory` | 보관함 조회 |
-| GET | `/api/v1/users/me/favorite-recipes/ids` | 관심 레시피 ID |
-| PUT/POST/DELETE | `.../inventory/ingredients/owned` | 보유 재료 |
-| PUT/POST/DELETE | `.../inventory/ingredients/favorites` | 관심 재료 |
-| POST/DELETE | `.../inventory/recipes/favorites` | 관심 레시피 |
+| POST | `/api/v1/chatbot/messages` | 메시지 전송 |
+| GET | `/api/v1/chatbot/stream/{streamChannelId}` | SSE 구독 |
+| GET | `/api/v1/chatbot/conversations` | 대화 목록 |
+| GET | `/api/v1/chatbot/conversations/{id}` | 대화 상세 |
 
-쓰기 성공 → `user-events` → Consumer Inventory·추천·캐시 무효화.
+쓰기가 성공하면 `user-events`가 발행되고, Consumer가 Inventory 갱신, 추천 점수 반영, 캐시 무효화를 처리합니다.
 
 ## chatbot
 
@@ -82,14 +84,14 @@ API 계약: [Producer API](./api) · `server/producer/.../modules/`
 | GET | `/api/v1/chatbot/conversations` | 대화 목록 |
 | GET | `/api/v1/chatbot/conversations/{id}` | 대화 상세 |
 
-→ [챗봇/SSE](./chatbot-sse)
+→ [챗봇/SSE](./chatbot-sse)를 참고하세요.
 
 ## 공통 규칙
 
-- **읽기**: Cache-Aside (Redis) → DB 폴백
-- **쓰기**: HTTP 200 = Kafka 발행 성공 (DB 최종 반영은 Consumer)
-- **Rate Limit**: Redis 기반 — `rate-limit.middleware.ts`
-- **에러**: OpenAPI `ErrorResponse` 스키마
+- **읽기**: Cache-Aside(Redis)를 우선하고 miss 시 DB로 폴백합니다.
+- **쓰기**: HTTP 200은 Kafka 발행 성공을 의미하며, DB 최종 반영은 Consumer가 처리합니다.
+- **Rate Limit**: Redis 기반이며 `rate-limit.middleware.ts`에서 적용합니다.
+- **에러**: OpenAPI `ErrorResponse` 스키마를 따릅니다.
 
 ## 관련 문서
 

@@ -48,33 +48,33 @@ sequenceDiagram
     C->>U: next 경로로 replace (기본 /recipe)
 ```
 
-- 실패 시: Producer → `/oauth/error` 302
-- `next` 경로 안전 검증은 **백엔드** 책임 (`resolveSafeNextPath`)
+- 실패 시 Producer가 `/oauth/error`로 302 리다이렉트합니다.
+- `next` 경로 안전 검증은 **백엔드**가 담당합니다(`resolveSafeNextPath`).
 - 상세: [인증](../client/auth), [인증/인가](../producer/auth)
 
 ## 시나리오 2: 레시피 탐색 → 상세
 
-1. `/recipe` — 공개 섹션(ISR) + 로그인 시 개인화 추천 섹션(CSR)
-2. `/recipe/search` — 검색어 기반 SSR 결과
-3. `/recipe/[id]` — 온디맨드 ISR 상세, 조회 시 `recipe.view` 이벤트 발행
-4. 관심 추가 시 `recipe.favorites_add` → 추천 점수 갱신
+1. `/recipe`에서는 공개 섹션(ISR)과 로그인 시 개인화 추천 섹션(CSR)을 제공합니다.
+2. `/recipe/search`에서는 검색어 기반 SSR 결과를 표시합니다.
+3. `/recipe/[id]`는 온디맨드 ISR 상세이며, 조회 시 `recipe.view` 이벤트를 발행합니다.
+4. 관심 추가 시 `recipe.favorites_add`가 발행되어 추천 점수가 갱신됩니다.
 
 → [추천 시스템](./recommendation)
 
 ## 시나리오 3: 보관함 재료 관리
 
-1. `/inventory/ingredients/owned` — 보유 재료 CRUD
-2. `/ingredient/filter?type=owned` — 재료 추가 UI
-3. 변경 시 Producer API → Kafka `user-events` → Consumer가 Inventory·추천·캐시 무효화 처리
+1. `/inventory/ingredients/owned`에서 보유 재료 CRUD를 수행합니다.
+2. `/ingredient/filter?type=owned`에서 재료 추가 UI를 제공합니다.
+3. 변경 시 Producer API가 Kafka `user-events`를 발행하고, Consumer가 Inventory·추천·캐시 무효화를 처리합니다.
 
 Proxy는 `/chatbot`, `/inventory`, `/mypage/*`(루트 `/mypage` 제외)에서 `refreshToken` 쿠키 존재 여부를 검사합니다.
 
 ## 시나리오 4: 챗봇 대화
 
-1. `/chatbot/list` — 대화 목록
-2. `/chatbot/[id]` — 메시지 전송 → Producer SSE 구독
-3. Producer → Kafka `chatbot-requests` → Consumer GPT 처리 → Redis 스트림 → SSE 전달
-4. 턴 완료 시 크레딧 멱등 차감
+1. `/chatbot/list`에서 대화 목록을 표시합니다.
+2. `/chatbot/[id]`에서 메시지를 전송하고 Producer SSE를 구독합니다.
+3. Producer가 Kafka `chatbot-requests`를 발행하면 Consumer가 GPT를 처리하고, Redis 스트림을 거쳐 SSE로 전달합니다.
+4. 턴 완료 시 크레딧이 멱등하게 차감됩니다.
 
 → [챗봇 UI/스트리밍](../client/chatbot-ui), [챗봇/SSE](../producer/chatbot-sse), [챗봇 처리](../consumer/chatbot)
 

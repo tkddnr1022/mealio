@@ -6,7 +6,7 @@
 - 캐시·fallback·무효화는 어떻게 동작하나요?
 - Consumer 추천 파이프라인과의 관계는 무엇인가요?
 
-전체 흐름: [추천 시스템](../project/recommendation)
+전체 흐름은 [추천 시스템](../project/recommendation)을 참고하세요.
 
 ## 엔드포인트
 
@@ -17,10 +17,9 @@ Authorization: Cookie accessToken (JWT 필수)
 
 | 항목 | 값 |
 | --- | --- |
-| Guard | `JwtAuthGuard` |
-| Query `limit` | 기본 10, 최소 1, 최대 10 |
-| Controller | `recipes.controller.ts` |
-| Service | `RecipeQueryService.getRecommended()` |
+| 전략 | `recommendation-cache-strategy.ts` |
+| 키 | `recommendation:{userId}` |
+| TTL | 3600초 (`CACHE_TTL_RECOMMENDATION_SECONDS`) |
 
 ## 응답 (`RecommendedRecipeItemDto[]`)
 
@@ -32,7 +31,7 @@ Authorization: Cookie accessToken (JWT 필수)
 | `reason` | 추천 근거 문구 |
 | `calculatedAt` | 원본 갱신 시각 |
 
-OpenAPI: `RecipeRecommendationItem`
+OpenAPI 스키마는 `RecipeRecommendationItem`입니다.
 
 ## 조회 로직
 
@@ -57,18 +56,18 @@ Fallback 시 `reason`에 초기 추천 데이터 없음을 명시합니다.
 | 키 | `recommendation:{userId}` |
 | TTL | 3600초 (`CACHE_TTL_RECOMMENDATION_SECONDS`) |
 
-무효화: Consumer `RECOMMENDATION` → [캐시 무효화](../consumer/cache-invalidation)
+무효화는 Consumer `RECOMMENDATION` 타입으로 수행하며, [캐시 무효화](../consumer/cache-invalidation)를 참고하세요.
 
 ## 프론트엔드 연동
 
-- `/recipe` CSR 섹션: `useRecommendedRecipes()` — React Query `QUERY_CACHE.recommended`
-- 로그인 필수 — 비로그인 시 섹션 미표시 또는 로그인 유도
+- `/recipe` CSR 섹션은 `useRecommendedRecipes()`를 사용하며, React Query `QUERY_CACHE.recommended`를 적용합니다.
+- 로그인이 필수이며, 비로그인 시 섹션을 미표시하거나 로그인을 유도합니다.
 
 ## 원본 갱신 (Consumer)
 
-`user-events` → `RecommendationHandler`, `activity-events` → `ActivityRecommendationService` → PostgreSQL upsert + Top N(10) 재정렬 → `RECOMMENDATION` 캐시 무효화.
+`user-events`는 `RecommendationHandler`로, `activity-events`는 `ActivityRecommendationService`로 처리되어 PostgreSQL upsert와 Top N(10) 재정렬이 수행되고, `RECOMMENDATION` 캐시 무효화가 이어집니다.
 
-가중치 요약: [추천 시스템 — 주요 이벤트 가중치](../project/recommendation#주요-이벤트-가중치-요약) · 상세: [추천 파이프라인](../consumer/recommendation-pipeline#user-events-가중치)
+가중치 요약은 [추천 시스템 — 주요 이벤트 가중치](../project/recommendation#주요-이벤트-가중치-요약)를, 상세는 [추천 파이프라인](../consumer/recommendation-pipeline#user-events-가중치)을 참고하세요.
 
 ## 확장 시 유의
 

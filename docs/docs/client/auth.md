@@ -34,9 +34,9 @@ sequenceDiagram
     C->>U: next로 replace (기본 /recipe)
 ```
 
-- 진입 URL: `buildOAuthEntryUrl(provider, next)` — `client/src/.../providers.ts`
-- `next` 안전 검증은 **백엔드** (`resolveSafeNextPath`)
-- 실패: `/oauth/error` — `OAuthErrorClientPage.tsx`
+- 진입 URL은 `buildOAuthEntryUrl(provider, next)`로 생성하며, 구현은 `client/src/.../providers.ts`에 있습니다.
+- `next` 안전 검증은 **백엔드**의 `resolveSafeNextPath`가 담당합니다.
+- 실패 시 `/oauth/error`로 이동하며, 화면은 `OAuthErrorClientPage.tsx`가 렌더링합니다.
 
 ## 보호 라우트
 
@@ -48,7 +48,7 @@ sequenceDiagram
 /mypage/:path*    (루트 /mypage 제외)
 ```
 
-`refreshToken` 쿠키 없으면 `/login?next={원래경로}`로 리다이렉트.
+`refreshToken` 쿠키가 없으면 `/login?next={원래경로}`로 리다이렉트합니다.
 
 ### 클라이언트 가드
 
@@ -57,7 +57,7 @@ sequenceDiagram
 | `ProtectedRoute` | 페이지 단위 래퍼 |
 | `useProtectedAction` | 버튼·액션 단위 가드 |
 
-경로 상수 정의: `client/src/.../routes.ts` (`isProtectedPath`, `LOGIN_PATH` 등)
+경로 상수는 `client/src/.../routes.ts`에 정의되어 있으며, `isProtectedPath`, `LOGIN_PATH` 등을 포함합니다.
 
 ## 세션 조회
 
@@ -67,21 +67,21 @@ sequenceDiagram
 | CSR | `useCurrentUser()` | React Query + `userQueries.me` |
 | 공통 | `AuthProvider` | `refresh()`로 세션 재조회 |
 
-쿠키: HttpOnly `accessToken` / `refreshToken` — `credentials: 'include'`(CSR), `Cookie` 헤더 전달(SSR)
+쿠키는 HttpOnly `accessToken`·`refreshToken`이며, CSR에서는 `credentials: 'include'`로, SSR에서는 `Cookie` 헤더 전달로 전송합니다.
 
 ## 401 Refresh 처리
 
 ### CSR (`http-client`)
 
-API **401** 시 인스턴스 락으로 `POST /api/v1/auth/refresh` 1회 → 원 요청 재시도.
+API **401** 시 인스턴스 락으로 `POST /api/v1/auth/refresh`를 1회 호출한 뒤 원 요청을 재시도합니다.
 
 ### SSR (`serverFetchWrapper`)
 
-`ApiError` 401 → `buildSsrRefreshBridgeUrl(currentUrl)`로 redirect.
+`ApiError` 401 시 `buildSsrRefreshBridgeUrl(currentUrl)`로 리다이렉트합니다.
 
 ### Refresh Bridge (`/api/auth/refresh-bridge`)
 
-Route Handler가 들어온 `Cookie`로 Producer refresh 호출 → `Set-Cookie` 전달 → `next`로 복귀. 실패 시 로그인 URL(`sessionExpired=true`).
+Route Handler가 들어온 `Cookie`로 Producer refresh를 호출하고, `Set-Cookie`를 전달한 뒤 `next`로 복귀합니다. 실패 시 `sessionExpired=true`가 포함된 로그인 URL로 이동합니다.
 
 ## 주요 파일
 

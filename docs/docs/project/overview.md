@@ -50,7 +50,7 @@ flowchart TB
     CV --> D[PostgreSQL / MongoDB / Redis / OpenAI]
 ```
 
-상세: [시스템 아키텍처](project/architecture)
+자세한 내용은 [시스템 아키텍처](project/architecture) 문서를 참고하세요.
 
 ## 이벤트 드리븐 설계
 
@@ -67,9 +67,9 @@ Producer는 **명령(쓰기) API 성공 = Kafka 발행**까지 책임집니다. 
 
 ## 레시피 데이터
 
-- **원천**: 식약처 공공데이터 (조리식품 레시피 DB)
-- **수집**: Consumer standalone job (fetch → submit → retrieve → persist)
-- **가공**: OpenAI Batch API로 정규화·매핑
+- **원천**: 식약처 공공데이터(조리식품 레시피 DB)입니다.
+- **수집**: Consumer standalone job으로 fetch → submit → retrieve → persist 단계를 수행합니다.
+- **가공**: OpenAI Batch API로 정규화·매핑합니다.
 
 → [레시피 수집(ETL)](project/recipe-ingestion)
 

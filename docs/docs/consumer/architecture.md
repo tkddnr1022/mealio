@@ -8,9 +8,9 @@
 
 ## 역할
 
-Kafka 이벤트 **수신·비동기 처리**, OpenAI 연동, DB 저장·로그, **캐시 무효화 발행**, **배치 job** (KPI, recipe ingestion).
+Consumer 패키지는 Kafka 이벤트를 **수신·비동기 처리**하고, OpenAI와 연동하며, DB에 저장·로그를 남깁니다. 또한 **캐시 무효화를 발행**하고 KPI·레시피 수집(recipe ingestion) 같은 **배치 job**을 실행합니다.
 
-HTTP API는 제공하지 않습니다 (Producer가 담당).
+HTTP API는 제공하지 않으며, 이 역할은 Producer가 담당합니다.
 
 ## 구조
 
@@ -38,7 +38,7 @@ server/consumer/src/
 | **Consumer** | `pnpm run start:consumer` | chatbot-request, user-events |
 | **Standalone job** | cron → CLI | kpi-rollup, recipe-ingestion-fetch |
 
-Job 패턴: `NestFactory.createApplicationContext` + `run-*.ts` CLI.
+Standalone job은 `NestFactory.createApplicationContext`로 애플리케이션 컨텍스트를 만든 뒤 `run-*.ts` CLI로 실행하는 패턴을 따릅니다.
 
 ## Processor 패턴
 
@@ -50,7 +50,7 @@ flowchart LR
     D --> C[CacheInvalidationRequestService]
 ```
 
-Handler는 **Kafka를 직접 발행하지 않음** — 무효화는 RequestService 경유.
+Handler는 **Kafka를 직접 발행하지 않습니다**. 캐시 무효화는 `CacheInvalidationRequestService`를 경유해 발행합니다.
 
 ## 주요 Consumer 그룹
 
@@ -61,13 +61,13 @@ Handler는 **Kafka를 직접 발행하지 않음** — 무효화는 RequestServi
 | `activity-events` | activity-events-group | EventLog, 추천 보정 |
 | `cache-invalidation` | cache-invalidation-group | RedisInvalidationHandler |
 
-→ [Kafka 소비/신뢰성](./kafka-reliability)
+Kafka·DLQ·그룹 상세는 [Kafka 소비/신뢰성](./kafka-reliability) 문서를 참고하세요.
 
 ## 신뢰성
 
-- **at-least-once** 전제 — 멱등 키·upsert·`skipDuplicates`
-- 실패 시 재시도 → **DLQ** 토픽
-- lag: `consumer-lag.monitor.ts`
+- **at-least-once** 전달을 전제로 하며, 멱등 키·upsert·`skipDuplicates`로 중복 처리를 방지합니다.
+- 처리에 실패하면 재시도한 뒤에도 해결되지 않으면 **DLQ** 토픽으로 보냅니다.
+- consumer lag는 `consumer-lag.monitor.ts`로 모니터링합니다.
 
 ## DB 사용
 

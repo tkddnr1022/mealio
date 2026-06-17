@@ -19,11 +19,11 @@ flowchart TD
     S8 --> S9[다음 요청 시 DB 폴백]
 ```
 
-구현: `server/producer/.../cache/`
+구현은 `server/producer/.../cache/`에 있습니다.
 
 ## TTL 정의
 
-`server/producer/.../cache.policy.ts` (초 단위)
+TTL은 `server/producer/.../cache.policy.ts`에서 초 단위로 정의합니다.
 
 | 상수 | TTL | 도메인 |
 | --- | --- | --- |
@@ -45,7 +45,7 @@ flowchart TD
 | `recommendation-cache-strategy.ts` | `recommendation:{userId}` | [추천 API](./recommendation-api) |
 | recipe/ingredient 전략 | `recipe:*`, `ingredient:*` | list/search/categories |
 
-키 헬퍼 정의: `@mealio/shared` `cache-keys.ts` → [Redis 키/캐시 계약](../shared/redis-cache-contract)
+키 헬퍼는 `@mealio/shared` `cache-keys.ts`에 정의되어 있으며, [Redis 키/캐시 계약](../shared/redis-cache-contract)을 참고하세요.
 
 ## 무효화 (Consumer 연동)
 
@@ -58,19 +58,19 @@ Producer는 캐시를 **직접 삭제하지 않습니다**. Consumer가 `cache-i
 | `RECIPE` | `recipe:{id}`, `recipe:list:*`, `recipe:search:*` |
 | `RECOMMENDATION` | `recommendation:{userId}` |
 
-→ [캐시 무효화](../consumer/cache-invalidation)
+→ [캐시 무효화](../consumer/cache-invalidation)를 참고하세요.
 
 ## Rate Limiting (별도 네임스페이스)
 
-`rate_limit:api:{identifier}:{windowId}` — Redis 기반 API 요청 제한. 애플리케이션 데이터 캐시와 분리됩니다.
+`rate_limit:api:{identifier}:{windowId}` 키로 Redis 기반 API 요청 제한을 적용하며, 애플리케이션 데이터 캐시와 분리됩니다.
 
-구현: `modules/middleware/rate-limit.middleware.ts`
+구현은 `modules/middleware/rate-limit.middleware.ts`에 있습니다.
 
 ## 변경 시 체크리스트
 
-1. TTL 변경 → `cache.policy.ts` + 해당 `*-cache-strategy.ts`
-2. 새 캐시 키 → `server/shared/.../cache-keys.ts` + 무효화 패턴
-3. 무효화 트리거 추가 → Consumer `CacheInvalidationRequestService`
+1. TTL을 변경할 때는 `cache.policy.ts`와 해당 `*-cache-strategy.ts`를 함께 수정합니다.
+2. 새 캐시 키를 추가할 때는 `server/shared/.../cache-keys.ts`와 무효화 패턴을 함께 갱신합니다.
+3. 무효화 트리거를 추가할 때는 Consumer `CacheInvalidationRequestService`를 함께 수정합니다.
 
 ## 관련 문서
 

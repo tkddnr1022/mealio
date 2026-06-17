@@ -19,11 +19,11 @@ client/src/components/
 └── auth/        # 인증 화면
 ```
 
-라우팅 그룹과 매핑: [클라이언트 아키텍처 — 앱 디렉터리](./architecture#앱-디렉터리)
+라우팅 그룹과의 매핑은 [클라이언트 아키텍처 — 앱 디렉터리](./architecture#앱-디렉터리)를 참고하세요.
 
 ## 폴더 컨벤션
 
-컴포넌트 1개 = 폴더 1개 (PascalCase)
+컴포넌트 1개는 PascalCase 폴더 1개에 대응합니다.
 
 ```text
 Button/
@@ -50,14 +50,14 @@ flowchart LR
 
 ## 타입·유틸
 
-- Props 타입: 가능하면 `client/src/.../*` 도메인 타입 직접 사용
-- 도메인 포맷 로직: `components/<domain>/utils/` — 범용화 시 `lib/utils/`로 승격
+- Props 타입은 가능하면 `client/src/.../*` 도메인 타입을 직접 사용합니다.
+- 도메인 포맷 로직은 `components/<domain>/utils/`에 두며, 범용화 시 `lib/utils/`로 승격합니다.
 
 ## Storybook
 
-- 스토리는 컴포넌트 폴더 내부 `*.stories.tsx`
-- 기본 1개 + 의미 있는 변형(로딩, 에러, 빈 상태)만 유지
-- 페이지 전체 복제보다 재사용 단위 우선
+- 스토리는 컴포넌트 폴더 내부의 `*.stories.tsx`에 둡니다.
+- 기본 1개와 의미 있는 변형(로딩, 에러, 빈 상태)만 유지합니다.
+- 페이지 전체 복제보다 재사용 단위를 우선합니다.
 
 ```bash
 pnpm run start:storybook
@@ -72,7 +72,7 @@ pnpm run start:storybook
 | 레시피 카드·검색 UI? | `recipe/` |
 | 챗봇 버블? | `chatbot/` |
 
-아키텍처 문서에 경로가 정의되어 있으면 **문서 우선**. [기여 가이드](../other/contributing)를 참고하세요.
+아키텍처 문서에 경로가 정의되어 있으면 **문서를 우선**합니다. [기여 가이드](../other/contributing)를 참고하세요.
 
 ## 관련 문서
 

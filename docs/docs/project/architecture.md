@@ -42,8 +42,8 @@ flowchart LR
   Consumer --> OpenAI[OpenAI API]
 ```
 
-- **Frontend**: Vercel(권장) 또는 EC2 Docker — 둘 중 하나 선택
-- **Vercel 배포 시**: Client는 EC2 외부, API만 Nginx 경유
+- **Frontend**: Vercel(권장) 또는 EC2 Docker 중 하나를 선택해 배포합니다.
+- **Vercel 배포 시**: Client는 EC2 외부에 두고, API만 Nginx를 경유합니다.
 
 ## 요청 경로 (동기)
 
@@ -55,7 +55,7 @@ flowchart LR
     P -->|쓰기 시| K[Kafka publish]
 ```
 
-읽기는 **Cache-Aside** 우선. 쓰기는 HTTP 200 후 Consumer가 최종 반영.
+읽기는 **Cache-Aside**를 우선 적용하며, 쓰기는 HTTP 200 응답 후 Consumer가 최종 반영합니다.
 
 ## 이벤트 경로 (비동기)
 

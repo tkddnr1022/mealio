@@ -14,7 +14,7 @@
 | 2 | `client/src/.../globals.css` | `:root`, `@theme`, 컴포넌트 recipe |
 | 3 | [접근성·성능](../client/accessibility-performance) | UX·a11y·성능·톤 원칙 |
 
-Figma MCP 출력(React+Tailwind)은 **참고용** — 프로젝트 스택에 맞게 변환합니다.
+Figma MCP 출력(React+Tailwind)은 **참고용**이며, 프로젝트 스택과 컨벤션에 맞게 변환해야 합니다.
 
 ## Design-to-Code 워크플로우
 
@@ -38,22 +38,22 @@ flowchart LR
 
 ## 구현 총칙 (요약)
 
-1. **토큰 우선** — hex·px를 JSX에 하드코딩하지 않음
-2. **시맨틱 HTML + 전역 타이포** — Figma 텍스트 스타일 → 태그·유틸 클래스
-3. **variant 1:1** — Figma 컴포넌트 프로퍼티 ↔ 코드 `variant` prop
-4. **아이콘** — `lucide-react`, 개별 import
-5. **날짜/시간** — `client/src/.../date.ts` 포맷 함수 사용
+1. **토큰 우선** — hex·px 값을 JSX에 하드코딩하지 않고 디자인 토큰을 사용합니다.
+2. **시맨틱 HTML + 전역 타이포** — Figma 텍스트 스타일은 시맨틱 태그와 전역 타이포 유틸 클래스로 매핑합니다.
+3. **variant 1:1** — Figma 컴포넌트 프로퍼티와 코드의 `variant` prop을 1:1로 대응시킵니다.
+4. **아이콘** — `lucide-react`에서 필요한 아이콘만 개별 import합니다.
+5. **날짜/시간** — `client/src/.../date.ts`의 포맷 함수로 표시 형식을 통일합니다.
 
 ## 컴포넌트 배치
 
-- UI 프리미티브: `client/src/.../ui/`
-- 도메인 UI: `client/src/.../{recipe|chatbot|...}/`
+- UI 프리미티브는 `client/src/.../ui/`에 둡니다.
+- 도메인 UI는 `client/src/.../{recipe|chatbot|...}/`처럼 도메인별 폴더에 둡니다.
 
 → [컴포넌트 구조/규칙](../client/components)
 
 ## Storybook
 
-컴포넌트별 `*.stories.tsx` — 기본 + 의미 있는 변형(로딩, 에러, 빈 상태).
+컴포넌트마다 `*.stories.tsx`를 두고, 기본 상태와 로딩·에러·빈 상태 등 의미 있는 변형을 함께 문서화합니다.
 
 ```bash
 pnpm run start:storybook
@@ -66,6 +66,6 @@ pnpm run build:storybook
 
 ## 관련 문서
 
-- [접근성/성능 기준](../client/accessibility-performance)
-- [컴포넌트 구조](../client/components)
-- Figma: [Mealio 디자인 파일](https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Mealio)
+- [접근성/성능 기준](../client/accessibility-performance) 문서에서 구현 기준을 확인합니다.
+- [컴포넌트 구조](../client/components) 문서에서 배치 규칙을 확인합니다.
+- Figma 디자인 원본은 [Mealio 디자인 파일](https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Mealio)에서 확인합니다.

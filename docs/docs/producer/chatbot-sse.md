@@ -32,7 +32,7 @@ sequenceDiagram
 | POST | `/api/v1/chatbot/messages` | 메시지 전송, `streamChannelId` 반환 |
 | GET | `/api/v1/chatbot/stream/{streamChannelId}` | SSE 스트림 구독 |
 
-인증: JWT 필수 (`JwtAuthGuard`)
+인증은 JWT가 필수이며 `JwtAuthGuard`를 적용합니다.
 
 ## Redis·이벤트 계약
 
@@ -51,11 +51,11 @@ sequenceDiagram
 | `done` | `conversationId`, `isCreditDepleted`, 선택 `suggestedRecipes` |
 | `error` | 오류 메시지 |
 
-`done` 계약 상세: [챗봇 처리 — 크레딧 멱등 차감](../consumer/chatbot#크레딧-멱등-차감)
+`done` 이벤트 계약 상세는 [챗봇 처리 — 크레딧 멱등 차감](../consumer/chatbot#크레딧-멱등-차감)을 참고하세요.
 
 ## Kafka 페이로드
 
-토픽: `chatbot-requests` (`KAFKA_TOPICS.CHATBOT_REQUESTS`)
+토픽은 `chatbot-requests`(`KAFKA_TOPICS.CHATBOT_REQUESTS`)입니다.
 
 ```json
 {
@@ -77,9 +77,9 @@ sequenceDiagram
 
 ## 설계 원칙
 
-- Producer는 GPT를 호출하지 않음 — 비동기 처리는 Consumer 전담
-- SSE는 Redis 이벤트를 **그대로** 클라이언트에 전달 (변환 최소화)
-- `streamChannelId`당 크레딧 멱등 차감 — Consumer `ChatbotCreditService`
+- Producer는 GPT를 호출하지 않으며, 비동기 처리는 Consumer가 전담합니다.
+- SSE는 Redis 이벤트를 **그대로** 클라이언트에 전달하며 변환을 최소화합니다.
+- `streamChannelId`당 크레딧 멱등 차감은 Consumer `ChatbotCreditService`가 처리합니다.
 
 ## 관련 문서
 

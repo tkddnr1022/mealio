@@ -36,9 +36,9 @@ flowchart LR
   Consumer --> Kafka
 ```
 
-- `client`는 `producer`를 **HTTP로만** 호출 (shared 직접 의존 없음)
-- `producer`·`consumer`는 `@mealio/shared` import
-- `producer` ↔ `consumer` **직접 import 금지** — Kafka 계약으로만 통신
+- `client`는 `producer`를 **HTTP로만** 호출하며, shared에는 직접 의존하지 않습니다.
+- `producer`와 `consumer`는 `@mealio/shared`를 import합니다.
+- `producer`와 `consumer`는 **직접 import하지 않으며**, Kafka 계약으로만 통신합니다.
 
 ## 워크스페이스
 
@@ -78,9 +78,9 @@ packages:
 
 ## CI
 
-`pnpm run ci` — client·producer·consumer lint/test, shared·앱 빌드.
+`pnpm run ci`는 client·producer·consumer의 lint·test와 shared·앱 빌드를 실행합니다.
 
-GitHub Actions 워크플로: `.github/workflows/`
+GitHub Actions 워크플로는 `.github/workflows/`에 정의되어 있습니다.
 
 ## 관련 문서
 

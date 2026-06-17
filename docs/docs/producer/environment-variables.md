@@ -8,13 +8,13 @@
 
 ## 개요
 
-NestJS REST API. env 파일: `server/producer/.env.local` (호스트) · `server/producer/.env.docker.local` (Docker).
+Producer는 NestJS REST API이며, env 파일은 호스트용 `server/producer/.env.local`, Docker용 `server/producer/.env.docker.local`을 사용합니다.
 
 ```bash
 cp server/producer/.env.example server/producer/.env.local
 ```
 
-기본 포트 **3000**. 부팅 시 Joi로 **전 변수 필수** 검증 — `server/producer/.../env.validation.ts`, 실패 시 프로세스 종료.
+기본 포트는 **3000**입니다. 부팅 시 Joi로 **전 변수를 필수 검증**하며(`server/producer/.../env.validation.ts`), 실패 시 프로세스가 종료됩니다.
 
 ## 공통
 
@@ -22,9 +22,9 @@ cp server/producer/.env.example server/producer/.env.local
 
 | 항목 | 내용 |
 | --- | --- |
-| `APP_ENV` | `local` · `development` · `production` · `test` — 런타임 주입(`package.json`/Compose), Sentry environment, 샘플링 |
-| `PORT` | HTTP listen 포트. 예: `3000`. `server/producer/.../main.ts`에서 `parseInt` 후 listen |
-| Docker | `compose-producer.yml`이 `127.0.0.1:${PORT}` 바인딩 |
+| 설명 | Sentry 활성화·Producer DSN |
+| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
+| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
 
 ## 인증
 
@@ -32,29 +32,25 @@ cp server/producer/.env.example server/producer/.env.local
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | Access JWT 서명 시크릿 |
-| 예시 | 256비트 이상 랜덤 문자열 |
-| 사용처 | `server/producer/.../auth.module.ts` — `JwtModule.registerAsync` |
-| 패턴 | 프로덕션에서는 반드시 강한 시크릿으로 교체 |
+| 설명 | Sentry 활성화·Producer DSN |
+| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
+| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
 
 ### `OAUTH_CALLBACK_BASE_URL`
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | OAuth Provider에 등록하는 콜백 **base** (Producer 공개 URL) |
-| 예시 (로컬) | `http://localhost:3000` |
-| 예시 (Docker) | `http://127.0.0.1:3000` |
-| 사용처 | `GoogleStrategy`, `KakaoStrategy`, `NaverStrategy` — `{base}/api/v1/auth/{provider}/callback` |
-| 패턴 | trailing slash 제거 후 조합. Provider 콘솔 Redirect URI와 **정확히 일치**해야 함 |
+| 설명 | Sentry 활성화·Producer DSN |
+| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
+| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
 
 ### `FRONTEND_APP_BASE_URL`
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | 로그인 성공·실패 후 리다이렉트 대상 (Client URL) |
-| 예시 | `http://localhost:4000` |
-| 사용처 | `server/producer/.../main.ts` CORS `origin`, `AuthService` 리다이렉트 URL |
-| 패턴 | URI 검증(Joi `.uri()`). Client origin과 일치 |
+| 설명 | Sentry 활성화·Producer DSN |
+| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
+| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
 
 ### `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`
 
@@ -64,12 +60,11 @@ cp server/producer/.env.example server/producer/.env.local
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | 각 OAuth Provider 앱 자격 증명 |
-| 예시 | Google: `xxx.apps.googleusercontent.com` / `example-secret` |
-| 사용처 | 각 Passport Strategy `clientID` / `clientSecret` |
-| 패턴 | 개발용 placeholder라도 **비어 있으면 부팅 실패**. 미사용 Provider도 현재 스키마상 필수 |
+| 설명 | Sentry 활성화·Producer DSN |
+| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
+| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
 
-→ [producer 인증](./auth) · [client 환경 변수](../client/environment-variables)
+→ [producer 인증](./auth) · [client 환경 변수](../client/environment-variables)를 참고하세요.
 
 ## 데이터·메시징
 
@@ -77,35 +72,33 @@ cp server/producer/.env.example server/producer/.env.local
 
 | 항목 | 내용 |
 | --- | --- |
-| 예시 (호스트) | `postgresql://devuser:devpassword@localhost:5432/devdb` |
-| 예시 (Docker) | `postgresql://devuser:devpassword@postgres:5432/devdb` |
-| 사용처 | `@mealio/shared` `PrismaService` |
-| 패턴 | [인프라 env](../project/infrastructure-environment-variables) `POSTGRES_*`와 자격 증명 일치 |
+| 설명 | Sentry 활성화·Producer DSN |
+| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
+| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
 
 ### `MONGODB_URL`
 
 | 항목 | 내용 |
 | --- | --- |
-| 예시 (호스트) | `mongodb://devuser:devpassword@localhost:27017/devdb?authSource=admin` |
-| 예시 (Docker) | `mongodb://devuser:devpassword@mongodb:27017/devdb?authSource=admin` |
-| 사용처 | `@mealio/shared` `MongooseModule` |
+| 설명 | Sentry 활성화·Producer DSN |
+| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
+| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
 
 ### `REDIS_URL`
 
 | 항목 | 내용 |
 | --- | --- |
-| 예시 (호스트) | `redis://localhost:6379` |
-| 예시 (Docker) | `redis://redis:6379` |
-| 사용처 | `@mealio/shared` `createRedisConfig()` — OAuth state, refresh 세션 캐시 등 |
+| 설명 | Sentry 활성화·Producer DSN |
+| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
+| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
 
 ### `KAFKA_BROKERS` / `KAFKA_CLIENT_ID`
 
 | 항목 | 내용 |
 | --- | --- |
-| `KAFKA_BROKERS` | 쉼표 구분 브로커 목록. 예: `localhost:9092` 또는 `kafka:19092` |
-| `KAFKA_CLIENT_ID` | 예: `mealio-producer`. admin·producer suffix 붙음 (`mealio-producer-admin`) |
-| 사용처 | `@mealio/shared` `createKafkaConfig()`, `KafkaProducerService` |
-| 패턴 | 호스트 개발 시 [인프라 env](../project/infrastructure-environment-variables) `KAFKA_EXTERNAL_*`와 일치 |
+| 설명 | Sentry 활성화·Producer DSN |
+| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
+| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
 
 ## 관측성
 
@@ -113,10 +106,9 @@ cp server/producer/.env.example server/producer/.env.local
 
 | 항목 | 내용 |
 | --- | --- |
-| 허용 값 | `true` / `false` / `1` / `0` |
-| 예시 | `true` |
-| 사용처 | `@mealio/shared` `createObservabilityConfig('producer')` |
-| 패턴 | `true`이면 HTTP `PORT`에서 `/metrics` 노출 (별도 `METRICS_PORT` 없음) |
+| 설명 | Sentry 활성화·Producer DSN |
+| 패턴 | `SENTRY_ENABLED=true` **이고** DSN이 있을 때만 `initSentry` 활성화 |
+| 사용처 | `server/producer/.../main.ts`, `@mealio/shared` `sentry.config.ts` |
 
 ### `SENTRY_ENABLED` / `SENTRY_DSN_PRODUCER`
 

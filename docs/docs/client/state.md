@@ -14,7 +14,7 @@
 | 인증·세션 | **AuthProvider** | 로그인 여부, `SessionUser` |
 | UI 일시 | 컴포넌트 `useState` | 디바운스, 토글 피드백 등 최소 |
 
-원칙: **쿼리 캐시가 화면 데이터의 기준**. API 응답을 `useState`로 복사하지 않습니다.
+**쿼리 캐시가 화면 데이터의 기준**이며, API 응답을 `useState`로 복사하지 않습니다.
 
 ## Provider 트리
 
@@ -23,11 +23,11 @@ flowchart TB
     Q[AppQueryClientProvider] --> T[ToastProvider] --> A[AuthProvider] --> F[AppRootFrame]
 ```
 
-`client/src/.../layout.tsx`에서 합성. Query 오류 Toast는 ToastProvider 이후에 등록됩니다.
+`client/src/.../layout.tsx`에서 Provider를 합성하며, Query 오류 Toast는 ToastProvider 이후에 등록됩니다.
 
 ## React Query 구조
 
-`client/src/.../queries/`
+React Query 모듈은 `client/src/.../queries/`에 위치합니다.
 
 | 파일 | 역할 |
 | --- | --- |
@@ -50,28 +50,28 @@ recipeQueries.all → lists() → list(filters)
 
 ## 캐시 정책
 
-기준: `client/src/.../cache.policy.ts`
+캐시 정책 기준은 `client/src/.../cache.policy.ts`입니다.
 
-- `QUERY_DEFAULTS` — staleTime 5분, gcTime 30분
-- `QUERY_CACHE.*` — 도메인별 override (recommended 20분, inventory 30초 등)
+- `QUERY_DEFAULTS`는 staleTime 5분, gcTime 30분을 사용합니다.
+- `QUERY_CACHE.*`는 도메인별로 override하며, recommended는 20분, inventory는 30초 등으로 설정합니다.
 
 ## Optimistic Update (Command API)
 
 Producer-Consumer 구조에서 HTTP 200은 **Kafka 발행 성공**이지 DB 반영 완료가 아닙니다.
 
-1. 뮤테이션 성공 시 `setQueryData`로 캐시 직접 갱신
-2. 에러 시 롤백
-3. 성공 후 **refetch 하지 않음** (stale 데이터 재유입 방지)
+1. 뮤테이션 성공 시 `setQueryData`로 캐시를 직접 갱신합니다.
+2. 에러 시 롤백합니다.
+3. 성공 후에는 **refetch하지 않습니다**(stale 데이터 재유입 방지).
 
-예외: 토글 버튼 등 즉각 피드백용 **한정된 localState** 허용 — 뮤테이션 훅이 캐시를 갱신하고 에러 시 prop과 동기화.
+예외적으로 토글 버튼 등 즉각 피드백용 **한정된 localState**를 허용하며, 뮤테이션 훅이 캐시를 갱신하고 에러 시 prop과 동기화합니다.
 
-→ [클라이언트 아키텍처 — API 레이어](./architecture#api-레이어)
+자세한 내용은 [클라이언트 아키텍처 — API 레이어](./architecture#api-레이어) 문서를 참고하세요.
 
 ## Auth와의 연동
 
-- `AuthProvider.refresh()` — OAuth 콜백 후 세션 마킹
-- `useCurrentUser` — `userQueries.me`, 실패 시 `errorToastTitle` 기본값
-- 로그아웃 → `userQueries.me` invalidate
+- `AuthProvider.refresh()`는 OAuth 콜백 후 세션을 마킹합니다.
+- `useCurrentUser`는 `userQueries.me`를 사용하며, 실패 시 `errorToastTitle` 기본값을 적용합니다.
+- 로그아웃 시 `userQueries.me`를 invalidate합니다.
 
 ## 관련 문서
 

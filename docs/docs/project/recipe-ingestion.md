@@ -40,8 +40,8 @@ flowchart LR
 
 ## 운영 특성
 
-- `fetch` / `submit` / `retrieve`는 **독립 job** — cron으로 조율
-- `fetchLimit >= submitBatchSize` 권장
+- `fetch`, `submit`, `retrieve`는 **독립 job**이며 cron으로 조율합니다.
+- `fetchLimit`은 `submitBatchSize` 이상을 권장합니다.
 
 ## 관련 문서
 

@@ -26,11 +26,11 @@ sequenceDiagram
     C->>U: UI 갱신
 ```
 
-상세 시퀀스: [챗봇/SSE](../producer/chatbot-sse), [챗봇 처리](../consumer/chatbot)
+상세 시퀀스는 [챗봇/SSE](../producer/chatbot-sse)와 [챗봇 처리](../consumer/chatbot) 문서를 참고하세요.
 
 ## SSE 이벤트 타입
 
-`ChatbotStreamEvent` (`@mealio/shared`):
+`ChatbotStreamEvent` 타입은 `@mealio/shared`에 정의되어 있습니다.
 
 | type | UI 동작 |
 | --- | --- |
@@ -49,11 +49,11 @@ sequenceDiagram
 | `/chatbot/[id]` | `ChatbotConversationClientPage.tsx` | 메시지 전송·SSE 구독 |
 | 컴포넌트 | `client/src/.../chatbot/` | 버블·입력·슬라이더 등 |
 
-컴포넌트 배치: [컴포넌트 구조](./components) · `client/src/components/` (chatbot)
+컴포넌트는 [컴포넌트 구조](./components)와 `client/src/components/`(chatbot) 기준으로 배치합니다.
 
 ## React Query 연동
 
-`client/src/.../chatbot.queries.ts`
+React Query 훅은 `client/src/.../chatbot.queries.ts`에 정의되어 있습니다.
 
 | 훅 | 용도 |
 | --- | --- |
@@ -61,7 +61,7 @@ sequenceDiagram
 | `useConversationDetail` | 단일 대화 메시지 |
 | `invalidateChatbotAfterStreamDone` | `done` 수신 후 목록·상세 캐시 갱신 |
 
-캐시 정책: `QUERY_CACHE.chatbot` — staleTime 30초
+챗봇 캐시 정책은 `QUERY_CACHE.chatbot`이며 staleTime은 30초입니다.
 
 ## 크레딧 소진 UX
 
@@ -69,15 +69,15 @@ sequenceDiagram
 
 ## GA4 계측
 
-`chatbot_message_sent` — `ChatbotConversationClientPage.tsx`에서 전송.
+`chatbot_message_sent` 이벤트는 `ChatbotConversationClientPage.tsx`에서 전송합니다.
 
-→ [이벤트/분석 파이프라인](../consumer/analytics-pipeline)
+자세한 내용은 [이벤트/분석 파이프라인](../consumer/analytics-pipeline) 문서를 참고하세요.
 
 ## 보호 라우트
 
-`/chatbot/*`는 Proxy에서 `refreshToken` 쿠키 검사. 미로그인 시 `/login?next=` 리다이렉트.
+`/chatbot/*` 경로는 Proxy에서 `refreshToken` 쿠키를 검사하며, 미로그인 시 `/login?next=`로 리다이렉트합니다.
 
-→ [인증](./auth)
+자세한 내용은 [인증](./auth) 문서를 참고하세요.
 
 ## 관련 문서
 

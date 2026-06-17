@@ -7,7 +7,7 @@
 
 ## Kafka 토픽
 
-`server/shared/.../kafka-topics.ts`
+Kafka 토픽 상수는 `server/shared/.../kafka-topics.ts`에 정의되어 있습니다.
 
 | 상수 | 토픽명 |
 | --- | --- |
@@ -17,7 +17,7 @@
 | `CACHE_INVALIDATION` | `cache-invalidation` |
 | `RECIPE_INGESTION_RETRIEVED` | `recipe-ingestion-retrieved` |
 
-DLQ: `KAFKA_DLQ_TOPICS.*` — 메인 토픽별 `-dlq` suffix.
+DLQ는 `KAFKA_DLQ_TOPICS.*` 상수로 정의되며, 메인 토픽마다 `-dlq` 접미사를 붙입니다.
 
 ## 이벤트 타입 (`types/events/`)
 
@@ -30,43 +30,42 @@ DLQ: `KAFKA_DLQ_TOPICS.*` — 메인 토픽별 `-dlq` suffix.
 | `chatbot-stream-event.event.ts` | SSE chunk/done/error |
 | `cache-invalidation.event.ts` | USER_PROFILE, INVENTORY, RECIPE, RECOMMENDATION |
 
-이벤트 이름·KPI 매핑: [Observability](../other/observability)
+이벤트 이름과 KPI 매핑은 [Observability](../other/observability) 문서를 참고하세요.
 
 ## Redis 채널
 
-`server/shared/.../redis-channels.ts`
+Redis Pub/Sub 채널 헬퍼는 `server/shared/.../redis-channels.ts`에 정의되어 있습니다.
 
-- `getChatbotStreamChannel(streamChannelId)` → `chatbot:stream:{id}`
+- `getChatbotStreamChannel(streamChannelId)`는 `chatbot:stream:{id}` 형식의 채널 이름을 반환합니다.
 
 ## 캐시 키
 
-→ [Redis 키/캐시 계약](./redis-cache-contract)
+캐시 키 규칙은 [Redis 키/캐시 계약](./redis-cache-contract) 문서를 참고하세요.
 
 ## 챗봇 크레딧
 
-`server/shared/.../user-credits.policy.ts`
+챗봇 크레딧 정책은 `server/shared/.../user-credits.policy.ts`에 정의되어 있으며, `DEFAULT_USER_CREDIT_BALANCE`와 `computeChatbotCreditCost()`를 제공합니다.
 
-- `DEFAULT_USER_CREDIT_BALANCE`, `computeChatbotCreditCost()`
-- Producer User 생성·Consumer 차감에서 동일 정책 사용
+- Producer의 User 생성과 Consumer의 크레딧 차감에서 동일한 정책을 사용합니다.
 
 ## Recipe Ingestion
 
-`server/shared/.../recipe-ingestion.ts` — status enum, source 상수
+`server/shared/.../recipe-ingestion.ts`에는 status enum과 source 상수가 정의되어 있습니다.
 
-`recipe-ingestion.policy.ts` — retry, batch size, TTL
+`recipe-ingestion.policy.ts`에는 retry·batch size·TTL 정책이 정의되어 있습니다.
 
 ## Observability
 
-- `observability.config.ts` — METRICS_ENABLED
-- `observability.policy.ts` — `SLOW_QUERY_THRESHOLD_MS` (슬로우 쿼리 임계값)
-- `sentry.constants.ts` — 태그·민감 키 패턴
+- `observability.config.ts`에서 `METRICS_ENABLED` 등 관측 설정을 검증합니다.
+- `observability.policy.ts`에서 `SLOW_QUERY_THRESHOLD_MS`(슬로우 쿼리 임계값)를 정의합니다.
+- `sentry.constants.ts`에서 Sentry 태그와 민감 키 패턴을 정의합니다.
 
 ## 변경 절차
 
-1. shared 타입·상수 수정
-2. Producer 발행 / Consumer 소비 코드 동기화
-3. [Observability](../other/observability)·API 계약·패키지 문서 갱신
-4. 로컬 Kafka 토픽 재생성 (dev) 또는 마이그레이션 계획 (prod)
+1. shared 패키지의 타입·상수를 수정합니다.
+2. Producer 발행 코드와 Consumer 소비 코드를 동기화합니다.
+3. [Observability](../other/observability)·API 계약·패키지 문서를 갱신합니다.
+4. 로컬에서는 Kafka 토픽을 재생성하고, 운영 환경에서는 마이그레이션 계획을 수립합니다.
 
 ## 관련 문서
 

@@ -19,7 +19,7 @@ flowchart TB
 
 ## Next.js Data Cache (ISR)
 
-기준: `client/src/.../cache.policy.ts`
+Next.js Data Cache(ISR) 기준은 `client/src/.../cache.policy.ts`에 정의되어 있습니다.
 
 | 상수 | 값 | 용도 |
 | --- | --- | --- |
@@ -44,7 +44,7 @@ flowchart TB
 | 로컬 빌드 | fetch 실패 시 throw — 조기 발견 |
 | 런타임 재검증 실패 | throw — **stale HTML 유지** (빈 화면 덮어쓰기 금지) |
 
-헬퍼: `fetchForIsr()` — `client/src/.../isr-fetch.server.ts`
+ISR fetch 헬퍼는 `fetchForIsr()`이며, `client/src/.../isr-fetch.server.ts`에 구현되어 있습니다.
 
 ### 온디맨드 revalidate
 
@@ -55,11 +55,11 @@ Content-Type: application/json
 { "secret": "<REVALIDATE_SECRET>", "path": "/recipe/123" }
 ```
 
-`revalidatePath(path)` 호출. `path`는 `/` 시작 상대 경로만 허용.
+`revalidatePath(path)`를 호출하며, `path`는 `/`로 시작하는 상대 경로만 허용합니다.
 
 ## React Query 캐시
 
-기준: `client/src/.../cache.policy.ts` — `QUERY_DEFAULTS`, `QUERY_CACHE`
+React Query 캐시 기준은 `client/src/.../cache.policy.ts`의 `QUERY_DEFAULTS`, `QUERY_CACHE`입니다.
 
 | 도메인 | staleTime | gcTime |
 | --- | --- | --- |
@@ -76,7 +76,7 @@ Content-Type: application/json
 
 Command API(POST/PUT/DELETE) 성공은 Kafka 발행까지만 보장합니다. 뮤테이션 후 **refetch 대신 `setQueryData`로 캐시 직접 갱신**합니다.
 
-→ [상태 관리 — Optimistic Update](./state#optimistic-update-command-api)
+자세한 내용은 [상태 관리 — Optimistic Update](./state#optimistic-update-command-api) 문서를 참고하세요.
 
 ## Producer Redis와의 관계
 
@@ -88,7 +88,7 @@ CSR/ISR 페이지가 호출하는 API는 Producer Redis 캐시를 거칩니다.
 | 레시피 상세 | 900초 | ISR on-demand + RQ 10분 |
 | 재료 목록 | 86400초 | RQ 60분 |
 
-Consumer 캐시 무효화 후 다음 API 호출 시 DB 폴백 → 프론트는 별도 무효화 없이 staleTime 만료 또는 수동 invalidate로 갱신.
+Consumer 캐시 무효화 후 다음 API 호출 시 DB로 폴백하며, 프론트는 별도 무효화 없이 staleTime 만료 또는 수동 invalidate로 갱신합니다.
 
 ## 관련 문서
 

@@ -12,11 +12,11 @@
 | **PostgreSQL** | Prisma | User, Recipe, Ingredient, UserRecipeRecommendation, ChatbotCreditDeduction |
 | **MongoDB** | Mongoose | Inventory, ChatbotLog, EventLog, ChatbotConversation, recipe_ingestion_* |
 
-의미·필드 설명: [도메인](../project/domain)
+엔티티 의미와 필드 설명은 [도메인](../project/domain) 문서를 참고하세요.
 
 ## PostgreSQL (Prisma)
 
-**코드 기준**: `server/shared/.../schema.prisma`
+Prisma 스키마의 코드 기준은 `server/shared/.../schema.prisma`입니다.
 
 | 모델 | 핵심 필드·관계 |
 | --- | --- |
@@ -28,7 +28,7 @@
 | UserRecipeRecommendation | userId, recipeId, rank, score, reason |
 | ChatbotCreditDeduction | streamChannelId PK, credits |
 
-마이그레이션: `server/shared/.../migrations/`
+마이그레이션 파일은 `server/shared/.../migrations/`에 있습니다.
 
 ```bash
 pnpm run db:prisma:migrate:dev
@@ -37,7 +37,7 @@ pnpm run db:prisma:migrate:deploy  # prod
 
 ## MongoDB (Mongoose)
 
-**코드 기준**: `server/shared/.../schemas/`
+Mongoose 스키마의 코드 기준은 `server/shared/.../schemas/`입니다.
 
 | 컬렉션 | 스키마 파일 | TTL |
 | --- | --- | --- |
@@ -49,7 +49,7 @@ pnpm run db:prisma:migrate:deploy  # prod
 
 ## 필드 의미·동기화
 
-[도메인](../project/domain)와 `server/shared/.../schema.prisma`를 함께 참고합니다. Prisma/Mongoose 스키마와 **일치 유지**가 필요합니다.
+[도메인](../project/domain) 문서와 `server/shared/.../schema.prisma`를 함께 참고하세요. Prisma와 Mongoose 스키마는 코드 기준과 **일치하도록 유지**해야 합니다.
 
 ## 시드
 
@@ -60,11 +60,11 @@ pnpm run db:mongoose:seed
 
 ## 변경 체크리스트
 
-1. `schema.prisma` 또는 Mongoose schema 수정
-2. 마이그레이션 생성·적용
-3. [도메인](../project/domain) 및 본 문서 갱신
-4. OpenAPI DTO·문서 동기화
-5. Docusaurus 본 문서·도메인 갱신
+1. `schema.prisma` 또는 Mongoose 스키마를 수정합니다.
+2. 마이그레이션을 생성하고 적용합니다.
+3. [도메인](../project/domain) 문서와 본 문서를 갱신합니다.
+4. OpenAPI DTO와 관련 문서를 동기화합니다.
+5. Docusaurus의 본 문서와 도메인 문서를 갱신합니다.
 
 ## 관련 문서
 

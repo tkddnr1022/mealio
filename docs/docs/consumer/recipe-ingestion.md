@@ -6,7 +6,7 @@
 - job 상태 전이와 멱등 키는 무엇인가요?
 - 운영·검증은 어떻게 하나요?
 
-개요: [레시피 수집(ETL)](../project/recipe-ingestion)
+전체 ETL 개요는 [레시피 수집(ETL)](../project/recipe-ingestion)을 참고하세요.
 
 ## 파이프라인
 
@@ -22,18 +22,18 @@ flowchart LR
 | **retrieve** | standalone job | `retrieved_data` + Kafka |
 | **persist** | Kafka consumer | PostgreSQL Recipe |
 
-기준: MongoDB `recipe_ingestion_jobs` · API 커서 `recipe_ingestion_state`
+진행 상태의 기준 저장소는 MongoDB `recipe_ingestion_jobs`이며, API 커서는 `recipe_ingestion_state`를 사용합니다.
 
 ## 데이터 원천
 
-식약처 Open API — 조리식품 레시피 DB
+데이터 원천은 식약처 Open API의 조리식품 레시피 DB입니다.
 
 ```
 GET /api/{keyId}/{serviceId}/json/{startIdx}/{endIdx}
 ```
 
-- `source_id` = 응답 `RCP_SEQ` (멱등 upsert 키)
-- 1회 최대 1000건 (`fetchLimit` ≤ 1000)
+- `source_id`는 API 응답의 `RCP_SEQ`이며, 멱등 upsert 키로 사용합니다.
+- 1회 fetch는 최대 1000건이며, `fetchLimit`은 1000 이하여야 합니다.
 
 ## 상태 전이
 
@@ -60,10 +60,10 @@ stateDiagram-v2
 
 ## persist Consumer
 
-- 토픽: `recipe-ingestion-retrieved`
-- payload: `{ jobId }`
-- 멱등: `retrieved` → `persisting` 조건부 전환, Kafka redelivery 안전
-- PG: `(source, sourceRecipeId)` unique upsert
+- `recipe-ingestion-retrieved` 토픽을 구독합니다.
+- payload는 `{ jobId }` 형식입니다.
+- `retrieved` → `persisting` 조건부 전환으로 멱등성을 보장하며, Kafka 재전달에도 안전합니다.
+- PostgreSQL에는 `(source, sourceRecipeId)` unique upsert로 저장합니다.
 
 ## CLI
 
@@ -75,7 +75,7 @@ pnpm run recipe-ingestion:retrieve
 
 ## 운영 검증
 
-[운영 검증](#운영-검증) — happy path, partial fail, Kafka redelivery.
+[운영 검증](#운영-검증) 절에서 정상 경로(happy path), 부분 실패, Kafka 재전달 시나리오를 확인합니다.
 
 ## 관련 문서
 

@@ -7,7 +7,7 @@
 
 ## 문서·코드 정합성 (핵심)
 
-[기여 가이드](./contributing)
+[기여 가이드](./contributing)에서 문서·코드 정합성 원칙을 확인합니다.
 
 | 원칙 | 설명 |
 | --- | --- |
@@ -26,12 +26,13 @@
 
 | 항목 | 지침 |
 | --- | --- |
-| 구조 | Producer / Consumer / Shared 분리 |
-| 테스트 | TDD 권장, consumer spec 필수 |
-| 이벤트 | Handler가 Kafka 직접 발행 금지 (무효화는 RequestService) |
-| 환경 변수 | `env.validation.ts` Joi 검증 |
+| 렌더링 | SSG/ISR/SSR/CSR — [클라이언트 아키텍처](../client/architecture) |
+| 캐시 | `cache.policy.ts` 기준 |
+| 상태 | React Query + Optimistic Update |
+| 접근성 | `buildAriaLabel` 단일 진입점 |
+| OAuth | 백엔드 주도, 프론트는 진입·세션만 |
 
-문서: `server/producer/src/`, `server/consumer/src/`
+상세 구조는 `server/producer/src/`, `server/consumer/src/` 문서를 참고합니다.
 
 ## 프론트엔드
 
@@ -43,28 +44,28 @@
 | 접근성 | `buildAriaLabel` 단일 진입점 |
 | OAuth | 백엔드 주도, 프론트는 진입·세션만 |
 
-문서: [클라이언트 아키텍처](../client/architecture)
+상세 내용은 [클라이언트 아키텍처](../client/architecture) 문서를 참고합니다.
 
 ## API·이벤트 계약
 
-- REST: [Producer API](../producer/api) · `server/producer/.../modules/`
-- BFF: [BFF Route Handler](../client/api-bff) · `client/src/.../api/`
-- 이벤트: [Observability](./observability) — **신규 이벤트는 사전 등록 후 코드**
+- REST API는 [Producer API](../producer/api)와 `server/producer/.../modules/` 구조를 따릅니다.
+- BFF Route Handler는 [BFF Route Handler](../client/api-bff)와 `client/src/.../api/` 경로를 따릅니다.
+- 이벤트는 [Observability](./observability)에 **사전 등록한 뒤** 코드에 반영합니다.
 
 ## Git·PR
 
-- `pnpm run ci` 통과 후 PR
-- API 계약·문서·Docusaurus 동시 갱신
-- 상세: [기여 가이드](./contributing)
+- PR 전에 `pnpm run ci`가 통과해야 합니다.
+- API 계약, 내부 문서, Docusaurus 페이지는 같은 작업 단위에서 함께 갱신합니다.
+- 상세 절차는 [기여 가이드](./contributing)를 참고합니다.
 
 ## 문서 동기화
 
-구현 변경 시 동기화 대상:
+구현을 변경할 때는 아래 항목을 함께 확인·갱신합니다.
 
-1. 아키텍처·API 계약 문서 확인
-2. `server/producer` Swagger DTO 및 Client Route Handler
-3. `docs/docs/` Docusaurus 페이지
-4. (해당 시) `client/src/.../globals.css`
+1. 아키텍처·API 계약 문서를 확인합니다.
+2. `server/producer` Swagger DTO와 Client Route Handler를 맞춥니다.
+3. `docs/docs/` Docusaurus 페이지를 갱신합니다.
+4. (해당 시) `client/src/.../globals.css`를 동기화합니다.
 
 ## 관련 문서
 

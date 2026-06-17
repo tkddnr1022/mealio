@@ -8,7 +8,7 @@
 
 ## 앱 디렉터리
 
-루트: `client/src/app/` (Next.js App Router)
+루트는 `client/src/app/`이며 Next.js App Router를 사용합니다.
 
 | 그룹 | 역할 | 예시 URL |
 | --- | --- | --- |
@@ -16,7 +16,7 @@
 | (auth) | 로그인·OAuth | `/login`, `/oauth/callback` |
 | (main) | 앱 본체 (하단 탭) | `/recipe`, `/chatbot`, `/inventory`, `/mypage` |
 
-전용 `(main)/layout.tsx` 없음 — 탭·Navbar는 페이지/컴포넌트에서 조합.
+`(main)` 전용 `layout.tsx`는 없으며, 탭과 Navbar는 페이지·컴포넌트에서 조합합니다.
 
 ## 렌더링 전략
 
@@ -27,7 +27,7 @@
 | **SSR** | `/recipe/search` |
 | **CSR** | 챗봇, 보관함, 마이페이지, 인증 |
 
-정책 정의: `client/src/.../cache.policy.ts`
+렌더링·캐시 정책은 `client/src/.../cache.policy.ts`에 정의되어 있습니다.
 
 ## 디렉터리 구조
 
@@ -44,11 +44,11 @@ client/src/
 └── proxy.ts          # 보호 라우트 (refreshToken 검사)
 ```
 
-컴포넌트 배치: [컴포넌트 구조](./components) · `client/src/components/`
+컴포넌트는 [컴포넌트 구조](./components)와 `client/src/components/` 기준으로 배치합니다.
 
 ## 전역 Provider 트리
 
-`client/src/.../layout.tsx`:
+전역 Provider 트리는 `client/src/.../layout.tsx`에 다음과 같이 구성됩니다.
 
 ```mermaid
 flowchart TB
@@ -68,13 +68,13 @@ flowchart TB
 
 ## CSR 페이지 컨벤션
 
-`page.tsx`(서버) + `*ClientPage.tsx`(클라이언트) 분리. 메타·Suspense·데이터 전달은 `page.tsx`, `'use client'` 로직은 ClientPage.
+`page.tsx`(서버)와 `*ClientPage.tsx`(클라이언트)로 분리하며, 메타·Suspense·데이터 전달은 `page.tsx`가, `'use client'` 로직은 ClientPage가 담당합니다.
 
 ## 보호·인증
 
-- **Proxy**: `/chatbot`, `/inventory`, `/mypage/*` — 쿠키 존재 검사
-- **AuthProvider**: 세션 상태, `refresh()`
-- 상세: [인증](./auth)
+- **Proxy**는 `/chatbot`, `/inventory`, `/mypage/*` 경로에서 쿠키 존재 여부를 검사합니다.
+- **AuthProvider**는 세션 상태와 `refresh()`를 관리합니다.
+- 상세 내용은 [인증](./auth) 문서를 참고하세요.
 
 ## 관련 문서
 

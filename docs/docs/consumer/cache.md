@@ -16,7 +16,7 @@ Consumer는 **조회 성능 최적화**를 위해 Handler 단에서 Redis를 직
 | 챗봇 카테고리 | `recipe:chatbot:food-categories` | `CHATBOT_FOOD_CATEGORIES_CACHE_TTL_SECONDS` (3600초) |
 | recipe ingestion 카테고리 | `recipe:ingestion:food-categories` | submit job 전용 |
 
-정책 파일: `server/consumer/.../chatbot-cache.policy.ts`
+TTL 등 캐시 정책은 `server/consumer/.../chatbot-cache.policy.ts`에 정의되어 있습니다.
 
 ## 사용 Handler
 
@@ -40,7 +40,7 @@ Consumer Handler 캐시는 **무효화 토픽 대상이 아닐 수 있습니다*
 
 크레딧 실제 차감 시 `ChatbotCreditService`가 `USER_PROFILE` 무효화를 발행해 Producer `user:{userId}` 캐시와 정합을 맞춥니다.
 
-→ [챗봇 처리](./chatbot)
+크레딧 차감 흐름의 자세한 내용은 [챗봇 처리](./chatbot)를 참고하세요.
 
 ## 관련 문서
 

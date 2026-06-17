@@ -41,9 +41,9 @@ sequenceDiagram
 
 PostgreSQL `user_recipe_recommendations` 테이블이 **추천 결과의 단일 진실 공급원**입니다.
 
-- Consumer가 이벤트별 delta로 `score`를 누적
-- Top 10(`MAX_RECOMMENDATION_ROWS`)을 rank 1..N으로 재작성
-- Producer API는 이 원본 테이블을 조회해 응답 (캐시 miss 시)
+- Consumer가 이벤트별 delta로 `score`를 누적합니다.
+- Top 10(`MAX_RECOMMENDATION_ROWS`)을 rank 1..N으로 재작성합니다.
+- Producer API는 이 원본 테이블을 조회해 응답합니다(캐시 miss 시).
 
 원본 테이블에 데이터가 없으면 **인기 레시피(`likeCount` DESC)** 로 fallback합니다.
 
@@ -58,19 +58,17 @@ PostgreSQL `user_recipe_recommendations` 테이블이 **추천 결과의 단일 
 
 ## 주요 이벤트 가중치 (요약)
 
-상세 표·처리 조건: [Consumer 추천 파이프라인 — 이벤트별 가중치](../consumer/recommendation-pipeline#user-events-가중치)
+상세 표와 처리 조건은 [Consumer 추천 파이프라인 — 이벤트별 가중치](../consumer/recommendation-pipeline#user-events-가중치) 문서를 참고하세요.
 
-**user-events** (강한 선호 신호)
+**user-events**는 강한 선호 신호입니다.
 
 | 이벤트 | delta |
 | --- | --- |
-| `recipe.favorites_add` | +1.8 |
-| `recipe.favorites_remove` | -1.8 |
-| `ingredient.favorites_add` | +0.8 (연관 레시피) |
-| `ingredient.add` | +0.25 |
-| `ingredient.remove` | -0.2 (연관 레시피) |
+| `recipe.view` | +0.1 |
+| `recipe.share` | +0.4 |
+| `search.click` | +0.25 |
 
-**activity-events** (행동 보정, 로그인 사용자·recipeId 필요)
+**activity-events**는 행동 보정용이며, 로그인 사용자와 recipeId가 필요합니다.
 
 | 이벤트 | delta |
 | --- | --- |
@@ -90,15 +88,15 @@ PostgreSQL `user_recipe_recommendations` 테이블이 **추천 결과의 단일 
 
 ## 운영·KPI
 
-- **E2E 지연 KPI**: `kpi_recommendation_e2e_latency` — EventLog `recipe.favorites_add`의 `occurredAt` → `processedAt` p95
-- 지연 알림: [Observability](../other/observability), [Consumer 운영](../consumer/operations)
+- **E2E 지연 KPI** `kpi_recommendation_e2e_latency`는 EventLog `recipe.favorites_add`의 `occurredAt`부터 `processedAt`까지 p95를 측정합니다.
+- 지연 알림은 [Observability](../other/observability)와 [Consumer 운영](../consumer/operations) 문서를 참고하세요.
 
 ## 변경 시 체크리스트
 
-1. 가중치 변경 → [Consumer 추천 파이프라인](../consumer/recommendation-pipeline) + score service
-2. Top N 상한 → `recommendation.policy.ts` + Producer `limit` 쿼리
-3. API 응답 변경 → OpenAPI + [추천 API](../producer/recommendation-api)
-4. 캐시 키/TTL 변경 → [producer 캐시](../producer/cache) 및 [consumer 캐시 무효화](../consumer/cache-invalidation)
+1. 가중치를 변경할 때는 [Consumer 추천 파이프라인](../consumer/recommendation-pipeline)과 score service를 함께 갱신합니다.
+2. Top N 상한을 변경할 때는 `recommendation.policy.ts`와 Producer `limit` 쿼리를 함께 갱신합니다.
+3. API 응답을 변경할 때는 OpenAPI와 [추천 API](../producer/recommendation-api)를 함께 갱신합니다.
+4. 캐시 키나 TTL을 변경할 때는 [producer 캐시](../producer/cache)와 [consumer 캐시 무효화](../consumer/cache-invalidation)를 함께 갱신합니다.
 
 ## 관련 문서
 

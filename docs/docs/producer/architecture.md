@@ -8,9 +8,9 @@
 
 ## 역할
 
-클라이언트 요청 **실시간 처리**, **읽기·캐시 우선 조회**, **Kafka 이벤트 발행**, 챗봇 **SSE 중계**.
+Producer는 클라이언트 요청의 **실시간 처리**, **읽기·캐시 우선 조회**, **Kafka 이벤트 발행**, 챗봇 **SSE 중계**를 담당합니다.
 
-GPT 호출·추천 점수 갱신·ETL은 **Consumer** 책임.
+GPT 호출, 추천 점수 갱신, ETL은 **Consumer**가 담당합니다.
 
 ## 모듈 구조
 
@@ -62,13 +62,13 @@ flowchart TD
     S4 --> S5[HTTP 200/204]
 ```
 
-클라이언트는 Optimistic UI로 즉시 UX 반영.
+클라이언트는 Optimistic UI로 즉시 UX를 반영합니다.
 
 ## 관측성
 
-- `correlation-id.middleware.ts` — 요청 추적
-- `metrics.service.ts` — Prometheus `/metrics`
-- Sentry — `@mealio/shared/observability`
+- `correlation-id.middleware.ts`는 요청을 추적합니다.
+- `metrics.service.ts`는 Prometheus용 `/metrics` 엔드포인트를 제공합니다.
+- Sentry 연동은 `@mealio/shared/observability`를 사용합니다.
 
 ## 정책 파일
 

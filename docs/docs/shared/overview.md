@@ -53,7 +53,7 @@ pnpm run build:producer
 pnpm run build:consumer
 ```
 
-루트: `pnpm run db:prisma:generate` — 스키마 변경 후 필수.
+스키마를 변경한 뒤에는 루트에서 `pnpm run db:prisma:generate`를 반드시 실행해야 합니다.
 
 ## DB 모듈
 
@@ -63,13 +63,13 @@ pnpm run build:consumer
 | `MongooseSchemasModule` | MongoDB — 스키마·풀 config |
 | `RedisModule` | Redis 클라이언트 |
 
-Producer/Consumer `app.module`에서 `forRoot` / `forRootAsync`로 pool 설정 전달.
+Producer와 Consumer의 `app.module`에서 `forRoot` 또는 `forRootAsync`로 pool 설정을 전달합니다.
 
 ## 확장 원칙
 
-- **양쪽 패키지에서 쓰는** 상수·타입·스키마만 shared에 추가
-- 패키지 전용 로직은 producer/consumer에 유지
-- Kafka 토픽·캐시 키 변경 시 **Producer·Consumer 문서 + [Observability](../other/observability)** 동기화
+- Producer와 Consumer **양쪽에서 쓰는** 상수·타입·스키마만 shared에 추가합니다.
+- 패키지 전용 로직은 producer 또는 consumer에 유지합니다.
+- Kafka 토픽·캐시 키를 변경할 때는 **Producer·Consumer 문서와 [Observability](../other/observability)** 를 함께 갱신해야 합니다.
 
 ## 관련 문서
 

@@ -11,7 +11,7 @@
 
 Producer가 발행한 Kafka 이벤트를 소비해 PostgreSQL `user_recipe_recommendations` 원본 테이블의 점수를 갱신하고, `cache-invalidation` 토픽으로 `recommendation:{userId}` Redis 키 삭제를 요청합니다.
 
-조회·캐시·API 응답은 Producer가 담당합니다. 전체 흐름: [추천 시스템](../project/recommendation)
+조회·캐시·API 응답은 Producer가 담당합니다. 전체 흐름은 [추천 시스템](../project/recommendation)을 참고하세요.
 
 ## Kafka 진입점
 
@@ -56,9 +56,9 @@ sequenceDiagram
 
 `RecommendationRepository`가 단일 트랜잭션으로 다음을 수행합니다.
 
-1. 이벤트별 `score` delta를 `(userId, recipeId)` upsert — 신규 행은 임시 rank(`9999 + recipeId`)로 충돌 방지
-2. `score > 0` 후보를 `score DESC → updatedAt DESC → recipeId ASC`로 정렬
-3. 해당 사용자 행 전체 삭제 후 상위 **10건**(`MAX_RECOMMENDATION_ROWS`)만 rank 1..N으로 재작성
+1. 이벤트별 `score` delta를 `(userId, recipeId)`에 upsert합니다. 신규 행은 임시 rank(`9999 + recipeId`)로 충돌을 방지합니다.
+2. `score > 0` 후보를 `score DESC → updatedAt DESC → recipeId ASC` 순으로 정렬합니다.
+3. 해당 사용자의 행을 모두 삭제한 뒤 상위 **10건**(`MAX_RECOMMENDATION_ROWS`)만 rank 1..N으로 다시 작성합니다.
 
 재료 이벤트는 `recipe_ingredients`에서 연관 `recipeId`를 조회(최대 200건)한 뒤, 각 레시피에 동일 delta를 적용합니다.
 
@@ -100,7 +100,7 @@ sequenceDiagram
 | payload type | `RECOMMENDATION` |
 | 삭제 키 | `recommendation:{userId}` |
 
-Handler는 Kafka를 직접 발행하지 않습니다. → [캐시 무효화](./cache-invalidation)
+Handler는 Kafka를 직접 발행하지 않습니다. 자세한 내용은 [캐시 무효화](./cache-invalidation)를 참고하세요.
 
 ## 신뢰성
 
@@ -124,17 +124,17 @@ Handler는 Kafka를 직접 발행하지 않습니다. → [캐시 무효화](./c
 
 ## 운영·KPI
 
-- **E2E 지연 KPI**: `kpi_recommendation_e2e_latency` — EventLog `recipe.favorites_add`의 `occurredAt` → `processedAt` p95
-- 롤업: `jobs/kpi-rollup/kpi-rollup.service.ts` (일별 cron)
-- 지연 알림: [Observability](../other/observability), [Consumer 운영 — 추천 반영 지연](./operations#추천-반영-지연-alert_reco_latency)
+- **E2E 지연 KPI** `kpi_recommendation_e2e_latency`는 EventLog `recipe.favorites_add`의 `occurredAt`부터 `processedAt`까지 p95를 측정합니다.
+- 일별 롤업은 `jobs/kpi-rollup/kpi-rollup.service.ts` cron 잡이 담당합니다.
+- 지연 알림은 [Observability](../other/observability)와 [Consumer 운영 — 추천 반영 지연](./operations#추천-반영-지연-alert_reco_latency)을 참고하세요.
 
-확인 순서: `user-events` lag → `RecommendationHandler` DB 트랜잭션 → `activity-events` warn 로그
+지연 발생 시 확인 순서는 `user-events` lag → `RecommendationHandler` DB 트랜잭션 → `activity-events` warn 로그입니다.
 
 ## 변경 시 체크리스트
 
-1. 가중치 변경 → `recommendation-score.service.ts` / `activity-recommendation.service.ts` + [추천 시스템](../project/recommendation) 요약 표
-2. Top N 상한 → `recommendation.policy.ts` (`MAX_RECOMMENDATION_ROWS`) + Producer `GET /recipes/recommended` limit
-3. 캐시 키 변경 → [Redis 키/캐시 계약](../shared/redis-cache-contract) + [producer 캐시](../producer/cache)
+1. 가중치를 변경하면 `recommendation-score.service.ts`와 `activity-recommendation.service.ts`를 수정하고 [추천 시스템](../project/recommendation) 요약 표를 갱신합니다.
+2. Top N 상한을 변경하면 `recommendation.policy.ts`의 `MAX_RECOMMENDATION_ROWS`와 Producer `GET /recipes/recommended` limit을 함께 맞춥니다.
+3. 캐시 키를 변경하면 [Redis 키/캐시 계약](../shared/redis-cache-contract)과 [producer 캐시](../producer/cache)를 함께 갱신합니다.
 
 ## 관련 문서
 

@@ -12,7 +12,7 @@
 | **Consumer** (상시) | `pnpm run start:consumer` | Kafka 구독 |
 | **Standalone job** | cron → CLI | 배치·ETL·KPI |
 
-Job 패턴: `NestFactory.createApplicationContext` + `run-*.ts`
+Standalone job은 `NestFactory.createApplicationContext`로 애플리케이션 컨텍스트를 만든 뒤 `run-*.ts` CLI로 실행하는 패턴을 따릅니다.
 
 ## KPI 롤업
 
@@ -29,7 +29,7 @@ pnpm --filter consumer run job:kpi-rollup
 | 출력 | `kpi_rollups` 컬렉션 |
 | KPI 예 | favorite CVR, recommendation latency, search CTR |
 
-권장 스케줄: 매일 02:00 UTC ([Observability](../other/observability) 집계 파이프라인 참고)
+권장 스케줄은 매일 02:00 UTC이며, [Observability](../other/observability) 집계 파이프라인을 참고하세요.
 
 ## Recipe Ingestion Jobs
 
@@ -40,7 +40,7 @@ pnpm --filter consumer run job:kpi-rollup
 | retrieve | `job:recipe-ingestion-retrieve` | Batch 결과 조회 |
 | persist | `job:recipe-ingestion-persist` | 수동 persist (운영) |
 
-루트 단축:
+모노레포 루트에서는 아래 단축 명령을 사용할 수 있습니다.
 
 ```bash
 pnpm run recipe-ingestion:fetch
@@ -48,7 +48,7 @@ pnpm run recipe-ingestion:submit
 pnpm run recipe-ingestion:retrieve
 ```
 
-상세: [레시피 수집 상세](./recipe-ingestion)
+단계별 상세는 [레시피 수집 상세](./recipe-ingestion)를 참고하세요.
 
 ## 프로덕션 스케줄 (초안)
 
@@ -59,14 +59,14 @@ pnpm run recipe-ingestion:retrieve
 | recipe-ingestion-submit | fetch 이후 | 별도 태스크 |
 | recipe-ingestion-retrieve | 1~5분 | 별도 태스크 |
 
-`fetchLimit >= submitBatchSize` 권장.
+`fetchLimit`은 `submitBatchSize` 이상으로 설정하는 것을 권장합니다.
 
 ## 새 Job 추가 시
 
-1. `jobs/<name>/` 모듈 + `run-*.ts` CLI
-2. `package.json` script 등록
-3. Consumer 내부 명세 동기화
-4. validation 시나리오 추가 (선택)
+1. `jobs/<name>/` 모듈과 `run-*.ts` CLI를 추가합니다.
+2. `package.json`에 script를 등록합니다.
+3. Consumer 내부 명세를 동기화합니다.
+4. 필요하면 validation 시나리오를 추가합니다.
 
 ## 관련 문서
 

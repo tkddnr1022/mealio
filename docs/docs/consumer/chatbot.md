@@ -8,7 +8,7 @@
 
 ## 처리 파이프라인
 
-토픽: `chatbot-requests` / 그룹: `chatbot-group`
+챗봇 처리는 `chatbot-requests` 토픽과 `chatbot-group` 컨슈머 그룹으로 구독합니다.
 
 ```mermaid
 flowchart TD
@@ -30,7 +30,7 @@ flowchart TD
 | 4 | 응답 chunk를 Redis `chatbot:stream:{streamChannelId}`에 발행 |
 | 5 | 턴 완료 시 `done` 이벤트 + 크레딧 차감 |
 
-경로: `consumers/.../ProcessChatHandler.ts`
+핵심 구현은 `consumers/.../ProcessChatHandler.ts`에 있습니다.
 
 ## Tool Handlers
 
@@ -40,15 +40,15 @@ flowchart TD
 | `FoodCategoriesHandler` | `get_food_categories` | 카테고리 마스터 (Redis 1h) |
 | `SearchRecipesHandler` | `search_recipes` | 레시피 검색 |
 
-도구 정의: `chatbot-tools.definition.ts`
+도구 스키마는 `chatbot-tools.definition.ts`에 정의되어 있습니다.
 
-설계 원칙: Kafka 페이로드에 대용량 배열을 넣지 않고, tool 호출 시 DB/Redis에서 조회합니다.
+설계상 Kafka 페이로드에 대용량 배열을 넣지 않고, tool 호출 시 DB/Redis에서 조회합니다.
 
 ## ChatbotLog 저장
 
-- 컬렉션: `chatbot_logs` (MongoDB, 30일 TTL)
-- `SaveChatLogHandler` — user/assistant 턴을 `conversationId`와 함께 저장
-- 히스토리 확장: `conversationId` 기준 최근 N턴 조회 → `buildMessagesForGpt`
+- MongoDB `chatbot_logs` 컬렉션에 저장하며, TTL은 30일입니다.
+- `SaveChatLogHandler`가 user/assistant 턴을 `conversationId`와 함께 저장합니다.
+- 히스토리 확장 시 `conversationId` 기준 최근 N턴을 조회해 `buildMessagesForGpt`에 전달합니다.
 
 ## 크레딧 멱등 차감
 
@@ -60,7 +60,7 @@ flowchart TD
 | 비용 | `usage.totalTokens` → `computeChatbotCreditCost()` |
 | `done` 반영 | `isCreditDepleted` in `ChatbotStreamDoneEvent` |
 
-신규 차감 발생 시 `cache-invalidation`(USER_PROFILE) 발행.
+신규 차감이 발생하면 `cache-invalidation` 토픽에 `USER_PROFILE` 무효화를 발행합니다.
 
 ## 이벤트·KPI
 
@@ -69,13 +69,13 @@ flowchart TD
 | `chatbot.start` | 대화 시작 |
 | `chatbot.message` | 메시지 처리 성공 |
 
-→ [이벤트/분석 파이프라인](./analytics-pipeline)
+이벤트·KPI 연동은 [이벤트/분석 파이프라인](./analytics-pipeline)을 참고하세요.
 
 ## 신뢰성
 
-- at-least-once Kafka → 크레딧·로그는 멱등 키로 중복 안전
-- 실패 시 DLQ: `chatbot-requests-dlq`
-- lag 모니터링: `consumer-lag.monitor.ts`
+- at-least-once Kafka 전달을 전제로 하며, 크레딧·로그는 멱등 키로 중복 처리에 안전합니다.
+- 처리 실패 시 메시지는 `chatbot-requests-dlq`로 보냅니다.
+- consumer lag는 `consumer-lag.monitor.ts`로 모니터링합니다.
 
 ## 관련 문서
 

@@ -18,18 +18,18 @@
 
 ### User
 
-소셜 로그인 기반 사용자. `platformName` + `platformId`로 식별. `creditBalance`로 챗봇 사용량을 관리합니다.
+소셜 로그인 기반 사용자이며, `platformName`과 `platformId`로 식별합니다. `creditBalance`로 챗봇 사용량을 관리합니다.
 
 ### Recipe / Ingredient
 
-- **Recipe**: 레시피 메타·조리 절차(`instructions` JSON)·영양·이미지
-- **Ingredient**: 재료 마스터
-- **RecipeIngredient**: 레시피↔재료 N:M 관계
-- **RecipeCategory / IngredientCategory**: 카테고리 마스터
+- **Recipe**: 레시피 메타, 조리 절차(`instructions` JSON), 영양, 이미지를 담습니다.
+- **Ingredient**: 재료 마스터입니다.
+- **RecipeIngredient**: 레시피와 재료의 N:M 관계를 표현합니다.
+- **RecipeCategory / IngredientCategory**: 카테고리 마스터입니다.
 
 ### UserRecipeRecommendation
 
-**개인화 추천 원본 테이블**. 사용자별 `recipeId`·`rank`·`score`·`reason`을 저장합니다. Producer API가 이 테이블을 조회하고, Consumer가 이벤트에 따라 갱신합니다.
+**개인화 추천 원본 테이블**로, 사용자별 `recipeId`·`rank`·`score`·`reason`을 저장합니다. Producer API가 이 테이블을 조회하고, Consumer가 이벤트에 따라 갱신합니다.
 
 → [추천 시스템](./recommendation)
 
@@ -37,15 +37,15 @@
 
 ### Inventory (`inventories`)
 
-사용자별 **보유 재료·관심 재료·관심 레시피** ID 목록. 로그인 유저 전용 상태 문서입니다.
+사용자별 **보유 재료·관심 재료·관심 레시피** ID 목록을 담은 로그인 유저 전용 상태 문서입니다.
 
 ### ChatbotLog (`chatbot_logs`)
 
-LLM 대화 기록. 30일 TTL.
+LLM 대화 기록이며, 30일 TTL이 적용됩니다.
 
 ### EventLog (`event_logs`)
 
-도메인 이벤트 스트림(`recipe.view`, `ingredient.add` 등). 90일 TTL. KPI 롤업·추천 보정의 원본입니다.
+도메인 이벤트 스트림(`recipe.view`, `ingredient.add` 등)을 저장하며, 90일 TTL이 적용됩니다. KPI 롤업·추천 보정의 원본입니다.
 
 → [이벤트/분석 파이프라인](../consumer/analytics-pipeline)
 

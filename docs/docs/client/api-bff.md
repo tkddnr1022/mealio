@@ -46,19 +46,19 @@ const recipe = await getRecipeDetail(recipeId, { signal });
 
 서버 컴포넌트·Route Handler에서는 브라우저가 쿠키를 자동 전송하지 않습니다.
 
-- `withForwardedHeaders()` — 들어온 `Cookie`, `Accept-Language`, Correlation-Id 전달
-- `serverFetchWrapper({ fetch, currentUrl })` — 401 시 refresh-bridge redirect
+- `withForwardedHeaders()`는 들어온 `Cookie`, `Accept-Language`, Correlation-Id를 전달합니다.
+- `serverFetchWrapper({ fetch, currentUrl })`는 401 시 refresh-bridge로 리다이렉트합니다.
 
 ## BFF Route Handler
 
-Next.js `client/src/.../api/` — 인프라·인증 브리지 전용.
+BFF Route Handler는 Next.js `client/src/.../api/`에 두며, 인프라·인증 브리지 전용으로 사용합니다.
 
 | Path | Method | 역할 |
 | --- | --- | --- |
 | `/api/auth/refresh-bridge` | GET | SSR refresh: Cookie → Producer refresh → Set-Cookie → `next` 복귀 |
 | `/api/revalidate` | POST | 온디맨드 ISR: `{ secret, path }` → `revalidatePath` |
 
-프론트엔드 BFF Route Handler: `client/src/.../api/`
+프론트엔드 BFF Route Handler는 `client/src/.../api/`에 위치합니다.
 
 ### refresh-bridge 흐름
 
@@ -76,12 +76,12 @@ sequenceDiagram
 
 ## 에러 처리
 
-- `ApiError` — HTTP 상태·바디 정규화
-- `getUserMessage()` — 사용자 노출 메시지
-- Toast 연동: [에러 처리/Toast](./error-toast)
+- `ApiError`는 HTTP 상태·바디를 정규화합니다.
+- `getUserMessage()`는 사용자 노출 메시지를 반환합니다.
+- Toast 연동은 [에러 처리/Toast](./error-toast) 문서를 참고하세요.
 
 ## 관련 문서
 
 - [인증](./auth)
-- [캐시](./cache) (ISR fetch)
+- [캐시](./cache) (ISR fetch 참고)
 - [도메인 API 가이드](../producer/domain-api)
