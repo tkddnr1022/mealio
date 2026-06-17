@@ -60,11 +60,7 @@ cp server/consumer/.env.example server/consumer/.env.local
 ## 3. 인프라 기동 (Docker Compose)
 
 ```bash
-docker compose --env-file .env.docker.local \
-  -f docker/compose-database.yml \
-  -f docker/compose-kafka.yml \
-  -f docker/compose-kafka-ui.yml \
-  -f docker/compose-monitoring.yml up -d
+docker compose --env-file .env.docker.local -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
 ```
 
 기동되는 서비스: MongoDB, PostgreSQL, Redis, Kafka, Kafka UI, Prometheus, Grafana.

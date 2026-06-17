@@ -178,9 +178,7 @@ cp server/consumer/.env.docker.example server/consumer/.env.docker
 인프라 기동 (`README.md` Usage · Development):
 
 ```bash
-docker compose --env-file .env.docker \
-  -f docker/compose-database.yml -f docker/compose-kafka.yml \
-  -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
+docker compose --env-file .env.docker -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
 ```
 
 DB 시드·마이그레이션 후 앱은 호스트에서 기동:
@@ -205,9 +203,7 @@ pnpm run start:client
 인프라:
 
 ```bash
-docker compose --env-file .env.docker \
-  -f docker/compose-database.yml -f docker/compose-kafka.yml \
-  -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
+docker compose --env-file .env.docker -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
 ```
 
 마이그레이션:
@@ -219,14 +215,11 @@ pnpm run db:prisma:migrate:deploy
 앱 (인프라 Compose가 선행되어야 `mealio-net`에 Kafka 등이 준비됨):
 
 ```bash
-docker compose --env-file server/producer/.env.docker \
-  -f docker/compose-producer.yml up -d --build
+docker compose --env-file server/producer/.env.docker -f docker/compose-producer.yml up -d --build
 
-docker compose --env-file server/consumer/.env.docker \
-  -f docker/compose-consumer.yml up -d --build
+docker compose --env-file server/consumer/.env.docker -f docker/compose-consumer.yml up -d --build
 
-docker compose --env-file client/.env.docker \
-  -f docker/compose-client.yml up -d --build
+docker compose --env-file client/.env.docker -f docker/compose-client.yml up -d --build
 ```
 
 `NEXT_PUBLIC_*`는 **이미지 빌드 시** Dockerfile `ARG`로 주입된다. 값은 `client/.env.docker`에 두고 `--env-file client/.env.docker`로 전달하며, 변경 시 `--build`로 재빌드한다. 런타임 시크릿(`REVALIDATE_SECRET` 등)은 compose `environment`의 `${VAR}` 치환으로 컨테이너에 전달된다.
@@ -243,17 +236,13 @@ Docker Compose로 앱을 띄울 때 패키지 `.env.docker` 연결 URL 예시:
 EC2에는 `compose-database`·`kafka-ui`를 **배포하지 않는다**. 인프라는 Kafka·관측만 `.env.docker`로 기동하고, 앱 compose 명령은 위 Production 절과 동일하다.
 
 ```bash
-docker compose --env-file .env.docker \
-  -f docker/compose-kafka.yml -f docker/compose-monitoring.yml up -d
+docker compose --env-file .env.docker -f docker/compose-kafka.yml -f docker/compose-monitoring.yml up -d
 
-docker compose --env-file server/producer/.env.docker \
-  -f docker/compose-producer.yml up -d --build
+docker compose --env-file server/producer/.env.docker -f docker/compose-producer.yml up -d --build
 
-docker compose --env-file server/consumer/.env.docker \
-  -f docker/compose-consumer.yml up -d --build
+docker compose --env-file server/consumer/.env.docker -f docker/compose-consumer.yml up -d --build
 
-docker compose --env-file client/.env.docker \
-  -f docker/compose-client.yml up -d --build
+docker compose --env-file client/.env.docker -f docker/compose-client.yml up -d --build
 ```
 
 패키지 `.env.docker`에는 Atlas/Neon/Upstash URL·`JWT_SECRET`·OAuth·`OPENAI_API_KEY` 등 앱 시크릿을 설정한다.

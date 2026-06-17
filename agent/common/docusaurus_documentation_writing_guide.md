@@ -138,6 +138,7 @@ sidebar_position: 1      # 선택. 같은 카테고리 내 정렬 (intro만 slug
 
 - **표**: 비교·책임 분담·파일 인덱스에 사용한다.
 - **코드 블록**: 셸 명령, 짧은 설정 예시, 디렉터리 트리(`text`)에 한정한다.
+- **CLI 명령어**: 셸·`docker compose` 등 **한 줄로 작성**한다. 줄바꿈 연속(`\`)은 쓰지 않는다. 복사·붙여넣기 편의를 위해 공백으로 옵션을 이어 붙인다.
 - **Mermaid**: `docusaurus.config.ts`에서 활성화됨. 시퀀스·플로우는 fenced block으로 작성한다.
 
 ```mermaid
@@ -336,5 +337,5 @@ pnpm run ci:build:docs   # CI·GitHub Pages와 동일 (baseUrl: /mealio/)
 - [ ] 「이 문서로 해결할 질문」 목록이 ~요 체인지 확인
 - [ ] 코드·명세 경로가 실제 저장소와 일치
 - [ ] 크로스 패키지 주제는 프로젝트 문서와 패키지 문서 역할 분리
-- [ ] `pnpm run ci:build:docs` 통과 (깨진 링크 없음)
+- [ ] CLI·셸 명령어는 `\` 줄바꿈 없이 한 줄로 작성
 - [ ] 코드 변경 PR이면 `agent/` 명세·OpenAPI 동기화 완료

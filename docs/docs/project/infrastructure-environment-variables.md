@@ -13,11 +13,7 @@
 ```bash
 cp .env.docker.example .env.docker.local
 
-docker compose --env-file .env.docker.local \
-  -f docker/compose-database.yml \
-  -f docker/compose-kafka.yml \
-  -f docker/compose-kafka-ui.yml \
-  -f docker/compose-monitoring.yml up -d
+docker compose --env-file .env.docker.local -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
 ```
 
 → 패키지 간 정합성: [환경 변수](./getting-started#2-환경-변수-준비)
