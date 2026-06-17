@@ -128,7 +128,7 @@ cp server/producer/.env.example server/producer/.env.local
 
 ## 관련 문서
 
-- [환경 변수 허브](../project/environment-variables)
+- [환경 변수](../project/getting-started#2-환경-변수-준비)
 - [producer 인증](./auth)
 - [producer 운영](./operations)
 - [Observability](../other/observability)

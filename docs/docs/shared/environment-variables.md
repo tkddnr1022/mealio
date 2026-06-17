@@ -62,7 +62,7 @@ shared 패키지가 정의하는 관측 env 검증 규칙은 producer·consumer 
 
 ## 관련 문서
 
-- [환경 변수 허브](../project/environment-variables)
+- [환경 변수](../project/getting-started#2-환경-변수-준비)
 - [shared 개요](./overview)
 - [데이터 모델](./data-models)
 

@@ -137,7 +137,7 @@ OAuth **콜백 URL**은 producer의 `OAUTH_CALLBACK_BASE_URL`에서 설정합니
 
 ## 관련 문서
 
-- [환경 변수 허브](../project/environment-variables)
+- [환경 변수](../project/getting-started#2-환경-변수-준비)
 - [client 인증](./auth)
 - [API·BFF](./api-bff)
 - [Observability](../other/observability)

@@ -85,7 +85,7 @@
 | `server/consumer/.env.local` | 호스트 consumer |
 | `*.env.docker.local` | Docker로 앱 기동 시 |
 
-변수별 사용처·예시·환경별 패턴은 [환경 변수](./environment-variables) 허브와 패키지별 문서를 참고하세요.
+변수별 사용처·예시·환경별 패턴은 [환경 변수](./getting-started#2-환경-변수-준비)와 패키지별 문서를 참고하세요.
 
 ## 릴리스 흐름 (요약)
 

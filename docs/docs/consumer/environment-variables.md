@@ -123,7 +123,7 @@ HTTP API 포트 없음. 부팅 시 Joi로 **전 변수 필수** 검증 — `serv
 
 ## 관련 문서
 
-- [환경 변수 허브](../project/environment-variables)
+- [환경 변수](../project/getting-started#2-환경-변수-준비)
 - [배치 잡](./batch-jobs)
 - [레시피 수집](./recipe-ingestion)
 - [consumer 운영](./operations)

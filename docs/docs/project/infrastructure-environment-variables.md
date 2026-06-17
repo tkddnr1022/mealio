@@ -20,7 +20,7 @@ docker compose --env-file .env.docker.local \
   -f docker/compose-monitoring.yml up -d
 ```
 
-→ 패키지 간 정합성: [환경 변수 허브](./environment-variables)
+→ 패키지 간 정합성: [환경 변수](./getting-started#2-환경-변수-준비)
 
 ## MongoDB
 
@@ -111,7 +111,7 @@ docker compose --env-file .env.docker.local \
 
 ## 관련 문서
 
-- [환경 변수 허브](./environment-variables)
+- [환경 변수](./getting-started#2-환경-변수-준비)
 - [배포/환경 전략](./deployment)
 - [Observability](../other/observability)
 - [producer 환경 변수](../producer/environment-variables)
