@@ -17,7 +17,7 @@
 
 예외 작업 후 **반드시 문서 동기화**.
 
-→ [개발 규약](../other/development-conventions)
+→ [개발 규약](./development-conventions)
 
 ## 개발 워크플로
 
@@ -45,16 +45,16 @@ pnpm run ci:build:docs   # 문서만 검증할 때
 
 | 패키지 | 지침 |
 | --- | --- |
-| 백엔드 | [개발 규약](../other/development-conventions) |
+| 백엔드 | [개발 규약](./development-conventions) |
 | 프론트 | [클라이언트 아키텍처](../client/architecture) |
 | 컴포넌트 | [컴포넌트 구조](../client/components) |
-| 디자인 | [디자인 시스템](../other/design-system) |
+| 디자인 | [디자인 시스템](./design-system) |
 
 ## 이벤트·KPI 추가 시
 
-1. [Observability](../other/observability) 등록
+1. [Observability](./observability) 등록
 2. 코드 계측
-3. `frontend_event_instrumentation.md` 갱신 (GA 연동 시)
+3. 내부 프론트 이벤트 계측 체크리스트 갱신 (GA 연동 시)
 4. PR 리뷰에서 미등록 이벤트 차단
 
 ## 문서 기여

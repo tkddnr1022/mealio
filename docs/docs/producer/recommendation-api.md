@@ -66,9 +66,9 @@ Fallback 시 `reason`에 초기 추천 데이터 없음을 명시합니다.
 
 ## 원본 갱신 (Consumer)
 
-`user-events`·`activity-events` → `RecommendationHandler` → PostgreSQL upsert + Top N 재정렬 → 캐시 무효화.
+`user-events` → `RecommendationHandler`, `activity-events` → `ActivityRecommendationService` → PostgreSQL upsert + Top N(10) 재정렬 → `RECOMMENDATION` 캐시 무효화.
 
-가중치: [추천 시스템 — 주요 이벤트 가중치](../project/recommendation#주요-이벤트-가중치-요약)
+가중치 요약: [추천 시스템 — 주요 이벤트 가중치](../project/recommendation#주요-이벤트-가중치-요약) · 상세: [추천 파이프라인](../consumer/recommendation-pipeline#user-events-가중치)
 
 ## 확장 시 유의
 

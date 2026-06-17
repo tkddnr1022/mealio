@@ -52,7 +52,7 @@ buildAriaLabel(type, name)
 
 ## 성능 목표 (Web Vitals)
 
-렌더링·캐시 정책: [클라이언트 아키텍처 — 렌더링 전략](../client/architecture#렌더링-전략) · `client/src/.../cache.policy.ts`
+렌더링·캐시 정책: [클라이언트 아키텍처 — 렌더링 전략](./architecture#렌더링-전략) · `client/src/.../cache.policy.ts`
 
 | 지표 | 목표 |
 | --- | --- |

@@ -49,7 +49,7 @@ sequenceDiagram
 | `/chatbot/[id]` | `ChatbotConversationClientPage.tsx` | 메시지 전송·SSE 구독 |
 | 컴포넌트 | `client/src/.../chatbot/` | 버블·입력·슬라이더 등 |
 
-컴포넌트 배치: [컴포넌트 구조](../client/components) · `client/src/components/` (chatbot)
+컴포넌트 배치: [컴포넌트 구조](./components) · `client/src/components/` (chatbot)
 
 ## React Query 연동
 

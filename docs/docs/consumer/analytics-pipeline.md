@@ -101,7 +101,7 @@ pnpm run kpi:rollup
 | --- | --- |
 | 통합 검증 시나리오 | [Observability — 검증 (배포 후)](../other/observability#검증-배포-후) (EventLog·KPI 롤업 포함) |
 | KPI 계약 | [Observability](../other/observability) |
-| 알림·장애 대응 | [Observability](../other/observability), [Consumer 운영](../consumer/operations) |
+| 알림·장애 대응 | [Observability](../other/observability), [Consumer 운영](./operations) |
 | Grafana 대시보드 | `observability/grafana/` |
 
 ## 신규 이벤트 추가 절차
@@ -109,7 +109,7 @@ pnpm run kpi:rollup
 1. [Observability](../other/observability)에 행 추가
 2. shared event enum 또는 `analytics-events.ts` 갱신
 3. Producer 발행 또는 Consumer 기록 구현
-4. `frontend_event_instrumentation.md` 체크리스트 반영 (GA 연동 시)
+4. 내부 프론트 이벤트 계측 체크리스트 반영 (GA 연동 시)
 5. PR 리뷰 — 사전 미등록 이벤트 차단
 
 ## 관련 문서

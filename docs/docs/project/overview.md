@@ -59,7 +59,7 @@ Producer는 **명령(쓰기) API 성공 = Kafka 발행**까지 책임집니다. 
 | Kafka 토픽 | 용도 |
 | --- | --- |
 | `user-events` | 프로필·재료함·관심 레시피 |
-| `activity-events` | 조회·검색·좋아요 |
+| `activity-events` | 조회·공유·검색 |
 | `chatbot-requests` | 챗봇 메시지 |
 | `cache-invalidation` | Redis 키 삭제 |
 
@@ -81,8 +81,7 @@ Producer는 **명령(쓰기) API 성공 = Kafka 발행**까지 책임집니다. 
 | `server/producer` | REST API |
 | `server/consumer` | Kafka Consumer·배치 |
 | `server/shared` | Prisma/Mongoose/Redis/타입 |
-| `docs` | Docusaurus 문서 사이트 |
-| `docs/` | 공개 문서 사이트 |
+| `docs` | Docusaurus 공개 문서 사이트 |
 
 → [모노레포 구조](project/monorepo)
 

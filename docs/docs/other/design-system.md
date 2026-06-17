@@ -8,11 +8,11 @@
 
 ## 토큰·스타일 계층
 
-| 순서 | 파일 | 역할 |
+| 순서 | 근거 | 역할 |
 | --- | --- | --- |
-| 1 | `design_tokens.json` · `client/src/.../globals.css` | 컬러·타이포·스페이싱·컴포넌트 토큰 |
+| 1 | 내부 디자인 토큰 JSON · `client/src/.../globals.css` | 컬러·타이포·스페이싱·컴포넌트 토큰 |
 | 2 | `client/src/.../globals.css` | `:root`, `@theme`, 컴포넌트 recipe |
-| 3 | [접근성·성능](../client/accessibility-performance) · `client/src/.../globals.css` | UX·a11y·성능·톤 원칙 |
+| 3 | [접근성·성능](../client/accessibility-performance) | UX·a11y·성능·톤 원칙 |
 
 Figma MCP 출력(React+Tailwind)은 **참고용** — 프로젝트 스택에 맞게 변환합니다.
 
@@ -21,20 +21,20 @@ Figma MCP 출력(React+Tailwind)은 **참고용** — 프로젝트 스택에 맞
 ```mermaid
 flowchart LR
     F[Figma Variables·Styles·Components]
-    F --> S1[수집 figma-variables-and-styles.md]
-    S1 --> S2[변환 design_tokens.json]
+    F --> S1[수집 내부 변수·스타일 목록]
+    S1 --> S2[변환 디자인 토큰 JSON]
     S2 --> S3[연동 globals.css]
     S3 --> C[client/src/components/ui/]
 ```
 
-| 단계 | 가이드 |
+| 단계 | 내용 |
 | --- | --- |
-| 1. 수집 | design_system_collection_guidelines.md |
-| 2. 변환 | `design_tokens_conversion_guidelines.md` |
-| 3. 연동 | `design_system_integration_guidelines.md` |
-| 4. 구현 | `design_to_code_guidelines.md` |
+| 1. 수집 | Figma 변수·로컬 스타일을 내부 목록 문서로 정리 |
+| 2. 변환 | 목록을 구조화된 디자인 토큰 JSON으로 반영 |
+| 3. 연동 | 토큰을 `globals.css`에 매핑 |
+| 4. 구현 | 컴포넌트·페이지에 토큰·variant 적용 |
 
-Figma → 코드 편집·캡처: `code_to_design_guidelines.md`
+코드·웹을 Figma에 반영할 때는 내부 Code-to-Design 가이드를 따릅니다.
 
 ## 구현 총칙 (요약)
 
@@ -62,10 +62,10 @@ pnpm run build:storybook
 
 ## 분석·품질
 
-- 토큰·대비 검토: `design_system_analysis_guidelines.md`
-- 피드백: `figma-variables-and-styles-feedback.md` (내부)
+토큰 구조·대비·중복은 내부 디자인 시스템 분석 절차로 검토하고, 권장 수정사항은 내부 피드백 문서로 관리합니다.
 
 ## 관련 문서
 
 - [접근성/성능 기준](../client/accessibility-performance)
+- [컴포넌트 구조](../client/components)
 - Figma: [Mealio 디자인 파일](https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Mealio)

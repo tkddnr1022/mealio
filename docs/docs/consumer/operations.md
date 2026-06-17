@@ -37,7 +37,7 @@
 2. `RecommendationHandler` 트랜잭션 경합
 3. `activity-events` warn 로그 (추천만 실패 가능)
 
-→ [Observability](../other/observability), [추천 반영 지연 (ALERT_RECO_LATENCY)](#추천-반영-지연-alert_reco_latency)
+→ [Observability](../other/observability)
 
 ## Recipe Ingestion 복구
 
@@ -47,7 +47,7 @@
 | 수동 persist | `job:recipe-ingestion-persist --job-id <id>` |
 | Batch expired | job `fetched` 복귀·재submit |
 
-검증: [레시피 수집 — 운영 검증](../consumer/recipe-ingestion#운영-검증)
+검증: [레시피 수집 — 운영 검증](./recipe-ingestion#운영-검증)
 
 ## 수동 명령
 

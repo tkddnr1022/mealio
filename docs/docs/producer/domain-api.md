@@ -6,7 +6,7 @@
 - 인증이 필요한 API는 무엇인가요?
 - 쓰기 API의 Kafka 연동은 무엇인가요?
 
-API 계약: [Producer API](../producer/api) · `server/producer/.../modules/`
+API 계약: [Producer API](./api) · `server/producer/.../modules/`
 
 ## 모듈 요약
 

@@ -29,7 +29,7 @@ pnpm --filter consumer run job:kpi-rollup
 | 출력 | `kpi_rollups` 컬렉션 |
 | KPI 예 | favorite CVR, recommendation latency, search CTR |
 
-권장 스케줄: 매일 02:00 UTC (`aggregation_pipeline.md`)
+권장 스케줄: 매일 02:00 UTC ([Observability](../other/observability) 집계 파이프라인 참고)
 
 ## Recipe Ingestion Jobs
 
@@ -65,7 +65,7 @@ pnpm run recipe-ingestion:retrieve
 
 1. `jobs/<name>/` 모듈 + `run-*.ts` CLI
 2. `package.json` script 등록
-3. `backend_architecture_spec_consumer.md` 동기화
+3. Consumer 내부 명세 동기화
 4. validation 시나리오 추가 (선택)
 
 ## 관련 문서

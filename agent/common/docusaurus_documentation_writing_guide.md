@@ -198,6 +198,7 @@ API URL·HTTP 경로(`/api/v1/...`)는 파일 경로가 아니므로 이 규칙 
 | --- | --- |
 | 같은 섹션 Docusaurus 페이지 | `[제목](./slug)` |
 | 다른 섹션 Docusaurus 페이지 | `[제목](../project/overview)` |
+| `project/overview` (`slug: /`) | 랜딩 URL이 `/`이므로 `./slug`는 깨짐 → `[제목](project/slug)` 또는 `[제목](../section/slug)` 사용 |
 | Docusaurus 페이지 내 섹션 | `[제목](./slug#헤딩-앵커)` — Docusaurus가 생성한 헤딩 ID 사용 (미리보기에서 링크 아이콘으로 확인) |
 | GitHub blob 링크 | 필요 시에만 사용. 본문은 상대 doc 링크 우선 |
 

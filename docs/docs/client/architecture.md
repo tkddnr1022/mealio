@@ -44,7 +44,7 @@ client/src/
 └── proxy.ts          # 보호 라우트 (refreshToken 검사)
 ```
 
-컴포넌트 배치: [컴포넌트 구조](../client/components) · `client/src/components/`
+컴포넌트 배치: [컴포넌트 구조](./components) · `client/src/components/`
 
 ## 전역 Provider 트리
 

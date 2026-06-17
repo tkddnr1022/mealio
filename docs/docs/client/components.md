@@ -19,7 +19,7 @@ client/src/components/
 └── auth/        # 인증 화면
 ```
 
-라우팅 그룹과 매핑: [클라이언트 아키텍처 — 앱 디렉터리](../client/architecture#앱-디렉터리)
+라우팅 그룹과 매핑: [클라이언트 아키텍처 — 앱 디렉터리](./architecture#앱-디렉터리)
 
 ## 폴더 컨벤션
 

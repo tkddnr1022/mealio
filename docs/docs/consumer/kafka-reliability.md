@@ -51,7 +51,7 @@ flowchart TD
 - 로그에 `correlationId`, `sentryEventId` 포함
 - 재처리: 원인 수정 후 수동 replay (runbook 참고)
 
-알림: `ALERT_DLQ_SPIKE` — [Observability](../other/observability), [Consumer 운영](../consumer/operations)
+알림: `ALERT_DLQ_SPIKE` — [Observability](../other/observability), [Consumer 운영](./operations)
 
 ## Lag 모니터링
 

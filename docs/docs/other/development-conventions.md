@@ -7,7 +7,7 @@
 
 ## 문서·코드 정합성 (핵심)
 
-[기여 가이드](../other/contributing)
+[기여 가이드](./contributing)
 
 | 원칙 | 설명 |
 | --- | --- |
@@ -49,7 +49,7 @@
 
 - REST: [Producer API](../producer/api) · `server/producer/.../modules/`
 - BFF: [BFF Route Handler](../client/api-bff) · `client/src/.../api/`
-- 이벤트: [Observability](../other/observability) — **신규 이벤트는 사전 등록 후 코드**
+- 이벤트: [Observability](./observability) — **신규 이벤트는 사전 등록 후 코드**
 
 ## Git·PR
 
