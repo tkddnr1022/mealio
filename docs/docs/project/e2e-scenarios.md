@@ -21,7 +21,6 @@
 
 ```mermaid
 flowchart TB
-    START([/) --> RECIPE["/recipe"]
     RECIPE --> DETAIL["/recipe/id"]
     RECIPE --> SEARCH["/recipe/search"]
     RECIPE --> CHAT["/chatbot/list"]
@@ -32,8 +31,6 @@ flowchart TB
     LOGIN -.실패.-> ERR["/oauth/error"]
     ERR -.-> LOGIN
 ```
-
-상세 다이어그램: [E2E 시나리오](../project/e2e-scenarios)
 
 ## 시나리오 1: OAuth 로그인
 

@@ -3,28 +3,27 @@
 ## 이 문서로 해결할 질문
 
 - dev와 prod에서 컴포넌트는 어디에 올라가나요?
-- 프론트엔드 배포 옵션(Vercel vs EC2)은 무엇인가요?
 - Compose 파일 역할과 기동 순서는 무엇인가요?
 
 ## 확정 스택 (MVP·초기 프로덕션)
 
 | 계층 | 플랫폼 | 컴포넌트 |
 | --- | --- | --- |
-| 프론트엔드 | **Vercel** 또는 **EC2 Docker** | `client` |
-| 백엔드·메시지·관측 | **AWS EC2** (Compose) | producer, consumer, Kafka, Prometheus, Grafana |
-| 문서 DB | **MongoDB Atlas** | EventLog, ChatbotLog, Inventory |
-| 관계 DB | **Neon** | User, Recipe, Ingredient |
+| 프론트엔드 | **Vercel** 또는 **AWS EC2** | client |
+| 백엔드·메시지·관측 | **AWS EC2** (Docker) | producer, consumer, Kafka, Prometheus, Grafana |
+| 문서 DB | **MongoDB Atlas** | `EventLog` `ChatbotLog` `Inventory` |
+| 관계 DB | **Neon** | `User` `Recipe` `Ingredient` |
 | 캐시 | **Upstash** | Redis |
 
 설계 원칙: **저비용·저트래픽**, EC2는 앱·Kafka·관측만, 데이터는 매니지드 서비스.
 
 ## 환경별 배치
 
-### 프로덕션
+### 프로덕션(예시)
 
 | 컴포넌트 | 위치 | Compose |
 | --- | --- | --- |
-| client | Vercel **또는** EC2 | `compose-client.yml` (EC2 시) |
+| client | Vercel **또는** EC2 | `compose-client.yml` |
 | producer | EC2 | `compose-producer.yml` |
 | consumer | EC2 | `compose-consumer.yml` |
 | Kafka | EC2 | `compose-kafka.yml` |
@@ -42,15 +41,6 @@
 
 → [로컬 개발/온보딩](./getting-started)
 
-## 프론트엔드 배포 선택
-
-| 옵션 | 적합한 경우 |
-| --- | --- |
-| **Vercel** (권장) | Preview, ISR, CDN, 제로옵스 |
-| **EC2 Docker** | 단일 EC2 통합, Vercel 미사용 |
-
-공통: `NEXT_PUBLIC_API_BASE_URL` → EC2 API 도메인. EC2 Docker 시 `FRONTEND_APP_BASE_URL`은 Nginx 뒤 클라이언트 URL.
-
 ## Compose 파일 (`docker/`)
 
 | 파일 | 대상 | prod | dev |
@@ -64,16 +54,6 @@
 | `compose-client.yml` | client | EC2 시 | 선택 |
 
 기동 순서: **인프라 Compose 먼저** → 앱 Compose.
-
-## EC2 운영 요약
-
-| 항목 | 값 |
-| --- | --- |
-| 인스턴스 | t4g.medium, Ubuntu 22.04 |
-| 리버스 프록시 | Nginx (TLS 종료) |
-| Inbound | 80, 443, 22(관리 IP) |
-| API p95 목표 | 500ms 미만 |
-| Kafka 지연 | 수 초 이내 |
 
 ## 환경 변수 파일
 
@@ -94,8 +74,6 @@
 3. EC2: producer → consumer 이미지 빌드·기동
 4. Vercel: client 배포 (또는 compose-client)
 5. 헬스·메트릭·validation 시나리오 확인
-
-상세: [배포](../project/deployment) · docker/ §7
 
 ## 관련 문서
 

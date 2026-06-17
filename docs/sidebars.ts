@@ -20,7 +20,6 @@ const sidebars: SidebarsConfig = {
         'project/recommendation',
         'project/recipe-ingestion',
         'project/deployment',
-        'project/contracts-index',
         'project/e2e-scenarios',
       ],
     },

@@ -63,4 +63,3 @@ Apidog 등 외부 도구로 server/producer Swagger 스펙 export 후 import 가
 ## 관련 문서
 
 - [인증/인가](./auth)
-- [데이터/계약 인덱스](../project/contracts-index)

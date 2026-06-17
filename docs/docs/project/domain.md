@@ -79,12 +79,11 @@ erDiagram
 | --- | --- |
 | RDB 스키마 | `server/shared/src/database/prisma/schema.prisma` |
 | NoSQL 스키마 | `server/shared/src/database/mongoose/schemas/` |
-| 의미·필드 설명 | [데이터 모델](../shared/data-models) · server/shared/src/database/prisma/schema.prisma |
+| 의미·필드 설명 | [데이터 모델](../shared/data-models) · `server/shared/src/database/prisma/schema.prisma` |
 
-스키마 변경 후 [데이터 모델](../shared/data-models) · server/shared/src/database/prisma/schema.prisma와 Docusaurus [데이터 모델/스키마](../shared/data-models)를 함께 갱신합니다.
+스키마 변경 후 [데이터 모델](../shared/data-models) · `server/shared/src/database/prisma/schema.prisma`를 함께 갱신합니다.
 
 ## 관련 문서
 
 - [데이터 모델/스키마](../shared/data-models)
 - [추천 시스템](./recommendation)
-- [데이터/계약 인덱스](./contracts-index)

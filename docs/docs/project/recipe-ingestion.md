@@ -7,7 +7,7 @@
 
 ## 목적
 
-식약처 **공공데이터** 레시피를 수집하고, **OpenAI Batch API**로 정규화·매핑한 뒤 PostgreSQL에 영속화합니다.
+**식약처 공공데이터** 레시피를 수집하고, **OpenAI Batch API**로 정규화·매핑한 뒤 PostgreSQL에 영속화합니다.
 
 ## 단계 요약
 
@@ -40,11 +40,10 @@ flowchart LR
 
 ## 운영 특성
 
-- 저트래픽 배치: 일 1회 이하 가정
 - `fetch` / `submit` / `retrieve`는 **독립 job** — cron으로 조율
 - `fetchLimit >= submitBatchSize` 권장
 
-## 상세 문서
+## 관련 문서
 
-- [레시피 수집 상세](../consumer/recipe-ingestion) — 상태 전이·CLI·persist
-- [배치/스케줄 작업](../consumer/batch-jobs) — 실행 명령
+- [레시피 수집 상세](../consumer/recipe-ingestion)
+- [배치/스케줄 작업](../consumer/batch-jobs)

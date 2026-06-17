@@ -74,8 +74,6 @@ PostgreSQL `user_recipe_recommendations` 테이블이 **추천 결과의 단일 
 | `recipe.like` | +0.7 |
 | `search.click` | +0.25 |
 
-전체 표: [Consumer 아키텍처](../consumer/architecture) · server/consumer/src/ §2.6.2
-
 ## 캐시 정책
 
 | 항목 | 값 |
@@ -89,13 +87,13 @@ PostgreSQL `user_recipe_recommendations` 테이블이 **추천 결과의 단일 
 ## 운영·KPI
 
 - **E2E 지연 KPI**: `kpi_recommendation_e2e_latency` — `recipe.favorites_add` 발생부터 추천 반영까지
-- 지연 알림: [Observability](../other/observability), [Consumer 운영](../consumer/operations) §2.3
+- 지연 알림: [Observability](../other/observability), [Consumer 운영](../consumer/operations)
 
 ## 변경 시 체크리스트
 
 1. 가중치 변경 → `recommendation-score.service.ts` + [Consumer 추천 파이프라인](../consumer/recommendation-pipeline)
 2. API 응답 변경 → OpenAPI + [추천 API](../producer/recommendation-api)
-3. 캐시 키/TTL 변경 → `cache-keys.ts` + producer/consumer 캐시 전략
+3. 캐시 키/TTL 변경 → `cache-keys.ts` + [producer 캐시 전략](../producer/cache) 및 [consumer 캐시 전략](../consumer/cache)
 
 ## 관련 문서
 

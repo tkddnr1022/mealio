@@ -6,9 +6,7 @@
 - 동기(HTTP)와 비동기(Kafka) 경계는 어디인가요?
 - 프로덕션 인프라 배치는 어떻게 되나요?
 
-## 컴포넌트 다이어그램 (운영 기준)
-
-[배포](../project/deployment) · docker/의 확정 아키텍처를 반영합니다. (다이어그램 원본 `architecture.mermaid`는 일부 레거시 명칭을 포함할 수 있음)
+## 컴포넌트 다이어그램 (운영 예시)
 
 ```mermaid
 flowchart LR

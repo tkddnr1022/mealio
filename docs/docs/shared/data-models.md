@@ -68,5 +68,4 @@ pnpm run db:mongoose:seed
 
 ## 관련 문서
 
-- [데이터/계약 인덱스](../project/contracts-index)
 - [개요](./overview)

@@ -4,7 +4,6 @@
 
 - 패키지별 역할과 의존 방향은 무엇인가요?
 - 루트에서 자주 쓰는 명령은 무엇인가요?
-- 코드·문서 근거는 어디에 있나요?
 
 ## 디렉터리 구조
 
@@ -64,18 +63,6 @@ packages:
 | `pnpm run start:docs` | Docusaurus dev |
 | `pnpm run db:prisma:migrate:dev` | Prisma 마이그레이션 |
 | `pnpm run ci` | install + build + lint + test |
-
-## 문서·코드 근거
-
-| 영역 | 공개 근거 |
-| --- | --- |
-| API·도메인 | server/producer/src/modules/, [Producer API](../producer/api) |
-| 프론트 | client/src/app/, [클라이언트 아키텍처](../client/architecture) |
-| 데이터 | server/shared/src/database/, [데이터 모델](../shared/data-models) |
-| 이벤트·KPI | [Observability](../other/observability) |
-| 문서 | docs/docs/, docs/sidebars.ts |
-
-**문서·코드 정합성**: 구현·Docusaurus 문서를 동일 PR 단위로 동기화합니다.
 
 ## shared 패키지 범위
 

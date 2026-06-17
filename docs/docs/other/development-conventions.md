@@ -69,5 +69,4 @@
 ## 관련 문서
 
 - [기여 가이드](./contributing)
-- [데이터/계약 인덱스](../project/contracts-index)
 - [모노레포 구조](../project/monorepo)
