@@ -153,8 +153,17 @@ sequenceDiagram
 | 대상 | 작성법 |
 | --- | --- |
 | Docusaurus 페이지 | `[제목](./slug)` 또는 `[제목](../project/overview)` |
+| Docusaurus 페이지 내 섹션 | `[제목](./slug#헤딩-앵커)` — Docusaurus가 생성한 헤딩 ID 사용 (미리보기에서 링크 아이콘으로 확인) |
 | 내부 명세(SSOT) | “내부 문서”, “내부 명세”, “내부 스키마” 등으로만 지칭 (경로·파일명은 쓰지 않음) |
 | GitHub blob 링크 | intro 등 랜딩에서만 필요 시 사용. 본문은 상대 경로 우선 |
+
+#### `§` 절 번호 참조 금지 (`docs/docs/`)
+
+공개 문서 본문에서는 **`§` 기호로 절·섹션을 가리키지 않는다.** (`§5.1`, `§2.6.2`, `본 문서 §검증`, `agent` 명세 절 번호 등)
+
+- **같은 페이지** 섹션: `[섹션 제목](#헤딩-앵커)`
+- **다른 페이지** 섹션: `[문서 제목 — 섹션 제목](../section/slug#헤딩-앵커)`
+- 대응 섹션이 Docusaurus에 없으면 **문서 링크만** 쓰거나, 요약 섹션을 해당 doc에 추가한 뒤 링크한다.
 
 CI(`CI=true`)에서는 `onBrokenLinks`·`onBrokenMarkdownLinks`가 `throw`이다. 로컬 개발 시에는 `warn`이므로, PR 전에 `pnpm run ci:build:docs`로 검증한다.
 
@@ -245,9 +254,9 @@ CI(`CI=true`)에서는 `onBrokenLinks`·`onBrokenMarkdownLinks`가 `throw`이다
 
 ## 7. 새 문서 추가 절차
 
-1. **주제·doc ID 결정** — 위 §6 표에서 기존 slug를 쓰거나, 새 slug를 정하고 `sidebars.ts`에 반영할지 검토한다.
+1. **주제·doc ID 결정** — 아래 「6. 섹션별 배치 가이드」 표에서 기존 slug를 쓰거나, 새 slug를 정하고 `sidebars.ts`에 반영할지 검토한다.
 2. **SSOT 확인** — `agent/` 명세·지침을 읽고 요약 범위를 정한다.
-3. **파일 생성** — `docs/docs/{section}/{slug}.md`에 §4 템플릿으로 작성한다.
+3. **파일 생성** — `docs/docs/{section}/{slug}.md`에 4절 페이지 템플릿으로 작성한다.
 4. **사이드바 등록** — `docs/sidebars.ts` 해당 카테고리 `items`에 doc ID 추가.
 5. **교차 링크** — 관련 페이지의 「관련 문서」·본문 링크를 양방향으로 보강한다.
 6. **빌드 검증**:
@@ -339,3 +348,4 @@ pnpm run ci:build:docs   # CI·GitHub Pages와 동일 (baseUrl: /mealio/)
 - [ ] 크로스 패키지 주제는 프로젝트 문서와 패키지 문서 역할 분리
 - [ ] CLI·셸 명령어는 `\` 줄바꿈 없이 한 줄로 작성
 - [ ] 코드 변경 PR이면 `agent/` 명세·OpenAPI 동기화 완료
+- [ ] `§` 절 번호 참조 없이 Docusaurus doc·헤딩 링크만 사용

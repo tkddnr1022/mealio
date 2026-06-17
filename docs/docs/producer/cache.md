@@ -42,7 +42,7 @@ flowchart TD
 | --- | --- | --- |
 | `user-cache-strategy.ts` | `user:{userId}` | |
 | `inventory-cache-strategy.ts` | `inventory:{userId}` | |
-| `recommendation-cache-strategy.ts` | `recommendation:{userId}` | §1.4 추천 API |
+| `recommendation-cache-strategy.ts` | `recommendation:{userId}` | [추천 API](./recommendation-api) |
 | recipe/ingredient 전략 | `recipe:*`, `ingredient:*` | list/search/categories |
 
 키 헬퍼 정의: `@mealio/shared` `cache-keys.ts` → [Redis 키/캐시 계약](../shared/redis-cache-contract)

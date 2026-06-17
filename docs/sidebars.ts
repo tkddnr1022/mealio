@@ -25,17 +25,6 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
-      label: 'shared',
-      items: [
-        'shared/overview',
-        'shared/data-models',
-        'shared/contracts',
-        'shared/redis-cache-contract',
-        'shared/environment-variables',
-      ],
-    },
-    {
-      type: 'category',
       label: 'client',
       items: [
         'client/architecture',
@@ -81,6 +70,17 @@ const sidebars: SidebarsConfig = {
         'consumer/analytics-pipeline',
         'consumer/batch-jobs',
         'consumer/operations',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'shared',
+      items: [
+        'shared/overview',
+        'shared/data-models',
+        'shared/contracts',
+        'shared/redis-cache-contract',
+        'shared/environment-variables',
       ],
     },
     {

@@ -75,7 +75,7 @@ pnpm run recipe-ingestion:retrieve
 
 ## 운영 검증
 
-[Observability](../other/observability) §8-A — happy path, partial fail, Kafka redelivery.
+[운영 검증](#운영-검증) — happy path, partial fail, Kafka redelivery.
 
 ## 관련 문서
 

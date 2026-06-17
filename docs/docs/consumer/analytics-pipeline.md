@@ -99,7 +99,7 @@ pnpm run kpi:rollup
 
 | 항목 | 문서/도구 |
 | --- | --- |
-| 통합 검증 시나리오 | [Observability](../other/observability) §7~8 |
+| 통합 검증 시나리오 | [Observability — 검증 (배포 후)](../other/observability#검증-배포-후) (EventLog·KPI 롤업 포함) |
 | KPI 계약 | [Observability](../other/observability) |
 | 알림·장애 대응 | [Observability](../other/observability), [Consumer 운영](../consumer/operations) |
 | Grafana 대시보드 | `observability/grafana/` |

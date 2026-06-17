@@ -46,7 +46,7 @@
 
 ## 검증 시나리오
 
-[Observability](../other/observability) §2~§4 — 헬스, Correlation-Id, Prometheus.
+[Observability — 검증 (배포 후)](../other/observability#검증-배포-후) — 헬스, Correlation-Id, Prometheus.
 
 ## 관련 문서
 

@@ -31,9 +31,9 @@ flowchart TB
 
 | 주제 | 설명 | 관련 문서 |
 | --- | --- | --- |
-| 통합 검증 | 헬스·메트릭·EventLog·KPI 수동 검증 시나리오 | 본 문서 §검증 |
+| 통합 검증 | 헬스·메트릭·EventLog·KPI 수동 검증 시나리오 | [검증 (배포 후)](#검증-배포-후) |
 | 이벤트 사전 | GA ↔ EventLog ↔ Kafka 이벤트 매핑 | [분석 파이프라인](../consumer/analytics-pipeline) |
-| KPI 계약 | KPI ID·계산식 정의 | 본 문서 §핵심 KPI |
+| KPI 계약 | KPI ID·계산식 정의 | [핵심 KPI (요약)](#핵심-kpi-요약) |
 | 집계 파이프라인 | EventLog → 롤업 → 대시보드 | [분석 파이프라인](../consumer/analytics-pipeline) |
 | Runbook | 알림·장애 대응 | [Consumer 운영](../consumer/operations) |
 | 프론트 계측 | GA4 이벤트 체크리스트 | client/src/lib/analytics/ |

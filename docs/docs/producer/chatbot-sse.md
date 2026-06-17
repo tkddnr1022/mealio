@@ -51,7 +51,7 @@ sequenceDiagram
 | `done` | `conversationId`, `isCreditDepleted`, 선택 `suggestedRecipes` |
 | `error` | 오류 메시지 |
 
-`done` 계약 상세: Consumer §2.4 — [챗봇 처리](../consumer/chatbot)
+`done` 계약 상세: [챗봇 처리 — 크레딧 멱등 차감](../consumer/chatbot#크레딧-멱등-차감)
 
 ## Kafka 페이로드
 

@@ -76,7 +76,7 @@ Content-Type: application/json
 
 Command API(POST/PUT/DELETE) 성공은 Kafka 발행까지만 보장합니다. 뮤테이션 후 **refetch 대신 `setQueryData`로 캐시 직접 갱신**합니다.
 
-→ [클라이언트 아키텍처](../client/architecture) §5.1
+→ [상태 관리 — Optimistic Update](../client/state#optimistic-update-command-api)
 
 ## Producer Redis와의 관계
 
