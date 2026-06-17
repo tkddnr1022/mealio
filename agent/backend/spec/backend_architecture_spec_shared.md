@@ -48,7 +48,7 @@
 | server/shared/src/types/events/chatbot-stream-event.event.ts | ChatbotStreamEvent (`done`에 `isCreditDepleted` 포함) |
 | server/shared/src/types/events/user-event.event.ts | UserEvent |
 | server/shared/src/types/events/inventory-event.event.ts | InventoryEvent (ingredient/recipe favorites 포함) |
-| server/shared/src/types/events/activity-event.event.ts | ActivityEvent (recipe.view, recipe.like, search.click 등) |
+| server/shared/src/types/events/activity-event.event.ts | ActivityEvent (`recipe.view`, `recipe.share`, `search.query`, `search.click`) |
 | server/shared/src/types/events/cache-invalidation.event.ts | CacheInvalidationPayload·CacheInvalidationEventType (`RECOMMENDATION` 포함) |
 
 ## 3.2 Prisma 스키마 (schema.prisma) — 모델·필드 명세

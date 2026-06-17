@@ -36,7 +36,7 @@ function isValidActivityEventPayload(
 
 /**
  * activity-events 토픽 전용 processor.
- * recipe.view, recipe.like, recipe.share, search.query, search.click 수신 시 EventLog에 기록.
+ * recipe.view, recipe.share, search.query, search.click 수신 시 EventLog에 기록.
  * recipe.view 시 Recipe viewCount 증가.
  * 비로그인 유저 활동 포함 (actor.userId 생략 가능).
  */

@@ -44,7 +44,6 @@
 
 | EventLog `type` | Kafka 토픽 | 발행/기록 | KPI·용도 |
 |-----------------|------------|-----------|----------|
-| `recipe.like` | `activity-events` | Producer | 추천 보정 (+0.7) |
 | `recipe.share` | `activity-events` | Producer | 추천 보정 (+0.4) |
 | `search.query` | `activity-events` | Producer `POST /api/v1/recipes/search-queries` | `kpi_search_click_rate` (분모). dedupe: keyword-only + actor, 30분. 클라이언트 sessionStorage 1차 dedupe |
 | `search.click` | `activity-events` | Producer `POST .../recipes/:id/search-clicks` | `kpi_search_click_rate` (분자). dedupe: recipeId + actor, 30분 (`recipe.view`와 동일 TTL·actor 규칙). 클라이언트 sessionStorage 1차 dedupe (`recipeId`) |

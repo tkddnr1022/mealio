@@ -484,7 +484,7 @@
 
 **type (enum)**
 
-* `recipe.view`, `recipe.like`, `recipe.share`
+* `recipe.view`, `recipe.share`
 * `search.query`, `search.click`
 * `user.signup`, `user.login`, `nickname.update`
 * `ingredient.add`, `ingredient.remove`, `ingredient.update`

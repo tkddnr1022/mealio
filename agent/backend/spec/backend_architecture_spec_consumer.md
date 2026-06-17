@@ -177,7 +177,7 @@
 | 토픽 (메인) | DLQ 토픽 | Consumer 그룹 | 발행 주체 | 용도·페이로드 개요 |
 |-------------|-----------|----------------|-----------|---------------------|
 | **chatbot-requests** | chatbot-requests-dlq | chatbot-group | Producer (POST /api/v1/chatbot/messages 등) | 챗봇 메시지 요청. payload: userId, message, conversationId?, streamChannelId. Consumer: ProcessChatHandler(GPT·tool call), SaveChatLogHandler(ChatbotLog 저장), `chatbot.start`·`chatbot.message` 성공 후 SyncConversationMetaHandler(대화 메타 동기화), Redis 스트림 이벤트 발행. 성공 턴 완료 시 ChatbotCreditService로 멱등 크레딧 차감·`done.data.isCreditDepleted` 반영, 차감 시 내부적으로 **cache-invalidation**(USER_PROFILE) 발행. |
-| **activity-events** | activity-events-dlq | activity-events-group | Producer (레시피 조회수 기록 API/좋아요/공유, `POST /api/v1/recipes/search-queries` 등) | 비로그인 포함 활동 이벤트. payload: type(recipe.view \| recipe.like \| recipe.share \| search.query \| search.click), actor(type, userId?, ipAddress?, userAgent?), entity?, payload?, metadata?. Consumer: EventLog 저장. `recipe.view`는 상세 조회 GET이 아닌 `POST /api/v1/recipes/:recipeId/views`에서 발행되며, Producer에서 dedupe key를 `user:{id}` 우선/비로그인 `ip:{ip}`(`unknown-ip` fallback) 기준으로 제어한다. `search.query`는 `POST /api/v1/recipes/search-queries`에서 발행한다. |
+| **activity-events** | activity-events-dlq | activity-events-group | Producer (레시피 조회수 기록 API/공유, `POST /api/v1/recipes/search-queries`·search-clicks 등) | 비로그인 포함 활동 이벤트. payload: type(`recipe.view` \| `recipe.share` \| `search.query` \| `search.click`), actor(type, userId?, ipAddress?, userAgent?), entity?, payload?, metadata?. Consumer: EventLog 저장, `recipe.view` 시 viewCount 증가, `ActivityRecommendationService`로 추천 보정. `recipe.view`는 `POST /api/v1/recipes/:recipeId/views`에서 발행되며, Producer에서 dedupe key를 `user:{id}` 우선/비로그인 `ip:{ip}`(`unknown-ip` fallback) 기준으로 제어한다. `search.query`는 `POST /api/v1/recipes/search-queries`에서 발행한다. |
 | **user-events** | user-events-dlq | analytics-group | Producer (닉네임 변경, 재료 CRUD, 관심 레시피 추가/삭제 등) | 로그인 유저 도메인 이벤트. payload: UserEvent \| InventoryEvent. Consumer: UpdateUserProfileHandler, UpdateInventoryHandler, TrackUserActivityHandler(EventLog), RecommendationHandler, 캐시 무효화 요청(CacheInvalidationRequestService). |
 | **cache-invalidation** | cache-invalidation-dlq | cache-invalidation-group | Consumer 내부 (CacheInvalidationRequestService) | 캐시 무효화 지시. payload: type(USER_PROFILE \| INVENTORY \| RECIPE \| RECOMMENDATION), userId 또는 recipeIds[]. Handler가 직접 발행하지 않고 RequestService가 발행. Consumer: RedisInvalidationHandler로 Redis 키/패턴 삭제. |
 | **recipe-ingestion-retrieved** | recipe-ingestion-retrieved-dlq | recipe-ingestion-persist-group | Consumer (retrieve job) | Recipe ingestion persist 트리거. payload: `{ jobId }`, key = jobId. Consumer: recipe-ingestion-persist. persist는 검증된 `retrieved_data`(LLM) → PostgreSQL. Mongo `recipe_ingestion_jobs`가 SSOT. |
@@ -252,17 +252,16 @@
 | 이벤트 | delta |
 |--------|-------|
 | `recipe.view` | +0.1 |
-| `recipe.like` | +0.7 |
 | `recipe.share` | +0.4 |
 | `search.click` | +0.25 |
-| `search.query` | 0 |
+| `search.query` | 0 (추천 미반영) |
 
 가중치 변경 시 **서비스 상수·본 절**을 함께 갱신한다.
 
 ### 2.6.3 Top N 재정렬 알고리즘 (`RecommendationRepository`)
 
 1. 이벤트에서 전달된 `recipeId`별 delta를 **동일 트랜잭션**에서 upsert(`score` increment).
-2. `score > 0`인 행을 `score DESC`, `updatedAt DESC`, `recipeId ASC`로 정렬해 상위 N건 선택(`MAX_RECOMMENDATION_ROWS` = 30).
+2. `score > 0`인 행을 `score DESC`, `updatedAt DESC`, `recipeId ASC`로 정렬해 상위 N건 선택(`MAX_RECOMMENDATION_ROWS` = 10, `@mealio/shared` `recommendation.policy.ts`).
 3. 해당 유저의 기존 추천 행을 **deleteMany** 후 rank 1..N으로 **createMany** 재삽입.
 4. 재료 기반 이벤트는 `RecipeIngredient`로 연관 `recipeId`를 조회(최대 200건)한 뒤 동일 delta를 레시피에 전파한다.
 
