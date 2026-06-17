@@ -10,7 +10,7 @@
 
 | 순서 | 파일 | 역할 |
 | --- | --- | --- |
-| 1 | [디자인 시스템](../other/design-system) · client/src/app/globals.css | 컬러·타이포·스페이싱·컴포넌트 토큰 |
+| 1 | design_tokens.json · client/src/app/globals.css | 컬러·타이포·스페이싱·컴포넌트 토큰 |
 | 2 | `client/src/app/globals.css` | `:root`, `@theme`, 컴포넌트 recipe |
 | 3 | [접근성·성능](../client/accessibility-performance) · client/src/app/globals.css | UX·a11y·성능·톤 원칙 |
 
@@ -29,7 +29,7 @@ flowchart LR
 
 | 단계 | 가이드 |
 | --- | --- |
-| 1. 수집 | [디자인 시스템](../other/design-system) |
+| 1. 수집 | design_system_collection_guidelines.md |
 | 2. 변환 | `design_tokens_conversion_guidelines.md` |
 | 3. 연동 | `design_system_integration_guidelines.md` |
 | 4. 구현 | `design_to_code_guidelines.md` |
@@ -63,7 +63,7 @@ pnpm run build:storybook
 ## 분석·품질
 
 - 토큰·대비 검토: `design_system_analysis_guidelines.md`
-- 피드백: [디자인 시스템](../other/design-system) (예: `figma-variables-and-styles-feedback.md`)
+- 피드백: `figma-variables-and-styles-feedback.md` (내부)
 
 ## 관련 문서
 

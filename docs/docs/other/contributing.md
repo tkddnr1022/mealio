@@ -17,7 +17,7 @@
 
 예외 작업 후 **반드시 문서 동기화**.
 
-→ [기여 가이드](../other/contributing), [개발 규약](../other/development-conventions)
+→ [개발 규약](../other/development-conventions)
 
 ## 개발 워크플로
 

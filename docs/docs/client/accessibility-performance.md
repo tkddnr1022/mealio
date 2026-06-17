@@ -8,7 +8,7 @@
 
 ## 접근성 (WCAG 2.1 AA)
 
-상위 원칙: [접근성·성능](../client/accessibility-performance) · client/src/app/globals.css — `accessibility`, `platform` 섹션
+상위 원칙: client/src/app/globals.css — `accessibility`, `platform` 섹션
 
 | 항목 | 기준 |
 | --- | --- |

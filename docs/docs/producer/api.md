@@ -10,7 +10,7 @@
 
 | 파일 | 범위 |
 | --- | --- |
-| [Producer API](../producer/api) · server/producer/src/modules/ | Producer REST API |
+| server/producer/src/modules/ | Producer REST API |
 | [BFF Route Handler](../client/api-bff) · client/src/app/api/ | Next.js Route Handler (BFF) |
 
 코드와 문서 불일치 시 **문서 또는 구현을 동기화**합니다. [기여 가이드](../other/contributing)를 참고하세요.

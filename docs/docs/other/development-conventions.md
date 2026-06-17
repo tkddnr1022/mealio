@@ -7,7 +7,7 @@
 
 ## 문서·코드 정합성 (핵심)
 
-[기여 가이드](../other/contributing), [개발 규약](../other/development-conventions)
+[기여 가이드](../other/contributing)
 
 | 원칙 | 설명 |
 | --- | --- |
@@ -31,7 +31,7 @@
 | 이벤트 | Handler가 Kafka 직접 발행 금지 (무효화는 RequestService) |
 | 환경 변수 | `env.validation.ts` Joi 검증 |
 
-문서: server/producer/src/, server/consumer/src/ · [개발 규약](./development-conventions)
+문서: server/producer/src/, server/consumer/src/
 
 ## 프론트엔드
 
