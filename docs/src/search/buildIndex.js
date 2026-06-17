@@ -51,9 +51,10 @@ function buildIndex(
       registerKoreanTokenizer(lunr_1.default);
     }
     if (language.includes('zh')) {
-      const { tokenizer, loadUserDict } = require(
-        '@easyops-cn/docusaurus-search-local/dist/server/server/utils/tokenizer',
-      );
+      const {
+        tokenizer,
+        loadUserDict,
+      } = require('@easyops-cn/docusaurus-search-local/dist/server/server/utils/tokenizer');
       loadUserDict(zhUserDict, zhUserDictPath);
       require('@easyops-cn/docusaurus-search-local/dist/server/shared/lunrLanguageZh').lunrLanguageZh(
         lunr_1.default,

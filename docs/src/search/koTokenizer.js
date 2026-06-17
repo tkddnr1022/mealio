@@ -50,11 +50,12 @@ function koTokenizer(input, metadata) {
   }
 
   if (Array.isArray(input)) {
-    return input.map((token) =>
-      new lunr.Token(
-        lunr.utils.asString(token).toLowerCase(),
-        lunr.utils.clone(metadata),
-      ),
+    return input.map(
+      (token) =>
+        new lunr.Token(
+          lunr.utils.asString(token).toLowerCase(),
+          lunr.utils.clone(metadata),
+        ),
     );
   }
 
