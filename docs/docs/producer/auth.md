@@ -81,9 +81,3 @@ Provider: `google`, `kakao`, `naver`
 
 - [인증 (client)](../client/auth)
 - [API 문서](./api)
-
-## 참고 코드·계약
-
-- [Producer 인증](../producer/auth), [Client 인증](../client/auth)
-- [Producer 아키텍처](../producer/architecture) · server/producer/src/ (§1.3)
-- [Producer API](../producer/api) · server/producer/src/modules/

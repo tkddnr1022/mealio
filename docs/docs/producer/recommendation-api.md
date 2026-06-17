@@ -76,8 +76,3 @@ Fallback 시 `reason`에 초기 추천 데이터 없음을 명시합니다.
 - [추천 파이프라인](../consumer/recommendation-pipeline)
 - [Redis 키/캐시 계약](../shared/redis-cache-contract)
 - [캐시 (client)](../client/cache)
-
-## 참고 코드·계약
-
-- [Producer 아키텍처](../producer/architecture) · server/producer/src/ (§1.4)
-- [Producer API](../producer/api) · server/producer/src/modules/ (`/api/v1/recipes/recommended`)

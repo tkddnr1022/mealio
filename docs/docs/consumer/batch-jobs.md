@@ -72,9 +72,3 @@ pnpm run recipe-ingestion:retrieve
 
 - [레시피 수집 상세](./recipe-ingestion)
 - [Consumer 아키텍처](./architecture)
-
-## 참고 코드·계약
-
-- [레시피 수집 파이프라인](../project/recipe-ingestion)
-- [개발 규약](../other/development-conventions)
-- [분석 파이프라인](../consumer/analytics-pipeline)

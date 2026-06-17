@@ -97,8 +97,3 @@ pnpm --filter client test:unit
 - [상태 관리](./state)
 - [API 클라이언트/BFF](./api-bff)
 - [접근성/성능 기준](./accessibility-performance)
-
-## 참고 코드·계약
-
-- [에러·토스트](../client/error-toast)
-- [클라이언트 아키텍처](../client/architecture) · client/src/app/ (§5.4)

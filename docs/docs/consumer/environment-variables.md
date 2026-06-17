@@ -128,9 +128,3 @@ HTTP API 포트 없음. 부팅 시 Joi로 **전 변수 필수** 검증 — `serv
 - [레시피 수집](./recipe-ingestion)
 - [consumer 운영](./operations)
 - [producer 환경 변수](../producer/environment-variables)
-
-## 참고 코드·계약
-
-- `server/consumer/.env.example`, `server/consumer/.env.docker.example`, `server/consumer/README.md`
-- `server/consumer/src/config/env.validation.ts`
-- `docker/compose-consumer.yml`

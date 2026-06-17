@@ -73,8 +73,3 @@ Producer Cache-Aside와 동일 Redis를 사용하므로:
 - [캐시 (producer)](../producer/cache)
 - [추천 파이프라인](./recommendation-pipeline)
 - [Redis 키/캐시 계약](../shared/redis-cache-contract)
-
-## 참고 코드·계약
-
-- [Consumer 아키텍처](../consumer/architecture) · server/consumer/src/ (§2.2, §2.5)
-- `server/shared/src/constants/cache-keys.ts`

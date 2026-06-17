@@ -50,9 +50,3 @@ Consumer Handler 캐시는 **무효화 토픽 대상이 아닐 수 있습니다*
 - [캐시 (producer)](../producer/cache)
 - [캐시 무효화](./cache-invalidation)
 - [Redis 키/캐시 계약](../shared/redis-cache-contract)
-
-## 참고 코드·계약
-
-- `server/consumer/src/policy/chatbot-cache.policy.ts`
-- [Consumer 아키텍처](../consumer/architecture) · server/consumer/src/ (§2.5)
-- `server/shared/src/constants/cache-keys.ts`

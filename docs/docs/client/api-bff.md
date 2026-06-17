@@ -81,8 +81,3 @@ SSR API 401
 - [인증](./auth)
 - [캐시](./cache) (ISR fetch)
 - [도메인 API 가이드](../producer/domain-api)
-
-## 참고 코드·계약
-
-- [클라이언트 아키텍처](../client/architecture) · client/src/app/ (§5.1)
-- [BFF Route Handler](../client/api-bff) · client/src/app/api/

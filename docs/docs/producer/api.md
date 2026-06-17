@@ -64,8 +64,3 @@ Apidog 등 외부 도구로 server/producer Swagger 스펙 export 후 import 가
 
 - [인증/인가](./auth)
 - [데이터/계약 인덱스](../project/contracts-index)
-
-## 참고 코드·계약
-
-- [Producer API](../producer/api) · server/producer/src/modules/
-- [Producer 아키텍처](../producer/architecture) · server/producer/src/

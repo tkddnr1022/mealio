@@ -77,9 +77,3 @@
 - [챗봇/SSE](../producer/chatbot-sse)
 - [챗봇 처리](../consumer/chatbot)
 - [에러 처리/Toast](./error-toast)
-
-## 참고 코드·계약
-
-- [클라이언트 아키텍처](../client/architecture) (§2.2)
-- [컴포넌트 구조](../client/components) · client/src/components/ (chatbot)
-- [Producer 아키텍처](../producer/architecture) · server/producer/src/ (§1.2)

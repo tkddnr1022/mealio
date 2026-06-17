@@ -71,8 +71,3 @@ Kafka consume (at-least-once)
 - [이벤트 발행](../producer/event-publishing)
 - [운영/복구](./operations)
 - [Consumer 아키텍처](./architecture)
-
-## 참고 코드·계약
-
-- [Consumer 아키텍처](../consumer/architecture) · server/consumer/src/ (§2.2)
-- [개발 규약](../other/development-conventions)

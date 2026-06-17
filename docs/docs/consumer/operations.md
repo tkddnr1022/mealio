@@ -67,8 +67,3 @@ pnpm run recipe-ingestion:fetch  # ingestion 단계별
 - [Kafka 소비/신뢰성](./kafka-reliability)
 - [배치/스케줄 작업](./batch-jobs)
 - [Observability](../other/observability)
-
-## 참고 코드·계약
-
-- [Observability](../other/observability), [Consumer 운영](../consumer/operations)
-- [Observability](../other/observability)

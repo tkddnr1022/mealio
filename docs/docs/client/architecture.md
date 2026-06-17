@@ -81,8 +81,3 @@ AppQueryClientProvider → ToastProvider → AuthProvider → AppRootFrame
 - [API 클라이언트/BFF](./api-bff)
 - [상태 관리](./state)
 - [E2E 시나리오](../project/e2e-scenarios)
-
-## 참고 코드·계약
-
-- [클라이언트 아키텍처](../client/architecture) · client/src/app/
-- [클라이언트 아키텍처](../client/architecture)

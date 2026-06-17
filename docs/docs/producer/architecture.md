@@ -84,8 +84,3 @@ server/producer/src/
 - [인증/인가](./auth)
 - [캐시](./cache)
 - [이벤트 발행](./event-publishing)
-
-## 참고 코드·계약
-
-- [Producer 아키텍처](../producer/architecture) · server/producer/src/ (§1.1)
-- [Producer API](../producer/api) · server/producer/src/modules/

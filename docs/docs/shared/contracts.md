@@ -72,9 +72,3 @@ DLQ: `KAFKA_DLQ_TOPICS.*` — 메인 토픽별 `-dlq` suffix.
 
 - [이벤트 발행](../producer/event-publishing)
 - [Kafka 소비/신뢰성](../consumer/kafka-reliability)
-
-## 참고 코드·계약
-
-- [Shared 개요](../shared/overview) · server/shared/src/
-- `server/shared/src/types/events/`
-- [Observability](../other/observability)

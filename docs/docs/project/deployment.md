@@ -101,8 +101,3 @@
 
 - [시스템 아키텍처](./architecture)
 - [Observability](../other/observability)
-
-## 참고 코드·계약
-
-- [배포](../project/deployment) · docker/
-- `README.md` (Usage)

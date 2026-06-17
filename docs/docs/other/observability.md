@@ -69,9 +69,3 @@
 - [이벤트/분석 파이프라인](../consumer/analytics-pipeline)
 - [Producer 운영](../producer/operations)
 - [Consumer 운영/복구](../consumer/operations)
-
-## 참고 코드·계약
-
-- observability/grafana/ — Grafana provisioning
-- server/shared/src/types/events/ — 이벤트 타입
-- [분석 파이프라인](../consumer/analytics-pipeline)

@@ -92,7 +92,3 @@ Producer는 **명령(쓰기) API 성공 = Kafka 발행**까지 책임집니다. 
 - [도메인](project/domain)
 - [로컬 개발/온보딩](project/getting-started)
 - [배포/환경 전략](project/deployment)
-
-## 참고 코드·계약
-
-- `README.md`

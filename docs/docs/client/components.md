@@ -77,8 +77,3 @@ pnpm run start:storybook
 
 - [클라이언트 아키텍처](./architecture)
 - [Design System](../other/design-system)
-
-## 참고 코드·계약
-
-- [컴포넌트 구조](../client/components) · client/src/components/
-- [컴포넌트 구조](../client/components)

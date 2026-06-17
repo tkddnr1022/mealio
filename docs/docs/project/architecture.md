@@ -113,8 +113,3 @@ producer → Kafka topic
 - [배포/환경 전략](./deployment)
 - [추천 시스템](./recommendation)
 - [E2E 시나리오](./e2e-scenarios)
-
-## 참고 코드·계약
-
-- [배포](../project/deployment) · docker/ (§1)
-- [시스템 아키텍처](../project/architecture) (참고용, 배포 전략과 불일치 시 deployment_strategy 우선)

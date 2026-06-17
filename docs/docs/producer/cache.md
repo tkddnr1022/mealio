@@ -73,9 +73,3 @@ Producer는 캐시를 **직접 삭제하지 않습니다**. Consumer가 `cache-i
 - [캐시 (client)](../client/cache)
 - [Redis 키/캐시 계약](../shared/redis-cache-contract)
 - [추천 API](./recommendation-api)
-
-## 참고 코드·계약
-
-- `server/producer/src/policy/cache.policy.ts`
-- [Producer 아키텍처](../producer/architecture) · server/producer/src/ (§1.4)
-- [개발 규약](../other/development-conventions)

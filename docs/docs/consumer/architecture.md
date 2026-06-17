@@ -83,8 +83,3 @@ Handler는 **Kafka를 직접 발행하지 않음** — 무효화는 RequestServi
 - [추천 파이프라인](./recommendation-pipeline)
 - [배치/스케줄 작업](./batch-jobs)
 - [레시피 수집 상세](./recipe-ingestion)
-
-## 참고 코드·계약
-
-- [Consumer 아키텍처](../consumer/architecture) · server/consumer/src/ (§2.1)
-- [개발 규약](../other/development-conventions)

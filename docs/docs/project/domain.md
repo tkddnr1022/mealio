@@ -88,8 +88,3 @@ erDiagram
 - [데이터 모델/스키마](../shared/data-models)
 - [추천 시스템](./recommendation)
 - [데이터/계약 인덱스](./contracts-index)
-
-## 참고 코드·계약
-
-- [데이터 모델](../shared/data-models) · server/shared/src/database/prisma/schema.prisma
-- [프로젝트 개요](/)

@@ -112,8 +112,3 @@ docker compose --env-file .env.docker.local -f docker/compose-database.yml -f do
 - [Observability](../other/observability)
 - [producer 환경 변수](../producer/environment-variables)
 - [consumer 환경 변수](../consumer/environment-variables)
-
-## 참고 코드·계약
-
-- `.env.docker.example`, 루트 `README.md`
-- `docker/compose-database.yml`, `compose-kafka.yml`, `compose-kafka-ui.yml`, `compose-monitoring.yml`

@@ -95,8 +95,3 @@ Proxy는 `/chatbot`, `/inventory`, `/mypage/*`(루트 `/mypage` 제외)에서 `r
 - [클라이언트 아키텍처](../client/architecture)
 - [인증](../client/auth)
 - [캐시](../client/cache)
-
-## 참고 코드·계약
-
-- [E2E 시나리오](../project/e2e-scenarios)
-- [클라이언트 아키텍처](../client/architecture) · client/src/app/ (§2, §3)

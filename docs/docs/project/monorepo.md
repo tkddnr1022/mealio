@@ -96,9 +96,3 @@ GitHub Actions 워크플로: `.github/workflows/`
 - [클라이언트 아키텍처](../client/architecture)
 - [Producer 아키텍처](../producer/architecture)
 - [Consumer 아키텍처](../consumer/architecture)
-
-## 참고 코드·계약
-
-- [Producer](../producer/architecture)·[Consumer](../consumer/architecture)·[Shared](../shared/overview) 아키텍처 문서
-- [클라이언트 아키텍처](../client/architecture) · client/src/app/
-- `README.md`

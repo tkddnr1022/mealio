@@ -60,7 +60,3 @@
 2. 해당 API 계약·스키마·이벤트 문서 갱신
 3. Docusaurus 해당 페이지 갱신
 4. [기여 가이드](../other/contributing) 준수
-
-## 참고 코드·계약
-
-- [기여 가이드](../other/contributing), [개발 규약](../other/development-conventions)

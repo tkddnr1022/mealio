@@ -98,9 +98,3 @@ Route Handler가 들어온 `Cookie`로 Producer refresh 호출 → `Set-Cookie` 
 - [E2E 시나리오/화면 흐름](../project/e2e-scenarios)
 - [인증/인가](../producer/auth)
 - [API 클라이언트/BFF](./api-bff)
-
-## 참고 코드·계약
-
-- [클라이언트 아키텍처](../client/architecture) · client/src/app/ (§3.1, §5.2)
-- [Producer 인증](../producer/auth), [Client 인증](../client/auth)
-- [BFF Route Handler](../client/api-bff) · client/src/app/api/

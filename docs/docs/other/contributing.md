@@ -67,8 +67,3 @@ pnpm run ci:build:docs   # 문서만 검증할 때
 - [개발 규약](./development-conventions)
 - [모노레포 구조](../project/monorepo)
 - [데이터/계약 인덱스](../project/contracts-index)
-
-## 참고 코드·계약
-
-- [개발 규약](./development-conventions)
-- [데이터/계약 인덱스](../project/contracts-index)

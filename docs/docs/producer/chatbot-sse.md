@@ -78,9 +78,3 @@
 - [챗봇 UI/스트리밍](../client/chatbot-ui)
 - [챗봇 처리](../consumer/chatbot)
 - [이벤트 발행](./event-publishing)
-
-## 참고 코드·계약
-
-- [Producer 아키텍처](../producer/architecture) · server/producer/src/ (§1.2)
-- [개발 규약](../other/development-conventions) (§5)
-- [Producer API](../producer/api) · server/producer/src/modules/

@@ -82,8 +82,3 @@ Kafka consume
 - [챗봇/SSE](../producer/chatbot-sse)
 - [챗봇 UI/스트리밍](../client/chatbot-ui)
 - [캐시](./cache)
-
-## 참고 코드·계약
-
-- [Consumer 아키텍처](../consumer/architecture) · server/consumer/src/ (§2.3, §2.4)
-- [개발 규약](../other/development-conventions) (§5)

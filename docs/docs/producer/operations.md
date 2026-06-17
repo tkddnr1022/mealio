@@ -52,8 +52,3 @@
 
 - [Observability](../other/observability)
 - [Consumer 운영/복구](../consumer/operations)
-
-## 참고 코드·계약
-
-- [Observability](../other/observability)
-- [배포](../project/deployment) · docker/

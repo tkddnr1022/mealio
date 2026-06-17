@@ -117,9 +117,3 @@ pnpm run kpi:rollup
 - [추천 파이프라인](./recommendation-pipeline)
 - [이벤트 발행](../producer/event-publishing)
 - [Observability](../other/observability)
-
-## 참고 코드·계약
-
-- [Observability](../other/observability)
-- [분석 파이프라인](../consumer/analytics-pipeline)
-- [Observability](../other/observability) (§7~8)

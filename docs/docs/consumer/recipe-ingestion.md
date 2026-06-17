@@ -74,8 +74,3 @@ pnpm run recipe-ingestion:retrieve
 
 - [배치/스케줄 작업](./batch-jobs)
 - [Kafka 소비/신뢰성](./kafka-reliability)
-
-## 참고 코드·계약
-
-- [레시피 수집 파이프라인](../project/recipe-ingestion)
-- [레시피 수집](../project/recipe-ingestion)

@@ -96,8 +96,3 @@ API 계약: [Producer API](../producer/api) · server/producer/src/modules/
 - [API 문서](./api)
 - [이벤트 발행](./event-publishing)
 - [캐시](./cache)
-
-## 참고 코드·계약
-
-- [Producer 아키텍처](../producer/architecture) · server/producer/src/ (§1.1)
-- [Producer API](../producer/api) · server/producer/src/modules/

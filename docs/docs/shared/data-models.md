@@ -70,9 +70,3 @@ pnpm run db:mongoose:seed
 
 - [데이터/계약 인덱스](../project/contracts-index)
 - [개요](./overview)
-
-## 참고 코드·계약
-
-- [데이터 모델](../shared/data-models) · server/shared/src/database/prisma/schema.prisma
-- `server/shared/src/database/prisma/schema.prisma`
-- `server/shared/src/database/mongoose/schemas/`

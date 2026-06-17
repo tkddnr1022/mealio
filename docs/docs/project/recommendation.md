@@ -102,9 +102,3 @@ PostgreSQL `user_recipe_recommendations` 테이블이 **추천 결과의 단일 
 - [추천 API](../producer/recommendation-api)
 - [추천 파이프라인](../consumer/recommendation-pipeline)
 - [캐시 무효화](../consumer/cache-invalidation)
-
-## 참고 코드·계약
-
-- [Producer 아키텍처](../producer/architecture) · server/producer/src/ (§1.4)
-- [Consumer 아키텍처](../consumer/architecture) · server/consumer/src/ (§2.6)
-- [Shared 개요](../shared/overview) · server/shared/src/ (§3.5)

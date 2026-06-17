@@ -95,9 +95,3 @@ pnpm --filter client test:unit
 - [클라이언트 아키텍처](./architecture)
 - [Design System](../other/design-system)
 - [컴포넌트 구조/규칙](./components)
-
-## 참고 코드·계약
-
-- [클라이언트 아키텍처](../client/architecture) (§8, §9)
-- [클라이언트 아키텍처](../client/architecture) · client/src/app/ (§4)
-- [접근성·성능](../client/accessibility-performance) · client/src/app/globals.css
