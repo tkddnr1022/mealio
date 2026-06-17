@@ -1,6 +1,7 @@
 import { themes as prismThemes } from 'prism-react-renderer';
 import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import searchKoWebpackPlugin from './plugins/search-ko-webpack';
 import {
   GITHUB_PAGES_BASE_URL,
   GITHUB_REPO,
@@ -25,7 +26,21 @@ const config: Config = {
       onBrokenMarkdownLinks: brokenLinkPolicy,
     },
   },
-  themes: ['@docusaurus/theme-mermaid'],
+  plugins: [searchKoWebpackPlugin],
+  themes: [
+    '@docusaurus/theme-mermaid',
+    [
+      require.resolve('@easyops-cn/docusaurus-search-local'),
+      {
+        hashed: true,
+        docsRouteBasePath: '/',
+        indexBlog: false,
+        language: ['ko', 'en'],
+        removeDefaultStopWordFilter: ['ko'],
+        highlightSearchTermsOnTargetPage: true,
+      },
+    ],
+  ],
   i18n: {
     defaultLocale: 'ko',
     locales: ['ko'],
