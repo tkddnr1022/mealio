@@ -23,13 +23,18 @@ mealio/
 
 ## 패키지 의존 방향
 
-```text
-client  ──HTTP──►  producer
-                      │
-                      ├──► shared
-                      └──► Kafka
-consumer ───────────────► shared
-                      └──► Kafka
+```mermaid
+flowchart LR
+  Client[client]
+  Producer[producer]
+  Consumer[consumer]
+  Shared[shared]
+  Kafka[Kafka]
+  Client -->|HTTP| Producer
+  Producer --> Shared
+  Producer --> Kafka
+  Consumer --> Shared
+  Consumer --> Kafka
 ```
 
 - `client`는 `producer`를 **HTTP로만** 호출 (shared 직접 의존 없음)

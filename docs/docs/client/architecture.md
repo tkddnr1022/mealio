@@ -50,8 +50,9 @@ client/src/
 
 `client/src/app/layout.tsx`:
 
-```text
-AppQueryClientProvider → ToastProvider → AuthProvider → AppRootFrame
+```mermaid
+flowchart TB
+    Q[AppQueryClientProvider] --> T[ToastProvider] --> A[AuthProvider] --> F[AppRootFrame]
 ```
 
 순서 변경 시 Query 전역 오류 Toast가 동작하지 않을 수 있습니다.

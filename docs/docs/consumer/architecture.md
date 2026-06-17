@@ -42,12 +42,12 @@ Job 패턴: `NestFactory.createApplicationContext` + `run-*.ts` CLI.
 
 ## Processor 패턴
 
-```text
-Kafka message
-  → BaseTopicProcessor (재시도·DLQ)
-  → Handler(s) (도메인 로직)
-  → DB / Redis / OpenAI
-  → CacheInvalidationRequestService (필요 시)
+```mermaid
+flowchart LR
+    K[Kafka message] --> B[BaseTopicProcessor]
+    B --> H[Handler(s)]
+    H --> D[DB / Redis / OpenAI]
+    D --> C[CacheInvalidationRequestService]
 ```
 
 Handler는 **Kafka를 직접 발행하지 않음** — 무효화는 RequestService 경유.

@@ -49,23 +49,25 @@ flowchart LR
 
 ## 요청 경로 (동기)
 
-```text
-Browser → client (Next.js)
-       → producer (NestJS REST)
-       → Redis cache / PostgreSQL / MongoDB
-       → (쓰기 시) Kafka publish
+```mermaid
+flowchart LR
+    B[Browser] --> C[client Next.js]
+    C --> P[producer NestJS REST]
+    P --> R[Redis cache / PostgreSQL / MongoDB]
+    P -->|쓰기 시| K[Kafka publish]
 ```
 
 읽기는 **Cache-Aside** 우선. 쓰기는 HTTP 200 후 Consumer가 최종 반영.
 
 ## 이벤트 경로 (비동기)
 
-```text
-producer → Kafka topic
-        → consumer processor
-        → Handler (도메인 로직)
-        → DB / Redis / OpenAI
-        → (필요 시) cache-invalidation / 추가 이벤트
+```mermaid
+flowchart LR
+    P[producer] --> K[Kafka topic]
+    K --> CP[consumer processor]
+    CP --> H[Handler]
+    H --> S[DB / Redis / OpenAI]
+    S --> CI[cache-invalidation / 추가 이벤트]
 ```
 
 ## 패키지 책임

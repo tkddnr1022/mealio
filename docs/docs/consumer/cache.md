@@ -28,13 +28,10 @@ Consumer는 **조회 성능 최적화**를 위해 Handler 단에서 Redis를 직
 
 ## Producer와의 관계
 
-```text
-Producer API 캐시 (Cache-Aside)
-    ↔ 동일 Redis
-Consumer Handler 캐시 (직접 get/set)
-    ↔ 동일 Redis
-Consumer 무효화 (cache-invalidation 토픽)
-    → Producer·Consumer 키 모두 삭제 가능
+```mermaid
+flowchart TB
+    PA[Producer API 캐시 Cache-Aside] <-->|동일 Redis| CH[Consumer Handler 캐시]
+    CI[Consumer 무효화 cache-invalidation] --> DEL[Producer·Consumer 키 삭제]
 ```
 
 Consumer Handler 캐시는 **무효화 토픽 대상이 아닐 수 있습니다**. TTL 만료 또는 도메인 이벤트 후 자연 갱신에 의존하는 키가 있습니다. Producer 쪽 `user`/`inventory`/`recipe`/`recommendation` 키는 [캐시 무효화](./cache-invalidation)로 삭제됩니다.

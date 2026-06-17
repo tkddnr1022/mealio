@@ -20,13 +20,13 @@
 
 ## 처리 파이프라인
 
-```text
-Kafka consume (at-least-once)
-  → BaseTopicProcessor
-       ├─ 성공 → offset commit
-       ├─ 재시도 (정책 내)
-       └─ 실패 → DLQ
-  → Handler (멱등 upsert / skipDuplicates)
+```mermaid
+flowchart TD
+    K[Kafka consume at-least-once] --> B[BaseTopicProcessor]
+    B -->|성공| OC[offset commit]
+    B -->|재시도| B
+    B -->|실패| DLQ[DLQ]
+    B --> H[Handler 멱등 upsert / skipDuplicates]
 ```
 
 ## 멱등성 패턴

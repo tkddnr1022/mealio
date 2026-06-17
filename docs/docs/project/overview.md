@@ -41,14 +41,14 @@ title: 개요
 | Observability | Sentry, Prometheus, Grafana, GA4 |
 | 문서·계약 | OpenAPI, Storybook, Docusaurus |
 
-## 아키텍처 한 줄 요약
+## 아키텍처 요약
 
-```text
-client → producer (실시간 API + 캐시 + Kafka 발행)
-              ↓ Kafka
-         consumer (이벤트·추천·챗봇·ETL·KPI)
-              ↓
-    PostgreSQL / MongoDB / Redis / OpenAI
+```mermaid
+flowchart TB
+    C[client] --> P[producer]
+    P -->|실시간 API + 캐시 + Kafka 발행| K[Kafka]
+    K --> CV[consumer]
+    CV --> D[PostgreSQL / MongoDB / Redis / OpenAI]
 ```
 
 상세: [시스템 아키텍처](project/architecture)

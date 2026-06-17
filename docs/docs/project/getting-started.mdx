@@ -92,10 +92,18 @@ pnpm start:docs    # Docusaurus 개발 서버
 
 ## 로컬 아키텍처 요약
 
-```text
-[호스트]  client :4000 ──HTTPS──► producer :3000
-[호스트]  consumer ──Kafka──► (이벤트 처리)
-[Docker]  postgres, mongodb, redis, kafka, kafka-ui, prometheus, grafana
+```mermaid
+flowchart LR
+    subgraph host [호스트]
+        C[client :4000]
+        P[producer :3000]
+        CV[consumer]
+        C -->|HTTPS| P
+        CV -->|Kafka| E[이벤트 처리]
+    end
+    subgraph docker [Docker]
+        D[postgres, mongodb, redis, kafka, kafka-ui, prometheus, grafana]
+    end
 ```
 
 ## 자주 쓰는 명령

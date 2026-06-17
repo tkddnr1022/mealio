@@ -10,8 +10,9 @@
 
 ## 파이프라인
 
-```text
-fetch → submit → retrieve → persist
+```mermaid
+flowchart LR
+    Fetch[fetch] --> Submit[submit] --> Retrieve[retrieve] --> Persist[persist]
 ```
 
 | 단계 | 주체 | 저장소·출력 |
@@ -36,11 +37,17 @@ GET /api/{keyId}/{serviceId}/json/{startIdx}/{endIdx}
 
 ## 상태 전이
 
-```text
-fetched → submitting → submitted
-        → retrieving → retrieved
-        → persisting → persisted
-retry_count >= 3 → failed
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> fetched
+    fetched --> submitting --> submitted --> retrieving --> retrieved --> persisting --> persisted --> [*]
+    fetched --> failed
+    submitting --> failed
+    submitted --> failed
+    retrieving --> failed
+    persisting --> failed
+    note right of failed: retry_count >= 3
 ```
 
 | 전이 | 트리거 |

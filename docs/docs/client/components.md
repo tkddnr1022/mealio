@@ -35,8 +35,9 @@ Button/
 
 ## import 방향 (단방향)
 
-```text
-ui  →  layout  →  domain (recipe, chatbot, ...)
+```mermaid
+flowchart LR
+    UI[ui] --> L[layout] --> D[domain recipe, chatbot, ...]
 ```
 
 | 출발 | 허용 | 금지 |

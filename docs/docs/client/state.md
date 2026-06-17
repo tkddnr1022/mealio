@@ -18,11 +18,9 @@
 
 ## Provider 트리
 
-```text
-AppQueryClientProvider
-  └─ ToastProvider
-       └─ AuthProvider
-            └─ AppRootFrame (children)
+```mermaid
+flowchart TB
+    Q[AppQueryClientProvider] --> T[ToastProvider] --> A[AuthProvider] --> F[AppRootFrame]
 ```
 
 `client/src/app/layout.tsx`에서 합성. Query 오류 Toast는 ToastProvider 이후에 등록됩니다.

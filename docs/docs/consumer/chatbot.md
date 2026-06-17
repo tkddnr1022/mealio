@@ -10,14 +10,14 @@
 
 토픽: `chatbot-requests` / 그룹: `chatbot-group`
 
-```text
-Kafka consume
-  → ProcessChatHandler (GPT 스트리밍 + tool dispatch)
-  → tool handlers (Inventory, FoodCategories, SearchRecipes 등)
-  → Redis stream 이벤트 발행 (chunk / tool_call / done / error)
-  → SaveChatLogHandler (ChatbotLog 저장)
-  → SyncConversationMetaHandler (대화 메타)
-  → ChatbotCreditService (멱등 크레딧 차감)
+```mermaid
+flowchart TD
+    K[Kafka consume] --> P[ProcessChatHandler]
+    P --> T[tool handlers]
+    P --> R[Redis stream 이벤트]
+    P --> S[SaveChatLogHandler]
+    P --> M[SyncConversationMetaHandler]
+    P --> C[ChatbotCreditService]
 ```
 
 ## ProcessChatHandler

@@ -22,10 +22,11 @@
 
 `QueryClient` 생성 시 `QueryCache` / `MutationCache`의 `onError`에서 `notifyApiError`를 호출합니다.
 
-```text
-AppQueryClientProvider
-  └─ QueryCache.onError → showGlobalQueryErrorToast
-  └─ MutationCache.onError → showGlobalMutationErrorToast
+```mermaid
+flowchart TB
+    Q[AppQueryClientProvider]
+    Q --> QC[QueryCache.onError → showGlobalQueryErrorToast]
+    Q --> MC[MutationCache.onError → showGlobalMutationErrorToast]
 ```
 
 구현: `client/src/lib/queries/query-client.provider.tsx`, `global-query-error-toast.ts`
@@ -66,8 +67,9 @@ AppQueryClientProvider
 
 `client/src/app/layout.tsx`:
 
-```text
-AppQueryClientProvider → ToastProvider → AuthProvider → AppRootFrame
+```mermaid
+flowchart TB
+    Q[AppQueryClientProvider] --> T[ToastProvider] --> A[AuthProvider] --> F[AppRootFrame]
 ```
 
 Toast 브리지가 Query 오류 콜백 시점에 등록되도록 이 순서를 유지합니다.

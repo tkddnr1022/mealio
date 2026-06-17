@@ -36,12 +36,15 @@ OpenAPI: `RecipeRecommendationItem`
 
 ## 조회 로직
 
-```text
-1. Redis recommendation:{userId} 조회 (TTL 3600s)
-2. miss → PostgreSQL UserRecipeRecommendation 원본 테이블 조회
-3. RecipeSummary + RecipeStats 조인
-4. 원본 행 없음 → likeCount DESC 인기 레시피 fallback
-5. Redis에 저장 후 반환
+```mermaid
+flowchart TD
+    S1[Redis recommendation:userId 조회] -->|hit| RET[반환]
+    S1 -->|miss| S2[PostgreSQL UserRecipeRecommendation]
+    S2 --> S3[RecipeSummary + RecipeStats 조인]
+    S3 -->|원본 없음| S4[likeCount DESC 인기 fallback]
+    S3 --> S5[Redis 저장]
+    S4 --> S5
+    S5 --> RET
 ```
 
 Fallback 시 `reason`에 초기 추천 데이터 없음을 명시합니다.

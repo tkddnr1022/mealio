@@ -8,11 +8,15 @@
 
 ## Cache-Aside 패턴
 
-```text
-1. API 요청 → CacheService.getOrSet(key, fetcher, ttl)
-2. Redis hit → 즉시 반환
-3. Redis miss → DB 조회 → Redis 저장 → 반환
-4. Consumer 무효화 → Redis 키 삭제 → 다음 요청 시 DB 폴백
+```mermaid
+flowchart TD
+    S1[API 요청] --> S2[CacheService.getOrSet]
+    S2 -->|hit| S3[즉시 반환]
+    S2 -->|miss| S4[DB 조회]
+    S4 --> S5[Redis 저장]
+    S5 --> S6[반환]
+    S7[Consumer 무효화] --> S8[Redis 키 삭제]
+    S8 --> S9[다음 요청 시 DB 폴백]
 ```
 
 구현: `server/producer/src/infrastructure/cache/`

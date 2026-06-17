@@ -8,12 +8,23 @@
 
 ## 스택 개요
 
-```text
-[Client]  GA4, Web Vitals, Sentry
-[Producer] Prometheus /metrics, Sentry, Correlation-Id 로그
-[Consumer] Prometheus /metrics, Sentry, EventLog 기록
-[Infra]   Prometheus → Grafana (Ops + Product 대시보드)
-[Data]    MongoDB event_logs → KPI rollup → kpi_rollups
+```mermaid
+flowchart TB
+    subgraph Client
+        GA[GA4, Web Vitals, Sentry]
+    end
+    subgraph Producer
+        PM[Prometheus /metrics, Sentry, Correlation-Id]
+    end
+    subgraph Consumer
+        CM[Prometheus /metrics, Sentry, EventLog]
+    end
+    subgraph Infra
+        PG[Prometheus → Grafana]
+    end
+    subgraph Data
+        EL[MongoDB event_logs → KPI rollup → kpi_rollups]
+    end
 ```
 
 ## Observability 문서 맵

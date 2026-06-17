@@ -8,15 +8,22 @@
 
 ## 전체 흐름
 
-```text
-사용자 입력
-  → POST /api/v1/chatbot/messages (Producer)
-  → Kafka chatbot-requests
-  → Consumer (GPT + tool calls)
-  → Redis chatbot:stream:{streamChannelId}
-  → Producer SSE 구독
-  → client EventSource / ReadableStream
-  → UI 갱신
+```mermaid
+sequenceDiagram
+    participant U as 사용자
+    participant C as client
+    participant P as producer
+    participant K as Kafka
+    participant CV as consumer
+    participant R as Redis
+    U->>C: 입력
+    C->>P: POST /api/v1/chatbot/messages
+    P->>K: chatbot-requests
+    K->>CV: GPT + tool calls
+    CV->>R: chatbot:stream:{streamChannelId}
+    P->>R: SSE 구독
+    P->>C: EventSource / ReadableStream
+    C->>U: UI 갱신
 ```
 
 상세 시퀀스: [챗봇/SSE](../producer/chatbot-sse), [챗봇 처리](../consumer/chatbot)

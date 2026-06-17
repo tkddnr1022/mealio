@@ -62,12 +62,16 @@ Next.js `client/src/app/api/` — 인프라·인증 브리지 전용.
 
 ### refresh-bridge 흐름
 
-```text
-SSR API 401
-  → redirect /api/auth/refresh-bridge?next=...
-  → Route Handler: POST /api/v1/auth/refresh (Cookie 전달)
-  → Set-Cookie 브라우저 전달
-  → next(상대 경로)로 redirect
+```mermaid
+sequenceDiagram
+    participant SSR as SSR API
+    participant RH as refresh-bridge Route Handler
+    participant P as producer
+    SSR->>SSR: 401
+    SSR->>RH: redirect /api/auth/refresh-bridge?next=...
+    RH->>P: POST /api/v1/auth/refresh (Cookie)
+    P->>RH: Set-Cookie
+    RH->>SSR: redirect next(상대 경로)
 ```
 
 ## 에러 처리

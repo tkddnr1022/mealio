@@ -8,14 +8,11 @@
 
 ## 캐시 레이어 개요
 
-```text
-[브라우저] React Query (클라이언트 상태)
-    ↓
-[Next.js] Data Cache / ISR (서버 HTML·fetch 캐시)
-    ↓
-[Producer] Redis Cache-Aside (API 응답)
-    ↓
-[DB] PostgreSQL / MongoDB
+```mermaid
+flowchart TB
+    RQ[브라우저 React Query] --> NC[Next.js Data Cache / ISR]
+    NC --> PR[Producer Redis Cache-Aside]
+    PR --> DB[PostgreSQL / MongoDB]
 ```
 
 각 레이어는 독립적이며, 같은 데이터라도 TTL·무효화 경로가 다릅니다.

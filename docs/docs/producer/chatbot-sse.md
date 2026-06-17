@@ -8,13 +8,21 @@
 
 ## 6단계 흐름
 
-```text
-1. POST /api/v1/chatbot/messages → streamChannelId 발급
-2. Kafka chatbot-requests 발행 (userId, message, conversationId?, streamChannelId)
-3. Consumer ProcessChatHandler — GPT 스트리밍 + tool calls
-4. Consumer → Redis chatbot:stream:{streamChannelId} 이벤트 발행
-5. Producer Redis 구독 → SSE data: {JSON}\n\n 전달
-6. done/error/타임아웃 시 구독 해제
+```mermaid
+sequenceDiagram
+    participant C as client
+    participant P as producer
+    participant K as Kafka
+    participant CV as consumer
+    participant R as Redis
+    C->>P: POST /api/v1/chatbot/messages
+    P->>C: streamChannelId
+    P->>K: chatbot-requests 발행
+    K->>CV: ProcessChatHandler (GPT 스트리밍 + tool calls)
+    CV->>R: chatbot:stream:{streamChannelId}
+    P->>R: Redis 구독
+    P->>C: SSE data: {JSON}
+    Note over P,C: done/error/타임아웃 시 구독 해제
 ```
 
 ## API

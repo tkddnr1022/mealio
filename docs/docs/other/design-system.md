@@ -18,12 +18,13 @@ Figma MCP 출력(React+Tailwind)은 **참고용** — 프로젝트 스택에 맞
 
 ## Design-to-Code 워크플로우
 
-```text
-Figma (Variables·Styles·Components)
-  → [수집] figma-variables-and-styles.md
-  → [변환] design_tokens.json
-  → [연동] globals.css
-  → 코드 컴포넌트 (client/src/components/ui/)
+```mermaid
+flowchart LR
+    F[Figma Variables·Styles·Components]
+    F --> S1[수집 figma-variables-and-styles.md]
+    S1 --> S2[변환 design_tokens.json]
+    S2 --> S3[연동 globals.css]
+    S3 --> C[client/src/components/ui/]
 ```
 
 | 단계 | 가이드 |

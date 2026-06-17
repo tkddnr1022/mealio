@@ -54,12 +54,12 @@ server/producer/src/
 
 ## 쓰기 API 패턴
 
-```text
-1. JWT 검증
-2. (선택) 캐시 조회
-3. DB 읽기/쓰기 또는 이벤트 페이로드 구성
-4. Kafka publish
-5. HTTP 200/204 (Consumer 반영은 비동기)
+```mermaid
+flowchart TD
+    S1[JWT 검증] --> S2[선택: 캐시 조회]
+    S2 --> S3[DB 읽기/쓰기 또는 이벤트 페이로드 구성]
+    S3 --> S4[Kafka publish]
+    S4 --> S5[HTTP 200/204]
 ```
 
 클라이언트는 Optimistic UI로 즉시 UX 반영.
