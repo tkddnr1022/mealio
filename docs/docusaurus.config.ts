@@ -1,7 +1,6 @@
 import { themes as prismThemes } from 'prism-react-renderer';
 import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
-import type * as Plugin from '@docusaurus/types/src/plugin';
 import type * as OpenApiPlugin from 'docusaurus-plugin-openapi-docs';
 import searchKoWebpackPlugin from './plugins/search-ko-webpack';
 import {
@@ -31,25 +30,14 @@ const config: Config = {
   plugins: [
     searchKoWebpackPlugin,
     [
-      '@docusaurus/plugin-content-docs',
-      {
-        id: 'openapi',
-        path: 'openapi',
-        routeBasePath: 'openapi',
-        sidebarPath: './sidebars-openapi.ts',
-        docItemComponent: '@theme/ApiItem',
-        editUrl: undefined,
-      },
-    ],
-    [
       'docusaurus-plugin-openapi-docs',
       {
-        id: 'producer-api',
-        docsPluginId: 'openapi',
+        id: 'openapi',
+        docsPluginId: 'classic',
         config: {
           producer: {
             specPath: '../agent/common/openapi_spec_backend.yaml',
-            outputDir: 'openapi',
+            outputDir: 'docs/openapi',
             sidebarOptions: {
               groupPathsBy: 'tag',
               categoryLinkSource: 'tag',
@@ -57,7 +45,7 @@ const config: Config = {
             maskCredentials: false,
           } satisfies OpenApiPlugin.Options,
         },
-      } satisfies Plugin.PluginOptions,
+      },
     ],
   ],
   themes: [
@@ -67,7 +55,7 @@ const config: Config = {
       require.resolve('@easyops-cn/docusaurus-search-local'),
       {
         hashed: true,
-        docsRouteBasePath: ['/', '/openapi'],
+        docsRouteBasePath: ['/'],
         indexBlog: false,
         language: ['ko', 'en'],
         removeDefaultStopWordFilter: ['ko'],
@@ -87,6 +75,7 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           routeBasePath: '/',
           editUrl: undefined,
+          docItemComponent: '@theme/ApiItem',
         },
         blog: false,
         theme: {
@@ -109,7 +98,6 @@ const config: Config = {
         {
           type: 'docSidebar',
           sidebarId: 'openapiSidebar',
-          docsPluginId: 'openapi',
           position: 'left',
           label: 'OpenAPI 레퍼런스',
         },

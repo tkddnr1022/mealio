@@ -3,5 +3,5 @@
 node_modules
 build
 *.log
-openapi/*
-!.gitkeep
+docs/openapi/*
+!docs/openapi/.gitkeep

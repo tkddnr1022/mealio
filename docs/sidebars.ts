@@ -1,10 +1,14 @@
 import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
+// @ts-ignore - docs/openapi/sidebar.ts 는 `pnpm gen-api-docs` 로 생성됨
+import producerOpenApiSidebar from './docs/openapi/sidebar';
 
 /**
  * Mealio Docusaurus 사이드바.
  * 사이드바 목차 — docs/docs/ Markdown과 1:1 대응
+ * OpenAPI 사이드바는 gen-api-docs 로 생성된 docs/openapi/sidebar.ts 를 그대로 병합
  */
 const sidebars: SidebarsConfig = {
+  openapiSidebar: producerOpenApiSidebar,
   docsSidebar: [
     {
       type: 'category',
