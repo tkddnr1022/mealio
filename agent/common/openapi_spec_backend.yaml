@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Recipe Service API
+  title: Mealio Producer API
   description: |
     레시피 추천 및 재료 관리 서비스 API
     
@@ -16,7 +16,7 @@ info:
   version: 1.0.0
   contact:
     name: API Support
-    email: support@example.com
+    email: tkddnr10222@gmail.com
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
@@ -24,9 +24,7 @@ info:
 servers:
   - url: https://api.example.com
     description: Production server
-  - url: https://staging-api.example.com
-    description: Staging server
-  - url: http://localhost:8080
+  - url: http://localhost:3000
     description: Local development server
 
 tags:

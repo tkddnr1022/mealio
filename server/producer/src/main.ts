@@ -47,7 +47,9 @@ async function bootstrap() {
 
   const swaggerConfig = createSwaggerConfig();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api-docs', app, document);
+  if (config.getOrThrow<string>('APP_ENV') === 'local') {
+    SwaggerModule.setup('api-docs', app, document);
+  }
 
   await app.listen(port);
 

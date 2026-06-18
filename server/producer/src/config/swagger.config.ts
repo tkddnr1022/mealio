@@ -3,7 +3,7 @@ import { ACCESS_TOKEN_COOKIE_NAME } from '../constants/auth-cookie.constants';
 
 export function createSwaggerConfig() {
   const config = new DocumentBuilder()
-    .setTitle('Recipe Service API')
+    .setTitle('Mealio Producer API')
     .setDescription(
       `레시피 추천 및 재료 관리 서비스 API
 
@@ -18,11 +18,10 @@ export function createSwaggerConfig() {
 - AI 챗봇 레시피 추천`,
     )
     .setVersion('1.0.0')
-    .setContact('API Support', '', 'support@example.com')
+    .setContact('API Support', '', 'tkddnr10222@gmail.com')
     .setLicense('MIT', 'https://opensource.org/licenses/MIT')
     .addServer('https://api.example.com', 'Production server')
-    .addServer('https://staging-api.example.com', 'Staging server')
-    .addServer('http://localhost:8080', 'Local development server')
+    .addServer('http://localhost:3000', 'Local development server')
     .addTag('Authentication', '인증 관련 API')
     .addTag('User', '사용자 관련 API')
     .addTag('Recipe', '레시피 관련 API')
