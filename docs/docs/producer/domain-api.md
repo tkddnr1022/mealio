@@ -48,7 +48,6 @@ API 계약은 [Producer API](./api)와 내부 OpenAPI 명세를 참고하세요.
 | GET | `/api/v1/recipes/search` | 공개 | 검색 |
 | GET | `/api/v1/recipes/categories` | 공개 | 카테고리 목록 |
 | GET | `/api/v1/recipes/static-ids` | 공개 | ISR static params |
-| POST | `/api/v1/recipes/summaries` | 공개 | ID 배치 요약 |
 | POST | `/api/v1/recipes/{recipeId}/views` | 선택 | 조회 이벤트 |
 | POST | `/api/v1/recipes/search-queries` | 선택 | 검색어 이벤트 |
 | POST | `/api/v1/recipes/{recipeId}/search-clicks` | 선택 | 검색 클릭 |

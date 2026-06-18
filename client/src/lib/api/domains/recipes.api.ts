@@ -10,7 +10,6 @@
  * - POST /api/v1/recipes/search-queries → {@link recordRecipeSearchQuery}
  * - GET  /api/v1/recipes/:recipeId    → {@link getRecipeById}
  * - POST /api/v1/recipes/:recipeId/views → {@link increaseRecipeViewCount}
- * - POST /api/v1/recipes/summaries    → {@link getRecipeSummaries}
  *
  * 도메인 타입은 `@/lib/types/recipe`에서 정의한다.
  */
@@ -153,21 +152,6 @@ export function recordRecipeSearchClick(
   return httpClient.post<void>(
     API_ENDPOINTS.recipes.searchClick(recipeId),
     {},
-    fetchOptions,
-  );
-}
-
-/**
- * 레시피 요약 정보 벌크 조회 (최대 100개).
- * 존재하지 않거나 비공개인 ID는 응답에서 제외된다.
- */
-export function getRecipeSummaries(
-  ids: number[],
-  fetchOptions?: RequestOptions,
-): Promise<RecipeSummary[]> {
-  return httpClient.post<RecipeSummary[]>(
-    API_ENDPOINTS.recipes.summaries,
-    { ids },
     fetchOptions,
   );
 }

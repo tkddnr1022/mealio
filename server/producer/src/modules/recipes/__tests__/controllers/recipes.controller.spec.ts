@@ -78,7 +78,6 @@ describe('RecipesController', () => {
         data: [mockSummary],
         pagination: mockPagination,
       }),
-      getSummariesByIds: jest.fn().mockResolvedValue([mockSummary]),
       getCategories: jest.fn().mockResolvedValue({ data: [mockCategory] }),
     };
 
@@ -233,19 +232,6 @@ describe('RecipesController', () => {
           userAgent: 'jest-agent',
         },
       );
-    });
-  });
-
-  describe('getSummaries', () => {
-    it('ids로 레시피 요약 목록을 반환한다', async () => {
-      const dto = { ids: [1, 2, 3] };
-      const result = await controller.getSummaries(dto);
-
-      expect(recipeQueryService.getSummariesByIds).toHaveBeenCalledWith([
-        1, 2, 3,
-      ]);
-      expect(result).toHaveLength(1);
-      expect(result[0].title).toBe('김치볶음밥');
     });
   });
 

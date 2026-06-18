@@ -51,7 +51,6 @@ export const API_ENDPOINTS = {
       `${API_PREFIX}/recipes/${encodeURIComponent(String(recipeId))}`,
     search: `${API_PREFIX}/recipes/search`,
     searchQueries: `${API_PREFIX}/recipes/search-queries`,
-    summaries: `${API_PREFIX}/recipes/summaries`,
     view: (recipeId: string | number) =>
       `${API_PREFIX}/recipes/${encodeURIComponent(String(recipeId))}/views`,
     searchClick: (recipeId: string | number) =>

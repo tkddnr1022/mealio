@@ -2,7 +2,7 @@
  * 레시피 도메인 타입.
  *
  * 백엔드 DTO 매핑:
- * - `RecipeSummary`  → 목록·검색 응답 item 및 `POST /recipes/summaries` 응답
+ * - `RecipeSummary`  → 목록·검색 응답 item
  * - `RecipeDetail`   → `GET /recipes/:recipeId` 응답
  * - `RecipeCategory` → `GET /recipes/categories` 응답 item
  */
@@ -38,7 +38,7 @@ export interface RecipeSummary {
 
 /**
  * 레시피 공통 기본 타입 alias.
- * 목록·검색·벌크 응답 item 타입으로 넓게 재사용되며,
+ * 목록·검색 응답 item 타입으로 넓게 재사용되며,
  * 상세 응답은 {@link RecipeDetail}이 이를 확장한다.
  */
 export type Recipe = RecipeSummary;

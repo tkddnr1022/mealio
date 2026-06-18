@@ -98,7 +98,6 @@ describe('RecipeQueryService', () => {
         data: [mockRecipe],
         total: 1,
       }),
-      findSummariesByIds: jest.fn().mockResolvedValue([mockRecipe]),
       findActiveCategories: jest.fn().mockResolvedValue([mockCategory]),
     };
     const mockCacheService = {
@@ -530,24 +529,6 @@ describe('RecipeQueryService', () => {
       expect(
         recipeRepository.findPublishedIdsByPopularity,
       ).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('getSummariesByIds', () => {
-    it('ids로 레시피 요약 목록을 반환한다', async () => {
-      const result = await service.getSummariesByIds([1, 2]);
-
-      expect(recipeRepository.findSummariesByIds).toHaveBeenCalledWith([1, 2]);
-      expect(result).toHaveLength(1);
-      expect(result[0].id).toBe(1);
-      expect(result[0].title).toBe('김치볶음밥');
-    });
-
-    it('ids가 빈 배열이면 빈 배열을 반환한다', async () => {
-      const result = await service.getSummariesByIds([]);
-
-      expect(recipeRepository.findSummariesByIds).not.toHaveBeenCalled();
-      expect(result).toEqual([]);
     });
   });
 

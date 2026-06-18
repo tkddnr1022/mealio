@@ -20,7 +20,6 @@ import { RecipeDetailDto } from './dto/recipe-detail.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { RecipeListQueryDto } from './dto/recipe-list-query.dto';
 import { RecipeSearchQueryDto } from './dto/recipe-search-query.dto';
-import { RecipeIdsDto } from './dto/recipe-ids.dto';
 import { RecipeCategoryDto } from './dto/recipe-category.dto';
 import { RecipeStaticIdsQueryDto } from './dto/recipe-static-ids-query.dto';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
@@ -135,26 +134,6 @@ export class RecipesController {
   ): Promise<{ data: number[] }> {
     const size = query.size ?? 100;
     return this.recipeQueryService.getStaticIds(size);
-  }
-
-  @Post('summaries') // Body 사용을 위해 POST 사용
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '레시피 요약 정보 벌크 조회' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: '조회 성공 (요청한 ID 중 존재·공개된 레시피만 반환)',
-    schema: {
-      type: 'array',
-      items: { $ref: '#/components/schemas/RecipeSummaryDto' },
-    },
-  })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: '잘못된 요청' })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: '서버 내부 오류',
-  })
-  async getSummaries(@Body() dto: RecipeIdsDto): Promise<RecipeSummaryDto[]> {
-    return this.recipeQueryService.getSummariesByIds(dto.ids);
   }
 
   @Get('categories')
