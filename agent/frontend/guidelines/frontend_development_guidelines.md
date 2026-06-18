@@ -254,7 +254,6 @@ const RecipeEditor = dynamic(
 ## 8. 모니터링 및 성능
 
 - **Web Vitals**: LCP, FID, CLS 목표는 `../spec/frontend_architecture_spec.md` §4에 정의되어 있다. Vercel Analytics 또는 `web-vitals` 라이브러리로 수집.
-- **성능 예산**: 랜딩·레시피 목록·상세·챗봇별 초기 로드·TTI·번들 사이즈 예산은 명세서에 정의. CI 또는 Lighthouse로 예산 초과 시 실패하도록 설정 권장.
 
 ---
 

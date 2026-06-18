@@ -153,7 +153,7 @@ alwaysApply: true
   `validation.md` (통합 검증) → `frontend_event_instrumentation.md` (프론트 계측) → `product_kpi_contract.md`·`event_dictionary.md`·`aggregation_pipeline.md` (KPI 정의·이벤트·집계) → `product_kpi_runbook.md` (알림·장애 대응)
 
 - **UI/UX·디자인 원칙·Figma**  
-  - **화면 구현(Figma→코드)**: `agent/design/guidelines/design_to_code_guidelines.md` → `agent/design/spec/design_tokens.json` → `agent/design/spec/design_principle.json`(터치 타겟 44px, WCAG 2.1 AA, 반응형 브레이크포인트, LCP/FID/CLS·번들 예산, 레이아웃·챗봇 톤 등) → `agent/frontend/guidelines/frontend_development_guidelines.md`  
+  - **화면 구현(Figma→코드)**: `agent/design/guidelines/design_to_code_guidelines.md` → `agent/design/spec/design_tokens.json` → `agent/design/spec/design_principle.json`(터치 타겟 44px, WCAG 2.1 AA, 반응형 브레이크포인트, LCP/FID/CLS, 레이아웃·챗봇 톤 등) → `agent/frontend/guidelines/frontend_development_guidelines.md`  
   - **코드·웹을 Figma에 반영·MCP 쓰기/캡처**: `agent/design/guidelines/code_to_design_guidelines.md`  
   - **DS 워크플로우(수집→변환→연동)**: `agent/design/guidelines/design_system_collection_guidelines.md` + `agent/design/temp/figma-ds-component-progress.md` → `agent/design/spec/figma-variables-and-styles.md` → `agent/design/guidelines/design_tokens_conversion_guidelines.md` → `agent/design/spec/design_tokens.json` → `agent/design/guidelines/design_system_integration_guidelines.md` → `client/src/app/globals.css`
   - **DS 분석·권장 수정사항 정리**: `agent/design/guidelines/design_system_analysis_guidelines.md`(체크리스트·운영) → `agent/design/temp/` 피드백 문서 갱신
