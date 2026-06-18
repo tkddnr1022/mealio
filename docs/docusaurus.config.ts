@@ -1,6 +1,8 @@
 import { themes as prismThemes } from 'prism-react-renderer';
 import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import type * as Plugin from '@docusaurus/types/src/plugin';
+import type * as OpenApiPlugin from 'docusaurus-plugin-openapi-docs';
 import searchKoWebpackPlugin from './plugins/search-ko-webpack';
 import {
   GITHUB_PAGES_BASE_URL,
@@ -26,14 +28,46 @@ const config: Config = {
       onBrokenMarkdownLinks: brokenLinkPolicy,
     },
   },
-  plugins: [searchKoWebpackPlugin],
+  plugins: [
+    searchKoWebpackPlugin,
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'openapi',
+        path: 'openapi',
+        routeBasePath: 'openapi',
+        sidebarPath: './sidebars-openapi.ts',
+        docItemComponent: '@theme/ApiItem',
+        editUrl: undefined,
+      },
+    ],
+    [
+      'docusaurus-plugin-openapi-docs',
+      {
+        id: 'producer-api',
+        docsPluginId: 'openapi',
+        config: {
+          producer: {
+            specPath: '../agent/common/openapi_spec_backend.yaml',
+            outputDir: 'openapi',
+            sidebarOptions: {
+              groupPathsBy: 'tag',
+              categoryLinkSource: 'tag',
+            },
+            maskCredentials: false,
+          } satisfies OpenApiPlugin.Options,
+        },
+      } satisfies Plugin.PluginOptions,
+    ],
+  ],
   themes: [
     '@docusaurus/theme-mermaid',
+    'docusaurus-theme-openapi-docs',
     [
       require.resolve('@easyops-cn/docusaurus-search-local'),
       {
         hashed: true,
-        docsRouteBasePath: '/',
+        docsRouteBasePath: ['/', '/openapi'],
         indexBlog: false,
         language: ['ko', 'en'],
         removeDefaultStopWordFilter: ['ko'],
@@ -64,6 +98,22 @@ const config: Config = {
   themeConfig: {
     navbar: {
       title: 'Mealio Docs',
+      items: [
+        {
+          type: 'docSidebar',
+          sidebarId: 'docsSidebar',
+          docsPluginId: 'default',
+          position: 'left',
+          label: '문서',
+        },
+        {
+          type: 'docSidebar',
+          sidebarId: 'openapiSidebar',
+          docsPluginId: 'openapi',
+          position: 'left',
+          label: 'OpenAPI 레퍼런스',
+        },
+      ],
     },
     footer: {
       style: 'dark',
@@ -75,6 +125,11 @@ const config: Config = {
     },
     mermaid: {
       theme: { light: 'neutral', dark: 'dark' },
+    },
+    api: {
+      schemaExpansion: {
+        default: 1,
+      },
     },
   } satisfies Preset.ThemeConfig,
 };

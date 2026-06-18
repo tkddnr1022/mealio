@@ -6,7 +6,7 @@
 - 인증이 필요한 API는 무엇인가요?
 - 쓰기 API의 Kafka 연동은 무엇인가요?
 
-API 계약은 [Producer API](./api)와 내부 OpenAPI 명세를 참고하세요.
+API 계약은 [Producer API](./api)와 [OpenAPI 레퍼런스](/openapi/mealio-producer-api)를 참고하세요.
 
 ## 모듈 요약
 
@@ -98,5 +98,6 @@ API 계약은 [Producer API](./api)와 내부 OpenAPI 명세를 참고하세요.
 ## 관련 문서
 
 - [API 문서](./api)
+- [OpenAPI 레퍼런스](/openapi/mealio-producer-api)
 - [이벤트 발행](./event-publishing)
 - [캐시](./cache)

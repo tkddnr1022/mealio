@@ -33,7 +33,7 @@ Authorization: Cookie accessToken (JWT 필수)
 | `reason` | 추천 근거 문구 |
 | `calculatedAt` | 원본 갱신 시각 |
 
-OpenAPI 스키마는 `RecipeRecommendationItem`입니다.
+OpenAPI 스키마는 `RecipeRecommendationItem`이며, [개인화 추천 레시피 조회](/openapi/개인화-추천-레시피-조회) 레퍼런스에서 필드 정의를 확인할 수 있습니다.
 
 ## 조회 로직
 

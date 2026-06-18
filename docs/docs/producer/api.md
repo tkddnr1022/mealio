@@ -10,7 +10,7 @@
 
 | 참조 | 범위 |
 | --- | --- |
-| 내부 OpenAPI 명세 | Producer REST API 전체 DTO·응답 스키마 |
+| [OpenAPI 레퍼런스](/openapi/mealio-producer-api) | 엔드포인트·스키마·요청/응답 |
 | `server/producer/.../modules/` | 컨트롤러·서비스 구현 |
 | [BFF Route Handler](../client/api-bff) · `client/src/.../api/` | Next.js Route Handler (BFF) |
 
@@ -59,10 +59,11 @@ Apidog 등 외부 도구로 Swagger 스펙을 export한 뒤 import할 수 있습
 | Chatbot | `/chatbot/messages` (SSE), `/chatbot/conversations` |
 | Health | `/health`, `/ready` |
 
-상세 API와 DTO는 [도메인 API 가이드](./domain-api)를 참고하세요.
+상세 API와 DTO는 [OpenAPI 레퍼런스](/openapi/mealio-producer-api)와 [도메인 API 가이드](./domain-api)를 참고하세요.
 
 ## 관련 문서
 
+- [OpenAPI 레퍼런스](/openapi/mealio-producer-api)
 - [인증/인가](./auth)
 - [도메인 API 가이드](./domain-api)
 - [환경 변수](./environment-variables)
