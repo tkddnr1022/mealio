@@ -6,14 +6,14 @@
 - 동기(HTTP)와 비동기(Kafka) 경계는 어디인가요?
 - 프로덕션 인프라 배치는 어떻게 되나요?
 
-## 컴포넌트 다이어그램 (운영 예시)
+## 컴포넌트 다이어그램
 
 ```mermaid
 flowchart LR
   subgraph frontend [Frontend]
     Client[client Next.js]
   end
-  subgraph ec2 [AWS EC2]
+  subgraph backend [Backend]
     Nginx[Nginx]
     Producer[producer]
     Consumer[consumer]
@@ -27,23 +27,23 @@ flowchart LR
     Prom --> Consumer
     Graf --> Prom
   end
-  subgraph managed [Managed]
-    Atlas[(MongoDB Atlas)]
-    Neon[(Neon PostgreSQL)]
-    Upstash[(Upstash Redis)]
+  subgraph storage [Storage]
+    MongoDB[(MongoDB)]
+    PostgreSQL[(PostgreSQL)]
+    Redis[(Redis)]
   end
   Client -->|HTTPS API| Nginx
-  Producer --> Atlas
-  Producer --> Neon
-  Producer --> Upstash
-  Consumer --> Atlas
-  Consumer --> Neon
-  Consumer --> Upstash
+  Producer --> MongoDB
+  Producer --> PostgreSQL
+  Producer --> Redis
+  Consumer --> MongoDB
+  Consumer --> PostgreSQL
+  Consumer --> Redis
   Consumer --> OpenAI[OpenAI API]
 ```
 
-- **Frontend**: Vercel(권장) 또는 EC2 Docker 중 하나를 선택해 배포합니다.
-- **Vercel 배포 시**: Client는 EC2 외부에 두고, API만 Nginx를 경유합니다.
+- **Frontend**: SSR·ISR을 사용하므로 Node.js 서버 런타임이 필요합니다. 백엔드와 독립적으로 배포하거나 동일 환경에 함께 배포할 수 있습니다.
+- **Backend**: producer·consumer·Kafka·관측은 함께 배포되며, Nginx가 외부 요청을 라우팅합니다.
 
 ## 요청 경로 (동기)
 

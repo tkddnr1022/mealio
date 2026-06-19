@@ -38,9 +38,9 @@
 
 ## 배포·환경
 
-- EC2 Docker는 `docker/compose-producer.yml`을 사용합니다.
-- env는 `server/producer/.env.docker.local`을 사용합니다.
-- DB·Redis는 Neon / Upstash URL(매니지드)을 사용합니다.
+- Docker 배포 시 `docker/compose-producer.yml`을 사용합니다.
+- 컨테이너 env는 `server/producer/.env.docker.local`을 사용합니다.
+- `POSTGRESQL_URL`, `MONGODB_URL`, `REDIS_URL`은 각 환경에 맞는 연결 문자열로 설정합니다.
 
 배포·환경 전략은 [배포/환경 전략](../project/deployment)을 참고하세요.
 

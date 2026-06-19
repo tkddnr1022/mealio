@@ -34,7 +34,7 @@ slug: /
 | 비동기 처리 | Kafka Consumer (`consumer`) |
 | RDB | PostgreSQL + Prisma |
 | NoSQL | MongoDB + Mongoose |
-| Cache | Redis (Upstash / 로컬) |
+| Cache | Redis |
 | Message Broker | Kafka |
 | LLM | OpenAI API |
 | Observability | Sentry, Prometheus, Grafana, GA4 |
