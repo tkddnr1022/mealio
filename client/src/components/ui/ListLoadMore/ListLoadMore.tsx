@@ -29,13 +29,13 @@ export function ListLoadMore({
 
   return (
     <div
-      className={cn('flex w-full justify-center py-4', className)}
+      className={cn('flex w-full justify-center', className)}
       data-name="ListLoadMore"
       {...rest}
     >
       <Button
         type="button"
-        variant="secondary"
+        variant="primary"
         size="medium"
         label={label}
         disabled={isLoading}

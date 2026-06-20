@@ -285,7 +285,7 @@ export function RecipeSearchClientPage({
         }}
       />
 
-      <MainContent innerClassName="py-4 px-4" scroll={recipes.length > 0}>
+      <MainContent scroll={recipes.length > 0}>
         {recipes.length > 0 ? (
           <>
             <RecipeList
