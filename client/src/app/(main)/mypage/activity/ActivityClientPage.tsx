@@ -7,7 +7,7 @@ import { InfoScreen } from '@/components/layout/InfoScreen';
 import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
 import { Tabbar } from '@/components/layout/Tabbar';
-import { ActivityCard } from '@/components/mypage/ActivityCard';
+import { ActivityList } from '@/components/mypage/ActivityList';
 import { ListLoadMore } from '@/components/ui/ListLoadMore';
 import { useMyActivities } from '@/lib/queries/user.queries';
 import type { UserActivityItem } from '@/lib/types/user';
@@ -50,10 +50,8 @@ export function ActivityClientPage() {
             showButton={false}
           />
         ) : (
-          <section className="w-full space-y-3">
-            {mergedItems.map((item) => (
-              <ActivityCard key={item.id} item={item} />
-            ))}
+          <>
+            <ActivityList items={mergedItems} />
             <ListLoadMore
               hasMore={hasMore}
               isLoading={activityQuery.isFetching}
@@ -62,7 +60,7 @@ export function ActivityClientPage() {
                 setCursor(activityQuery.data?.nextCursor ?? null);
               }}
             />
-          </section>
+          </>
         )}
       </MainContent>
       <Tabbar activeId="mypage" />

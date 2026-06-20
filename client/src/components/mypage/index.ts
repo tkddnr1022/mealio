@@ -7,6 +7,9 @@ export type { StatCardProps } from './StatCard';
 export { ActivityCard } from './ActivityCard';
 export type { ActivityCardProps } from './ActivityCard';
 
+export { ActivityList } from './ActivityList';
+export type { ActivityListProps } from './ActivityList';
+
 export { CreditUsageCard } from './CreditUsageCard';
 export type { CreditUsageCardProps } from './CreditUsageCard';
 
