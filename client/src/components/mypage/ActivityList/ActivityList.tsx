@@ -25,11 +25,7 @@ export function ActivityList({
       {...rest}
     >
       {items.map((item) => (
-        <ActivityCard
-          key={item.id}
-          item={item}
-          className={cardClassName}
-        />
+        <ActivityCard key={item.id} item={item} className={cardClassName} />
       ))}
     </div>
   );
