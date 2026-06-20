@@ -41,13 +41,22 @@ GET /api/{keyId}/{serviceId}/json/{startIdx}/{endIdx}
 stateDiagram-v2
     direction LR
     [*] --> fetched
-    fetched --> submitting --> submitted --> retrieving --> retrieved --> persisting --> persisted --> [*]
-    fetched --> failed
-    submitting --> failed
-    submitted --> failed
-    retrieving --> failed
-    persisting --> failed
-    note right of failed: retry_count >= 3
+    fetched --> submitting
+    submitting --> submitted
+    submitted --> retrieving
+    retrieving --> retrieved
+    retrieved --> persisting
+    persisting --> persisted
+    persisted --> [*]
+    submitting --> fetched: retry
+    submitted --> fetched: retry
+    retrieving --> fetched: retry
+    persisting --> fetched: retry
+    fetched --> failed: retry_count >= 3
+    submitting --> failed: retry_count >= 3
+    submitted --> failed: retry_count >= 3
+    retrieving --> failed: retry_count >= 3
+    persisting --> failed: retry_count >= 3
 ```
 
 | 전이 | 트리거 |
