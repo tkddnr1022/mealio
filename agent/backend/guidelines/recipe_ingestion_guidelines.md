@@ -53,7 +53,7 @@ pnpm --filter consumer run job:recipe-ingestion-submit --retry-failed
 
 ### 2.3 스케줄링 (ECS / cron) — 운영 레이어
 
-단계별 CLI를 **별도 Scheduled Task**로 등록한다. fetch·submit·retrieve는 서로 호출하지 않는다.
+단계별 CLI를 **별도 Scheduled Task**로 등록하고, fetch·submit·retrieve를 독립 파이프라인으로 운영한다.
 
 | 호출 대상 | 주기 (초안) | 비고 |
 |-----------|-------------|------|
@@ -67,7 +67,7 @@ pnpm --filter consumer run job:recipe-ingestion-submit --retry-failed
 
 - submit 전에 `fetched` 적재량이 충분하도록 fetch cron 주기·`fetchLimit`를 조정
 - `fetchLimit >= submitBatchSize` 권장 (한 번의 fetch가 submit 1회분을 커버)
-- submit 실행 시 `fetched` 0건이면 no-op 종료 (fetch를 호출하지 않음)
+- submit 실행 시 `fetched` 0건이면 no-op으로 종료
 
 ### 2.4 수행 주체·데이터 흐름
 

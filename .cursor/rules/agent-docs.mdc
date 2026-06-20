@@ -20,6 +20,8 @@ alwaysApply: true
 
 **작성 시**: 기존 문서 톤 유지. `docs/docs` 는 `agent/common/docusaurus_documentation_writing_guide.md`를 따르고, 「관련 문서」·교차 링크를 갱신한다.
 
+**부정문**: `agent/` 본문의 부정문(`~않는다`, `~없다`, `금지` 등)은 프로젝트 고유 예외·필수 설계 사실·문서 전체에서 유일한 내용에만 쓴다. 예방·훈계·Best Practice 회피·중복 강조용 부정문은 사용하지 않고 긍정형 실행 규칙으로 바꾼다.
+
 ---
 
 ## 디렉터리 구조 (2 depth)

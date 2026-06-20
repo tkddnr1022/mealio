@@ -25,7 +25,7 @@
 
 ## page_view 정책
 
-`page_view`는 `GoogleAnalytics` 컴포넌트(@next/third-parties)와 GA Enhanced Measurement("Page changes based on browser history events")에 의해 자동 수집된다. 수동 `trackPageView` 호출은 사용하지 않는다. GA 콘솔에서 Enhanced Measurement가 **활성화**되어 있는지 확인해야 SPA 라우트 전환이 추적된다.
+`page_view`는 `GoogleAnalytics` 컴포넌트(@next/third-parties)와 GA Enhanced Measurement("Page changes based on browser history events") 자동 수집 경로를 표준으로 사용한다. GA 콘솔에서 Enhanced Measurement가 **활성화**되어 있어야 SPA 라우트 전환이 추적된다.
 
 ## 백엔드와 역할 분리
 

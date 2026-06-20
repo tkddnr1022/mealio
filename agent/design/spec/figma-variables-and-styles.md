@@ -1,7 +1,7 @@
 # Figma — 통합 변수·스타일 목록
 
 - **소스**: `https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Mealio` — `fileKey` `r9bdZPeswvPR1ncezzt4ri`, 스테이징 섹션 **UI** 루트 노드 `36:333` + 추가 수집 노드 `492:2935`(`SubTab`), `492:2955`(`InventorySubTabbar`).
-- **수집 방법**: Figma MCP `get_variable_defs`를 위 루트에 **한 번** 호출해 스테이징 하위 전 컴포넌트 서브트리에 등장하는 변수·스타일 정의를 평탄 맵으로 수집 후 표로 정리했다. 동일 노드에 대한 `get_design_context`는 섹션 노드라 **희소 메타(XML 구조)만** 반환되어, 본 표는 **변수 맵이 단일 근거**다. 보조 `search_design_system`은 사용하지 않았다.
+- **수집 방법**: Figma MCP `get_variable_defs`를 위 루트에 **한 번** 호출해 스테이징 하위 전 컴포넌트 서브트리에 등장하는 변수·스타일 정의를 평탄 맵으로 수집 후 표로 정리했다. 동일 노드의 `get_design_context`는 섹션 노드 특성상 **희소 메타(XML 구조)** 중심으로 반환되므로, 본 표는 **변수 맵을 단일 근거**로 정리했다.
 - **수집 시점**: 2026-05-01 (변수 표 보완: 2026-05-14 — **Alert** 노드 `590:4481`, MCP `get_design_context` 기준 `color/state/*` 값 반영)
 - **주의**: MCP 응답 시점 스냅샷이다. Figma 수정 후 재수집할 것.
 - **절차·피드백 분리**: 수집·검토 절차는 `agent/design/guidelines/design_system_collection_guidelines.md`를 본다. **컴포넌트 순차 작업 프로그레스**는 `agent/design/temp/figma-ds-component-progress.md`에 둔다. **권장 수정사항·토큰·스타일 검토·참고 노트**는 `agent/design/temp/figma-variables-and-styles-feedback.md`에 둔다.

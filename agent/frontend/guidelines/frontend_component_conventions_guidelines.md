@@ -73,7 +73,7 @@ client/src/components/ui/Button/
 ### 3.1 네이밍
 
 - 컴포넌트/폴더명은 PascalCase를 사용한다.
-- 세트 컴포넌트는 Variant/State를 props로 표현하고 이름으로 분기하지 않는다.  
+- 세트 컴포넌트는 Variant/State를 props로 표현해 단일 컴포넌트 이름 체계를 유지한다.  
   예: `LikeButton` + `isFavorite`, `ChatBubble` + `role`
 
 ### 3.2 배럴 export

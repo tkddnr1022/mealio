@@ -191,7 +191,7 @@ flowchart LR
 
 ## Phase 2 — submit
 
-**목표**: `status: fetched` job을 OpenAI Batch API에 제출하고 `status: submitted`로 전환한다. fetch와 **독립 standalone job**이며, fetch 부족 시 자동 수집하지 않는다(운영 레이어에서 fetch cron 조율).
+**목표**: `status: fetched` job을 OpenAI Batch API에 제출하고 `status: submitted`로 전환한다. submit은 fetch와 **독립 standalone job**으로 운영하며, fetch 물량 조율은 운영 레이어의 fetch cron 정책에서 담당한다.
 
 **선행 조건**: Phase 0, Phase 1
 
