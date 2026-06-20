@@ -40,18 +40,6 @@ server/consumer/src/
 
 Standalone job은 `NestFactory.createApplicationContext`로 애플리케이션 컨텍스트를 만든 뒤 `run-*.ts` CLI로 실행하는 패턴을 따릅니다.
 
-## Processor 패턴
-
-```mermaid
-flowchart LR
-    K[Kafka message] --> B[BaseTopicProcessor]
-    B --> H[Handler(s)]
-    H --> D[DB / Redis / OpenAI]
-    D --> C[CacheInvalidationRequestService]
-```
-
-Handler는 **Kafka를 직접 발행하지 않습니다**. 캐시 무효화는 `CacheInvalidationRequestService`를 경유해 발행합니다.
-
 ## 주요 Consumer 그룹
 
 | 토픽 | 그룹 | 핵심 Handler |

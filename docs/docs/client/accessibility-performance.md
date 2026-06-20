@@ -19,8 +19,6 @@
 | 포커스 | 키보드 포커스 2px 이상 가시적 윤곽 |
 | 모션 | `prefers-reduced-motion` 시 장식 애니메이션 최소화 |
 
-색만으로 정보를 전달하지 않고 아이콘·라벨을 함께 사용합니다.
-
 ## `buildAriaLabel`
 
 `buildAriaLabel`의 단일 진입점은 `client/src/.../a11y.ts`입니다.

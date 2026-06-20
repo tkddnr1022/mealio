@@ -56,7 +56,7 @@ pnpm run ci:build:docs   # 문서만 검증할 때
 1. [Observability](./observability)에 이벤트·KPI를 등록합니다.
 2. shared event enum 또는 `client/src/.../analytics-events.ts`에 계측을 추가합니다.
 3. GA 연동 시 내부 프론트 이벤트 계측 체크리스트를 갱신합니다.
-4. PR 리뷰에서 미등록 이벤트는 반영하지 않습니다.
+4. PR 리뷰에서 등록 여부와 계측 구현을 확인합니다.
 
 상세 파이프라인은 [이벤트/분석 파이프라인](../consumer/analytics-pipeline) 문서를 참고합니다.
 

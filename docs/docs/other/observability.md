@@ -40,7 +40,7 @@ flowchart TB
 
 ## 이벤트 등록·네이밍
 
-신규 이벤트는 **본 문서와 내부 이벤트 사전에 등록한 뒤** 코드에 반영합니다. PR 리뷰에서 미등록 이벤트는 반영하지 않습니다.
+신규 이벤트는 **본 문서와 내부 이벤트 사전에 등록한 뒤** 코드에 반영합니다.
 
 | 계층 | 형식 | 예 |
 | --- | --- | --- |
@@ -48,7 +48,7 @@ flowchart TB
 | EventLog / Kafka | `domain.action` | `recipe.view`, `recipe.favorites_add` |
 | Kafka 토픽 | `kebab-case` | `activity-events`, `user-events` |
 
-동일 의미를 GA와 EventLog에 **이중 정의하지 않습니다**. UI 퍼널은 GA4, 도메인 확정·추천·KPI 원본은 EventLog가 단일 근거입니다.
+GA4는 UI 퍼널, EventLog는 도메인 확정·추천·KPI 원본의 단일 근거입니다.
 
 등록 절차와 파이프라인 상세는 [이벤트/분석 파이프라인](../consumer/analytics-pipeline) 문서를 참고합니다.
 

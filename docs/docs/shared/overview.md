@@ -14,8 +14,6 @@
 | 경로 | `server/shared` |
 | 역할 | Producer·Consumer 공통 설정·DB·타입·상수 |
 
-`client` 패키지는 `@mealio/shared`를 직접 import하지 않습니다.
-
 ## 제공 범위
 
 ```text

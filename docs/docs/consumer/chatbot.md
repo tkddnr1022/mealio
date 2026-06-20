@@ -43,7 +43,7 @@ flowchart TD
 
 도구 스키마는 `server/consumer/.../chatbot-tools.definition.ts`에 정의되어 있습니다.
 
-설계상 Kafka 페이로드에 대용량 배열을 넣지 않고, tool 호출 시 DB/Redis에서 조회합니다.
+tool 호출 시 Consumer가 DB/Redis에서 직접 조회합니다.
 
 ## ChatbotLog 저장
 

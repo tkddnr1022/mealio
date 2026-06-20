@@ -49,7 +49,7 @@ flowchart TB
 | **EventLog** | `domain.action` (`recipe.view`) | 도메인 확정·추천·KPI 원본 |
 | **Kafka 토픽** | `kebab-case` (`activity-events`) | 비동기 처리 버스 |
 
-동일 의미를 GA와 EventLog에 **이중 정의하지 않습니다**. 이름만 다를 수 있으나 기준 저장소는 EventLog입니다.
+이름 형식은 다를 수 있으나 기준 저장소는 EventLog입니다.
 
 ## 주요 Kafka 토픽
 

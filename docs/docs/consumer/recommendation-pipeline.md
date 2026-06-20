@@ -100,7 +100,7 @@ sequenceDiagram
 | payload type | `RECOMMENDATION` |
 | 삭제 키 | `recommendation:{userId}` |
 
-Handler는 Kafka를 직접 발행하지 않습니다. 자세한 내용은 [캐시 무효화](./cache-invalidation)를 참고하세요.
+캐시 무효화 절차는 [캐시 무효화](./cache-invalidation)를 참고하세요.
 
 ## 신뢰성
 

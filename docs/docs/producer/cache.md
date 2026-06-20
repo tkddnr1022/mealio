@@ -49,7 +49,7 @@ TTL은 `server/producer/.../cache.policy.ts`에서 초 단위로 정의합니다
 
 ## 무효화 (Consumer 연동)
 
-Producer는 캐시를 **직접 삭제하지 않습니다**. Consumer가 `cache-invalidation` 토픽을 발행하면 `RedisInvalidationHandler`가 키를 삭제합니다.
+`cache-invalidation` 토픽을 소비하는 `RedisInvalidationHandler`가 Redis 키를 삭제합니다.
 
 | 무효화 타입 | 삭제 대상 |
 | --- | --- |

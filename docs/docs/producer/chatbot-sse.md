@@ -26,7 +26,7 @@ sequenceDiagram
     Note over P,C: done/error/타임아웃 시 구독 해제·연결 종료
 ```
 
-`POST /chatbot/messages` 한 요청이 SSE 응답을 반환합니다. 별도의 스트림 구독 엔드포인트는 없습니다.
+`POST /chatbot/messages` 한 요청이 SSE 응답을 반환합니다.
 
 ## API
 
@@ -70,7 +70,7 @@ sequenceDiagram
 }
 ```
 
-대용량 도메인 배열은 **포함하지 않습니다**. GPT tool call 시 Consumer가 DB/Redis에서 조회합니다.
+GPT tool call 시 Consumer가 DB/Redis에서 직접 조회합니다.
 
 ## Producer 모듈
 

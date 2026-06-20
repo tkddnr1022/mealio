@@ -14,7 +14,7 @@
 | 인증·세션 | **AuthProvider** | 로그인 여부, `SessionUser` |
 | UI 일시 | 컴포넌트 `useState` | 디바운스, 토글 피드백 등 최소 |
 
-**쿼리 캐시가 화면 데이터의 기준**이며, API 응답을 `useState`로 복사하지 않습니다.
+**쿼리 캐시가 화면 데이터의 기준**입니다.
 
 ## Provider 트리
 
@@ -57,7 +57,7 @@ recipeQueries.all → lists() → list(filters)
 
 ## Optimistic Update (Command API)
 
-Producer-Consumer 구조에서 HTTP 200은 **Kafka 발행 성공**이지 DB 반영 완료가 아닙니다.
+Producer-Consumer 구조에서 HTTP 200은 DB 반영 완료가 아닌 **Kafka 발행 성공**을 의미합니다.
 
 1. 뮤테이션 성공 시 `setQueryData`로 캐시를 직접 갱신합니다.
 2. 에러 시 롤백합니다.

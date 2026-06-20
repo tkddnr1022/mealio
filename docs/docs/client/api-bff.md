@@ -44,8 +44,6 @@ const recipe = await getRecipeDetail(recipeId, { signal });
 
 ## SSR 헤더 전파
 
-서버 컴포넌트·Route Handler에서는 브라우저가 쿠키를 자동 전송하지 않습니다.
-
 - `withForwardedHeaders()`는 들어온 `Cookie`, `Accept-Language`, Correlation-Id를 전달합니다.
 - `serverFetchWrapper({ fetch, currentUrl })`는 401 시 refresh-bridge로 리다이렉트합니다.
 
@@ -81,5 +79,5 @@ sequenceDiagram
 ## 관련 문서
 
 - [인증](./auth)
-- [캐시](./cache) (ISR fetch 참고)
+- [캐시](./cache)
 - [도메인 API 가이드](../producer/domain-api)

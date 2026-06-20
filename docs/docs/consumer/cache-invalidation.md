@@ -4,7 +4,6 @@
 
 - 캐시 무효화는 언제·누가·어떻게 트리거하나요?
 - 토픽별 삭제되는 Redis 키는 무엇인가요?
-- Handler가 Kafka를 직접 발행하지 않는 이유는 무엇인가요?
 
 ## 흐름
 
@@ -21,7 +20,7 @@ sequenceDiagram
     R->>Redis: DEL / 패턴 삭제
 ```
 
-**원칙**: 도메인 Handler는 Kafka를 직접 발행하지 않습니다. `CacheInvalidationRequestService`만 발행합니다.
+**원칙**: 캐시 무효화 Kafka 발행은 `CacheInvalidationRequestService`가 전담합니다.
 
 ## 토픽 계약
 

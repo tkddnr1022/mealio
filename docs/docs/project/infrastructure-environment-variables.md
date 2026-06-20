@@ -46,7 +46,7 @@ docker compose --env-file .env.docker.local -f docker/compose-database.yml -f do
 
 ## Redis
 
-로컬 Redis는 `compose-database.yml`에서 **고정 포트 6379**로 기동하며, `.env.docker.local`에 별도 변수는 없습니다. 앱의 `REDIS_URL`은 `redis://127.0.0.1:6379` 형식으로 맞춥니다.
+로컬 Redis는 `compose-database.yml`에서 **고정 포트 6379**로 기동하며, 앱의 `REDIS_URL`은 `redis://127.0.0.1:6379` 형식으로 맞춥니다.
 
 ## Kafka
 

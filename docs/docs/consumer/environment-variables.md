@@ -14,7 +14,7 @@ Consumer 패키지는 Kafka Consumer와 배치 워커를 실행합니다. 환경
 cp server/consumer/.env.example server/consumer/.env.local
 ```
 
-HTTP API 포트는 없습니다. 부팅 시 `server/consumer/.../env.validation.ts`의 Joi 스키마로 **모든 변수가 필수**인지 검증합니다.
+부팅 시 `server/consumer/.../env.validation.ts`의 Joi 스키마로 **모든 변수가 필수**인지 검증합니다.
 
 `METRICS_ENABLED=true`이면 `METRICS_PORT`에서 별도로 `/metrics` 엔드포인트를 노출합니다.
 

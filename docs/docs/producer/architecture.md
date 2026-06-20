@@ -10,8 +10,6 @@
 
 Producer는 클라이언트 요청의 **실시간 처리**, **읽기·캐시 우선 조회**, **Kafka 이벤트 발행**, 챗봇 **SSE 중계**를 담당합니다.
 
-GPT 호출, 추천 점수 갱신, ETL은 **Consumer**가 담당합니다.
-
 ## 모듈 구조
 
 ```text
@@ -82,11 +80,4 @@ flowchart TD
 
 ## 관련 문서
 
-- [환경 변수](./environment-variables)
-- [도메인 API 가이드](./domain-api)
-- [인증/인가](./auth)
-- [캐시](./cache)
-- [이벤트 발행](./event-publishing)
-- [챗봇/SSE](./chatbot-sse)
-- [운영](./operations)
 - [시스템 아키텍처](../project/architecture)
