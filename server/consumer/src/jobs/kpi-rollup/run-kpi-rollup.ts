@@ -11,7 +11,7 @@ import { KpiRollupService } from './kpi-rollup.service';
  *   pnpm --filter consumer run job:kpi-rollup 2026-05-22   # 지정일 집계
  *   pnpm --filter consumer run job:kpi-rollup --backfill 7 # 최근 7일 백필
  *
- * 외부 스케줄러(cron / ECS scheduled task)에서 매일 UTC 02:00에 호출한다.
+ * 외부 스케줄러(cron / ECS scheduled task)에서 일 1회 호출한다.
  */
 async function main(): Promise<void> {
   const logger = new Logger('KpiRollupCLI');

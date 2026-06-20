@@ -29,7 +29,7 @@ pnpm --filter consumer run job:kpi-rollup
 | 출력 | `kpi_rollups` 컬렉션 |
 | KPI 예 | favorite CVR, recommendation latency, search CTR |
 
-권장 스케줄은 매일 02:00 UTC이며, [Observability](../other/observability) 집계 파이프라인을 참고하세요.
+[Observability](../other/observability) 집계 파이프라인을 참고하세요.
 
 ## Recipe Ingestion Jobs
 
