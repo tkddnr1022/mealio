@@ -101,7 +101,7 @@ function RecipeFilterForm({
         onBack={() => router.back()}
       />
 
-      <MainContent innerClassName="gap-4 py-4">
+      <MainContent>
         <SearchBarCard
           heading="검색어"
           searchBarProps={{

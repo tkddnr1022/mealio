@@ -60,7 +60,7 @@ export function ChatbotConversationListClientPage() {
         }
       />
 
-      <MainContent centered={!hasChats && !isLoading} scroll={hasChats} innerClassName="gap-6">
+      <MainContent centered={!hasChats && !isLoading} scroll={hasChats}>
         {isLoading && !hasChats ? (
           <p className="typo-body-regular style-text-secondary">불러오는 중…</p>
         ) : hasChats ? (
