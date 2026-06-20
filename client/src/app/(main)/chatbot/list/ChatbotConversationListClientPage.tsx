@@ -11,6 +11,7 @@ import { Tabbar } from '@/components/layout/Tabbar';
 import { ChatList } from '@/components/chatbot/list/ChatList';
 import { InfoScreen } from '@/components/layout/InfoScreen';
 import { AddButton } from '@/components/ui/buttons/AddButton';
+import { FooterText } from '@/components/ui/FooterText';
 import { ListLoadMore } from '@/components/ui/ListLoadMore';
 
 const TITLE_TEXT_MAX = 20;
@@ -79,9 +80,7 @@ export function ChatbotConversationListClientPage() {
               isLoading={isFetchingNextPage}
               onLoadMore={() => void fetchNextPage()}
             />
-            <p className="text-center typo-small style-text-disabled">
-              최근 30일간의 대화 내용만 보관돼요
-            </p>
+            <FooterText>최근 30일간의 대화 내용만 보관돼요</FooterText>
           </>
         ) : (
           <InfoScreen

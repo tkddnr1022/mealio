@@ -11,6 +11,7 @@ import { ActivityList } from '@/components/mypage/ActivityList';
 import { ListLoadMore } from '@/components/ui/ListLoadMore';
 import { useMyActivities } from '@/lib/queries/user.queries';
 import type { UserActivityItem } from '@/lib/types/user';
+import { FooterText } from '@/components/ui/FooterText';
 
 const PAGE_SIZE = 20;
 
@@ -60,6 +61,7 @@ export function ActivityClientPage() {
                 setCursor(activityQuery.data?.nextCursor ?? null);
               }}
             />
+            <FooterText>최근 90일간의 활동 내역만 보관돼요</FooterText>
           </>
         )}
       </MainContent>

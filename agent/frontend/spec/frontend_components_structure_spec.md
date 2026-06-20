@@ -55,6 +55,7 @@
 | client/src/components/ui/SliderPagination/ | 슬라이더 페이지네이션 세트(`activeIndex`) |
 | client/src/components/ui/Spinner/ | 로딩 스피너(`Spinner`) |
 | client/src/components/ui/ListLoadMore/ | 목록 하단「더 보기」버튼(무한 스크롤·페이지네이션 공용) |
+| client/src/components/ui/FooterText/ | 목록 하단 안내 문구(중앙 정렬·비활성 톤) |
 | client/src/components/ui/CustomScrollbar/ | 커스텀 스크롤바 프리미티브 |
 | client/src/components/ui/Alert/ | 알림 배너 세트(`variant` × 제목·메시지) |
 | client/src/components/ui/Toast/ | 전역 Toast 카드·뷰포트(`Alert` 토큰 재사용) |
