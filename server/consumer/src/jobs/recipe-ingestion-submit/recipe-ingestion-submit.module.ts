@@ -54,5 +54,6 @@ import { SubmitService } from './services/submit.service';
     CategoryContextService,
     SubmitService,
   ],
+  exports: [SubmitService],
 })
 export class RecipeIngestionSubmitModule {}

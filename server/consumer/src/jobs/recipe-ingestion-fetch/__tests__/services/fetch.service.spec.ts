@@ -8,6 +8,8 @@ import {
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { RecipeIngestionStateRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-state.repository';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
+import { KafkaProducerService } from 'src/integrations/kafka/kafka-producer.service';
+import { KAFKA_TOPICS } from '@mealio/shared';
 import { FetchService } from '../../services/fetch.service';
 
 describe('FetchService', () => {
@@ -27,6 +29,7 @@ describe('FetchService', () => {
       'recordIngestionStage' | 'observeIngestionStageLatency'
     >
   >;
+  let kafkaProducerService: jest.Mocked<Pick<KafkaProducerService, 'emit'>>;
 
   beforeEach(async () => {
     publicDataApiClient = {
@@ -45,6 +48,9 @@ describe('FetchService', () => {
       recordIngestionStage: jest.fn(),
       observeIngestionStageLatency: jest.fn(),
     };
+    kafkaProducerService = {
+      emit: jest.fn().mockResolvedValue(undefined),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -52,6 +58,7 @@ describe('FetchService', () => {
         { provide: PublicDataApiClient, useValue: publicDataApiClient },
         { provide: RecipeIngestionJobRepository, useValue: jobRepository },
         { provide: RecipeIngestionStateRepository, useValue: stateRepository },
+        { provide: KafkaProducerService, useValue: kafkaProducerService },
         { provide: ConsumerMetricsService, useValue: metrics },
       ],
     }).compile();
@@ -97,6 +104,16 @@ describe('FetchService', () => {
         fetchedCount: 2,
         exhausted: false,
       });
+      expect(kafkaProducerService.emit).toHaveBeenCalledWith(
+        KAFKA_TOPICS.RECIPE_INGESTION_FETCH_COMPLETED,
+        expect.objectContaining({
+          startIdx: 1,
+          endIdx: 100,
+          fetchedCount: 2,
+          triggeredAt: expect.any(String),
+        }),
+        '1:100',
+      );
     });
   });
 
@@ -145,6 +162,7 @@ describe('FetchService', () => {
         fetchedCount: 0,
         exhausted: true,
       });
+      expect(kafkaProducerService.emit).not.toHaveBeenCalled();
     });
   });
 
@@ -236,6 +254,7 @@ describe('FetchService', () => {
       );
       expect(result.fetchedCount).toBe(0);
       expect(stateRepository.setLastEndIdx).toHaveBeenCalledWith(100);
+      expect(kafkaProducerService.emit).not.toHaveBeenCalled();
     });
   });
 });

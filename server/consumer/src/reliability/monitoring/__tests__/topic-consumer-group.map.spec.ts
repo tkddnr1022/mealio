@@ -13,6 +13,9 @@ describe('getConsumerGroupForTopic', () => {
     expect(
       getConsumerGroupForTopic(KAFKA_TOPICS.RECIPE_INGESTION_RETRIEVED),
     ).toBe(CONSUMER_GROUPS.RECIPE_INGESTION_PERSIST);
+    expect(
+      getConsumerGroupForTopic(KAFKA_TOPICS.RECIPE_INGESTION_FETCH_COMPLETED),
+    ).toBe(CONSUMER_GROUPS.RECIPE_INGESTION_SUBMIT);
   });
 
   it('should return unknown for unmapped topics', () => {

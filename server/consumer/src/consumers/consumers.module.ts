@@ -5,6 +5,7 @@ import { UserEventsModule } from './user-events/user-events.module';
 import { ActivityEventsModule } from './activity-events/activity-events.module';
 import { CacheInvalidationModule } from './cache-invalidation/cache-invalidation.module';
 import { RecipeIngestionPersistModule } from './recipe-ingestion-persist/recipe-ingestion-persist.module';
+import { RecipeIngestionSubmitConsumerModule } from './recipe-ingestion-submit/recipe-ingestion-submit.module';
 
 /**
  * 다중 Kafka consumer 인스턴스 등록.
@@ -12,6 +13,7 @@ import { RecipeIngestionPersistModule } from './recipe-ingestion-persist/recipe-
  * - analytics-group → UserEventsProcessor (user-events)
  * - activity-events-group → ActivityEventsProcessor (EventLog 기록, 비로그인 포함)
  * - cache-invalidation-group → CacheInvalidationProcessor
+ * - recipe-ingestion-submit-group → RecipeIngestionSubmitProcessor
  * - recipe-ingestion-persist-group → RecipeIngestionPersistProcessor
  */
 @Module({
@@ -21,6 +23,7 @@ import { RecipeIngestionPersistModule } from './recipe-ingestion-persist/recipe-
     UserEventsModule,
     ActivityEventsModule,
     CacheInvalidationModule,
+    RecipeIngestionSubmitConsumerModule,
     RecipeIngestionPersistModule,
   ],
 })

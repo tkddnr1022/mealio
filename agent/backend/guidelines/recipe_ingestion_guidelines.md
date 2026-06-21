@@ -22,8 +22,8 @@
 |------|--------|------|
 | **Ingestion 파이프라인** | MongoDB `recipe_ingestion_jobs` | 단계별 `status`, `raw_data`, `retrieved_data`, `batch_id`, 재시도·에러의 **유일한 진실 원천** |
 | **레시피 도메인** | PostgreSQL (Prisma) | Recipe, Ingredient, RecipeIngredient, 카테고리 등 **서비스 도메인 SSOT** |
-| **Kafka** | — | persist **트리거·핸드오프 큐**일 뿐 SSOT 아님. consumer는 `{ jobId }`로 Mongo를 재조회한 뒤 persist |
-| **Redis** | — | 레시피·재료 카테고리 목록 **캐시**(TTL 1h)만. SSOT 아님 |
+| **Kafka** | — | fetch→submit·retrieve→persist **트리거·핸드오프 큐**일 뿐 SSOT 아님. consumer는 Mongo `status`를 재조회한 뒤 처리 |
+| **Redis** | — | 레시피·재료 카테고리 목록 **캐시**(TTL 1h). SSOT 아님 |
 | **OpenAI Batch output** | — | **파생 데이터**. retrieve 완료 시 Mongo `retrieved_data`에 스냅샷 저장 |
 
 ### 2.2 엔트리포인트·CLI
@@ -32,8 +32,8 @@
 
 | 단계 | 엔트리포인트 | package.json script | 비고 |
 |------|--------------|---------------------|------|
-| fetch | CLI (standalone job) | `job:recipe-ingestion-fetch` | 공공데이터 수집만 |
-| submit | CLI (standalone job) | `job:recipe-ingestion-submit` | OpenAI Batch 제출만 |
+| fetch | CLI (standalone job) | `job:recipe-ingestion-fetch` | 공공데이터 수집·`fetchedCount > 0` 시 Kafka 트리거 발행 |
+| submit | CLI (standalone job) + Kafka `recipe-ingestion-fetch-completed` | `job:recipe-ingestion-submit` | OpenAI Batch 제출. Kafka 트리거는 신호만, 대상은 `status: fetched` 조회 |
 | retrieve | CLI (standalone job) | `job:recipe-ingestion-retrieve` | Batch 완료 확인·결과 반영 |
 | persist | Kafka `recipe-ingestion-retrieved` | — | payload `{ jobId }` |
 | failed 재시도·검수 | CLI | `job:recipe-ingestion-submit --retry-failed` | Admin API·UI 향후 계획 |
@@ -58,9 +58,10 @@ pnpm --filter consumer run job:recipe-ingestion-submit --retry-failed
 | 호출 대상 | 주기 (초안) | 비고 |
 |-----------|-------------|------|
 | `job:recipe-ingestion-fetch` | 운영 정책에 따라 확정 | 공공데이터 수집 |
-| `job:recipe-ingestion-submit` | 운영 정책에 따라 확정 | `status: fetched` → OpenAI Batch |
+| `job:recipe-ingestion-submit` | 운영 정책에 따라 확정 (fallback) | `status: fetched` → OpenAI Batch. Kafka 트리거 유실 시 보완 |
 | `job:recipe-ingestion-retrieve` | 1~5분 | Batch 완료 확인·결과 반영 |
 | `job:recipe-ingestion-persist` | 운영 정책에 따라 확정 | `status: retrieved` direct persist (수동/배치) |
+| `recipe-ingestion-fetch-completed` consumer | always-on | fetch 완료 트리거 → submit |
 | `recipe-ingestion-persist` consumer | always-on | Kafka 구독 |
 
 **운영 조율 정책 (예시)** — 구현 코드가 아닌 스케줄·runbook에서 정의:
@@ -68,25 +69,39 @@ pnpm --filter consumer run job:recipe-ingestion-submit --retry-failed
 - submit 전에 `fetched` 적재량이 충분하도록 fetch cron 주기·`fetchLimit`를 조정
 - `fetchLimit >= submitBatchSize` 권장 (한 번의 fetch가 submit 1회분을 커버)
 - submit 실행 시 `fetched` 0건이면 no-op으로 종료
+- fetch Kafka 트리거 발행 실패 시 cron submit fallback이 backlog를 보완
+- submit cron과 Kafka 트리거가 동시에 실행되어도 `fetched → submitting` 조건부 전환으로 동일 job 중복 Batch 제출을 방지 (persist와 동일 패턴)
 
 ### 2.4 수행 주체·데이터 흐름
 
-| 단계 | 수행 주체 | 구동 | 구현 경로 (예정) |
-|------|-----------|------|------------------|
+| 단계 | 수행 주체 | 구동 | 구현 경로 |
+|------|-----------|------|-----------|
 | fetch | standalone job | cron → CLI | `server/consumer/src/jobs/recipe-ingestion-fetch/` |
-| submit | standalone job | cron → CLI | `server/consumer/src/jobs/recipe-ingestion-submit/` |
+| submit | standalone job + consumer | cron fallback + Kafka 구독 | `server/consumer/src/jobs/recipe-ingestion-submit/`, `server/consumer/src/consumers/recipe-ingestion-submit/` |
 | retrieve | standalone job | cron → CLI | `server/consumer/src/jobs/recipe-ingestion-retrieve/` |
 | persist | standalone job + consumer | CLI + Kafka 구독 | `server/consumer/src/jobs/recipe-ingestion-persist/`, `server/consumer/src/consumers/recipe-ingestion-persist/` |
 
 ```
 cron ──→ job:recipe-ingestion-fetch ──→ MongoDB (recipe_ingestion_jobs, status: fetched)
-cron ──→ job:recipe-ingestion-submit ──→ MongoDB ──→ OpenAI Batch API
+                                      └──→ Kafka (recipe-ingestion-fetch-completed)
+Kafka ──→ recipe-ingestion-submit consumer ──→ MongoDB ──→ OpenAI Batch API
+cron ──→ job:recipe-ingestion-submit ──→ MongoDB ──→ OpenAI Batch API (fallback)
 cron ──→ job:recipe-ingestion-retrieve ──→ MongoDB ──→ Kafka (recipe-ingestion-retrieved)
 cron/manual ──→ job:recipe-ingestion-persist ──→ MongoDB + PostgreSQL (Recipe domain)
 Kafka ──→ recipe-ingestion-persist consumer ──→ MongoDB + PostgreSQL (Recipe domain)
 ```
 
-### 2.5 persist 멱등성
+### 2.5 submit 트리거·멱등성
+
+fetch→submit Kafka 핸드오프는 **신호만** 전달한다.
+
+1. fetch 성공·`fetchedCount > 0`일 때 `recipe-ingestion-fetch-completed` 발행 — payload `{ startIdx, endIdx, fetchedCount, triggeredAt }`, key = `{startIdx}:{endIdx}`
+2. `INFO-200`(0건) 또는 upsert 실패만 있는 경우 트리거 미발행
+3. submit consumer는 payload로 job을 직접 선택하지 않고 `status: fetched` job을 조회·제출
+4. `fetched → submitting` 조건부 전환으로 cron·Kafka 트리거 중복 실행 시 동일 job 중복 제출을 방지 (`lockedCount === 0`이면 no-op)
+5. Kafka redelivery·실패 시 DLQ `recipe-ingestion-fetch-completed-dlq` 위임
+
+### 2.6 persist 멱등성
 
 Kafka redelivery·consumer 재시작에 대비한다.
 
@@ -96,7 +111,7 @@ Kafka redelivery·consumer 재시작에 대비한다.
 4. 성공 시 `status: persisted`, `persisted_at` 기록
 5. 실패 시 `retry_count++`, `status: retrieved`로 되돌려 Kafka 재처리 또는 DLQ(`recipe-ingestion-retrieved-dlq`) 위임
 
-### 2.6 환경 변수
+### 2.7 환경 변수
 
 Kafka 토픽·DLQ는 `@mealio/shared` `KAFKA_TOPICS`·`KAFKA_DLQ_TOPICS`에 등록한다.
 
@@ -398,8 +413,9 @@ fetch와 submit은 **별도 CLI·별도 cron**으로 실행한다.
 **파이프라인 전체 흐름** (각 화살표는 독립 스케줄·핸드오프):
 
 ```
-[cron] fetch CLI → Mongo (fetched)
-[cron] submit CLI → OpenAI Batch → Mongo (submitted)
+[cron] fetch CLI → Mongo (fetched) + Kafka emit (fetch completed)
+[always-on] submit consumer → OpenAI Batch → Mongo (submitted)
+[cron] submit CLI → OpenAI Batch → Mongo (submitted)  # fallback
 [cron] retrieve CLI → Mongo (retrieved) + Kafka emit
 [always-on] persist consumer → PostgreSQL
 ```

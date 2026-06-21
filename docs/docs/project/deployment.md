@@ -16,7 +16,7 @@
 | 메시지 브로커 | Kafka | 도메인 이벤트 버스 |
 | 관계 DB | PostgreSQL | Prisma, pgvector 확장 |
 | 문서 DB | MongoDB | Mongoose |
-| 캐시 | Redis | Cache-Aside, 세션, 분산 락 |
+| 캐시 | Redis | Cache-Aside, 세션 |
 | 관측성 | Prometheus, Grafana | 메트릭 수집·시각화 |
 
 ## 배포 시 고려 사항
@@ -42,7 +42,7 @@
 
 ### Redis
 
-- Cache-Aside, OAuth/세션, recipe-ingestion 분산 락에 사용합니다.
+- Cache-Aside, OAuth/세션에 사용합니다.
 - TLS 연결을 지원합니다 (`rediss://`).
 
 ### Kafka

@@ -12,7 +12,7 @@
 | --- | --- | --- |
 | **PostgreSQL** | Prisma | 정형 도메인 — User, Recipe, Ingredient, 추천 원본 테이블 |
 | **MongoDB** | Mongoose | 상태·로그 — Inventory, ChatbotLog, EventLog |
-| **Redis** | — | 캐시, 세션, 챗봇 스트림, 분산 락 |
+| **Redis** | — | 캐시, 세션, 챗봇 스트림 |
 
 ## 핵심 엔티티 (RDB)
 

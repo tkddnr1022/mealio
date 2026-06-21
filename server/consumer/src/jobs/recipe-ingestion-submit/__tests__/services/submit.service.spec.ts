@@ -120,6 +120,23 @@ describe('SubmitService', () => {
       expect(result).toEqual({ submittedCount: 0, skippedCount: 1 });
       expect(jobRepository.transitionManyByIds).not.toHaveBeenCalled();
     });
+
+    it('should skip when fetched→submitting transition loses concurrent race', async () => {
+      const jobId = '507f1f77bcf86cd799439011';
+      jobRepository.findByStatus.mockResolvedValue([
+        makeJob(jobId),
+      ] as never);
+      jobRepository.transitionManyByIds.mockResolvedValue(0);
+
+      const result = await service.submit();
+
+      expect(result).toEqual({ submittedCount: 0, skippedCount: 0 });
+      expect(openAiBatchService.submitBatchJsonl).not.toHaveBeenCalled();
+      expect(metrics.recordIngestionStage).toHaveBeenCalledWith(
+        'submit',
+        'skipped',
+      );
+    });
   });
 
   describe('successful submit', () => {

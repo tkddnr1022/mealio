@@ -25,7 +25,7 @@
 | server/consumer/src/policy/chatbot-cache.policy.ts | 챗봇 Redis 캐시 TTL |
 | server/consumer/src/policy/recipe-search.policy.ts | `search_recipes` ANN·Query Expansion·재랭킹 가중치·`reasonSignals` 임계값 |
 | server/consumer/src/policy/monitoring.policy.ts | lag 폴링 주기 |
-| **server/consumer/src/consumers/consumers.module.ts** | 그룹 모듈(ChatbotRequest, UserEvents, ActivityEvents, CacheInvalidation, RecipeIngestionPersist) 통합 |
+| **server/consumer/src/consumers/consumers.module.ts** | 그룹 모듈(ChatbotRequest, UserEvents, ActivityEvents, CacheInvalidation, RecipeIngestionSubmit, RecipeIngestionPersist) 통합 |
 | **server/consumer/src/consumers/base/** | |
 | server/consumer/src/consumers/base/base.processor.ts | 토픽 공통 인터페이스(ITopicProcessor)·BaseTopicProcessor(파싱·재시도·DLQ 위임) |
 | server/consumer/src/consumers/base/base.consumer.ts | 단일 consumer 인스턴스 connect/subscribe/run/disconnect 공통 로직 (BaseConsumerRunner) |
@@ -159,6 +159,11 @@
 | server/consumer/src/jobs/recipe-ingestion-persist/recipe-ingestion-persist.module.ts | persist 잡 모듈 (standalone) |
 | server/consumer/src/jobs/recipe-ingestion-persist/run-recipe-ingestion-persist.ts | persist CLI |
 | server/consumer/src/jobs/recipe-ingestion-persist/services/persist.service.ts | job 단위 persist 오케스트레이션 |
+| **server/consumer/src/consumers/recipe-ingestion-submit/** | Kafka submit consumer (토픽 §2.2 recipe-ingestion-fetch-completed) |
+| server/consumer/src/consumers/recipe-ingestion-submit/recipe-ingestion-submit.module.ts | submit consumer 모듈 |
+| server/consumer/src/consumers/recipe-ingestion-submit/recipe-ingestion-submit.consumer.ts | submit consumer 구독 |
+| server/consumer/src/consumers/recipe-ingestion-submit/recipe-ingestion-submit.processor.ts | submit processor |
+| server/consumer/src/consumers/recipe-ingestion-submit/handlers/SubmitRecipeIngestionHandler.ts | fetch 완료 트리거 → SubmitService.submit |
 | **server/consumer/src/consumers/recipe-ingestion-persist/** | Kafka persist consumer (토픽 §2.2 recipe-ingestion-retrieved) |
 | server/consumer/src/consumers/recipe-ingestion-persist/recipe-ingestion-persist.module.ts | persist consumer 모듈 |
 | server/consumer/src/consumers/recipe-ingestion-persist/recipe-ingestion-persist.consumer.ts | persist consumer 구독 |
@@ -180,6 +185,7 @@
 | **activity-events** | activity-events-dlq | activity-events-group | Producer (레시피 조회수 기록 API/공유, `POST /api/v1/recipes/search-queries`·search-clicks 등) | 비로그인 포함 활동 이벤트. payload: type(`recipe.view` \| `recipe.share` \| `search.query` \| `search.click`), actor(type, userId?, ipAddress?, userAgent?), entity?, payload?, metadata?. Consumer: EventLog 저장, `recipe.view` 시 viewCount 증가, `ActivityRecommendationService`로 추천 보정. `recipe.view`는 `POST /api/v1/recipes/:recipeId/views`에서 발행되며, Producer에서 dedupe key를 `user:{id}` 우선/비로그인 `ip:{ip}`(`unknown-ip` fallback) 기준으로 제어한다. `search.query`는 `POST /api/v1/recipes/search-queries`에서 발행한다. |
 | **user-events** | user-events-dlq | analytics-group | Producer (닉네임 변경, 재료 CRUD, 관심 레시피 추가/삭제 등) | 로그인 유저 도메인 이벤트. payload: UserEvent \| InventoryEvent. Consumer: UpdateUserProfileHandler, UpdateInventoryHandler, TrackUserActivityHandler(EventLog), RecommendationHandler, 캐시 무효화 요청(CacheInvalidationRequestService). |
 | **cache-invalidation** | cache-invalidation-dlq | cache-invalidation-group | Consumer 내부 (CacheInvalidationRequestService) | 캐시 무효화 지시. payload: type(USER_PROFILE \| INVENTORY \| RECIPE \| RECOMMENDATION), userId 또는 recipeIds[]. Handler가 직접 발행하지 않고 RequestService가 발행. Consumer: RedisInvalidationHandler로 Redis 키/패턴 삭제. |
+| **recipe-ingestion-fetch-completed** | recipe-ingestion-fetch-completed-dlq | recipe-ingestion-submit-group | Consumer (fetch job) | Recipe ingestion submit 트리거. payload: `{ startIdx, endIdx, fetchedCount, triggeredAt }`, key = `{startIdx}:{endIdx}`. Consumer: recipe-ingestion-submit. submit은 Mongo `status: fetched` 조회 후 OpenAI Batch 제출. |
 | **recipe-ingestion-retrieved** | recipe-ingestion-retrieved-dlq | recipe-ingestion-persist-group | Consumer (retrieve job) | Recipe ingestion persist 트리거. payload: `{ jobId }`, key = jobId. Consumer: recipe-ingestion-persist. persist는 검증된 `retrieved_data`(LLM) → PostgreSQL. Mongo `recipe_ingestion_jobs`가 SSOT. |
 
 **공통**

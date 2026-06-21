@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
   DEFAULT_RECIPE_FETCH_LIMIT,
+  KAFKA_TOPICS,
   MAX_RECIPE_FETCH_LIMIT,
   MAX_RECIPE_INGESTION_RETRY_COUNT,
 } from '@mealio/shared';
@@ -9,6 +10,7 @@ import {
   PublicDataApiError,
   PublicDataFetchLimitError,
 } from 'src/integrations/public-data/public-data-api.client';
+import { KafkaProducerService } from 'src/integrations/kafka/kafka-producer.service';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { RecipeIngestionStateRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-state.repository';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
@@ -26,6 +28,13 @@ export interface FetchResult {
   exhausted: boolean;
 }
 
+export interface RecipeIngestionFetchCompletedPayload {
+  startIdx: number;
+  endIdx: number;
+  fetchedCount: number;
+  triggeredAt: string;
+}
+
 /**
  * 공공데이터 API fetch — recipe_ingestion_jobs에 status: fetched 적재.
  * submit·retrieve와 결합하지 않는 standalone 단계.
@@ -39,6 +48,7 @@ export class FetchService {
     private readonly publicDataApiClient: PublicDataApiClient,
     private readonly jobRepository: RecipeIngestionJobRepository,
     private readonly stateRepository: RecipeIngestionStateRepository,
+    private readonly kafkaProducerService: KafkaProducerService,
     private readonly metrics: ConsumerMetricsService,
   ) {}
 
@@ -105,6 +115,13 @@ export class FetchService {
       this.logger.log(
         `Fetched ${fetchedCount} recipes startIdx=${startIdx} endIdx=${endIdx}`,
       );
+      if (fetchedCount > 0) {
+        await this.emitFetchCompletedTrigger({
+          startIdx,
+          endIdx,
+          fetchedCount,
+        });
+      }
       this.metrics.recordIngestionStage('fetch', 'success', fetchedCount);
       this.metrics.observeIngestionStageLatency(
         'fetch',
@@ -198,5 +215,35 @@ export class FetchService {
 
   private sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private async emitFetchCompletedTrigger(params: {
+    startIdx: number;
+    endIdx: number;
+    fetchedCount: number;
+  }): Promise<void> {
+    const payload: RecipeIngestionFetchCompletedPayload = {
+      startIdx: params.startIdx,
+      endIdx: params.endIdx,
+      fetchedCount: params.fetchedCount,
+      triggeredAt: new Date().toISOString(),
+    };
+    const key = `${params.startIdx}:${params.endIdx}`;
+
+    try {
+      await this.kafkaProducerService.emit(
+        KAFKA_TOPICS.RECIPE_INGESTION_FETCH_COMPLETED,
+        payload,
+        key,
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Fetch completed trigger publish failed';
+      this.logger.warn(
+        `Fetch completed trigger publish failed startIdx=${params.startIdx} endIdx=${params.endIdx}: ${message}`,
+      );
+    }
   }
 }

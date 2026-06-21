@@ -12,7 +12,7 @@ Mealio MVP·초기 프로덕션 배포는 아래 스택으로 **고정**한다.
 | 백엔드·메시지·관측 | **AWS EC2** (Docker Compose) | `producer`, `consumer`, `Kafka`, `Prometheus`, `Grafana` |
 | 문서 DB | **MongoDB Atlas** | EventLog, ChatbotLog, NoSQL 도메인 |
 | 관계 DB | **Neon** | User, Recipe, Ingredient 등 PostgreSQL (Prisma) |
-| 캐시 | **Upstash** | Redis (세션·캐시·분산 락) |
+| 캐시 | **Upstash** | Redis (세션·캐시) |
 
 개발 환경은 Compose로 `mongodb` / `postgres` / `redis` / `kafka` / `kafka-ui` 등 인프라만 로컬에 띄우고, `producer` / `consumer`는 **`compose-producer`·`compose-consumer` 없이 호스트에서 기동**한다. 프로덕션 EC2에는 DB·Kafka UI 컨테이너를 **배포하지 않는다**.
 
@@ -269,7 +269,7 @@ docker compose --env-file client/.env.docker -f docker/compose-client.yml up -d 
 
 ### Upstash (Redis)
 
-- 용도: 캐시, OAuth/세션 보조, cron 분산 락(`recipe-ingestion`)
+- 용도: 캐시, OAuth/세션 보조
 - 연결: `REDIS_URL` (TLS)
 - 초기: 무료·저가 플랜; 초당 요청·키 수 모니터링
 

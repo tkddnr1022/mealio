@@ -17,7 +17,7 @@ flowchart LR
 
 | 단계 | 주체 | 저장소·출력 |
 | --- | --- | --- |
-| **fetch** | standalone job | MongoDB `recipe_ingestion_jobs` (`fetched`) |
+| **fetch** | standalone job | MongoDB `recipe_ingestion_jobs` (`fetched`) + Kafka |
 | **submit** | standalone job | OpenAI Batch (`submitted`) |
 | **retrieve** | standalone job | `retrieved_data` + Kafka |
 | **persist** | Kafka consumer | PostgreSQL Recipe |
@@ -63,15 +63,22 @@ stateDiagram-v2
 | --- | --- |
 | → fetched | fetch job API row upsert |
 | → submitted | OpenAI batch 생성 |
-| → retrieved | batch output 파싱 + Kafka |
+| → retrieved | batch output 파싱 |
 | → persisted | PG upsert 성공 |
 | → failed | retry ceiling |
+
+## submit Consumer
+
+- `recipe-ingestion-fetch-completed` 토픽을 구독합니다.
+- payload는 `{ startIdx, endIdx, fetchedCount, triggeredAt }` 형식입니다.
+- `fetched` → `submitting` 조건부 전환으로 멱등성을 보장합니다.
+- 실제 제출 대상은 MongoDB `status: fetched` job 조회로 결정합니다.
 
 ## persist Consumer
 
 - `recipe-ingestion-retrieved` 토픽을 구독합니다.
 - payload는 `{ jobId }` 형식입니다.
-- `retrieved` → `persisting` 조건부 전환으로 멱등성을 보장하며, Kafka 재전달에도 안전합니다.
+- `retrieved` → `persisting` 조건부 전환으로 멱등성을 보장합니다.
 - PostgreSQL에는 `(source, sourceRecipeId)` unique upsert로 저장합니다.
 
 ## CLI
@@ -89,8 +96,8 @@ pnpm --filter consumer run job:recipe-ingestion-persist --job-id <jobId>
 
 | # | 시나리오 | 확인 포인트 |
 | --- | --- | --- |
-| 1 | fetch (소량 `--fetch-limit`) | MongoDB `recipe_ingestion_jobs`에 `fetched` 증가 |
-| 2 | submit (`--submit-batch-size`) | `submitted`·OpenAI `batch_id` 기록 |
+| 1 | fetch (소량 `--fetch-limit`) | MongoDB `recipe_ingestion_jobs`에 `fetched` 증가·`recipe-ingestion-fetch-completed` 발행 |
+| 2 | submit consumer (상시) | `submitted`·OpenAI `batch_id` 기록 |
 | 3 | retrieve | `retrieved`·`recipe-ingestion-retrieved` 토픽 발행 |
 | 4 | persist consumer (상시) | PostgreSQL Recipe upsert·job `persisted` |
 | 5 | submit `--retry-failed --retry-failed-limit N` | `failed` job 재큐잉 후 재submit |
