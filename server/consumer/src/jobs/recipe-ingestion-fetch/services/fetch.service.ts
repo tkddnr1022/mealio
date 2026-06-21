@@ -6,6 +6,10 @@ import {
   MAX_RECIPE_INGESTION_RETRY_COUNT,
 } from '@mealio/shared';
 import {
+  createRecipeIngestionRangeTriggerPayload,
+  recipeIngestionRangeTriggerKey,
+} from 'src/jobs/recipe-ingestion-range-trigger.payload';
+import {
   PublicDataApiClient,
   PublicDataApiError,
   PublicDataFetchLimitError,
@@ -28,13 +32,6 @@ export interface FetchResult {
   endSourceId?: number;
   fetchedCount: number;
   exhausted: boolean;
-}
-
-export interface RecipeIngestionFetchCompletedPayload {
-  startSourceId: number;
-  endSourceId: number;
-  fetchedCount: number;
-  triggeredAt: string;
 }
 
 /**
@@ -240,13 +237,11 @@ export class FetchService {
     endSourceId: number;
     fetchedCount: number;
   }): Promise<void> {
-    const payload: RecipeIngestionFetchCompletedPayload = {
-      startSourceId: params.startSourceId,
-      endSourceId: params.endSourceId,
-      fetchedCount: params.fetchedCount,
-      triggeredAt: new Date().toISOString(),
-    };
-    const key = `${params.startSourceId}:${params.endSourceId}`;
+    const payload = createRecipeIngestionRangeTriggerPayload(params);
+    const key = recipeIngestionRangeTriggerKey(
+      params.startSourceId,
+      params.endSourceId,
+    );
 
     try {
       await this.kafkaProducerService.emit(

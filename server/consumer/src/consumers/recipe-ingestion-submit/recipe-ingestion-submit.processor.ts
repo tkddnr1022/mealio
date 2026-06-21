@@ -5,28 +5,11 @@ import { BaseTopicProcessor } from '../base/base.processor';
 import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
 import { SchemaValidator } from 'src/processing/validation/schema.validator';
-import type { RecipeIngestionFetchCompletedPayload } from 'src/jobs/recipe-ingestion-fetch/services/fetch.service';
+import {
+  isValidRecipeIngestionRangeTriggerPayload,
+  type RecipeIngestionFetchCompletedPayload,
+} from 'src/jobs/recipe-ingestion-range-trigger.payload';
 import { SubmitRecipeIngestionHandler } from './handlers/SubmitRecipeIngestionHandler';
-
-function isValidRecipeIngestionFetchCompletedPayload(
-  obj: unknown,
-): obj is RecipeIngestionFetchCompletedPayload {
-  if (!obj || typeof obj !== 'object') {
-    return false;
-  }
-  const o = obj as Record<string, unknown>;
-  return (
-    typeof o.startSourceId === 'number' &&
-    Number.isFinite(o.startSourceId) &&
-    typeof o.endSourceId === 'number' &&
-    Number.isFinite(o.endSourceId) &&
-    typeof o.fetchedCount === 'number' &&
-    Number.isFinite(o.fetchedCount) &&
-    o.fetchedCount > 0 &&
-    typeof o.triggeredAt === 'string' &&
-    o.triggeredAt.length > 0
-  );
-}
 
 /** recipe-ingestion-fetch-completed 토픽 전용 processor */
 @Injectable()
@@ -60,7 +43,7 @@ export class RecipeIngestionSubmitProcessor extends BaseTopicProcessor<RecipeIng
   ): RecipeIngestionFetchCompletedPayload | null {
     return this.schemaValidator.validateFromKafkaMessage<RecipeIngestionFetchCompletedPayload>(
       message,
-      isValidRecipeIngestionFetchCompletedPayload,
+      isValidRecipeIngestionRangeTriggerPayload,
     );
   }
 

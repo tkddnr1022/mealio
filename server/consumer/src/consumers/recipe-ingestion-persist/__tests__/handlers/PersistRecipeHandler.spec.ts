@@ -2,15 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PersistService } from 'src/jobs/recipe-ingestion-persist/services/persist.service';
 import { PersistRecipeHandler } from '../../handlers/PersistRecipeHandler';
 
-const JOB_ID = '507f1f77bcf86cd799439011';
-
 describe('PersistRecipeHandler', () => {
   let handler: PersistRecipeHandler;
-  let persistService: jest.Mocked<Pick<PersistService, 'persistByJobId'>>;
+  let persistService: jest.Mocked<Pick<PersistService, 'persist'>>;
 
   beforeEach(async () => {
     persistService = {
-      persistByJobId: jest.fn(),
+      persist: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -23,8 +21,17 @@ describe('PersistRecipeHandler', () => {
     handler = module.get(PersistRecipeHandler);
   });
 
-  it('should delegate payload jobId to PersistService', async () => {
-    await handler.execute({ jobId: JOB_ID });
-    expect(persistService.persistByJobId).toHaveBeenCalledWith(JOB_ID);
+  it('should delegate source range payload to PersistService', async () => {
+    await handler.execute({
+      startSourceId: 10,
+      endSourceId: 20,
+      fetchedCount: 8,
+      triggeredAt: new Date().toISOString(),
+    });
+    expect(persistService.persist).toHaveBeenCalledWith({
+      startSourceId: 10,
+      endSourceId: 20,
+      persistBatchSize: 8,
+    });
   });
 });

@@ -77,7 +77,8 @@ stateDiagram-v2
 ## persist Consumer
 
 - `recipe-ingestion-retrieved` 토픽을 구독합니다.
-- payload는 `{ jobId }` 형식입니다.
+- payload는 `{ startSourceId, endSourceId, fetchedCount, triggeredAt }` 형식입니다.
+- consumer는 payload를 트리거 신호로 사용하고, 실제 persist 대상은 MongoDB `status: retrieved` + `source_id` 구간 재조회 결과로 결정합니다.
 - `retrieved` → `persisting` 조건부 전환으로 멱등성을 보장합니다.
 - PostgreSQL에는 `(source, sourceRecipeId)` unique upsert로 저장합니다.
 

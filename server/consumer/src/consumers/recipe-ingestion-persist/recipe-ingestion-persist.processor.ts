@@ -6,19 +6,10 @@ import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
 import { SchemaValidator } from 'src/processing/validation/schema.validator';
 import {
-  PersistRecipeHandler,
+  isValidRecipeIngestionRangeTriggerPayload,
   type RecipeIngestionRetrievedPayload,
-} from './handlers/PersistRecipeHandler';
-
-function isValidRecipeIngestionRetrievedPayload(
-  obj: unknown,
-): obj is RecipeIngestionRetrievedPayload {
-  if (!obj || typeof obj !== 'object') {
-    return false;
-  }
-  const o = obj as Record<string, unknown>;
-  return typeof o.jobId === 'string' && o.jobId.length > 0;
-}
+} from 'src/jobs/recipe-ingestion-range-trigger.payload';
+import { PersistRecipeHandler } from './handlers/PersistRecipeHandler';
 
 /** recipe-ingestion-retrieved 토픽 전용 processor */
 @Injectable()
@@ -52,7 +43,7 @@ export class RecipeIngestionPersistProcessor extends BaseTopicProcessor<RecipeIn
   ): RecipeIngestionRetrievedPayload | null {
     return this.schemaValidator.validateFromKafkaMessage<RecipeIngestionRetrievedPayload>(
       message,
-      isValidRecipeIngestionRetrievedPayload,
+      isValidRecipeIngestionRangeTriggerPayload,
     );
   }
 

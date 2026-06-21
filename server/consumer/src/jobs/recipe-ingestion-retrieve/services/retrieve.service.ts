@@ -10,6 +10,10 @@ import {
 import { KafkaProducerService } from 'src/integrations/kafka/kafka-producer.service';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
+import {
+  createRecipeIngestionRangeTriggerPayload,
+  recipeIngestionRangeTriggerKey,
+} from 'src/jobs/recipe-ingestion-range-trigger.payload';
 
 export interface RetrieveResult {
   batchCount: number;
@@ -96,6 +100,17 @@ export class RetrieveService {
         const outcome = await this.processBatch(batchId);
         retrievedCount += outcome.retrievedCount;
         failedCount += outcome.failedCount;
+        if (
+          outcome.retrievedCount > 0 &&
+          outcome.startSourceId !== undefined &&
+          outcome.endSourceId !== undefined
+        ) {
+          await this.emitRetrievedTrigger({
+            startSourceId: outcome.startSourceId,
+            endSourceId: outcome.endSourceId,
+            fetchedCount: outcome.retrievedCount,
+          });
+        }
         if (outcome.skipped) {
           skippedBatchCount++;
         }
@@ -141,6 +156,8 @@ export class RetrieveService {
   private async processBatch(batchId: string): Promise<{
     retrievedCount: number;
     failedCount: number;
+    startSourceId?: number;
+    endSourceId?: number;
     skipped: boolean;
   }> {
     const batch = await this.openAiBatchService.getBatch(batchId);
@@ -185,6 +202,8 @@ export class RetrieveService {
   ): Promise<{
     retrievedCount: number;
     failedCount: number;
+    startSourceId?: number;
+    endSourceId?: number;
     skipped: boolean;
   }> {
     const locked = await this.jobRepository.transitionManyByBatchId(
@@ -202,6 +221,8 @@ export class RetrieveService {
 
     let retrievedCount = 0;
     let failedCount = 0;
+    let startSourceId: number | undefined;
+    let endSourceId: number | undefined;
 
     try {
       const jsonl =
@@ -237,11 +258,16 @@ export class RetrieveService {
           continue;
         }
 
-        await this.kafkaProducerService.emit(
-          KAFKA_TOPICS.RECIPE_INGESTION_RETRIEVED,
-          { jobId: outcome.jobId },
-          outcome.jobId,
-        );
+        if (typeof doc.sourceId === 'number' && Number.isFinite(doc.sourceId)) {
+          startSourceId =
+            startSourceId === undefined
+              ? doc.sourceId
+              : Math.min(startSourceId, doc.sourceId);
+          endSourceId =
+            endSourceId === undefined
+              ? doc.sourceId
+              : Math.max(endSourceId, doc.sourceId);
+        }
         this.metrics.recordLlmTokenUsage(outcome.usage);
         retrievedCount++;
       }
@@ -279,7 +305,35 @@ export class RetrieveService {
       `batchId=${batchId} retrieved=${retrievedCount} lineFailures=${failedCount}`,
     );
 
-    return { retrievedCount, failedCount, skipped: false };
+    return { retrievedCount, failedCount, startSourceId, endSourceId, skipped: false };
+  }
+
+  private async emitRetrievedTrigger(params: {
+    startSourceId: number;
+    endSourceId: number;
+    fetchedCount: number;
+  }): Promise<void> {
+    const payload = createRecipeIngestionRangeTriggerPayload(params);
+    const key = recipeIngestionRangeTriggerKey(
+      params.startSourceId,
+      params.endSourceId,
+    );
+
+    try {
+      await this.kafkaProducerService.emit(
+        KAFKA_TOPICS.RECIPE_INGESTION_RETRIEVED,
+        payload,
+        key,
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Retrieve completed trigger publish failed';
+      this.logger.warn(
+        `Retrieve completed trigger publish failed startSourceId=${params.startSourceId} endSourceId=${params.endSourceId}: ${message}`,
+      );
+    }
   }
 }
 

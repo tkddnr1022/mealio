@@ -185,15 +185,21 @@ describe('RetrieveService', () => {
       jobRepository.findByBatchId.mockResolvedValue([]);
     });
 
-    it('should mark jobs retrieved and emit Kafka per success line', async () => {
+    it('should mark jobs retrieved and emit Kafka range payload', async () => {
       const jsonl = [
         JSON.stringify(successLine(JOB_ID_1, retrievedData)),
         JSON.stringify(successLine(JOB_ID_2, { title: '김치찌개' })),
       ].join('\n');
       openAiBatchService.downloadBatchOutput.mockResolvedValue(jsonl);
-      jobRepository.transitionStatus.mockResolvedValue({
-        _id: new Types.ObjectId(JOB_ID_1),
-      } as never);
+      jobRepository.transitionStatus
+        .mockResolvedValueOnce({
+          _id: new Types.ObjectId(JOB_ID_1),
+          sourceId: 101,
+        } as never)
+        .mockResolvedValueOnce({
+          _id: new Types.ObjectId(JOB_ID_2),
+          sourceId: 205,
+        } as never);
 
       const result = await service.retrieve();
 
@@ -212,11 +218,16 @@ describe('RetrieveService', () => {
           retrievedAt: expect.any(Date),
         }),
       );
-      expect(kafkaProducerService.emit).toHaveBeenCalledTimes(2);
+      expect(kafkaProducerService.emit).toHaveBeenCalledTimes(1);
       expect(kafkaProducerService.emit).toHaveBeenCalledWith(
         KAFKA_TOPICS.RECIPE_INGESTION_RETRIEVED,
-        { jobId: JOB_ID_1 },
-        JOB_ID_1,
+        expect.objectContaining({
+          startSourceId: 101,
+          endSourceId: 205,
+          fetchedCount: 2,
+          triggeredAt: expect.any(String),
+        }),
+        '101:205',
       );
       expect(result.retrievedCount).toBe(2);
     });
@@ -229,6 +240,7 @@ describe('RetrieveService', () => {
       openAiBatchService.downloadBatchOutput.mockResolvedValue(jsonl);
       jobRepository.transitionStatus.mockResolvedValue({
         _id: new Types.ObjectId(JOB_ID_1),
+        sourceId: 101,
       } as never);
       jobRepository.rollbackRetrievingJobWithRetry.mockResolvedValue(true);
 
@@ -240,7 +252,16 @@ describe('RetrieveService', () => {
         JOB_ID_2,
         expect.stringContaining('status_code=500'),
       );
-      expect(kafkaProducerService.emit).toHaveBeenCalledTimes(1);
+      expect(kafkaProducerService.emit).toHaveBeenCalledWith(
+        KAFKA_TOPICS.RECIPE_INGESTION_RETRIEVED,
+        expect.objectContaining({
+          startSourceId: 101,
+          endSourceId: 101,
+          fetchedCount: 1,
+          triggeredAt: expect.any(String),
+        }),
+        '101:101',
+      );
     });
 
     it('should rollback remaining retrieving jobs missing from output', async () => {
@@ -248,6 +269,7 @@ describe('RetrieveService', () => {
       openAiBatchService.downloadBatchOutput.mockResolvedValue(jsonl);
       jobRepository.transitionStatus.mockResolvedValue({
         _id: new Types.ObjectId(JOB_ID_1),
+        sourceId: 101,
       } as never);
       jobRepository.findByBatchId.mockResolvedValue([
         { _id: new Types.ObjectId(JOB_ID_2) },

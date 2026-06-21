@@ -18,6 +18,8 @@ export class PersistBatchSizeError extends Error {
 export interface PersistOptions {
   persistBatchSize?: number;
   jobId?: string;
+  startSourceId?: number;
+  endSourceId?: number;
 }
 
 export interface PersistResult {
@@ -50,10 +52,16 @@ export class PersistService {
       };
     }
 
-    const candidates = await this.jobRepository.findByStatus(
-      'retrieved',
-      persistBatchSize,
-    );
+    const hasSourceRange =
+      options.startSourceId !== undefined || options.endSourceId !== undefined;
+    const candidates = hasSourceRange
+      ? await this.jobRepository.findByStatusAndSourceIdRange(
+          'retrieved',
+          options.startSourceId,
+          options.endSourceId,
+          persistBatchSize,
+        )
+      : await this.jobRepository.findByStatus('retrieved', persistBatchSize);
     if (candidates.length === 0) {
       return { persistedCount: 0, skippedCount: 0, failedCount: 0 };
     }

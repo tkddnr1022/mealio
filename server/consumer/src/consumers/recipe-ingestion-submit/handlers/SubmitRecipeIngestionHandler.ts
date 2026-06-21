@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SubmitService } from 'src/jobs/recipe-ingestion-submit/services/submit.service';
-import type { RecipeIngestionFetchCompletedPayload } from 'src/jobs/recipe-ingestion-fetch/services/fetch.service';
+import type { RecipeIngestionFetchCompletedPayload } from 'src/jobs/recipe-ingestion-range-trigger.payload';
 
 /** Kafka recipe-ingestion-fetch-completed 이벤트 진입점 (핵심 로직은 SubmitService에 위임). */
 @Injectable()
