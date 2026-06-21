@@ -139,7 +139,11 @@
 | server/consumer/src/reliability/dead-letter/manual-replay.service.ts | ⚠️ 미구현 · 수동 재처리 |
 | **server/consumer/src/jobs/** | 배치 잡 공통 |
 | server/consumer/src/jobs/cli-args.util.ts | CLI 인자 검증 (`findUnknownCliArgs`) — 알려진 플래그·위치 인자 소비 후 미인식 토큰 반환. 각 잡 `run-*.ts`에서 `logger.error` 후 early return |
-| server/consumer/src/jobs/recipe-ingestion-range-trigger.payload.ts | fetch-completed·retrieved Kafka 트리거 공통 payload 타입·검증·key 헬퍼 (Consumer SSOT) |
+| **server/consumer/src/jobs/recipe-ingestion/** | recipe ingestion 공통 (Kafka payload·run scope·CLI) |
+| server/consumer/src/jobs/recipe-ingestion/recipe-ingestion-range-trigger.payload.ts | fetch-completed·retrieved Kafka 트리거 공통 payload 타입·검증·key 헬퍼 (Consumer SSOT) |
+| server/consumer/src/jobs/recipe-ingestion/recipe-ingestion-run.scope.ts | submit/retrieve/persist run scope 해석 (`runId` vs `runIdCount`; submit/persist는 `jobId` 추가) |
+| server/consumer/src/jobs/recipe-ingestion/recipe-ingestion-run.target.ts | submit/persist 작업 대상 job 조회 · retrieve batchId 조회 |
+| server/consumer/src/jobs/recipe-ingestion/recipe-ingestion-run.cli.ts | run scope CLI (`--run-id`, `--run-id-count`) · submit/persist용 `--job-id` 파서 |
 | **server/consumer/src/jobs/kpi-rollup/** | KPI 롤업 배치 잡 |
 | server/consumer/src/jobs/kpi-rollup/kpi-rollup.module.ts | KPI 롤업 모듈 |
 | server/consumer/src/jobs/kpi-rollup/kpi-rollup.service.ts | KPI 집계 서비스 (MongoDB EventLog → 롤업 문서) |
@@ -150,17 +154,17 @@
 | server/consumer/src/jobs/recipe-ingestion-fetch/services/fetch.service.ts | 공공데이터 API 페이징·job 생성 |
 | **server/consumer/src/jobs/recipe-ingestion-submit/** | submit standalone job |
 | server/consumer/src/jobs/recipe-ingestion-submit/recipe-ingestion-submit.module.ts | submit 잡 모듈 |
-| server/consumer/src/jobs/recipe-ingestion-submit/run-recipe-ingestion-submit.ts | submit CLI (`--submit-batch-size`, `--retry-failed`, `--retry-failed-limit`) |
+| server/consumer/src/jobs/recipe-ingestion-submit/run-recipe-ingestion-submit.ts | submit CLI (`--run-id`, `--run-id-count`, `--job-id`, `--retry-failed`, `--retry-failed-limit`) |
 | server/consumer/src/jobs/recipe-ingestion-submit/prompts/recipe-ingestion.system-prompt.ts | OpenAI Batch용 시스템 프롬프트 |
 | server/consumer/src/jobs/recipe-ingestion-submit/services/category-context.service.ts | submit용 카테고리 컨텍스트 조립 |
 | server/consumer/src/jobs/recipe-ingestion-submit/services/submit.service.ts | OpenAI Batch 제출·job 상태 갱신 |
 | **server/consumer/src/jobs/recipe-ingestion-retrieve/** | retrieve standalone job |
 | server/consumer/src/jobs/recipe-ingestion-retrieve/recipe-ingestion-retrieve.module.ts | retrieve 잡 모듈 |
-| server/consumer/src/jobs/recipe-ingestion-retrieve/run-recipe-ingestion-retrieve.ts | retrieve CLI |
+| server/consumer/src/jobs/recipe-ingestion-retrieve/run-recipe-ingestion-retrieve.ts | retrieve CLI (`--run-id`, `--run-id-count`) |
 | server/consumer/src/jobs/recipe-ingestion-retrieve/services/retrieve.service.ts | Batch 결과 수신·`recipe-ingestion-retrieved` 토픽 발행 |
-| **server/consumer/src/jobs/recipe-ingestion-persist/** | persist standalone job (`--persist-batch-size`, `--job-id`) |
+| **server/consumer/src/jobs/recipe-ingestion-persist/** | persist standalone job (`--run-id`, `--run-id-count`, `--job-id`) |
 | server/consumer/src/jobs/recipe-ingestion-persist/recipe-ingestion-persist.module.ts | persist 잡 모듈 (standalone) |
-| server/consumer/src/jobs/recipe-ingestion-persist/run-recipe-ingestion-persist.ts | persist CLI |
+| server/consumer/src/jobs/recipe-ingestion-persist/run-recipe-ingestion-persist.ts | persist CLI (`--run-id`, `--run-id-count`, `--job-id`) |
 | server/consumer/src/jobs/recipe-ingestion-persist/services/persist.service.ts | job 단위 persist 오케스트레이션 |
 | **server/consumer/src/consumers/recipe-ingestion-submit/** | Kafka submit consumer (토픽 §2.2 recipe-ingestion-fetch-completed) |
 | server/consumer/src/consumers/recipe-ingestion-submit/recipe-ingestion-submit.module.ts | submit consumer 모듈 |
@@ -188,8 +192,8 @@
 | **activity-events** | activity-events-dlq | activity-events-group | Producer (레시피 조회수 기록 API/공유, `POST /api/v1/recipes/search-queries`·search-clicks 등) | 비로그인 포함 활동 이벤트. payload: type(`recipe.view` \| `recipe.share` \| `search.query` \| `search.click`), actor(type, userId?, ipAddress?, userAgent?), entity?, payload?, metadata?. Consumer: EventLog 저장, `recipe.view` 시 viewCount 증가, `ActivityRecommendationService`로 추천 보정. `recipe.view`는 `POST /api/v1/recipes/:recipeId/views`에서 발행되며, Producer에서 dedupe key를 `user:{id}` 우선/비로그인 `ip:{ip}`(`unknown-ip` fallback) 기준으로 제어한다. `search.query`는 `POST /api/v1/recipes/search-queries`에서 발행한다. |
 | **user-events** | user-events-dlq | analytics-group | Producer (닉네임 변경, 재료 CRUD, 관심 레시피 추가/삭제 등) | 로그인 유저 도메인 이벤트. payload: UserEvent \| InventoryEvent. Consumer: UpdateUserProfileHandler, UpdateInventoryHandler, TrackUserActivityHandler(EventLog), RecommendationHandler, 캐시 무효화 요청(CacheInvalidationRequestService). |
 | **cache-invalidation** | cache-invalidation-dlq | cache-invalidation-group | Consumer 내부 (CacheInvalidationRequestService) | 캐시 무효화 지시. payload: type(USER_PROFILE \| INVENTORY \| RECIPE \| RECOMMENDATION), userId 또는 recipeIds[]. Handler가 직접 발행하지 않고 RequestService가 발행. Consumer: RedisInvalidationHandler로 Redis 키/패턴 삭제. |
-| **recipe-ingestion-fetch-completed** | recipe-ingestion-fetch-completed-dlq | recipe-ingestion-submit-group | Consumer (fetch job) | Recipe ingestion submit 트리거. payload: `{ startSourceId, endSourceId, fetchedCount, triggeredAt }`, key = `{startSourceId}:{endSourceId}`. Consumer: recipe-ingestion-submit. submit은 payload를 트리거 신호로만 사용하고 Mongo `status: fetched`를 재조회해 OpenAI Batch 제출(수동 CLI는 `--start-source-id`/`--end-source-id`로 `source_id` 범위 지정 가능). |
-| **recipe-ingestion-retrieved** | recipe-ingestion-retrieved-dlq | recipe-ingestion-persist-group | Consumer (retrieve job) | Recipe ingestion persist 트리거. payload: `{ startSourceId, endSourceId, fetchedCount, triggeredAt }`, key = `{startSourceId}:{endSourceId}`. Consumer: recipe-ingestion-persist. persist는 payload를 트리거 신호로 사용하고 Mongo `status: retrieved` + `source_id` 구간 재조회 후 검증된 `retrieved_data`(LLM)를 PostgreSQL에 반영한다. Mongo `recipe_ingestion_jobs`가 SSOT. |
+| **recipe-ingestion-fetch-completed** | recipe-ingestion-fetch-completed-dlq | recipe-ingestion-submit-group | Consumer (fetch job) | Recipe ingestion submit 트리거. payload: `{ runId, fetchedCount, triggeredAt }`, key = `runId`. Consumer: recipe-ingestion-submit. submit은 payload를 트리거 신호로 사용하고 Mongo `status: fetched` + `runId`를 재조회해 OpenAI Batch 제출(수동 CLI는 `--run-id` 또는 `--run-id-count`로 실행 단위 지정, 상호 배타). |
+| **recipe-ingestion-retrieved** | recipe-ingestion-retrieved-dlq | recipe-ingestion-persist-group | Consumer (retrieve job) | Recipe ingestion persist 트리거. payload: `{ runId, fetchedCount, triggeredAt }`, key = `runId`. Consumer: recipe-ingestion-persist. persist는 payload를 트리거 신호로 사용하고 Mongo `status: retrieved` + `runId` 재조회 후 검증된 `retrieved_data`(LLM)를 PostgreSQL에 반영한다. Mongo `recipe_ingestion_jobs`가 SSOT. |
 
 **공통**
 

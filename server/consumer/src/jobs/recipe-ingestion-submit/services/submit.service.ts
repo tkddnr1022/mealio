@@ -1,8 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
   DEFAULT_RECIPE_RETRY_FAILED_LIMIT,
-  DEFAULT_RECIPE_SUBMIT_BATCH_SIZE,
-  MAX_RECIPE_SUBMIT_BATCH_SIZE,
   type RecipeIngestionJobDocument,
 } from '@mealio/shared';
 import {
@@ -11,6 +9,9 @@ import {
 } from 'src/integrations/openai/openai-batch.service';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
+import {
+  resolveRecipeIngestionTargetJobs,
+} from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
 import { CategoryContextService } from './category-context.service';
 import { buildRecipeIngestionSystemPrompt } from '../prompts/recipe-ingestion.system-prompt';
 import {
@@ -19,24 +20,31 @@ import {
   RECIPE_INGESTION_OPENAI_BATCH_VERBOSITY,
 } from '@mealio/shared';
 
-export class SubmitBatchSizeError extends Error {
+export class SubmitRunIdError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'SubmitBatchSizeError';
+    this.name = 'SubmitRunIdError';
   }
 }
 
-export class SubmitIndexRangeError extends Error {
+export class SubmitRetryFailedLimitError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'SubmitIndexRangeError';
+    this.name = 'SubmitRetryFailedLimitError';
+  }
+}
+
+export class SubmitJobIdError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'SubmitJobIdError';
   }
 }
 
 export interface SubmitOptions {
-  submitBatchSize?: number;
-  startSourceId?: number;
-  endSourceId?: number;
+  jobId?: string;
+  runId?: string;
+  runIdCount?: number;
   retryFailed?: boolean;
   retryFailedLimit?: number;
 }
@@ -80,9 +88,6 @@ export class SubmitService {
 
   async submit(options: SubmitOptions = {}): Promise<SubmitResult> {
     const startedAt = Date.now();
-    const submitBatchSize = this.resolveSubmitBatchSize(
-      options.submitBatchSize,
-    );
     const retryFailedLimit = Math.max(
       1,
       options.retryFailedLimit ?? DEFAULT_RECIPE_RETRY_FAILED_LIMIT,
@@ -96,16 +101,11 @@ export class SubmitService {
       }
     }
 
-    const sourceIdRange = this.resolveSourceIdRange(options, submitBatchSize);
-    const fetchedJobs =
-      sourceIdRange === undefined
-        ? await this.jobRepository.findByStatus('fetched', submitBatchSize)
-        : await this.jobRepository.findByStatusAndSourceIdRange(
-            'fetched',
-            sourceIdRange.startSourceId,
-            sourceIdRange.endSourceId,
-            submitBatchSize,
-          );
+    const fetchedJobs = await resolveRecipeIngestionTargetJobs(
+      this.jobRepository,
+      'fetched',
+      options,
+    );
 
     if (fetchedJobs.length === 0) {
       this.logger.log('No fetched jobs — no-op exit');
@@ -118,7 +118,10 @@ export class SubmitService {
     }
 
     const eligibleJobs = fetchedJobs.filter((job) => this.hasRawData(job));
-    const skippedCount = fetchedJobs.length - eligibleJobs.length;
+    const baseSkippedCount = fetchedJobs.length - eligibleJobs.length;
+    const jobsByRunId = this.groupEligibleJobsByRunId(eligibleJobs);
+    const runIdMissingSkipped = eligibleJobs.length - jobsByRunId.totalJobs;
+    const skippedCount = baseSkippedCount + runIdMissingSkipped;
 
     if (eligibleJobs.length === 0) {
       this.logger.warn(
@@ -132,16 +135,10 @@ export class SubmitService {
       return { submittedCount: 0, skippedCount };
     }
 
-    const jobIds = eligibleJobs.map((job) => String(job._id));
-
-    const lockedCount = await this.jobRepository.transitionManyByIds(
-      jobIds,
-      'fetched',
-      'submitting',
-    );
-
-    if (lockedCount === 0) {
-      this.logger.warn('No jobs transitioned to submitting — concurrent run?');
+    if (jobsByRunId.groups.size === 0) {
+      this.logger.warn(
+        `All ${eligibleJobs.length} fetched jobs missing runId — no-op exit`,
+      );
       this.metrics.recordIngestionStage('submit', 'skipped');
       this.metrics.observeIngestionStageLatency(
         'submit',
@@ -150,42 +147,34 @@ export class SubmitService {
       return { submittedCount: 0, skippedCount };
     }
 
-    const lockedJobs = await this.jobRepository.findManyByIdsAndStatus(
-      jobIds,
-      'submitting',
-    );
-    const lockedIds = lockedJobs.map((job) => String(job._id));
-
     try {
       const categories = await this.categoryContextService.getCategoryContext();
       const systemPrompt = buildRecipeIngestionSystemPrompt(categories);
       const model = this.openAiBatchService.getBatchModel();
+      let submittedCount = 0;
+      const submittedBatchIds: string[] = [];
 
-      const jsonlContent = buildBatchJsonlContent(
-        lockedJobs,
-        systemPrompt,
-        model,
-      );
-
-      const { batchId } =
-        await this.openAiBatchService.submitBatchJsonl(jsonlContent);
-
-      const now = new Date();
-      const submittedCount = await this.jobRepository.transitionManyByIds(
-        lockedIds,
-        'submitting',
-        'submitted',
-        {
-          batchId,
-          submittedAt: now,
-          errorMessage: undefined,
-        },
-      );
+      for (const [runId, jobs] of jobsByRunId.groups.entries()) {
+        const groupResult = await this.submitRunGroup({
+          runId,
+          jobs,
+          systemPrompt,
+          model,
+        });
+        submittedCount += groupResult.submittedCount;
+        if (groupResult.batchId) {
+          submittedBatchIds.push(groupResult.batchId);
+        }
+      }
 
       this.logger.log(
-        `Submitted ${submittedCount} jobs batchId=${batchId} skipped=${skippedCount}`,
+        `Submitted ${submittedCount} jobs batches=${submittedBatchIds.length} skipped=${skippedCount}`,
       );
-      this.metrics.recordIngestionStage('submit', 'success', submittedCount);
+      if (submittedCount > 0) {
+        this.metrics.recordIngestionStage('submit', 'success', submittedCount);
+      } else {
+        this.metrics.recordIngestionStage('submit', 'skipped');
+      }
       this.metrics.observeIngestionStageLatency(
         'submit',
         Date.now() - startedAt,
@@ -193,23 +182,10 @@ export class SubmitService {
 
       return {
         submittedCount,
-        batchId,
+        batchId: submittedBatchIds.length === 1 ? submittedBatchIds[0] : undefined,
         skippedCount,
       };
     } catch (error) {
-      const message =
-        error instanceof OpenAIBatchError || error instanceof Error
-          ? error.message
-          : 'Batch submit failed';
-
-      const rolledBack = await this.jobRepository.rollbackSubmittingWithRetry(
-        lockedIds,
-        message,
-      );
-
-      this.logger.error(
-        `Batch submit failed, rolled back ${rolledBack} jobs: ${message}`,
-      );
       this.metrics.recordIngestionStage('submit', 'failed');
       this.metrics.observeIngestionStageLatency(
         'submit',
@@ -219,68 +195,105 @@ export class SubmitService {
     }
   }
 
-  private resolveSourceIdRange(
-    options: SubmitOptions,
-    submitBatchSize: number,
-  ): { startSourceId?: number; endSourceId?: number } | undefined {
-    const { startSourceId: rawStartSourceId, endSourceId: rawEndSourceId } =
-      options;
-    if (rawStartSourceId === undefined && rawEndSourceId === undefined) {
-      return undefined;
-    }
-
-    if (rawStartSourceId !== undefined && rawStartSourceId < 1) {
-      throw new SubmitIndexRangeError(
-        `startSourceId must be >= 1, received ${rawStartSourceId}`,
-      );
-    }
-    if (rawEndSourceId !== undefined && rawEndSourceId < 1) {
-      throw new SubmitIndexRangeError(
-        `endSourceId must be >= 1, received ${rawEndSourceId}`,
-      );
-    }
-
-    let startSourceId = rawStartSourceId;
-    let endSourceId = rawEndSourceId;
-
-    if (startSourceId !== undefined && endSourceId === undefined) {
-      endSourceId = startSourceId + submitBatchSize - 1;
-    }
-
-    if (
-      startSourceId !== undefined &&
-      endSourceId !== undefined &&
-      endSourceId < startSourceId
-    ) {
-      throw new SubmitIndexRangeError(
-        `endSourceId (${endSourceId}) must be >= startSourceId (${startSourceId})`,
-      );
-    }
-
-    return { startSourceId, endSourceId };
-  }
-
-  private resolveSubmitBatchSize(size?: number): number {
-    const resolved = size ?? DEFAULT_RECIPE_SUBMIT_BATCH_SIZE;
-    if (resolved < 1) {
-      throw new SubmitBatchSizeError(
-        `submitBatchSize must be >= 1, received ${resolved}`,
-      );
-    }
-    if (resolved > MAX_RECIPE_SUBMIT_BATCH_SIZE) {
-      throw new SubmitBatchSizeError(
-        `submitBatchSize (${resolved}) exceeds maximum ${MAX_RECIPE_SUBMIT_BATCH_SIZE}`,
-      );
-    }
-    return resolved;
-  }
-
   private hasRawData(job: RecipeIngestionJobDocument): boolean {
     return (
       job.rawData !== undefined &&
       job.rawData !== null &&
       typeof job.rawData === 'object'
     );
+  }
+
+  private hasRunId(job: RecipeIngestionJobDocument): job is RecipeIngestionJobDocument & {
+    runId: string;
+  } {
+    return typeof job.runId === 'string' && job.runId.length > 0;
+  }
+
+  private groupEligibleJobsByRunId(jobs: RecipeIngestionJobDocument[]): {
+    groups: Map<string, RecipeIngestionJobDocument[]>;
+    totalJobs: number;
+  } {
+    const groups = new Map<string, RecipeIngestionJobDocument[]>();
+    let totalJobs = 0;
+
+    for (const job of jobs) {
+      if (!this.hasRunId(job)) {
+        continue;
+      }
+      totalJobs++;
+      const group = groups.get(job.runId);
+      if (group) {
+        group.push(job);
+      } else {
+        groups.set(job.runId, [job]);
+      }
+    }
+
+    return { groups, totalJobs };
+  }
+
+  private async submitRunGroup(params: {
+    runId: string;
+    jobs: RecipeIngestionJobDocument[];
+    systemPrompt: string;
+    model: string;
+  }): Promise<{ submittedCount: number; batchId?: string }> {
+    const jobIds = params.jobs.map((job) => String(job._id));
+    const lockedCount = await this.jobRepository.transitionManyByIds(
+      jobIds,
+      'fetched',
+      'submitting',
+    );
+
+    if (lockedCount === 0) {
+      this.logger.warn(
+        `runId=${params.runId} no jobs transitioned to submitting — concurrent run?`,
+      );
+      return { submittedCount: 0 };
+    }
+
+    const lockedJobs = await this.jobRepository.findManyByIdsAndStatus(
+      jobIds,
+      'submitting',
+    );
+    const lockedIds = lockedJobs.map((job) => String(job._id));
+    const jsonlContent = buildBatchJsonlContent(
+      lockedJobs,
+      params.systemPrompt,
+      params.model,
+    );
+
+    try {
+      const { batchId } =
+        await this.openAiBatchService.submitBatchJsonl(jsonlContent);
+      const submittedCount = await this.jobRepository.transitionManyByIds(
+        lockedIds,
+        'submitting',
+        'submitted',
+        {
+          batchId,
+          submittedAt: new Date(),
+          errorMessage: undefined,
+        },
+      );
+      this.logger.log(
+        `runId=${params.runId} submitted=${submittedCount} batchId=${batchId}`,
+      );
+      return { submittedCount, batchId };
+    } catch (error) {
+      const message =
+        error instanceof OpenAIBatchError || error instanceof Error
+          ? error.message
+          : 'Batch submit failed';
+      const rolledBack = await this.jobRepository.rollbackSubmittingWithRetry(
+        lockedIds,
+        message,
+      );
+      this.logger.error(
+        `runId=${params.runId} batch submit failed, rolledBack=${rolledBack}: ${message}`,
+      );
+      throw error;
+    }
   }
 }
 

@@ -26,10 +26,10 @@ describe('findUnknownCliArgs', () => {
   it('복수 플래그를 처리한다', () => {
     expect(
       findUnknownCliArgs(
-        ['--retry-failed', '--submit-batch-size', '50', '--foo'],
+        ['--retry-failed', '--run-id', 'run-1', '--foo'],
         {
           flags: [
-            { name: '--submit-batch-size', takesValue: true },
+            { name: '--run-id', takesValue: true },
             { name: '--retry-failed' },
           ],
         },

@@ -6,20 +6,27 @@ import {
   RetrievedDataValidationError,
   validateRetrievedData,
 } from 'src/consumers/recipe-ingestion-persist/validators/retrieved-data.validator';
-import { DEFAULT_RECIPE_PERSIST_BATCH_SIZE } from '@mealio/shared';
+import { assertRunScopeAndJobIdMutuallyExclusive } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.scope';
+import { resolveRecipeIngestionTargetJobs } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
 
-export class PersistBatchSizeError extends Error {
+export class PersistRunIdError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'PersistBatchSizeError';
+    this.name = 'PersistRunIdError';
+  }
+}
+
+export class PersistJobIdError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'PersistJobIdError';
   }
 }
 
 export interface PersistOptions {
-  persistBatchSize?: number;
   jobId?: string;
-  startSourceId?: number;
-  endSourceId?: number;
+  runId?: string;
+  runIdCount?: number;
 }
 
 export interface PersistResult {
@@ -39,10 +46,7 @@ export class PersistService {
   ) {}
 
   async persist(options: PersistOptions = {}): Promise<PersistResult> {
-    const persistBatchSize = this.resolvePersistBatchSize(
-      options.persistBatchSize,
-    );
-
+    assertRunScopeAndJobIdMutuallyExclusive(options);
     if (options.jobId) {
       const outcome = await this.persistByJobId(options.jobId);
       return {
@@ -52,16 +56,11 @@ export class PersistService {
       };
     }
 
-    const hasSourceRange =
-      options.startSourceId !== undefined || options.endSourceId !== undefined;
-    const candidates = hasSourceRange
-      ? await this.jobRepository.findByStatusAndSourceIdRange(
-          'retrieved',
-          options.startSourceId,
-          options.endSourceId,
-          persistBatchSize,
-        )
-      : await this.jobRepository.findByStatus('retrieved', persistBatchSize);
+    const candidates = await resolveRecipeIngestionTargetJobs(
+      this.jobRepository,
+      'retrieved',
+      options,
+    );
     if (candidates.length === 0) {
       return { persistedCount: 0, skippedCount: 0, failedCount: 0 };
     }
@@ -175,13 +174,4 @@ export class PersistService {
     }
   }
 
-  private resolvePersistBatchSize(size?: number): number {
-    const resolved = size ?? DEFAULT_RECIPE_PERSIST_BATCH_SIZE;
-    if (resolved < 1) {
-      throw new PersistBatchSizeError(
-        `persistBatchSize must be >= 1, received ${resolved}`,
-      );
-    }
-    return resolved;
-  }
 }

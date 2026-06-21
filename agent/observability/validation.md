@@ -180,7 +180,7 @@ Development에서는 위 비율·트레이스 샘플링을 1.0(또는 health/met
 | # | 시나리오 | 기대 결과 |
 |---|----------|-----------|
 | 8A.1 | `job:recipe-ingestion-fetch --fetch-limit 50` 실행 | `recipe_ingestion_jobs`에 `fetched` 증가, stage metric `fetch/success` 증가 |
-| 8A.2 | `job:recipe-ingestion-submit --submit-batch-size 50` 실행 | `submitted` 증가, stage metric `submit/success` 증가 |
+| 8A.2 | `job:recipe-ingestion-submit --run-id <runId>` 실행 | `submitted` 증가, stage metric `submit/success` 증가 |
 | 8A.3 | `job:recipe-ingestion-retrieve` 실행 | `retrieved` 증가, `recipe-ingestion-retrieved` lag이 감소 방향 |
 | 8A.4 | `job:recipe-ingestion-submit --retry-failed --retry-failed-limit 20` 실행 | `failed -> fetched` 재큐잉 후 재제출 진행 |
 | 8A.5 | `job:recipe-ingestion-persist --job-id <jobId>` 실행 | 지정 jobId direct persist 실행 및 상태 전이 확인 |

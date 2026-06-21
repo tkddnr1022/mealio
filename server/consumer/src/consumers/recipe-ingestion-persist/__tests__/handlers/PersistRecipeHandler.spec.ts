@@ -21,17 +21,14 @@ describe('PersistRecipeHandler', () => {
     handler = module.get(PersistRecipeHandler);
   });
 
-  it('should delegate source range payload to PersistService', async () => {
+  it('should delegate runId payload to PersistService', async () => {
     await handler.execute({
-      startSourceId: 10,
-      endSourceId: 20,
+      runId: 'run-1',
       fetchedCount: 8,
       triggeredAt: new Date().toISOString(),
     });
     expect(persistService.persist).toHaveBeenCalledWith({
-      startSourceId: 10,
-      endSourceId: 20,
-      persistBatchSize: 8,
+      runId: 'run-1',
     });
   });
 });

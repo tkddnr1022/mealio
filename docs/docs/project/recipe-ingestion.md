@@ -42,7 +42,7 @@ flowchart LR
 ## 운영 특성
 
 - `fetch`, `submit`, `retrieve`는 **독립 job**이며 cron으로 조율합니다.
-- `fetchLimit`은 `submitBatchSize` 이상을 권장합니다.
+- fetch·submit cron 주기와 `fetchLimit`는 운영 runbook에서 조율합니다.
 - `persist`는 always-on Consumer가 Kafka 이벤트를 소비해 PostgreSQL에 반영합니다.
 
 ## 로컬 실행 (CLI)

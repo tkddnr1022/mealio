@@ -7,11 +7,11 @@ import {
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { CategoryContextService } from '../../services/category-context.service';
 import {
-  SubmitBatchSizeError,
   SubmitService,
   buildBatchJsonlContent,
   buildBatchJsonlLine,
 } from '../../services/submit.service';
+import { RecipeIngestionRunScopeError } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.scope';
 import { buildRecipeIngestionSystemPrompt } from '../../prompts/recipe-ingestion.system-prompt';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
 
@@ -27,10 +27,12 @@ const mockCategories = {
 function makeJob(
   id: string,
   rawData: Record<string, unknown> = { RCP_SEQ: '1', RCP_NM: 'test' },
+  runId = 'run-1',
 ) {
   return {
     _id: new Types.ObjectId(id),
     rawData,
+    runId,
   };
 }
 
@@ -40,7 +42,10 @@ describe('SubmitService', () => {
     Pick<
       RecipeIngestionJobRepository,
       | 'findByStatus'
-      | 'findByStatusAndSourceIdRange'
+      | 'findByStatusAndRunId'
+      | 'findByStatusAndRunIds'
+      | 'findById'
+      | 'findDistinctRunIdsByStatus'
       | 'requeueFailedToFetched'
       | 'transitionManyByIds'
       | 'findManyByIdsAndStatus'
@@ -63,7 +68,10 @@ describe('SubmitService', () => {
   beforeEach(async () => {
     jobRepository = {
       findByStatus: jest.fn(),
-      findByStatusAndSourceIdRange: jest.fn(),
+      findByStatusAndRunId: jest.fn(),
+      findByStatusAndRunIds: jest.fn(),
+      findById: jest.fn(),
+      findDistinctRunIdsByStatus: jest.fn(),
       requeueFailedToFetched: jest.fn(),
       transitionManyByIds: jest.fn(),
       findManyByIdsAndStatus: jest.fn(),
@@ -103,17 +111,22 @@ describe('SubmitService', () => {
 
   describe('no-op', () => {
     it('should exit without OpenAI call when no fetched jobs', async () => {
-      jobRepository.findByStatus.mockResolvedValue([]);
+      jobRepository.findDistinctRunIdsByStatus.mockResolvedValue([]);
 
       const result = await service.submit();
 
+      expect(jobRepository.findDistinctRunIdsByStatus).toHaveBeenCalledWith(
+        'fetched',
+        1,
+      );
       expect(result).toEqual({ submittedCount: 0, skippedCount: 0 });
       expect(openAiBatchService.submitBatchJsonl).not.toHaveBeenCalled();
       expect(jobRepository.transitionManyByIds).not.toHaveBeenCalled();
     });
 
     it('should skip jobs without rawData', async () => {
-      jobRepository.findByStatus.mockResolvedValue([
+      jobRepository.findDistinctRunIdsByStatus.mockResolvedValue(['run-1']);
+      jobRepository.findByStatusAndRunId.mockResolvedValue([
         { _id: new Types.ObjectId('507f1f77bcf86cd799439011') },
       ] as never);
 
@@ -125,10 +138,14 @@ describe('SubmitService', () => {
 
     it('should skip when fetched→submitting transition loses concurrent race', async () => {
       const jobId = '507f1f77bcf86cd799439011';
-      jobRepository.findByStatus.mockResolvedValue([
+      jobRepository.findDistinctRunIdsByStatus.mockResolvedValue(['run-1']);
+      jobRepository.findByStatusAndRunId.mockResolvedValue([
         makeJob(jobId),
       ] as never);
       jobRepository.transitionManyByIds.mockResolvedValue(0);
+      categoryContextService.getCategoryContext.mockResolvedValue(
+        mockCategories,
+      );
 
       const result = await service.submit();
 
@@ -146,10 +163,9 @@ describe('SubmitService', () => {
     const job = makeJob(jobId);
 
     beforeEach(() => {
-      jobRepository.findByStatus.mockResolvedValue([job] as never);
-      jobRepository.findByStatusAndSourceIdRange.mockResolvedValue(
-        [job] as never,
-      );
+      jobRepository.findDistinctRunIdsByStatus.mockResolvedValue(['run-1']);
+      jobRepository.findByStatusAndRunId.mockResolvedValue([job] as never);
+      jobRepository.findByStatusAndRunIds.mockResolvedValue([job] as never);
       jobRepository.transitionManyByIds
         .mockResolvedValueOnce(1)
         .mockResolvedValueOnce(1);
@@ -164,9 +180,12 @@ describe('SubmitService', () => {
     });
 
     it('should upload JSONL, create batch, and mark jobs submitted', async () => {
-      const result = await service.submit({ submitBatchSize: 50 });
+      const result = await service.submit();
 
-      expect(jobRepository.findByStatus).toHaveBeenCalledWith('fetched', 50);
+      expect(jobRepository.findByStatusAndRunId).toHaveBeenCalledWith(
+        'fetched',
+        'run-1',
+      );
       expect(jobRepository.transitionManyByIds).toHaveBeenNthCalledWith(
         1,
         [jobId],
@@ -200,36 +219,103 @@ describe('SubmitService', () => {
       });
     });
 
-    it('should query fetched jobs within sourceId range when startSourceId/endSourceId provided', async () => {
+    it('should query fetched jobs with runId when runId provided', async () => {
       const result = await service.submit({
-        submitBatchSize: 50,
-        startSourceId: 1,
-        endSourceId: 100,
+        runId: 'run-1',
       });
 
-      expect(jobRepository.findByStatus).not.toHaveBeenCalled();
-      expect(jobRepository.findByStatusAndSourceIdRange).toHaveBeenCalledWith(
+      expect(jobRepository.findDistinctRunIdsByStatus).not.toHaveBeenCalled();
+      expect(jobRepository.findByStatusAndRunId).toHaveBeenCalledWith(
         'fetched',
-        1,
-        100,
-        50,
+        'run-1',
       );
       expect(result.submittedCount).toBe(1);
     });
 
-    it('should treat endSourceId alone as max source_id upper bound', async () => {
-      const result = await service.submit({
-        submitBatchSize: 50,
-        endSourceId: 100,
-      });
-
-      expect(jobRepository.findByStatusAndSourceIdRange).toHaveBeenCalledWith(
-        'fetched',
-        undefined,
-        100,
-        50,
+    it('should reject empty runId', async () => {
+      await expect(service.submit({ runId: '   ' })).rejects.toThrow(
+        RecipeIngestionRunScopeError,
       );
+    });
+
+    it('should submit a single job when jobId provided', async () => {
+      jobRepository.findById.mockResolvedValue({
+        ...job,
+        status: 'fetched',
+      } as never);
+
+      const result = await service.submit({ jobId });
+
+      expect(jobRepository.findDistinctRunIdsByStatus).not.toHaveBeenCalled();
+      expect(jobRepository.findById).toHaveBeenCalledWith(jobId);
       expect(result.submittedCount).toBe(1);
+    });
+
+    it('should no-op when jobId is not fetched', async () => {
+      jobRepository.findById.mockResolvedValue({
+        ...job,
+        status: 'submitted',
+      } as never);
+
+      const result = await service.submit({ jobId });
+
+      expect(result).toEqual({ submittedCount: 0, skippedCount: 0 });
+      expect(openAiBatchService.submitBatchJsonl).not.toHaveBeenCalled();
+    });
+
+    it('should reject jobId with run scope', async () => {
+      await expect(
+        service.submit({ jobId, runId: 'run-1' }),
+      ).rejects.toThrow(RecipeIngestionRunScopeError);
+    });
+
+    it('should create one batch per runId when multiple runIds are selected', async () => {
+      const jobId2 = '507f1f77bcf86cd799439012';
+      const run1Job = makeJob(jobId, { RCP_SEQ: '1' }, 'run-1');
+      const run2Job = makeJob(jobId2, { RCP_SEQ: '2' }, 'run-2');
+
+      jobRepository.findDistinctRunIdsByStatus.mockResolvedValue(['run-1', 'run-2']);
+      jobRepository.findByStatusAndRunIds.mockResolvedValue([
+        run1Job,
+        run2Job,
+      ] as never);
+      jobRepository.transitionManyByIds
+        .mockResolvedValueOnce(1)
+        .mockResolvedValueOnce(1)
+        .mockResolvedValueOnce(1)
+        .mockResolvedValueOnce(1);
+      jobRepository.findManyByIdsAndStatus
+        .mockResolvedValueOnce([run1Job] as never)
+        .mockResolvedValueOnce([run2Job] as never);
+      openAiBatchService.submitBatchJsonl
+        .mockResolvedValueOnce({
+          fileId: 'file-1',
+          batchId: 'batch-run-1',
+        })
+        .mockResolvedValueOnce({
+          fileId: 'file-2',
+          batchId: 'batch-run-2',
+        });
+
+      const result = await service.submit({ runIdCount: 2 });
+
+      expect(openAiBatchService.submitBatchJsonl).toHaveBeenCalledTimes(2);
+      expect(jobRepository.transitionManyByIds).toHaveBeenNthCalledWith(
+        2,
+        [jobId],
+        'submitting',
+        'submitted',
+        expect.objectContaining({ batchId: 'batch-run-1' }),
+      );
+      expect(jobRepository.transitionManyByIds).toHaveBeenNthCalledWith(
+        4,
+        [jobId2],
+        'submitting',
+        'submitted',
+        expect.objectContaining({ batchId: 'batch-run-2' }),
+      );
+      expect(result.submittedCount).toBe(2);
+      expect(result.batchId).toBeUndefined();
     });
   });
 
@@ -238,7 +324,8 @@ describe('SubmitService', () => {
     const job = makeJob(jobId);
 
     beforeEach(() => {
-      jobRepository.findByStatus.mockResolvedValue([job] as never);
+      jobRepository.findDistinctRunIdsByStatus.mockResolvedValue(['run-1']);
+      jobRepository.findByStatusAndRunId.mockResolvedValue([job] as never);
       jobRepository.transitionManyByIds.mockResolvedValueOnce(1);
       jobRepository.findManyByIdsAndStatus.mockResolvedValue([job] as never);
       categoryContextService.getCategoryContext.mockResolvedValue(
@@ -258,15 +345,6 @@ describe('SubmitService', () => {
         'upload failed',
       );
       expect(jobRepository.transitionManyByIds).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('submitBatchSize validation', () => {
-    it('should reject submitBatchSize above maximum', async () => {
-      await expect(service.submit({ submitBatchSize: 1001 })).rejects.toThrow(
-        SubmitBatchSizeError,
-      );
-      expect(jobRepository.findByStatus).not.toHaveBeenCalled();
     });
   });
 });

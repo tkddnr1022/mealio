@@ -5,7 +5,6 @@ import { RecipeCreationTransaction } from 'src/persistence/transactions/recipe-c
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
 import { RetrievedDataValidationError } from 'src/consumers/recipe-ingestion-persist/validators/retrieved-data.validator';
 import {
-  PersistBatchSizeError,
   PersistService,
 } from '../../services/persist.service';
 
@@ -132,9 +131,4 @@ describe('PersistService', () => {
     );
   });
 
-  it('should reject invalid persistBatchSize', async () => {
-    await expect(service.persist({ persistBatchSize: 0 })).rejects.toThrow(
-      PersistBatchSizeError,
-    );
-  });
 });

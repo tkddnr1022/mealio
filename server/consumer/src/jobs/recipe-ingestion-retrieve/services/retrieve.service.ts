@@ -10,10 +10,21 @@ import {
 import { KafkaProducerService } from 'src/integrations/kafka/kafka-producer.service';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
+import { resolveRecipeIngestionRetrieveBatchIds } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
+import type { RecipeIngestionRunScopeOnlyOptions } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.scope';
 import {
-  createRecipeIngestionRangeTriggerPayload,
-  recipeIngestionRangeTriggerKey,
-} from 'src/jobs/recipe-ingestion-range-trigger.payload';
+  createRecipeIngestionRunTriggerPayload,
+  recipeIngestionRunTriggerKey,
+} from 'src/jobs/recipe-ingestion/recipe-ingestion-range-trigger.payload';
+
+export class RetrieveRunIdError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'RetrieveRunIdError';
+  }
+}
+
+export type RetrieveOptions = RecipeIngestionRunScopeOnlyOptions;
 
 export interface RetrieveResult {
   batchCount: number;
@@ -71,10 +82,12 @@ export class RetrieveService {
     private readonly metrics: ConsumerMetricsService,
   ) {}
 
-  async retrieve(): Promise<RetrieveResult> {
+  async retrieve(options: RetrieveOptions = {}): Promise<RetrieveResult> {
     const startedAt = Date.now();
-    const batchIds =
-      await this.jobRepository.findDistinctBatchIdsByStatus('submitted');
+    const batchIds = await resolveRecipeIngestionRetrieveBatchIds(
+      this.jobRepository,
+      options,
+    );
 
     if (batchIds.length === 0) {
       this.logger.log('No submitted batches — no-op exit');
@@ -100,16 +113,16 @@ export class RetrieveService {
         const outcome = await this.processBatch(batchId);
         retrievedCount += outcome.retrievedCount;
         failedCount += outcome.failedCount;
-        if (
-          outcome.retrievedCount > 0 &&
-          outcome.startSourceId !== undefined &&
-          outcome.endSourceId !== undefined
-        ) {
-          await this.emitRetrievedTrigger({
-            startSourceId: outcome.startSourceId,
-            endSourceId: outcome.endSourceId,
-            fetchedCount: outcome.retrievedCount,
-          });
+        if (outcome.retrievedCount > 0) {
+          for (const [
+            retrievedRunId,
+            count,
+          ] of outcome.retrievedCountByRunId.entries()) {
+            await this.emitRetrievedTrigger({
+              runId: retrievedRunId,
+              fetchedCount: count,
+            });
+          }
         }
         if (outcome.skipped) {
           skippedBatchCount++;
@@ -156,15 +169,19 @@ export class RetrieveService {
   private async processBatch(batchId: string): Promise<{
     retrievedCount: number;
     failedCount: number;
-    startSourceId?: number;
-    endSourceId?: number;
+    retrievedCountByRunId: Map<string, number>;
     skipped: boolean;
   }> {
     const batch = await this.openAiBatchService.getBatch(batchId);
 
     if (isInProgressBatchStatus(batch.status)) {
       this.logger.debug(`batchId=${batchId} status=${batch.status} — skip`);
-      return { retrievedCount: 0, failedCount: 0, skipped: true };
+      return {
+        retrievedCount: 0,
+        failedCount: 0,
+        retrievedCountByRunId: new Map(),
+        skipped: true,
+      };
     }
 
     if (TERMINAL_BATCH_FAILURE_STATUSES.has(batch.status)) {
@@ -175,14 +192,24 @@ export class RetrieveService {
       this.logger.warn(
         `batchId=${batchId} status=${batch.status} rolledBack=${rolled}`,
       );
-      return { retrievedCount: 0, failedCount: rolled, skipped: false };
+      return {
+        retrievedCount: 0,
+        failedCount: rolled,
+        retrievedCountByRunId: new Map(),
+        skipped: false,
+      };
     }
 
     if (batch.status !== 'completed') {
       this.logger.debug(
         `batchId=${batchId} status=${batch.status} — no action`,
       );
-      return { retrievedCount: 0, failedCount: 0, skipped: true };
+      return {
+        retrievedCount: 0,
+        failedCount: 0,
+        retrievedCountByRunId: new Map(),
+        skipped: true,
+      };
     }
 
     if (!batch.outputFileId) {
@@ -190,7 +217,12 @@ export class RetrieveService {
         batchId,
         'Batch completed without output_file_id',
       );
-      return { retrievedCount: 0, failedCount: rolled, skipped: false };
+      return {
+        retrievedCount: 0,
+        failedCount: rolled,
+        retrievedCountByRunId: new Map(),
+        skipped: false,
+      };
     }
 
     return this.processCompletedBatch(batchId, batch.outputFileId);
@@ -202,8 +234,7 @@ export class RetrieveService {
   ): Promise<{
     retrievedCount: number;
     failedCount: number;
-    startSourceId?: number;
-    endSourceId?: number;
+    retrievedCountByRunId: Map<string, number>;
     skipped: boolean;
   }> {
     const locked = await this.jobRepository.transitionManyByBatchId(
@@ -216,13 +247,17 @@ export class RetrieveService {
       this.logger.warn(
         `batchId=${batchId} no jobs transitioned to retrieving — concurrent run?`,
       );
-      return { retrievedCount: 0, failedCount: 0, skipped: false };
+      return {
+        retrievedCount: 0,
+        failedCount: 0,
+        retrievedCountByRunId: new Map(),
+        skipped: false,
+      };
     }
 
     let retrievedCount = 0;
     let failedCount = 0;
-    let startSourceId: number | undefined;
-    let endSourceId: number | undefined;
+    const retrievedCountByRunId = new Map<string, number>();
 
     try {
       const jsonl =
@@ -258,15 +293,11 @@ export class RetrieveService {
           continue;
         }
 
-        if (typeof doc.sourceId === 'number' && Number.isFinite(doc.sourceId)) {
-          startSourceId =
-            startSourceId === undefined
-              ? doc.sourceId
-              : Math.min(startSourceId, doc.sourceId);
-          endSourceId =
-            endSourceId === undefined
-              ? doc.sourceId
-              : Math.max(endSourceId, doc.sourceId);
+        if (typeof doc.runId === 'string' && doc.runId.length > 0) {
+          retrievedCountByRunId.set(
+            doc.runId,
+            (retrievedCountByRunId.get(doc.runId) ?? 0) + 1,
+          );
         }
         this.metrics.recordLlmTokenUsage(outcome.usage);
         retrievedCount++;
@@ -305,19 +336,15 @@ export class RetrieveService {
       `batchId=${batchId} retrieved=${retrievedCount} lineFailures=${failedCount}`,
     );
 
-    return { retrievedCount, failedCount, startSourceId, endSourceId, skipped: false };
+    return { retrievedCount, failedCount, retrievedCountByRunId, skipped: false };
   }
 
   private async emitRetrievedTrigger(params: {
-    startSourceId: number;
-    endSourceId: number;
+    runId: string;
     fetchedCount: number;
   }): Promise<void> {
-    const payload = createRecipeIngestionRangeTriggerPayload(params);
-    const key = recipeIngestionRangeTriggerKey(
-      params.startSourceId,
-      params.endSourceId,
-    );
+    const payload = createRecipeIngestionRunTriggerPayload(params);
+    const key = recipeIngestionRunTriggerKey(params.runId);
 
     try {
       await this.kafkaProducerService.emit(
@@ -331,7 +358,7 @@ export class RetrieveService {
           ? error.message
           : 'Retrieve completed trigger publish failed';
       this.logger.warn(
-        `Retrieve completed trigger publish failed startSourceId=${params.startSourceId} endSourceId=${params.endSourceId}: ${message}`,
+        `Retrieve completed trigger publish failed runId=${params.runId}: ${message}`,
       );
     }
   }

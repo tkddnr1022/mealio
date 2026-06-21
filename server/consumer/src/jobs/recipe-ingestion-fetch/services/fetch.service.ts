@@ -6,9 +6,10 @@ import {
   MAX_RECIPE_INGESTION_RETRY_COUNT,
 } from '@mealio/shared';
 import {
-  createRecipeIngestionRangeTriggerPayload,
-  recipeIngestionRangeTriggerKey,
-} from 'src/jobs/recipe-ingestion-range-trigger.payload';
+  createRecipeIngestionRunTriggerPayload,
+  recipeIngestionRunTriggerKey,
+} from 'src/jobs/recipe-ingestion/recipe-ingestion-range-trigger.payload';
+import { randomUUID } from 'node:crypto';
 import {
   PublicDataApiClient,
   PublicDataApiError,
@@ -28,8 +29,7 @@ export interface FetchOptions {
 export interface FetchResult {
   startIdx: number;
   endIdx: number;
-  startSourceId?: number;
-  endSourceId?: number;
+  runId?: string;
   fetchedCount: number;
   exhausted: boolean;
 }
@@ -91,9 +91,8 @@ export class FetchService {
         };
       }
 
+      const runId = randomUUID();
       let fetchedCount = 0;
-      let startSourceId: number | undefined;
-      let endSourceId: number | undefined;
       for (const row of response.rows) {
         const sourceId = this.extractSourceId(row);
         if (!sourceId) {
@@ -102,16 +101,8 @@ export class FetchService {
         }
 
         try {
-          await this.jobRepository.upsertFetched(sourceId, row);
+          await this.jobRepository.upsertFetched(sourceId, row, runId);
           fetchedCount++;
-          startSourceId =
-            startSourceId === undefined
-              ? sourceId
-              : Math.min(startSourceId, sourceId);
-          endSourceId =
-            endSourceId === undefined
-              ? sourceId
-              : Math.max(endSourceId, sourceId);
         } catch (error) {
           const message =
             error instanceof Error ? error.message : 'Unknown fetch error';
@@ -122,16 +113,11 @@ export class FetchService {
 
       await this.stateRepository.setLastEndIdx(endIdx);
       this.logger.log(
-        `Fetched ${fetchedCount} recipes startIdx=${startIdx} endIdx=${endIdx} startSourceId=${startSourceId ?? 'n/a'} endSourceId=${endSourceId ?? 'n/a'}`,
+        `Fetched ${fetchedCount} recipes startIdx=${startIdx} endIdx=${endIdx} runId=${runId}`,
       );
-      if (
-        fetchedCount > 0 &&
-        startSourceId !== undefined &&
-        endSourceId !== undefined
-      ) {
+      if (fetchedCount > 0) {
         await this.emitFetchCompletedTrigger({
-          startSourceId,
-          endSourceId,
+          runId,
           fetchedCount,
         });
       }
@@ -144,8 +130,7 @@ export class FetchService {
       return {
         startIdx,
         endIdx,
-        startSourceId,
-        endSourceId,
+        runId,
         fetchedCount,
         exhausted: false,
       };
@@ -233,15 +218,11 @@ export class FetchService {
   }
 
   private async emitFetchCompletedTrigger(params: {
-    startSourceId: number;
-    endSourceId: number;
+    runId: string;
     fetchedCount: number;
   }): Promise<void> {
-    const payload = createRecipeIngestionRangeTriggerPayload(params);
-    const key = recipeIngestionRangeTriggerKey(
-      params.startSourceId,
-      params.endSourceId,
-    );
+    const payload = createRecipeIngestionRunTriggerPayload(params);
+    const key = recipeIngestionRunTriggerKey(params.runId);
 
     try {
       await this.kafkaProducerService.emit(
@@ -255,7 +236,7 @@ export class FetchService {
           ? error.message
           : 'Fetch completed trigger publish failed';
       this.logger.warn(
-        `Fetch completed trigger publish failed startSourceId=${params.startSourceId} endSourceId=${params.endSourceId}: ${message}`,
+        `Fetch completed trigger publish failed runId=${params.runId}: ${message}`,
       );
     }
   }

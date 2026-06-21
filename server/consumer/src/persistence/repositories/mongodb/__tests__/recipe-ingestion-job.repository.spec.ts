@@ -53,13 +53,14 @@ describe('RecipeIngestionJobRepository', () => {
 
       const result = await repository.upsertFetched(12345, {
         RCP_SEQ: '12345',
-      });
+      }, 'run-1');
 
       expect(model.findOneAndUpdate).toHaveBeenCalledWith(
         { sourceId: 12345 },
         expect.objectContaining({
           $set: expect.objectContaining({
             rawData: { RCP_SEQ: '12345' },
+            runId: 'run-1',
             fetchedAt: expect.any(Date),
           }),
           $setOnInsert: {

@@ -23,12 +23,11 @@ describe('SubmitRecipeIngestionHandler', () => {
 
   it('should delegate trigger payload to SubmitService.submit', async () => {
     await handler.execute({
-      startSourceId: 10,
-      endSourceId: 20,
+      runId: 'run-1',
       fetchedCount: 10,
       triggeredAt: '2026-06-21T00:00:00.000Z',
     });
 
-    expect(submitService.submit).toHaveBeenCalledWith();
+    expect(submitService.submit).toHaveBeenCalledWith({ runId: 'run-1' });
   });
 });

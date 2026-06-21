@@ -198,7 +198,7 @@ flowchart LR
 ### 작업 항목
 
 - [ ] **`SubmitService`** — OpenAI Batch 제출만 (FetchService 미호출)
-  1. `status: fetched` job `submitBatchSize`건 조회 (가용 건수 미만이면 가용 건만 처리)
+  1. `status: fetched` job 조회 (`runId` 지정 시 해당 실행 단위만)
   2. `fetched` → `submitting` 일괄 전환
   3. JSONL 생성·Files API 업로드·Batches API 생성
   4. `submitting` → `submitted` (+ `batch_id`, `submitted_at`)
@@ -227,12 +227,14 @@ flowchart LR
 
 ```bash
 pnpm --filter consumer run job:recipe-ingestion-submit
-pnpm --filter consumer run job:recipe-ingestion-submit --submit-batch-size 50
+pnpm --filter consumer run job:recipe-ingestion-submit --run-id <runId>
+pnpm --filter consumer run job:recipe-ingestion-submit --run-id-count 2
 ```
 
 | 플래그 | 기본값 | 제약 |
 |--------|--------|------|
-| `--submit-batch-size` | 100 | 가용 `fetched` 건수 미만이면 가용 건만 제출 |
+| `--run-id` | — | 지정 `runId`에 속한 `fetched` job만 제출 (`--run-id-count`와 동시 사용 불가) |
+| `--run-id-count` | 1 | 처리할 `runId` 개수. 양의 정수, 최대 3 |
 
 ### 완료 기준
 
@@ -371,7 +373,7 @@ pnpm --filter consumer run job:recipe-ingestion-retrieve
 | recipe-ingestion-persist-job | `pnpm --filter consumer run job:recipe-ingestion-persist` | 운영 정책 확정 | persist 별도 태스크 (선택) |
 
 - [ ] ECS Scheduled Task / cron 스케줄 정의 (fetch·submit·retrieve **각각 분리**)
-- [ ] **운영 runbook** — fetch/submit cron 주기·`fetchLimit`/`submitBatchSize` 조율 (`fetchLimit >= submitBatchSize` 권장)
+- [ ] **운영 runbook** — fetch/submit cron 주기·`fetchLimit` 조율
   - 문서: `guidelines/recipe_ingestion_operations_runbook.md`
 - [ ] ECS Task Definition·IAM·환경 변수 (`OPENAI_BATCH_MODEL`·공공데이터 API 키 포함)
 - [ ] EventBridge / cron 표현식·타임존·동시 실행 정책

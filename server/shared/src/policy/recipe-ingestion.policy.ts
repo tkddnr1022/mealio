@@ -13,19 +13,12 @@ export const RECIPE_INGESTION_RETRY_BASE_DELAY_MS = 1_000;
 export const DEFAULT_RECIPE_FETCH_LIMIT = 100;
 export const MAX_RECIPE_FETCH_LIMIT = 1000;
 
-/** submit 1회 제출 기본 건수 (status: fetched 대상) */
-export const DEFAULT_RECIPE_SUBMIT_BATCH_SIZE = 100;
+/** failed job 재제출 1회 상한 */
+export const DEFAULT_RECIPE_RETRY_FAILED_LIMIT = 100;
 
-/** submit 1회 제출 상한 (OpenAI Batch input 라인 수) */
-export const MAX_RECIPE_SUBMIT_BATCH_SIZE = 1000;
-
-/** persist 1회 처리 기본 건수 — submit 배치와 동일 정책 */
-export const DEFAULT_RECIPE_PERSIST_BATCH_SIZE =
-  DEFAULT_RECIPE_SUBMIT_BATCH_SIZE;
-
-/** failed job 재제출 1회 상한 — submit 배치와 동일 정책 */
-export const DEFAULT_RECIPE_RETRY_FAILED_LIMIT =
-  DEFAULT_RECIPE_SUBMIT_BATCH_SIZE;
+/** submit/retrieve/persist CLI — 1회 처리 runId 개수 기본·상한 */
+export const DEFAULT_RECIPE_INGESTION_RUN_ID_COUNT = 1;
+export const MAX_RECIPE_INGESTION_RUN_ID_COUNT = 3;
 
 /** recipe ingestion submit: 카테고리 컨텍스트 Redis TTL (초) */
 export const RECIPE_INGESTION_CATEGORY_CACHE_TTL_SECONDS = 3600;

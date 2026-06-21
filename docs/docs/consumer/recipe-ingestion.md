@@ -23,6 +23,8 @@ flowchart LR
 | **persist** | Kafka consumer | PostgreSQL Recipe |
 
 진행 상태의 기준 저장소는 MongoDB `recipe_ingestion_jobs`이며, API 커서는 `recipe_ingestion_state`를 사용합니다.
+파이프라인 실행 단위는 `runId`이며, fetch 시작 시 1회 생성되어 submit/retrieve/persist 전 단계에서 동일하게 사용합니다.
+submit은 `runId`별로 OpenAI Batch를 생성하며, `runId`와 `batchId`는 1:1 관계를 유지합니다.
 
 ## 데이터 원천
 
@@ -70,15 +72,15 @@ stateDiagram-v2
 ## submit Consumer
 
 - `recipe-ingestion-fetch-completed` 토픽을 구독합니다.
-- payload는 `{ startSourceId, endSourceId, fetchedCount, triggeredAt }` 형식입니다.
+- payload는 `{ runId, fetchedCount, triggeredAt }` 형식입니다.
 - consumer는 payload를 트리거 신호로 사용하고, 실제 제출 대상은 MongoDB `status: fetched` 재조회 결과로 결정합니다.
 - `fetched` → `submitting` 조건부 전환으로 멱등성을 보장합니다.
 
 ## persist Consumer
 
 - `recipe-ingestion-retrieved` 토픽을 구독합니다.
-- payload는 `{ startSourceId, endSourceId, fetchedCount, triggeredAt }` 형식입니다.
-- consumer는 payload를 트리거 신호로 사용하고, 실제 persist 대상은 MongoDB `status: retrieved` + `source_id` 구간 재조회 결과로 결정합니다.
+- payload는 `{ runId, fetchedCount, triggeredAt }` 형식입니다.
+- consumer는 payload를 트리거 신호로 사용하고, 실제 persist 대상은 MongoDB `status: retrieved` + `runId` 재조회 결과로 결정합니다.
 - `retrieved` → `persisting` 조건부 전환으로 멱등성을 보장합니다.
 - PostgreSQL에는 `(source, sourceRecipeId)` unique upsert로 저장합니다.
 
@@ -86,9 +88,10 @@ stateDiagram-v2
 
 ```bash
 pnpm run recipe-ingestion:fetch
-pnpm run recipe-ingestion:submit --submit-batch-size 50
-pnpm run recipe-ingestion:submit --start-source-id 1 --end-source-id 100
+pnpm run recipe-ingestion:submit --run-id <runId>
 pnpm run recipe-ingestion:retrieve
+pnpm run recipe-ingestion:retrieve --run-id <runId>
+pnpm run recipe-ingestion:persist --run-id <runId>
 pnpm run recipe-ingestion:persist --job-id <jobId>
 ```
 
@@ -102,22 +105,26 @@ pnpm run recipe-ingestion:persist --job-id <jobId>
 
 | 매개변수 | 기본값 | 설명 |
 | --- | --- | --- |
-| `--submit-batch-size <n>` | 100 | 1회 OpenAI Batch 제출 건수. 양의 정수, 최대 1000 |
-| `--start-source-id <n>` | — | 처리할 `source_id` 하한. `--end-source-id` 미지정 시 `startSourceId + submitBatchSize - 1` |
-| `--end-source-id <n>` | — | 처리할 `source_id` 상한(max index). `--start-source-id` 미지정 시 `source_id <= endSourceId` |
+| `--run-id <id>` | — | 지정 `runId`에 속한 `fetched` job을 제출 |
+| `--run-id-count <n>` | 1 | 처리할 `runId` 개수. 양의 정수, 최대 3 |
+| `--job-id <jobId>` | — | 지정 job만 수동 submit |
 | `--retry-failed` | — | `failed` job을 `fetched`로 되돌린 뒤 재제출 |
 | `--retry-failed-limit <n>` | 100 | `--retry-failed` 시 1회 처리 상한 |
 
 ### retrieve
 
-별도의 매개변수 없이 `status: submitted` job의 OpenAI Batch 완료를 확인하고 결과를 반영합니다.
+| 매개변수 | 기본값 | 설명 |
+| --- | --- | --- |
+| `--run-id <id>` | — | 지정 `runId`에 속한 `submitted` batch만 완료 확인·결과 반영 |
+| `--run-id-count <n>` | 1 | 처리할 `runId` 개수. 양의 정수, 최대 3 |
 
 ### persist
 
 | 매개변수 | 기본값 | 설명 |
 | --- | --- | --- |
-| `--persist-batch-size <n>` | 100 | `--job-id` 미지정 시 1회 처리할 `retrieved` job 수 |
-| `--job-id <jobId>` | — | 지정 job만 수동 persist (Kafka 재전달·복구용) |
+| `--run-id <id>` | — | 지정 `runId`에 속한 `retrieved` job을 persist |
+| `--run-id-count <n>` | 1 | 처리할 `runId` 개수. 양의 정수, 최대 3 |
+| `--job-id <jobId>` | — | 지정 job만 수동 persist |
 
 ## 운영 검증
 

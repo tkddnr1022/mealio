@@ -6,9 +6,9 @@ import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
 import { SchemaValidator } from 'src/processing/validation/schema.validator';
 import {
-  isValidRecipeIngestionRangeTriggerPayload,
+  isValidRecipeIngestionRunTriggerPayload,
   type RecipeIngestionFetchCompletedPayload,
-} from 'src/jobs/recipe-ingestion-range-trigger.payload';
+} from 'src/jobs/recipe-ingestion/recipe-ingestion-range-trigger.payload';
 import { SubmitRecipeIngestionHandler } from './handlers/SubmitRecipeIngestionHandler';
 
 /** recipe-ingestion-fetch-completed 토픽 전용 processor */
@@ -43,7 +43,7 @@ export class RecipeIngestionSubmitProcessor extends BaseTopicProcessor<RecipeIng
   ): RecipeIngestionFetchCompletedPayload | null {
     return this.schemaValidator.validateFromKafkaMessage<RecipeIngestionFetchCompletedPayload>(
       message,
-      isValidRecipeIngestionRangeTriggerPayload,
+      isValidRecipeIngestionRunTriggerPayload,
     );
   }
 

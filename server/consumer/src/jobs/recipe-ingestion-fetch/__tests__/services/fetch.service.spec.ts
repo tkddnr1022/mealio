@@ -96,25 +96,23 @@ describe('FetchService', () => {
       expect(jobRepository.upsertFetched).toHaveBeenCalledWith(1, {
         RCP_SEQ: '1',
         RCP_NM: 'recipe-1',
-      });
+      }, expect.any(String));
       expect(stateRepository.setLastEndIdx).toHaveBeenCalledWith(100);
       expect(result).toEqual({
         startIdx: 1,
         endIdx: 100,
-        startSourceId: 1,
-        endSourceId: 2,
+        runId: expect.any(String),
         fetchedCount: 2,
         exhausted: false,
       });
       expect(kafkaProducerService.emit).toHaveBeenCalledWith(
         KAFKA_TOPICS.RECIPE_INGESTION_FETCH_COMPLETED,
         expect.objectContaining({
-          startSourceId: 1,
-          endSourceId: 2,
+          runId: expect.any(String),
           fetchedCount: 2,
           triggeredAt: expect.any(String),
         }),
-        '1:2',
+        expect.any(String),
       );
     });
   });
@@ -137,11 +135,11 @@ describe('FetchService', () => {
       expect(jobRepository.upsertFetched).toHaveBeenNthCalledWith(1, 42, {
         RCP_SEQ: '42',
         RCP_NM: 'same-recipe',
-      });
+      }, expect.any(String));
       expect(jobRepository.upsertFetched).toHaveBeenNthCalledWith(2, 42, {
         RCP_SEQ: '42',
         RCP_NM: 'same-recipe',
-      });
+      }, expect.any(String));
     });
   });
 
@@ -161,8 +159,6 @@ describe('FetchService', () => {
       expect(result).toEqual({
         startIdx: 501,
         endIdx: 600,
-        startSourceId: undefined,
-        endSourceId: undefined,
         fetchedCount: 0,
         exhausted: true,
       });

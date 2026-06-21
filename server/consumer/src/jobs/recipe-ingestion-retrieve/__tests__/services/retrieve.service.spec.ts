@@ -13,10 +13,39 @@ import {
   parseBatchOutputLine,
   parseJsonlLines,
 } from '../../services/retrieve.service';
+import { RecipeIngestionRunScopeError } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.scope';
 
 const JOB_ID_1 = '507f1f77bcf86cd799439011';
 const JOB_ID_2 = '507f1f77bcf86cd799439012';
 const BATCH_ID = 'batch-xyz';
+
+function mockSubmittedJobsForBatch(
+  jobRepository: {
+    findDistinctRunIdsByStatus: jest.Mock;
+    findDistinctBatchIdsByStatus: jest.Mock;
+    findByBatchId: jest.Mock;
+  },
+  batchId = BATCH_ID,
+  runId = 'run-1',
+) {
+  jobRepository.findDistinctRunIdsByStatus.mockResolvedValue([runId]);
+  jobRepository.findDistinctBatchIdsByStatus.mockResolvedValue([batchId]);
+  jobRepository.findByBatchId.mockImplementation(
+    async (_batchId: string, status?: string) => {
+      if (status === 'submitted') {
+        return [
+          {
+            _id: new Types.ObjectId(JOB_ID_1),
+            status: 'submitted',
+            batchId,
+            runId,
+          },
+        ] as never;
+      }
+      return [] as never;
+    },
+  );
+}
 
 function successLine(jobId: string, data: Record<string, unknown>) {
   return {
@@ -56,6 +85,7 @@ describe('RetrieveService', () => {
   let jobRepository: jest.Mocked<
     Pick<
       RecipeIngestionJobRepository,
+      | 'findDistinctRunIdsByStatus'
       | 'findDistinctBatchIdsByStatus'
       | 'rollbackSubmittedBatchWithRetry'
       | 'transitionManyByBatchId'
@@ -80,6 +110,7 @@ describe('RetrieveService', () => {
 
   beforeEach(async () => {
     jobRepository = {
+      findDistinctRunIdsByStatus: jest.fn(),
       findDistinctBatchIdsByStatus: jest.fn(),
       rollbackSubmittedBatchWithRetry: jest.fn(),
       transitionManyByBatchId: jest.fn(),
@@ -120,10 +151,19 @@ describe('RetrieveService', () => {
 
   describe('no-op', () => {
     it('should exit when no submitted batches', async () => {
+      jobRepository.findDistinctRunIdsByStatus.mockResolvedValue([]);
       jobRepository.findDistinctBatchIdsByStatus.mockResolvedValue([]);
 
       const result = await service.retrieve();
 
+      expect(jobRepository.findDistinctRunIdsByStatus).toHaveBeenCalledWith(
+        'submitted',
+        1,
+      );
+      expect(jobRepository.findDistinctBatchIdsByStatus).toHaveBeenCalledWith(
+        'submitted',
+        [],
+      );
       expect(result).toEqual({
         batchCount: 0,
         retrievedCount: 0,
@@ -132,11 +172,23 @@ describe('RetrieveService', () => {
       });
       expect(openAiBatchService.getBatch).not.toHaveBeenCalled();
     });
+
+    it('should query submitted batches filtered by runId when runId provided', async () => {
+      jobRepository.findDistinctBatchIdsByStatus.mockResolvedValue([]);
+
+      await service.retrieve({ runId: 'run-1' });
+
+      expect(jobRepository.findDistinctRunIdsByStatus).not.toHaveBeenCalled();
+      expect(jobRepository.findDistinctBatchIdsByStatus).toHaveBeenCalledWith(
+        'submitted',
+        ['run-1'],
+      );
+    });
   });
 
   describe('in_progress batch', () => {
     it('should skip without state change', async () => {
-      jobRepository.findDistinctBatchIdsByStatus.mockResolvedValue([BATCH_ID]);
+      mockSubmittedJobsForBatch(jobRepository);
       openAiBatchService.getBatch.mockResolvedValue({
         id: BATCH_ID,
         status: 'in_progress',
@@ -154,7 +206,7 @@ describe('RetrieveService', () => {
 
   describe('expired batch', () => {
     it('should rollback submitted jobs with retry', async () => {
-      jobRepository.findDistinctBatchIdsByStatus.mockResolvedValue([BATCH_ID]);
+      mockSubmittedJobsForBatch(jobRepository);
       openAiBatchService.getBatch.mockResolvedValue({
         id: BATCH_ID,
         status: 'expired',
@@ -175,7 +227,7 @@ describe('RetrieveService', () => {
     const retrievedData = { title: '된장찌개', parseConfidence: 'high' };
 
     beforeEach(() => {
-      jobRepository.findDistinctBatchIdsByStatus.mockResolvedValue([BATCH_ID]);
+      mockSubmittedJobsForBatch(jobRepository);
       openAiBatchService.getBatch.mockResolvedValue({
         id: BATCH_ID,
         status: 'completed',
@@ -194,11 +246,11 @@ describe('RetrieveService', () => {
       jobRepository.transitionStatus
         .mockResolvedValueOnce({
           _id: new Types.ObjectId(JOB_ID_1),
-          sourceId: 101,
+          runId: 'run-1',
         } as never)
         .mockResolvedValueOnce({
           _id: new Types.ObjectId(JOB_ID_2),
-          sourceId: 205,
+          runId: 'run-1',
         } as never);
 
       const result = await service.retrieve();
@@ -222,12 +274,11 @@ describe('RetrieveService', () => {
       expect(kafkaProducerService.emit).toHaveBeenCalledWith(
         KAFKA_TOPICS.RECIPE_INGESTION_RETRIEVED,
         expect.objectContaining({
-          startSourceId: 101,
-          endSourceId: 205,
+          runId: 'run-1',
           fetchedCount: 2,
           triggeredAt: expect.any(String),
         }),
-        '101:205',
+        'run-1',
       );
       expect(result.retrievedCount).toBe(2);
     });
@@ -240,7 +291,7 @@ describe('RetrieveService', () => {
       openAiBatchService.downloadBatchOutput.mockResolvedValue(jsonl);
       jobRepository.transitionStatus.mockResolvedValue({
         _id: new Types.ObjectId(JOB_ID_1),
-        sourceId: 101,
+        runId: 'run-1',
       } as never);
       jobRepository.rollbackRetrievingJobWithRetry.mockResolvedValue(true);
 
@@ -255,12 +306,11 @@ describe('RetrieveService', () => {
       expect(kafkaProducerService.emit).toHaveBeenCalledWith(
         KAFKA_TOPICS.RECIPE_INGESTION_RETRIEVED,
         expect.objectContaining({
-          startSourceId: 101,
-          endSourceId: 101,
+          runId: 'run-1',
           fetchedCount: 1,
           triggeredAt: expect.any(String),
         }),
-        '101:101',
+        'run-1',
       );
     });
 
@@ -269,7 +319,7 @@ describe('RetrieveService', () => {
       openAiBatchService.downloadBatchOutput.mockResolvedValue(jsonl);
       jobRepository.transitionStatus.mockResolvedValue({
         _id: new Types.ObjectId(JOB_ID_1),
-        sourceId: 101,
+        runId: 'run-1',
       } as never);
       jobRepository.findByBatchId.mockResolvedValue([
         { _id: new Types.ObjectId(JOB_ID_2) },
@@ -298,6 +348,41 @@ describe('RetrieveService', () => {
       ).toHaveBeenCalledWith(BATCH_ID, 'download failed');
       expect(result.failedCount).toBe(2);
     });
+  });
+
+  it('should rollback submitted jobs when batch contains multiple runIds', async () => {
+    mockSubmittedJobsForBatch(jobRepository);
+    jobRepository.findByBatchId.mockResolvedValueOnce([
+      {
+        _id: new Types.ObjectId(JOB_ID_1),
+        status: 'submitted',
+        batchId: BATCH_ID,
+        runId: 'run-1',
+      },
+      {
+        _id: new Types.ObjectId(JOB_ID_2),
+        status: 'submitted',
+        batchId: BATCH_ID,
+        runId: 'run-2',
+      },
+    ] as never);
+    jobRepository.rollbackSubmittedBatchWithRetry.mockResolvedValue(2);
+
+    const result = await service.retrieve();
+
+    expect(jobRepository.rollbackSubmittedBatchWithRetry).toHaveBeenCalledWith(
+      BATCH_ID,
+      expect.stringContaining('runId:batchId invariant violation'),
+    );
+    expect(openAiBatchService.getBatch).not.toHaveBeenCalled();
+    expect(result.failedCount).toBe(2);
+  });
+
+  it('should reject empty runId', async () => {
+    await expect(service.retrieve({ runId: '   ' })).rejects.toThrow(
+      RecipeIngestionRunScopeError,
+    );
+    expect(jobRepository.findDistinctRunIdsByStatus).not.toHaveBeenCalled();
   });
 });
 

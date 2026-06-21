@@ -12,6 +12,7 @@ export type RecipeIngestionJobStatusUpdate = Partial<
   Pick<
     RecipeIngestionJobDocument,
     | 'batchId'
+    | 'runId'
     | 'retrievedData'
     | 'errorMessage'
     | 'fetchedAt'
@@ -56,26 +57,12 @@ export class RecipeIngestionJobRepository {
     return query.exec();
   }
 
-  async findByStatusAndSourceIdRange(
+  async findByStatusAndRunId(
     status: RecipeIngestionJobStatus,
-    startSourceId: number | undefined,
-    endSourceId: number | undefined,
+    runId: string,
     limit?: number,
   ): Promise<RecipeIngestionJobDocument[]> {
-    const sourceIdFilter: { $gte?: number; $lte?: number } = {};
-    if (startSourceId !== undefined) {
-      sourceIdFilter.$gte = startSourceId;
-    }
-    if (endSourceId !== undefined) {
-      sourceIdFilter.$lte = endSourceId;
-    }
-
-    const query = this.jobModel
-      .find({
-        status,
-        sourceId: sourceIdFilter,
-      })
-      .sort({ fetchedAt: 1 });
+    const query = this.jobModel.find({ status, runId }).sort({ fetchedAt: 1 });
     if (limit !== undefined) {
       query.limit(limit);
     }
@@ -137,6 +124,7 @@ export class RecipeIngestionJobRepository {
   async upsertFetched(
     sourceId: number,
     rawData: Record<string, unknown>,
+    runId: string,
   ): Promise<RecipeIngestionJobDocument> {
     const now = new Date();
     return this.jobModel
@@ -145,6 +133,7 @@ export class RecipeIngestionJobRepository {
         {
           $set: {
             rawData,
+            runId,
             fetchedAt: now,
           },
           $setOnInsert: {
@@ -215,13 +204,71 @@ export class RecipeIngestionJobRepository {
     return result.modifiedCount;
   }
 
+  async findByStatusAndRunIds(
+    status: RecipeIngestionJobStatus,
+    runIds: string[],
+  ): Promise<RecipeIngestionJobDocument[]> {
+    if (runIds.length === 0) {
+      return [];
+    }
+    return this.jobModel
+      .find({ status, runId: { $in: runIds } })
+      .sort({ fetchedAt: 1 })
+      .exec();
+  }
+
+  async findDistinctRunIdsByStatus(
+    status: RecipeIngestionJobStatus,
+    limit: number,
+  ): Promise<string[]> {
+    const timestampField =
+      status === 'submitted'
+        ? 'submittedAt'
+        : status === 'retrieved'
+          ? 'retrievedAt'
+          : 'fetchedAt';
+
+    const rows = await this.jobModel
+      .aggregate<{ _id: string }>([
+        {
+          $match: {
+            status,
+            runId: { $exists: true, $nin: [null, ''] },
+          },
+        },
+        {
+          $group: {
+            _id: '$runId',
+            minTimestamp: { $min: `$${timestampField}` },
+          },
+        },
+        { $sort: { minTimestamp: 1 } },
+        { $limit: limit },
+      ])
+      .exec();
+
+    return rows.map((row) => row._id);
+  }
+
   async findDistinctBatchIdsByStatus(
     status: RecipeIngestionJobStatus,
+    runIds?: string[],
   ): Promise<string[]> {
-    return this.jobModel.distinct('batchId', {
+    const filter: {
+      status: RecipeIngestionJobStatus;
+      batchId: { $exists: true; $ne: null };
+      runId?: { $in: string[] };
+    } = {
       status,
       batchId: { $exists: true, $ne: null },
-    });
+    };
+    if (runIds !== undefined) {
+      if (runIds.length === 0) {
+        return [];
+      }
+      filter.runId = { $in: runIds };
+    }
+    return this.jobModel.distinct('batchId', filter);
   }
 
   async findByBatchId(

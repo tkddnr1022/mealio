@@ -59,7 +59,7 @@ pnpm run recipe-ingestion:retrieve
 | recipe-ingestion-submit | fetch 이후 | 별도 태스크 |
 | recipe-ingestion-retrieve | 1~5분 | 별도 태스크 |
 
-`fetchLimit`은 `submitBatchSize` 이상으로 설정하는 것을 권장합니다.
+fetch·submit cron 주기와 `fetchLimit`는 운영 runbook에서 조율합니다.
 
 ## 새 Job 추가 시
 

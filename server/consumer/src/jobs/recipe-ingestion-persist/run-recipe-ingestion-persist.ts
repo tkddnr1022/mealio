@@ -1,8 +1,10 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { findUnknownCliArgs } from '../cli-args.util';
+import { parseRecipeIngestionTargetCliArgs } from '../recipe-ingestion/recipe-ingestion-run.cli';
 import {
-  PersistBatchSizeError,
+  PersistJobIdError,
+  PersistRunIdError,
   PersistService,
 } from './services/persist.service';
 import { RecipeIngestionPersistJobModule } from './recipe-ingestion-persist.module';
@@ -12,7 +14,8 @@ import { RecipeIngestionPersistJobModule } from './recipe-ingestion-persist.modu
  *
  * Usage:
  *   pnpm --filter consumer run job:recipe-ingestion-persist
- *   pnpm --filter consumer run job:recipe-ingestion-persist --persist-batch-size 100
+ *   pnpm --filter consumer run job:recipe-ingestion-persist --run-id <runId>
+ *   pnpm --filter consumer run job:recipe-ingestion-persist --run-id-count 2
  *   pnpm --filter consumer run job:recipe-ingestion-persist --job-id <jobId>
  */
 async function main(): Promise<void> {
@@ -20,7 +23,8 @@ async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const unknownArgs = findUnknownCliArgs(args, {
     flags: [
-      { name: '--persist-batch-size', takesValue: true },
+      { name: '--run-id', takesValue: true },
+      { name: '--run-id-count', takesValue: true },
       { name: '--job-id', takesValue: true },
     ],
   });
@@ -29,8 +33,12 @@ async function main(): Promise<void> {
     return;
   }
 
-  const persistBatchSize = parsePersistBatchSize(args);
-  const jobId = parseJobId(args);
+  const target = parseRecipeIngestionTargetCliArgs(args, (message) => {
+    if (message.startsWith('--job-id')) {
+      return new PersistJobIdError(message);
+    }
+    return new PersistRunIdError(message);
+  });
 
   const app = await NestFactory.createApplicationContext(
     RecipeIngestionPersistJobModule,
@@ -40,46 +48,15 @@ async function main(): Promise<void> {
   try {
     const service = app.get(PersistService);
     logger.log(
-      `Starting persist persistBatchSize=${persistBatchSize} jobId=${jobId ?? 'n/a'}`,
+      `Starting persist jobId=${target.jobId ?? 'n/a'} runId=${target.runId ?? 'n/a'} runIdCount=${target.runIdCount ?? 'n/a'}`,
     );
-    const result = await service.persist({ persistBatchSize, jobId });
+    const result = await service.persist(target);
     logger.log(
       `Persist complete persistedCount=${result.persistedCount} skippedCount=${result.skippedCount} failedCount=${result.failedCount}`,
     );
   } finally {
     await app.close();
   }
-}
-
-function parsePersistBatchSize(args: string[]): number {
-  const flagIdx = args.indexOf('--persist-batch-size');
-  if (flagIdx === -1) {
-    return 100;
-  }
-
-  const raw = args[flagIdx + 1];
-  const parsed = parseInt(raw ?? '', 10);
-  if (!Number.isFinite(parsed) || parsed < 1) {
-    throw new PersistBatchSizeError(
-      `--persist-batch-size must be a positive integer, received "${
-        raw ?? ''
-      }"`,
-    );
-  }
-  return parsed;
-}
-
-function parseJobId(args: string[]): string | undefined {
-  const flagIdx = args.indexOf('--job-id');
-  if (flagIdx === -1) {
-    return undefined;
-  }
-
-  const value = args[flagIdx + 1]?.trim();
-  if (!value) {
-    throw new PersistBatchSizeError('--job-id requires a non-empty value');
-  }
-  return value;
 }
 
 void main();

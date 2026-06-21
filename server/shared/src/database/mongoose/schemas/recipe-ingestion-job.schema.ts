@@ -43,6 +43,9 @@ export class RecipeIngestionJob extends Document {
   @Prop({ type: String, index: true })
   batchId?: string;
 
+  @Prop({ type: String, index: true })
+  runId?: string;
+
   @Prop({ type: MongooseSchema.Types.Mixed })
   retrievedData?: Record<string, unknown>;
 
@@ -70,3 +73,4 @@ export const RecipeIngestionJobSchema =
 
 RecipeIngestionJobSchema.index({ status: 1, retryCount: 1 });
 RecipeIngestionJobSchema.index({ batchId: 1, status: 1 });
+RecipeIngestionJobSchema.index({ runId: 1, status: 1 });
