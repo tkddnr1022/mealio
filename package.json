@@ -29,6 +29,7 @@
     "recipe-ingestion:fetch": "cross-env APP_ENV=local pnpm --filter consumer run job:recipe-ingestion-fetch",
     "recipe-ingestion:submit": "cross-env APP_ENV=local pnpm --filter consumer run job:recipe-ingestion-submit",
     "recipe-ingestion:retrieve": "cross-env APP_ENV=local pnpm --filter consumer run job:recipe-ingestion-retrieve",
+    "recipe-ingestion:persist": "cross-env APP_ENV=local pnpm --filter consumer run job:recipe-ingestion-persist",
     "ci": "pnpm run ci:install && pnpm run ci:build && pnpm run ci:lint && pnpm run ci:test",
     "ci:prepare": "npm uninstall -g yarn || true",
     "ci:install": "pnpm run ci:prepare && pnpm install --frozen-lockfile",

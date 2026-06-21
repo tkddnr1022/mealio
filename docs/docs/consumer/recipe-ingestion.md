@@ -87,7 +87,7 @@ stateDiagram-v2
 pnpm run recipe-ingestion:fetch
 pnpm run recipe-ingestion:submit --submit-batch-size 50
 pnpm run recipe-ingestion:retrieve
-pnpm --filter consumer run job:recipe-ingestion-persist --job-id <jobId>
+pnpm run recipe-ingestion:persist --job-id <jobId>
 ```
 
 ## 운영 검증
