@@ -140,5 +140,4 @@ describe('PersistService', () => {
       'bad data',
     );
   });
-
 });

@@ -25,15 +25,12 @@ describe('findUnknownCliArgs', () => {
 
   it('복수 플래그를 처리한다', () => {
     expect(
-      findUnknownCliArgs(
-        ['--retry-failed', '--run-id', 'run-1', '--foo'],
-        {
-          flags: [
-            { name: '--run-id', takesValue: true },
-            { name: '--retry-failed' },
-          ],
-        },
-      ),
+      findUnknownCliArgs(['--retry-failed', '--run-id', 'run-1', '--foo'], {
+        flags: [
+          { name: '--run-id', takesValue: true },
+          { name: '--retry-failed' },
+        ],
+      }),
     ).toEqual(['--foo']);
   });
 });

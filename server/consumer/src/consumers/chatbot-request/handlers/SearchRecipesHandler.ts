@@ -92,7 +92,8 @@ export class SearchRecipesHandler {
         mustHaveIngredients: payload.mustHaveIngredients,
         avoidIngredients: payload.avoidIngredients,
       });
-    const queryEmbeddings = await this.openaiService.createEmbeddings(queryTexts);
+    const queryEmbeddings =
+      await this.openaiService.createEmbeddings(queryTexts);
     if (queryEmbeddings.length === 0) {
       return [];
     }

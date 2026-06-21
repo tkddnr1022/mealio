@@ -8,7 +8,9 @@ describe('SubmitRecipeIngestionHandler', () => {
 
   beforeEach(async () => {
     submitService = {
-      submit: jest.fn().mockResolvedValue({ submittedCount: 0, skippedCount: 0 }),
+      submit: jest
+        .fn()
+        .mockResolvedValue({ submittedCount: 0, skippedCount: 0 }),
     };
 
     const module: TestingModule = await Test.createTestingModule({

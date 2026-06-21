@@ -9,9 +9,7 @@ import {
 } from 'src/integrations/openai/openai-batch.service';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
-import {
-  resolveRecipeIngestionTargetJobs,
-} from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
+import { resolveRecipeIngestionTargetJobs } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
 import { CategoryContextService } from './category-context.service';
 import { buildRecipeIngestionSystemPrompt } from '../prompts/recipe-ingestion.system-prompt';
 import {
@@ -182,7 +180,8 @@ export class SubmitService {
 
       return {
         submittedCount,
-        batchId: submittedBatchIds.length === 1 ? submittedBatchIds[0] : undefined,
+        batchId:
+          submittedBatchIds.length === 1 ? submittedBatchIds[0] : undefined,
         skippedCount,
       };
     } catch (error) {
@@ -203,7 +202,9 @@ export class SubmitService {
     );
   }
 
-  private hasRunId(job: RecipeIngestionJobDocument): job is RecipeIngestionJobDocument & {
+  private hasRunId(
+    job: RecipeIngestionJobDocument,
+  ): job is RecipeIngestionJobDocument & {
     runId: string;
   } {
     return typeof job.runId === 'string' && job.runId.length > 0;

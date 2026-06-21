@@ -14,8 +14,7 @@ export const KAFKA_DLQ_TOPICS = {
   ACTIVITY_EVENTS_DLQ: 'activity-events-dlq',
   USER_EVENTS_DLQ: 'user-events-dlq',
   CACHE_INVALIDATION_DLQ: 'cache-invalidation-dlq',
-  RECIPE_INGESTION_FETCH_COMPLETED_DLQ:
-    'recipe-ingestion-fetch-completed-dlq',
+  RECIPE_INGESTION_FETCH_COMPLETED_DLQ: 'recipe-ingestion-fetch-completed-dlq',
   RECIPE_INGESTION_RETRIEVED_DLQ: 'recipe-ingestion-retrieved-dlq',
 } as const;
 

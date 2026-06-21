@@ -136,10 +136,7 @@ export class PersistService {
       const data = validateRetrievedData(persisting.retrievedData);
       this.metrics.recordParseConfidence(data.parseConfidence);
 
-      const result = await this.recipeCreationService.execute(
-        persisting,
-        data,
-      );
+      const result = await this.recipeCreationService.execute(persisting, data);
       for (const method of result.matchMethods) {
         this.metrics.recordIngredientMatchMethod(method);
       }

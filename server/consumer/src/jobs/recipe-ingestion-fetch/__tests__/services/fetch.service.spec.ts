@@ -93,10 +93,14 @@ describe('FetchService', () => {
       );
       expect(publicDataApiClient.fetchRecipes).toHaveBeenCalledWith(1, 100);
       expect(jobRepository.upsertFetched).toHaveBeenCalledTimes(2);
-      expect(jobRepository.upsertFetched).toHaveBeenCalledWith(1, {
-        RCP_SEQ: '1',
-        RCP_NM: 'recipe-1',
-      }, expect.any(String));
+      expect(jobRepository.upsertFetched).toHaveBeenCalledWith(
+        1,
+        {
+          RCP_SEQ: '1',
+          RCP_NM: 'recipe-1',
+        },
+        expect.any(String),
+      );
       expect(stateRepository.setLastEndIdx).toHaveBeenCalledWith(100);
       expect(result).toEqual({
         startIdx: 1,
@@ -132,14 +136,24 @@ describe('FetchService', () => {
       await service.fetch({ fetchLimit: 100 });
 
       expect(jobRepository.upsertFetched).toHaveBeenCalledTimes(2);
-      expect(jobRepository.upsertFetched).toHaveBeenNthCalledWith(1, 42, {
-        RCP_SEQ: '42',
-        RCP_NM: 'same-recipe',
-      }, expect.any(String));
-      expect(jobRepository.upsertFetched).toHaveBeenNthCalledWith(2, 42, {
-        RCP_SEQ: '42',
-        RCP_NM: 'same-recipe',
-      }, expect.any(String));
+      expect(jobRepository.upsertFetched).toHaveBeenNthCalledWith(
+        1,
+        42,
+        {
+          RCP_SEQ: '42',
+          RCP_NM: 'same-recipe',
+        },
+        expect.any(String),
+      );
+      expect(jobRepository.upsertFetched).toHaveBeenNthCalledWith(
+        2,
+        42,
+        {
+          RCP_SEQ: '42',
+          RCP_NM: 'same-recipe',
+        },
+        expect.any(String),
+      );
     });
   });
 

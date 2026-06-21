@@ -9,7 +9,8 @@ export interface RecipeIngestionRunTriggerPayload {
 }
 
 /** fetch-completed 토픽 payload (구조 동일) */
-export type RecipeIngestionFetchCompletedPayload = RecipeIngestionRunTriggerPayload;
+export type RecipeIngestionFetchCompletedPayload =
+  RecipeIngestionRunTriggerPayload;
 
 /** retrieved 토픽 payload (구조 동일) */
 export type RecipeIngestionRetrievedPayload = RecipeIngestionRunTriggerPayload;

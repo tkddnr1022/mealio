@@ -146,7 +146,10 @@ export class RecipeCreationService {
         : await tx.recipe.create({ data: recipeData });
 
       const matchMethods: IngredientMatchMethod[] = [];
-      const ingredientRowsByIngredientId = new Map<number, RecipeIngredientRowInput>();
+      const ingredientRowsByIngredientId = new Map<
+        number,
+        RecipeIngredientRowInput
+      >();
       let duplicatedIngredientCount = 0;
 
       for (const ingredient of data.ingredients) {
@@ -168,7 +171,8 @@ export class RecipeCreationService {
           ingredientId: match.ingredientId,
           amount: existing.amount ?? nextRow.amount,
           unit: existing.unit ?? nextRow.unit,
-          isOptional: (existing.isOptional ?? false) || (nextRow.isOptional ?? false),
+          isOptional:
+            (existing.isOptional ?? false) || (nextRow.isOptional ?? false),
         });
       }
 

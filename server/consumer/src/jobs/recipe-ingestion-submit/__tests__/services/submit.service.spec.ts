@@ -264,9 +264,9 @@ describe('SubmitService', () => {
     });
 
     it('should reject jobId with run scope', async () => {
-      await expect(
-        service.submit({ jobId, runId: 'run-1' }),
-      ).rejects.toThrow(RecipeIngestionRunScopeError);
+      await expect(service.submit({ jobId, runId: 'run-1' })).rejects.toThrow(
+        RecipeIngestionRunScopeError,
+      );
     });
 
     it('should create one batch per runId when multiple runIds are selected', async () => {
@@ -274,7 +274,10 @@ describe('SubmitService', () => {
       const run1Job = makeJob(jobId, { RCP_SEQ: '1' }, 'run-1');
       const run2Job = makeJob(jobId2, { RCP_SEQ: '2' }, 'run-2');
 
-      jobRepository.findDistinctRunIdsByStatus.mockResolvedValue(['run-1', 'run-2']);
+      jobRepository.findDistinctRunIdsByStatus.mockResolvedValue([
+        'run-1',
+        'run-2',
+      ]);
       jobRepository.findByStatusAndRunIds.mockResolvedValue([
         run1Job,
         run2Job,

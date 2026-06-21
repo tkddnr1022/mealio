@@ -336,7 +336,12 @@ export class RetrieveService {
       `batchId=${batchId} retrieved=${retrievedCount} lineFailures=${failedCount}`,
     );
 
-    return { retrievedCount, failedCount, retrievedCountByRunId, skipped: false };
+    return {
+      retrievedCount,
+      failedCount,
+      retrievedCountByRunId,
+      skipped: false,
+    };
   }
 
   private async emitRetrievedTrigger(params: {

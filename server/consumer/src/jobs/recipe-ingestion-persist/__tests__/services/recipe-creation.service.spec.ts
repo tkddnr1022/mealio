@@ -164,7 +164,10 @@ describe('RecipeCreationService', () => {
       ],
     };
 
-    await service.execute({ sourceId: 456 } as never, dataWithDuplicateIngredients);
+    await service.execute(
+      { sourceId: 456 } as never,
+      dataWithDuplicateIngredients,
+    );
 
     expect(recipeIngredientRepository.replaceForRecipe).toHaveBeenCalledWith(
       expect.anything(),

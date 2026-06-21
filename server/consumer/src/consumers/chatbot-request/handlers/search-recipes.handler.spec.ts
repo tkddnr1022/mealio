@@ -134,8 +134,8 @@ describe('SearchRecipesHandler', () => {
   });
 
   it('query expansion이 원질의만 반환해도 semantic 검색을 계속한다', async () => {
-    const { handler, openaiService, recipeEmbeddingRepository } =
-      createHandler({
+    const { handler, openaiService, recipeEmbeddingRepository } = createHandler(
+      {
         openaiService: {
           createEmbeddings: jest.fn().mockResolvedValue([[0.1, 0.2]]),
         },
@@ -146,7 +146,8 @@ describe('SearchRecipesHandler', () => {
               'keywords: 고단백\nmust_have: \navoid: \ncook_time: \nservings: ',
             ]),
         },
-      });
+      },
+    );
 
     await handler.execute({ keywords: ['고단백'] }, { userId: 10 });
 
