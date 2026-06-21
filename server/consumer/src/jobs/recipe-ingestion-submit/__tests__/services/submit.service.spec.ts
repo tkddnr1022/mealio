@@ -40,6 +40,7 @@ describe('SubmitService', () => {
     Pick<
       RecipeIngestionJobRepository,
       | 'findByStatus'
+      | 'findByStatusAndSourceIdRange'
       | 'requeueFailedToFetched'
       | 'transitionManyByIds'
       | 'findManyByIdsAndStatus'
@@ -62,6 +63,7 @@ describe('SubmitService', () => {
   beforeEach(async () => {
     jobRepository = {
       findByStatus: jest.fn(),
+      findByStatusAndSourceIdRange: jest.fn(),
       requeueFailedToFetched: jest.fn(),
       transitionManyByIds: jest.fn(),
       findManyByIdsAndStatus: jest.fn(),
@@ -145,6 +147,9 @@ describe('SubmitService', () => {
 
     beforeEach(() => {
       jobRepository.findByStatus.mockResolvedValue([job] as never);
+      jobRepository.findByStatusAndSourceIdRange.mockResolvedValue(
+        [job] as never,
+      );
       jobRepository.transitionManyByIds
         .mockResolvedValueOnce(1)
         .mockResolvedValueOnce(1);
@@ -193,6 +198,38 @@ describe('SubmitService', () => {
         batchId: 'batch-xyz',
         skippedCount: 0,
       });
+    });
+
+    it('should query fetched jobs within sourceId range when startSourceId/endSourceId provided', async () => {
+      const result = await service.submit({
+        submitBatchSize: 50,
+        startSourceId: 1,
+        endSourceId: 100,
+      });
+
+      expect(jobRepository.findByStatus).not.toHaveBeenCalled();
+      expect(jobRepository.findByStatusAndSourceIdRange).toHaveBeenCalledWith(
+        'fetched',
+        1,
+        100,
+        50,
+      );
+      expect(result.submittedCount).toBe(1);
+    });
+
+    it('should treat endSourceId alone as max source_id upper bound', async () => {
+      const result = await service.submit({
+        submitBatchSize: 50,
+        endSourceId: 100,
+      });
+
+      expect(jobRepository.findByStatusAndSourceIdRange).toHaveBeenCalledWith(
+        'fetched',
+        undefined,
+        100,
+        50,
+      );
+      expect(result.submittedCount).toBe(1);
     });
   });
 

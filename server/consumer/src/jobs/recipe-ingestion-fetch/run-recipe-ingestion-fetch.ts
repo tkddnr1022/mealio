@@ -43,7 +43,7 @@ async function main(): Promise<void> {
     logger.log(`Starting fetch fetchLimit=${fetchLimit}`);
     const result = await service.fetch({ fetchLimit });
     logger.log(
-      `Fetch complete startIdx=${result.startIdx} endIdx=${result.endIdx} fetchedCount=${result.fetchedCount} exhausted=${result.exhausted}`,
+      `Fetch complete startIdx=${result.startIdx} endIdx=${result.endIdx} startSourceId=${result.startSourceId ?? 'n/a'} endSourceId=${result.endSourceId ?? 'n/a'} fetchedCount=${result.fetchedCount} exhausted=${result.exhausted}`,
     );
   } finally {
     await app.close();

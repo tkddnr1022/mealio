@@ -26,8 +26,17 @@ export class SubmitBatchSizeError extends Error {
   }
 }
 
+export class SubmitIndexRangeError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'SubmitIndexRangeError';
+  }
+}
+
 export interface SubmitOptions {
   submitBatchSize?: number;
+  startSourceId?: number;
+  endSourceId?: number;
   retryFailed?: boolean;
   retryFailedLimit?: number;
 }
@@ -87,10 +96,16 @@ export class SubmitService {
       }
     }
 
-    const fetchedJobs = await this.jobRepository.findByStatus(
-      'fetched',
-      submitBatchSize,
-    );
+    const sourceIdRange = this.resolveSourceIdRange(options, submitBatchSize);
+    const fetchedJobs =
+      sourceIdRange === undefined
+        ? await this.jobRepository.findByStatus('fetched', submitBatchSize)
+        : await this.jobRepository.findByStatusAndSourceIdRange(
+            'fetched',
+            sourceIdRange.startSourceId,
+            sourceIdRange.endSourceId,
+            submitBatchSize,
+          );
 
     if (fetchedJobs.length === 0) {
       this.logger.log('No fetched jobs — no-op exit');
@@ -202,6 +217,47 @@ export class SubmitService {
       );
       throw error;
     }
+  }
+
+  private resolveSourceIdRange(
+    options: SubmitOptions,
+    submitBatchSize: number,
+  ): { startSourceId?: number; endSourceId?: number } | undefined {
+    const { startSourceId: rawStartSourceId, endSourceId: rawEndSourceId } =
+      options;
+    if (rawStartSourceId === undefined && rawEndSourceId === undefined) {
+      return undefined;
+    }
+
+    if (rawStartSourceId !== undefined && rawStartSourceId < 1) {
+      throw new SubmitIndexRangeError(
+        `startSourceId must be >= 1, received ${rawStartSourceId}`,
+      );
+    }
+    if (rawEndSourceId !== undefined && rawEndSourceId < 1) {
+      throw new SubmitIndexRangeError(
+        `endSourceId must be >= 1, received ${rawEndSourceId}`,
+      );
+    }
+
+    let startSourceId = rawStartSourceId;
+    let endSourceId = rawEndSourceId;
+
+    if (startSourceId !== undefined && endSourceId === undefined) {
+      endSourceId = startSourceId + submitBatchSize - 1;
+    }
+
+    if (
+      startSourceId !== undefined &&
+      endSourceId !== undefined &&
+      endSourceId < startSourceId
+    ) {
+      throw new SubmitIndexRangeError(
+        `endSourceId (${endSourceId}) must be >= startSourceId (${startSourceId})`,
+      );
+    }
+
+    return { startSourceId, endSourceId };
   }
 
   private resolveSubmitBatchSize(size?: number): number {

@@ -28,7 +28,7 @@ flowchart LR
 
 데이터 원천은 식약처 Open API의 조리식품 레시피 DB입니다.
 
-```
+```text
 GET /api/{keyId}/{serviceId}/json/{startIdx}/{endIdx}
 ```
 
@@ -70,9 +70,9 @@ stateDiagram-v2
 ## submit Consumer
 
 - `recipe-ingestion-fetch-completed` 토픽을 구독합니다.
-- payload는 `{ startIdx, endIdx, fetchedCount, triggeredAt }` 형식입니다.
+- payload는 `{ startSourceId, endSourceId, fetchedCount, triggeredAt }` 형식입니다.
+- consumer는 payload를 트리거 신호로 사용하고, 실제 제출 대상은 MongoDB `status: fetched` 재조회 결과로 결정합니다.
 - `fetched` → `submitting` 조건부 전환으로 멱등성을 보장합니다.
-- 실제 제출 대상은 MongoDB `status: fetched` job 조회로 결정합니다.
 
 ## persist Consumer
 
@@ -86,6 +86,7 @@ stateDiagram-v2
 ```bash
 pnpm run recipe-ingestion:fetch
 pnpm run recipe-ingestion:submit --submit-batch-size 50
+pnpm run recipe-ingestion:submit --start-source-id 1 --end-source-id 100
 pnpm run recipe-ingestion:retrieve
 pnpm run recipe-ingestion:persist --job-id <jobId>
 ```
@@ -101,6 +102,8 @@ pnpm run recipe-ingestion:persist --job-id <jobId>
 | 매개변수 | 기본값 | 설명 |
 | --- | --- | --- |
 | `--submit-batch-size <n>` | 100 | 1회 OpenAI Batch 제출 건수. 양의 정수, 최대 1000 |
+| `--start-source-id <n>` | — | 처리할 `source_id` 하한. `--end-source-id` 미지정 시 `startSourceId + submitBatchSize - 1` |
+| `--end-source-id <n>` | — | 처리할 `source_id` 상한(max index). `--start-source-id` 미지정 시 `source_id <= endSourceId` |
 | `--retry-failed` | — | `failed` job을 `fetched`로 되돌린 뒤 재제출 |
 | `--retry-failed-limit <n>` | 100 | `--retry-failed` 시 1회 처리 상한 |
 

@@ -24,13 +24,15 @@ export interface FetchOptions {
 export interface FetchResult {
   startIdx: number;
   endIdx: number;
+  startSourceId?: number;
+  endSourceId?: number;
   fetchedCount: number;
   exhausted: boolean;
 }
 
 export interface RecipeIngestionFetchCompletedPayload {
-  startIdx: number;
-  endIdx: number;
+  startSourceId: number;
+  endSourceId: number;
   fetchedCount: number;
   triggeredAt: string;
 }
@@ -93,6 +95,8 @@ export class FetchService {
       }
 
       let fetchedCount = 0;
+      let startSourceId: number | undefined;
+      let endSourceId: number | undefined;
       for (const row of response.rows) {
         const sourceId = this.extractSourceId(row);
         if (!sourceId) {
@@ -103,6 +107,14 @@ export class FetchService {
         try {
           await this.jobRepository.upsertFetched(sourceId, row);
           fetchedCount++;
+          startSourceId =
+            startSourceId === undefined
+              ? sourceId
+              : Math.min(startSourceId, sourceId);
+          endSourceId =
+            endSourceId === undefined
+              ? sourceId
+              : Math.max(endSourceId, sourceId);
         } catch (error) {
           const message =
             error instanceof Error ? error.message : 'Unknown fetch error';
@@ -113,12 +125,16 @@ export class FetchService {
 
       await this.stateRepository.setLastEndIdx(endIdx);
       this.logger.log(
-        `Fetched ${fetchedCount} recipes startIdx=${startIdx} endIdx=${endIdx}`,
+        `Fetched ${fetchedCount} recipes startIdx=${startIdx} endIdx=${endIdx} startSourceId=${startSourceId ?? 'n/a'} endSourceId=${endSourceId ?? 'n/a'}`,
       );
-      if (fetchedCount > 0) {
+      if (
+        fetchedCount > 0 &&
+        startSourceId !== undefined &&
+        endSourceId !== undefined
+      ) {
         await this.emitFetchCompletedTrigger({
-          startIdx,
-          endIdx,
+          startSourceId,
+          endSourceId,
           fetchedCount,
         });
       }
@@ -131,6 +147,8 @@ export class FetchService {
       return {
         startIdx,
         endIdx,
+        startSourceId,
+        endSourceId,
         fetchedCount,
         exhausted: false,
       };
@@ -218,17 +236,17 @@ export class FetchService {
   }
 
   private async emitFetchCompletedTrigger(params: {
-    startIdx: number;
-    endIdx: number;
+    startSourceId: number;
+    endSourceId: number;
     fetchedCount: number;
   }): Promise<void> {
     const payload: RecipeIngestionFetchCompletedPayload = {
-      startIdx: params.startIdx,
-      endIdx: params.endIdx,
+      startSourceId: params.startSourceId,
+      endSourceId: params.endSourceId,
       fetchedCount: params.fetchedCount,
       triggeredAt: new Date().toISOString(),
     };
-    const key = `${params.startIdx}:${params.endIdx}`;
+    const key = `${params.startSourceId}:${params.endSourceId}`;
 
     try {
       await this.kafkaProducerService.emit(
@@ -242,7 +260,7 @@ export class FetchService {
           ? error.message
           : 'Fetch completed trigger publish failed';
       this.logger.warn(
-        `Fetch completed trigger publish failed startIdx=${params.startIdx} endIdx=${params.endIdx}: ${message}`,
+        `Fetch completed trigger publish failed startSourceId=${params.startSourceId} endSourceId=${params.endSourceId}: ${message}`,
       );
     }
   }

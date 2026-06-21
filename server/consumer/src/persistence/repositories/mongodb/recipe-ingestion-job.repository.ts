@@ -56,6 +56,32 @@ export class RecipeIngestionJobRepository {
     return query.exec();
   }
 
+  async findByStatusAndSourceIdRange(
+    status: RecipeIngestionJobStatus,
+    startSourceId: number | undefined,
+    endSourceId: number | undefined,
+    limit?: number,
+  ): Promise<RecipeIngestionJobDocument[]> {
+    const sourceIdFilter: { $gte?: number; $lte?: number } = {};
+    if (startSourceId !== undefined) {
+      sourceIdFilter.$gte = startSourceId;
+    }
+    if (endSourceId !== undefined) {
+      sourceIdFilter.$lte = endSourceId;
+    }
+
+    const query = this.jobModel
+      .find({
+        status,
+        sourceId: sourceIdFilter,
+      })
+      .sort({ fetchedAt: 1 });
+    if (limit !== undefined) {
+      query.limit(limit);
+    }
+    return query.exec();
+  }
+
   async findManyByIdsAndStatus(
     ids: string[],
     status: RecipeIngestionJobStatus,

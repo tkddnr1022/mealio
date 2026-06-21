@@ -101,18 +101,20 @@ describe('FetchService', () => {
       expect(result).toEqual({
         startIdx: 1,
         endIdx: 100,
+        startSourceId: 1,
+        endSourceId: 2,
         fetchedCount: 2,
         exhausted: false,
       });
       expect(kafkaProducerService.emit).toHaveBeenCalledWith(
         KAFKA_TOPICS.RECIPE_INGESTION_FETCH_COMPLETED,
         expect.objectContaining({
-          startIdx: 1,
-          endIdx: 100,
+          startSourceId: 1,
+          endSourceId: 2,
           fetchedCount: 2,
           triggeredAt: expect.any(String),
         }),
-        '1:100',
+        '1:2',
       );
     });
   });
@@ -159,6 +161,8 @@ describe('FetchService', () => {
       expect(result).toEqual({
         startIdx: 501,
         endIdx: 600,
+        startSourceId: undefined,
+        endSourceId: undefined,
         fetchedCount: 0,
         exhausted: true,
       });

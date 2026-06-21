@@ -23,8 +23,8 @@ describe('SubmitRecipeIngestionHandler', () => {
 
   it('should delegate trigger payload to SubmitService.submit', async () => {
     await handler.execute({
-      startIdx: 1,
-      endIdx: 100,
+      startSourceId: 10,
+      endSourceId: 20,
       fetchedCount: 10,
       triggeredAt: '2026-06-21T00:00:00.000Z',
     });

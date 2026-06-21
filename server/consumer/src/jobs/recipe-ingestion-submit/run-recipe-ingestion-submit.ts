@@ -3,7 +3,11 @@ import { NestFactory } from '@nestjs/core';
 import { DEFAULT_RECIPE_SUBMIT_BATCH_SIZE } from '@mealio/shared';
 import { findUnknownCliArgs } from '../cli-args.util';
 import { RecipeIngestionSubmitModule } from './recipe-ingestion-submit.module';
-import { SubmitBatchSizeError, SubmitService } from './services/submit.service';
+import {
+  SubmitBatchSizeError,
+  SubmitIndexRangeError,
+  SubmitService,
+} from './services/submit.service';
 
 /**
  * Recipe ingestion submit CLI (standalone job).
@@ -11,6 +15,9 @@ import { SubmitBatchSizeError, SubmitService } from './services/submit.service';
  * Usage:
  *   pnpm --filter consumer run job:recipe-ingestion-submit
  *   pnpm --filter consumer run job:recipe-ingestion-submit --submit-batch-size 50
+ *   pnpm --filter consumer run job:recipe-ingestion-submit --start-source-id 1 --end-source-id 100
+ *   pnpm --filter consumer run job:recipe-ingestion-submit --start-source-id 1
+ *   pnpm --filter consumer run job:recipe-ingestion-submit --end-source-id 100
  *
  * fetch → submit 순서·빈도는 구현 레이어가 아닌 운영 레이어(cron/ECS)에서 조율한다.
  *
@@ -22,6 +29,8 @@ async function main(): Promise<void> {
   const unknownArgs = findUnknownCliArgs(args, {
     flags: [
       { name: '--submit-batch-size', takesValue: true },
+      { name: '--start-source-id', takesValue: true },
+      { name: '--end-source-id', takesValue: true },
       { name: '--retry-failed' },
       { name: '--retry-failed-limit', takesValue: true },
     ],
@@ -32,6 +41,7 @@ async function main(): Promise<void> {
   }
 
   const submitBatchSize = parseSubmitBatchSize(args);
+  const { startSourceId, endSourceId } = parseSourceIdRange(args);
   const retryFailed = args.includes('--retry-failed');
   const retryFailedLimit = parseRetryFailedLimit(args);
 
@@ -43,10 +53,12 @@ async function main(): Promise<void> {
   try {
     const service = app.get(SubmitService);
     logger.log(
-      `Starting submit submitBatchSize=${submitBatchSize} retryFailed=${retryFailed} retryFailedLimit=${retryFailedLimit}`,
+      `Starting submit submitBatchSize=${submitBatchSize} startSourceId=${startSourceId ?? 'n/a'} endSourceId=${endSourceId ?? 'n/a'} retryFailed=${retryFailed} retryFailedLimit=${retryFailedLimit}`,
     );
     const result = await service.submit({
       submitBatchSize,
+      startSourceId,
+      endSourceId,
       retryFailed,
       retryFailedLimit,
     });
@@ -72,6 +84,46 @@ function parseSubmitBatchSize(args: string[]): number {
     );
   }
   return parsed;
+}
+
+function parseSourceIdRange(args: string[]): {
+  startSourceId?: number;
+  endSourceId?: number;
+} {
+  const startFlagIdx = args.indexOf('--start-source-id');
+  const endFlagIdx = args.indexOf('--end-source-id');
+  const hasStart = startFlagIdx !== -1;
+  const hasEnd = endFlagIdx !== -1;
+
+  if (!hasStart && !hasEnd) {
+    return {};
+  }
+
+  const result: { startSourceId?: number; endSourceId?: number } = {};
+
+  if (hasStart) {
+    const startRaw = args[startFlagIdx + 1];
+    const startSourceId = parseInt(startRaw ?? '', 10);
+    if (!Number.isFinite(startSourceId) || startSourceId < 1) {
+      throw new SubmitIndexRangeError(
+        `--start-source-id must be a positive integer, received "${startRaw ?? ''}"`,
+      );
+    }
+    result.startSourceId = startSourceId;
+  }
+
+  if (hasEnd) {
+    const endRaw = args[endFlagIdx + 1];
+    const endSourceId = parseInt(endRaw ?? '', 10);
+    if (!Number.isFinite(endSourceId) || endSourceId < 1) {
+      throw new SubmitIndexRangeError(
+        `--end-source-id must be a positive integer, received "${endRaw ?? ''}"`,
+      );
+    }
+    result.endSourceId = endSourceId;
+  }
+
+  return result;
 }
 
 function parseRetryFailedLimit(args: string[]): number {

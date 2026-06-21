@@ -16,10 +16,10 @@ function isValidRecipeIngestionFetchCompletedPayload(
   }
   const o = obj as Record<string, unknown>;
   return (
-    typeof o.startIdx === 'number' &&
-    Number.isFinite(o.startIdx) &&
-    typeof o.endIdx === 'number' &&
-    Number.isFinite(o.endIdx) &&
+    typeof o.startSourceId === 'number' &&
+    Number.isFinite(o.startSourceId) &&
+    typeof o.endSourceId === 'number' &&
+    Number.isFinite(o.endSourceId) &&
     typeof o.fetchedCount === 'number' &&
     Number.isFinite(o.fetchedCount) &&
     o.fetchedCount > 0 &&
