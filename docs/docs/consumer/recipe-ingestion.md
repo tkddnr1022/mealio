@@ -90,6 +90,31 @@ pnpm run recipe-ingestion:retrieve
 pnpm run recipe-ingestion:persist --job-id <jobId>
 ```
 
+### fetch
+
+| 매개변수 | 기본값 | 설명 |
+| --- | --- | --- |
+| `--fetch-limit <n>` | 100 | 1회 fetch 건수. 양의 정수, 최대 1000 |
+
+### submit
+
+| 매개변수 | 기본값 | 설명 |
+| --- | --- | --- |
+| `--submit-batch-size <n>` | 100 | 1회 OpenAI Batch 제출 건수. 양의 정수, 최대 1000 |
+| `--retry-failed` | — | `failed` job을 `fetched`로 되돌린 뒤 재제출 |
+| `--retry-failed-limit <n>` | 100 | `--retry-failed` 시 1회 처리 상한 |
+
+### retrieve
+
+별도의 매개변수 없이 `status: submitted` job의 OpenAI Batch 완료를 확인하고 결과를 반영합니다.
+
+### persist
+
+| 매개변수 | 기본값 | 설명 |
+| --- | --- | --- |
+| `--persist-batch-size <n>` | 100 | `--job-id` 미지정 시 1회 처리할 `retrieved` job 수 |
+| `--job-id <jobId>` | — | 지정 job만 수동 persist (Kafka 재전달·복구용) |
+
 ## 운영 검증
 
 아래 시나리오로 fetch→submit→retrieve→persist happy path와 복구 경로를 확인합니다.
