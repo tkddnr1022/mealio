@@ -3,7 +3,6 @@ import { ActivityEventType } from '@mealio/shared';
 import { CacheInvalidationRequestService } from 'src/consumers/cache-invalidation/cache-invalidation-request.service';
 import { RecommendationRepository } from 'src/persistence/repositories/postgresql/recommendation.repository';
 import { ActivityRecommendationService } from './activity-recommendation.service';
-import { RecipeEmbeddingService } from 'src/consumers/chatbot-request/services/recipe-embedding.service';
 
 describe('ActivityRecommendationService', () => {
   it('로그인 사용자의 recipe.view 이벤트를 점수에 반영하고 추천 캐시를 무효화한다', async () => {
@@ -24,15 +23,6 @@ describe('ActivityRecommendationService', () => {
         {
           provide: CacheInvalidationRequestService,
           useValue: cacheInvalidationRequestService,
-        },
-        {
-          provide: RecipeEmbeddingService,
-          useValue: {
-            ensureEmbeddingsForRecipeIds: jest.fn().mockResolvedValue({
-              syncedRecipeIds: [],
-              skippedRecipeIds: [],
-            }),
-          },
         },
       ],
     }).compile();
@@ -70,15 +60,6 @@ describe('ActivityRecommendationService', () => {
         {
           provide: CacheInvalidationRequestService,
           useValue: cacheInvalidationRequestService,
-        },
-        {
-          provide: RecipeEmbeddingService,
-          useValue: {
-            ensureEmbeddingsForRecipeIds: jest.fn().mockResolvedValue({
-              syncedRecipeIds: [],
-              skippedRecipeIds: [],
-            }),
-          },
         },
       ],
     }).compile();

@@ -321,7 +321,7 @@ pnpm --filter consumer run job:recipe-ingestion-retrieve
 - [ ] `match_method` (`exact | alias` = LLM ingredient_alias hit | `vector` | `new`) 기록
 - [ ] Recipe + RecipeIngredient **Prisma `$transaction`** upsert — `(source, sourceRecipeId)` unique
 - [ ] `parse_confidence: low` → `isPublished: false`
-- [ ] `recipe-creation.transaction.ts` (명세 §2.1 미구현 항목) 구현 또는 persist handler 내부 트랜잭션
+- [x] `recipe-creation.service.ts` — Prisma 트랜잭션 upsert + persist 완료 후 임베딩 동기화
 - [ ] DLQ — `BaseTopicProcessor` 재시도 후 `recipe-ingestion-retrieved-dlq`
 
 ### 예정 파일
@@ -331,10 +331,12 @@ pnpm --filter consumer run job:recipe-ingestion-retrieve
 | `server/consumer/src/consumers/recipe-ingestion-persist/recipe-ingestion-persist.processor.ts` | processor |
 | `server/consumer/src/consumers/recipe-ingestion-persist/recipe-ingestion-persist.consumer.ts` | consumer |
 | `server/consumer/src/consumers/recipe-ingestion-persist/recipe-ingestion-persist.module.ts` | module |
-| `server/consumer/src/consumers/recipe-ingestion-persist/handlers/PersistRecipeHandler.ts` | persist 오케스트레이션 |
+| `server/consumer/src/consumers/recipe-ingestion-persist/handlers/PersistRecipeHandler.ts` | Kafka 트리거 → PersistService 위임 |
 | `server/consumer/src/consumers/recipe-ingestion-persist/__tests__/handlers/PersistRecipeHandler.spec.ts` | handler 단위 테스트 |
-| `server/consumer/src/consumers/recipe-ingestion-persist/services/ingredient-matcher.service.ts` | 재료 매칭 |
-| `server/consumer/src/persistence/transactions/recipe-creation.transaction.ts` | Prisma 트랜잭션 (LLM `retrieved_data` → imageUrl·nutrition·instructions[].imageUrl) |
+| `server/consumer/src/jobs/recipe-ingestion-persist/services/persist.service.ts` | persist 오케스트레이션 |
+| `server/consumer/src/jobs/recipe-ingestion-persist/domains/ingredient-matcher.domain.ts` | 재료 매칭 |
+| `server/consumer/src/jobs/recipe-ingestion-persist/domains/recipe-creation.domain.ts` | Prisma 트랜잭션 (LLM `retrieved_data` → imageUrl·nutrition·instructions[].imageUrl) |
+| `server/consumer/src/jobs/recipe-ingestion-persist/integrations/recipe-embedding-sync.integration.ts` | persist 완료 후 임베딩 생성·업서트 |
 | `server/consumer/src/integrations/public-data/foodsafety-image-url.util.ts` | LLM 이미지 URL 정규화 (persist) |
 | `server/consumer/src/persistence/repositories/postgresql/recipe-ingredient.repository.ts` | RecipeIngredient 쓰기 |
 

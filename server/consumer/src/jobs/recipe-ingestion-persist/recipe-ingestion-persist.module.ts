@@ -13,15 +13,18 @@ import { mongooseConnectionPoolConfig } from '../../policy/mongoose-pool.policy'
 import { prismaConnectionPoolConfig } from '../../policy/prisma-pool.policy';
 import { IngredientRepository } from '../../persistence/repositories/postgresql/ingredient.repository';
 import { RecipeIngredientRepository } from '../../persistence/repositories/postgresql/recipe-ingredient.repository';
+import { RecipeEmbeddingRepository } from '../../persistence/repositories/postgresql/recipe-embedding.repository';
 import { RecipeIngestionJobRepository } from '../../persistence/repositories/mongodb/recipe-ingestion-job.repository';
-import { RecipeCreationTransaction } from '../../persistence/transactions/recipe-creation.transaction';
 import {
   ConsumerMetricsService,
   OBSERVABILITY_CONFIG,
 } from '../../reliability/monitoring/consumer-metrics.service';
-import { CategoryResolverService } from '../../consumers/recipe-ingestion-persist/services/category-resolver.service';
-import { IngredientMatcherService } from '../../consumers/recipe-ingestion-persist/services/ingredient-matcher.service';
+import { CategoryResolverService } from './domains/category-resolver.domain';
+import { OpenAIModule } from '../../integrations/openai/openai.module';
+import { IngredientMatcherService } from './domains/ingredient-matcher.domain';
 import { PersistService } from './services/persist.service';
+import { RecipeCreationService } from './domains/recipe-creation.domain';
+import { RecipeEmbeddingSyncService } from './integrations/recipe-embedding-sync.integration';
 
 @Module({
   imports: [
@@ -38,6 +41,7 @@ import { PersistService } from './services/persist.service';
     }),
     MongooseSchemasModule.forRoot(mongooseConnectionPoolConfig),
     PrismaModule.forRoot(prismaConnectionPoolConfig),
+    OpenAIModule,
   ],
   providers: [
     {
@@ -49,9 +53,11 @@ import { PersistService } from './services/persist.service';
     RecipeIngestionJobRepository,
     IngredientRepository,
     RecipeIngredientRepository,
+    RecipeEmbeddingRepository,
     CategoryResolverService,
     IngredientMatcherService,
-    RecipeCreationTransaction,
+    RecipeEmbeddingSyncService,
+    RecipeCreationService,
     PersistService,
   ],
   exports: [PersistService],

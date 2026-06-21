@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@mealio/shared/prisma-client';
 import type { RetrievedIngredientPayload } from '../validators/retrieved-data.validator';
-import { CategoryResolverService } from './category-resolver.service';
+import { CategoryResolverService } from './category-resolver.domain';
 
 export type IngredientMatchMethod = 'alias' | 'exact' | 'new';
 

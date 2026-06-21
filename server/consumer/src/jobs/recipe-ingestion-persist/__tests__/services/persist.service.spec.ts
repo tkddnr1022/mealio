@@ -1,12 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Types } from 'mongoose';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
-import { RecipeCreationTransaction } from 'src/persistence/transactions/recipe-creation.transaction';
+import { RecipeCreationService } from '../../domains/recipe-creation.domain';
+import { RecipeEmbeddingSyncService } from '../../integrations/recipe-embedding-sync.integration';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
-import { RetrievedDataValidationError } from 'src/consumers/recipe-ingestion-persist/validators/retrieved-data.validator';
-import {
-  PersistService,
-} from '../../services/persist.service';
+import { RetrievedDataValidationError } from '../../validators/retrieved-data.validator';
+import { PersistService } from '../../services/persist.service';
 
 const JOB_ID = '507f1f77bcf86cd799439011';
 
@@ -49,8 +48,11 @@ describe('PersistService', () => {
       | 'findByStatus'
     >
   >;
-  let recipeCreationTransaction: jest.Mocked<
-    Pick<RecipeCreationTransaction, 'execute'>
+  let recipeCreationService: jest.Mocked<
+    Pick<RecipeCreationService, 'execute'>
+  >;
+  let recipeEmbeddingSyncService: jest.Mocked<
+    Pick<RecipeEmbeddingSyncService, 'syncByRecipeId'>
   >;
   let metrics: jest.Mocked<
     Pick<
@@ -69,8 +71,11 @@ describe('PersistService', () => {
       rollbackPersistingJobWithRetry: jest.fn(),
       findByStatus: jest.fn(),
     };
-    recipeCreationTransaction = {
+    recipeCreationService = {
       execute: jest.fn().mockResolvedValue({ recipeId: 1, matchMethods: [] }),
+    };
+    recipeEmbeddingSyncService = {
+      syncByRecipeId: jest.fn().mockResolvedValue(undefined),
     };
     metrics = {
       recordIngestionStage: jest.fn(),
@@ -84,8 +89,12 @@ describe('PersistService', () => {
         PersistService,
         { provide: RecipeIngestionJobRepository, useValue: jobRepository },
         {
-          provide: RecipeCreationTransaction,
-          useValue: recipeCreationTransaction,
+          provide: RecipeCreationService,
+          useValue: recipeCreationService,
+        },
+        {
+          provide: RecipeEmbeddingSyncService,
+          useValue: recipeEmbeddingSyncService,
         },
         { provide: ConsumerMetricsService, useValue: metrics },
       ],
@@ -107,7 +116,8 @@ describe('PersistService', () => {
       .mockResolvedValueOnce({ ...job, status: 'persisted' } as never);
 
     await expect(service.persistByJobId(JOB_ID)).resolves.toBe('persisted');
-    expect(recipeCreationTransaction.execute).toHaveBeenCalled();
+    expect(recipeCreationService.execute).toHaveBeenCalled();
+    expect(recipeEmbeddingSyncService.syncByRecipeId).toHaveBeenCalledWith(1);
   });
 
   it('should rollback and rethrow on persist failure', async () => {
@@ -117,7 +127,7 @@ describe('PersistService', () => {
       ...job,
       status: 'persisting',
     } as never);
-    recipeCreationTransaction.execute.mockRejectedValue(
+    recipeCreationService.execute.mockRejectedValue(
       new RetrievedDataValidationError('bad data'),
     );
     jobRepository.rollbackPersistingJobWithRetry.mockResolvedValue(true);

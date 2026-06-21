@@ -84,8 +84,8 @@ cp server/consumer/.env.example server/consumer/.env.local
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | `search_recipes` pgvector ANN 임베딩 |
-| 사용처 | `recipe-embedding.service.ts` |
+| 설명 | `search_recipes` 질의 임베딩 + recipe ingestion persist 시 RecipeEmbedding 업서트 |
+| 사용처 | `integrations/openai/openai.service.ts`, `recipe-ingestion-persist/services/recipe-embedding-sync.service.ts` |
 
 ### `OPENAI_BATCH_MODEL`
 

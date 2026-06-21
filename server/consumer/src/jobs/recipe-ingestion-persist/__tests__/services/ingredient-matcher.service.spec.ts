@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { IngredientMatcherService } from '../../services/ingredient-matcher.service';
-import { CategoryResolverService } from '../../services/category-resolver.service';
+import { IngredientMatcherService } from '../../domains/ingredient-matcher.domain';
+import { CategoryResolverService } from '../../domains/category-resolver.domain';
 
 describe('IngredientMatcherService', () => {
   let service: IngredientMatcherService;

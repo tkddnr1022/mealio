@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@mealio/shared';
-import { RecipeEmbeddingService } from '../services/recipe-embedding.service';
+import { OpenAIService } from 'src/integrations/openai/openai.service';
 import { RecipeSearchQueryService } from '../services/recipe-search-query.service';
 import { RecipeSearchQueryExpansionService } from '../services/recipe-search-query-expansion.service';
 import { RecipeEmbeddingRepository } from 'src/persistence/repositories/postgresql/recipe-embedding.repository';
@@ -70,7 +70,7 @@ export class SearchRecipesHandler {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly recipeEmbeddingService: RecipeEmbeddingService,
+    private readonly openaiService: OpenAIService,
     private readonly recipeEmbeddingRepository: RecipeEmbeddingRepository,
     private readonly recipeSearchQueryService: RecipeSearchQueryService,
     private readonly recipeSearchQueryExpansionService: RecipeSearchQueryExpansionService,
@@ -92,8 +92,7 @@ export class SearchRecipesHandler {
         mustHaveIngredients: payload.mustHaveIngredients,
         avoidIngredients: payload.avoidIngredients,
       });
-    const queryEmbeddings =
-      await this.recipeEmbeddingService.createQueryEmbeddings(queryTexts);
+    const queryEmbeddings = await this.openaiService.createEmbeddings(queryTexts);
     if (queryEmbeddings.length === 0) {
       return [];
     }
@@ -120,10 +119,6 @@ export class SearchRecipesHandler {
     if (candidateRecipeIds.length === 0) {
       return [];
     }
-
-    await this.recipeEmbeddingService.ensureEmbeddingsForRecipeIds(
-      candidateRecipeIds,
-    );
 
     const recipes = await this.recipeSearchQueryService.fetchRecipesByIds(
       candidateRecipeIds,

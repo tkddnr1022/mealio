@@ -410,8 +410,8 @@ Kafka `recipe-ingestion-retrieved` 소비 → payload `runId`로 `retrieved` job
    `match_method`: `exact` \| `alias`(LLM ingredient_alias hit) \| `vector` \| `new`
 4. Recipe + RecipeIngredient **transaction upsert** — `(source, sourceRecipeId)` unique; `parse_confidence`가 `RECIPE_INGESTION_MIN_PUBLISH_PARSE_CONFIDENCE`(`high`) 미만 → `isPublished: false`. persist 허용 하한은 `RECIPE_INGESTION_MIN_PARSE_CONFIDENCE`(`low`, `@mealio/shared` policy SSOT)
    - **이미지·영양·조리 메타**: 검증된 `retrieved_data` → `imageUrl`, `nutrition`, `cookingMethod`, `dishType`, `cookingTip`, `instructions[].imageUrl` (§4.5)
-   - **`difficulty`**: LLM 추론값(1-3) → `Recipe.difficulty`. 누락·레거시 payload는 `RECIPE_INGESTION_DEFAULT_DIFFICULTY`(2) fallback; 범위 밖은 clamp (`retrieved-data.validator.ts`)
-   - **`cookTime`**: LLM `cookingTimeMinutes` → `Recipe.cookTime`. 누락·레거시 payload는 `RECIPE_INGESTION_DEFAULT_COOK_TIME_MINUTES`(30) fallback; 5-180분 clamp (`retrieved-data.validator.ts`)
+   - **`difficulty`**: LLM 추론값(1-3) → `Recipe.difficulty`. 누락·레거시 payload는 `RECIPE_INGESTION_DEFAULT_DIFFICULTY`(2) fallback; 범위 밖은 clamp (`server/shared/src/policy/recipe-ingestion.policy.ts`, `validators/retrieved-data.validator.ts`)
+   - **`cookTime`**: LLM `cookingTimeMinutes` → `Recipe.cookTime`. 누락·레거시 payload는 `RECIPE_INGESTION_DEFAULT_COOK_TIME_MINUTES`(30) fallback; 5-180분 clamp (`server/shared/src/policy/recipe-ingestion.policy.ts`, `validators/retrieved-data.validator.ts`)
 5. job 업데이트: `status: persisted`, `persisted_at: now()`
 
 ---

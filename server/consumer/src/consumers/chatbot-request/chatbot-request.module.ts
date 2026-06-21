@@ -28,7 +28,6 @@ import { InventoryHandler } from './handlers/InventoryHandler';
 import { ToolDispatcher } from './tools/tool-dispatcher';
 import { ChatbotCreditService } from './services/chatbot-credit.service';
 import { RecipeEmbeddingRepository } from 'src/persistence/repositories/postgresql/recipe-embedding.repository';
-import { RecipeEmbeddingService } from './services/recipe-embedding.service';
 import { RecipeSearchQueryService } from './services/recipe-search-query.service';
 import { RecipeSearchQueryExpansionService } from './services/recipe-search-query-expansion.service';
 import { FinalizeRecipeSelectionHandler } from './handlers/FinalizeRecipeSelectionHandler';
@@ -56,7 +55,6 @@ import { FinalizeRecipeSelectionHandler } from './handlers/FinalizeRecipeSelecti
     FoodCategoriesHandler,
     FinalizeRecipeSelectionHandler,
     RecipeEmbeddingRepository,
-    RecipeEmbeddingService,
     RecipeSearchQueryService,
     RecipeSearchQueryExpansionService,
     InventoryHandler,

@@ -12,16 +12,16 @@ import type { RecipeIngestionJobDocument } from '@mealio/shared';
 import {
   RecipeIngredientRepository,
   type RecipeIngredientRowInput,
-} from '../repositories/postgresql/recipe-ingredient.repository';
+} from 'src/persistence/repositories/postgresql/recipe-ingredient.repository';
 import {
   IngredientMatcherService,
   type IngredientMatchMethod,
-} from 'src/consumers/recipe-ingestion-persist/services/ingredient-matcher.service';
-import { CategoryResolverService } from 'src/consumers/recipe-ingestion-persist/services/category-resolver.service';
+} from './ingredient-matcher.domain';
+import { CategoryResolverService } from './category-resolver.domain';
 import type {
   RetrievedDataPayload,
   RetrievedRecipeStepPayload,
-} from 'src/consumers/recipe-ingestion-persist/validators/retrieved-data.validator';
+} from '../validators/retrieved-data.validator';
 import { normalizeFoodsafetyImageUrl } from 'src/integrations/public-data/foodsafety-image-url.util';
 
 export interface RecipeCreationResult {
@@ -83,8 +83,8 @@ function toNutritionJson(
  * Recipe + RecipeIngredient + RecipeStats Prisma 트랜잭션 upsert
  */
 @Injectable()
-export class RecipeCreationTransaction {
-  private readonly logger = new Logger(RecipeCreationTransaction.name);
+export class RecipeCreationService {
+  private readonly logger = new Logger(RecipeCreationService.name);
 
   constructor(
     private readonly prisma: PrismaService,

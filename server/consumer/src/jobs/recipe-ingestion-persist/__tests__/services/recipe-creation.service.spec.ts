@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '@mealio/shared';
-import { RecipeCreationTransaction } from '../recipe-creation.transaction';
-import { CategoryResolverService } from 'src/consumers/recipe-ingestion-persist/services/category-resolver.service';
-import { IngredientMatcherService } from 'src/consumers/recipe-ingestion-persist/services/ingredient-matcher.service';
-import { RecipeIngredientRepository } from '../../repositories/postgresql/recipe-ingredient.repository';
-import type { RetrievedDataPayload } from 'src/consumers/recipe-ingestion-persist/validators/retrieved-data.validator';
+import { RecipeCreationService } from '../../domains/recipe-creation.domain';
+import { CategoryResolverService } from '../../domains/category-resolver.domain';
+import { IngredientMatcherService } from '../../domains/ingredient-matcher.domain';
+import { RecipeIngredientRepository } from 'src/persistence/repositories/postgresql/recipe-ingredient.repository';
+import type { RetrievedDataPayload } from '../../validators/retrieved-data.validator';
 
 const retrievedData: RetrievedDataPayload = {
   recipe: {
@@ -41,8 +41,8 @@ const retrievedData: RetrievedDataPayload = {
   parseConfidence: 'high',
 };
 
-describe('RecipeCreationTransaction', () => {
-  let transaction: RecipeCreationTransaction;
+describe('RecipeCreationService', () => {
+  let service: RecipeCreationService;
   let ingredientMatcher: { match: jest.Mock };
   let recipeIngredientRepository: { replaceForRecipe: jest.Mock };
   let prisma: {
@@ -82,7 +82,7 @@ describe('RecipeCreationTransaction', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        RecipeCreationTransaction,
+        RecipeCreationService,
         { provide: PrismaService, useValue: prisma },
         {
           provide: CategoryResolverService,
@@ -99,11 +99,11 @@ describe('RecipeCreationTransaction', () => {
       ],
     }).compile();
 
-    transaction = module.get(RecipeCreationTransaction);
+    service = module.get(RecipeCreationService);
   });
 
   it('should persist image, nutrition, meta, and step image from retrieved_data', async () => {
-    await transaction.execute({ sourceId: 123 } as never, retrievedData);
+    await service.execute({ sourceId: 123 } as never, retrievedData);
 
     expect(prisma.recipe.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
@@ -164,7 +164,7 @@ describe('RecipeCreationTransaction', () => {
       ],
     };
 
-    await transaction.execute({ sourceId: 456 } as never, dataWithDuplicateIngredients);
+    await service.execute({ sourceId: 456 } as never, dataWithDuplicateIngredients);
 
     expect(recipeIngredientRepository.replaceForRecipe).toHaveBeenCalledWith(
       expect.anything(),

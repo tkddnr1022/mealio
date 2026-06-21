@@ -42,7 +42,6 @@
 | server/consumer/src/consumers/chatbot-request/handlers/FoodCategoriesHandler.ts | get_food_categories — 레시피·재료 카테고리 마스터 조회(Redis 캐시 1시간) |
 | server/consumer/src/consumers/chatbot-request/handlers/SaveChatLogHandler.ts | 스트림 종료 후 ChatbotLog 저장 |
 | server/consumer/src/consumers/chatbot-request/handlers/SyncConversationMetaHandler.ts | 성공 턴 후 `chatbot_conversations` 동기화: `chatbot.start`면 LLM 제목·메타 생성, `chatbot.message`면 `updatedAt` 갱신 |
-| server/consumer/src/consumers/chatbot-request/services/recipe-embedding.service.ts | 레시피 문서화·OpenAI 임베딩 생성·pgvector 업서트(증분 동기화) |
 | server/consumer/src/consumers/chatbot-request/services/recipe-search-query.service.ts | search_recipes 핸들러용 Prisma 조회 — ANN 후보 `recipeId` 목록에 hard constraint(`isPublished`, 기피 재료) 적용 후 상세 fetch |
 | server/consumer/src/consumers/chatbot-request/services/recipe-search-query-expansion.service.ts | search_recipes Query Expansion — 원질의 보존 + LLM 확장 질의 생성(실패 시 원질의 fallback) |
 | server/consumer/src/persistence/repositories/mongodb/chatbot-conversation.repository.ts | ChatbotConversation 메타 (`createWithTitle` 생성·제목 없는 스텁 보정, `chatbot.message` 시 `touchUpdatedAt`) |
@@ -111,7 +110,6 @@
 | server/consumer/src/persistence/repositories/mongodb/recipe-ingestion-job.repository.ts | Recipe ingestion job CRUD·상태 전환 (Mongoose) |
 | server/consumer/src/persistence/repositories/mongodb/recipe-ingestion-state.repository.ts | Recipe ingestion API 커서 singleton (Mongoose) |
 | **server/consumer/src/persistence/transactions/** | |
-| server/consumer/src/persistence/transactions/recipe-creation.transaction.ts | Recipe + RecipeIngredient Prisma `$transaction` upsert (ingestion persist) |
 | server/consumer/src/persistence/transactions/mongodb-session.transaction.ts | ⚠️ 미구현 · Mongoose session (필요 시) |
 | server/consumer/src/persistence/transactions/saga.coordinator.ts | ⚠️ 미구현 · 분산 트랜잭션 (RDB↔NoSQL) |
 | **server/consumer/src/persistence/bulk-operations/postgresql/** | ⚠️ 미구현 |
@@ -165,7 +163,11 @@
 | **server/consumer/src/jobs/recipe-ingestion-persist/** | persist standalone job (`--run-id`, `--run-id-count`, `--job-id`) |
 | server/consumer/src/jobs/recipe-ingestion-persist/recipe-ingestion-persist.module.ts | persist 잡 모듈 (standalone) |
 | server/consumer/src/jobs/recipe-ingestion-persist/run-recipe-ingestion-persist.ts | persist CLI (`--run-id`, `--run-id-count`, `--job-id`) |
-| server/consumer/src/jobs/recipe-ingestion-persist/services/persist.service.ts | job 단위 persist 오케스트레이션 |
+| server/consumer/src/jobs/recipe-ingestion-persist/services/persist.service.ts | job 단위 persist 오케스트레이션 (검증·상태 전이·도메인 persist·임베딩 동기화·메트릭) |
+| server/consumer/src/jobs/recipe-ingestion-persist/domains/recipe-creation.domain.ts | Recipe + RecipeIngredient Prisma `$transaction` upsert (ingestion persist) |
+| server/consumer/src/jobs/recipe-ingestion-persist/domains/ingredient-matcher.domain.ts | persist 재료 매칭 |
+| server/consumer/src/jobs/recipe-ingestion-persist/domains/category-resolver.domain.ts | persist 카테고리 해석 |
+| server/consumer/src/jobs/recipe-ingestion-persist/integrations/recipe-embedding-sync.integration.ts | persist 완료 레시피 문서화·OpenAI 임베딩 생성·RecipeEmbedding(pgvector) 업서트 |
 | **server/consumer/src/consumers/recipe-ingestion-submit/** | Kafka submit consumer (토픽 §2.2 recipe-ingestion-fetch-completed) |
 | server/consumer/src/consumers/recipe-ingestion-submit/recipe-ingestion-submit.module.ts | submit consumer 모듈 |
 | server/consumer/src/consumers/recipe-ingestion-submit/recipe-ingestion-submit.consumer.ts | submit consumer 구독 |
@@ -175,10 +177,8 @@
 | server/consumer/src/consumers/recipe-ingestion-persist/recipe-ingestion-persist.module.ts | persist consumer 모듈 |
 | server/consumer/src/consumers/recipe-ingestion-persist/recipe-ingestion-persist.consumer.ts | persist consumer 구독 |
 | server/consumer/src/consumers/recipe-ingestion-persist/recipe-ingestion-persist.processor.ts | persist processor |
-| server/consumer/src/consumers/recipe-ingestion-persist/handlers/PersistRecipeHandler.ts | 검증된 retrieved_data → PostgreSQL persist |
-| server/consumer/src/consumers/recipe-ingestion-persist/services/category-resolver.service.ts | persist 카테고리 해석 |
-| server/consumer/src/consumers/recipe-ingestion-persist/services/ingredient-matcher.service.ts | persist 재료 매칭 |
-| server/consumer/src/consumers/recipe-ingestion-persist/validators/retrieved-data.validator.ts | retrieved_data 스키마·비즈니스 검증 |
+| server/consumer/src/consumers/recipe-ingestion-persist/handlers/PersistRecipeHandler.ts | Kafka 트리거 → PersistService 위임 |
+| server/consumer/src/jobs/recipe-ingestion-persist/validators/retrieved-data.validator.ts | retrieved_data 스키마·비즈니스 검증 |
 
 ---
 

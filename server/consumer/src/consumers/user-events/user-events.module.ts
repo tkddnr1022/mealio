@@ -23,14 +23,10 @@ import { RecommendationHandler } from './handlers/RecommendationHandler';
 import { UpdateInventoryHandler } from './handlers/UpdateInventoryHandler';
 import { RecipeStatsUpdaterService } from './services/recipe-stats-updater.service';
 import { RecommendationScoreService } from './services/recommendation-score.service';
-import { OpenAIModule } from 'src/integrations/openai/openai.module';
-import { RecipeEmbeddingRepository } from 'src/persistence/repositories/postgresql/recipe-embedding.repository';
-import { RecipeEmbeddingService } from '../chatbot-request/services/recipe-embedding.service';
 
 @Module({
   imports: [
     KafkaModule,
-    OpenAIModule,
     CacheInvalidationModule,
     MongooseModule.forFeature([
       { name: EventLog.name, schema: EventLogSchema },
@@ -43,14 +39,12 @@ import { RecipeEmbeddingService } from '../chatbot-request/services/recipe-embed
     UserRepository,
     RecipeRepository,
     RecommendationRepository,
-    RecipeEmbeddingRepository,
     EventLogRepository,
     InventoryRepository,
     UpdateUserProfileHandler,
     TrackUserActivityHandler,
     RecommendationHandler,
     RecommendationScoreService,
-    RecipeEmbeddingService,
     RecipeStatsUpdaterService,
     UpdateInventoryHandler,
     UserEventsProcessor,

@@ -6,20 +6,16 @@ import {
   isRecipeIngestionParseConfidence,
   isRecipeNutritionPayload,
   meetsRecipeIngestionMinParseConfidence,
+  RECIPE_INGESTION_COOK_TIME_MAX,
+  RECIPE_INGESTION_COOK_TIME_MIN,
   RECIPE_INGESTION_DEFAULT_COOK_TIME_MINUTES,
   RECIPE_INGESTION_DEFAULT_DIFFICULTY,
+  RECIPE_INGESTION_DIFFICULTY_MAX,
+  RECIPE_INGESTION_DIFFICULTY_MIN,
   RECIPE_INGESTION_MIN_PARSE_CONFIDENCE,
   type RecipeIngestionParseConfidence,
   type RecipeNutritionPayload,
 } from '@mealio/shared';
-
-/** recipe ingestion retrieved_data difficulty 허용 범위 (Mealio 1-3) */
-export const RECIPE_INGESTION_DIFFICULTY_MIN = 1;
-export const RECIPE_INGESTION_DIFFICULTY_MAX = 3;
-
-/** recipe ingestion retrieved_data cookTime 허용 범위 (분) */
-export const RECIPE_INGESTION_COOK_TIME_MIN = 5;
-export const RECIPE_INGESTION_COOK_TIME_MAX = 180;
 
 /** LLM 추론·레거시 payload → DB difficulty (1-3 정수, 범위 밖은 clamp) */
 export function resolveRecipeIngestionDifficulty(

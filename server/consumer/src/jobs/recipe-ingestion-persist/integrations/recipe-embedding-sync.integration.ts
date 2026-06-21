@@ -3,19 +3,17 @@ import { formatRecipeNutritionSummary, PrismaService } from '@mealio/shared';
 import { OpenAIService } from 'src/integrations/openai/openai.service';
 import { RecipeEmbeddingRepository } from 'src/persistence/repositories/postgresql/recipe-embedding.repository';
 
-export interface RecipeEmbeddingSyncResult {
-  syncedRecipeIds: number[];
-  skippedRecipeIds: number[];
-}
-
 type RecipeInstructionStep = {
   step?: number;
   content?: string;
 };
 
+/**
+ * persist 완료 레시피 → OpenAI 임베딩 → RecipeEmbedding(pgvector) 업서트
+ */
 @Injectable()
-export class RecipeEmbeddingService {
-  private readonly logger = new Logger(RecipeEmbeddingService.name);
+export class RecipeEmbeddingSyncService {
+  private readonly logger = new Logger(RecipeEmbeddingSyncService.name);
 
   constructor(
     private readonly prisma: PrismaService,
@@ -23,88 +21,45 @@ export class RecipeEmbeddingService {
     private readonly recipeEmbeddingRepository: RecipeEmbeddingRepository,
   ) {}
 
-  async ensureEmbeddingsForRecipeIds(
-    recipeIds: number[],
-  ): Promise<RecipeEmbeddingSyncResult> {
-    const uniqueRecipeIds = [...new Set(recipeIds)].filter((id) => id > 0);
-    if (uniqueRecipeIds.length === 0) {
-      return { syncedRecipeIds: [], skippedRecipeIds: [] };
+  async syncByRecipeId(recipeId: number): Promise<void> {
+    if (!Number.isInteger(recipeId) || recipeId <= 0) {
+      return;
     }
 
-    const recipes = await this.prisma.recipe.findMany({
-      where: {
-        id: { in: uniqueRecipeIds },
-        isPublished: true,
-      },
+    const recipe = await this.prisma.recipe.findUnique({
+      where: { id: recipeId },
       include: {
         categoryMeta: { select: { key: true, name: true } },
         recipeIngredients: {
-          select: {
+          include: {
             ingredient: {
-              select: {
-                id: true,
-                name: true,
+              include: {
                 categoryMeta: { select: { key: true, name: true } },
               },
             },
-            amount: true,
-            unit: true,
-            isOptional: true,
           },
         },
       },
     });
-
-    const existing = await this.recipeEmbeddingRepository.findExisting(
-      recipes.map((recipe) => recipe.id),
-    );
-
-    const syncedRecipeIds: number[] = [];
-    const skippedRecipeIds: number[] = [];
-    for (const recipe of recipes) {
-      const current = existing.get(recipe.id);
-      if (
-        current &&
-        current.sourceUpdatedAt.getTime() >= recipe.updatedAt.getTime()
-      ) {
-        skippedRecipeIds.push(recipe.id);
-        continue;
-      }
-
-      const documentText = this.buildRecipeDocument(recipe);
-      const embedding = await this.openaiService.createEmbedding(documentText);
-      if (embedding.length === 0) {
-        this.logger.warn(`Embedding empty. recipeId=${recipe.id}`);
-        skippedRecipeIds.push(recipe.id);
-        continue;
-      }
-
-      await this.recipeEmbeddingRepository.upsert({
-        recipeId: recipe.id,
-        embedding,
-        documentText,
-        embeddingModel: this.openaiService.getEmbeddingModel(),
-        sourceUpdatedAt: recipe.updatedAt,
-      });
-      syncedRecipeIds.push(recipe.id);
+    if (!recipe) {
+      return;
     }
 
-    return { syncedRecipeIds, skippedRecipeIds };
-  }
-
-  async createQueryEmbedding(queryText: string): Promise<number[]> {
-    const [embedding] = await this.createQueryEmbeddings([queryText]);
-    return embedding ?? [];
-  }
-
-  async createQueryEmbeddings(queryTexts: string[]): Promise<number[][]> {
-    const normalized = queryTexts
-      .map((queryText) => queryText.trim())
-      .filter((queryText) => queryText.length > 0);
-    if (normalized.length === 0) {
-      return [];
+    const documentText = this.buildRecipeDocument(recipe);
+    const embedding = await this.openaiService.createEmbedding(documentText);
+    if (embedding.length === 0) {
+      throw new Error(`Recipe embedding empty. recipeId=${recipeId}`);
     }
-    return this.openaiService.createEmbeddings(normalized);
+
+    await this.recipeEmbeddingRepository.upsert({
+      recipeId: recipe.id,
+      embedding,
+      documentText,
+      embeddingModel: this.openaiService.getEmbeddingModel(),
+      sourceUpdatedAt: recipe.updatedAt,
+    });
+
+    this.logger.debug(`recipeId=${recipe.id} embedding synced`);
   }
 
   private buildRecipeDocument(recipe: {
@@ -143,17 +98,16 @@ export class RecipeEmbeddingService {
                   : JSON.stringify(row.amount)
               }`
             : '';
-        const unitText = row.unit ? row.unit : '';
+        const unitText = row.unit ?? '';
         const optionalText = row.isOptional ? ' optional' : '';
         return `${row.ingredient.name}${amountText}${unitText}${optionalText} (${row.ingredient.categoryMeta.name})`;
       })
       .join(', ');
 
-    const description = recipe.description ?? '';
     const lines = [
       `recipe_id: ${recipe.id}`,
       `title: ${recipe.title}`,
-      `description: ${description}`,
+      `description: ${recipe.description ?? ''}`,
       `category: ${recipe.categoryMeta.name} (${recipe.categoryMeta.key})`,
       `cook_time_minutes: ${recipe.cookTime}`,
       `difficulty: ${recipe.difficulty}`,

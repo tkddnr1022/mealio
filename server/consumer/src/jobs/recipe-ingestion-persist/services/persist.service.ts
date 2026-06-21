@@ -1,13 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
-import { RecipeCreationTransaction } from 'src/persistence/transactions/recipe-creation.transaction';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
 import {
   RetrievedDataValidationError,
   validateRetrievedData,
-} from 'src/consumers/recipe-ingestion-persist/validators/retrieved-data.validator';
+} from '../validators/retrieved-data.validator';
 import { assertRunScopeAndJobIdMutuallyExclusive } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.scope';
 import { resolveRecipeIngestionTargetJobs } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
+import { RecipeCreationService } from '../domains/recipe-creation.domain';
+import { RecipeEmbeddingSyncService } from '../integrations/recipe-embedding-sync.integration';
 
 export class PersistRunIdError extends Error {
   constructor(message: string) {
@@ -35,13 +36,17 @@ export interface PersistResult {
   failedCount: number;
 }
 
+/**
+ * persist 단계 오케스트레이션 — job 상태 전이·검증·도메인 persist·임베딩 동기화·메트릭
+ */
 @Injectable()
 export class PersistService {
   private readonly logger = new Logger(PersistService.name);
 
   constructor(
     private readonly jobRepository: RecipeIngestionJobRepository,
-    private readonly recipeCreationTransaction: RecipeCreationTransaction,
+    private readonly recipeCreationService: RecipeCreationService,
+    private readonly recipeEmbeddingSyncService: RecipeEmbeddingSyncService,
     private readonly metrics: ConsumerMetricsService,
   ) {}
 
@@ -131,13 +136,15 @@ export class PersistService {
       const data = validateRetrievedData(persisting.retrievedData);
       this.metrics.recordParseConfidence(data.parseConfidence);
 
-      const result = await this.recipeCreationTransaction.execute(
+      const result = await this.recipeCreationService.execute(
         persisting,
         data,
       );
       for (const method of result.matchMethods) {
         this.metrics.recordIngredientMatchMethod(method);
       }
+
+      await this.recipeEmbeddingSyncService.syncByRecipeId(result.recipeId);
 
       const now = new Date();
       const persisted = await this.jobRepository.transitionStatus(
@@ -173,5 +180,4 @@ export class PersistService {
       throw error;
     }
   }
-
 }

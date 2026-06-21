@@ -40,7 +40,7 @@
 | server/shared/src/database/mongoose/schemas/recipe-ingestion-job.schema.ts | Recipe ingestion job 파이프라인 SSOT 스키마 |
 | server/shared/src/database/mongoose/schemas/recipe-ingestion-state.schema.ts | Recipe ingestion API 페이징 커서 singleton 스키마 |
 | server/shared/src/constants/recipe-ingestion.ts | Recipe ingestion status enum·state key·source·seed 기본 category id (계약) |
-| server/shared/src/policy/recipe-ingestion.policy.ts | 재시도·batch·TTL·persist 기본값·OpenAI batch 파라미터 (튜닝) |
+| server/shared/src/policy/recipe-ingestion.policy.ts | 재시도·batch·TTL·persist 기본값·retrieved_data clamp 범위·OpenAI batch 파라미터 (튜닝) |
 | server/shared/src/redis/redis.service.ts | RedisService (NestJS). get/set/setex/del/exists/expire/ttl, 구독 채널 관리 |
 | server/shared/src/redis/redis.module.ts | RedisModule |
 | server/shared/src/types/events/index.ts | 이벤트 타입 배럴 export |

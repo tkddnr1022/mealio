@@ -33,7 +33,7 @@ describe('SearchRecipesHandler', () => {
 
   const createHandler = (
     overrides: {
-      recipeEmbeddingService?: Record<string, jest.Mock>;
+      openaiService?: Record<string, jest.Mock>;
       recipeEmbeddingRepository?: Record<string, jest.Mock>;
       recipeSearchQueryService?: Record<string, jest.Mock>;
       recipeSearchQueryExpansionService?: Record<string, jest.Mock>;
@@ -44,13 +44,12 @@ describe('SearchRecipesHandler', () => {
         findMany: jest.fn().mockResolvedValue([]),
       },
     };
-    const recipeEmbeddingService = {
-      ensureEmbeddingsForRecipeIds: jest.fn().mockResolvedValue(undefined),
-      createQueryEmbeddings: jest.fn().mockResolvedValue([
+    const openaiService = {
+      createEmbeddings: jest.fn().mockResolvedValue([
         [0.1, 0.2],
         [0.2, 0.3],
       ]),
-      ...overrides.recipeEmbeddingService,
+      ...overrides.openaiService,
     };
     const recipeEmbeddingRepository = {
       searchTopK: jest
@@ -71,7 +70,7 @@ describe('SearchRecipesHandler', () => {
 
     const handler = new SearchRecipesHandler(
       prismaService as never,
-      recipeEmbeddingService as never,
+      openaiService as never,
       recipeEmbeddingRepository as never,
       recipeSearchQueryService as never,
       recipeSearchQueryExpansionService as never,
@@ -80,7 +79,7 @@ describe('SearchRecipesHandler', () => {
     return {
       handler,
       prismaService,
-      recipeEmbeddingService,
+      openaiService,
       recipeEmbeddingRepository,
       recipeSearchQueryService,
       recipeSearchQueryExpansionService,
@@ -93,7 +92,7 @@ describe('SearchRecipesHandler', () => {
       recipeEmbeddingRepository,
       recipeSearchQueryService,
       recipeSearchQueryExpansionService,
-      recipeEmbeddingService,
+      openaiService,
     } = createHandler();
 
     const result = await handler.execute(
@@ -112,7 +111,7 @@ describe('SearchRecipesHandler', () => {
     );
 
     expect(recipeSearchQueryExpansionService.expandQueries).toHaveBeenCalled();
-    expect(recipeEmbeddingService.createQueryEmbeddings).toHaveBeenCalled();
+    expect(openaiService.createEmbeddings).toHaveBeenCalled();
     expect(recipeEmbeddingRepository.searchTopK).toHaveBeenCalledWith(
       expect.objectContaining({
         excludeIngredientIds: [99],
@@ -135,10 +134,10 @@ describe('SearchRecipesHandler', () => {
   });
 
   it('query expansion이 원질의만 반환해도 semantic 검색을 계속한다', async () => {
-    const { handler, recipeEmbeddingService, recipeEmbeddingRepository } =
+    const { handler, openaiService, recipeEmbeddingRepository } =
       createHandler({
-        recipeEmbeddingService: {
-          createQueryEmbeddings: jest.fn().mockResolvedValue([[0.1, 0.2]]),
+        openaiService: {
+          createEmbeddings: jest.fn().mockResolvedValue([[0.1, 0.2]]),
         },
         recipeSearchQueryExpansionService: {
           expandQueries: jest
@@ -151,7 +150,7 @@ describe('SearchRecipesHandler', () => {
 
     await handler.execute({ keywords: ['고단백'] }, { userId: 10 });
 
-    expect(recipeEmbeddingService.createQueryEmbeddings).toHaveBeenCalledWith([
+    expect(openaiService.createEmbeddings).toHaveBeenCalledWith([
       'keywords: 고단백\nmust_have: \navoid: \ncook_time: \nservings: ',
     ]);
     expect(recipeEmbeddingRepository.searchTopK).toHaveBeenCalledTimes(1);

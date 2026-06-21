@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import {
-  PrismaService,
   RECIPE_INGESTION_DEFAULT_INGREDIENT_CATEGORY_ID,
   RECIPE_INGESTION_DEFAULT_RECIPE_CATEGORY_ID,
 } from '@mealio/shared';
@@ -8,12 +7,10 @@ import { Prisma } from '@mealio/shared/prisma-client';
 import type { ProposedCategoryPayload } from '../validators/retrieved-data.validator';
 
 /**
- * LLM 제안 카테고리·기존 categoryId 해석
+ * LLM 제안 카테고리·기존 categoryId 해석 (Prisma 트랜잭션 컨텍스트)
  */
 @Injectable()
 export class CategoryResolverService {
-  constructor(private readonly prisma: PrismaService) {}
-
   async resolveRecipeCategoryId(
     tx: Prisma.TransactionClient,
     categoryId: number | null | undefined,

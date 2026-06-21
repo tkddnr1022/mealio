@@ -29,6 +29,14 @@ export const RECIPE_INGESTION_CATEGORY_CACHE_TTL_SECONDS = 3600;
 export const RECIPE_INGESTION_DEFAULT_DIFFICULTY = 2;
 export const RECIPE_INGESTION_DEFAULT_COOK_TIME_MINUTES = 30;
 
+/** retrieved_data difficulty 허용 범위 (Mealio 1-3, clamp) */
+export const RECIPE_INGESTION_DIFFICULTY_MIN = 1;
+export const RECIPE_INGESTION_DIFFICULTY_MAX = 3;
+
+/** retrieved_data cookTime 허용 범위 (분, clamp) */
+export const RECIPE_INGESTION_COOK_TIME_MIN = 5;
+export const RECIPE_INGESTION_COOK_TIME_MAX = 180;
+
 /** OpenAI Batch submit 파라미터 */
 export const RECIPE_INGESTION_OPENAI_BATCH_MAX_TOKENS = 8_192;
 export const RECIPE_INGESTION_OPENAI_BATCH_REASONING_EFFORT = 'low' as const;
