@@ -3,9 +3,13 @@
  * @see recipe-ingestion.system-prompt.ts
  */
 import {
+  isRecipeIngestionParseConfidence,
   isRecipeNutritionPayload,
+  meetsRecipeIngestionMinParseConfidence,
   RECIPE_INGESTION_DEFAULT_COOK_TIME_MINUTES,
   RECIPE_INGESTION_DEFAULT_DIFFICULTY,
+  RECIPE_INGESTION_MIN_PARSE_CONFIDENCE,
+  type RecipeIngestionParseConfidence,
   type RecipeNutritionPayload,
 } from '@mealio/shared';
 
@@ -94,7 +98,7 @@ export interface RetrievedIngredientPayload {
 export interface RetrievedDataPayload {
   recipe: ValidatedRetrievedRecipePayload;
   ingredients: RetrievedIngredientPayload[];
-  parseConfidence: 'high' | 'low';
+  parseConfidence: RecipeIngestionParseConfidence;
   parseIssues?: string[];
 }
 
@@ -234,9 +238,20 @@ export function validateRetrievedData(
     throw new RetrievedDataValidationError('Invalid ingredients payload');
   }
 
-  if (raw.parseConfidence !== 'high' && raw.parseConfidence !== 'low') {
+  if (!isRecipeIngestionParseConfidence(raw.parseConfidence)) {
     throw new RetrievedDataValidationError(
-      'parseConfidence must be high or low',
+      'parseConfidence must be high, medium, or low',
+    );
+  }
+
+  if (
+    !meetsRecipeIngestionMinParseConfidence(
+      raw.parseConfidence,
+      RECIPE_INGESTION_MIN_PARSE_CONFIDENCE,
+    )
+  ) {
+    throw new RetrievedDataValidationError(
+      `parseConfidence must be at least ${RECIPE_INGESTION_MIN_PARSE_CONFIDENCE}`,
     );
   }
 

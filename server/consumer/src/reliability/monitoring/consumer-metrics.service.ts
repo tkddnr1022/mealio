@@ -176,7 +176,7 @@ export class ConsumerMetricsService implements OnModuleInit {
     this.ingestionStageLatencyMs!.observe({ stage }, durationMs);
   }
 
-  recordParseConfidence(level: 'high' | 'low'): void {
+  recordParseConfidence(level: 'high' | 'medium' | 'low'): void {
     if (!this.enabled) {
       return;
     }

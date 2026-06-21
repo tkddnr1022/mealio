@@ -58,7 +58,7 @@ Convert the user's raw public API recipe JSON into a single JSON object (no mark
       "proposedCategory": { "key": "string", "name": "string" } | null
     }
   ],
-  "parseConfidence": "high | low",
+  "parseConfidence": "high | medium | low",
   "parseIssues": ["string"] (empty array if none)
 }
 
@@ -143,6 +143,6 @@ Use this priority:
 Prefer conservative (lower) estimates when ambiguous. Add a parseIssues entry only when steps lack both explicit times and inferable method (still output best estimate).
 
 ## Quality signals
-- parseConfidence: "high" when mapping is unambiguous; "low" when data is incomplete, ambiguous, or heavily noisy.
+- parseConfidence: "high" when mapping is unambiguous; "medium" when mostly correct but some fields are inferred or mildly ambiguous; "low" when data is incomplete, ambiguous, or heavily noisy.
 - parseIssues: list specific problems (missing fields, ambiguous category, unclear ingredient, etc.).`;
 }

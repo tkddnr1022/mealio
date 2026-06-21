@@ -135,6 +135,10 @@ export {
   RECIPE_INGESTION_RECIPE_SOURCE,
   RECIPE_INGESTION_DEFAULT_RECIPE_CATEGORY_ID,
   RECIPE_INGESTION_DEFAULT_INGREDIENT_CATEGORY_ID,
+  RECIPE_INGESTION_PARSE_CONFIDENCE_VALUES,
+  type RecipeIngestionParseConfidence,
+  isRecipeIngestionParseConfidence,
+  meetsRecipeIngestionMinParseConfidence,
 } from './constants/recipe-ingestion';
 export { MAX_RECOMMENDATION_ROWS } from './policy/recommendation.policy';
 export { SLOW_QUERY_THRESHOLD_MS } from './policy/observability.policy';
@@ -152,6 +156,8 @@ export {
   RECIPE_INGESTION_OPENAI_BATCH_MAX_TOKENS,
   RECIPE_INGESTION_OPENAI_BATCH_REASONING_EFFORT,
   RECIPE_INGESTION_OPENAI_BATCH_VERBOSITY,
+  RECIPE_INGESTION_MIN_PARSE_CONFIDENCE,
+  RECIPE_INGESTION_MIN_PUBLISH_PARSE_CONFIDENCE,
 } from './policy/recipe-ingestion.policy';
 
 // Redis

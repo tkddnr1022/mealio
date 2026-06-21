@@ -151,8 +151,16 @@ describe('validateRetrievedData', () => {
 
   it('should reject invalid parseConfidence', () => {
     expect(() =>
-      validateRetrievedData({ ...validPayload, parseConfidence: 'medium' }),
+      validateRetrievedData({ ...validPayload, parseConfidence: 'invalid' }),
     ).toThrow(RetrievedDataValidationError);
+  });
+
+  it('should accept medium parseConfidence', () => {
+    const result = validateRetrievedData({
+      ...validPayload,
+      parseConfidence: 'medium',
+    });
+    expect(result.parseConfidence).toBe('medium');
   });
 
   it('should reject empty ingredients', () => {

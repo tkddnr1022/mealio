@@ -1,7 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
   compactRecipeNutritionForJson,
+  meetsRecipeIngestionMinParseConfidence,
   PrismaService,
+  RECIPE_INGESTION_MIN_PUBLISH_PARSE_CONFIDENCE,
   RECIPE_INGESTION_RECIPE_SOURCE,
   type RecipeNutritionPayload,
 } from '@mealio/shared';
@@ -96,7 +98,10 @@ export class RecipeCreationTransaction {
     data: RetrievedDataPayload,
   ): Promise<RecipeCreationResult> {
     const sourceRecipeId = String(job.sourceId);
-    const isPublished = data.parseConfidence !== 'low';
+    const isPublished = meetsRecipeIngestionMinParseConfidence(
+      data.parseConfidence,
+      RECIPE_INGESTION_MIN_PUBLISH_PARSE_CONFIDENCE,
+    );
 
     return this.prisma.$transaction(async (tx) => {
       const categoryId = await this.categoryResolver.resolveRecipeCategoryId(

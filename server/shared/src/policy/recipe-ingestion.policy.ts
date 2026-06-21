@@ -3,6 +3,8 @@
  * @see agent/backend/guidelines/recipe_ingestion_guidelines.md §3
  */
 
+import type { RecipeIngestionParseConfidence } from '../constants/recipe-ingestion';
+
 /** 단계별 재시도 상한 (retry_count >= MAX 시 status: failed) · 공공 API fetch HTTP 재시도 상한 */
 export const MAX_RECIPE_INGESTION_RETRY_COUNT = 3;
 
@@ -31,3 +33,11 @@ export const RECIPE_INGESTION_DEFAULT_COOK_TIME_MINUTES = 30;
 export const RECIPE_INGESTION_OPENAI_BATCH_MAX_TOKENS = 8_192;
 export const RECIPE_INGESTION_OPENAI_BATCH_REASONING_EFFORT = 'low' as const;
 export const RECIPE_INGESTION_OPENAI_BATCH_VERBOSITY = 'low' as const;
+
+/** persist 허용 최소 parseConfidence (미만이면 검증 거부) */
+export const RECIPE_INGESTION_MIN_PARSE_CONFIDENCE: RecipeIngestionParseConfidence =
+  'low';
+
+/** Recipe.isPublished=true에 필요한 최소 parseConfidence */
+export const RECIPE_INGESTION_MIN_PUBLISH_PARSE_CONFIDENCE: RecipeIngestionParseConfidence =
+  'high';
