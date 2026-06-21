@@ -43,6 +43,8 @@ const retrievedData: RetrievedDataPayload = {
 
 describe('RecipeCreationTransaction', () => {
   let transaction: RecipeCreationTransaction;
+  let ingredientMatcher: { match: jest.Mock };
+  let recipeIngredientRepository: { replaceForRecipe: jest.Mock };
   let prisma: {
     $transaction: jest.Mock;
     recipe: {
@@ -54,6 +56,16 @@ describe('RecipeCreationTransaction', () => {
   };
 
   beforeEach(async () => {
+    ingredientMatcher = {
+      match: jest.fn().mockResolvedValue({
+        ingredientId: 10,
+        matchMethod: 'exact',
+      }),
+    };
+    recipeIngredientRepository = {
+      replaceForRecipe: jest.fn().mockResolvedValue(undefined),
+    };
+
     prisma = {
       $transaction: jest.fn(async (fn) => fn(prisma)),
       recipe: {
@@ -78,18 +90,11 @@ describe('RecipeCreationTransaction', () => {
         },
         {
           provide: IngredientMatcherService,
-          useValue: {
-            match: jest.fn().mockResolvedValue({
-              ingredientId: 10,
-              matchMethod: 'exact',
-            }),
-          },
+          useValue: ingredientMatcher,
         },
         {
           provide: RecipeIngredientRepository,
-          useValue: {
-            replaceForRecipe: jest.fn().mockResolvedValue(undefined),
-          },
+          useValue: recipeIngredientRepository,
         },
       ],
     }).compile();
@@ -124,5 +129,47 @@ describe('RecipeCreationTransaction', () => {
         ],
       }),
     });
+  });
+
+  it('should deduplicate ingredient rows when multiple inputs resolve to same ingredientId', async () => {
+    ingredientMatcher.match
+      .mockResolvedValueOnce({
+        ingredientId: 10,
+        matchMethod: 'alias',
+      })
+      .mockResolvedValueOnce({
+        ingredientId: 10,
+        matchMethod: 'exact',
+      });
+
+    const dataWithDuplicateIngredients: RetrievedDataPayload = {
+      ...retrievedData,
+      ingredients: [
+        {
+          rawName: '키위',
+          normalizedName: '키위',
+          ingredientAlias: '골드키위',
+          quantity: null,
+          unit: null,
+          categoryId: 3,
+        },
+        {
+          rawName: '키위 1개',
+          normalizedName: '키위',
+          ingredientAlias: '키위',
+          quantity: '1',
+          unit: '개',
+          categoryId: 3,
+        },
+      ],
+    };
+
+    await transaction.execute({ sourceId: 456 } as never, dataWithDuplicateIngredients);
+
+    expect(recipeIngredientRepository.replaceForRecipe).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.any(Number),
+      [{ ingredientId: 10, amount: '1', unit: '개', isOptional: false }],
+    );
   });
 });

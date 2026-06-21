@@ -141,16 +141,37 @@ export class RecipeCreationTransaction {
         : await tx.recipe.create({ data: recipeData });
 
       const matchMethods: IngredientMatchMethod[] = [];
-      const ingredientRows: RecipeIngredientRowInput[] = [];
+      const ingredientRowsByIngredientId = new Map<number, RecipeIngredientRowInput>();
+      let duplicatedIngredientCount = 0;
 
       for (const ingredient of data.ingredients) {
         const match = await this.ingredientMatcher.match(tx, ingredient);
         matchMethods.push(match.matchMethod);
-        ingredientRows.push({
+        const nextRow: RecipeIngredientRowInput = {
           ingredientId: match.ingredientId,
           amount: parseQuantityToDecimal(ingredient.quantity),
           unit: ingredient.unit?.trim().slice(0, 20) ?? null,
+        };
+        const existing = ingredientRowsByIngredientId.get(match.ingredientId);
+        if (!existing) {
+          ingredientRowsByIngredientId.set(match.ingredientId, nextRow);
+          continue;
+        }
+
+        duplicatedIngredientCount++;
+        ingredientRowsByIngredientId.set(match.ingredientId, {
+          ingredientId: match.ingredientId,
+          amount: existing.amount ?? nextRow.amount,
+          unit: existing.unit ?? nextRow.unit,
+          isOptional: (existing.isOptional ?? false) || (nextRow.isOptional ?? false),
         });
+      }
+
+      const ingredientRows = Array.from(ingredientRowsByIngredientId.values());
+      if (duplicatedIngredientCount > 0) {
+        this.logger.warn(
+          `sourceRecipeId=${sourceRecipeId} deduplicated ${duplicatedIngredientCount} ingredient rows before persist`,
+        );
       }
 
       await this.recipeIngredientRepository.replaceForRecipe(
