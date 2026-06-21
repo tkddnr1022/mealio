@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { findUnknownCliArgs } from '../cli-args.util';
 import {
   PersistBatchSizeError,
   PersistService,
@@ -17,6 +18,17 @@ import { RecipeIngestionPersistJobModule } from './recipe-ingestion-persist.modu
 async function main(): Promise<void> {
   const logger = new Logger('RecipeIngestionPersistCLI');
   const args = process.argv.slice(2);
+  const unknownArgs = findUnknownCliArgs(args, {
+    flags: [
+      { name: '--persist-batch-size', takesValue: true },
+      { name: '--job-id', takesValue: true },
+    ],
+  });
+  if (unknownArgs.length > 0) {
+    logger.error(`Unknown CLI argument(s): ${unknownArgs.join(', ')}`);
+    return;
+  }
+
   const persistBatchSize = parsePersistBatchSize(args);
   const jobId = parseJobId(args);
 

@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DEFAULT_RECIPE_SUBMIT_BATCH_SIZE } from '@mealio/shared';
+import { findUnknownCliArgs } from '../cli-args.util';
 import { RecipeIngestionSubmitModule } from './recipe-ingestion-submit.module';
 import { SubmitBatchSizeError, SubmitService } from './services/submit.service';
 
@@ -18,6 +19,18 @@ import { SubmitBatchSizeError, SubmitService } from './services/submit.service';
 async function main(): Promise<void> {
   const logger = new Logger('RecipeIngestionSubmitCLI');
   const args = process.argv.slice(2);
+  const unknownArgs = findUnknownCliArgs(args, {
+    flags: [
+      { name: '--submit-batch-size', takesValue: true },
+      { name: '--retry-failed' },
+      { name: '--retry-failed-limit', takesValue: true },
+    ],
+  });
+  if (unknownArgs.length > 0) {
+    logger.error(`Unknown CLI argument(s): ${unknownArgs.join(', ')}`);
+    return;
+  }
+
   const submitBatchSize = parseSubmitBatchSize(args);
   const retryFailed = args.includes('--retry-failed');
   const retryFailedLimit = parseRetryFailedLimit(args);

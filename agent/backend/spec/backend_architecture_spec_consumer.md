@@ -137,6 +137,8 @@
 | **server/consumer/src/reliability/dead-letter/** | |
 | server/consumer/src/reliability/dead-letter/dlq.handler.ts | DLQ 처리 |
 | server/consumer/src/reliability/dead-letter/manual-replay.service.ts | ⚠️ 미구현 · 수동 재처리 |
+| **server/consumer/src/jobs/** | 배치 잡 공통 |
+| server/consumer/src/jobs/cli-args.util.ts | CLI 인자 검증 (`findUnknownCliArgs`) — 알려진 플래그·위치 인자 소비 후 미인식 토큰 반환. 각 잡 `run-*.ts`에서 `logger.error` 후 early return |
 | **server/consumer/src/jobs/kpi-rollup/** | KPI 롤업 배치 잡 |
 | server/consumer/src/jobs/kpi-rollup/kpi-rollup.module.ts | KPI 롤업 모듈 |
 | server/consumer/src/jobs/kpi-rollup/kpi-rollup.service.ts | KPI 집계 서비스 (MongoDB EventLog → 롤업 문서) |

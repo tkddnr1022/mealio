@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { findUnknownCliArgs } from '../cli-args.util';
 import { RecipeIngestionRetrieveModule } from './recipe-ingestion-retrieve.module';
 import { RetrieveService } from './services/retrieve.service';
 
@@ -15,6 +16,11 @@ import { RetrieveService } from './services/retrieve.service';
  */
 async function main(): Promise<void> {
   const logger = new Logger('RecipeIngestionRetrieveCLI');
+  const unknownArgs = findUnknownCliArgs(process.argv.slice(2));
+  if (unknownArgs.length > 0) {
+    logger.error(`Unknown CLI argument(s): ${unknownArgs.join(', ')}`);
+    return;
+  }
 
   const app = await NestFactory.createApplicationContext(
     RecipeIngestionRetrieveModule,

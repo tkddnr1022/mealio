@@ -4,6 +4,7 @@ import {
   DEFAULT_RECIPE_FETCH_LIMIT,
   MAX_RECIPE_FETCH_LIMIT,
 } from '@mealio/shared';
+import { findUnknownCliArgs } from '../cli-args.util';
 import { PublicDataFetchLimitError } from '../../integrations/public-data/public-data-api.client';
 import { RecipeIngestionFetchModule } from './recipe-ingestion-fetch.module';
 import { FetchService } from './services/fetch.service';
@@ -21,7 +22,16 @@ import { FetchService } from './services/fetch.service';
  */
 async function main(): Promise<void> {
   const logger = new Logger('RecipeIngestionFetchCLI');
-  const fetchLimit = parseFetchLimit(process.argv.slice(2));
+  const args = process.argv.slice(2);
+  const unknownArgs = findUnknownCliArgs(args, {
+    flags: [{ name: '--fetch-limit', takesValue: true }],
+  });
+  if (unknownArgs.length > 0) {
+    logger.error(`Unknown CLI argument(s): ${unknownArgs.join(', ')}`);
+    return;
+  }
+
+  const fetchLimit = parseFetchLimit(args);
 
   const app = await NestFactory.createApplicationContext(
     RecipeIngestionFetchModule,

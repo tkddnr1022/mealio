@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { findUnknownCliArgs } from '../cli-args.util';
 import { KpiRollupModule } from './kpi-rollup.module';
 import { KpiRollupService } from './kpi-rollup.service';
 
@@ -15,12 +16,22 @@ import { KpiRollupService } from './kpi-rollup.service';
  */
 async function main(): Promise<void> {
   const logger = new Logger('KpiRollupCLI');
+  const args = process.argv.slice(2);
+  const backfillMode = args.includes('--backfill');
+  const unknownArgs = findUnknownCliArgs(args, {
+    flags: [{ name: '--backfill', takesValue: true }],
+    maxPositionals: backfillMode ? 0 : 1,
+  });
+  if (unknownArgs.length > 0) {
+    logger.error(`Unknown CLI argument(s): ${unknownArgs.join(', ')}`);
+    return;
+  }
+
   const app = await NestFactory.createApplicationContext(KpiRollupModule, {
     logger: ['log', 'error', 'warn'],
   });
 
   const service = app.get(KpiRollupService);
-  const args = process.argv.slice(2);
 
   const backfillIdx = args.indexOf('--backfill');
   if (backfillIdx !== -1) {
