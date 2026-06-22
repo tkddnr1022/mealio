@@ -36,28 +36,34 @@ pnpm --filter consumer run job:kpi-rollup
 | Job | CLI script | 역할 |
 | --- | --- | --- |
 | fetch | `job:recipe-ingestion-fetch` | 공공데이터 수집 |
-| submit | `job:recipe-ingestion-submit` | OpenAI Batch 제출 |
-| retrieve | `job:recipe-ingestion-retrieve` | Batch 결과 조회 |
+| parse-submit | `job:recipe-ingestion-parse-submit` | OpenAI Batch 파싱 요청 제출 |
+| parse-retrieve | `job:recipe-ingestion-parse-retrieve` | 파싱 Batch 결과 조회 |
 | persist | `job:recipe-ingestion-persist` | 수동 persist (운영) |
+| embed-submit | `job:recipe-ingestion-embed-submit` | 임베딩 Batch 요청 제출 |
+| embed-retrieve | `job:recipe-ingestion-embed-retrieve` | 임베딩 Batch 결과 적재 |
 
 모노레포 루트에서는 아래 단축 명령을 사용할 수 있습니다.
 
 ```bash
 pnpm run recipe-ingestion:fetch
-pnpm run recipe-ingestion:submit
-pnpm run recipe-ingestion:retrieve
+pnpm run recipe-ingestion:parse-submit
+pnpm run recipe-ingestion:parse-retrieve
+pnpm run recipe-ingestion:embed-submit
+pnpm run recipe-ingestion:embed-retrieve
 ```
 
 단계별 상세는 [레시피 수집 상세](./recipe-ingestion)를 참고하세요.
 
-## 프로덕션 스케줄 (초안)
+## 프로덕션 스케줄 (예시)
 
 | Task | 주기 | 배포 |
 | --- | --- | --- |
 | kpi-rollup | 일 1회 | ECS Scheduled Task |
 | recipe-ingestion-fetch | 운영 정책 | 별도 태스크 |
-| recipe-ingestion-submit | fetch 이후 | 별도 태스크 |
-| recipe-ingestion-retrieve | 1~5분 | 별도 태스크 |
+| recipe-ingestion-parse-submit | fetch 이후 | 별도 태스크 |
+| recipe-ingestion-parse-retrieve | 1~5분 | 별도 태스크 |
+| recipe-ingestion-embed-submit | persist 이후 | 별도 태스크 |
+| recipe-ingestion-embed-retrieve | 1~5분 | 별도 태스크 |
 
 fetch·submit cron 주기와 `fetchLimit`는 운영 runbook에서 조율합니다.
 

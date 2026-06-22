@@ -7,8 +7,9 @@ export const CONSUMER_GROUPS = {
   USER_EVENTS: 'user-events-group',
   ACTIVITY_EVENTS: 'activity-events-group',
   CACHE_INVALIDATION: 'cache-invalidation-group',
-  RECIPE_INGESTION_SUBMIT: 'recipe-ingestion-submit-group',
+  RECIPE_INGESTION_PARSE_SUBMIT: 'recipe-ingestion-parse-submit-group',
   RECIPE_INGESTION_PERSIST: 'recipe-ingestion-persist-group',
+  RECIPE_INGESTION_EMBED_SUBMIT: 'recipe-ingestion-embed-submit-group',
 } as const;
 
 export type ConsumerGroupId =

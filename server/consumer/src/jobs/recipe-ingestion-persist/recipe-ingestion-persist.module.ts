@@ -13,18 +13,16 @@ import { mongooseConnectionPoolConfig } from '../../policy/mongoose-pool.policy'
 import { prismaConnectionPoolConfig } from '../../policy/prisma-pool.policy';
 import { IngredientRepository } from '../../persistence/repositories/postgresql/ingredient.repository';
 import { RecipeIngredientRepository } from '../../persistence/repositories/postgresql/recipe-ingredient.repository';
-import { RecipeEmbeddingRepository } from '../../persistence/repositories/postgresql/recipe-embedding.repository';
 import { RecipeIngestionJobRepository } from '../../persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import {
   ConsumerMetricsService,
   OBSERVABILITY_CONFIG,
 } from '../../reliability/monitoring/consumer-metrics.service';
 import { CategoryResolverService } from './domains/category-resolver.domain';
-import { OpenAIModule } from '../../integrations/openai/openai.module';
 import { IngredientMatcherService } from './domains/ingredient-matcher.domain';
 import { PersistService } from './services/persist.service';
 import { RecipeCreationService } from './domains/recipe-creation.domain';
-import { RecipeEmbeddingSyncService } from './integrations/recipe-embedding-sync.integration';
+import { KafkaModule } from '../../integrations/kafka/kafka.module';
 
 @Module({
   imports: [
@@ -41,7 +39,7 @@ import { RecipeEmbeddingSyncService } from './integrations/recipe-embedding-sync
     }),
     MongooseSchemasModule.forRoot(mongooseConnectionPoolConfig),
     PrismaModule.forRoot(prismaConnectionPoolConfig),
-    OpenAIModule,
+    KafkaModule,
   ],
   providers: [
     {
@@ -53,10 +51,8 @@ import { RecipeEmbeddingSyncService } from './integrations/recipe-embedding-sync
     RecipeIngestionJobRepository,
     IngredientRepository,
     RecipeIngredientRepository,
-    RecipeEmbeddingRepository,
     CategoryResolverService,
     IngredientMatcherService,
-    RecipeEmbeddingSyncService,
     RecipeCreationService,
     PersistService,
   ],

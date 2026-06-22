@@ -222,9 +222,9 @@ export class RecipeIngestionJobRepository {
     limit: number,
   ): Promise<string[]> {
     const timestampField =
-      status === 'submitted'
+      status === 'parse_submitted'
         ? 'submittedAt'
-        : status === 'retrieved'
+        : status === 'parse_retrieved'
           ? 'retrievedAt'
           : 'fetchedAt';
 
@@ -309,7 +309,7 @@ export class RecipeIngestionJobRepository {
   }
 
   /**
-   * submit 실패 시 submitting job을 fetched(또는 retry 상한 시 failed)로 롤백
+   * parse-submit 실패 시 parse_submitting job을 fetched(또는 retry 상한 시 failed)로 롤백
    * @returns 롤백된 job 수
    */
   async rollbackSubmittingWithRetry(
@@ -324,7 +324,7 @@ export class RecipeIngestionJobRepository {
     }
 
     const jobs = await this.jobModel
-      .find({ _id: { $in: objectIds }, status: 'submitting' })
+      .find({ _id: { $in: objectIds }, status: 'parse_submitting' })
       .exec();
 
     let rolledBack = 0;
@@ -336,7 +336,7 @@ export class RecipeIngestionJobRepository {
 
       const result = await this.jobModel
         .updateOne(
-          { _id: job._id, status: 'submitting' },
+          { _id: job._id, status: 'parse_submitting' },
           {
             $set: {
               retryCount: nextRetryCount,
@@ -359,7 +359,7 @@ export class RecipeIngestionJobRepository {
   }
 
   /**
-   * retrieve: batch failed/expired 시 submitted job 재시도 또는 failed 전환
+   * parse-retrieve: batch failed/expired 시 parse_submitted job 재시도 또는 failed 전환
    * @returns 처리된 job 수
    */
   async rollbackSubmittedBatchWithRetry(
@@ -367,7 +367,7 @@ export class RecipeIngestionJobRepository {
     errorMessage: string,
   ): Promise<number> {
     const jobs = await this.jobModel
-      .find({ batchId, status: 'submitted' })
+      .find({ batchId, status: 'parse_submitted' })
       .exec();
 
     let rolledBack = 0;
@@ -379,7 +379,7 @@ export class RecipeIngestionJobRepository {
 
       const result = await this.jobModel
         .updateOne(
-          { _id: job._id, status: 'submitted' },
+          { _id: job._id, status: 'parse_submitted' },
           {
             $set: {
               retryCount: nextRetryCount,
@@ -408,7 +408,7 @@ export class RecipeIngestionJobRepository {
   }
 
   /**
-   * retrieve: batch output 처리 전체 실패 시 retrieving job 일괄 롤백
+   * parse-retrieve: batch output 처리 전체 실패 시 parse_retrieving job 일괄 롤백
    * @returns 처리된 job 수
    */
   async rollbackRetrievingBatchWithRetry(
@@ -416,7 +416,7 @@ export class RecipeIngestionJobRepository {
     errorMessage: string,
   ): Promise<number> {
     const jobs = await this.jobModel
-      .find({ batchId, status: 'retrieving' })
+      .find({ batchId, status: 'parse_retrieving' })
       .exec();
 
     let rolledBack = 0;
@@ -429,7 +429,7 @@ export class RecipeIngestionJobRepository {
       const result = await this.jobModel
         .updateOne(
           // TODO: updateMany 적용 방안 검토
-          { _id: job._id, status: 'retrieving' },
+          { _id: job._id, status: 'parse_retrieving' },
           {
             $set: {
               retryCount: nextRetryCount,
@@ -460,7 +460,7 @@ export class RecipeIngestionJobRepository {
   }
 
   /**
-   * retrieve: output 라인 실패 시 retrieving job 재시도 또는 failed 전환
+   * parse-retrieve: output 라인 실패 시 parse_retrieving job 재시도 또는 failed 전환
    * @returns 갱신 성공 여부
    */
   async rollbackRetrievingJobWithRetry(
@@ -472,7 +472,7 @@ export class RecipeIngestionJobRepository {
     }
 
     const job = await this.jobModel
-      .findOne({ _id: id, status: 'retrieving' })
+      .findOne({ _id: id, status: 'parse_retrieving' })
       .exec();
     if (!job) {
       return false;
@@ -484,7 +484,7 @@ export class RecipeIngestionJobRepository {
 
     const result = await this.jobModel
       .updateOne(
-        { _id: id, status: 'retrieving' },
+        { _id: id, status: 'parse_retrieving' },
         {
           $set: {
             retryCount: nextRetryCount,
@@ -510,7 +510,7 @@ export class RecipeIngestionJobRepository {
   }
 
   /**
-   * persist 실패 시 persisting job을 retrieved(또는 retry 상한 시 failed)로 롤백
+   * persist 실패 시 persisting job을 parse_retrieved(또는 retry 상한 시 failed)로 롤백
    * @returns 갱신 성공 여부
    */
   async rollbackPersistingJobWithRetry(
@@ -541,7 +541,7 @@ export class RecipeIngestionJobRepository {
             errorMessage,
             status: failed
               ? ('failed' as RecipeIngestionJobStatus)
-              : ('retrieved' as RecipeIngestionJobStatus),
+              : ('parse_retrieved' as RecipeIngestionJobStatus),
             ...(failed ? { failedAt: now } : {}),
           },
         },

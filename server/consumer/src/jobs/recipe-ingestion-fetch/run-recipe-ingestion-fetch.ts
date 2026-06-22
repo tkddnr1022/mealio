@@ -16,7 +16,7 @@ import { FetchService } from './services/fetch.service';
  *   pnpm --filter consumer run job:recipe-ingestion-fetch
  *   pnpm --filter consumer run job:recipe-ingestion-fetch --fetch-limit 100
  *
- * fetch → submit 순서·빈도는 구현 레이어가 아닌 운영 레이어(cron/ECS)에서 조율한다.
+ * fetch → parse-submit 순서·빈도는 구현 레이어가 아닌 운영 레이어(cron/ECS)에서 조율한다.
  *
  * @see agent/backend/guidelines/recipe_ingestion_guidelines.md §2.2, §5.1
  */

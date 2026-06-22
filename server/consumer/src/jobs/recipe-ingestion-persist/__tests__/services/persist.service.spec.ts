@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Types } from 'mongoose';
+import { KafkaProducerService } from 'src/integrations/kafka/kafka-producer.service';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { RecipeCreationService } from '../../domains/recipe-creation.domain';
-import { RecipeEmbeddingSyncService } from '../../integrations/recipe-embedding-sync.integration';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
 import { RetrievedDataValidationError } from '../../validators/retrieved-data.validator';
 import { PersistService } from '../../services/persist.service';
@@ -30,7 +30,7 @@ function mockJob(overrides: Record<string, unknown> = {}) {
   return {
     _id: new Types.ObjectId(JOB_ID),
     sourceId: 12345,
-    status: 'retrieved',
+    status: 'parse_retrieved',
     retrievedData: validRetrievedData,
     retryCount: 0,
     ...overrides,
@@ -51,9 +51,7 @@ describe('PersistService', () => {
   let recipeCreationService: jest.Mocked<
     Pick<RecipeCreationService, 'execute'>
   >;
-  let recipeEmbeddingSyncService: jest.Mocked<
-    Pick<RecipeEmbeddingSyncService, 'syncByRecipeId'>
-  >;
+  let kafkaProducerService: jest.Mocked<Pick<KafkaProducerService, 'emit'>>;
   let metrics: jest.Mocked<
     Pick<
       ConsumerMetricsService,
@@ -74,8 +72,8 @@ describe('PersistService', () => {
     recipeCreationService = {
       execute: jest.fn().mockResolvedValue({ recipeId: 1, matchMethods: [] }),
     };
-    recipeEmbeddingSyncService = {
-      syncByRecipeId: jest.fn().mockResolvedValue(undefined),
+    kafkaProducerService = {
+      emit: jest.fn().mockResolvedValue(undefined),
     };
     metrics = {
       recordIngestionStage: jest.fn(),
@@ -92,10 +90,7 @@ describe('PersistService', () => {
           provide: RecipeCreationService,
           useValue: recipeCreationService,
         },
-        {
-          provide: RecipeEmbeddingSyncService,
-          useValue: recipeEmbeddingSyncService,
-        },
+        { provide: KafkaProducerService, useValue: kafkaProducerService },
         { provide: ConsumerMetricsService, useValue: metrics },
       ],
     }).compile();
@@ -113,11 +108,15 @@ describe('PersistService', () => {
     jobRepository.findById.mockResolvedValue(job as never);
     jobRepository.transitionStatus
       .mockResolvedValueOnce({ ...job, status: 'persisting' } as never)
-      .mockResolvedValueOnce({ ...job, status: 'persisted' } as never);
+      .mockResolvedValueOnce({
+        ...job,
+        status: 'persisted',
+        runId: 'run-1',
+      } as never);
 
     await expect(service.persistByJobId(JOB_ID)).resolves.toBe('persisted');
     expect(recipeCreationService.execute).toHaveBeenCalled();
-    expect(recipeEmbeddingSyncService.syncByRecipeId).toHaveBeenCalledWith(1);
+    expect(kafkaProducerService.emit).toHaveBeenCalled();
   });
 
   it('should rollback and rethrow on persist failure', async () => {

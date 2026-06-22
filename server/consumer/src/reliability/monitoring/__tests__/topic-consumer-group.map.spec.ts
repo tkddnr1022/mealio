@@ -11,11 +11,18 @@ describe('getConsumerGroupForTopic', () => {
       CONSUMER_GROUPS.CHATBOT,
     );
     expect(
-      getConsumerGroupForTopic(KAFKA_TOPICS.RECIPE_INGESTION_RETRIEVED),
+      getConsumerGroupForTopic(KAFKA_TOPICS.RECIPE_INGESTION_PERSIST_TRIGGERED),
     ).toBe(CONSUMER_GROUPS.RECIPE_INGESTION_PERSIST);
     expect(
-      getConsumerGroupForTopic(KAFKA_TOPICS.RECIPE_INGESTION_FETCH_COMPLETED),
-    ).toBe(CONSUMER_GROUPS.RECIPE_INGESTION_SUBMIT);
+      getConsumerGroupForTopic(
+        KAFKA_TOPICS.RECIPE_INGESTION_PARSE_SUBMIT_TRIGGERED,
+      ),
+    ).toBe(CONSUMER_GROUPS.RECIPE_INGESTION_PARSE_SUBMIT);
+    expect(
+      getConsumerGroupForTopic(
+        KAFKA_TOPICS.RECIPE_INGESTION_EMBED_SUBMIT_TRIGGERED,
+      ),
+    ).toBe(CONSUMER_GROUPS.RECIPE_INGESTION_EMBED_SUBMIT);
   });
 
   it('should return unknown for unmapped topics', () => {

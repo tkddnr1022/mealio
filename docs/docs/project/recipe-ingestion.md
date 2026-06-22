@@ -3,7 +3,7 @@
 ## 이 문서로 해결할 질문
 
 - Mealio 레시피 데이터는 어디서 오고 어떻게 가공되나요?
-- fetch·submit·retrieve·persist 단계는 각각 무엇을 하나요?
+- fetch·parse-submit·parse-retrieve·persist·embed-submit·embed-retrieve 단계는 각각 무엇을 하나요?
 - 로컬에서 파이프라인 job을 어떻게 실행하나요?
 
 ## 목적
@@ -16,21 +16,27 @@
 flowchart LR
     API[공공 API] --> Fetch
     Fetch --> Mongo[(ingestion jobs)]
-    Mongo --> Submit
-    Submit --> OpenAI[OpenAI Batch]
-    OpenAI --> Retrieve
-    Retrieve --> Kafka[Kafka]
-    Kafka --> Persist
+    Mongo --> ParseSubmit
+    ParseSubmit --> ParseOpenAI[OpenAI Batch (parse)]
+    ParseOpenAI --> ParseRetrieve
+    ParseRetrieve --> KafkaPersist[Kafka persist-triggered]
+    KafkaPersist --> Persist
+    Persist --> KafkaEmbed[Kafka embed-submit-triggered]
+    KafkaEmbed --> EmbedSubmit
+    EmbedSubmit --> EmbedOpenAI[OpenAI Batch (embedding)]
+    EmbedOpenAI --> EmbedRetrieve
     Persist --> PG[(PostgreSQL Recipe)]
-    Persist --> RE[(RecipeEmbedding pgvector)]
+    EmbedRetrieve --> RE[(RecipeEmbedding pgvector)]
 ```
 
 | 단계 | 실행 | 결과 |
 | --- | --- | --- |
 | fetch | cron / CLI | `status: fetched` |
-| submit | cron / CLI | `batch_id`, `submitted` |
-| retrieve | cron / CLI | `retrieved` + Kafka 이벤트 |
-| persist | always-on consumer | `persisted` + Recipe row + RecipeEmbedding |
+| parse-submit | cron / CLI | `batch_id`, `parse_submitted` |
+| parse-retrieve | cron / CLI | `parse_retrieved` + Kafka 이벤트 |
+| persist | always-on consumer | `persisted` + Recipe row |
+| embed-submit | cron / CLI + Kafka | 임베딩 Batch 요청 생성 |
+| embed-retrieve | cron / CLI | RecipeEmbedding(pgvector) upsert + `embed_retrieved` |
 
 ## 저장소
 
@@ -42,7 +48,7 @@ flowchart LR
 
 ## 운영 특성
 
-- `fetch`, `submit`, `retrieve`는 **독립 job**이며 cron으로 조율합니다.
+- `fetch`, `parse-submit`, `parse-retrieve`, `embed-submit`, `embed-retrieve`는 **독립 job**이며 cron으로 조율합니다.
 - fetch·submit cron 주기와 `fetchLimit`는 운영 runbook에서 조율합니다.
 - `persist`는 always-on Consumer가 Kafka 이벤트를 소비해 PostgreSQL에 반영합니다.
 
@@ -52,8 +58,10 @@ flowchart LR
 
 ```bash
 pnpm run recipe-ingestion:fetch
-pnpm run recipe-ingestion:submit
-pnpm run recipe-ingestion:retrieve
+pnpm run recipe-ingestion:parse-submit
+pnpm run recipe-ingestion:parse-retrieve
+pnpm run recipe-ingestion:embed-submit
+pnpm run recipe-ingestion:embed-retrieve
 ```
 
 ## 관련 문서

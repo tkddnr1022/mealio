@@ -1,14 +1,19 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { KAFKA_TOPICS } from '@mealio/shared';
+import { KafkaProducerService } from 'src/integrations/kafka/kafka-producer.service';
+import {
+  createRecipeIngestionRunTriggerPayload,
+  recipeIngestionRunTriggerKey,
+} from 'src/jobs/recipe-ingestion/recipe-ingestion-range-trigger.payload';
+import { assertRunScopeAndJobIdMutuallyExclusive } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.scope';
+import { resolveRecipeIngestionTargetJobs } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
 import {
   RetrievedDataValidationError,
   validateRetrievedData,
 } from '../validators/retrieved-data.validator';
-import { assertRunScopeAndJobIdMutuallyExclusive } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.scope';
-import { resolveRecipeIngestionTargetJobs } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
 import { RecipeCreationService } from '../domains/recipe-creation.domain';
-import { RecipeEmbeddingSyncService } from '../integrations/recipe-embedding-sync.integration';
 
 export class PersistRunIdError extends Error {
   constructor(message: string) {
@@ -36,9 +41,6 @@ export interface PersistResult {
   failedCount: number;
 }
 
-/**
- * persist 단계 오케스트레이션 — job 상태 전이·검증·도메인 persist·임베딩 동기화·메트릭
- */
 @Injectable()
 export class PersistService {
   private readonly logger = new Logger(PersistService.name);
@@ -46,7 +48,7 @@ export class PersistService {
   constructor(
     private readonly jobRepository: RecipeIngestionJobRepository,
     private readonly recipeCreationService: RecipeCreationService,
-    private readonly recipeEmbeddingSyncService: RecipeEmbeddingSyncService,
+    private readonly kafkaProducerService: KafkaProducerService,
     private readonly metrics: ConsumerMetricsService,
   ) {}
 
@@ -63,7 +65,7 @@ export class PersistService {
 
     const candidates = await resolveRecipeIngestionTargetJobs(
       this.jobRepository,
-      'retrieved',
+      'parse_retrieved',
       options,
     );
     if (candidates.length === 0) {
@@ -77,17 +79,12 @@ export class PersistService {
     for (const job of candidates) {
       try {
         const outcome = await this.persistByJobId(String(job._id));
-        if (outcome === 'persisted') {
-          persistedCount++;
-        } else {
-          skippedCount++;
-        }
+        if (outcome === 'persisted') persistedCount++;
+        else skippedCount++;
       } catch (error) {
         failedCount++;
         this.logger.error(
-          `jobId=${String(job._id)} persist failed in batch: ${
-            (error as Error).message
-          }`,
+          `jobId=${String(job._id)} persist failed in batch: ${(error as Error).message}`,
         );
       }
     }
@@ -97,37 +94,26 @@ export class PersistService {
 
   async persistByJobId(jobId: string): Promise<'persisted' | 'skipped'> {
     const startedAt = Date.now();
-
     const job = await this.jobRepository.findById(jobId);
     if (!job) {
-      this.logger.warn(`jobId=${jobId} not found — skip`);
       this.metrics.recordIngestionStage('persist', 'skipped');
       return 'skipped';
     }
-
     if (job.status === 'persisted' || job.status === 'persisting') {
-      this.logger.debug(`jobId=${jobId} status=${job.status} — skip`);
       this.metrics.recordIngestionStage('persist', 'skipped');
       return 'skipped';
     }
-
-    if (job.status !== 'retrieved') {
-      this.logger.debug(
-        `jobId=${jobId} status=${job.status} — expected retrieved, skip`,
-      );
+    if (job.status !== 'parse_retrieved') {
       this.metrics.recordIngestionStage('persist', 'skipped');
       return 'skipped';
     }
 
     const persisting = await this.jobRepository.transitionStatus(
       jobId,
-      'retrieved',
+      'parse_retrieved',
       'persisting',
     );
     if (!persisting) {
-      this.logger.debug(
-        `jobId=${jobId} retrieved→persisting transition lost race — skip`,
-      );
       this.metrics.recordIngestionStage('persist', 'skipped');
       return 'skipped';
     }
@@ -135,27 +121,31 @@ export class PersistService {
     try {
       const data = validateRetrievedData(persisting.retrievedData);
       this.metrics.recordParseConfidence(data.parseConfidence);
-
       const result = await this.recipeCreationService.execute(persisting, data);
       for (const method of result.matchMethods) {
         this.metrics.recordIngredientMatchMethod(method);
       }
 
-      await this.recipeEmbeddingSyncService.syncByRecipeId(result.recipeId);
-
-      const now = new Date();
       const persisted = await this.jobRepository.transitionStatus(
         jobId,
         'persisting',
         'persisted',
-        { persistedAt: now },
+        { persistedAt: new Date() },
       );
-
       if (!persisted) {
         this.logger.warn(
           `jobId=${jobId} persist succeeded but persisting→persisted transition failed`,
         );
+      } else if (
+        typeof persisted.runId === 'string' &&
+        persisted.runId.length > 0
+      ) {
+        await this.emitEmbedSubmitTrigger({
+          runId: persisted.runId,
+          fetchedCount: 1,
+        });
       }
+
       this.metrics.recordIngestionStage('persist', 'success');
       this.metrics.observeIngestionStageLatency(
         'persist',
@@ -167,7 +157,6 @@ export class PersistService {
         error instanceof RetrievedDataValidationError || error instanceof Error
           ? error.message
           : 'Persist failed';
-
       await this.jobRepository.rollbackPersistingJobWithRetry(jobId, message);
       this.metrics.recordIngestionStage('persist', 'failed');
       this.metrics.observeIngestionStageLatency(
@@ -175,6 +164,29 @@ export class PersistService {
         Date.now() - startedAt,
       );
       throw error;
+    }
+  }
+
+  private async emitEmbedSubmitTrigger(params: {
+    runId: string;
+    fetchedCount: number;
+  }): Promise<void> {
+    const payload = createRecipeIngestionRunTriggerPayload(params);
+    const key = recipeIngestionRunTriggerKey(params.runId);
+    try {
+      await this.kafkaProducerService.emit(
+        KAFKA_TOPICS.RECIPE_INGESTION_EMBED_SUBMIT_TRIGGERED,
+        payload,
+        key,
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Persist completed trigger publish failed';
+      this.logger.warn(
+        `Persist completed trigger publish failed runId=${params.runId}: ${message}`,
+      );
     }
   }
 }

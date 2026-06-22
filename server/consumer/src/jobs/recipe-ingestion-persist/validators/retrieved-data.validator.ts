@@ -1,5 +1,5 @@
 /**
- * OpenAI Batch retrieved_data JSON 검증 (camelCase SSOT)
+ * OpenAI Batch parse_retrieved_data JSON 검증 (camelCase SSOT)
  * @see recipe-ingestion.system-prompt.ts
  */
 import {
@@ -216,7 +216,7 @@ export function validateRetrievedData(
   raw: Record<string, unknown> | null | undefined,
 ): RetrievedDataPayload {
   if (!raw || typeof raw !== 'object') {
-    throw new RetrievedDataValidationError('retrievedData is missing');
+    throw new RetrievedDataValidationError('parse_retrievedData is missing');
   }
 
   if (!isRetrievedRecipe(raw.recipe)) {

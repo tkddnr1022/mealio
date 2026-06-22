@@ -85,14 +85,14 @@ cp server/consumer/.env.example server/consumer/.env.local
 | 항목 | 내용 |
 | --- | --- |
 | 설명 | `search_recipes` 질의 임베딩 + recipe ingestion persist 시 RecipeEmbedding 업서트 |
-| 사용처 | `integrations/openai/openai.service.ts`, `recipe-ingestion-persist/integrations/recipe-embedding-sync.integration.ts`, `SearchRecipesHandler` |
+| 사용처 | `integrations/openai/openai.service.ts`, `recipe-ingestion-embed-submit/integrations/recipe-embedding-document.integration.ts`, `recipe-ingestion-embed-retrieve/services/embed-retrieve.service.ts`, `SearchRecipesHandler` |
 
 ### `OPENAI_BATCH_MODEL`
 
 | 항목 | 내용 |
 | --- | --- |
 | 설명 | recipe ingestion submit 배치 변환 |
-| 사용처 | `recipe-ingestion-submit` job |
+| 사용처 | `recipe-ingestion-parse-submit` job |
 
 OpenAI 변수는 [챗봇](./chatbot), [레시피 수집](./recipe-ingestion), [레시피 임베딩](./recipe-embedding) 문서에서 사용처를 확인할 수 있습니다.
 

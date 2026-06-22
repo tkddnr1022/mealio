@@ -62,11 +62,31 @@ export class OpenAIBatchService {
     return this.config.getOrThrow<string>('OPENAI_BATCH_MODEL');
   }
 
+  getEmbeddingModel(): string {
+    return this.config.getOrThrow<string>('OPENAI_EMBEDDING_MODEL');
+  }
+
   /**
    * JSONL 문자열을 Files API에 업로드하고 Batch Job을 생성한다.
    */
   async submitBatchJsonl(
     jsonlContent: string,
+  ): Promise<OpenAIBatchSubmitResult> {
+    return this.submitBatchJsonlWithEndpoint(
+      jsonlContent,
+      '/v1/chat/completions',
+    );
+  }
+
+  async submitEmbeddingBatchJsonl(
+    jsonlContent: string,
+  ): Promise<OpenAIBatchSubmitResult> {
+    return this.submitBatchJsonlWithEndpoint(jsonlContent, '/v1/embeddings');
+  }
+
+  async submitBatchJsonlWithEndpoint(
+    jsonlContent: string,
+    endpoint: '/v1/chat/completions' | '/v1/embeddings',
   ): Promise<OpenAIBatchSubmitResult> {
     try {
       const file = await this.client.files.create({
@@ -79,7 +99,7 @@ export class OpenAIBatchService {
 
       const batch = await this.client.batches.create({
         input_file_id: file.id,
-        endpoint: '/v1/chat/completions',
+        endpoint,
         completion_window: '24h',
       });
 

@@ -2,9 +2,9 @@
 
 ## 이 문서로 해결할 질문
 
-- fetch→submit→retrieve→persist 각 단계의 책임은 무엇인가요?
+- recipe-ingestion 각 단계 책임은 무엇인가요?
 - job 상태 전이와 멱등 키는 무엇인가요?
-- 운영·검증은 어떻게 하나요?
+- 운영/복구는 어떻게 검증하나요?
 
 전체 ETL 개요는 [레시피 수집(ETL)](../project/recipe-ingestion)을 참고하세요.
 
@@ -12,30 +12,17 @@
 
 ```mermaid
 flowchart LR
-    Fetch[fetch] --> Submit[submit] --> Retrieve[retrieve] --> Persist[persist]
+    Fetch[fetch] --> ParseSubmit[parse-submit] --> ParseRetrieve[parse-retrieve] --> Persist[persist] --> EmbedSubmit[embed-submit] --> EmbedRetrieve[embed-retrieve]
 ```
 
-| 단계 | 주체 | 저장소·출력 |
+| 단계 | 주체 | 저장소/출력 |
 | --- | --- | --- |
-| **fetch** | standalone job | MongoDB `recipe_ingestion_jobs` (`fetched`) + Kafka |
-| **submit** | standalone job | OpenAI Batch (`submitted`) |
-| **retrieve** | standalone job | `retrieved_data` + Kafka |
-| **persist** | Kafka consumer | PostgreSQL Recipe + RecipeEmbedding |
-
-진행 상태의 기준 저장소는 MongoDB `recipe_ingestion_jobs`이며, API 커서는 `recipe_ingestion_state`를 사용합니다.
-파이프라인 실행 단위는 `runId`이며, fetch 시작 시 1회 생성되어 submit/retrieve/persist 전 단계에서 동일하게 사용합니다.
-submit은 `runId`별로 OpenAI Batch를 생성하며, `runId`와 `batchId`는 1:1 관계를 유지합니다.
-
-## 데이터 원천
-
-데이터 원천은 식약처 Open API의 조리식품 레시피 DB입니다.
-
-```text
-GET /api/{keyId}/{serviceId}/json/{startIdx}/{endIdx}
-```
-
-- `source_id`는 API 응답의 `RCP_SEQ`이며, 멱등 upsert 키로 사용합니다.
-- 1회 fetch는 최대 1000건이며, `fetchLimit`은 1000 이하여야 합니다.
+| fetch | standalone job | MongoDB `recipe_ingestion_jobs` (`fetched`) + Kafka trigger |
+| parse-submit | standalone job + Kafka consumer | OpenAI Parse Batch (`parse_submitted`) |
+| parse-retrieve | standalone job | `retrieved_data` + `recipe-ingestion-persist-triggered` |
+| persist | Kafka consumer | PostgreSQL Recipe upsert (`persisted`) |
+| embed-submit | standalone job + Kafka consumer | OpenAI Embedding Batch (`embed_submitted`) |
+| embed-retrieve | standalone job | RecipeEmbedding(pgvector) upsert (`embed_retrieved`) |
 
 ## 상태 전이
 
@@ -43,106 +30,65 @@ GET /api/{keyId}/{serviceId}/json/{startIdx}/{endIdx}
 stateDiagram-v2
     direction LR
     [*] --> fetched
-    fetched --> submitting
-    submitting --> submitted
-    submitted --> retrieving
-    retrieving --> retrieved
-    retrieved --> persisting
+    fetched --> parse_submitting
+    parse_submitting --> parse_submitted
+    parse_submitted --> parse_retrieving
+    parse_retrieving --> parse_retrieved
+    parse_retrieved --> persisting
     persisting --> persisted
-    persisted --> [*]
-    submitting --> fetched: retry
-    submitted --> fetched: retry
-    retrieving --> fetched: retry
-    persisting --> fetched: retry
+    persisted --> embed_submitting
+    embed_submitting --> embed_submitted
+    embed_submitted --> embed_retrieving
+    embed_retrieving --> embed_retrieved
+    embed_retrieved --> [*]
+    parse_submitting --> fetched: retry
+    parse_submitted --> fetched: retry
+    parse_retrieving --> fetched: retry
+    persisting --> parse_retrieved: retry
+    embed_submitting --> persisted: retry
+    embed_submitted --> persisted: retry
+    embed_retrieving --> persisted: retry
     fetched --> failed: retry_count >= 3
-    submitting --> failed: retry_count >= 3
-    submitted --> failed: retry_count >= 3
-    retrieving --> failed: retry_count >= 3
+    parse_submitting --> failed: retry_count >= 3
+    parse_submitted --> failed: retry_count >= 3
+    parse_retrieving --> failed: retry_count >= 3
     persisting --> failed: retry_count >= 3
+    embed_submitting --> failed: retry_count >= 3
+    embed_submitted --> failed: retry_count >= 3
+    embed_retrieving --> failed: retry_count >= 3
 ```
 
-| 전이 | 트리거 |
-| --- | --- |
-| → fetched | fetch job API row upsert |
-| → submitted | OpenAI batch 생성 |
-| → retrieved | batch output 파싱 |
-| → persisted | PG upsert 성공 |
-| → failed | retry ceiling |
+## Kafka 트리거
 
-## submit Consumer
+| 토픽 | 발행 단계 | 소비 단계 |
+| --- | --- | --- |
+| `recipe-ingestion-parse-submit-triggered` | fetch | parse-submit consumer |
+| `recipe-ingestion-persist-triggered` | parse-retrieve | persist consumer |
+| `recipe-ingestion-embed-submit-triggered` | persist | embed-submit consumer |
 
-- `recipe-ingestion-fetch-completed` 토픽을 구독합니다.
-- payload는 `{ runId, fetchedCount, triggeredAt }` 형식입니다.
-- consumer는 payload를 트리거 신호로 사용하고, 실제 제출 대상은 MongoDB `status: fetched` 재조회 결과로 결정합니다.
-- `fetched` → `submitting` 조건부 전환으로 멱등성을 보장합니다.
-
-## persist Consumer
-
-- `recipe-ingestion-retrieved` 토픽을 구독합니다.
-- payload는 `{ runId, fetchedCount, triggeredAt }` 형식입니다.
-- consumer는 payload를 트리거 신호로 사용하고, 실제 persist 대상은 MongoDB `status: retrieved` + `runId` 재조회 결과로 결정합니다.
-- `retrieved` → `persisting` 조건부 전환으로 멱등성을 보장합니다.
-- PostgreSQL에는 `(source, sourceRecipeId)` unique upsert로 저장합니다.
-- Recipe upsert 직후 OpenAI Embedding을 생성해 `RecipeEmbedding`(pgvector)에 upsert합니다. 임베딩 동기화 실패 시 persist 전체가 실패하고 job은 `retrieved`로 롤백됩니다.
-
-→ [레시피 임베딩](./recipe-embedding)
+모든 payload는 `{ runId, fetchedCount, triggeredAt }` 형식을 사용합니다.
 
 ## CLI
 
 ```bash
 pnpm run recipe-ingestion:fetch
-pnpm run recipe-ingestion:submit --run-id <runId>
-pnpm run recipe-ingestion:retrieve
-pnpm run recipe-ingestion:retrieve --run-id <runId>
+pnpm run recipe-ingestion:parse-submit --run-id <runId>
+pnpm run recipe-ingestion:parse-retrieve --run-id <runId>
 pnpm run recipe-ingestion:persist --run-id <runId>
-pnpm run recipe-ingestion:persist --job-id <jobId>
+pnpm run recipe-ingestion:embed-submit --run-id <runId>
+pnpm run recipe-ingestion:embed-retrieve --run-id <runId>
 ```
-
-### fetch
-
-| 매개변수 | 기본값 | 설명 |
-| --- | --- | --- |
-| `--fetch-limit <n>` | 100 | 1회 fetch 건수. 양의 정수, 최대 1000 |
-
-### submit
-
-| 매개변수 | 기본값 | 설명 |
-| --- | --- | --- |
-| `--run-id <id>` | — | 지정 `runId`에 속한 `fetched` job을 제출 |
-| `--run-id-count <n>` | 1 | 처리할 `runId` 개수. 양의 정수, 최대 3 |
-| `--job-id <jobId>` | — | 지정 job만 수동 submit |
-| `--retry-failed` | — | `failed` job을 `fetched`로 되돌린 뒤 재제출 |
-| `--retry-failed-limit <n>` | 100 | `--retry-failed` 시 1회 처리 상한 |
-
-### retrieve
-
-| 매개변수 | 기본값 | 설명 |
-| --- | --- | --- |
-| `--run-id <id>` | — | 지정 `runId`에 속한 `submitted` batch만 완료 확인·결과 반영 |
-| `--run-id-count <n>` | 1 | 처리할 `runId` 개수. 양의 정수, 최대 3 |
-
-### persist
-
-| 매개변수 | 기본값 | 설명 |
-| --- | --- | --- |
-| `--run-id <id>` | — | 지정 `runId`에 속한 `retrieved` job을 persist |
-| `--run-id-count <n>` | 1 | 처리할 `runId` 개수. 양의 정수, 최대 3 |
-| `--job-id <jobId>` | — | 지정 job만 수동 persist |
 
 ## 운영 검증
 
-아래 시나리오로 fetch→submit→retrieve→persist happy path와 복구 경로를 확인합니다.
-
 | # | 시나리오 | 확인 포인트 |
 | --- | --- | --- |
-| 1 | fetch (소량 `--fetch-limit`) | MongoDB `recipe_ingestion_jobs`에 `fetched` 증가·`recipe-ingestion-fetch-completed` 발행 |
-| 2 | submit consumer (상시) | `submitted`·OpenAI `batch_id` 기록 |
-| 3 | retrieve | `retrieved`·`recipe-ingestion-retrieved` 토픽 발행 |
-| 4 | persist consumer (상시) | PostgreSQL Recipe upsert·`RecipeEmbedding` upsert·job `persisted` |
-| 5 | submit `--retry-failed --retry-failed-limit N` | `failed` job 재큐잉 후 재submit |
-| 6 | Kafka 재전달·`persist --job-id` | 멱등 persist·수동 복구 |
-
-메트릭(`recipe_ingestion_stage_total` 등) 확인 절차는 [Observability](../other/observability)를 참고하세요.
+| 1 | fetch | `fetched` 증가, `recipe-ingestion-parse-submit-triggered` 발행 |
+| 2 | parse-submit | `parse_submitted` 증가, parse batch_id 기록 |
+| 3 | parse-retrieve | `parse_retrieved` 증가, `recipe-ingestion-persist-triggered` 발행 |
+| 4 | persist | Recipe upsert, `persisted` 증가, `recipe-ingestion-embed-submit-triggered` 발행 |
+| 5 | embed-submit | `embed_submitted` 증가, embed batch_id 기록 |
+| 6 | embed-retrieve | RecipeEmbedding upsert, `embed_retrieved` 증가 |
 
 ## 관련 문서
 

@@ -87,12 +87,12 @@ describe('RecipeIngestionJobRepository', () => {
       const result = await repository.transitionStatus(
         jobId,
         'fetched',
-        'submitting',
+        'parse_submitting',
       );
 
       expect(model.findOneAndUpdate).toHaveBeenCalledWith(
         { _id: jobId, status: 'fetched' },
-        { $set: { status: 'submitting' } },
+        { $set: { status: 'parse_submitting' } },
         { new: true },
       );
       expect(result).toEqual(mockJob);
@@ -102,7 +102,7 @@ describe('RecipeIngestionJobRepository', () => {
       const result = await repository.transitionStatus(
         'invalid-id',
         'fetched',
-        'submitting',
+        'parse_submitting',
       );
       expect(result).toBeNull();
       expect(model.findOneAndUpdate).not.toHaveBeenCalled();
@@ -116,13 +116,13 @@ describe('RecipeIngestionJobRepository', () => {
 
       const count = await repository.transitionManyByBatchId(
         'batch_abc',
-        'submitted',
-        'retrieving',
+        'parse_submitted',
+        'parse_retrieving',
       );
 
       expect(model.updateMany).toHaveBeenCalledWith(
-        { batchId: 'batch_abc', status: 'submitted' },
-        { $set: { status: 'retrieving' } },
+        { batchId: 'batch_abc', status: 'parse_submitted' },
+        { $set: { status: 'parse_retrieving' } },
       );
       expect(count).toBe(3);
     });
@@ -134,10 +134,11 @@ describe('RecipeIngestionJobRepository', () => {
         .spyOn(model, 'distinct')
         .mockResolvedValue(['batch_1', 'batch_2'] as never);
 
-      const result = await repository.findDistinctBatchIdsByStatus('submitted');
+      const result =
+        await repository.findDistinctBatchIdsByStatus('parse_submitted');
 
       expect(model.distinct).toHaveBeenCalledWith('batchId', {
-        status: 'submitted',
+        status: 'parse_submitted',
         batchId: { $exists: true, $ne: null },
       });
       expect(result).toEqual(['batch_1', 'batch_2']);

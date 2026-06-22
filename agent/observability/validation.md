@@ -180,11 +180,13 @@ Development에서는 위 비율·트레이스 샘플링을 1.0(또는 health/met
 | # | 시나리오 | 기대 결과 |
 |---|----------|-----------|
 | 8A.1 | `job:recipe-ingestion-fetch --fetch-limit 50` 실행 | `recipe_ingestion_jobs`에 `fetched` 증가, stage metric `fetch/success` 증가 |
-| 8A.2 | `job:recipe-ingestion-submit --run-id <runId>` 실행 | `submitted` 증가, stage metric `submit/success` 증가 |
-| 8A.3 | `job:recipe-ingestion-retrieve` 실행 | `retrieved` 증가, `recipe-ingestion-retrieved` lag이 감소 방향 |
-| 8A.4 | `job:recipe-ingestion-submit --retry-failed --retry-failed-limit 20` 실행 | `failed -> fetched` 재큐잉 후 재제출 진행 |
+| 8A.2 | `job:recipe-ingestion-parse-submit --run-id <runId>` 실행 | `parse_submitted` 증가, stage metric `parse-submit/success` 증가 |
+| 8A.3 | `job:recipe-ingestion-parse-retrieve` 실행 | `parse_retrieved` 증가, `recipe-ingestion-persist-triggered` lag이 감소 방향 |
+| 8A.4 | `job:recipe-ingestion-parse-submit --retry-failed --retry-failed-limit 20` 실행 | `failed -> fetched` 재큐잉 후 재제출 진행 |
 | 8A.5 | `job:recipe-ingestion-persist --job-id <jobId>` 실행 | 지정 jobId direct persist 실행 및 상태 전이 확인 |
-| 8A.6 | persist 실패 유도 후 복구 | `recipe_ingestion_stage_total{stage=\"persist\",outcome=\"failed\"}` 증가 후 복구 실행 시 `success` 증가 |
+| 8A.6 | `job:recipe-ingestion-embed-submit --run-id <runId>` 실행 | `embed_submitted` 증가, `recipe-ingestion-embed-submit-triggered` lag 감소 방향 |
+| 8A.7 | `job:recipe-ingestion-embed-retrieve --run-id <runId>` 실행 | `embed_retrieved` 증가, RecipeEmbedding upsert 확인 |
+| 8A.8 | persist/embed 실패 유도 후 복구 | `recipe_ingestion_stage_total{stage=\"persist|embed-retrieve\",outcome=\"failed\"}` 증가 후 재시도 시 `success` 증가 |
 
 ---
 

@@ -1,6 +1,5 @@
 /**
- * recipe-ingestion-fetch-completed · recipe-ingestion-retrieved Kafka 트리거 공통 payload.
- * Consumer 패키지 내부 SSOT — @mealio/shared에는 두지 않는다.
+ * recipe-ingestion trigger 공통 payload.
  */
 export interface RecipeIngestionRunTriggerPayload {
   runId: string;
@@ -8,12 +7,12 @@ export interface RecipeIngestionRunTriggerPayload {
   triggeredAt: string;
 }
 
-/** fetch-completed 토픽 payload (구조 동일) */
-export type RecipeIngestionFetchCompletedPayload =
+export type RecipeIngestionFetchToParseSubmitPayload =
   RecipeIngestionRunTriggerPayload;
-
-/** retrieved 토픽 payload (구조 동일) */
-export type RecipeIngestionRetrievedPayload = RecipeIngestionRunTriggerPayload;
+export type RecipeIngestionParseRetrieveToPersistPayload =
+  RecipeIngestionRunTriggerPayload;
+export type RecipeIngestionPersistToEmbedSubmitPayload =
+  RecipeIngestionRunTriggerPayload;
 
 export function isValidRecipeIngestionRunTriggerPayload(
   obj: unknown,

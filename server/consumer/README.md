@@ -62,8 +62,10 @@ pnpm run start:consumer
 ```bash
 pnpm run kpi:rollup
 pnpm run recipe-ingestion:fetch
-pnpm run recipe-ingestion:submit
-pnpm run recipe-ingestion:retrieve
+pnpm run recipe-ingestion:parse-submit
+pnpm run recipe-ingestion:parse-retrieve
+pnpm run recipe-ingestion:embed-submit
+pnpm run recipe-ingestion:embed-retrieve
 ```
 
 ```bash

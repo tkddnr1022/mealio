@@ -22,8 +22,9 @@ server/consumer/src/
 │   ├── user-events/
 │   ├── activity-events/
 │   ├── cache-invalidation/
-│   ├── recipe-ingestion-submit/
-│   └── recipe-ingestion-persist/
+│   ├── recipe-ingestion-parse-submit/
+│   ├── recipe-ingestion-persist/
+│   └── recipe-ingestion-embed-submit/
 ├── jobs/                # standalone CLI (cron)
 │   ├── kpi-rollup/
 │   └── recipe-ingestion-*/
@@ -49,8 +50,9 @@ Standalone job은 `NestFactory.createApplicationContext`로 애플리케이션 �
 | `user-events` | analytics-group | UpdateInventory, Recommendation |
 | `activity-events` | activity-events-group | EventLog, 추천 보정 |
 | `cache-invalidation` | cache-invalidation-group | RedisInvalidationHandler |
-| `recipe-ingestion-fetch-completed` | recipe-ingestion-submit-group | SubmitRecipeIngestionHandler |
-| `recipe-ingestion-retrieved` | recipe-ingestion-persist-group | PersistRecipeHandler |
+| `recipe-ingestion-parse-submit-triggered` | recipe-ingestion-parse-submit-group | ParseSubmitRecipeIngestionHandler |
+| `recipe-ingestion-persist-triggered` | recipe-ingestion-persist-group | PersistRecipeHandler |
+| `recipe-ingestion-embed-submit-triggered` | recipe-ingestion-embed-submit-group | EmbedSubmitRecipeIngestionHandler |
 
 Kafka·DLQ·그룹 상세는 [Kafka 소비/신뢰성](./kafka-reliability) 문서를 참고하세요.
 

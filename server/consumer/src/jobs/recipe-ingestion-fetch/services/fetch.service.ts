@@ -36,7 +36,7 @@ export interface FetchResult {
 
 /**
  * 공공데이터 API fetch — recipe_ingestion_jobs에 status: fetched 적재.
- * submit·retrieve와 결합하지 않는 standalone 단계.
+ * parse-submit·parse-retrieve와 결합하지 않는 standalone 단계.
  * @see agent/backend/guidelines/recipe_ingestion_guidelines.md §5.1
  */
 @Injectable()
@@ -226,7 +226,7 @@ export class FetchService {
 
     try {
       await this.kafkaProducerService.emit(
-        KAFKA_TOPICS.RECIPE_INGESTION_FETCH_COMPLETED,
+        KAFKA_TOPICS.RECIPE_INGESTION_PARSE_SUBMIT_TRIGGERED,
         payload,
         key,
       );

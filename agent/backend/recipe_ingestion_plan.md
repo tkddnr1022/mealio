@@ -19,17 +19,19 @@
 ## 파이프라인 개요
 
 ```
-[fetch] → [submit] → [retrieve] → [persist]
+[fetch] → [parse-submit] → [parse-retrieve] → [persist] → [embed-submit] → [embed-retrieve]
 ```
 
-| 단계 | 수행 주체 | 구동 | 예정 경로 |
-|------|-----------|------|-----------|
+| 단계 | 수행 주체 | 구동 | 경로 |
+|------|-----------|------|------|
 | fetch | standalone job | cron → CLI | `server/consumer/src/jobs/recipe-ingestion-fetch/` |
-| submit | standalone job | cron → CLI | `server/consumer/src/jobs/recipe-ingestion-submit/` |
-| retrieve | standalone job | cron → CLI | `server/consumer/src/jobs/recipe-ingestion-retrieve/` |
+| parse-submit | standalone job + always-on consumer | CLI + Kafka 구독 | `server/consumer/src/jobs/recipe-ingestion-parse-submit/`, `server/consumer/src/consumers/recipe-ingestion-parse-submit/` |
+| parse-retrieve | standalone job | cron → CLI | `server/consumer/src/jobs/recipe-ingestion-parse-retrieve/` |
 | persist | standalone job + always-on consumer | CLI + Kafka 구독 | `server/consumer/src/jobs/recipe-ingestion-persist/`, `server/consumer/src/consumers/recipe-ingestion-persist/` |
+| embed-submit | standalone job + always-on consumer | CLI + Kafka 구독 | `server/consumer/src/jobs/recipe-ingestion-embed-submit/`, `server/consumer/src/consumers/recipe-ingestion-embed-submit/` |
+| embed-retrieve | standalone job | cron → CLI | `server/consumer/src/jobs/recipe-ingestion-embed-retrieve/` |
 
-**SSOT**: MongoDB `recipe_ingestion_jobs` (파이프라인) · PostgreSQL (레시피 도메인) · Kafka (persist 트리거만)
+**SSOT**: MongoDB `recipe_ingestion_jobs` (파이프라인) · PostgreSQL (레시피·RecipeEmbedding 도메인) · Kafka (parse-submit·persist·embed-submit 트리거)
 
 ---
 
@@ -76,11 +78,12 @@ http://openapi.foodsafetykorea.go.kr/api/{keyId}/{serviceId}/{dataType}/{startId
 ```mermaid
 flowchart LR
   P0[Phase 0<br/>기반·스키마] --> P1[Phase 1<br/>fetch]
-  P0 --> P2[Phase 2<br/>submit]
+  P0 --> P2[Phase 2<br/>parse-submit]
   P1 --> P2
-  P2 --> P3[Phase 3<br/>retrieve]
+  P2 --> P3[Phase 3<br/>parse-retrieve]
   P3 --> P4[Phase 4<br/>persist]
-  P4 --> P5[Phase 5<br/>운영·관측]
+  P4 --> P5[Phase 5<br/>embed]
+  P5 --> P6[Phase 6<br/>운영·관측]
   P0 --> P4
 ```
 
@@ -88,10 +91,11 @@ flowchart LR
 |-------|------|-----------|-----------------|
 | 0 | 기반·스키마 | Mongoose·Kafka·공통 상수·env | §2.6, §3 |
 | 1 | fetch | 공공데이터 수집 job | §5.1 |
-| 2 | submit | OpenAI Batch 제출 job | §5.2, §6 |
-| 3 | retrieve | Batch 완료 조회·결과 반영 job | §5.3 |
+| 2 | parse-submit | OpenAI Parse Batch 제출 job | §5.2, §6 |
+| 3 | parse-retrieve | Parse Batch 완료 조회·결과 반영 job | §5.3 |
 | 4 | persist | Kafka consumer + PG 영속화 | §5.4, §2.5 |
-| 5 | 운영·관측 | ECS/cron·메트릭·재시도·명세 동기화 | §2.3, §2.6, §7 |
+| 5 | embed | Embedding Batch 제출·RecipeEmbedding upsert | §5.5, §5.6 |
+| 6 | 운영·관측 | ECS/cron·메트릭·재시도·명세 동기화 | §2.3, §2.6, §7 |
 
 ---
 
@@ -106,14 +110,19 @@ flowchart LR
 - [ ] MongoDB `recipe_ingestion_state` Mongoose 스키마 — `last_end_idx` API 커서 (singleton)
 - [ ] MongoDB `recipe_ingestion_jobs` Mongoose 스키마·모델 정의
   - 필드: `source_id`(Number, unique, API `RCP_SEQ`), `status`, `retry_count`, `raw_data`, `batch_id`, `retrieved_data`, `error_message`, 타임스탬프(`fetched_at` ~ `failed_at`)
-  - `status` enum: `fetched | submitting | submitted | retrieving | retrieved | persisting | persisted | failed`
+  - `status` enum: `fetched | parse_submitting | parse_submitted | parse_retrieving | parse_retrieved | persisting | persisted | embed_submitting | embed_submitted | embed_retrieving | embed_retrieved | failed`
 - [ ] `RecipeIngestionJobRepository` (MongoDB) — upsert·조건부 status 전환(낙관적 락)·batch 단위 조회
 - [ ] `RecipeIngestionStateRepository` — `last_end_idx` get/set
 - [ ] `@mealio/shared` Kafka 상수 등록 (기존 토픽과 동일 — `backend_architecture_spec_consumer.md` §2.2)
-  - `KAFKA_TOPICS.RECIPE_INGESTION_RETRIEVED`: `recipe-ingestion-retrieved`
-  - `KAFKA_DLQ_TOPICS.RECIPE_INGESTION_RETRIEVED_DLQ`: `recipe-ingestion-retrieved-dlq`
+  - `KAFKA_TOPICS.RECIPE_INGESTION_PARSE_SUBMIT_TRIGGERED`: `recipe-ingestion-parse-submit-triggered`
+  - `KAFKA_TOPICS.RECIPE_INGESTION_PERSIST_TRIGGERED`: `recipe-ingestion-persist-triggered`
+  - `KAFKA_TOPICS.RECIPE_INGESTION_EMBED_SUBMIT_TRIGGERED`: `recipe-ingestion-embed-submit-triggered`
+  - 각 DLQ: `*-dlq` 접미사
   - 로컬: Producer `KafkaAdminService`가 상수 목록 기준 메인·DLQ 자동 생성 (`APP_ENV === production`에서는 생성 스킵)
-- [ ] `CONSUMER_GROUPS.RECIPE_INGESTION_PERSIST` 추가 (`recipe-ingestion-persist-group`)
+- [ ] `CONSUMER_GROUPS` 추가
+  - `RECIPE_INGESTION_PARSE_SUBMIT` (`recipe-ingestion-parse-submit-group`)
+  - `RECIPE_INGESTION_PERSIST` (`recipe-ingestion-persist-group`)
+  - `RECIPE_INGESTION_EMBED_SUBMIT` (`recipe-ingestion-embed-submit-group`)
 - [ ] lag·메트릭용 토픽↔그룹 매핑 **양쪽** 갱신
   - `reliability/monitoring/topic-consumer-group.map.ts` (processor 메트릭·DLQ 라벨)
   - `reliability/monitoring/consumer-lag.monitor.ts` (`GROUP_TOPIC_MAP` — lag 수집)
@@ -122,7 +131,7 @@ flowchart LR
   - `OPENAI_BATCH_MODEL` (필수 — Batch JSONL `body.model`. `OPENAI_CHAT_MODEL`과 분리)
 - [ ] `public-data-api.client.ts` — `PUBLIC_DATA_SERVICE_ID`, `PUBLIC_DATA_TYPE`(`json`) 상수
 - [ ] Consumer `.env.example`에 위 변수·예시 값 반영
-- [ ] `backend_architecture_spec_consumer.md` §2.1·§2.2에 신규 경로·토픽 **초안** 반영 (Phase 5에서 최종 동기화)
+- [ ] `backend_architecture_spec_consumer.md` §2.1·§2.2에 신규 경로·토픽 **초안** 반영 (Phase 6에서 최종 동기화)
 
 ### 예정 파일 (shared / consumer)
 
@@ -157,7 +166,7 @@ flowchart LR
   - 경로 인자만 사용 — 선택 쿼리(`RCP_NM` 등) 미사용
   - `RESULT.CODE` 파싱 — `INFO-000` / `INFO-200` / 오류 코드별 분기 (가이드라인 §4.3)
   - `fetchLimit` > 1000 요청 시 클라이언트 단에서 거부 또는 분할 (API `ERROR-336`)
-- [ ] **`FetchService`** — 공공데이터 수집만 (submit·retrieve 미호출)
+- [ ] **`FetchService`** — 공공데이터 수집만 (이후 단계 미호출)
   1. `recipe_ingestion_state`에서 `last_end_idx` 조회 (없으면 `0`)
   2. `startIdx = last_end_idx + 1`, `endIdx = startIdx + fetchLimit - 1` 계산
   3. API 호출 (공공데이터 API, `json`)
@@ -189,19 +198,19 @@ flowchart LR
 
 ---
 
-## Phase 2 — submit
+## Phase 2 — parse-submit
 
-**목표**: `status: fetched` job을 OpenAI Batch API에 제출하고 `status: submitted`로 전환한다. submit은 fetch와 **독립 standalone job**으로 운영하며, fetch 물량 조율은 운영 레이어의 fetch cron 정책에서 담당한다.
+**목표**: `status: fetched` job을 OpenAI Parse Batch API에 제출하고 `status: parse_submitted`로 전환한다. parse-submit은 fetch와 **독립 standalone job**으로 운영하며, fetch 물량 조율은 운영 레이어의 fetch cron 정책에서 담당한다.
 
 **선행 조건**: Phase 0, Phase 1
 
 ### 작업 항목
 
-- [ ] **`SubmitService`** — OpenAI Batch 제출만 (FetchService 미호출)
+- [ ] **`ParseSubmitService`** — OpenAI Parse Batch 제출만 (FetchService 미호출)
   1. `status: fetched` job 조회 (`runId` 지정 시 해당 실행 단위만)
-  2. `fetched` → `submitting` 일괄 전환
+  2. `fetched` → `parse_submitting` 일괄 전환
   3. JSONL 생성·Files API 업로드·Batches API 생성
-  4. `submitting` → `submitted` (+ `batch_id`, `submitted_at`)
+  4. `parse_submitting` → `parse_submitted` (+ `batch_id`, `submitted_at`)
 - [ ] **카테고리 컨텍스트** — Redis TTL 1h 캐시 (기존 `FoodCategoriesHandler` 패턴 재사용 또는 공유 서비스 추출)
 - [ ] **system_prompt** 템플릿 — 출력 JSON 스키마·어조·노이즈 제거·카테고리 목록·재료 정규화·`parse_confidence`/`parse_issues`/`ingredient_alias` 지시
   - **확장**: `imageUrl`, `nutrition`, `cookingMethod`, `dishType`, `steps[].imageUrl` (공공데이터 API §4.5 매핑)
@@ -209,26 +218,27 @@ flowchart LR
 - [ ] **OpenAI Batch 연동**
   - Files API 업로드 (`purpose: batch`)
   - Batches API 생성 (`endpoint: /v1/chat/completions`, `completion_window: 24h`)
-- [ ] CLI 엔트리포인트 `run-recipe-ingestion-submit.ts` + `package.json` script `job:recipe-ingestion-submit`
+- [ ] CLI 엔트리포인트 `run-recipe-ingestion-parse-submit.ts` + `package.json` script `job:recipe-ingestion-parse-submit`
 - [ ] 통합 테스트 — OpenAI mock·JSONL 형식·`OPENAI_BATCH_MODEL` 주입 검증 (`__tests__/services/`)
 
 ### 예정 파일
 
 | 경로 | 역할 |
 |------|------|
-| `server/consumer/src/jobs/recipe-ingestion-submit/recipe-ingestion-submit.module.ts` | submit standalone job 모듈 |
-| `server/consumer/src/jobs/recipe-ingestion-submit/services/submit.service.ts` | submit 로직 |
-| `server/consumer/src/jobs/recipe-ingestion-submit/services/category-context.service.ts` | Redis·DB 카테고리 조회 |
-| `server/consumer/src/jobs/recipe-ingestion-submit/prompts/recipe-ingestion.system-prompt.ts` | system prompt |
+| `server/consumer/src/jobs/recipe-ingestion-parse-submit/recipe-ingestion-parse-submit.module.ts` | parse-submit standalone job 모듈 |
+| `server/consumer/src/jobs/recipe-ingestion-parse-submit/services/parse-submit.service.ts` | parse-submit 로직 |
+| `server/consumer/src/jobs/recipe-ingestion-parse-submit/services/category-context.service.ts` | Redis·DB 카테고리 조회 |
+| `server/consumer/src/jobs/recipe-ingestion-parse-submit/prompts/recipe-ingestion.system-prompt.ts` | system prompt |
 | `server/consumer/src/integrations/openai/openai-batch.service.ts` | Files·Batches API |
-| `server/consumer/src/jobs/recipe-ingestion-submit/run-recipe-ingestion-submit.ts` | submit CLI |
+| `server/consumer/src/jobs/recipe-ingestion-parse-submit/run-recipe-ingestion-parse-submit.ts` | parse-submit CLI |
+| `server/consumer/src/consumers/recipe-ingestion-parse-submit/` | Kafka parse-submit consumer (fetch 완료 트리거) |
 
 ### CLI 계약
 
 ```bash
-pnpm --filter consumer run job:recipe-ingestion-submit
-pnpm --filter consumer run job:recipe-ingestion-submit --run-id <runId>
-pnpm --filter consumer run job:recipe-ingestion-submit --run-id-count 2
+pnpm --filter consumer run job:recipe-ingestion-parse-submit
+pnpm --filter consumer run job:recipe-ingestion-parse-submit --run-id <runId>
+pnpm --filter consumer run job:recipe-ingestion-parse-submit --run-id-count 2
 ```
 
 | 플래그 | 기본값 | 제약 |
@@ -238,56 +248,56 @@ pnpm --filter consumer run job:recipe-ingestion-submit --run-id-count 2
 
 ### 완료 기준
 
-- E2E(mock): JSONL 업로드 → batch 생성 → Mongo `submitted` 일괄 반영
+- E2E(mock): JSONL 업로드 → batch 생성 → Mongo `parse_submitted` 일괄 반영
 - `fetched` 0건 시 no-op 종료 (fetch CLI 미호출)
-- Batch API 실패 시 `submitting` job이 `fetched`로 복귀·retry_count 증가
+- Batch API 실패 시 `parse_submitting` job이 `fetched`로 복귀·retry_count 증가
 - cron → CLI → `NestFactory.createApplicationContext` 패턴 준수 (`run-kpi-rollup.ts` 참고)
-- submit job이 fetch job과 **독립 모듈·CLI·배포**
+- parse-submit job이 fetch job과 **독립 모듈·CLI·배포**
 
 ---
 
-## Phase 3 — retrieve
+## Phase 3 — parse-retrieve
 
-**목표**: OpenAI Batch 완료 batch의 output을 Mongo에 저장하고 Kafka로 persist를 트리거한다.
+**목표**: OpenAI Parse Batch 완료 batch의 output을 Mongo에 저장하고 Kafka로 persist를 트리거한다.
 
-**선행 조건**: Phase 2 (최소 1건 `submitted` batch 존재)
+**선행 조건**: Phase 2 (최소 1건 `parse_submitted` batch 존재)
 
 ### 작업 항목
 
-- [ ] **RetrieveService** — `status: submitted`인 distinct `batch_id` 조회
+- [ ] **`ParseRetrieveService`** — `status: parse_submitted`인 distinct `batch_id` 조회
 - [ ] Batch 상태 확인 (`GET /v1/batches/{id}`)
-  - `completed` → retrieve 단계 수행
+  - `completed` → parse-retrieve 단계 수행
   - `failed` / `expired` → `retry_count++`, `status: fetched` (`expired`도 재시도 횟수 소모 — 가이드라인 §5.3)
   - `retry_count >= 3` → `status: failed`, `failed_at`
   - `in_progress` / `validating` / `finalizing` → 변경 없음
 - [ ] output JSONL 스트리밍 다운로드·라인 파싱
   - 오류 라인: `retry_count++`, `status: fetched`, `error_message`
-  - 성공 라인: `retrieved_data` 저장, `status: retrieved`, `retrieved_at`
-- [ ] Kafka `recipe-ingestion-retrieved` 발행 — payload `{ jobId }`, key = `jobId`
-- [ ] CLI 엔트리포인트 `run-recipe-ingestion-retrieve.ts` + `package.json` script `job:recipe-ingestion-retrieve`
+  - 성공 라인: `retrieved_data` 저장, `status: parse_retrieved`, `retrieved_at`
+- [ ] Kafka `recipe-ingestion-persist-triggered` 발행 — payload `{ runId, fetchedCount, triggeredAt }`, key = `runId`
+- [ ] CLI 엔트리포인트 `run-recipe-ingestion-parse-retrieve.ts` + `package.json` script `job:recipe-ingestion-parse-retrieve`
 
 ### 예정 파일
 
 | 경로 | 역할 |
 |------|------|
-| `server/consumer/src/jobs/recipe-ingestion-retrieve/recipe-ingestion-retrieve.module.ts` | Nest 모듈 |
-| `server/consumer/src/jobs/recipe-ingestion-retrieve/recipe-ingestion-retrieve.service.ts` | retrieve·파싱·emit |
-| `server/consumer/src/jobs/recipe-ingestion-retrieve/run-recipe-ingestion-retrieve.ts` | CLI |
+| `server/consumer/src/jobs/recipe-ingestion-parse-retrieve/recipe-ingestion-parse-retrieve.module.ts` | Nest 모듈 |
+| `server/consumer/src/jobs/recipe-ingestion-parse-retrieve/services/parse-retrieve.service.ts` | parse-retrieve·파싱·emit |
+| `server/consumer/src/jobs/recipe-ingestion-parse-retrieve/run-recipe-ingestion-parse-retrieve.ts` | CLI |
 
 ### CLI 계약
 
 ```bash
-pnpm --filter consumer run job:recipe-ingestion-retrieve
+pnpm --filter consumer run job:recipe-ingestion-parse-retrieve
 ```
 
 ### 완료 기준
 
-- mock batch `completed` → job별 `retrieved` + Kafka 메시지 1건/job
+- mock batch `completed` → job별 `parse_retrieved` + Kafka 메시지 1건/runId
 - mock batch `expired` → 해당 batch job `retry_count++`·`fetched` 복귀
 - partial failure JSONL → 성공·실패 job 분리 처리
 - `in_progress` batch — CLI 1회 실행 시 job 상태 불변, 이후 cron 재실행 시 `completed` 처리
 - cron → CLI → `NestFactory.createApplicationContext` 패턴 준수 (`run-kpi-rollup.ts` 참고)
-- retrieve job이 submit job과 **독립 모듈·CLI·배포**
+- parse-retrieve job이 parse-submit job과 **독립 모듈·CLI·배포**
 
 ---
 
@@ -304,11 +314,11 @@ pnpm --filter consumer run job:recipe-ingestion-retrieve
 - [ ] `recipe-ingestion-persist` consumer (processor·consumer·module)
 - [ ] `ConsumersModule` 등록
 - [ ] persist 멱등성 흐름
-  1. `{ jobId }`로 job 조회
-  2. `status === retrieved`일 때만 `persisting` 조건부 전환
+  1. `{ runId }` 트리거로 `status: parse_retrieved` job 재조회
+  2. `status === parse_retrieved`일 때만 `persisting` 조건부 전환
   3. 이미 `persisting` / `persisted` → skip
-  4. 성공 → `persisted`, `persisted_at`
-  5. 실패 → `retry_count++`, `status: retrieved` 복귀 → Kafka redelivery 또는 DLQ
+  4. 성공 → `persisted`, `persisted_at` + Kafka `recipe-ingestion-embed-submit-triggered` 발행
+  5. 실패 → `retry_count++`, `status: parse_retrieved` 복귀 → Kafka redelivery 또는 DLQ
 
 #### 4-B — 도메인 영속화
 
@@ -321,8 +331,8 @@ pnpm --filter consumer run job:recipe-ingestion-retrieve
 - [ ] `match_method` (`exact | alias` = LLM ingredient_alias hit | `vector` | `new`) 기록
 - [ ] Recipe + RecipeIngredient **Prisma `$transaction`** upsert — `(source, sourceRecipeId)` unique
 - [ ] `parse_confidence: low` → `isPublished: false`
-- [x] `recipe-creation.service.ts` — Prisma 트랜잭션 upsert + persist 완료 후 임베딩 동기화
-- [ ] DLQ — `BaseTopicProcessor` 재시도 후 `recipe-ingestion-retrieved-dlq`
+- [x] `recipe-creation.domain.ts` — Prisma 트랜잭션 upsert (persist는 Recipe 도메인만 담당, 임베딩은 embed 단계)
+- [ ] DLQ — `BaseTopicProcessor` 재시도 후 `recipe-ingestion-persist-triggered-dlq`
 
 ### 예정 파일
 
@@ -336,17 +346,16 @@ pnpm --filter consumer run job:recipe-ingestion-retrieve
 | `server/consumer/src/jobs/recipe-ingestion-persist/services/persist.service.ts` | persist 오케스트레이션 |
 | `server/consumer/src/jobs/recipe-ingestion-persist/domains/ingredient-matcher.domain.ts` | 재료 매칭 |
 | `server/consumer/src/jobs/recipe-ingestion-persist/domains/recipe-creation.domain.ts` | Prisma 트랜잭션 (LLM `retrieved_data` → imageUrl·nutrition·instructions[].imageUrl) |
-| `server/consumer/src/jobs/recipe-ingestion-persist/integrations/recipe-embedding-sync.integration.ts` | persist 완료 후 임베딩 생성·업서트 |
 | `server/consumer/src/integrations/public-data/foodsafety-image-url.util.ts` | LLM 이미지 URL 정규화 (persist) |
 | `server/consumer/src/persistence/repositories/postgresql/recipe-ingredient.repository.ts` | RecipeIngredient 쓰기 |
 
 ### 완료 기준
 
-- 동일 `{ jobId }` Kafka redelivery 시 PG 중복 insert 없음
+- 동일 `{ runId }` Kafka redelivery 시 PG 중복 insert 없음
 - `(source, sourceRecipeId)` 기준 upsert로 재처리 안전
 - MVP(4-B-1) 매칭으로 end-to-end 1건 persist 성공
 - persist 후 Recipe에 `imageUrl`, `nutrition`, `instructions[].imageUrl`, `cookingMethod`, `dishType`, `cookingTip` 저장 확인
-- consumer lag·DLQ 토픽 모니터링 대상 등록 (Phase 5)
+- consumer lag·DLQ 토픽 모니터링 대상 등록 (Phase 6)
 
 ### Phase 4 분할 권장
 
@@ -358,24 +367,76 @@ pnpm --filter consumer run job:recipe-ingestion-retrieve
 
 ---
 
-## Phase 5 — 운영·관측·복구
+## Phase 5 — embed
+
+**목표**: persist 완료 레시피에 대해 OpenAI Embedding Batch를 제출하고, 완료 결과를 `RecipeEmbedding`(pgvector)에 upsert한다.
+
+**선행 조건**: Phase 4 (최소 1건 `persisted` job 존재)
+
+### 작업 항목
+
+#### 5-A — embed-submit
+
+- [ ] **`EmbedSubmitService`** — `status: persisted` job을 OpenAI Embedding Batch API에 제출
+  1. `persisted` → `embed_submitting` 일괄 전환
+  2. `RecipeEmbeddingDocumentService.buildDocumentByRecipeId()`로 `document_text` 생성
+  3. JSONL 생성·Batches API 제출 (`submitEmbeddingBatchJsonl`)
+  4. `embed_submitting` → `embed_submitted` (+ `batch_id`, `submitted_at`)
+- [ ] Kafka `recipe-ingestion-embed-submit-triggered` consumer — persist 완료 트리거 → `EmbedSubmitService.submit`
+- [ ] CLI `job:recipe-ingestion-embed-submit` (`--run-id`, `--run-id-count`, `--job-id`)
+
+#### 5-B — embed-retrieve
+
+- [ ] **`EmbedRetrieveService`** — `status: embed_submitted`인 distinct `batch_id` 조회
+- [ ] Batch 상태 확인·output JSONL 파싱
+  - 성공 라인: `RecipeEmbeddingRepository.upsert` + `status: embed_retrieved`
+  - 실패·누락: `retry_count++`, `status: persisted` 롤백 (재시도)
+- [ ] CLI `job:recipe-ingestion-embed-retrieve` (`--run-id`, `--run-id-count`)
+
+### 예정 파일
+
+| 경로 | 역할 |
+|------|------|
+| `server/consumer/src/jobs/recipe-ingestion-embed-submit/recipe-ingestion-embed-submit.module.ts` | embed-submit standalone job 모듈 |
+| `server/consumer/src/jobs/recipe-ingestion-embed-submit/services/embed-submit.service.ts` | embed-submit 로직 |
+| `server/consumer/src/jobs/recipe-ingestion-embed-submit/integrations/recipe-embedding-document.integration.ts` | 임베딩 요청용 `document_text` 생성 |
+| `server/consumer/src/jobs/recipe-ingestion-embed-submit/run-recipe-ingestion-embed-submit.ts` | embed-submit CLI |
+| `server/consumer/src/consumers/recipe-ingestion-embed-submit/` | Kafka embed-submit consumer |
+| `server/consumer/src/jobs/recipe-ingestion-embed-retrieve/recipe-ingestion-embed-retrieve.module.ts` | embed-retrieve standalone job 모듈 |
+| `server/consumer/src/jobs/recipe-ingestion-embed-retrieve/services/embed-retrieve.service.ts` | embed-retrieve·RecipeEmbedding upsert |
+| `server/consumer/src/jobs/recipe-ingestion-embed-retrieve/run-recipe-ingestion-embed-retrieve.ts` | embed-retrieve CLI |
+| `server/consumer/src/persistence/repositories/postgresql/recipe-embedding.repository.ts` | RecipeEmbedding upsert |
+
+### 완료 기준
+
+- persist 완료 → Kafka embed-submit 트리거 → `embed_submitted` 전환
+- mock embedding batch `completed` → `RecipeEmbedding` upsert + `embed_retrieved`
+- embed 실패 시 job `persisted` 롤백·`retry_count++`
+- embed-submit·embed-retrieve가 persist와 **독립 모듈·CLI·배포**
+
+---
+
+## Phase 6 — 운영·관측·복구
 
 **목표**: 프로덕션 cron·메트릭·장애 복구 경로를 완성하고 명세를 동기화한다.
 
-**선행 조건**: Phase 1~4 (MVP persist 완료)
+**선행 조건**: Phase 1~5 (MVP persist + embed 완료)
 
 ### 작업 항목
 
 | Scheduled Task | 호출 CLI | 주기 (초안) | 배포 단위 |
 |----------------|----------|-------------|-----------|
 | recipe-ingestion-fetch | `pnpm --filter consumer run job:recipe-ingestion-fetch` | 운영 정책 확정 | fetch 별도 태스크 |
-| recipe-ingestion-submit | `pnpm --filter consumer run job:recipe-ingestion-submit` | 운영 정책 확정 | submit 별도 태스크 |
-| recipe-ingestion-retrieve | `pnpm --filter consumer run job:recipe-ingestion-retrieve` | 1~5분 | retrieve 별도 태스크 |
-| recipe-ingestion-persist-consumer | — | always-on | Kafka consumer ECS service |
+| recipe-ingestion-parse-submit | `pnpm --filter consumer run job:recipe-ingestion-parse-submit` | 운영 정책 확정 | parse-submit 별도 태스크 |
+| recipe-ingestion-parse-retrieve | `pnpm --filter consumer run job:recipe-ingestion-parse-retrieve` | 1~5분 | parse-retrieve 별도 태스크 |
+| recipe-ingestion-persist-consumer | — | always-on | Kafka persist consumer ECS service |
 | recipe-ingestion-persist-job | `pnpm --filter consumer run job:recipe-ingestion-persist` | 운영 정책 확정 | persist 별도 태스크 (선택) |
+| recipe-ingestion-embed-submit-consumer | — | always-on | Kafka embed-submit consumer ECS service |
+| recipe-ingestion-embed-submit-job | `pnpm --filter consumer run job:recipe-ingestion-embed-submit` | 운영 정책 확정 | embed-submit 별도 태스크 (선택) |
+| recipe-ingestion-embed-retrieve | `pnpm --filter consumer run job:recipe-ingestion-embed-retrieve` | 1~5분 | embed-retrieve 별도 태스크 |
 
-- [ ] ECS Scheduled Task / cron 스케줄 정의 (fetch·submit·retrieve **각각 분리**)
-- [ ] **운영 runbook** — fetch/submit cron 주기·`fetchLimit` 조율
+- [ ] ECS Scheduled Task / cron 스케줄 정의 (fetch·parse-submit·parse-retrieve·embed-retrieve **각각 분리**)
+- [ ] **운영 runbook** — fetch/parse-submit cron 주기·`fetchLimit` 조율
   - 문서: `guidelines/recipe_ingestion_operations_runbook.md`
 - [ ] ECS Task Definition·IAM·환경 변수 (`OPENAI_BATCH_MODEL`·공공데이터 API 키 포함)
 - [ ] EventBridge / cron 표현식·타임존·동시 실행 정책
@@ -385,7 +446,7 @@ pnpm --filter consumer run job:recipe-ingestion-retrieve
   - 재료 신규 생성·`match_method` 분포
   - LLM 토큰 usage 합산 (output JSONL)
   - stage latency
-- [ ] `consumer-lag.monitor` `GROUP_TOPIC_MAP` — `recipe-ingestion-retrieved` lag 알림 (Phase 0에서 매핑 추가, Phase 5에서 대시보드·알림 연동)
+- [ ] `consumer-lag.monitor` `GROUP_TOPIC_MAP` — `recipe-ingestion-persist-triggered`·`recipe-ingestion-embed-submit-triggered` lag 알림 (Phase 0에서 매핑 추가, Phase 6에서 대시보드·알림 연동)
 - [ ] CLI `--retry-failed` — `status: failed` job 재큐잉 (정책·runbook 확정)
 - [ ] CLI persist 수동 처리 — `{ jobId }` direct persist (운영용)
   - 구현 계약: `job:recipe-ingestion-persist --job-id <jobId>`
@@ -403,15 +464,16 @@ pnpm --filter consumer run job:recipe-ingestion-retrieve
 
 ## E2E 검증 시나리오 (전 Phase 통합)
 
-Phase 5 또는 각 Phase 완료 시 아래를 순차 검증한다.
+Phase 6 또는 각 Phase 완료 시 아래를 순차 검증한다.
 
-1. **Happy path**: 공공 API mock 10건 → fetch CLI → submit CLI(mock batch) → retrieve(mock output) → persist → PG Recipe 10건·Mongo `persisted`
-2. **fetch 부족**: `fetched` 0건 상태에서 submit CLI no-op · fetch cron 후 submit cron 재실행으로 제출
+1. **Happy path**: 공공 API mock 10건 → fetch CLI → parse-submit CLI(mock batch) → parse-retrieve(mock output) → persist → embed-submit(mock embedding batch) → embed-retrieve → PG Recipe 10건·RecipeEmbedding 10건·Mongo `embed_retrieved`
+2. **fetch 부족**: `fetched` 0건 상태에서 parse-submit CLI no-op · fetch cron 후 parse-submit cron 재실행으로 제출
 3. **Batch partial fail**: JSONL 일부 `status_code != 200` → 해당 job만 `fetched` 복귀·`retry_count++`
 4. **Batch expired**: OpenAI batch `expired` → batch 소속 job `retry_count++`·`fetched` 복귀
 5. **Kafka redelivery**: persist 중복 consume → PG row count 불변
-6. **retry ceiling**: `retry_count >= 3` → `failed`, 더 이상 자동 submit 제외
+6. **retry ceiling**: `retry_count >= 3` → `failed`, 더 이상 자동 parse-submit 제외
 7. **이미지·영양 persist**: fetch mock row(ATT_FILE/MANUAL_IMG/INFO_*) → persist → PG `imageUrl`·`nutrition`·`instructions[].imageUrl`·`cookingTip` 확인
+8. **embed 실패 롤백**: embedding batch 실패 → job `persisted` 복귀·`retry_count++`
 
 ---
 
@@ -420,19 +482,23 @@ Phase 5 또는 각 Phase 완료 시 아래를 순차 검증한다.
 가이드라인 §8과 구현 대응:
 
 ```
-fetched → submitting → submitted
-        → retrieving → retrieved
+fetched → parse_submitting → parse_submitted
+        → parse_retrieving → parse_retrieved
         → persisting → persisted
+        → embed_submitting → embed_submitted
+        → embed_retrieving → embed_retrieved
 retry_count >= 3 → failed
 ```
 
 | 전이 | 구현 Phase | 검증 |
 |------|------------|------|
 | → fetched | 1 | upsert |
-| fetched → submitting → submitted | 2 | batch_id 설정 |
-| submitted → retrieving → retrieved | 3 | retrieved_data·Kafka |
-| retrieved → persisting → persisted | 4 | PG upsert |
-| any → failed (retry ≥ 3) | 1~4 공통 | failed_at |
+| fetched → parse_submitting → parse_submitted | 2 | batch_id 설정 |
+| parse_submitted → parse_retrieving → parse_retrieved | 3 | retrieved_data·Kafka |
+| parse_retrieved → persisting → persisted | 4 | PG upsert·embed-submit 트리거 |
+| persisted → embed_submitting → embed_submitted | 5-A | embedding batch_id 설정 |
+| embed_submitted → embed_retrieving → embed_retrieved | 5-B | RecipeEmbedding upsert |
+| any → failed (retry ≥ 3) | 1~5 공통 | failed_at |
 
 ---
 
@@ -441,7 +507,7 @@ retry_count >= 3 → failed
 - **공공데이터 API deterministic 매퍼** — `integrations/public-data/public-data-recipe-field.mapper.ts` (예정). `raw_data`에서 `imageUrl`·`nutrition`·`MANUAL_IMG*` 등을 코드로 직접 매핑하고, persist 시 LLM `retrieved_data`와 병합(`raw_data` 우선). LLM-only persist의 누락·오차·비용을 줄이는 품질 개선 옵션. §4.5 참조.
 - Admin API / UI — failed job 검수·수동 재처리
 - 재료 검수 큐 (vector 0.85~0.90 구간) 전용 워크플로
-- `recipe-ingestion-retrieved` 파티션 키·처리량 튜닝
+- `recipe-ingestion-persist-triggered`·`recipe-ingestion-embed-submit-triggered` 파티션 키·처리량 튜닝
 - OpenAI 서킷 브레이커 (`circuit-breaker.ts` 명세 미구현 항목)
 
 ---
@@ -451,11 +517,12 @@ retry_count >= 3 → failed
 ```
 Phase 0 (기반)
   └─► Phase 1 (fetch + fetch CLI)
-        └─► Phase 2 (submit + submit CLI)
-              └─► Phase 3 (retrieve + CLI)
+        └─► Phase 2 (parse-submit + parse-submit CLI)
+              └─► Phase 3 (parse-retrieve + CLI)
                     └─► Phase 4-A → 4-B-1 (persist MVP)
-                          └─► Phase 5 (운영 — cron·runbook으로 단계 조율)
-                                └─► Phase 4-B-2 (vector 매칭, 선택)
+                          └─► Phase 5 (embed-submit + embed-retrieve)
+                                └─► Phase 6 (운영 — cron·runbook으로 단계 조율)
+                                      └─► Phase 4-B-2 (vector 매칭, 선택)
 ```
 
-각 Phase는 **독립 PR**로 나누어 리뷰·배포하는 것을 권장한다. Phase 2 완료 시점부터 OpenAI Batch 실 API smoke test, Phase 4-B-1 완료 시점부터 스테이징 E2E를 수행한다.
+각 Phase는 **독립 PR**로 나누어 리뷰·배포하는 것을 권장한다. Phase 2 완료 시점부터 OpenAI Parse Batch 실 API smoke test, Phase 4-B-1 완료 시점부터 스테이징 E2E, Phase 5 완료 시점부터 embedding E2E를 수행한다.

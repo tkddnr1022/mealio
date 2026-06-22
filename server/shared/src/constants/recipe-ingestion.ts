@@ -6,12 +6,16 @@
 
 export const RECIPE_INGESTION_JOB_STATUSES = [
   'fetched',
-  'submitting',
-  'submitted',
-  'retrieving',
-  'retrieved',
+  'parse_submitting',
+  'parse_submitted',
+  'parse_retrieving',
+  'parse_retrieved',
   'persisting',
   'persisted',
+  'embed_submitting',
+  'embed_submitted',
+  'embed_retrieving',
+  'embed_retrieved',
   'failed',
 ] as const;
 

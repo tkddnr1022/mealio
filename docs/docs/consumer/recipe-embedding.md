@@ -12,7 +12,7 @@
 
 | 경로 | 주체 | 동작 |
 | --- | --- | --- |
-| **쓰기** | recipe ingestion persist | Recipe upsert 직후 OpenAI Embedding → `RecipeEmbedding` upsert |
+| **쓰기** | recipe ingestion embed-submit/embed-retrieve | persist 이후 Batch 파이프라인에서 `RecipeEmbedding` upsert |
 | **읽기** | 챗봇 `SearchRecipesHandler` | 질의 임베딩 → ANN top-K → 재랭킹 후 GPT에 반환 |
 
 전체 ETL 흐름은 [레시피 수집 상세](./recipe-ingestion)를, 챗봇 tool 파이프라인은 [챗봇 처리](./chatbot)를 참고하세요.
@@ -32,31 +32,31 @@ Prisma 모델은 `schema.prisma`의 `RecipeEmbedding`이며, `embedding` 컬럼(
 
 ANN 검색은 `ORDER BY embedding <=> query_vector LIMIT k`(cosine distance)로 수행합니다.
 
-## 쓰기 — persist 임베딩 동기화
+## 쓰기 — embed 파이프라인
 
 ```mermaid
 sequenceDiagram
     participant PS as PersistService
+    participant ESU as EmbedSubmitService
+    participant ESR as EmbedRetrieveService
     participant RC as RecipeCreationService
-    participant ES as RecipeEmbeddingSyncService
-    participant OAI as OpenAIService
+    participant OAI as OpenAIBatchService
     participant RE as RecipeEmbeddingRepository
     participant PG as PostgreSQL
 
     PS->>RC: retrieved_data → Recipe upsert
-    RC-->>PS: recipeId
-    PS->>ES: syncByRecipeId(recipeId)
-    ES->>PG: Recipe + 재료·카테고리 조회
-    ES->>ES: buildRecipeDocument()
-    ES->>OAI: createEmbedding(documentText)
-    ES->>RE: upsert(recipeId, embedding, …)
+    PS->>ESU: emit recipe-ingestion-embed-submit-triggered
+    ESU->>OAI: submitEmbeddingBatchJsonl
+    OAI-->>ESR: completed batch output
+    ESR->>PG: recipe 메타/재료 조회 + document_text 구성
+    ESR->>RE: upsert(recipeId, embedding, …)
     RE->>PG: RecipeEmbedding ON CONFLICT upsert
-    PS->>PS: job status → persisted
+    ESR->>ESR: job status → embed_retrieved
 ```
 
-persist 단계는 `RecipeCreationService` 트랜잭션 **성공 직후** `RecipeEmbeddingSyncService.syncByRecipeId()`를 호출합니다. 임베딩 생성·업서트가 실패하면 persist 전체가 실패하고 job은 `retrieved`로 롤백됩니다.
+persist는 Recipe upsert까지만 수행하고, 성공 시 embed-submit 트리거를 발행합니다. 임베딩 생성/적재 실패는 embed 단계에서 재시도하며 job은 `persisted`로 롤백됩니다.
 
-구현은 `server/consumer/.../recipe-embedding-sync.integration.ts`, `server/consumer/.../recipe-embedding.repository.ts`에 있습니다.
+구현은 `server/consumer/.../recipe-ingestion-embed-submit/integrations/recipe-embedding-document.integration.ts`, `server/consumer/.../recipe-ingestion-embed-retrieve/services/embed-retrieve.service.ts`, `server/consumer/.../recipe-embedding.repository.ts`에 있습니다.
 
 ### document_text 구성
 
@@ -120,7 +120,7 @@ flowchart TD
 | 변수 | 용도 |
 | --- | --- |
 | `OPENAI_API_KEY` | Embedding API 인증 |
-| `OPENAI_EMBEDDING_MODEL` | persist upsert·`search_recipes` 질의 임베딩 공통 모델 |
+| `OPENAI_EMBEDDING_MODEL` | embed batch upsert·`search_recipes` 질의 임베딩 공통 모델 |
 
 상세는 [Consumer 환경 변수](./environment-variables)를 참고하세요.
 
@@ -128,13 +128,13 @@ flowchart TD
 
 | # | 시나리오 | 확인 포인트 |
 | --- | --- | --- |
-| 1 | persist 1건 성공 | PostgreSQL `RecipeEmbedding`에 해당 `recipe_id` row·`version >= 1` |
-| 2 | persist 재실행(멱등) | `version` 증가·`document_text` 갱신 |
+| 1 | embed-retrieve 1건 성공 | PostgreSQL `RecipeEmbedding`에 해당 `recipe_id` row·`version >= 1` |
+| 2 | embed-retrieve 재실행(멱등) | `version` 증가·`document_text` 갱신 |
 | 3 | `isPublished = false` 레시피 | ANN 결과에 포함되지 않음 |
 | 4 | 챗봇 `search_recipes` | `semanticScore`·`reasonSignals`가 응답에 포함 |
 | 5 | `avoidIngredientIds` 지정 | 해당 재료를 포함한 레시피가 ANN에서 제외 |
 
-임베딩 API 장애 시 persist job이 `retrieved`로 롤백되므로, ingestion 메트릭(`recipe_ingestion_stage_total{stage="persist"}`)과 OpenAI 호출 로그를 함께 확인합니다.
+임베딩 API 장애 시 embed job이 `persisted`로 롤백되므로, ingestion 메트릭(`recipe_ingestion_stage_total{stage="embed-submit|embed-retrieve"}`)과 OpenAI 호출 로그를 함께 확인합니다.
 
 ## 관련 문서
 

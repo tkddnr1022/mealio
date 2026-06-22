@@ -110,7 +110,7 @@ describe('FetchService', () => {
         exhausted: false,
       });
       expect(kafkaProducerService.emit).toHaveBeenCalledWith(
-        KAFKA_TOPICS.RECIPE_INGESTION_FETCH_COMPLETED,
+        KAFKA_TOPICS.RECIPE_INGESTION_PARSE_SUBMIT_TRIGGERED,
         expect.objectContaining({
           runId: expect.any(String),
           fetchedCount: 2,

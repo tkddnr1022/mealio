@@ -7,13 +7,13 @@ import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
 import { SchemaValidator } from 'src/processing/validation/schema.validator';
 import {
   isValidRecipeIngestionRunTriggerPayload,
-  type RecipeIngestionRetrievedPayload,
+  type RecipeIngestionParseRetrieveToPersistPayload,
 } from 'src/jobs/recipe-ingestion/recipe-ingestion-range-trigger.payload';
 import { PersistRecipeHandler } from './handlers/PersistRecipeHandler';
 
-/** recipe-ingestion-retrieved 토픽 전용 processor */
+/** recipe-ingestion-parse_retrieved 토픽 전용 processor */
 @Injectable()
-export class RecipeIngestionPersistProcessor extends BaseTopicProcessor<RecipeIngestionRetrievedPayload> {
+export class RecipeIngestionPersistProcessor extends BaseTopicProcessor<RecipeIngestionParseRetrieveToPersistPayload> {
   private readonly schemaValidator = new SchemaValidator({
     name: RecipeIngestionPersistProcessor.name,
   });
@@ -31,24 +31,24 @@ export class RecipeIngestionPersistProcessor extends BaseTopicProcessor<RecipeIn
   }
 
   getTopic(): string {
-    return KAFKA_TOPICS.RECIPE_INGESTION_RETRIEVED;
+    return KAFKA_TOPICS.RECIPE_INGESTION_PERSIST_TRIGGERED;
   }
 
   getDlqTopic(): string {
-    return KAFKA_DLQ_TOPICS.RECIPE_INGESTION_RETRIEVED_DLQ;
+    return KAFKA_DLQ_TOPICS.RECIPE_INGESTION_PERSIST_TRIGGERED_DLQ;
   }
 
   protected parseEvent(
     message: EachMessagePayload,
-  ): RecipeIngestionRetrievedPayload | null {
-    return this.schemaValidator.validateFromKafkaMessage<RecipeIngestionRetrievedPayload>(
+  ): RecipeIngestionParseRetrieveToPersistPayload | null {
+    return this.schemaValidator.validateFromKafkaMessage<RecipeIngestionParseRetrieveToPersistPayload>(
       message,
       isValidRecipeIngestionRunTriggerPayload,
     );
   }
 
   protected async processEvent(
-    event: RecipeIngestionRetrievedPayload,
+    event: RecipeIngestionParseRetrieveToPersistPayload,
     _message: EachMessagePayload,
   ): Promise<void> {
     await this.persistRecipeHandler.execute(event);

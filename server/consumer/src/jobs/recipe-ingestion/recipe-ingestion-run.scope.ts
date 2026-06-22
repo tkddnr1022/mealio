@@ -18,7 +18,7 @@ export interface RecipeIngestionRunScopeOptions {
   runIdCount?: number;
 }
 
-/** retrieve 등 run scope만 사용하는 단계용 (`jobId` 제외). */
+/** parse-retrieve 등 run scope만 사용하는 단계용 (`jobId` 제외). */
 export type RecipeIngestionRunScopeOnlyOptions = Omit<
   RecipeIngestionRunScopeOptions,
   'jobId'

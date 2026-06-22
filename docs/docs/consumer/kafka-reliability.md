@@ -14,8 +14,9 @@
 | `user-events` | `user-events-dlq` | `analytics-group` |
 | `activity-events` | `activity-events-dlq` | `activity-events-group` |
 | `cache-invalidation` | `cache-invalidation-dlq` | `cache-invalidation-group` |
-| `recipe-ingestion-fetch-completed` | `recipe-ingestion-fetch-completed-dlq` | `recipe-ingestion-submit-group` |
-| `recipe-ingestion-retrieved` | `recipe-ingestion-retrieved-dlq` | `recipe-ingestion-persist-group` |
+| `recipe-ingestion-parse-submit-triggered` | `recipe-ingestion-parse-submit-triggered-dlq` | `recipe-ingestion-parse-submit-group` |
+| `recipe-ingestion-persist-triggered` | `recipe-ingestion-persist-triggered-dlq` | `recipe-ingestion-persist-group` |
+| `recipe-ingestion-embed-submit-triggered` | `recipe-ingestion-embed-submit-triggered-dlq` | `recipe-ingestion-embed-submit-group` |
 
 토픽·DLQ 이름은 `@mealio/shared`의 `KAFKA_TOPICS`, `KAFKA_DLQ_TOPICS` 상수에 정의되어 있습니다.
 

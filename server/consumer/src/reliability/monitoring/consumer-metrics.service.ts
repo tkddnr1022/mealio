@@ -156,7 +156,13 @@ export class ConsumerMetricsService implements OnModuleInit {
   }
 
   recordIngestionStage(
-    stage: 'fetch' | 'submit' | 'retrieve' | 'persist',
+    stage:
+      | 'fetch'
+      | 'parse-submit'
+      | 'parse-retrieve'
+      | 'persist'
+      | 'embed-submit'
+      | 'embed-retrieve',
     outcome: 'success' | 'failed' | 'skipped',
     count = 1,
   ): void {
@@ -167,7 +173,13 @@ export class ConsumerMetricsService implements OnModuleInit {
   }
 
   observeIngestionStageLatency(
-    stage: 'fetch' | 'submit' | 'retrieve' | 'persist',
+    stage:
+      | 'fetch'
+      | 'parse-submit'
+      | 'parse-retrieve'
+      | 'persist'
+      | 'embed-submit'
+      | 'embed-retrieve',
     durationMs: number,
   ): void {
     if (!this.enabled || durationMs < 0) {

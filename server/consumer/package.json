@@ -19,9 +19,11 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "job:kpi-rollup": "ts-node -r tsconfig-paths/register src/jobs/kpi-rollup/run-kpi-rollup.ts",
     "job:recipe-ingestion-fetch": "ts-node -r tsconfig-paths/register src/jobs/recipe-ingestion-fetch/run-recipe-ingestion-fetch.ts",
-    "job:recipe-ingestion-submit": "ts-node -r tsconfig-paths/register src/jobs/recipe-ingestion-submit/run-recipe-ingestion-submit.ts",
-    "job:recipe-ingestion-retrieve": "ts-node -r tsconfig-paths/register src/jobs/recipe-ingestion-retrieve/run-recipe-ingestion-retrieve.ts",
-    "job:recipe-ingestion-persist": "ts-node -r tsconfig-paths/register src/jobs/recipe-ingestion-persist/run-recipe-ingestion-persist.ts"
+    "job:recipe-ingestion-parse-submit": "ts-node -r tsconfig-paths/register src/jobs/recipe-ingestion-parse-submit/run-recipe-ingestion-parse-submit.ts",
+    "job:recipe-ingestion-parse-retrieve": "ts-node -r tsconfig-paths/register src/jobs/recipe-ingestion-parse-retrieve/run-recipe-ingestion-parse-retrieve.ts",
+    "job:recipe-ingestion-persist": "ts-node -r tsconfig-paths/register src/jobs/recipe-ingestion-persist/run-recipe-ingestion-persist.ts",
+    "job:recipe-ingestion-embed-submit": "ts-node -r tsconfig-paths/register src/jobs/recipe-ingestion-embed-submit/run-recipe-ingestion-embed-submit.ts",
+    "job:recipe-ingestion-embed-retrieve": "ts-node -r tsconfig-paths/register src/jobs/recipe-ingestion-embed-retrieve/run-recipe-ingestion-embed-retrieve.ts"
   },
   "dependencies": {
     "@mealio/shared": "workspace:*",

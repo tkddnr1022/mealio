@@ -6,7 +6,7 @@ import { IngredientMatcherService } from '../../domains/ingredient-matcher.domai
 import { RecipeIngredientRepository } from 'src/persistence/repositories/postgresql/recipe-ingredient.repository';
 import type { RetrievedDataPayload } from '../../validators/retrieved-data.validator';
 
-const retrievedData: RetrievedDataPayload = {
+const parse_retrievedData: RetrievedDataPayload = {
   recipe: {
     title: '된장찌개',
     difficulty: 3,
@@ -102,14 +102,14 @@ describe('RecipeCreationService', () => {
     service = module.get(RecipeCreationService);
   });
 
-  it('should persist image, nutrition, meta, and step image from retrieved_data', async () => {
-    await service.execute({ sourceId: 123 } as never, retrievedData);
+  it('should persist image, nutrition, meta, and step image from parse_retrieved_data', async () => {
+    await service.execute({ sourceId: 123 } as never, parse_retrievedData);
 
     expect(prisma.recipe.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
         difficulty: 3,
         cookTime: 25,
-        imageUrl: retrievedData.recipe.imageUrl,
+        imageUrl: parse_retrievedData.recipe.imageUrl,
         cookingMethod: '끓이기',
         dishType: '찌개',
         cookingTip: '저염 된장을 사용하세요.',
@@ -124,7 +124,7 @@ describe('RecipeCreationService', () => {
           {
             step: 1,
             content: '물을 넣어 끓여요.',
-            imageUrl: retrievedData.recipe.steps[0]?.imageUrl,
+            imageUrl: parse_retrievedData.recipe.steps[0]?.imageUrl,
           },
         ],
       }),
@@ -143,7 +143,7 @@ describe('RecipeCreationService', () => {
       });
 
     const dataWithDuplicateIngredients: RetrievedDataPayload = {
-      ...retrievedData,
+      ...parse_retrievedData,
       ingredients: [
         {
           rawName: '키위',
