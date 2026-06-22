@@ -6,7 +6,7 @@
 module.exports = {
   hooks: {
     readPackage(pkg) {
-      if (pkg.name === "postman-code-generators" && pkg.scripts?.postinstall) {
+      if (pkg.name === 'postman-code-generators' && pkg.scripts?.postinstall) {
         delete pkg.scripts.postinstall;
       }
       return pkg;

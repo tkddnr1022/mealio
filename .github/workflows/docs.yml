@@ -8,6 +8,7 @@ on:
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
+      - '.npmrc'
       - '.github/workflows/docs.yml'
   workflow_dispatch:
 
