@@ -1,6 +1,5 @@
 graph TB
     subgraph "Client Layer"
-        RN[React Native App<br/>WebView]
         WEB[Web Browser]
     end
 
@@ -58,7 +57,6 @@ graph TB
     end
 
     %% Client Connections
-    RN --> CF
     WEB --> CF
     CF --> VERCEL
     VERCEL --> R53
@@ -89,7 +87,6 @@ graph TB
     RDS -.-> SQL_DATA
     MONGO -.-> NOSQL_DATA
 
-    style RN fill:#61dafb
     style VERCEL fill:#000000,color:#fff
     style API fill:#e0234e,color:#fff
     style CONSUMER fill:#e0234e,color:#fff

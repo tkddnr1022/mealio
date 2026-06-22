@@ -53,7 +53,7 @@
     }
   },
   "platform": {
-    "primary": "모바일 퍼스트. 웹(Next.js)과 앱(React Native 웹뷰) 동시 지원.",
+    "primary": "모바일 퍼스트",
     "touchTargetMinPx": 44,
     "touchTargetSpacingMinPx": 8,
     "safeArea": "노치·홈 인디케이터·하단 제스처 영역을 고려해 하단 탭·FAB·고정 CTA에 safe-area inset 패딩을 적용한다.",
