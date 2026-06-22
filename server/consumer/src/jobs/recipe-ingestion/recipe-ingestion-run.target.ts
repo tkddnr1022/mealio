@@ -60,7 +60,7 @@ export async function findRecipeIngestionJobsByRunIds(
     return [];
   }
   if (runIds.length === 1) {
-    return repository.findByStatusAndRunId(status, runIds[0]!);
+    return repository.findByStatusAndRunId(status, runIds[0]);
   }
   return repository.findByStatusAndRunIds(status, runIds);
 }

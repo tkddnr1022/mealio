@@ -24,7 +24,10 @@ export function findUnknownCliArgs(
   let index = 0;
 
   while (index < args.length) {
-    const arg = args[index]!;
+    const arg = args[index];
+    if (arg === undefined) {
+      break;
+    }
     if (arg.startsWith('--')) {
       if (flagMap.has(arg)) {
         const takesValue = flagMap.get(arg)!;

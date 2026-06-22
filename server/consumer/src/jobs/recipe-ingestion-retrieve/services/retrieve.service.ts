@@ -172,6 +172,34 @@ export class RetrieveService {
     retrievedCountByRunId: Map<string, number>;
     skipped: boolean;
   }> {
+    const submittedJobs = await this.jobRepository.findByBatchId(
+      batchId,
+      'submitted',
+    );
+    const distinctRunIds = new Set(
+      submittedJobs
+        .map((job) => job.runId)
+        .filter(
+          (runId): runId is string =>
+            typeof runId === 'string' && runId.length > 0,
+        ),
+    );
+    if (distinctRunIds.size > 1) {
+      const rolled = await this.jobRepository.rollbackSubmittedBatchWithRetry(
+        batchId,
+        'runId:batchId invariant violation',
+      );
+      this.logger.warn(
+        `batchId=${batchId} runId:batchId invariant violation rolledBack=${rolled}`,
+      );
+      return {
+        retrievedCount: 0,
+        failedCount: rolled,
+        retrievedCountByRunId: new Map(),
+        skipped: false,
+      };
+    }
+
     const batch = await this.openAiBatchService.getBatch(batchId);
 
     if (isInProgressBatchStatus(batch.status)) {
