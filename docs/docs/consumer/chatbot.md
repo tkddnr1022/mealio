@@ -81,6 +81,7 @@ tool 호출 시 Consumer가 DB/Redis에서 직접 조회합니다.
 ## 관련 문서
 
 - [Kafka 소비/신뢰성](./kafka-reliability)
+- [레시피 임베딩](./recipe-embedding)
 - [챗봇/SSE](../producer/chatbot-sse)
 - [챗봇 UI/스트리밍](../client/chatbot-ui)
 - [캐시](./cache)

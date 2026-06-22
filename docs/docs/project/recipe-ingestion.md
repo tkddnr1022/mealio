@@ -22,6 +22,7 @@ flowchart LR
     Retrieve --> Kafka[Kafka]
     Kafka --> Persist
     Persist --> PG[(PostgreSQL Recipe)]
+    Persist --> RE[(RecipeEmbedding pgvector)]
 ```
 
 | 단계 | 실행 | 결과 |
@@ -29,7 +30,7 @@ flowchart LR
 | fetch | cron / CLI | `status: fetched` |
 | submit | cron / CLI | `batch_id`, `submitted` |
 | retrieve | cron / CLI | `retrieved` + Kafka 이벤트 |
-| persist | always-on consumer | `persisted` + Recipe row |
+| persist | always-on consumer | `persisted` + Recipe row + RecipeEmbedding |
 
 ## 저장소
 
@@ -37,7 +38,7 @@ flowchart LR
 | --- | --- |
 | MongoDB `recipe_ingestion_jobs` | 파이프라인 job 문서 |
 | MongoDB `recipe_ingestion_state` | API 페이징 커서 |
-| PostgreSQL | 최종 Recipe 도메인 |
+| PostgreSQL | 최종 Recipe 도메인·RecipeEmbedding(pgvector) |
 
 ## 운영 특성
 
@@ -58,6 +59,7 @@ pnpm run recipe-ingestion:retrieve
 ## 관련 문서
 
 - [레시피 수집 상세](../consumer/recipe-ingestion)
+- [레시피 임베딩](../consumer/recipe-embedding)
 - [배치/스케줄 작업](../consumer/batch-jobs)
 - [시스템 아키텍처](./architecture)
 - [도메인](./domain)

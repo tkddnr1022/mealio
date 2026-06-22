@@ -70,6 +70,7 @@ const sidebars: SidebarsConfig = {
         'consumer/cache-invalidation',
         'consumer/recommendation-pipeline',
         'consumer/recipe-ingestion',
+        'consumer/recipe-embedding',
         'consumer/chatbot',
         'consumer/analytics-pipeline',
         'consumer/batch-jobs',

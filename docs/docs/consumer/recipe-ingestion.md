@@ -20,7 +20,7 @@ flowchart LR
 | **fetch** | standalone job | MongoDB `recipe_ingestion_jobs` (`fetched`) + Kafka |
 | **submit** | standalone job | OpenAI Batch (`submitted`) |
 | **retrieve** | standalone job | `retrieved_data` + Kafka |
-| **persist** | Kafka consumer | PostgreSQL Recipe |
+| **persist** | Kafka consumer | PostgreSQL Recipe + RecipeEmbedding |
 
 진행 상태의 기준 저장소는 MongoDB `recipe_ingestion_jobs`이며, API 커서는 `recipe_ingestion_state`를 사용합니다.
 파이프라인 실행 단위는 `runId`이며, fetch 시작 시 1회 생성되어 submit/retrieve/persist 전 단계에서 동일하게 사용합니다.
@@ -83,6 +83,9 @@ stateDiagram-v2
 - consumer는 payload를 트리거 신호로 사용하고, 실제 persist 대상은 MongoDB `status: retrieved` + `runId` 재조회 결과로 결정합니다.
 - `retrieved` → `persisting` 조건부 전환으로 멱등성을 보장합니다.
 - PostgreSQL에는 `(source, sourceRecipeId)` unique upsert로 저장합니다.
+- Recipe upsert 직후 OpenAI Embedding을 생성해 `RecipeEmbedding`(pgvector)에 upsert합니다. 임베딩 동기화 실패 시 persist 전체가 실패하고 job은 `retrieved`로 롤백됩니다.
+
+→ [레시피 임베딩](./recipe-embedding)
 
 ## CLI
 
@@ -135,7 +138,7 @@ pnpm run recipe-ingestion:persist --job-id <jobId>
 | 1 | fetch (소량 `--fetch-limit`) | MongoDB `recipe_ingestion_jobs`에 `fetched` 증가·`recipe-ingestion-fetch-completed` 발행 |
 | 2 | submit consumer (상시) | `submitted`·OpenAI `batch_id` 기록 |
 | 3 | retrieve | `retrieved`·`recipe-ingestion-retrieved` 토픽 발행 |
-| 4 | persist consumer (상시) | PostgreSQL Recipe upsert·job `persisted` |
+| 4 | persist consumer (상시) | PostgreSQL Recipe upsert·`RecipeEmbedding` upsert·job `persisted` |
 | 5 | submit `--retry-failed --retry-failed-limit N` | `failed` job 재큐잉 후 재submit |
 | 6 | Kafka 재전달·`persist --job-id` | 멱등 persist·수동 복구 |
 
@@ -146,4 +149,5 @@ pnpm run recipe-ingestion:persist --job-id <jobId>
 - [레시피 수집(ETL)](../project/recipe-ingestion)
 - [배치/스케줄 작업](./batch-jobs)
 - [Kafka 소비/신뢰성](./kafka-reliability)
+- [레시피 임베딩](./recipe-embedding)
 - [Consumer 운영](./operations)

@@ -26,6 +26,7 @@
 - **Ingredient**: 재료 마스터입니다.
 - **RecipeIngredient**: 레시피와 재료의 N:M 관계를 표현합니다.
 - **RecipeCategory / IngredientCategory**: 카테고리 마스터입니다.
+- **RecipeEmbedding**: 레시피 semantic 검색용 pgvector 인덱스입니다.
 
 ### UserRecipeRecommendation
 
@@ -70,7 +71,7 @@ erDiagram
 | 레시피 검색·상세 | Recipe, RecipeStats | PostgreSQL + Redis 캐시 |
 | 보유/관심 재료 | Inventory, Ingredient | MongoDB + PostgreSQL |
 | 개인화 추천 | UserRecipeRecommendation | PostgreSQL + Redis |
-| 챗봇 | ChatbotLog, User.creditBalance | MongoDB + PostgreSQL |
+| 챗봇 | ChatbotLog, User.creditBalance, RecipeEmbedding | MongoDB + PostgreSQL |
 | 행동 분석 | EventLog | MongoDB → KPI 롤업 |
 
 ## 변경 시 참고 경로
@@ -87,3 +88,4 @@ erDiagram
 
 - [데이터 모델/스키마](../shared/data-models)
 - [추천 시스템](./recommendation)
+- [레시피 임베딩](../consumer/recipe-embedding)

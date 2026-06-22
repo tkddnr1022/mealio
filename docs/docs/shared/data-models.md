@@ -10,7 +10,7 @@
 
 | 저장소 | ORM | 주요 모델 |
 | --- | --- | --- |
-| **PostgreSQL** | Prisma | User, Recipe, Ingredient, UserRecipeRecommendation, ChatbotCreditDeduction |
+| **PostgreSQL** | Prisma | User, Recipe, Ingredient, RecipeEmbedding, UserRecipeRecommendation, ChatbotCreditDeduction |
 | **MongoDB** | Mongoose | Inventory, ChatbotLog, ChatbotConversation, EventLog, recipe_ingestion_*, kpi_rollups |
 
 엔티티 의미와 필드 설명은 [도메인](../project/domain) 문서를 참고하세요.
@@ -28,6 +28,7 @@ Prisma 스키마의 코드 기준은 `server/shared/.../schema.prisma`입니다.
 | IngredientCategory | key, name, displayOrder |
 | Ingredient | name, categoryId |
 | RecipeIngredient | recipeId, ingredientId, amount |
+| RecipeEmbedding | recipeId PK, embedding(vector), documentText, version |
 | UserRecipeRecommendation | userId, recipeId, rank, score, reason |
 | ChatbotCreditDeduction | streamChannelId PK, credits |
 
@@ -75,5 +76,6 @@ pnpm run db:mongoose:seed
 
 - [개요](./overview)
 - [도메인](../project/domain)
+- [레시피 임베딩](../consumer/recipe-embedding)
 - [공유 계약](./contracts)
 - [환경 변수](./environment-variables)
