@@ -8,3 +8,6 @@ packages:
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
+
+neverBuiltDependencies:
+  - postman-code-generators
