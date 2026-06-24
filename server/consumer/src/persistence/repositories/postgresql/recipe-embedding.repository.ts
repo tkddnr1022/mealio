@@ -5,9 +5,7 @@ import { Prisma } from '@mealio/shared/prisma-client';
 export interface EmbeddingUpsertInput {
   recipeId: number;
   embedding: number[];
-  documentText: string;
   embeddingModel: string;
-  sourceUpdatedAt: Date;
 }
 
 export interface RecipeSemanticScore {
@@ -27,18 +25,17 @@ export class RecipeEmbeddingRepository {
 
   async findExisting(
     recipeIds: number[],
-  ): Promise<Map<number, { sourceUpdatedAt: Date; version: number }>> {
+  ): Promise<Map<number, { version: number }>> {
     const uniqueRecipeIds = [...new Set(recipeIds)].filter((id) => id > 0);
     if (uniqueRecipeIds.length === 0) {
       return new Map();
     }
 
     const rows = await this.prisma.$queryRaw<
-      Array<{ recipeId: number; sourceUpdatedAt: Date; version: number }>
+      Array<{ recipeId: number; version: number }>
     >`
       SELECT
         recipe_id as "recipeId",
-        source_updated_at as "sourceUpdatedAt",
         version as "version"
       FROM "RecipeEmbedding"
       WHERE recipe_id IN (${Prisma.join(uniqueRecipeIds)})
@@ -53,26 +50,20 @@ export class RecipeEmbeddingRepository {
       INSERT INTO "RecipeEmbedding" (
         "recipe_id",
         "embedding",
-        "document_text",
         "embedding_model",
-        "version",
-        "source_updated_at"
+        "version"
       )
-      VALUES ($1, $2::vector, $3, $4, 1, $5)
+      VALUES ($1, $2::vector, $3, 1)
       ON CONFLICT ("recipe_id")
       DO UPDATE SET
         "embedding" = EXCLUDED."embedding",
-        "document_text" = EXCLUDED."document_text",
         "embedding_model" = EXCLUDED."embedding_model",
         "version" = "RecipeEmbedding"."version" + 1,
-        "source_updated_at" = EXCLUDED."source_updated_at",
         "updated_at" = CURRENT_TIMESTAMP
       `,
       input.recipeId,
       vectorLiteral,
-      input.documentText,
       input.embeddingModel,
-      input.sourceUpdatedAt,
     );
   }
 

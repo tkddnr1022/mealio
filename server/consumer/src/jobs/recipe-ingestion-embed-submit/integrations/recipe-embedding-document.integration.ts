@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { formatRecipeNutritionSummary, PrismaService } from '@mealio/shared';
+import { formatRecipeNutritionSummary } from '@mealio/shared';
+import {
+  RecipeRepository,
+  type RecipeForEmbeddingDocument,
+} from 'src/persistence/repositories/postgresql/recipe.repository';
 
 type RecipeInstructionStep = { step?: number; content?: string };
 
@@ -11,27 +15,13 @@ export interface RecipeEmbeddingDocument {
 
 @Injectable()
 export class RecipeEmbeddingDocumentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly recipeRepository: RecipeRepository) {}
 
   async buildDocumentByRecipeId(
     recipeId: number,
   ): Promise<RecipeEmbeddingDocument | null> {
-    if (!Number.isInteger(recipeId) || recipeId <= 0) {
-      return null;
-    }
-    const recipe = await this.prisma.recipe.findUnique({
-      where: { id: recipeId },
-      include: {
-        categoryMeta: { select: { key: true, name: true } },
-        recipeIngredients: {
-          include: {
-            ingredient: {
-              include: { categoryMeta: { select: { key: true, name: true } } },
-            },
-          },
-        },
-      },
-    });
+    const recipe =
+      await this.recipeRepository.findForEmbeddingDocument(recipeId);
     if (!recipe) return null;
     return {
       recipeId: recipe.id,
@@ -40,31 +30,7 @@ export class RecipeEmbeddingDocumentService {
     };
   }
 
-  private buildRecipeDocument(recipe: {
-    id: number;
-    title: string;
-    description: string | null;
-    instructions: unknown;
-    cookTime: number;
-    difficulty: number;
-    servings: number;
-    cookingMethod: string | null;
-    dishType: string | null;
-    nutrition: unknown;
-    cookingTip: string | null;
-    updatedAt: Date;
-    categoryMeta: { key: string; name: string };
-    recipeIngredients: Array<{
-      ingredient: {
-        id: number;
-        name: string;
-        categoryMeta: { key: string; name: string };
-      };
-      amount: unknown;
-      unit: string | null;
-      isOptional: boolean;
-    }>;
-  }): string {
+  private buildRecipeDocument(recipe: RecipeForEmbeddingDocument): string {
     const ingredients = recipe.recipeIngredients
       .map((row) => {
         const amountText =

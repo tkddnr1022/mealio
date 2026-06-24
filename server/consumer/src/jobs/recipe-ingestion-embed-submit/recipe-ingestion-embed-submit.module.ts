@@ -13,11 +13,15 @@ import {
 import { mongooseConnectionPoolConfig } from 'src/policy/mongoose-pool.policy';
 import { prismaConnectionPoolConfig } from 'src/policy/prisma-pool.policy';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
+import { IngredientEmbeddingRepository } from 'src/persistence/repositories/postgresql/ingredient-embedding.repository';
 import {
   ConsumerMetricsService,
   OBSERVABILITY_CONFIG,
 } from 'src/reliability/monitoring/consumer-metrics.service';
+import { RecipeRepository } from 'src/persistence/repositories/postgresql/recipe.repository';
+import { RecipeIngredientRepository } from 'src/persistence/repositories/postgresql/recipe-ingredient.repository';
 import { RecipeEmbeddingDocumentService } from './integrations/recipe-embedding-document.integration';
+import { IngredientEmbeddingDocumentService } from './integrations/ingredient-embedding-document';
 import { EmbedSubmitService } from './services/embed-submit.service';
 
 @Module({
@@ -45,7 +49,11 @@ import { EmbedSubmitService } from './services/embed-submit.service';
     },
     ConsumerMetricsService,
     RecipeIngestionJobRepository,
+    RecipeRepository,
+    RecipeIngredientRepository,
+    IngredientEmbeddingRepository,
     RecipeEmbeddingDocumentService,
+    IngredientEmbeddingDocumentService,
     EmbedSubmitService,
   ],
   exports: [EmbedSubmitService],

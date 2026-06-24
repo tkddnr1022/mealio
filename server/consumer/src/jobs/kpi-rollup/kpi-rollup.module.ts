@@ -6,6 +6,8 @@ import {
   envValidationSchema,
 } from '../../config/env.validation';
 import { mongooseConnectionPoolConfig } from '../../policy/mongoose-pool.policy';
+import { EventLogRepository } from '../../persistence/repositories/mongodb/event-log.repository';
+import { KpiRollupRepository } from '../../persistence/repositories/mongodb/kpi-rollup.repository';
 import { KpiRollupService } from './kpi-rollup.service';
 
 /**
@@ -27,6 +29,6 @@ import { KpiRollupService } from './kpi-rollup.service';
     }),
     MongooseSchemasModule.forRoot(mongooseConnectionPoolConfig),
   ],
-  providers: [KpiRollupService],
+  providers: [EventLogRepository, KpiRollupRepository, KpiRollupService],
 })
 export class KpiRollupModule {}

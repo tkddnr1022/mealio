@@ -1,12 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import {
-  EventLog,
-  KpiRollup,
-  type EventLogDocument,
-  type KpiRollupDocument,
-} from '@mealio/shared';
+import { EventLogRepository } from 'src/persistence/repositories/mongodb/event-log.repository';
+import { KpiRollupRepository } from 'src/persistence/repositories/mongodb/kpi-rollup.repository';
 
 export interface RollupResult {
   kpiId: string;
@@ -27,10 +21,8 @@ export class KpiRollupService {
   private readonly logger = new Logger(KpiRollupService.name);
 
   constructor(
-    @InjectModel(EventLog.name)
-    private readonly eventLogModel: Model<EventLogDocument>,
-    @InjectModel(KpiRollup.name)
-    private readonly kpiRollupModel: Model<KpiRollupDocument>,
+    private readonly eventLogRepository: EventLogRepository,
+    private readonly kpiRollupRepository: KpiRollupRepository,
   ) {}
 
   async rollupDate(dateStr: string): Promise<RollupResult[]> {
@@ -47,7 +39,10 @@ export class KpiRollupService {
     ]);
 
     for (const result of results) {
-      await this.upsertRollup(result);
+      await this.kpiRollupRepository.upsert(result);
+      this.logger.log(
+        `${result.kpiId} date=${result.date} value=${result.value} num=${result.numerator} den=${result.denominator}`,
+      );
     }
 
     this.logger.log(`Completed ${results.length} KPI rollups for ${dateStr}`);
@@ -59,20 +54,17 @@ export class KpiRollupService {
     dayEnd: Date,
     dateStr: string,
   ): Promise<RollupResult> {
-    const baseMatch = {
-      occurredAt: { $gte: dayStart, $lt: dayEnd },
-      'actor.userId': { $exists: true, $ne: null },
-    };
-
     const [viewUsers, favUsers] = await Promise.all([
-      this.eventLogModel.distinct('actor.userId', {
-        ...baseMatch,
-        type: 'recipe.view',
-      }),
-      this.eventLogModel.distinct('actor.userId', {
-        ...baseMatch,
-        type: 'recipe.favorites_add',
-      }),
+      this.eventLogRepository.distinctUserIdsByTypeInRange(
+        'recipe.view',
+        dayStart,
+        dayEnd,
+      ),
+      this.eventLogRepository.distinctUserIdsByTypeInRange(
+        'recipe.favorites_add',
+        dayStart,
+        dayEnd,
+      ),
     ]);
 
     const denominator = viewUsers.length;
@@ -94,11 +86,17 @@ export class KpiRollupService {
     dayEnd: Date,
     dateStr: string,
   ): Promise<RollupResult> {
-    const range = { occurredAt: { $gte: dayStart, $lt: dayEnd } };
-
     const [queries, clicks] = await Promise.all([
-      this.eventLogModel.countDocuments({ ...range, type: 'search.query' }),
-      this.eventLogModel.countDocuments({ ...range, type: 'search.click' }),
+      this.eventLogRepository.countByTypeInRange(
+        'search.query',
+        dayStart,
+        dayEnd,
+      ),
+      this.eventLogRepository.countByTypeInRange(
+        'search.click',
+        dayStart,
+        dayEnd,
+      ),
     ]);
 
     return {
@@ -116,33 +114,12 @@ export class KpiRollupService {
     dayEnd: Date,
     dateStr: string,
   ): Promise<RollupResult> {
-    const result = await this.eventLogModel
-      .aggregate([
-        {
-          $match: {
-            type: 'recipe.favorites_add',
-            occurredAt: { $gte: dayStart, $lt: dayEnd },
-            processedAt: { $exists: true },
-          },
-        },
-        {
-          $project: {
-            latencyMs: { $subtract: ['$processedAt', '$occurredAt'] },
-          },
-        },
-        { $sort: { latencyMs: 1 } },
-        {
-          $group: {
-            _id: null,
-            count: { $sum: 1 },
-            values: { $push: '$latencyMs' },
-          },
-        },
-      ])
-      .exec();
-
-    const rows = result as Array<{ count: number; values: number[] }>;
-    if (!rows.length || rows[0].count === 0) {
+    const row =
+      await this.eventLogRepository.aggregateRecommendationLatencyInRange(
+        dayStart,
+        dayEnd,
+      );
+    if (!row || row.count === 0) {
       return {
         kpiId: 'kpi_recommendation_e2e_latency',
         date: dateStr,
@@ -153,7 +130,7 @@ export class KpiRollupService {
       };
     }
 
-    const { count, values } = rows[0];
+    const { count, values } = row;
     const p50 = values[Math.floor(count * 0.5)] ?? 0;
     const p95 = values[Math.floor(count * 0.95)] ?? 0;
     const p99 = values[Math.floor(count * 0.99)] ?? 0;
@@ -166,23 +143,5 @@ export class KpiRollupService {
       denominator: 0,
       stats: { p50, p95, p99 },
     };
-  }
-
-  private async upsertRollup(result: RollupResult): Promise<void> {
-    await this.kpiRollupModel.updateOne(
-      { kpiId: result.kpiId, date: result.date },
-      {
-        $set: {
-          value: result.value,
-          numerator: result.numerator,
-          denominator: result.denominator,
-          stats: result.stats,
-        },
-      },
-      { upsert: true },
-    );
-    this.logger.log(
-      `${result.kpiId} date=${result.date} value=${result.value} num=${result.numerator} den=${result.denominator}`,
-    );
   }
 }

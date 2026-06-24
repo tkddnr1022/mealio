@@ -11,6 +11,11 @@ import {
 } from '../../config/env.validation';
 import { mongooseConnectionPoolConfig } from '../../policy/mongoose-pool.policy';
 import { prismaConnectionPoolConfig } from '../../policy/prisma-pool.policy';
+import { OpenAIModule } from '../../integrations/openai/openai.module';
+import { RecipeCategoryRepository } from '../../persistence/repositories/postgresql/recipe-category.repository';
+import { IngredientCategoryRepository } from '../../persistence/repositories/postgresql/ingredient-category.repository';
+import { RecipeRepository } from '../../persistence/repositories/postgresql/recipe.repository';
+import { IngredientEmbeddingRepository } from '../../persistence/repositories/postgresql/ingredient-embedding.repository';
 import { IngredientRepository } from '../../persistence/repositories/postgresql/ingredient.repository';
 import { RecipeIngredientRepository } from '../../persistence/repositories/postgresql/recipe-ingredient.repository';
 import { RecipeIngestionJobRepository } from '../../persistence/repositories/mongodb/recipe-ingestion-job.repository';
@@ -20,7 +25,7 @@ import {
 } from '../../reliability/monitoring/consumer-metrics.service';
 import { CategoryResolverService } from './domains/category-resolver.domain';
 import { IngredientMatcherService } from './domains/ingredient-matcher.domain';
-import { PersistService } from './services/persist.service';
+import { PersistService } from 'src/jobs/recipe-ingestion-persist/services/persist.service';
 import { RecipeCreationService } from './domains/recipe-creation.domain';
 import { KafkaModule } from '../../integrations/kafka/kafka.module';
 
@@ -40,6 +45,7 @@ import { KafkaModule } from '../../integrations/kafka/kafka.module';
     MongooseSchemasModule.forRoot(mongooseConnectionPoolConfig),
     PrismaModule.forRoot(prismaConnectionPoolConfig),
     KafkaModule,
+    OpenAIModule,
   ],
   providers: [
     {
@@ -49,6 +55,10 @@ import { KafkaModule } from '../../integrations/kafka/kafka.module';
     },
     ConsumerMetricsService,
     RecipeIngestionJobRepository,
+    RecipeCategoryRepository,
+    IngredientCategoryRepository,
+    RecipeRepository,
+    IngredientEmbeddingRepository,
     IngredientRepository,
     RecipeIngredientRepository,
     CategoryResolverService,

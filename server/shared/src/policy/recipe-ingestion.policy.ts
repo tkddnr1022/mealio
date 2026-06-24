@@ -42,6 +42,9 @@ export const RECIPE_INGESTION_OPENAI_BATCH_MAX_TOKENS = 8_192;
 export const RECIPE_INGESTION_OPENAI_BATCH_REASONING_EFFORT = 'low' as const;
 export const RECIPE_INGESTION_OPENAI_BATCH_VERBOSITY = 'low' as const;
 
+/** 재료 벡터 매칭 cosine similarity 임계값 (이상 → match, 미만 → new) */
+export const INGREDIENT_VECTOR_MATCH_THRESHOLD = 0.90;
+
 /** persist 허용 최소 parseConfidence (미만이면 검증 거부) */
 export const RECIPE_INGESTION_MIN_PARSE_CONFIDENCE: RecipeIngestionParseConfidence =
   'low';

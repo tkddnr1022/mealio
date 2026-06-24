@@ -18,6 +18,8 @@ import {
   ConsumerMetricsService,
   OBSERVABILITY_CONFIG,
 } from '../../reliability/monitoring/consumer-metrics.service';
+import { RecipeCategoryRepository } from '../../persistence/repositories/postgresql/recipe-category.repository';
+import { IngredientCategoryRepository } from '../../persistence/repositories/postgresql/ingredient-category.repository';
 import { CategoryContextService } from './services/category-context.service';
 import { ParseSubmitService } from './services/parse-submit.service';
 
@@ -51,6 +53,8 @@ import { ParseSubmitService } from './services/parse-submit.service';
     },
     ConsumerMetricsService,
     RecipeIngestionJobRepository,
+    RecipeCategoryRepository,
+    IngredientCategoryRepository,
     CategoryContextService,
     ParseSubmitService,
   ],

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@mealio/shared';
-import { Ingredient } from '@mealio/shared/prisma-client';
+import { Ingredient, Prisma } from '@mealio/shared/prisma-client';
 
 export interface CreateIngredientInput {
   name: string;
@@ -22,6 +22,27 @@ export class IngredientRepository {
 
   async create(input: CreateIngredientInput): Promise<Ingredient> {
     return this.prisma.ingredient.create({
+      data: {
+        name: input.name,
+        categoryId: input.categoryId,
+      },
+    });
+  }
+
+  async findFirstByNameInTx(
+    tx: Prisma.TransactionClient,
+    name: string,
+  ): Promise<Ingredient | null> {
+    return tx.ingredient.findFirst({
+      where: { name },
+    });
+  }
+
+  async createInTx(
+    tx: Prisma.TransactionClient,
+    input: CreateIngredientInput,
+  ): Promise<Ingredient> {
+    return tx.ingredient.create({
       data: {
         name: input.name,
         categoryId: input.categoryId,

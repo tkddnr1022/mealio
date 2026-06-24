@@ -1,24 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import {
-  PrismaService,
   RedisService,
   RECIPE_INGESTION_CATEGORY_CACHE_TTL_SECONDS,
   cacheKeyRecipeIngestionFoodCategories,
 } from '@mealio/shared';
+import { IngredientCategoryRepository } from 'src/persistence/repositories/postgresql/ingredient-category.repository';
+import {
+  RecipeCategoryRepository,
+  type CategorySelectRow,
+} from 'src/persistence/repositories/postgresql/recipe-category.repository';
 
 export interface RecipeIngestionCategoryContext {
-  recipeCategories: Array<{
-    id: number;
-    key: string;
-    name: string;
-    displayOrder: number;
-  }>;
-  ingredientCategories: Array<{
-    id: number;
-    key: string;
-    name: string;
-    displayOrder: number;
-  }>;
+  recipeCategories: CategorySelectRow[];
+  ingredientCategories: CategorySelectRow[];
 }
 
 /**
@@ -28,7 +22,8 @@ export interface RecipeIngestionCategoryContext {
 @Injectable()
 export class CategoryContextService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly recipeCategoryRepository: RecipeCategoryRepository,
+    private readonly ingredientCategoryRepository: IngredientCategoryRepository,
     private readonly redis: RedisService,
   ) {}
 
@@ -50,16 +45,8 @@ export class CategoryContextService {
     }
 
     const [recipeCategories, ingredientCategories] = await Promise.all([
-      this.prisma.recipeCategory.findMany({
-        where: { isActive: true },
-        orderBy: [{ displayOrder: 'asc' }, { id: 'asc' }],
-        select: { id: true, key: true, name: true, displayOrder: true },
-      }),
-      this.prisma.ingredientCategory.findMany({
-        where: { isActive: true },
-        orderBy: [{ displayOrder: 'asc' }, { id: 'asc' }],
-        select: { id: true, key: true, name: true, displayOrder: true },
-      }),
+      this.recipeCategoryRepository.findActiveCategories(),
+      this.ingredientCategoryRepository.findActiveCategories(),
     ]);
 
     const result: RecipeIngestionCategoryContext = {

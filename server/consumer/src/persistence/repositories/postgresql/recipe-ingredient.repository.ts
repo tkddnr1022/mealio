@@ -9,12 +9,37 @@ export interface RecipeIngredientRowInput {
   isOptional?: boolean;
 }
 
+export interface RecipeIngredientNameCandidate {
+  ingredientId: number;
+  ingredientName: string;
+}
+
 /**
  * Consumer 전용 RecipeIngredient 리포지토리
  */
 @Injectable()
 export class RecipeIngredientRepository {
   constructor(private readonly prisma: PrismaService) {}
+
+  async findIngredientNameCandidatesByRecipeId(
+    recipeId: number,
+  ): Promise<RecipeIngredientNameCandidate[]> {
+    const rows = await this.prisma.recipeIngredient.findMany({
+      where: { recipeId },
+      select: {
+        ingredientId: true,
+        ingredient: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+    return rows.map((row) => ({
+      ingredientId: row.ingredientId,
+      ingredientName: row.ingredient.name,
+    }));
+  }
 
   async replaceForRecipe(
     tx: Prisma.TransactionClient,

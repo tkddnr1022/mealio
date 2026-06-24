@@ -4,13 +4,14 @@ import {
   RECIPE_INGESTION_RECIPE_SOURCE,
   type RecipeIngestionJobDocument,
 } from '@mealio/shared';
-import { PrismaService } from '@mealio/shared';
 import {
   OpenAIBatchError,
   OpenAIBatchService,
 } from 'src/integrations/openai/openai-batch.service';
 import { resolveRecipeIngestionTargetJobs } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
 import { RecipeEmbeddingDocumentService } from '../integrations/recipe-embedding-document.integration';
+import { IngredientEmbeddingDocumentService } from '../integrations/ingredient-embedding-document';
+import { RecipeRepository } from 'src/persistence/repositories/postgresql/recipe.repository';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
 
@@ -55,9 +56,10 @@ export class EmbedSubmitService {
   private readonly logger = new Logger(EmbedSubmitService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly recipeRepository: RecipeRepository,
     private readonly jobRepository: RecipeIngestionJobRepository,
-    private readonly embeddingDocumentService: RecipeEmbeddingDocumentService,
+    private readonly recipeEmbeddingDocumentService: RecipeEmbeddingDocumentService,
+    private readonly ingredientEmbeddingDocumentService: IngredientEmbeddingDocumentService,
     private readonly openAiBatchService: OpenAIBatchService,
     private readonly metrics: ConsumerMetricsService,
   ) {}
@@ -157,6 +159,7 @@ export class EmbedSubmitService {
 
     const lines: EmbedBatchJsonlRequestLine[] = [];
     const lineJobIds: string[] = [];
+    const queuedIngredientIdSet = new Set<number>();
     for (const job of lockedJobs) {
       const recipeId = await this.findRecipeIdBySourceId(job.sourceId);
       if (!recipeId) {
@@ -164,7 +167,7 @@ export class EmbedSubmitService {
         continue;
       }
       const doc =
-        await this.embeddingDocumentService.buildDocumentByRecipeId(recipeId);
+        await this.recipeEmbeddingDocumentService.buildDocumentByRecipeId(recipeId);
       if (!doc) {
         await this.rollbackEmbedStatus(
           String(job._id),
@@ -181,6 +184,22 @@ export class EmbedSubmitService {
           input: doc.documentText,
         },
       });
+      const ingredientDocuments =
+        await this.ingredientEmbeddingDocumentService.buildDocumentsByRecipeId(
+          recipeId,
+          queuedIngredientIdSet,
+        );
+      for (const document of ingredientDocuments) {
+        lines.push({
+          custom_id: `ingredient:${document.ingredientId}`,
+          method: 'POST',
+          url: '/v1/embeddings',
+          body: {
+            model: this.openAiBatchService.getEmbeddingModel(),
+            input: document.documentText,
+          },
+        });
+      }
       lineJobIds.push(String(job._id));
     }
 
@@ -225,16 +244,10 @@ export class EmbedSubmitService {
   private async findRecipeIdBySourceId(
     sourceId: number,
   ): Promise<number | null> {
-    const row = await this.prisma.recipe.findUnique({
-      where: {
-        source_sourceRecipeId: {
-          source: RECIPE_INGESTION_RECIPE_SOURCE,
-          sourceRecipeId: String(sourceId),
-        },
-      },
-      select: { id: true },
-    });
-    return row?.id ?? null;
+    return this.recipeRepository.findIdBySource(
+      RECIPE_INGESTION_RECIPE_SOURCE,
+      String(sourceId),
+    );
   }
 
   private async rollbackEmbedStatus(

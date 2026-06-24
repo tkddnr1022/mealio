@@ -1,10 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
-  formatRecipeNutritionSummary,
   MAX_RECIPE_INGESTION_RETRY_COUNT,
   RECIPE_INGESTION_RECIPE_SOURCE,
 } from '@mealio/shared';
-import { PrismaService } from '@mealio/shared';
 import { Types } from 'mongoose';
 import {
   isInProgressBatchStatus,
@@ -15,7 +13,9 @@ import {
 import { resolveRecipeIngestionRetrieveBatchIds } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
 import type { RecipeIngestionRunScopeOnlyOptions } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.scope';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
+import { IngredientEmbeddingRepository } from 'src/persistence/repositories/postgresql/ingredient-embedding.repository';
 import { RecipeEmbeddingRepository } from 'src/persistence/repositories/postgresql/recipe-embedding.repository';
+import { RecipeRepository } from 'src/persistence/repositories/postgresql/recipe.repository';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
 
 export type EmbedRetrieveOptions = RecipeIngestionRunScopeOnlyOptions;
@@ -42,7 +42,9 @@ type EmbedBatchOutcome =
   | { ok: true; jobId: string; embedding: number[] }
   | { ok: false; jobId: string; errorMessage: string };
 
-type RecipeInstructionStep = { step?: number; content?: string };
+type IngredientEmbedBatchOutcome =
+  | { ok: true; ingredientId: number; embedding: number[] }
+  | { ok: false; ingredientId: number | null; errorMessage: string };
 
 const TERMINAL_BATCH_FAILURE_STATUSES: ReadonlySet<OpenAIBatchStatus> = new Set(
   ['failed', 'expired'],
@@ -53,9 +55,10 @@ export class EmbedRetrieveService {
   private readonly logger = new Logger(EmbedRetrieveService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly recipeRepository: RecipeRepository,
     private readonly jobRepository: RecipeIngestionJobRepository,
     private readonly openAiBatchService: OpenAIBatchService,
+    private readonly ingredientEmbeddingRepository: IngredientEmbeddingRepository,
     private readonly recipeEmbeddingRepository: RecipeEmbeddingRepository,
     private readonly metrics: ConsumerMetricsService,
   ) {}
@@ -184,6 +187,11 @@ export class EmbedRetrieveService {
       );
       const lines = parseEmbedJsonlLines(jsonl);
       for (const line of lines) {
+        const customId = line.custom_id ?? '';
+        if (customId.startsWith('ingredient:')) {
+          await this.upsertIngredientEmbeddingLine(line);
+          continue;
+        }
         const outcome = parseEmbedBatchLine(line);
         if (!outcome.ok) {
           const rolled = await this.rollbackEmbedRetrievingJob(
@@ -205,21 +213,10 @@ export class EmbedRetrieveService {
           if (rolled) failedCount++;
           continue;
         }
-        const doc = await this.buildDocumentByRecipeId(recipeId);
-        if (!doc) {
-          const rolled = await this.rollbackEmbedRetrievingJob(
-            outcome.jobId,
-            'embedding document not found',
-          );
-          if (rolled) failedCount++;
-          continue;
-        }
         await this.recipeEmbeddingRepository.upsert({
-          recipeId: doc.recipeId,
+          recipeId,
           embedding: outcome.embedding,
-          documentText: doc.documentText,
           embeddingModel: this.openAiBatchService.getEmbeddingModel(),
-          sourceUpdatedAt: doc.sourceUpdatedAt,
         });
         const done = await this.jobRepository.transitionStatus(
           outcome.jobId,
@@ -255,134 +252,10 @@ export class EmbedRetrieveService {
   private async findRecipeIdBySourceId(
     sourceId: number,
   ): Promise<number | null> {
-    const row = await this.prisma.recipe.findUnique({
-      where: {
-        source_sourceRecipeId: {
-          source: RECIPE_INGESTION_RECIPE_SOURCE,
-          sourceRecipeId: String(sourceId),
-        },
-      },
-      select: { id: true },
-    });
-    return row?.id ?? null;
-  }
-
-  private async buildDocumentByRecipeId(recipeId: number): Promise<{
-    recipeId: number;
-    documentText: string;
-    sourceUpdatedAt: Date;
-  } | null> {
-    if (!Number.isInteger(recipeId) || recipeId <= 0) {
-      return null;
-    }
-    const recipe = await this.prisma.recipe.findUnique({
-      where: { id: recipeId },
-      include: {
-        categoryMeta: { select: { key: true, name: true } },
-        recipeIngredients: {
-          include: {
-            ingredient: {
-              include: { categoryMeta: { select: { key: true, name: true } } },
-            },
-          },
-        },
-      },
-    });
-    if (!recipe) return null;
-    return {
-      recipeId: recipe.id,
-      documentText: this.buildRecipeDocument(recipe),
-      sourceUpdatedAt: recipe.updatedAt,
-    };
-  }
-
-  private buildRecipeDocument(recipe: {
-    id: number;
-    title: string;
-    description: string | null;
-    instructions: unknown;
-    cookTime: number;
-    difficulty: number;
-    servings: number;
-    cookingMethod: string | null;
-    dishType: string | null;
-    nutrition: unknown;
-    cookingTip: string | null;
-    updatedAt: Date;
-    categoryMeta: { key: string; name: string };
-    recipeIngredients: Array<{
-      ingredient: {
-        id: number;
-        name: string;
-        categoryMeta: { key: string; name: string };
-      };
-      amount: unknown;
-      unit: string | null;
-      isOptional: boolean;
-    }>;
-  }): string {
-    const ingredients = recipe.recipeIngredients
-      .map((row) => {
-        const amountText =
-          row.amount != null
-            ? ` ${
-                typeof row.amount === 'string' ||
-                typeof row.amount === 'number' ||
-                typeof row.amount === 'boolean'
-                  ? String(row.amount)
-                  : JSON.stringify(row.amount)
-              }`
-            : '';
-        const unitText = row.unit ?? '';
-        const optionalText = row.isOptional ? ' optional' : '';
-        return `${row.ingredient.name}${amountText}${unitText}${optionalText} (${row.ingredient.categoryMeta.name})`;
-      })
-      .join(', ');
-
-    const lines = [
-      `recipe_id: ${recipe.id}`,
-      `title: ${recipe.title}`,
-      `description: ${recipe.description ?? ''}`,
-      `category: ${recipe.categoryMeta.name} (${recipe.categoryMeta.key})`,
-      `cook_time_minutes: ${recipe.cookTime}`,
-      `difficulty: ${recipe.difficulty}`,
-      `servings: ${recipe.servings}`,
-    ];
-    if (recipe.cookingMethod)
-      lines.push(`cooking_method: ${recipe.cookingMethod}`);
-    if (recipe.dishType) lines.push(`dish_type: ${recipe.dishType}`);
-
-    const nutritionText = formatRecipeNutritionSummary(recipe.nutrition, {
-      locale: 'en',
-    });
-    if (nutritionText) lines.push(`nutrition_per_serving: ${nutritionText}`);
-    if (recipe.cookingTip) lines.push(`cooking_tip: ${recipe.cookingTip}`);
-    lines.push(`ingredients: ${ingredients}`);
-
-    const instructionsText = this.formatInstructions(recipe.instructions);
-    if (instructionsText) lines.push(`instructions: ${instructionsText}`);
-    return lines.join('\n');
-  }
-
-  private formatInstructions(instructions: unknown): string {
-    if (!Array.isArray(instructions) || instructions.length === 0) {
-      return '';
-    }
-    return instructions
-      .map((item, index) => {
-        if (!item || typeof item !== 'object') return null;
-        const step = item as RecipeInstructionStep;
-        const stepNum =
-          typeof step.step === 'number' && step.step > 0
-            ? step.step
-            : index + 1;
-        const content =
-          typeof step.content === 'string' ? step.content.trim() : '';
-        if (!content) return null;
-        return `${stepNum}. ${content}`;
-      })
-      .filter((line): line is string => line != null)
-      .join(' ');
+    return this.recipeRepository.findIdBySource(
+      RECIPE_INGESTION_RECIPE_SOURCE,
+      String(sourceId),
+    );
   }
 
   private async rollbackEmbedSubmittedBatch(
@@ -454,6 +327,30 @@ export class EmbedRetrieveService {
     );
     return !!updated;
   }
+
+  private async upsertIngredientEmbeddingLine(
+    line: EmbedBatchLine,
+  ): Promise<void> {
+    const outcome = parseIngredientEmbedBatchLine(line);
+    if (!outcome.ok) {
+      this.logger.warn(
+        `ingredient embedding line skipped: ${outcome.errorMessage}`,
+      );
+      return;
+    }
+    try {
+      await this.ingredientEmbeddingRepository.upsert({
+        ingredientId: outcome.ingredientId,
+        embedding: outcome.embedding,
+        embeddingModel: this.openAiBatchService.getEmbeddingModel(),
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(
+        `ingredientId=${outcome.ingredientId} embedding upsert failed: ${message}`,
+      );
+    }
+  }
 }
 
 export function parseEmbedJsonlLines(jsonl: string): EmbedBatchLine[] {
@@ -498,4 +395,53 @@ export function parseEmbedBatchLine(line: EmbedBatchLine): EmbedBatchOutcome {
     return { ok: false, jobId, errorMessage: 'Embedding vector missing' };
   }
   return { ok: true, jobId, embedding };
+}
+
+export function parseIngredientEmbedBatchLine(
+  line: EmbedBatchLine,
+): IngredientEmbedBatchOutcome {
+  const customId = line.custom_id ?? '';
+  if (!customId.startsWith('ingredient:')) {
+    return {
+      ok: false,
+      ingredientId: null,
+      errorMessage: 'Invalid ingredient custom_id prefix',
+    };
+  }
+  const ingredientIdText = customId.slice('ingredient:'.length);
+  const ingredientId = Number.parseInt(ingredientIdText, 10);
+  if (!Number.isInteger(ingredientId) || ingredientId <= 0) {
+    return {
+      ok: false,
+      ingredientId: null,
+      errorMessage: 'Invalid ingredient custom_id value',
+    };
+  }
+  if (line.error != null) {
+    return {
+      ok: false,
+      ingredientId,
+      errorMessage:
+        typeof line.error === 'string'
+          ? line.error
+          : JSON.stringify(line.error),
+    };
+  }
+  const statusCode = line.response?.status_code;
+  if (statusCode !== 200) {
+    return {
+      ok: false,
+      ingredientId,
+      errorMessage: `Batch line status_code=${statusCode ?? 'missing'}`,
+    };
+  }
+  const embedding = line.response?.body?.data?.[0]?.embedding;
+  if (!Array.isArray(embedding) || embedding.length === 0) {
+    return {
+      ok: false,
+      ingredientId,
+      errorMessage: 'Embedding vector missing',
+    };
+  }
+  return { ok: true, ingredientId, embedding };
 }

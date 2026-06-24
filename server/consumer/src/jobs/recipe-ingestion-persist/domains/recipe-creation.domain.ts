@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import {
   compactRecipeNutritionForJson,
   meetsRecipeIngestionMinParseConfidence,
-  PrismaService,
   RECIPE_INGESTION_MIN_PUBLISH_PARSE_CONFIDENCE,
   RECIPE_INGESTION_RECIPE_SOURCE,
   type RecipeNutritionPayload,
@@ -13,6 +12,8 @@ import {
   RecipeIngredientRepository,
   type RecipeIngredientRowInput,
 } from 'src/persistence/repositories/postgresql/recipe-ingredient.repository';
+import { RecipeRepository } from 'src/persistence/repositories/postgresql/recipe.repository';
+import { OpenAIService } from 'src/integrations/openai/openai.service';
 import {
   IngredientMatcherService,
   type IngredientMatchMethod,
@@ -28,6 +29,8 @@ export interface RecipeCreationResult {
   recipeId: number;
   matchMethods: IngredientMatchMethod[];
 }
+
+type IngredientEmbeddingMap = Map<string, number[]>;
 
 function parseQuantityToDecimal(
   quantity: string | null | undefined,
@@ -87,10 +90,11 @@ export class RecipeCreationService {
   private readonly logger = new Logger(RecipeCreationService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly recipeRepository: RecipeRepository,
     private readonly categoryResolver: CategoryResolverService,
     private readonly ingredientMatcher: IngredientMatcherService,
     private readonly recipeIngredientRepository: RecipeIngredientRepository,
+    private readonly openAiService: OpenAIService,
   ) {}
 
   async execute(
@@ -98,12 +102,16 @@ export class RecipeCreationService {
     data: RetrievedDataPayload,
   ): Promise<RecipeCreationResult> {
     const sourceRecipeId = String(job.sourceId);
+    const embeddingMap = await this.buildQueryEmbeddingMap(
+      sourceRecipeId,
+      data.ingredients,
+    );
     const isPublished = meetsRecipeIngestionMinParseConfidence(
       data.parseConfidence,
       RECIPE_INGESTION_MIN_PUBLISH_PARSE_CONFIDENCE,
     );
 
-    return this.prisma.$transaction(async (tx) => {
+    return this.recipeRepository.runInTransaction(async (tx) => {
       const categoryId = await this.categoryResolver.resolveRecipeCategoryId(
         tx,
         data.recipe.categoryId,
@@ -111,7 +119,7 @@ export class RecipeCreationService {
       );
       const servings = Math.max(1, data.recipe.servings ?? 2);
 
-      const recipeData = {
+      const recipe = await this.recipeRepository.upsertForIngestionInTx(tx, {
         categoryId,
         title: data.recipe.title.trim().slice(0, 100),
         description: data.recipe.description?.trim() ?? null,
@@ -127,23 +135,7 @@ export class RecipeCreationService {
         source: RECIPE_INGESTION_RECIPE_SOURCE,
         sourceRecipeId,
         isPublished,
-      };
-
-      const existing = await tx.recipe.findUnique({
-        where: {
-          source_sourceRecipeId: {
-            source: RECIPE_INGESTION_RECIPE_SOURCE,
-            sourceRecipeId,
-          },
-        },
       });
-
-      const recipe = existing
-        ? await tx.recipe.update({
-            where: { id: existing.id },
-            data: recipeData,
-          })
-        : await tx.recipe.create({ data: recipeData });
 
       const matchMethods: IngredientMatchMethod[] = [];
       const ingredientRowsByIngredientId = new Map<
@@ -153,7 +145,12 @@ export class RecipeCreationService {
       let duplicatedIngredientCount = 0;
 
       for (const ingredient of data.ingredients) {
-        const match = await this.ingredientMatcher.match(tx, ingredient);
+        const embeddingKey = this.resolveIngredientEmbeddingKey(ingredient);
+        const match = await this.ingredientMatcher.match(
+          tx,
+          ingredient,
+          embeddingMap?.get(embeddingKey),
+        );
         matchMethods.push(match.matchMethod);
         const nextRow: RecipeIngredientRowInput = {
           ingredientId: match.ingredientId,
@@ -189,15 +186,7 @@ export class RecipeCreationService {
         ingredientRows,
       );
 
-      await tx.recipeStats.upsert({
-        where: { recipeId: recipe.id },
-        create: {
-          recipeId: recipe.id,
-          viewCount: 0,
-          likeCount: 0,
-        },
-        update: {},
-      });
+      await this.recipeRepository.initializeStatsInTx(tx, recipe.id);
 
       this.logger.log(
         `Persisted recipe id=${recipe.id} sourceRecipeId=${sourceRecipeId} matchMethods=${matchMethods.join(',')}`,
@@ -205,5 +194,57 @@ export class RecipeCreationService {
 
       return { recipeId: recipe.id, matchMethods };
     });
+  }
+
+  private async buildQueryEmbeddingMap(
+    sourceRecipeId: string,
+    ingredients: RetrievedDataPayload['ingredients'],
+  ): Promise<IngredientEmbeddingMap | null> {
+    const uniqueNames = [
+      ...new Set(
+        ingredients
+          .map((ingredient) => this.resolveIngredientEmbeddingKey(ingredient))
+          .filter((name) => name.length > 0),
+      ),
+    ];
+    if (uniqueNames.length === 0) {
+      return null;
+    }
+    try {
+      const embeddings = await this.openAiService.createEmbeddings(uniqueNames);
+      if (embeddings.length === 0) {
+        return null;
+      }
+      const embeddingMap = new Map<string, number[]>();
+      for (const [index, name] of uniqueNames.entries()) {
+        const embedding = embeddings[index];
+        if (Array.isArray(embedding) && embedding.length > 0) {
+          embeddingMap.set(name, embedding);
+        }
+      }
+      return embeddingMap;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(
+        `sourceRecipeId=${sourceRecipeId} vector lookup skipped due to embedding error: ${message}`,
+      );
+      return null;
+    }
+  }
+
+  private resolveIngredientEmbeddingKey(ingredient: {
+    ingredientAlias: string;
+    normalizedName: string;
+    rawName: string;
+  }): string {
+    const alias = ingredient.ingredientAlias.trim();
+    if (alias.length > 0) {
+      return alias;
+    }
+    const normalized = ingredient.normalizedName.trim();
+    if (normalized.length > 0) {
+      return normalized;
+    }
+    return ingredient.rawName.trim();
   }
 }

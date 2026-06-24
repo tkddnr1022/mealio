@@ -18,6 +18,8 @@ import {
   OBSERVABILITY_CONFIG,
 } from 'src/reliability/monitoring/consumer-metrics.service';
 import { RecipeEmbeddingRepository } from 'src/persistence/repositories/postgresql/recipe-embedding.repository';
+import { IngredientEmbeddingRepository } from 'src/persistence/repositories/postgresql/ingredient-embedding.repository';
+import { RecipeRepository } from 'src/persistence/repositories/postgresql/recipe.repository';
 import { EmbedRetrieveService } from './services/embed-retrieve.service';
 
 @Module({
@@ -45,6 +47,8 @@ import { EmbedRetrieveService } from './services/embed-retrieve.service';
     },
     ConsumerMetricsService,
     RecipeIngestionJobRepository,
+    RecipeRepository,
+    IngredientEmbeddingRepository,
     RecipeEmbeddingRepository,
     EmbedRetrieveService,
   ],

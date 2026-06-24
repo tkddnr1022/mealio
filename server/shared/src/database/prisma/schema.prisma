@@ -106,10 +106,8 @@ model RecipeEmbedding {
   recipeId       Int                      @id @map("recipe_id")
   /** pgvector extension type. Prisma Client에서는 raw query로 접근한다. */
   embedding      Unsupported("vector")
-  documentText   String                   @map("document_text") @db.Text
   embeddingModel String                   @map("embedding_model") @db.VarChar(100)
   version        Int                      @default(1)
-  sourceUpdatedAt DateTime                @map("source_updated_at")
   createdAt      DateTime                 @default(now()) @map("created_at")
   updatedAt      DateTime                 @default(now()) @updatedAt @map("updated_at")
 
@@ -169,10 +167,26 @@ model Ingredient {
   createdAt  DateTime @default(now()) @map("created_at")
 
   categoryMeta      IngredientCategory @relation(fields: [categoryId], references: [id])
+  embedding         IngredientEmbedding?
   recipeIngredients RecipeIngredient[]
 
   @@index([categoryId, name])
   @@map("Ingredient")
+}
+
+model IngredientEmbedding {
+  ingredientId   Int                   @id @map("ingredient_id")
+  /** pgvector extension type. Prisma Client에서는 raw query로 접근한다. */
+  embedding      Unsupported("vector")
+  embeddingModel String                @map("embedding_model") @db.VarChar(100)
+  version        Int                   @default(1)
+  createdAt      DateTime              @default(now()) @map("created_at")
+  updatedAt      DateTime              @default(now()) @updatedAt @map("updated_at")
+
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@index([updatedAt(sort: Desc)])
+  @@map("IngredientEmbedding")
 }
 
 model RecipeIngredient {

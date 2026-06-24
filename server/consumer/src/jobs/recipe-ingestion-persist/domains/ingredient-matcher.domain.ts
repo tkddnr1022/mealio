@@ -1,9 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { INGREDIENT_VECTOR_MATCH_THRESHOLD } from '@mealio/shared';
 import { Prisma } from '@mealio/shared/prisma-client';
 import type { RetrievedIngredientPayload } from '../validators/retrieved-data.validator';
 import { CategoryResolverService } from './category-resolver.domain';
+import { IngredientEmbeddingRepository } from 'src/persistence/repositories/postgresql/ingredient-embedding.repository';
+import { IngredientRepository } from 'src/persistence/repositories/postgresql/ingredient.repository';
 
-export type IngredientMatchMethod = 'alias' | 'exact' | 'new';
+export type IngredientMatchMethod = 'alias' | 'exact' | 'vector' | 'new';
 
 export interface IngredientMatchResult {
   ingredientId: number;
@@ -11,21 +14,29 @@ export interface IngredientMatchResult {
 }
 
 /**
- * 재료 매칭 MVP — alias exact → normalized exact → 신규 생성
+ * 재료 매칭 — alias → exact → vector → 신규 생성
  */
 @Injectable()
 export class IngredientMatcherService {
   private readonly logger = new Logger(IngredientMatcherService.name);
 
-  constructor(private readonly categoryResolver: CategoryResolverService) {}
+  constructor(
+    private readonly categoryResolver: CategoryResolverService,
+    private readonly ingredientRepository: IngredientRepository,
+    private readonly ingredientEmbeddingRepository: IngredientEmbeddingRepository,
+  ) {}
 
   async match(
     tx: Prisma.TransactionClient,
     ingredient: RetrievedIngredientPayload,
+    queryEmbedding?: number[],
   ): Promise<IngredientMatchResult> {
     const alias = ingredient.ingredientAlias.trim();
     if (alias.length > 0) {
-      const byAlias = await tx.ingredient.findFirst({ where: { name: alias } });
+      const byAlias = await this.ingredientRepository.findFirstByNameInTx(
+        tx,
+        alias,
+      );
       if (byAlias) {
         return { ingredientId: byAlias.id, matchMethod: 'alias' };
       }
@@ -33,11 +44,26 @@ export class IngredientMatcherService {
 
     const normalized = ingredient.normalizedName.trim();
     if (normalized.length > 0) {
-      const byNormalized = await tx.ingredient.findFirst({
-        where: { name: normalized },
-      });
+      const byNormalized = await this.ingredientRepository.findFirstByNameInTx(
+        tx,
+        normalized,
+      );
       if (byNormalized) {
         return { ingredientId: byNormalized.id, matchMethod: 'exact' };
+      }
+    }
+
+    if (Array.isArray(queryEmbedding) && queryEmbedding.length > 0) {
+      const vectorThreshold = Number(INGREDIENT_VECTOR_MATCH_THRESHOLD);
+      const vectorMatches = await this.ingredientEmbeddingRepository.searchTopK(
+        tx,
+        queryEmbedding,
+        1,
+        vectorThreshold,
+      );
+      const topMatch = vectorMatches[0];
+      if (topMatch) {
+        return { ingredientId: topMatch.ingredientId, matchMethod: 'vector' };
       }
     }
 
@@ -54,8 +80,9 @@ export class IngredientMatcherService {
           ? normalized
           : ingredient.rawName.trim();
 
-    const created = await tx.ingredient.create({
-      data: { name, categoryId },
+    const created = await this.ingredientRepository.createInTx(tx, {
+      name,
+      categoryId,
     });
 
     this.logger.log(
