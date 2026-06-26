@@ -139,6 +139,7 @@ export {
   type RecipeIngestionParseConfidence,
   isRecipeIngestionParseConfidence,
   meetsRecipeIngestionMinParseConfidence,
+  recipeIngestionJobSortTimestampField,
 } from './constants/recipe-ingestion';
 export { MAX_RECOMMENDATION_ROWS } from './policy/recommendation.policy';
 export { SLOW_QUERY_THRESHOLD_MS } from './policy/observability.policy';

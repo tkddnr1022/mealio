@@ -68,6 +68,26 @@ stateDiagram-v2
 
 모든 payload는 `{ runId, fetchedCount, triggeredAt }` 형식을 사용합니다.
 
+## `recipe_ingestion_jobs` 필드
+
+스키마 SSOT: `server/shared/.../recipe-ingestion-job.schema.ts`, 상세는 agent `recipe_ingestion_guidelines.md` §3.1.
+
+### `status`
+
+`fetched` → `parse_submitting` → `parse_submitted` → `parse_retrieving` → `parse_retrieved` → `persisting` → `persisted` → `embed_submitting` → `embed_submitted` → `embed_retrieving` → `embed_retrieved` (또는 `failed`)
+
+### 타임스탬프 (Mongoose camelCase)
+
+| Mongo | Mongoose | 설정 시점 |
+| --- | --- | --- |
+| `fetched_at` | `fetchedAt` | fetch upsert |
+| `submitted_at` | `submittedAt` | `parse_submitted` 또는 `embed_submitted` |
+| `retrieved_at` | `retrievedAt` | `parse_retrieved` 또는 `embed_retrieved` |
+| `persisted_at` | `persistedAt` | `persisted` |
+| `failed_at` | `failedAt` | `failed` |
+
+`submitted_at`·`retrieved_at`은 parse·embed 단계가 공유합니다. embed 단계에서 재설정되면 parse 단계 시각을 덮어씁니다.
+
 ## CLI
 
 ```bash

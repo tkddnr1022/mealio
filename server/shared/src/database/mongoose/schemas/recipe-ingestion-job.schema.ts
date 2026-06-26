@@ -26,6 +26,7 @@ export class RecipeIngestionJob extends Document {
   @Prop({ required: true, unique: true, type: Number, index: true })
   sourceId: number;
 
+  /** 파이프라인 단계 — `RECIPE_INGESTION_JOB_STATUSES` */
   @Prop({
     required: true,
     type: String,
@@ -52,22 +53,27 @@ export class RecipeIngestionJob extends Document {
   @Prop({ type: String })
   errorMessage?: string;
 
+  /** fetch upsert 시각 (`fetched_at`) */
   @Prop({ type: Date })
   fetchedAt?: Date;
 
+  /** parse/embed Batch 제출 완료 시각 (`submitted_at`). embed 단계 재설정 시 parse 제출 시각을 덮어씀 */
   @Prop({ type: Date })
   submittedAt?: Date;
 
+  /** parse/embed Batch 결과 반영 시각 (`retrieved_at`). embed 단계 재설정 시 parse retrieve 시각을 덮어씀 */
   @Prop({ type: Date })
   retrievedAt?: Date;
 
+  /** persist 완료 시각 (`persisted_at`) */
   @Prop({ type: Date })
   persistedAt?: Date;
 
-  /** persist 단계에서 matchMethod=new로 신규 생성된 재료 ID 목록 */
+  /** persist 단계에서 matchMethod=new로 신규 생성된 재료 ID 목록 (`new_ingredient_ids`) */
   @Prop({ type: [Number], default: undefined })
   newIngredientIds?: number[];
 
+  /** `failed` 전환 시각 (`failed_at`) */
   @Prop({ type: Date })
   failedAt?: Date;
 }

@@ -4,6 +4,7 @@
  * @see agent/common/config_centralization_audit.md
  */
 
+/** @see agent/backend/guidelines/recipe_ingestion_guidelines.md §3.1 */
 export const RECIPE_INGESTION_JOB_STATUSES = [
   'fetched',
   'parse_submitting',
@@ -21,6 +22,26 @@ export const RECIPE_INGESTION_JOB_STATUSES = [
 
 export type RecipeIngestionJobStatus =
   (typeof RECIPE_INGESTION_JOB_STATUSES)[number];
+
+/** run scope 정렬·조회 시 status별 기준 타임스탬프 (Mongoose camelCase) */
+export function recipeIngestionJobSortTimestampField(
+  status: RecipeIngestionJobStatus,
+): 'fetchedAt' | 'submittedAt' | 'retrievedAt' | 'persistedAt' | 'failedAt' {
+  switch (status) {
+    case 'parse_submitted':
+    case 'embed_submitted':
+      return 'submittedAt';
+    case 'parse_retrieved':
+    case 'embed_retrieved':
+      return 'retrievedAt';
+    case 'persisted':
+      return 'persistedAt';
+    case 'failed':
+      return 'failedAt';
+    default:
+      return 'fetchedAt';
+  }
+}
 
 /** recipe_ingestion_state singleton 문서 키 */
 export const RECIPE_INGESTION_STATE_KEY = 'singleton';

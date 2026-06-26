@@ -4,6 +4,7 @@ import { Model, Types } from 'mongoose';
 import {
   MAX_RECIPE_INGESTION_RETRY_COUNT,
   RecipeIngestionJob,
+  recipeIngestionJobSortTimestampField,
   type RecipeIngestionJobDocument,
   type RecipeIngestionJobStatus,
 } from '@mealio/shared';
@@ -222,12 +223,7 @@ export class RecipeIngestionJobRepository {
     status: RecipeIngestionJobStatus,
     limit: number,
   ): Promise<string[]> {
-    const timestampField =
-      status === 'parse_submitted'
-        ? 'submittedAt'
-        : status === 'parse_retrieved'
-          ? 'retrievedAt'
-          : 'fetchedAt';
+    const timestampField = recipeIngestionJobSortTimestampField(status);
 
     const rows = await this.jobModel
       .aggregate<{ _id: string }>([
