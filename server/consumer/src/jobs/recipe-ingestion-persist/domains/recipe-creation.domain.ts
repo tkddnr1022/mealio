@@ -16,6 +16,7 @@ import { RecipeRepository } from 'src/persistence/repositories/postgresql/recipe
 import { OpenAIService } from 'src/integrations/openai/openai.service';
 import {
   IngredientMatcherService,
+  summarizeIngredientMatchMethods,
   type IngredientMatchMethod,
 } from './ingredient-matcher.domain';
 import { CategoryResolverService } from './category-resolver.domain';
@@ -216,7 +217,8 @@ export class RecipeCreationService {
         outcome: 'success',
         ...logBase,
         recipeId: recipe.id,
-        matchMethods: matchMethods.join(','),
+        matchMethods: summarizeIngredientMatchMethods(matchMethods),
+        ingredientCount: matchMethods.length,
         newIngredientCount: newIngredientIdSet.size,
       });
 

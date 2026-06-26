@@ -17,6 +17,16 @@ export interface IngredientMatchResult {
   matchMethod: IngredientMatchMethod;
 }
 
+export function summarizeIngredientMatchMethods(
+  methods: IngredientMatchMethod[],
+): Partial<Record<IngredientMatchMethod, number>> {
+  const counts: Partial<Record<IngredientMatchMethod, number>> = {};
+  for (const method of methods) {
+    counts[method] = (counts[method] ?? 0) + 1;
+  }
+  return counts;
+}
+
 /**
  * 재료 매칭 — alias → exact → vector → 신규 생성
  */
