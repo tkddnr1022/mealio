@@ -16,6 +16,7 @@ contactPoints:
             *Status*: {{ .Status }}
             *Alert*: {{ .CommonLabels.alertname }}
             {{ range .Alerts }}
+            Rule: {{ or .Labels.rulename .Labels.alertname }}
             Topic: {{ .Labels.topic }}
             Value: {{ .ValueString }}
 
@@ -33,4 +34,5 @@ contactPoints:
             *Status*: {{ .Status }}
             *KPI*: {{ .CommonLabels.alertname }}
             {{ range .Alerts }}
+            Rule: {{ or .Labels.rulename .Labels.alertname }}
             Value: {{ .ValueString }}
