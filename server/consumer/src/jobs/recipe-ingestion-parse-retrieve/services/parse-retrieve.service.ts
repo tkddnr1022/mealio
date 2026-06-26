@@ -136,10 +136,7 @@ export class ParseRetrieveService {
 
     for (const batchId of batchIds) {
       try {
-        const outcome = await this.processBatch(
-          batchId,
-          options.correlationId,
-        );
+        const outcome = await this.processBatch(batchId, options.correlationId);
         retrievedCount += outcome.retrievedCount;
         failedCount += outcome.failedCount;
         if (outcome.retrievedCount > 0) {

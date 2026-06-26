@@ -494,10 +494,10 @@ export class RecipeIngestionJobRepository {
             ...(failed ? { failedAt: now } : {}),
             ...(!failed
               ? {
-                    batchId: undefined,
-                    parseSubmittedAt: undefined,
-                    retrievedData: undefined,
-                    parseRetrievedAt: undefined,
+                  batchId: undefined,
+                  parseSubmittedAt: undefined,
+                  retrievedData: undefined,
+                  parseRetrievedAt: undefined,
                 }
               : {}),
           },

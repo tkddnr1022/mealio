@@ -1,6 +1,9 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { generateCorrelationId, type ObservabilityConfig } from '@mealio/shared';
+import {
+  generateCorrelationId,
+  type ObservabilityConfig,
+} from '@mealio/shared';
 import { findUnknownCliArgs } from '../cli-args.util';
 import { parseRecipeIngestionRunCliArgs } from '../recipe-ingestion/recipe-ingestion-run.cli';
 import {

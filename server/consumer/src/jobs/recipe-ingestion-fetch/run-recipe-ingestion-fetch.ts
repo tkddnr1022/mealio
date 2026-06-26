@@ -76,7 +76,8 @@ async function main(): Promise<void> {
       stage,
       correlationId,
       {
-        outcome: result.exhausted && result.fetchedCount === 0 ? 'no_op' : 'success',
+        outcome:
+          result.exhausted && result.fetchedCount === 0 ? 'no_op' : 'success',
         startIdx: result.startIdx,
         endIdx: result.endIdx,
         runId: result.runId,

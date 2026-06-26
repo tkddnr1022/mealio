@@ -247,7 +247,8 @@ export class PersistService {
           event: RECIPE_INGESTION_LOG_EVENTS.JOB_TRANSITION_FAILED,
           ...logBase,
           runId: persisting.runId,
-          message: 'persist succeeded but persisting→persisted transition failed',
+          message:
+            'persist succeeded but persisting→persisted transition failed',
         });
       } else if (
         typeof persisted.runId === 'string' &&

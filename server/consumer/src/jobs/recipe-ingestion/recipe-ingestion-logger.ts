@@ -34,7 +34,11 @@ export const RECIPE_INGESTION_LOG_EVENTS = {
   CLI_UNKNOWN_ARGS: 'recipe_ingestion_cli_unknown_args',
 } as const;
 
-export type RecipeIngestionLogOutcome = 'success' | 'skipped' | 'failed' | 'no_op';
+export type RecipeIngestionLogOutcome =
+  | 'success'
+  | 'skipped'
+  | 'failed'
+  | 'no_op';
 
 export interface RecipeIngestionLoggingOptions {
   correlationId?: string;

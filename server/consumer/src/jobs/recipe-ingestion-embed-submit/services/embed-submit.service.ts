@@ -127,7 +127,11 @@ export class EmbedSubmitService {
     const submittedBatchIds: string[] = [];
 
     for (const [runId, jobs] of jobsByRunId.groups.entries()) {
-      const result = await this.submitRunGroup(runId, jobs, options.correlationId);
+      const result = await this.submitRunGroup(
+        runId,
+        jobs,
+        options.correlationId,
+      );
       submittedCount += result.submittedCount;
       skippedCount += result.skippedCount;
       if (result.batchId) submittedBatchIds.push(result.batchId);

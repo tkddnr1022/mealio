@@ -5,7 +5,8 @@ import { pushCliMetrics } from '../metrics-push';
 const pushAddMock = jest.fn();
 
 jest.mock('prom-client', () => {
-  const actual = jest.requireActual<typeof import('prom-client')>('prom-client');
+  const actual =
+    jest.requireActual<typeof import('prom-client')>('prom-client');
   return {
     ...actual,
     Pushgateway: jest.fn().mockImplementation(() => ({
@@ -58,12 +59,7 @@ describe('pushCliMetrics', () => {
     metrics.onModuleInit();
     metrics.recordIngestionStage('fetch', 'success', 3);
 
-    await pushCliMetrics(
-      metrics,
-      'http://localhost:9093',
-      'fetch',
-      logger,
-    );
+    await pushCliMetrics(metrics, 'http://localhost:9093', 'fetch', logger);
 
     expect(pushAddMock).toHaveBeenCalledWith({
       jobName: 'recipe_ingestion_cli',
@@ -81,12 +77,7 @@ describe('pushCliMetrics', () => {
     pushAddMock.mockRejectedValue(new Error('connection refused'));
 
     await expect(
-      pushCliMetrics(
-        metrics,
-        'http://localhost:9093',
-        'parse-submit',
-        logger,
-      ),
+      pushCliMetrics(metrics, 'http://localhost:9093', 'parse-submit', logger),
     ).resolves.toBeUndefined();
 
     expect(logger.warn).toHaveBeenCalledWith(
