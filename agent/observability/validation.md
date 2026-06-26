@@ -15,9 +15,9 @@
 | `NEXT_PUBLIC_SENTRY_DSN` | Client `.env` | 설정 | 비워도 됨 |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Client `.env` | 설정 | 비워도 됨 |
 | `METRICS_ENABLED` | Producer `.env`, Consumer `.env` | `true` | `true` |
-| `METRICS_PORT` | Consumer `.env` | 설정 (`METRICS_ENABLED=true` 시) | 예: `9091` |
-| `PUSHGATEWAY_URL` | Consumer `.env` | CLI ingestion 메트릭 push 시 설정 | 예: `http://localhost:9093` (호스트), `http://pushgateway:9091` (Compose) |
-| `PUSHGATEWAY_PORT` | 루트 `.env.docker` | Compose Pushgateway 호스트 포트 | 예: `9093` |
+| `METRICS_PORT` | Consumer `.env` | 설정 (`METRICS_ENABLED=true` 시) | 예: `9100` |
+| `PUSHGATEWAY_URL` | Consumer `.env` | CLI ingestion 메트릭 push 시 설정 | 예: `http://localhost:9091` (호스트), `http://pushgateway:9091` (Compose) |
+| `PUSHGATEWAY_PORT` | 루트 `.env.docker` | Compose Pushgateway 호스트 포트 | 예: `9091` |
 | `SLACK_OPS_WEBHOOK_URL` | Grafana / alerting | 설정 | 선택 |
 | `SLACK_PRODUCT_WEBHOOK_URL` | Grafana / alerting | 설정 | 선택 |
 
@@ -241,7 +241,7 @@ Development에서는 위 비율·트레이스 샘플링을 1.0(또는 health/met
 | Sentry 이슈 없음 | DSN 미설정, 4xx만 발생 (5xx만 capture) | 의도적 5xx 유발 후 Sentry 대시보드 확인 |
 | `page_view` 중복 | 정상 동작 — query 변경 시마다 1회 발생 | — |
 | Prometheus 메트릭 없음 | `METRICS_ENABLED=false`, 타겟 DOWN | `/metrics` 직접 호출, Prometheus targets 확인 |
-| CLI ingestion 메트릭 없음 | `PUSHGATEWAY_URL` 미설정, Pushgateway 미기동 | Pushgateway `:9093/metrics` 확인, `PUSHGATEWAY_URL`·Prometheus `pushgateway` 타겟 확인 |
+| CLI ingestion 메트릭 없음 | `PUSHGATEWAY_URL` 미설정, Pushgateway 미기동 | Pushgateway `:9091/metrics` 확인, `PUSHGATEWAY_URL`·Prometheus `pushgateway` 타겟 확인 |
 | EventLog 누락 | Kafka 연결 실패, Consumer 미기동 | Consumer 로그, `kafka_messages_failed_total` 확인 |
 | KPI 롤업 누락 | 배치 미실행, MongoDB 접근 권한 | `job:kpi-rollup` 수동 실행, 접근 권한 확인 |
 | Grafana 패널 빈 값 | datasource 미연결, 프로비저닝 미적용 | datasource 설정·UID 확인 |

@@ -47,7 +47,8 @@ cp .env.docker.example .env.docker.local      # Docker Compose
 | `SENTRY_ENABLED` | Sentry 활성화 | `false` |
 | `SENTRY_DSN_CONSUMER` | Consumer Sentry DSN | (비움) |
 | `METRICS_ENABLED` | Prometheus 메트릭 노출 | `true` |
-| `METRICS_PORT` | 메트릭 HTTP 포트, `METRICS_ENABLED=true` 시 필수 | `9091` |
+| `METRICS_PORT` | 메트릭 HTTP 포트, `METRICS_ENABLED=true` 시 필수 | `9100` |
+| `PUSHGATEWAY_URL` | recipe-ingestion CLI 메트릭 push URL (선택) | `http://localhost:9091` |
 
 ## 사용 방법
 

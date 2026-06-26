@@ -540,7 +540,7 @@ CLI는 단명 프로세스이므로 in-memory registry를 Pushgateway로 push한
 
 | env | 설명 |
 |-----|------|
-| `PUSHGATEWAY_URL` | Pushgateway base URL (optional). 예: `http://localhost:9093`(호스트 CLI), `http://pushgateway:9091`(Compose 내부) |
+| `PUSHGATEWAY_URL` | Pushgateway base URL (optional). 예: `http://localhost:9091`(호스트 CLI), `http://pushgateway:9091`(Compose 내부) |
 | `METRICS_ENABLED` | `false`이면 counter/histogram 기록·push 모두 no-op |
 
 Push grouping: `job=recipe_ingestion_cli`, `stage=<fetch|parse-submit|…>`. Prometheus는 `compose-monitoring`의 Pushgateway를 `honor_labels: true`로 scrape한다.

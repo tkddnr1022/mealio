@@ -89,7 +89,7 @@ always-on Consumer는 `METRICS_PORT` `/metrics`로 scrape하고, recipe-ingestio
 - 운영 대시보드는 `mealio-ops.json`을 사용합니다.
 - 알림 규칙은 `alerting/rules.yml`에 정의하며, Slack `#ops`와 `#product` 채널로 전송합니다.
 
-로컬 환경에서는 Grafana를 `:3030` 포트에서 확인할 수 있습니다.
+로컬 환경에서는 Grafana `:3030`, Prometheus `:9090`, Pushgateway `:9091`에서 확인할 수 있습니다.
 
 ```bash
 docker compose -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-monitoring.yml up -d

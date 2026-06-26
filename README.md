@@ -96,10 +96,11 @@ cp server/consumer/.env.docker.example server/consumer/.env.docker.local
 | `KAFKA_UI_PORT` | Kafka UI 포트 | `8080` |
 | `KAFKA_UI_CLUSTER_NAME` | Kafka UI 클러스터 표시명 | `mealio` |
 | `KAFKA_UI_BOOTSTRAP_SERVERS` | Kafka UI 부트스트랩 서버 | `kafka:19092` |
-| `PROMETHEUS_TARGETS_MODE` | Prometheus 스크랩 대상 모드 (`host` / `docker`) | `host` |
+| `PROMETHEUS_TARGETS_MODE` | Prometheus 스크랩 대상 모드 (`host` / `compose`) | `host` |
 | `PROMETHEUS_PORT` | Prometheus 포트 | `9090` |
 | `PROMETHEUS_PRODUCER_PORT` | Producer 메트릭 스크랩 포트 | `3000` |
-| `PROMETHEUS_CONSUMER_PORT` | Consumer 메트릭 스크랩 포트 | `9091` |
+| `PROMETHEUS_CONSUMER_PORT` | Consumer 메트릭 스크랩 포트 | `9100` |
+| `PUSHGATEWAY_PORT` | Pushgateway 호스트 포트 (컨테이너 내부 `9091`) | `9091` |
 | `GRAFANA_PORT` | Grafana 포트 | `3030` |
 | `GRAFANA_ADMIN_USER` | Grafana 관리자 사용자명 | `admin` |
 | `GRAFANA_ADMIN_PASSWORD` | Grafana 관리자 비밀번호 | `admin` |

@@ -93,7 +93,7 @@ docker compose --env-file .env.docker.local -f docker/compose-database.yml -f do
 | 항목 | 내용 |
 | --- | --- |
 | 설명 | Prometheus UI 포트·producer·consumer `/metrics` 포트 |
-| 예시 | `9090` / `3000` / `9091` |
+| 예시 | `9090` / `3000` / `9100` |
 | Compose | `compose-monitoring.yml` |
 | 패턴 | `PROMETHEUS_TARGETS_MODE=host`일 때 producer·consumer는 호스트에서 해당 포트로 노출 |
 
@@ -101,8 +101,8 @@ docker compose --env-file .env.docker.local -f docker/compose-database.yml -f do
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | Pushgateway 호스트 바인딩 포트 (컨테이너 내부 `9091`) |
-| 예시 | `9093` |
+| 설명 | Pushgateway 호스트 바인딩 포트 |
+| 예시 | `9091` |
 | Compose | `compose-monitoring.yml` |
 
 ## Grafana
