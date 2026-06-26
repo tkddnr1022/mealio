@@ -328,7 +328,7 @@ export class ParseSubmitService {
         'parse_submitted',
         {
           batchId,
-          submittedAt: new Date(),
+          parseSubmittedAt: new Date(),
           errorMessage: undefined,
         },
       );

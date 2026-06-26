@@ -57,17 +57,25 @@ export class RecipeIngestionJob extends Document {
   @Prop({ type: Date })
   fetchedAt?: Date;
 
-  /** parse/embed Batch 제출 완료 시각 (`submitted_at`). embed 단계 재설정 시 parse 제출 시각을 덮어씀 */
+  /** parse Batch 제출 완료 시각 (`parse_submitted_at`) */
   @Prop({ type: Date })
-  submittedAt?: Date;
+  parseSubmittedAt?: Date;
 
-  /** parse/embed Batch 결과 반영 시각 (`retrieved_at`). embed 단계 재설정 시 parse retrieve 시각을 덮어씀 */
+  /** parse Batch 결과 반영 시각 (`parse_retrieved_at`) */
   @Prop({ type: Date })
-  retrievedAt?: Date;
+  parseRetrievedAt?: Date;
 
   /** persist 완료 시각 (`persisted_at`) */
   @Prop({ type: Date })
   persistedAt?: Date;
+
+  /** embed Batch 제출 완료 시각 (`embed_submitted_at`) */
+  @Prop({ type: Date })
+  embedSubmittedAt?: Date;
+
+  /** embed Batch 결과 반영 시각 (`embed_retrieved_at`) */
+  @Prop({ type: Date })
+  embedRetrievedAt?: Date;
 
   /** persist 단계에서 matchMethod=new로 신규 생성된 재료 ID 목록 (`new_ingredient_ids`) */
   @Prop({ type: [Number], default: undefined })

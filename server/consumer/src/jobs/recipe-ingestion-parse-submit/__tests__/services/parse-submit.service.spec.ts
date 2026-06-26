@@ -208,7 +208,7 @@ describe('ParseSubmitService', () => {
         'parse_submitted',
         expect.objectContaining({
           batchId: 'batch-xyz',
-          submittedAt: expect.any(Date),
+          parseSubmittedAt: expect.any(Date),
         }),
       );
 

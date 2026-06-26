@@ -131,6 +131,7 @@ export {
 export {
   RECIPE_INGESTION_JOB_STATUSES,
   type RecipeIngestionJobStatus,
+  type RecipeIngestionJobTimestampField,
   RECIPE_INGESTION_STATE_KEY,
   RECIPE_INGESTION_RECIPE_SOURCE,
   RECIPE_INGESTION_DEFAULT_RECIPE_CATEGORY_ID,

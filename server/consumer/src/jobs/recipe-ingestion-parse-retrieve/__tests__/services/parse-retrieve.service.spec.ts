@@ -267,7 +267,7 @@ describe('ParseRetrieveService', () => {
         'parse_retrieved',
         expect.objectContaining({
           retrievedData,
-          retrievedAt: expect.any(Date),
+          parseRetrievedAt: expect.any(Date),
         }),
       );
       expect(kafkaProducerService.emit).toHaveBeenCalledTimes(1);

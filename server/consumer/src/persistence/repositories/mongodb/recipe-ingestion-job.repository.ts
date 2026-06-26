@@ -17,11 +17,13 @@ export type RecipeIngestionJobStatusUpdate = Partial<
     | 'retrievedData'
     | 'errorMessage'
     | 'fetchedAt'
-    | 'submittedAt'
-    | 'retrievedAt'
+    | 'parseSubmittedAt'
+    | 'parseRetrievedAt'
     | 'persistedAt'
-    | 'newIngredientIds'
+    | 'embedSubmittedAt'
+    | 'embedRetrievedAt'
     | 'failedAt'
+    | 'newIngredientIds'
     | 'retryCount'
     | 'rawData'
   >
@@ -388,7 +390,7 @@ export class RecipeIngestionJobRepository {
               ...(!failed
                 ? {
                     batchId: undefined,
-                    submittedAt: undefined,
+                    parseSubmittedAt: undefined,
                   }
                 : {}),
             },
@@ -438,9 +440,9 @@ export class RecipeIngestionJobRepository {
               ...(!failed
                 ? {
                     batchId: undefined,
-                    submittedAt: undefined,
+                    parseSubmittedAt: undefined,
                     retrievedData: undefined,
-                    retrievedAt: undefined,
+                    parseRetrievedAt: undefined,
                   }
                 : {}),
             },
@@ -492,10 +494,10 @@ export class RecipeIngestionJobRepository {
             ...(failed ? { failedAt: now } : {}),
             ...(!failed
               ? {
-                  batchId: undefined,
-                  submittedAt: undefined,
-                  retrievedData: undefined,
-                  retrievedAt: undefined,
+                    batchId: undefined,
+                    parseSubmittedAt: undefined,
+                    retrievedData: undefined,
+                    parseRetrievedAt: undefined,
                 }
               : {}),
           },

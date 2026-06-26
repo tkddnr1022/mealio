@@ -153,9 +153,11 @@ MongoDB 컬렉션 (Mongoose). 파이프라인 SSOT. Mongoose 프로퍼티는 cam
 | `new_ingredient_ids` | persist에서 `match_method: new`로 생성된 재료 ID 목록 (embed-submit 입력) |
 | `error_message` | 마지막 단계 실패 메시지 |
 | `fetched_at` | §3.1.2 |
-| `submitted_at` | §3.1.2 |
-| `retrieved_at` | §3.1.2 |
+| `parse_submitted_at` | §3.1.2 |
+| `parse_retrieved_at` | §3.1.2 |
 | `persisted_at` | §3.1.2 |
+| `embed_submitted_at` | §3.1.2 |
+| `embed_retrieved_at` | §3.1.2 |
 | `failed_at` | §3.1.2 |
 
 #### 3.1.1 `status` 값
@@ -179,14 +181,16 @@ MongoDB 컬렉션 (Mongoose). 파이프라인 SSOT. Mongoose 프로퍼티는 cam
 
 #### 3.1.2 타임스탬프
 
-Mongoose: `fetchedAt`, `submittedAt`, `retrievedAt`, `persistedAt`, `failedAt`.
+Mongoose: `fetchedAt`, `parseSubmittedAt`, `parseRetrievedAt`, `persistedAt`, `embedSubmittedAt`, `embedRetrievedAt`, `failedAt`.
 
 | 필드 | 설정 시점 | 비고 |
 |------|-----------|------|
 | `fetched_at` | fetch upsert (`status: fetched`) | run scope 정렬 기본값 |
-| `submitted_at` | `parse_submitted` 또는 `embed_submitted` 전환 시 | parse·embed가 동일 필드 공유. embed 단계에서 재설정 시 parse 제출 시각을 덮어씀 |
-| `retrieved_at` | `parse_retrieved` 또는 `embed_retrieved` 전환 시 | parse·embed가 동일 필드 공유. embed 단계에서 재설정 시 parse retrieve 시각을 덮어씀 |
-| `persisted_at` | `persisted` 전환 시 | |
+| `parse_submitted_at` | `parse_submitted` 전환 시 | parse Batch 제출 완료 |
+| `parse_retrieved_at` | `parse_retrieved` 전환 시 | parse Batch 결과 반영 |
+| `persisted_at` | `persisted` 전환 시 | PostgreSQL 영속화 완료 |
+| `embed_submitted_at` | `embed_submitted` 전환 시 | embed Batch 제출 완료 |
+| `embed_retrieved_at` | `embed_retrieved` 전환 시 | RecipeEmbedding upsert 완료 |
 | `failed_at` | `failed` 전환 시 | `requeueFailedToFetched` 시 초기화 |
 
 `findDistinctRunIdsByStatus` 등 run scope 조회는 `recipeIngestionJobSortTimestampField(status)`로 status별 기준 필드를 선택한다.
@@ -381,7 +385,7 @@ submit은 선택된 job 그룹을 Batch API에 제출하고, 반환된 `batch_id
    ```
    status: parse_submitted
    batch_id: {batch_id}
-   submitted_at: now()
+   parse_submitted_at: now()
    ```
 
 ### 5.3 retrieve
@@ -414,7 +418,7 @@ submit은 선택된 job 그룹을 Batch API에 제출하고, 반환된 `batch_id
    error != null 또는 status_code != 200
      → retry_count++, status: fetched, error_message
    else
-     → retrieved_data, status: parse_retrieved, retrieved_at: now()
+     → retrieved_data, status: parse_retrieved, parse_retrieved_at: now()
    ```
 
 4. **retrieve 완료 트리거 발행**
@@ -462,7 +466,7 @@ Kafka `recipe-ingestion-persist-triggered` 소비 → payload `runId`로 `parse_
 1. **대상 조회**: `status: persisted` (+ `runId` 필터)
 2. **상태 전환**: `persisted → embed_submitting`
 3. **JSONL 생성**: 레시피 embedding document + `new_ingredient_ids` 재료 embedding document (`custom_id` = job `_id` 또는 `ingredient:{id}`)
-4. **Batch 제출** 후 `embed_submitting → embed_submitted`, `batch_id`, `submitted_at` 기록
+4. **Batch 제출** 후 `embed_submitting → embed_submitted`, `batch_id`, `embed_submitted_at` 기록
 5. 실패 시 `retry_count++`, `status: persisted` 복귀 또는 `failed`
 
 ### 5.6 embed-retrieve
@@ -471,8 +475,8 @@ Kafka `recipe-ingestion-persist-triggered` 소비 → payload `runId`로 `parse_
 
 1. **대상 batch 조회** — `status: embed_submitted` distinct `batch_id`
 2. Batch `completed` → `embed_submitted → embed_retrieving` 후 output 처리
-3. 성공 라인: pgvector upsert + `embed_retrieving → embed_retrieved`, `retrieved_at: now()`
-4. `failed`/`expired`·라인 오류: `retry_count++`, `status: persisted` 복귀 또는 `failed` (`batch_id`·`submitted_at` 초기화)
+3. 성공 라인: pgvector upsert + `embed_retrieving → embed_retrieved`, `embed_retrieved_at: now()`
+4. `failed`/`expired`·라인 오류: `retry_count++`, `status: persisted` 복귀 또는 `failed` (`batch_id`·`embed_submitted_at` 초기화)
 
 ---
 

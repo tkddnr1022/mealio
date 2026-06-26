@@ -23,19 +23,31 @@ export const RECIPE_INGESTION_JOB_STATUSES = [
 export type RecipeIngestionJobStatus =
   (typeof RECIPE_INGESTION_JOB_STATUSES)[number];
 
+/** 파이프라인 단계별 타임스탬프 필드 (Mongoose camelCase) */
+export type RecipeIngestionJobTimestampField =
+  | 'fetchedAt'
+  | 'parseSubmittedAt'
+  | 'parseRetrievedAt'
+  | 'persistedAt'
+  | 'embedSubmittedAt'
+  | 'embedRetrievedAt'
+  | 'failedAt';
+
 /** run scope 정렬·조회 시 status별 기준 타임스탬프 (Mongoose camelCase) */
 export function recipeIngestionJobSortTimestampField(
   status: RecipeIngestionJobStatus,
-): 'fetchedAt' | 'submittedAt' | 'retrievedAt' | 'persistedAt' | 'failedAt' {
+): RecipeIngestionJobTimestampField {
   switch (status) {
     case 'parse_submitted':
-    case 'embed_submitted':
-      return 'submittedAt';
+      return 'parseSubmittedAt';
     case 'parse_retrieved':
-    case 'embed_retrieved':
-      return 'retrievedAt';
+      return 'parseRetrievedAt';
     case 'persisted':
       return 'persistedAt';
+    case 'embed_submitted':
+      return 'embedSubmittedAt';
+    case 'embed_retrieved':
+      return 'embedRetrievedAt';
     case 'failed':
       return 'failedAt';
     default:

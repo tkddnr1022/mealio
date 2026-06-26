@@ -76,17 +76,19 @@ stateDiagram-v2
 
 `fetched` → `parse_submitting` → `parse_submitted` → `parse_retrieving` → `parse_retrieved` → `persisting` → `persisted` → `embed_submitting` → `embed_submitted` → `embed_retrieving` → `embed_retrieved` (또는 `failed`)
 
-### 타임스탬프 (Mongoose camelCase)
+### 타임스탬프
 
 | Mongo | Mongoose | 설정 시점 |
 | --- | --- | --- |
 | `fetched_at` | `fetchedAt` | fetch upsert |
-| `submitted_at` | `submittedAt` | `parse_submitted` 또는 `embed_submitted` |
-| `retrieved_at` | `retrievedAt` | `parse_retrieved` 또는 `embed_retrieved` |
+| `parse_submitted_at` | `parseSubmittedAt` | `parse_submitted` |
+| `parse_retrieved_at` | `parseRetrievedAt` | `parse_retrieved` |
 | `persisted_at` | `persistedAt` | `persisted` |
+| `embed_submitted_at` | `embedSubmittedAt` | `embed_submitted` |
+| `embed_retrieved_at` | `embedRetrievedAt` | `embed_retrieved` |
 | `failed_at` | `failedAt` | `failed` |
 
-`submitted_at`·`retrieved_at`은 parse·embed 단계가 공유합니다. embed 단계에서 재설정되면 parse 단계 시각을 덮어씁니다.
+각 파이프라인 단계는 고유 타임스탬프를 가집니다.
 
 ## CLI
 

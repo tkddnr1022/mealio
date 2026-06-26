@@ -291,7 +291,7 @@ export class EmbedSubmitService {
         'embed_submitted',
         {
           batchId,
-          submittedAt: new Date(),
+          embedSubmittedAt: new Date(),
           errorMessage: undefined,
         },
       );

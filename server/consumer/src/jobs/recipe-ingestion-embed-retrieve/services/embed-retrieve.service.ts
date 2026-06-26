@@ -311,7 +311,7 @@ export class EmbedRetrieveService {
           outcome.jobId,
           'embed_retrieving',
           'embed_retrieved',
-          { retrievedAt: new Date(), errorMessage: undefined },
+          { embedRetrievedAt: new Date(), errorMessage: undefined },
         );
         if (done) retrievedCount++;
       }
@@ -439,7 +439,7 @@ export class EmbedRetrieveService {
         retryCount: nextRetryCount,
         errorMessage,
         ...(failed ? { failedAt: new Date() } : {}),
-        ...(!failed ? { batchId: undefined, submittedAt: undefined } : {}),
+        ...(!failed ? { batchId: undefined, embedSubmittedAt: undefined } : {}),
       },
     );
     return !!updated;
