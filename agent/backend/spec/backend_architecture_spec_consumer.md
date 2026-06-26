@@ -14,6 +14,8 @@
 
 | 경로 | 역할 |
 |------|------|
+| **server/consumer/src/main.ts** | Nest 애플리케이션 부트스트랩 (HTTP 없이 ApplicationContext 워커 모드, Sentry·메트릭 초기화) |
+| **server/consumer/src/app.module.ts** | 루트 모듈(AppModule). Config·Prisma·Mongoose·Redis·Consumers·Monitoring 등 import |
 | **server/consumer/src/config/** | env 검증 |
 | server/consumer/src/config/env.validation.ts | 앱 시작 시 환경 변수 검증 (Joi 스키마, APP_ENV·MONGODB_URL·REDIS_URL·KAFKA_*·POSTGRESQL_URL·OPENAI_*·PUBLIC_DATA_*·OPENAI_BATCH_MODEL 등) |
 | **server/consumer/src/constants/** | 불변 계약 상수 (`*.constants.ts`) |
@@ -25,7 +27,7 @@
 | server/consumer/src/policy/chatbot-cache.policy.ts | 챗봇 Redis 캐시 TTL |
 | server/consumer/src/policy/recipe-search.policy.ts | `search_recipes` ANN·Query Expansion·재랭킹 가중치·`reasonSignals` 임계값 |
 | server/consumer/src/policy/monitoring.policy.ts | lag 폴링 주기 |
-| **server/consumer/src/consumers/consumers.module.ts** | 그룹 모듈(ChatbotRequest, UserEvents, ActivityEvents, CacheInvalidation, RecipeIngestionSubmit, RecipeIngestionPersist) 통합 |
+| **server/consumer/src/consumers/consumers.module.ts** | 그룹 모듈(ChatbotRequest, UserEvents, ActivityEvents, CacheInvalidation, RecipeIngestionParseSubmit, RecipeIngestionPersist, RecipeIngestionEmbedSubmit) 통합 |
 | **server/consumer/src/consumers/base/** | |
 | server/consumer/src/consumers/base/base.processor.ts | 토픽 공통 인터페이스(ITopicProcessor)·BaseTopicProcessor(파싱·재시도·DLQ 위임) |
 | server/consumer/src/consumers/base/base.consumer.ts | 단일 consumer 인스턴스 connect/subscribe/run/disconnect 공통 로직 (BaseConsumerRunner) |
@@ -100,15 +102,19 @@
 | server/consumer/src/persistence/repositories/postgresql/recipe.repository.ts | Recipe 쓰기 (Prisma) |
 | server/consumer/src/persistence/repositories/postgresql/ingredient.repository.ts | Ingredient 조회 (persist·매칭) |
 | server/consumer/src/persistence/repositories/postgresql/user.repository.ts | User 업데이트 (Prisma) |
-| server/consumer/src/persistence/repositories/postgresql/recipe-ingredient.repository.ts | ⚠️ 미구현 · RecipeIngredient 쓰기 |
+| server/consumer/src/persistence/repositories/postgresql/recipe-ingredient.repository.ts | RecipeIngredient 조회·`replaceForRecipe` 트랜잭션 쓰기 (ingestion persist) |
 | server/consumer/src/persistence/repositories/postgresql/recommendation.repository.ts | UserRecipeRecommendation upsert·랭크 재정렬·top N 조회 |
 | server/consumer/src/persistence/repositories/postgresql/recipe-embedding.repository.ts | RecipeEmbedding(pgvector) raw query — 업서트·전체 코퍼스 ANN `searchTopK`(published·기피 재료 ID hard exclude) |
+| server/consumer/src/persistence/repositories/postgresql/ingredient-embedding.repository.ts | IngredientEmbedding(pgvector) raw query — 업서트·`findMissingIds` (embed-submit·embed-retrieve) |
+| server/consumer/src/persistence/repositories/postgresql/recipe-category.repository.ts | RecipeCategory 조회·persist 시 proposed category upsert |
+| server/consumer/src/persistence/repositories/postgresql/ingredient-category.repository.ts | IngredientCategory 조회·persist 시 proposed category upsert |
 | **server/consumer/src/persistence/repositories/mongodb/** | |
 | server/consumer/src/persistence/repositories/mongodb/event-log.repository.ts | EventLog 저장 (Mongoose) |
 | server/consumer/src/persistence/repositories/mongodb/chatbot-log.repository.ts | ChatbotLog 저장 (Mongoose) |
 | server/consumer/src/persistence/repositories/mongodb/inventory.repository.ts | Inventory 저장 (Mongoose) |
 | server/consumer/src/persistence/repositories/mongodb/recipe-ingestion-job.repository.ts | Recipe ingestion job CRUD·상태 전환 (Mongoose) |
 | server/consumer/src/persistence/repositories/mongodb/recipe-ingestion-state.repository.ts | Recipe ingestion API 커서 singleton (Mongoose) |
+| server/consumer/src/persistence/repositories/mongodb/kpi-rollup.repository.ts | KPI 롤업 문서 upsert (KpiRollup, `kpi-rollup` job) |
 | **server/consumer/src/persistence/transactions/** | |
 | server/consumer/src/persistence/transactions/mongodb-session.transaction.ts | ⚠️ 미구현 · Mongoose session (필요 시) |
 | server/consumer/src/persistence/transactions/saga.coordinator.ts | ⚠️ 미구현 · 분산 트랜잭션 (RDB↔NoSQL) |
@@ -168,7 +174,17 @@
 | server/consumer/src/jobs/recipe-ingestion-persist/domains/recipe-creation.domain.ts | Recipe + RecipeIngredient Prisma `$transaction` upsert (ingestion persist) |
 | server/consumer/src/jobs/recipe-ingestion-persist/domains/ingredient-matcher.domain.ts | persist 재료 매칭 |
 | server/consumer/src/jobs/recipe-ingestion-persist/domains/category-resolver.domain.ts | persist 카테고리 해석 |
-| server/consumer/src/jobs/recipe-ingestion-embed-submit/integrations/recipe-embedding-document.integration.ts | 임베딩 요청용 레시피 문서(document_text) 생성 |
+| server/consumer/src/jobs/recipe-ingestion-persist/validators/retrieved-data.validator.ts | retrieved_data 스키마·비즈니스 검증 (parse confidence·영양·난이도 등) |
+| **server/consumer/src/jobs/recipe-ingestion-embed-submit/** | embed-submit standalone job |
+| server/consumer/src/jobs/recipe-ingestion-embed-submit/recipe-ingestion-embed-submit.module.ts | embed-submit 잡 모듈 |
+| server/consumer/src/jobs/recipe-ingestion-embed-submit/run-recipe-ingestion-embed-submit.ts | embed-submit CLI (`--run-id`, `--run-id-count`, `--job-id`) |
+| server/consumer/src/jobs/recipe-ingestion-embed-submit/services/embed-submit.service.ts | OpenAI Embedding Batch 제출·job 상태 갱신 (레시피·재료 임베딩) |
+| server/consumer/src/jobs/recipe-ingestion-embed-submit/integrations/recipe-embedding-document.integration.ts | 임베딩 요청용 레시피 문서(`document_text`) 생성 |
+| server/consumer/src/jobs/recipe-ingestion-embed-submit/integrations/ingredient-embedding-document.ts | 임베딩 요청용 재료 문서(`document_text`) 생성·미큐 재료 필터 |
+| **server/consumer/src/jobs/recipe-ingestion-embed-retrieve/** | embed-retrieve standalone job |
+| server/consumer/src/jobs/recipe-ingestion-embed-retrieve/recipe-ingestion-embed-retrieve.module.ts | embed-retrieve 잡 모듈 |
+| server/consumer/src/jobs/recipe-ingestion-embed-retrieve/run-recipe-ingestion-embed-retrieve.ts | embed-retrieve CLI (`--run-id`, `--run-id-count`) |
+| server/consumer/src/jobs/recipe-ingestion-embed-retrieve/services/embed-retrieve.service.ts | Embedding Batch 결과 수신·RecipeEmbedding·IngredientEmbedding upsert |
 | **server/consumer/src/consumers/recipe-ingestion-parse-submit/** | Kafka submit consumer (토픽 §2.2 recipe-ingestion-parse-submit-triggered) |
 | server/consumer/src/consumers/recipe-ingestion-parse-submit/recipe-ingestion-parse-submit.module.ts | submit consumer 모듈 |
 | server/consumer/src/consumers/recipe-ingestion-parse-submit/recipe-ingestion-parse-submit.consumer.ts | submit consumer 구독 |
@@ -179,7 +195,11 @@
 | server/consumer/src/consumers/recipe-ingestion-persist/recipe-ingestion-persist.consumer.ts | persist consumer 구독 |
 | server/consumer/src/consumers/recipe-ingestion-persist/recipe-ingestion-persist.processor.ts | persist processor |
 | server/consumer/src/consumers/recipe-ingestion-persist/handlers/PersistRecipeHandler.ts | Kafka 트리거 → PersistService 위임 |
-| server/consumer/src/jobs/recipe-ingestion-persist/validators/parse_retrieved-data.validator.ts | retrieved_data 스키마·비즈니스 검증 |
+| **server/consumer/src/consumers/recipe-ingestion-embed-submit/** | Kafka embed-submit consumer (토픽 §2.2 recipe-ingestion-embed-submit-triggered) |
+| server/consumer/src/consumers/recipe-ingestion-embed-submit/recipe-ingestion-embed-submit.module.ts | embed-submit consumer 모듈 |
+| server/consumer/src/consumers/recipe-ingestion-embed-submit/recipe-ingestion-embed-submit.consumer.ts | embed-submit consumer 구독 |
+| server/consumer/src/consumers/recipe-ingestion-embed-submit/recipe-ingestion-embed-submit.processor.ts | embed-submit processor |
+| server/consumer/src/consumers/recipe-ingestion-embed-submit/handlers/EmbedSubmitRecipeIngestionHandler.ts | persist 완료 트리거 → EmbedSubmitService.submit |
 
 ---
 
@@ -194,7 +214,8 @@
 | **user-events** | user-events-dlq | analytics-group | Producer (닉네임 변경, 재료 CRUD, 관심 레시피 추가/삭제 등) | 로그인 유저 도메인 이벤트. payload: UserEvent \| InventoryEvent. Consumer: UpdateUserProfileHandler, UpdateInventoryHandler, TrackUserActivityHandler(EventLog), RecommendationHandler, 캐시 무효화 요청(CacheInvalidationRequestService). |
 | **cache-invalidation** | cache-invalidation-dlq | cache-invalidation-group | Consumer 내부 (CacheInvalidationRequestService) | 캐시 무효화 지시. payload: type(USER_PROFILE \| INVENTORY \| RECIPE \| RECOMMENDATION), userId 또는 recipeIds[]. Handler가 직접 발행하지 않고 RequestService가 발행. Consumer: RedisInvalidationHandler로 Redis 키/패턴 삭제. |
 | **recipe-ingestion-parse-submit-triggered** | recipe-ingestion-parse-submit-triggered-dlq | recipe-ingestion-parse-submit-group | Consumer (fetch job) | Recipe ingestion submit 트리거. payload: `{ runId, fetchedCount, triggeredAt }`, key = `runId`. Consumer: recipe-ingestion-parse-submit. submit은 payload를 트리거 신호로 사용하고 Mongo `status: fetched` + `runId`를 재조회해 OpenAI Batch 제출(수동 CLI는 `--run-id` 또는 `--run-id-count`로 실행 단위 지정, 상호 배타). |
-| **recipe-ingestion-persist-triggered** | recipe-ingestion-persist-triggered-dlq | recipe-ingestion-persist-group | Consumer (retrieve job) | Recipe ingestion persist 트리거. payload: `{ runId, fetchedCount, triggeredAt }`, key = `runId`. Consumer: recipe-ingestion-persist. persist는 payload를 트리거 신호로 사용하고 Mongo `status: parse_retrieved` + `runId` 재조회 후 검증된 `retrieved_data`(LLM)를 PostgreSQL에 반영한다. Mongo `recipe_ingestion_jobs`가 SSOT. |
+| **recipe-ingestion-persist-triggered** | recipe-ingestion-persist-triggered-dlq | recipe-ingestion-persist-group | Consumer (retrieve job) | Recipe ingestion persist 트리거. payload: `{ runId, fetchedCount, triggeredAt }`, key = `runId`. Consumer: recipe-ingestion-persist. persist는 payload를 트리거 신호로 사용하고 Mongo `status: parse_retrieved` + `runId` 재조회 후 검증된 `retrieved_data`(LLM)를 PostgreSQL에 반영한다. 성공 시 **recipe-ingestion-embed-submit-triggered** 발행. Mongo `recipe_ingestion_jobs`가 SSOT. |
+| **recipe-ingestion-embed-submit-triggered** | recipe-ingestion-embed-submit-triggered-dlq | recipe-ingestion-embed-submit-group | Consumer (persist job·handler) | Recipe ingestion embed-submit 트리거. payload: `{ runId, fetchedCount, triggeredAt }`, key = `runId`. Consumer: recipe-ingestion-embed-submit. persist 완료 job을 OpenAI Embedding Batch로 제출(수동 CLI는 `--run-id`·`--run-id-count`·`--job-id`). |
 
 **공통**
 
