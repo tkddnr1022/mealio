@@ -28,6 +28,7 @@ import { normalizeFoodsafetyImageUrl } from 'src/integrations/public-data/foodsa
 export interface RecipeCreationResult {
   recipeId: number;
   matchMethods: IngredientMatchMethod[];
+  newIngredientIds: number[];
 }
 
 type IngredientEmbeddingMap = Map<string, number[]>;
@@ -138,6 +139,7 @@ export class RecipeCreationService {
       });
 
       const matchMethods: IngredientMatchMethod[] = [];
+      const newIngredientIdSet = new Set<number>();
       const ingredientRowsByIngredientId = new Map<
         number,
         RecipeIngredientRowInput
@@ -152,6 +154,9 @@ export class RecipeCreationService {
           embeddingMap?.get(embeddingKey),
         );
         matchMethods.push(match.matchMethod);
+        if (match.matchMethod === 'new') {
+          newIngredientIdSet.add(match.ingredientId);
+        }
         const nextRow: RecipeIngredientRowInput = {
           ingredientId: match.ingredientId,
           amount: parseQuantityToDecimal(ingredient.quantity),
@@ -192,7 +197,11 @@ export class RecipeCreationService {
         `Persisted recipe id=${recipe.id} sourceRecipeId=${sourceRecipeId} matchMethods=${matchMethods.join(',')}`,
       );
 
-      return { recipeId: recipe.id, matchMethods };
+      return {
+        recipeId: recipe.id,
+        matchMethods,
+        newIngredientIds: [...newIngredientIdSet],
+      };
     });
   }
 

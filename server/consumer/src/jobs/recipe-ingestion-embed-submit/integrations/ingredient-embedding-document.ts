@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { IngredientEmbeddingRepository } from 'src/persistence/repositories/postgresql/ingredient-embedding.repository';
-import { RecipeIngredientRepository } from 'src/persistence/repositories/postgresql/recipe-ingredient.repository';
+import { IngredientRepository } from 'src/persistence/repositories/postgresql/ingredient.repository';
 
 export interface IngredientEmbeddingDocument {
   ingredientId: number;
@@ -10,46 +10,38 @@ export interface IngredientEmbeddingDocument {
 @Injectable()
 export class IngredientEmbeddingDocumentService {
   constructor(
-    private readonly recipeIngredientRepository: RecipeIngredientRepository,
+    private readonly ingredientRepository: IngredientRepository,
     private readonly ingredientEmbeddingRepository: IngredientEmbeddingRepository,
   ) {}
 
-  async buildDocumentsByRecipeId(
-    recipeId: number,
+  async buildDocumentsByIngredientIds(
+    ingredientIds: number[],
     queuedIngredientIdSet: Set<number>,
   ): Promise<IngredientEmbeddingDocument[]> {
-    const candidates =
-      await this.recipeIngredientRepository.findIngredientNameCandidatesByRecipeId(
-        recipeId,
-      );
-    const unqueuedCandidates = candidates.filter(
-      (candidate) => !queuedIngredientIdSet.has(candidate.ingredientId),
+    const unqueued = ingredientIds.filter(
+      (id) => !queuedIngredientIdSet.has(id),
     );
-    if (unqueuedCandidates.length === 0) {
+    if (unqueued.length === 0) {
       return [];
     }
 
-    const missingIngredientIds =
-      await this.ingredientEmbeddingRepository.findMissingIds(
-        unqueuedCandidates.map((candidate) => candidate.ingredientId),
-      );
-    if (missingIngredientIds.length === 0) {
+    const missingIds =
+      await this.ingredientEmbeddingRepository.findMissingIds(unqueued);
+    if (missingIds.length === 0) {
       return [];
     }
 
-    const missingIngredientIdSet = new Set(missingIngredientIds);
+    const nameRows =
+      await this.ingredientRepository.findManyNamesByIds(missingIds);
     const documents: IngredientEmbeddingDocument[] = [];
-    for (const candidate of unqueuedCandidates) {
-      if (!missingIngredientIdSet.has(candidate.ingredientId)) {
-        continue;
-      }
-      const documentText = candidate.ingredientName.trim();
+    for (const row of nameRows) {
+      const documentText = row.name.trim();
       if (documentText.length === 0) {
         continue;
       }
-      queuedIngredientIdSet.add(candidate.ingredientId);
+      queuedIngredientIdSet.add(row.id);
       documents.push({
-        ingredientId: candidate.ingredientId,
+        ingredientId: row.id,
         documentText,
       });
     }

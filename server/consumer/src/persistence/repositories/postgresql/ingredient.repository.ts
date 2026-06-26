@@ -49,4 +49,16 @@ export class IngredientRepository {
       },
     });
   }
+
+  async findManyNamesByIds(
+    ids: number[],
+  ): Promise<{ id: number; name: string }[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+    return this.prisma.ingredient.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, name: true },
+    });
+  }
 }

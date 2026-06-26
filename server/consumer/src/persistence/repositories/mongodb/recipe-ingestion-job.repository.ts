@@ -19,6 +19,7 @@ export type RecipeIngestionJobStatusUpdate = Partial<
     | 'submittedAt'
     | 'retrievedAt'
     | 'persistedAt'
+    | 'newIngredientIds'
     | 'failedAt'
     | 'retryCount'
     | 'rawData'

@@ -130,7 +130,10 @@ export class PersistService {
         jobId,
         'persisting',
         'persisted',
-        { persistedAt: new Date() },
+        {
+          persistedAt: new Date(),
+          newIngredientIds: result.newIngredientIds,
+        },
       );
       if (!persisted) {
         this.logger.warn(

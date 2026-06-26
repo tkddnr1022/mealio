@@ -19,7 +19,7 @@ import {
   OBSERVABILITY_CONFIG,
 } from 'src/reliability/monitoring/consumer-metrics.service';
 import { RecipeRepository } from 'src/persistence/repositories/postgresql/recipe.repository';
-import { RecipeIngredientRepository } from 'src/persistence/repositories/postgresql/recipe-ingredient.repository';
+import { IngredientRepository } from 'src/persistence/repositories/postgresql/ingredient.repository';
 import { RecipeEmbeddingDocumentService } from './integrations/recipe-embedding-document.integration';
 import { IngredientEmbeddingDocumentService } from './integrations/ingredient-embedding-document';
 import { EmbedSubmitService } from './services/embed-submit.service';
@@ -50,7 +50,7 @@ import { EmbedSubmitService } from './services/embed-submit.service';
     ConsumerMetricsService,
     RecipeIngestionJobRepository,
     RecipeRepository,
-    RecipeIngredientRepository,
+    IngredientRepository,
     IngredientEmbeddingRepository,
     RecipeEmbeddingDocumentService,
     IngredientEmbeddingDocumentService,

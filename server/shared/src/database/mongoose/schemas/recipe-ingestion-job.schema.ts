@@ -64,6 +64,10 @@ export class RecipeIngestionJob extends Document {
   @Prop({ type: Date })
   persistedAt?: Date;
 
+  /** persist 단계에서 matchMethod=new로 신규 생성된 재료 ID 목록 */
+  @Prop({ type: [Number], default: undefined })
+  newIngredientIds?: number[];
+
   @Prop({ type: Date })
   failedAt?: Date;
 }

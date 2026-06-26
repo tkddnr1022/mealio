@@ -169,4 +169,55 @@ describe('RecipeCreationService', () => {
       [{ ingredientId: 10, amount: '1', unit: '개', isOptional: false }],
     );
   });
+
+  it('should return newIngredientIds when matchMethod is new', async () => {
+    ingredientMatcher.match.mockResolvedValue({
+      ingredientId: 77,
+      matchMethod: 'new',
+    });
+
+    const result = await service.execute(
+      { sourceId: 789 } as never,
+      parse_retrievedData,
+    );
+
+    expect(result.newIngredientIds).toEqual([77]);
+  });
+
+  it('should deduplicate newIngredientIds when multiple inputs resolve to same new ingredientId', async () => {
+    ingredientMatcher.match
+      .mockResolvedValueOnce({
+        ingredientId: 88,
+        matchMethod: 'new',
+      })
+      .mockResolvedValueOnce({
+        ingredientId: 88,
+        matchMethod: 'new',
+      });
+
+    const dataWithDuplicateNewIngredients: RetrievedDataPayload = {
+      ...parse_retrievedData,
+      ingredients: [
+        {
+          rawName: '새재료',
+          normalizedName: '새재료',
+          ingredientAlias: '새재료A',
+          categoryId: 3,
+        },
+        {
+          rawName: '새재료',
+          normalizedName: '새재료',
+          ingredientAlias: '새재료B',
+          categoryId: 3,
+        },
+      ],
+    };
+
+    const result = await service.execute(
+      { sourceId: 999 } as never,
+      dataWithDuplicateNewIngredients,
+    );
+
+    expect(result.newIngredientIds).toEqual([88]);
+  });
 });

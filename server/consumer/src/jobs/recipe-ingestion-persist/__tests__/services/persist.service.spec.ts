@@ -70,7 +70,11 @@ describe('PersistService', () => {
       findByStatus: jest.fn(),
     };
     recipeCreationService = {
-      execute: jest.fn().mockResolvedValue({ recipeId: 1, matchMethods: [] }),
+      execute: jest.fn().mockResolvedValue({
+        recipeId: 1,
+        matchMethods: [],
+        newIngredientIds: [],
+      }),
     };
     kafkaProducerService = {
       emit: jest.fn().mockResolvedValue(undefined),
@@ -106,6 +110,11 @@ describe('PersistService', () => {
   it('should persist on happy path', async () => {
     const job = mockJob();
     jobRepository.findById.mockResolvedValue(job as never);
+    recipeCreationService.execute.mockResolvedValue({
+      recipeId: 1,
+      matchMethods: ['exact'],
+      newIngredientIds: [42],
+    });
     jobRepository.transitionStatus
       .mockResolvedValueOnce({ ...job, status: 'persisting' } as never)
       .mockResolvedValueOnce({
@@ -116,6 +125,16 @@ describe('PersistService', () => {
 
     await expect(service.persistByJobId(JOB_ID)).resolves.toBe('persisted');
     expect(recipeCreationService.execute).toHaveBeenCalled();
+    expect(jobRepository.transitionStatus).toHaveBeenNthCalledWith(
+      2,
+      JOB_ID,
+      'persisting',
+      'persisted',
+      {
+        persistedAt: expect.any(Date),
+        newIngredientIds: [42],
+      },
+    );
     expect(kafkaProducerService.emit).toHaveBeenCalled();
   });
 

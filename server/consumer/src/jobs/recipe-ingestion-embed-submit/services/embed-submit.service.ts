@@ -185,8 +185,8 @@ export class EmbedSubmitService {
         },
       });
       const ingredientDocuments =
-        await this.ingredientEmbeddingDocumentService.buildDocumentsByRecipeId(
-          recipeId,
+        await this.ingredientEmbeddingDocumentService.buildDocumentsByIngredientIds(
+          job.newIngredientIds ?? [],
           queuedIngredientIdSet,
         );
       for (const document of ingredientDocuments) {
