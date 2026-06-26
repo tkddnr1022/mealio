@@ -21,3 +21,8 @@ scrape_configs:
       - targets: ["host.docker.internal:9091"]
         labels:
           service: consumer
+
+  - job_name: pushgateway
+    honor_labels: true
+    static_configs:
+      - targets: ["host.docker.internal:9093"]

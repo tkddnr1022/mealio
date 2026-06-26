@@ -4,6 +4,7 @@ import {
   DEFAULT_RECIPE_FETCH_LIMIT,
   MAX_RECIPE_FETCH_LIMIT,
   generateCorrelationId,
+  type ObservabilityConfig,
 } from '@mealio/shared';
 import { findUnknownCliArgs } from '../cli-args.util';
 import { PublicDataFetchLimitError } from '../../integrations/public-data/public-data-api.client';
@@ -11,6 +12,11 @@ import {
   logRecipeIngestionCli,
   RECIPE_INGESTION_LOG_EVENTS,
 } from '../recipe-ingestion/recipe-ingestion-logger';
+import {
+  ConsumerMetricsService,
+  OBSERVABILITY_CONFIG,
+} from '../../reliability/monitoring/consumer-metrics.service';
+import { pushCliMetrics } from '../../reliability/monitoring/metrics-push';
 import { RecipeIngestionFetchModule } from './recipe-ingestion-fetch.module';
 import { FetchService } from './services/fetch.service';
 
@@ -79,6 +85,9 @@ async function main(): Promise<void> {
       },
     );
   } finally {
+    const metrics = app.get(ConsumerMetricsService);
+    const obs = app.get<ObservabilityConfig>(OBSERVABILITY_CONFIG);
+    await pushCliMetrics(metrics, obs.pushgatewayUrl, stage, logger);
     await app.close();
   }
 }

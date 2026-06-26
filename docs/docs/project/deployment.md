@@ -50,10 +50,11 @@
 - producer·consumer 모두 동일 브로커에 연결합니다.
 - `kafka-ui`는 개발 전용으로 프로덕션에는 배포하지 않습니다.
 
-### Prometheus / Grafana
+### Prometheus / Grafana / Pushgateway
 
 - producer는 `PORT`와 동일 포트에서 `/metrics`를 노출합니다 (`METRICS_ENABLED=true`).
 - consumer는 별도 `METRICS_PORT`에서 `/metrics`를 노출합니다.
+- recipe-ingestion CLI batch job은 `PUSHGATEWAY_URL`로 Pushgateway에 메트릭을 push합니다.
 - `PROMETHEUS_TARGETS_MODE`를 `host`(호스트 기동) 또는 `compose`(컨테이너 기동)로 구분합니다.
 
 ## 환경별 배치
@@ -87,7 +88,7 @@
 | `compose-database.yml` | mongo, postgres, redis | ✗ | ✓ |
 | `compose-kafka.yml` | kafka | ✓ | ✓ |
 | `compose-kafka-ui.yml` | kafka-ui | ✗ | ✓ |
-| `compose-monitoring.yml` | prometheus, grafana | ✓ | ✓ |
+| `compose-monitoring.yml` | prometheus, grafana, pushgateway | ✓ | ✓ |
 | `compose-producer.yml` | producer | ✓ | ✗ |
 | `compose-consumer.yml` | consumer | ✓ | ✗ |
 | `compose-client.yml` | client | 선택 | 선택 |

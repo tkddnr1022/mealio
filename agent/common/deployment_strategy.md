@@ -232,7 +232,7 @@ Docker Compose로 앱을 띄울 때 패키지 `.env.docker` 연결 URL 예시:
 
 - 로컬 Compose DB: `postgres` / `mongodb` / `redis` / `kafka:19092` 등 **서비스명** 기준
 - EC2 + 매니지드 DB: `MONGODB_URL`(Atlas), `POSTGRESQL_URL`(Neon pooler), `REDIS_URL`(Upstash `rediss://`), `KAFKA_BROKERS`(`kafka:19092`)
-- `PORT`(client·producer), `METRICS_PORT`(consumer) — 패키지 `.env.docker`에서 관리
+- `PORT`(client·producer), `METRICS_PORT`(consumer), `PUSHGATEWAY_PORT`(monitoring Compose) — 패키지·루트 `.env.docker`에서 관리
 - Docker 앱 배포 시 `.env.docker`의 `PROMETHEUS_TARGETS_MODE=compose` (호스트 개발은 `host`)
 
 ### 프로덕션 EC2 (매니지드 DB — Vercel 대신 Docker 선택 시)
@@ -345,6 +345,7 @@ docker compose --env-file client/.env.docker -f docker/compose-client.yml up -d 
 ## 9) 관측·알림
 
 - **Prometheus** (`docker/compose-monitoring.yml`): `producer`·`consumer` 메트릭 스크랩
+- **Pushgateway** (`compose-monitoring`): recipe-ingestion **CLI** batch job 메트릭 push 수집 (`PUSHGATEWAY_URL`·`PUSHGATEWAY_PORT`)
 - **Grafana**: API p95, 5xx, Kafka consumer lag, ingestion 처리량
 - **알람(초기)**: 5xx 비율, Kafka lag, cron 실패
 - **로그**: JSON stdout; 필요 시 Loki·CloudWatch로 확장
@@ -409,7 +410,7 @@ EC2 Docker로 프론트를 같이 호스팅하면 Vercel 비용은 $0이지만, 
 - [ ] 루트 `.env.docker`(인프라), 패키지 `.env.docker`: `MONGODB_URL`, `POSTGRESQL_URL`, `REDIS_URL`, `KAFKA_BROKERS`, 시크릿
 - [ ] `prisma migrate deploy` (Neon)
 - [ ] `compose-kafka` + `compose-monitoring` 기동 후 `compose-producer`·`compose-consumer`·`compose-client` 기동
-- [ ] Prometheus 타겟 UP, Grafana 대시보드·인증
+- [ ] Prometheus·Pushgateway 타겟 UP, Grafana 대시보드·인증
 - [ ] Producer `/health`, 샘플 API·Kafka consume 확인
 - [ ] `recipe-ingestion` cron·Redis 락·로그 확인
 

@@ -89,7 +89,7 @@ datasource: `postgresql`. generator: `prisma-client`, output `generated`.
 | server/shared/src/constants/ | cache-keys.ts, asset-url-prefixes.ts, recipe-ingestion.ts(계약), sentry.constants.ts, ⚠️ 미구현: error-codes.ts |
 | server/shared/src/policy/ | recipe-ingestion.policy.ts, user-credits.policy.ts, observability.policy.ts |
 | server/shared/src/config/ | observability.config.ts, observability.env-validation.ts, sentry.config.ts (3.1의 kafka, redis 외 추가) |
-| server/shared/src/config/observability.config.ts | METRICS_ENABLED·슬로우 쿼리·Sentry DSN 등 env 기반 관측성 설정 (슬로우 쿼리 임계값은 `observability.policy.ts`) |
+| server/shared/src/config/observability.config.ts | METRICS_ENABLED·슬로우 쿼리·Sentry DSN·`PUSHGATEWAY_URL`(optional) 등 env 기반 관측성 설정 (슬로우 쿼리 임계값은 `observability.policy.ts`) |
 | server/shared/src/config/observability.env-validation.ts | 관측성 관련 환경 변수 Joi 스키마 검증 (`METRICS_ENABLED` 등) |
 | server/shared/src/config/sentry.config.ts | Sentry SDK init 옵션(`getSentryInitOptions`, `createBackendTracesSampler`) |
 | server/shared/src/constants/sentry.constants.ts | Sentry 태그·민감 키 패턴 상수 |

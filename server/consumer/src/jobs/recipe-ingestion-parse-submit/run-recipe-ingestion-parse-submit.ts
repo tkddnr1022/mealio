@@ -1,12 +1,17 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { generateCorrelationId } from '@mealio/shared';
+import { generateCorrelationId, type ObservabilityConfig } from '@mealio/shared';
 import { findUnknownCliArgs } from '../cli-args.util';
 import { parseRecipeIngestionTargetCliArgs } from '../recipe-ingestion/recipe-ingestion-run.cli';
 import {
   logRecipeIngestionCli,
   RECIPE_INGESTION_LOG_EVENTS,
 } from '../recipe-ingestion/recipe-ingestion-logger';
+import {
+  ConsumerMetricsService,
+  OBSERVABILITY_CONFIG,
+} from '../../reliability/monitoring/consumer-metrics.service';
+import { pushCliMetrics } from '../../reliability/monitoring/metrics-push';
 import { RecipeIngestionParseSubmitModule } from './recipe-ingestion-parse-submit.module';
 import {
   ParseSubmitJobIdError,
@@ -91,6 +96,9 @@ async function main(): Promise<void> {
       },
     );
   } finally {
+    const metrics = app.get(ConsumerMetricsService);
+    const obs = app.get<ObservabilityConfig>(OBSERVABILITY_CONFIG);
+    await pushCliMetrics(metrics, obs.pushgatewayUrl, stage, logger);
     await app.close();
   }
 }

@@ -22,3 +22,9 @@ scrape_configs:
       - targets: ['consumer:9091']
         labels:
           service: consumer
+
+  # Pushgateway (recipe-ingestion CLI batch job metrics)
+  - job_name: pushgateway
+    honor_labels: true
+    static_configs:
+      - targets: ['pushgateway:9091']

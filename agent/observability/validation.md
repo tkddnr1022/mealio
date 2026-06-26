@@ -16,12 +16,14 @@
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Client `.env` | 설정 | 비워도 됨 |
 | `METRICS_ENABLED` | Producer `.env`, Consumer `.env` | `true` | `true` |
 | `METRICS_PORT` | Consumer `.env` | 설정 (`METRICS_ENABLED=true` 시) | 예: `9091` |
+| `PUSHGATEWAY_URL` | Consumer `.env` | CLI ingestion 메트릭 push 시 설정 | 예: `http://localhost:9093` (호스트), `http://pushgateway:9091` (Compose) |
+| `PUSHGATEWAY_PORT` | 루트 `.env.docker` | Compose Pushgateway 호스트 포트 | 예: `9093` |
 | `SLACK_OPS_WEBHOOK_URL` | Grafana / alerting | 설정 | 선택 |
 | `SLACK_PRODUCT_WEBHOOK_URL` | Grafana / alerting | 설정 | 선택 |
 
 ### 인프라
 
-- `docker compose -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-monitoring.yml up -d` — Kafka, Redis, PostgreSQL, MongoDB, Prometheus, Grafana 정상 기동.
+- `docker compose -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-monitoring.yml up -d` — Kafka, Redis, PostgreSQL, MongoDB, Prometheus, **Pushgateway**, Grafana 정상 기동.
 - Producer/Consumer 서버 기동 완료.
 - Client 앱 빌드·서빙 (로컬: `pnpm --filter client dev`).
 
@@ -69,15 +71,16 @@
 | 4.2.2 | 테스트 메시지 처리 후 | `kafka_messages_processed_total` 증가 |
 | 4.2.3 | 처리 실패 유발 후 | `kafka_messages_failed_total` 증가, DLQ 전송 |
 | 4.2.4 | `kafka_message_processing_duration_ms` | topic별 히스토그램 수집 정상 |
-| 4.2.5 | recipe ingestion 실행 후 `/metrics` | `recipe_ingestion_stage_total`, `recipe_ingestion_stage_latency_ms` 존재 |
+| 4.2.5 | always-on Consumer `/metrics` | `recipe_ingestion_stage_total`, `recipe_ingestion_stage_latency_ms` 존재 (Kafka 경로 persist 등) |
 | 4.2.6 | persist 성공/실패 시나리오 실행 | `recipe_ingestion_parse_confidence_total`, `recipe_ingestion_ingredient_match_total` 증가 |
 | 4.2.7 | retrieve 처리 후 | `recipe_ingestion_llm_tokens_total` 증가 |
+| 4.2.8 | recipe ingestion CLI 실행 (`PUSHGATEWAY_URL` 설정) | Pushgateway에 `recipe_ingestion_stage_total{job="recipe_ingestion_cli",stage=…}` 노출, Prometheus `pushgateway` 타겟 UP |
 
 ### 4.3 Prometheus 수집
 
 | # | 시나리오 | 기대 결과 |
 |---|----------|-----------|
-| 4.3.1 | `curl localhost:9090/api/v1/targets` | Producer·Consumer 타겟 `UP` |
+| 4.3.1 | `curl localhost:9090/api/v1/targets` | Producer·Consumer·**Pushgateway** 타겟 `UP` |
 | 4.3.2 | Grafana Explore에서 PromQL 쿼리 | 데이터 반환 정상 |
 
 ---
@@ -179,8 +182,8 @@ Development에서는 위 비율·트레이스 샘플링을 1.0(또는 health/met
 
 | # | 시나리오 | 기대 결과 |
 |---|----------|-----------|
-| 8A.1 | `job:recipe-ingestion-fetch --fetch-limit 50` 실행 | `recipe_ingestion_jobs`에 `fetched` 증가, stage metric `fetch/success` 증가 |
-| 8A.2 | `job:recipe-ingestion-parse-submit --run-id <runId>` 실행 | `parse_submitted` 증가, stage metric `parse-submit/success` 증가 |
+| 8A.1 | `job:recipe-ingestion-fetch --fetch-limit 50` 실행 | `recipe_ingestion_jobs`에 `fetched` 증가; Pushgateway/Prometheus에서 `recipe_ingestion_stage_total{job="recipe_ingestion_cli",stage="fetch",outcome="success"}` 증가 |
+| 8A.2 | `job:recipe-ingestion-parse-submit --run-id <runId>` 실행 | `parse_submitted` 증가; Pushgateway에서 `stage="parse-submit",outcome="success"` 증가 |
 | 8A.3 | `job:recipe-ingestion-parse-retrieve` 실행 | `parse_retrieved` 증가, `recipe-ingestion-persist-triggered` lag이 감소 방향 |
 | 8A.4 | `job:recipe-ingestion-parse-submit --retry-failed --retry-failed-limit 20` 실행 | `failed -> fetched` 재큐잉 후 재제출 진행 |
 | 8A.5 | `job:recipe-ingestion-persist --job-id <jobId>` 실행 | 지정 jobId direct persist 실행 및 상태 전이 확인 |
@@ -191,6 +194,7 @@ Development에서는 위 비율·트레이스 샘플링을 1.0(또는 health/met
 | 8A.10 | parse-submit 성공 실행 후 로그 grep | `event=recipe_ingestion_batch_submitted`, `batchId`, `runId` 존재 |
 | 8A.11 | parse-retrieve 대상 0건 실행 | `event=recipe_ingestion_stage_no_op`, `stage=parse-retrieve` 존재 |
 | 8A.12 | 동일 `correlationId`로 stage_started → stage_completed 체인 | 단일 CLI 실행 내 lifecycle 이벤트 연속 확인 |
+| 8A.13 | `PUSHGATEWAY_URL` 미설정 상태에서 fetch CLI 실행 | job 정상 완료, push skip (warn 없음) |
 
 ---
 
@@ -224,7 +228,7 @@ Development에서는 위 비율·트레이스 샘플링을 1.0(또는 health/met
 |------|------|
 | Client Web Vitals·Sentry 유닛 | `pnpm --filter client test:unit` — `web-vitals.test.ts`, `api-error-sentry.test.ts` |
 | Producer 메트릭·모니터링 유닛 | `pnpm --filter producer test` — `metrics.service.spec.ts`, `http-metrics.middleware.spec.ts` 등 |
-| Consumer 메트릭 유닛 | `pnpm --filter consumer test` — `consumer-metrics.service.spec.ts` 등 |
+| Consumer 메트릭 유닛 | `pnpm --filter consumer test` — `consumer-metrics.service.spec.ts`, `metrics-push.spec.ts` 등 |
 | Shared observability config | `pnpm --filter shared test` — `observability.config.spec.ts` |
 
 ---
@@ -237,6 +241,7 @@ Development에서는 위 비율·트레이스 샘플링을 1.0(또는 health/met
 | Sentry 이슈 없음 | DSN 미설정, 4xx만 발생 (5xx만 capture) | 의도적 5xx 유발 후 Sentry 대시보드 확인 |
 | `page_view` 중복 | 정상 동작 — query 변경 시마다 1회 발생 | — |
 | Prometheus 메트릭 없음 | `METRICS_ENABLED=false`, 타겟 DOWN | `/metrics` 직접 호출, Prometheus targets 확인 |
+| CLI ingestion 메트릭 없음 | `PUSHGATEWAY_URL` 미설정, Pushgateway 미기동 | Pushgateway `:9093/metrics` 확인, `PUSHGATEWAY_URL`·Prometheus `pushgateway` 타겟 확인 |
 | EventLog 누락 | Kafka 연결 실패, Consumer 미기동 | Consumer 로그, `kafka_messages_failed_total` 확인 |
 | KPI 롤업 누락 | 배치 미실행, MongoDB 접근 권한 | `job:kpi-rollup` 수동 실행, 접근 권한 확인 |
 | Grafana 패널 빈 값 | datasource 미연결, 프로비저닝 미적용 | datasource 설정·UID 확인 |

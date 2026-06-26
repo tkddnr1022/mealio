@@ -55,6 +55,7 @@ shared 패키지가 정의하는 관측 env 검증 규칙은 producer·consumer 
 | 변수 | producer | consumer |
 | --- | --- | --- |
 | `METRICS_ENABLED` | ✓ (`PORT`에서 `/metrics`) | ✓ (`METRICS_PORT` 필수) |
+| `PUSHGATEWAY_URL` | — | ✓ (optional, CLI batch push) |
 | `SENTRY_ENABLED` | ✓ | ✓ |
 | `SENTRY_DSN_PRODUCER` | ✓ | — |
 | `SENTRY_DSN_CONSUMER` | — | ✓ |

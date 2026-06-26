@@ -99,6 +99,18 @@ pnpm run recipe-ingestion:embed-submit --run-id <runId>
 pnpm run recipe-ingestion:embed-retrieve --run-id <runId>
 ```
 
+## 메트릭
+
+standalone CLI job은 종료 직전 Pushgateway로 Prometheus 메트릭을 push합니다.
+
+| 메트릭 | 설명 |
+| --- | --- |
+| `recipe_ingestion_stage_total` | 단계별 success / failed / skipped |
+| `recipe_ingestion_stage_latency_ms` | 단계 지연 |
+| `recipe_ingestion_parse_confidence_total` | persist 시 parse confidence |
+| `recipe_ingestion_ingredient_match_total` | 재료 매칭 방식 |
+| `recipe_ingestion_llm_tokens_total` | parse-retrieve LLM 토큰 |
+
 ## 운영 검증
 
 | # | 시나리오 | 확인 포인트 |
@@ -117,3 +129,4 @@ pnpm run recipe-ingestion:embed-retrieve --run-id <runId>
 - [Kafka 소비/신뢰성](./kafka-reliability)
 - [레시피 임베딩](./recipe-embedding)
 - [Consumer 운영](./operations)
+- [Observability](../other/observability)

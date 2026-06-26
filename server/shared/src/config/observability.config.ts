@@ -27,6 +27,8 @@ export interface ObservabilityConfig {
   metricsEnabled: boolean;
   metricsPort?: number;
   slowQueryThresholdMs?: number;
+  /** CLI batch job용 Pushgateway URL (optional) */
+  pushgatewayUrl?: string;
 }
 
 export const CORRELATION_ID_HEADER = 'x-correlation-id';
@@ -69,10 +71,12 @@ export function createObservabilityConfig(
   const sentryDsn = process.env[sentryDsnEnvName(serviceName)]?.trim();
   const normalizedSentryDsn =
     sentryDsn && sentryDsn.length > 0 ? sentryDsn : undefined;
+  const pushgatewayUrl = process.env.PUSHGATEWAY_URL?.trim() || undefined;
   const base: ObservabilityConfig = {
     serviceName,
     sentryDsn: normalizedSentryDsn,
     metricsEnabled,
+    pushgatewayUrl,
   };
 
   if (!metricsEnabled) {

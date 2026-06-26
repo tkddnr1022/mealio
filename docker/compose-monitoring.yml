@@ -9,6 +9,16 @@ x-logging: &default-logging
     max-file: "3"
 
 services:
+  pushgateway:
+    image: prom/pushgateway:v1.10.0
+    container_name: mealio-pushgateway
+    restart: unless-stopped
+    logging: *default-logging
+    ports:
+      - "127.0.0.1:${PUSHGATEWAY_PORT:?PUSHGATEWAY_PORT is required}:9091"
+    networks:
+      - mealio-net
+
   prometheus:
     image: prom/prometheus:v3.2.1
     container_name: mealio-prometheus
@@ -20,6 +30,7 @@ services:
       PROMETHEUS_TARGETS_MODE: ${PROMETHEUS_TARGETS_MODE:?PROMETHEUS_TARGETS_MODE is required}
       PROMETHEUS_PRODUCER_PORT: ${PROMETHEUS_PRODUCER_PORT:?PROMETHEUS_PRODUCER_PORT is required}
       PROMETHEUS_CONSUMER_PORT: ${PROMETHEUS_CONSUMER_PORT:?PROMETHEUS_CONSUMER_PORT is required}
+      PUSHGATEWAY_PORT: ${PUSHGATEWAY_PORT:?PUSHGATEWAY_PORT is required}
     entrypoint:
       - /bin/sh
       - -ec
@@ -27,6 +38,7 @@ services:
         if [ "$$PROMETHEUS_TARGETS_MODE" = "host" ]; then
           sed -e "s/host.docker.internal:3000/host.docker.internal:$$PROMETHEUS_PRODUCER_PORT/" \
               -e "s/host.docker.internal:9091/host.docker.internal:$$PROMETHEUS_CONSUMER_PORT/" \
+              -e "s/host.docker.internal:9093/host.docker.internal:$$PUSHGATEWAY_PORT/" \
               /etc/prometheus/prometheus.host.yml > /tmp/prometheus.yml
         else
           sed -e "s/producer:3000/producer:$$PROMETHEUS_PRODUCER_PORT/" \
