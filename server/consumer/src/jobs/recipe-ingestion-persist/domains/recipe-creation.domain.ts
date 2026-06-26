@@ -23,6 +23,11 @@ import type {
   RetrievedDataPayload,
   RetrievedRecipeStepPayload,
 } from '../validators/retrieved-data.validator';
+import {
+  logIngestion,
+  RECIPE_INGESTION_LOG_EVENTS,
+  type RecipeIngestionLoggingOptions,
+} from 'src/jobs/recipe-ingestion/recipe-ingestion-logger';
 import { normalizeFoodsafetyImageUrl } from 'src/integrations/public-data/foodsafety-image-url.util';
 
 export interface RecipeCreationResult {
@@ -101,11 +106,20 @@ export class RecipeCreationService {
   async execute(
     job: RecipeIngestionJobDocument,
     data: RetrievedDataPayload,
+    options: RecipeIngestionLoggingOptions = {},
   ): Promise<RecipeCreationResult> {
     const sourceRecipeId = String(job.sourceId);
+    const logBase = {
+      stage: 'persist' as const,
+      correlationId: options.correlationId,
+      jobId: String(job._id),
+      sourceRecipeId: job.sourceId,
+      runId: job.runId,
+    };
     const embeddingMap = await this.buildQueryEmbeddingMap(
       sourceRecipeId,
       data.ingredients,
+      options.correlationId,
     );
     const isPublished = meetsRecipeIngestionMinParseConfidence(
       data.parseConfidence,
@@ -152,6 +166,7 @@ export class RecipeCreationService {
           tx,
           ingredient,
           embeddingMap?.get(embeddingKey),
+          options.correlationId,
         );
         matchMethods.push(match.matchMethod);
         if (match.matchMethod === 'new') {
@@ -180,9 +195,12 @@ export class RecipeCreationService {
 
       const ingredientRows = Array.from(ingredientRowsByIngredientId.values());
       if (duplicatedIngredientCount > 0) {
-        this.logger.warn(
-          `sourceRecipeId=${sourceRecipeId} deduplicated ${duplicatedIngredientCount} ingredient rows before persist`,
-        );
+        logIngestion(this.logger, 'warn', {
+          event: RECIPE_INGESTION_LOG_EVENTS.DEGRADED,
+          ...logBase,
+          count: duplicatedIngredientCount,
+          message: 'Deduplicated ingredient rows before persist',
+        });
       }
 
       await this.recipeIngredientRepository.replaceForRecipe(
@@ -193,9 +211,14 @@ export class RecipeCreationService {
 
       await this.recipeRepository.initializeStatsInTx(tx, recipe.id);
 
-      this.logger.log(
-        `Persisted recipe id=${recipe.id} sourceRecipeId=${sourceRecipeId} matchMethods=${matchMethods.join(',')}`,
-      );
+      logIngestion(this.logger, 'debug', {
+        event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
+        outcome: 'success',
+        ...logBase,
+        recipeId: recipe.id,
+        matchMethods: matchMethods.join(','),
+        newIngredientCount: newIngredientIdSet.size,
+      });
 
       return {
         recipeId: recipe.id,
@@ -208,6 +231,7 @@ export class RecipeCreationService {
   private async buildQueryEmbeddingMap(
     sourceRecipeId: string,
     ingredients: RetrievedDataPayload['ingredients'],
+    correlationId?: string,
   ): Promise<IngredientEmbeddingMap | null> {
     const uniqueNames = [
       ...new Set(
@@ -234,9 +258,13 @@ export class RecipeCreationService {
       return embeddingMap;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.logger.warn(
-        `sourceRecipeId=${sourceRecipeId} vector lookup skipped due to embedding error: ${message}`,
-      );
+      logIngestion(this.logger, 'warn', {
+        event: RECIPE_INGESTION_LOG_EVENTS.DEGRADED,
+        stage: 'persist',
+        correlationId,
+        sourceRecipeId: Number(sourceRecipeId),
+        message: `Vector lookup skipped due to embedding error: ${message}`,
+      });
       return null;
     }
   }

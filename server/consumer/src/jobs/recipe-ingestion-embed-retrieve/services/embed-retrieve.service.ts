@@ -10,6 +10,11 @@ import {
   OpenAIBatchService,
   type OpenAIBatchStatus,
 } from 'src/integrations/openai/openai-batch.service';
+import {
+  logIngestion,
+  logIngestionError,
+  RECIPE_INGESTION_LOG_EVENTS,
+} from 'src/jobs/recipe-ingestion/recipe-ingestion-logger';
 import { resolveRecipeIngestionRetrieveBatchIds } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
 import type { RecipeIngestionRunScopeOnlyOptions } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.scope';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
@@ -53,6 +58,7 @@ const TERMINAL_BATCH_FAILURE_STATUSES: ReadonlySet<OpenAIBatchStatus> = new Set(
 @Injectable()
 export class EmbedRetrieveService {
   private readonly logger = new Logger(EmbedRetrieveService.name);
+  private static readonly STAGE = 'embed-retrieve' as const;
 
   constructor(
     private readonly recipeRepository: RecipeRepository,
@@ -67,18 +73,44 @@ export class EmbedRetrieveService {
     options: EmbedRetrieveOptions = {},
   ): Promise<EmbedRetrieveResult> {
     const startedAt = Date.now();
+    const logBase = {
+      stage: EmbedRetrieveService.STAGE,
+      correlationId: options.correlationId,
+      runId: options.runId,
+    };
+
+    logIngestion(this.logger, 'log', {
+      event: RECIPE_INGESTION_LOG_EVENTS.STAGE_STARTED,
+      ...logBase,
+    });
+
     const batchIds = await resolveRecipeIngestionRetrieveBatchIds(
       this.jobRepository,
       'embed_submitted',
       options,
     );
     if (batchIds.length === 0) {
-      this.logger.log('No embed-submitted batches — no-op exit');
+      logIngestion(this.logger, 'log', {
+        event: RECIPE_INGESTION_LOG_EVENTS.STAGE_NO_OP,
+        outcome: 'no_op',
+        ...logBase,
+        message: 'No embed-submitted batches',
+      });
       this.metrics.recordIngestionStage('embed-retrieve', 'skipped');
       this.metrics.observeIngestionStageLatency(
         'embed-retrieve',
         Date.now() - startedAt,
       );
+      logIngestion(this.logger, 'log', {
+        event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
+        durationMs: Date.now() - startedAt,
+        ...logBase,
+        outcome: 'no_op',
+        batchCount: 0,
+        retrievedCount: 0,
+        failedCount: 0,
+        skippedBatchCount: 0,
+      });
       return {
         batchCount: 0,
         retrievedCount: 0,
@@ -93,17 +125,19 @@ export class EmbedRetrieveService {
 
     for (const batchId of batchIds) {
       try {
-        const result = await this.processBatch(batchId);
+        const result = await this.processBatch(batchId, options.correlationId);
         retrievedCount += result.retrievedCount;
         failedCount += result.failedCount;
         if (result.skipped) skippedBatchCount++;
       } catch (error) {
-        const message =
-          error instanceof OpenAIBatchError || error instanceof Error
-            ? error.message
-            : 'Embed retrieve failed';
-        this.logger.error(
-          `batchId=${batchId} embed retrieve error: ${message}`,
+        logIngestionError(
+          this.logger,
+          {
+            event: RECIPE_INGESTION_LOG_EVENTS.BATCH_FAILED,
+            ...logBase,
+            batchId,
+          },
+          error,
         );
         this.metrics.recordIngestionStage('embed-retrieve', 'failed');
       }
@@ -135,6 +169,26 @@ export class EmbedRetrieveService {
       Date.now() - startedAt,
     );
 
+    const outcome =
+      failedCount > 0
+        ? ('failed' as const)
+        : retrievedCount > 0
+          ? ('success' as const)
+          : skippedBatchCount > 0
+            ? ('skipped' as const)
+            : ('no_op' as const);
+
+    logIngestion(this.logger, 'log', {
+      event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
+      durationMs: Date.now() - startedAt,
+      ...logBase,
+      outcome,
+      batchCount: batchIds.length,
+      retrievedCount,
+      failedCount,
+      skippedBatchCount,
+    });
+
     return {
       batchCount: batchIds.length,
       retrievedCount,
@@ -143,11 +197,19 @@ export class EmbedRetrieveService {
     };
   }
 
-  private async processBatch(batchId: string): Promise<{
+  private async processBatch(
+    batchId: string,
+    correlationId?: string,
+  ): Promise<{
     retrievedCount: number;
     failedCount: number;
     skipped: boolean;
   }> {
+    const logBase = {
+      stage: EmbedRetrieveService.STAGE,
+      correlationId,
+      batchId,
+    };
     const submittedJobs = await this.jobRepository.findByBatchId(
       batchId,
       'embed_submitted',
@@ -157,6 +219,12 @@ export class EmbedRetrieveService {
     }
     const batch = await this.openAiBatchService.getBatch(batchId);
     if (isInProgressBatchStatus(batch.status)) {
+      logIngestion(this.logger, 'debug', {
+        event: RECIPE_INGESTION_LOG_EVENTS.BATCH_SKIPPED,
+        ...logBase,
+        batchStatus: batch.status,
+        message: 'Batch still in progress',
+      });
       return { retrievedCount: 0, failedCount: 0, skipped: true };
     }
     if (TERMINAL_BATCH_FAILURE_STATUSES.has(batch.status)) {
@@ -164,9 +232,22 @@ export class EmbedRetrieveService {
         batchId,
         `Batch ${batch.status}`,
       );
+      logIngestion(this.logger, 'error', {
+        event: RECIPE_INGESTION_LOG_EVENTS.BATCH_FAILED,
+        ...logBase,
+        batchStatus: batch.status,
+        count: failedCount,
+        message: `Batch ${batch.status}`,
+      });
       return { retrievedCount: 0, failedCount, skipped: false };
     }
     if (batch.status !== 'completed' || !batch.outputFileId) {
+      logIngestion(this.logger, 'debug', {
+        event: RECIPE_INGESTION_LOG_EVENTS.BATCH_SKIPPED,
+        ...logBase,
+        batchStatus: batch.status,
+        message: 'Batch not completed or missing output file',
+      });
       return { retrievedCount: 0, failedCount: 0, skipped: true };
     }
 
@@ -181,6 +262,9 @@ export class EmbedRetrieveService {
 
     let retrievedCount = 0;
     let failedCount = 0;
+    let ingredientLineSkippedCount = 0;
+    let ingredientUpsertFailedCount = 0;
+
     try {
       const jsonl = await this.openAiBatchService.downloadBatchOutput(
         batch.outputFileId,
@@ -189,7 +273,12 @@ export class EmbedRetrieveService {
       for (const line of lines) {
         const customId = line.custom_id ?? '';
         if (customId.startsWith('ingredient:')) {
-          await this.upsertIngredientEmbeddingLine(line);
+          const outcome = await this.upsertIngredientEmbeddingLine(
+            line,
+            correlationId,
+          );
+          if (outcome === 'skipped') ingredientLineSkippedCount++;
+          if (outcome === 'upsert_failed') ingredientUpsertFailedCount++;
           continue;
         }
         const outcome = parseEmbedBatchLine(line);
@@ -238,12 +327,40 @@ export class EmbedRetrieveService {
         );
         if (rolled) failedCount++;
       }
+
+      if (ingredientLineSkippedCount > 0 || ingredientUpsertFailedCount > 0) {
+        logIngestion(this.logger, 'warn', {
+          event: RECIPE_INGESTION_LOG_EVENTS.DEGRADED,
+          ...logBase,
+          ingredientLineSkippedCount,
+          ingredientUpsertFailedCount,
+          message: 'Ingredient embedding lines partially failed',
+        });
+      }
+
+      logIngestion(this.logger, 'log', {
+        event: RECIPE_INGESTION_LOG_EVENTS.BATCH_RETRIEVED,
+        ...logBase,
+        retrievedCount,
+        failedCount,
+        lineCount: lines.length,
+      });
     } catch (error) {
       const message =
         error instanceof OpenAIBatchError || error instanceof Error
           ? error.message
           : 'Embedding batch output processing failed';
       failedCount += await this.rollbackEmbedRetrievingBatch(batchId, message);
+      logIngestionError(
+        this.logger,
+        {
+          event: RECIPE_INGESTION_LOG_EVENTS.BATCH_FAILED,
+          ...logBase,
+          count: failedCount,
+          message,
+        },
+        error,
+      );
     }
 
     return { retrievedCount, failedCount, skipped: false };
@@ -330,13 +447,18 @@ export class EmbedRetrieveService {
 
   private async upsertIngredientEmbeddingLine(
     line: EmbedBatchLine,
-  ): Promise<void> {
+    correlationId?: string,
+  ): Promise<'ok' | 'skipped' | 'upsert_failed'> {
     const outcome = parseIngredientEmbedBatchLine(line);
     if (!outcome.ok) {
-      this.logger.warn(
-        `ingredient embedding line skipped: ${outcome.errorMessage}`,
-      );
-      return;
+      logIngestion(this.logger, 'debug', {
+        event: RECIPE_INGESTION_LOG_EVENTS.ROW_SKIPPED,
+        stage: EmbedRetrieveService.STAGE,
+        correlationId,
+        ingredientId: outcome.ingredientId ?? undefined,
+        message: outcome.errorMessage,
+      });
+      return 'skipped';
     }
     try {
       await this.ingredientEmbeddingRepository.upsert({
@@ -344,11 +466,17 @@ export class EmbedRetrieveService {
         embedding: outcome.embedding,
         embeddingModel: this.openAiBatchService.getEmbeddingModel(),
       });
+      return 'ok';
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.logger.warn(
-        `ingredientId=${outcome.ingredientId} embedding upsert failed: ${message}`,
-      );
+      logIngestion(this.logger, 'warn', {
+        event: RECIPE_INGESTION_LOG_EVENTS.DEGRADED,
+        stage: EmbedRetrieveService.STAGE,
+        correlationId,
+        ingredientId: outcome.ingredientId,
+        message: `Ingredient embedding upsert failed: ${message}`,
+      });
+      return 'upsert_failed';
     }
   }
 }

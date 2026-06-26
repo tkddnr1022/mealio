@@ -1,6 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { INGREDIENT_VECTOR_MATCH_THRESHOLD } from '@mealio/shared';
 import { Prisma } from '@mealio/shared/prisma-client';
+import {
+  logIngestion,
+  RECIPE_INGESTION_LOG_EVENTS,
+} from 'src/jobs/recipe-ingestion/recipe-ingestion-logger';
 import type { RetrievedIngredientPayload } from '../validators/retrieved-data.validator';
 import { CategoryResolverService } from './category-resolver.domain';
 import { IngredientEmbeddingRepository } from 'src/persistence/repositories/postgresql/ingredient-embedding.repository';
@@ -30,6 +34,7 @@ export class IngredientMatcherService {
     tx: Prisma.TransactionClient,
     ingredient: RetrievedIngredientPayload,
     queryEmbedding?: number[],
+    correlationId?: string,
   ): Promise<IngredientMatchResult> {
     const alias = ingredient.ingredientAlias.trim();
     if (alias.length > 0) {
@@ -85,9 +90,15 @@ export class IngredientMatcherService {
       categoryId,
     });
 
-    this.logger.log(
-      `Created ingredient id=${created.id} name="${name}" matchMethod=new`,
-    );
+    logIngestion(this.logger, 'debug', {
+      event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
+      stage: 'persist',
+      correlationId,
+      count: 1,
+      ingredientId: created.id,
+      matchMethod: 'new',
+      message: 'Created new ingredient',
+    });
 
     return { ingredientId: created.id, matchMethod: 'new' };
   }

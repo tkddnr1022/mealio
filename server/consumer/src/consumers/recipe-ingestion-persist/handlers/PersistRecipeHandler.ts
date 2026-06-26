@@ -9,9 +9,11 @@ export class PersistRecipeHandler {
 
   async execute(
     payload: RecipeIngestionParseRetrieveToPersistPayload,
+    correlationId?: string,
   ): Promise<void> {
     await this.persistService.persist({
       runId: payload.runId,
+      correlationId,
     });
   }
 }

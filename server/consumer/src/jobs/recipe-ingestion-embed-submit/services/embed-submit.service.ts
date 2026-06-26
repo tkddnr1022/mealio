@@ -8,6 +8,12 @@ import {
   OpenAIBatchError,
   OpenAIBatchService,
 } from 'src/integrations/openai/openai-batch.service';
+import {
+  logIngestion,
+  logIngestionError,
+  RECIPE_INGESTION_LOG_EVENTS,
+  type RecipeIngestionLoggingOptions,
+} from 'src/jobs/recipe-ingestion/recipe-ingestion-logger';
 import { resolveRecipeIngestionTargetJobs } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
 import { RecipeEmbeddingDocumentService } from '../integrations/recipe-embedding-document.integration';
 import { IngredientEmbeddingDocumentService } from '../integrations/ingredient-embedding-document';
@@ -29,7 +35,7 @@ export class EmbedSubmitJobIdError extends Error {
   }
 }
 
-export interface EmbedSubmitOptions {
+export interface EmbedSubmitOptions extends RecipeIngestionLoggingOptions {
   jobId?: string;
   runId?: string;
   runIdCount?: number;
@@ -54,6 +60,7 @@ export interface EmbedBatchJsonlRequestLine {
 @Injectable()
 export class EmbedSubmitService {
   private readonly logger = new Logger(EmbedSubmitService.name);
+  private static readonly STAGE = 'embed-submit' as const;
 
   constructor(
     private readonly recipeRepository: RecipeRepository,
@@ -66,18 +73,43 @@ export class EmbedSubmitService {
 
   async submit(options: EmbedSubmitOptions = {}): Promise<EmbedSubmitResult> {
     const startedAt = Date.now();
+    const logBase = {
+      stage: EmbedSubmitService.STAGE,
+      correlationId: options.correlationId,
+      runId: options.runId,
+      jobId: options.jobId,
+    };
+
+    logIngestion(this.logger, 'log', {
+      event: RECIPE_INGESTION_LOG_EVENTS.STAGE_STARTED,
+      ...logBase,
+    });
+
     const persistedJobs = await resolveRecipeIngestionTargetJobs(
       this.jobRepository,
       'persisted',
       options,
     );
     if (persistedJobs.length === 0) {
-      this.logger.log('No persisted jobs — no-op exit');
+      logIngestion(this.logger, 'log', {
+        event: RECIPE_INGESTION_LOG_EVENTS.STAGE_NO_OP,
+        outcome: 'no_op',
+        ...logBase,
+        message: 'No persisted jobs',
+      });
       this.metrics.recordIngestionStage('embed-submit', 'skipped');
       this.metrics.observeIngestionStageLatency(
         'embed-submit',
         Date.now() - startedAt,
       );
+      logIngestion(this.logger, 'log', {
+        event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
+        durationMs: Date.now() - startedAt,
+        ...logBase,
+        outcome: 'no_op',
+        submittedCount: 0,
+        skippedCount: 0,
+      });
       return { submittedCount: 0, skippedCount: 0 };
     }
 
@@ -85,12 +117,17 @@ export class EmbedSubmitService {
     let submittedCount = 0;
     let skippedCount = persistedJobs.length - jobsByRunId.totalJobs;
     if (skippedCount > 0) {
-      this.logger.warn(`Skipped jobs without runId count=${skippedCount}`);
+      logIngestion(this.logger, 'warn', {
+        event: RECIPE_INGESTION_LOG_EVENTS.ROW_SKIPPED,
+        ...logBase,
+        count: skippedCount,
+        message: 'Jobs skipped due to missing runId',
+      });
     }
     const submittedBatchIds: string[] = [];
 
     for (const [runId, jobs] of jobsByRunId.groups.entries()) {
-      const result = await this.submitRunGroup(runId, jobs);
+      const result = await this.submitRunGroup(runId, jobs, options.correlationId);
       submittedCount += result.submittedCount;
       skippedCount += result.skippedCount;
       if (result.batchId) submittedBatchIds.push(result.batchId);
@@ -109,6 +146,20 @@ export class EmbedSubmitService {
       'embed-submit',
       Date.now() - startedAt,
     );
+
+    const outcome =
+      submittedCount > 0 ? ('success' as const) : ('skipped' as const);
+    logIngestion(this.logger, 'log', {
+      event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
+      durationMs: Date.now() - startedAt,
+      ...logBase,
+      outcome,
+      submittedCount,
+      skippedCount,
+      batchId:
+        submittedBatchIds.length === 1 ? submittedBatchIds[0] : undefined,
+    });
+
     return {
       submittedCount,
       batchId:
@@ -138,11 +189,17 @@ export class EmbedSubmitService {
   private async submitRunGroup(
     runId: string,
     jobs: RecipeIngestionJobDocument[],
+    correlationId?: string,
   ): Promise<{
     submittedCount: number;
     skippedCount: number;
     batchId?: string;
   }> {
+    const logBase = {
+      stage: EmbedSubmitService.STAGE,
+      correlationId,
+      runId,
+    };
     const jobIds = jobs.map((job) => String(job._id));
     const lockedCount = await this.jobRepository.transitionManyByIds(
       jobIds,
@@ -160,9 +217,13 @@ export class EmbedSubmitService {
     const lines: EmbedBatchJsonlRequestLine[] = [];
     const lineJobIds: string[] = [];
     const queuedIngredientIdSet = new Set<number>();
+    let recipeNotFoundCount = 0;
+    let embeddingDocNotFoundCount = 0;
+
     for (const job of lockedJobs) {
       const recipeId = await this.findRecipeIdBySourceId(job.sourceId);
       if (!recipeId) {
+        recipeNotFoundCount++;
         await this.rollbackEmbedStatus(String(job._id), 'recipe not found');
         continue;
       }
@@ -171,6 +232,7 @@ export class EmbedSubmitService {
           recipeId,
         );
       if (!doc) {
+        embeddingDocNotFoundCount++;
         await this.rollbackEmbedStatus(
           String(job._id),
           'embedding document not found',
@@ -205,6 +267,16 @@ export class EmbedSubmitService {
       lineJobIds.push(String(job._id));
     }
 
+    if (recipeNotFoundCount > 0 || embeddingDocNotFoundCount > 0) {
+      logIngestion(this.logger, 'warn', {
+        event: RECIPE_INGESTION_LOG_EVENTS.ROW_SKIPPED,
+        ...logBase,
+        recipeNotFoundCount,
+        embeddingDocNotFoundCount,
+        message: 'Jobs skipped during embed document preparation',
+      });
+    }
+
     if (lines.length === 0) {
       return { submittedCount: 0, skippedCount: jobs.length };
     }
@@ -223,6 +295,14 @@ export class EmbedSubmitService {
           errorMessage: undefined,
         },
       );
+      logIngestion(this.logger, 'log', {
+        event: RECIPE_INGESTION_LOG_EVENTS.BATCH_SUBMITTED,
+        ...logBase,
+        batchId,
+        count: submittedCount,
+        jobCount: lineJobIds.length,
+        lineCount: lines.length,
+      });
       return {
         submittedCount,
         skippedCount: jobs.length - submittedCount,
@@ -233,12 +313,19 @@ export class EmbedSubmitService {
         error instanceof OpenAIBatchError || error instanceof Error
           ? error.message
           : 'Embedding batch submit failed';
-      this.logger.error(
-        `runId=${runId} embed submit failed for ${lineJobIds.length} jobs: ${message}`,
-      );
       for (const jobId of lineJobIds) {
         await this.rollbackEmbedStatus(jobId, message);
       }
+      logIngestionError(
+        this.logger,
+        {
+          event: RECIPE_INGESTION_LOG_EVENTS.BATCH_FAILED,
+          ...logBase,
+          count: lineJobIds.length,
+          message,
+        },
+        error,
+      );
       throw error;
     }
   }

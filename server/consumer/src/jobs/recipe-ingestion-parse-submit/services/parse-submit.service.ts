@@ -10,6 +10,12 @@ import {
   OpenAIBatchError,
   OpenAIBatchService,
 } from 'src/integrations/openai/openai-batch.service';
+import {
+  logIngestion,
+  logIngestionError,
+  RECIPE_INGESTION_LOG_EVENTS,
+  type RecipeIngestionLoggingOptions,
+} from 'src/jobs/recipe-ingestion/recipe-ingestion-logger';
 import { resolveRecipeIngestionTargetJobs } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
@@ -37,7 +43,7 @@ export class ParseSubmitJobIdError extends Error {
   }
 }
 
-export interface ParseSubmitOptions {
+export interface ParseSubmitOptions extends RecipeIngestionLoggingOptions {
   jobId?: string;
   runId?: string;
   runIdCount?: number;
@@ -68,6 +74,7 @@ export interface ParseBatchJsonlRequestLine {
 @Injectable()
 export class ParseSubmitService {
   private readonly logger = new Logger(ParseSubmitService.name);
+  private static readonly STAGE = 'parse-submit' as const;
 
   constructor(
     private readonly jobRepository: RecipeIngestionJobRepository,
@@ -78,6 +85,18 @@ export class ParseSubmitService {
 
   async submit(options: ParseSubmitOptions = {}): Promise<ParseSubmitResult> {
     const startedAt = Date.now();
+    const logBase = {
+      stage: ParseSubmitService.STAGE,
+      correlationId: options.correlationId,
+    };
+
+    logIngestion(this.logger, 'log', {
+      event: RECIPE_INGESTION_LOG_EVENTS.STAGE_STARTED,
+      ...logBase,
+      runId: options.runId,
+      jobId: options.jobId,
+    });
+
     const retryFailedLimit = Math.max(
       1,
       options.retryFailedLimit ?? DEFAULT_RECIPE_RETRY_FAILED_LIMIT,
@@ -87,7 +106,12 @@ export class ParseSubmitService {
       const requeued =
         await this.jobRepository.requeueFailedToFetched(retryFailedLimit);
       if (requeued > 0) {
-        this.logger.log(`Requeued failed jobs count=${requeued}`);
+        logIngestion(this.logger, 'log', {
+          event: RECIPE_INGESTION_LOG_EVENTS.STAGE_STARTED,
+          ...logBase,
+          count: requeued,
+          message: 'Requeued failed jobs to fetched',
+        });
       }
     }
 
@@ -98,12 +122,25 @@ export class ParseSubmitService {
     );
 
     if (fetchedJobs.length === 0) {
-      this.logger.log('No fetched jobs — no-op exit');
+      logIngestion(this.logger, 'log', {
+        event: RECIPE_INGESTION_LOG_EVENTS.STAGE_NO_OP,
+        outcome: 'no_op',
+        ...logBase,
+        message: 'No fetched jobs',
+      });
       this.metrics.recordIngestionStage('parse-submit', 'skipped');
       this.metrics.observeIngestionStageLatency(
         'parse-submit',
         Date.now() - startedAt,
       );
+      logIngestion(this.logger, 'log', {
+        event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
+        durationMs: Date.now() - startedAt,
+        ...logBase,
+        outcome: 'no_op',
+        submittedCount: 0,
+        skippedCount: 0,
+      });
       return { submittedCount: 0, skippedCount: 0 };
     }
 
@@ -113,12 +150,37 @@ export class ParseSubmitService {
     const runIdMissingSkipped = eligibleJobs.length - jobsByRunId.totalJobs;
     const skippedCount = baseSkippedCount + runIdMissingSkipped;
 
+    if (baseSkippedCount > 0) {
+      logIngestion(this.logger, 'warn', {
+        event: RECIPE_INGESTION_LOG_EVENTS.ROW_SKIPPED,
+        ...logBase,
+        count: baseSkippedCount,
+        message: 'Jobs skipped due to missing rawData',
+      });
+    }
+    if (runIdMissingSkipped > 0) {
+      logIngestion(this.logger, 'warn', {
+        event: RECIPE_INGESTION_LOG_EVENTS.ROW_SKIPPED,
+        ...logBase,
+        count: runIdMissingSkipped,
+        message: 'Jobs skipped due to missing runId',
+      });
+    }
+
     if (eligibleJobs.length === 0 || jobsByRunId.groups.size === 0) {
       this.metrics.recordIngestionStage('parse-submit', 'skipped');
       this.metrics.observeIngestionStageLatency(
         'parse-submit',
         Date.now() - startedAt,
       );
+      logIngestion(this.logger, 'log', {
+        event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
+        durationMs: Date.now() - startedAt,
+        ...logBase,
+        outcome: 'skipped',
+        submittedCount: 0,
+        skippedCount,
+      });
       return { submittedCount: 0, skippedCount };
     }
 
@@ -135,6 +197,7 @@ export class ParseSubmitService {
           jobs,
           systemPrompt,
           model,
+          correlationId: options.correlationId,
         });
         submittedCount += groupResult.submittedCount;
         if (groupResult.batchId) {
@@ -156,6 +219,19 @@ export class ParseSubmitService {
         Date.now() - startedAt,
       );
 
+      const outcome =
+        submittedCount > 0 ? ('success' as const) : ('skipped' as const);
+      logIngestion(this.logger, 'log', {
+        event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
+        durationMs: Date.now() - startedAt,
+        ...logBase,
+        outcome,
+        submittedCount,
+        skippedCount,
+        batchId:
+          submittedBatchIds.length === 1 ? submittedBatchIds[0] : undefined,
+      });
+
       return {
         submittedCount,
         batchId:
@@ -167,6 +243,16 @@ export class ParseSubmitService {
       this.metrics.observeIngestionStageLatency(
         'parse-submit',
         Date.now() - startedAt,
+      );
+      logIngestionError(
+        this.logger,
+        {
+          event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
+          outcome: 'failed',
+          ...logBase,
+          durationMs: Date.now() - startedAt,
+        },
+        error,
       );
       throw error;
     }
@@ -205,7 +291,13 @@ export class ParseSubmitService {
     jobs: RecipeIngestionJobDocument[];
     systemPrompt: string;
     model: string;
+    correlationId?: string;
   }): Promise<{ submittedCount: number; batchId?: string }> {
+    const logBase = {
+      stage: ParseSubmitService.STAGE,
+      correlationId: params.correlationId,
+      runId: params.runId,
+    };
     const jobIds = params.jobs.map((job) => String(job._id));
     const lockedCount = await this.jobRepository.transitionManyByIds(
       jobIds,
@@ -240,6 +332,13 @@ export class ParseSubmitService {
           errorMessage: undefined,
         },
       );
+      logIngestion(this.logger, 'log', {
+        event: RECIPE_INGESTION_LOG_EVENTS.BATCH_SUBMITTED,
+        ...logBase,
+        batchId,
+        count: submittedCount,
+        jobCount: lockedIds.length,
+      });
       return { submittedCount, batchId };
     } catch (error) {
       const message =
@@ -247,6 +346,16 @@ export class ParseSubmitService {
           ? error.message
           : 'Batch submit failed';
       await this.jobRepository.rollbackSubmittingWithRetry(lockedIds, message);
+      logIngestionError(
+        this.logger,
+        {
+          event: RECIPE_INGESTION_LOG_EVENTS.BATCH_FAILED,
+          ...logBase,
+          count: lockedIds.length,
+          message,
+        },
+        error,
+      );
       throw error;
     }
   }

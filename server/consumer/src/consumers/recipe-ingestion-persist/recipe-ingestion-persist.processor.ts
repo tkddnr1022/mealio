@@ -49,8 +49,9 @@ export class RecipeIngestionPersistProcessor extends BaseTopicProcessor<RecipeIn
 
   protected async processEvent(
     event: RecipeIngestionParseRetrieveToPersistPayload,
-    _message: EachMessagePayload,
+    message: EachMessagePayload,
   ): Promise<void> {
-    await this.persistRecipeHandler.execute(event);
+    const correlationId = this.resolveCorrelationId(message);
+    await this.persistRecipeHandler.execute(event, correlationId);
   }
 }

@@ -12,6 +12,11 @@ import {
   createRecipeIngestionRunTriggerPayload,
   recipeIngestionRunTriggerKey,
 } from 'src/jobs/recipe-ingestion/recipe-ingestion-range-trigger.payload';
+import {
+  logIngestion,
+  logIngestionError,
+  RECIPE_INGESTION_LOG_EVENTS,
+} from 'src/jobs/recipe-ingestion/recipe-ingestion-logger';
 import { resolveRecipeIngestionRetrieveBatchIds } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
 import type { RecipeIngestionRunScopeOnlyOptions } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.scope';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
@@ -65,6 +70,7 @@ const TERMINAL_BATCH_FAILURE_STATUSES: ReadonlySet<OpenAIBatchStatus> = new Set(
 @Injectable()
 export class ParseRetrieveService {
   private readonly logger = new Logger(ParseRetrieveService.name);
+  private static readonly STAGE = 'parse-retrieve' as const;
 
   constructor(
     private readonly jobRepository: RecipeIngestionJobRepository,
@@ -77,6 +83,17 @@ export class ParseRetrieveService {
     options: ParseRetrieveOptions = {},
   ): Promise<ParseRetrieveResult> {
     const startedAt = Date.now();
+    const logBase = {
+      stage: ParseRetrieveService.STAGE,
+      correlationId: options.correlationId,
+      runId: options.runId,
+    };
+
+    logIngestion(this.logger, 'log', {
+      event: RECIPE_INGESTION_LOG_EVENTS.STAGE_STARTED,
+      ...logBase,
+    });
+
     const batchIds = await resolveRecipeIngestionRetrieveBatchIds(
       this.jobRepository,
       'parse_submitted',
@@ -84,11 +101,27 @@ export class ParseRetrieveService {
     );
 
     if (batchIds.length === 0) {
+      logIngestion(this.logger, 'log', {
+        event: RECIPE_INGESTION_LOG_EVENTS.STAGE_NO_OP,
+        outcome: 'no_op',
+        ...logBase,
+        message: 'No parse-submitted batches',
+      });
       this.metrics.recordIngestionStage('parse-retrieve', 'skipped');
       this.metrics.observeIngestionStageLatency(
         'parse-retrieve',
         Date.now() - startedAt,
       );
+      logIngestion(this.logger, 'log', {
+        event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
+        durationMs: Date.now() - startedAt,
+        ...logBase,
+        outcome: 'no_op',
+        batchCount: 0,
+        retrievedCount: 0,
+        failedCount: 0,
+        skippedBatchCount: 0,
+      });
       return {
         batchCount: 0,
         retrievedCount: 0,
@@ -103,7 +136,10 @@ export class ParseRetrieveService {
 
     for (const batchId of batchIds) {
       try {
-        const outcome = await this.processBatch(batchId);
+        const outcome = await this.processBatch(
+          batchId,
+          options.correlationId,
+        );
         retrievedCount += outcome.retrievedCount;
         failedCount += outcome.failedCount;
         if (outcome.retrievedCount > 0) {
@@ -111,6 +147,7 @@ export class ParseRetrieveService {
             await this.emitPersistTrigger({
               runId: retrievedRunId,
               fetchedCount: count,
+              correlationId: options.correlationId,
             });
           }
         }
@@ -118,12 +155,14 @@ export class ParseRetrieveService {
           skippedBatchCount++;
         }
       } catch (error) {
-        const message =
-          error instanceof OpenAIBatchError || error instanceof Error
-            ? error.message
-            : 'Batch retrieve failed';
-        this.logger.error(
-          `batchId=${batchId} parse retrieve error: ${message}`,
+        logIngestionError(
+          this.logger,
+          {
+            event: RECIPE_INGESTION_LOG_EVENTS.BATCH_FAILED,
+            ...logBase,
+            batchId,
+          },
+          error,
         );
         this.metrics.recordIngestionStage('parse-retrieve', 'failed');
       }
@@ -155,6 +194,26 @@ export class ParseRetrieveService {
       Date.now() - startedAt,
     );
 
+    const outcome =
+      failedCount > 0
+        ? ('failed' as const)
+        : retrievedCount > 0
+          ? ('success' as const)
+          : skippedBatchCount > 0
+            ? ('skipped' as const)
+            : ('no_op' as const);
+
+    logIngestion(this.logger, 'log', {
+      event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
+      durationMs: Date.now() - startedAt,
+      ...logBase,
+      outcome,
+      batchCount: batchIds.length,
+      retrievedCount,
+      failedCount,
+      skippedBatchCount,
+    });
+
     return {
       batchCount: batchIds.length,
       retrievedCount,
@@ -163,12 +222,20 @@ export class ParseRetrieveService {
     };
   }
 
-  private async processBatch(batchId: string): Promise<{
+  private async processBatch(
+    batchId: string,
+    correlationId?: string,
+  ): Promise<{
     retrievedCount: number;
     failedCount: number;
     retrievedCountByRunId: Map<string, number>;
     skipped: boolean;
   }> {
+    const logBase = {
+      stage: ParseRetrieveService.STAGE,
+      correlationId,
+      batchId,
+    };
     const submittedJobs = await this.jobRepository.findByBatchId(
       batchId,
       'parse_submitted',
@@ -186,6 +253,12 @@ export class ParseRetrieveService {
         batchId,
         'runId:batchId invariant violation',
       );
+      logIngestion(this.logger, 'error', {
+        event: RECIPE_INGESTION_LOG_EVENTS.BATCH_FAILED,
+        ...logBase,
+        count: rolled,
+        message: 'runId:batchId invariant violation',
+      });
       return {
         retrievedCount: 0,
         failedCount: rolled,
@@ -196,6 +269,12 @@ export class ParseRetrieveService {
 
     const batch = await this.openAiBatchService.getBatch(batchId);
     if (isInProgressBatchStatus(batch.status)) {
+      logIngestion(this.logger, 'debug', {
+        event: RECIPE_INGESTION_LOG_EVENTS.BATCH_SKIPPED,
+        ...logBase,
+        batchStatus: batch.status,
+        message: 'Batch still in progress',
+      });
       return {
         retrievedCount: 0,
         failedCount: 0,
@@ -208,6 +287,13 @@ export class ParseRetrieveService {
         batchId,
         `Batch ${batch.status}`,
       );
+      logIngestion(this.logger, 'error', {
+        event: RECIPE_INGESTION_LOG_EVENTS.BATCH_FAILED,
+        ...logBase,
+        batchStatus: batch.status,
+        count: rolled,
+        message: `Batch ${batch.status}`,
+      });
       return {
         retrievedCount: 0,
         failedCount: rolled,
@@ -216,6 +302,12 @@ export class ParseRetrieveService {
       };
     }
     if (batch.status !== 'completed') {
+      logIngestion(this.logger, 'debug', {
+        event: RECIPE_INGESTION_LOG_EVENTS.BATCH_SKIPPED,
+        ...logBase,
+        batchStatus: batch.status,
+        message: 'Batch not completed',
+      });
       return {
         retrievedCount: 0,
         failedCount: 0,
@@ -228,6 +320,12 @@ export class ParseRetrieveService {
         batchId,
         'Batch completed without output_file_id',
       );
+      logIngestion(this.logger, 'error', {
+        event: RECIPE_INGESTION_LOG_EVENTS.BATCH_FAILED,
+        ...logBase,
+        count: rolled,
+        message: 'Batch completed without output_file_id',
+      });
       return {
         retrievedCount: 0,
         failedCount: rolled,
@@ -235,18 +333,28 @@ export class ParseRetrieveService {
         skipped: false,
       };
     }
-    return this.processCompletedBatch(batchId, batch.outputFileId);
+    return this.processCompletedBatch(
+      batchId,
+      batch.outputFileId,
+      correlationId,
+    );
   }
 
   private async processCompletedBatch(
     batchId: string,
     outputFileId: string,
+    correlationId?: string,
   ): Promise<{
     retrievedCount: number;
     failedCount: number;
     retrievedCountByRunId: Map<string, number>;
     skipped: boolean;
   }> {
+    const logBase = {
+      stage: ParseRetrieveService.STAGE,
+      correlationId,
+      batchId,
+    };
     const locked = await this.jobRepository.transitionManyByBatchId(
       batchId,
       'parse_submitted',
@@ -312,6 +420,14 @@ export class ParseRetrieveService {
         );
         if (rolled) failedCount++;
       }
+
+      logIngestion(this.logger, 'log', {
+        event: RECIPE_INGESTION_LOG_EVENTS.BATCH_RETRIEVED,
+        ...logBase,
+        retrievedCount,
+        failedCount,
+        lineCount: lines.length,
+      });
     } catch (error) {
       const message =
         error instanceof OpenAIBatchError || error instanceof Error
@@ -320,6 +436,16 @@ export class ParseRetrieveService {
       failedCount += await this.jobRepository.rollbackRetrievingBatchWithRetry(
         batchId,
         message,
+      );
+      logIngestionError(
+        this.logger,
+        {
+          event: RECIPE_INGESTION_LOG_EVENTS.BATCH_FAILED,
+          ...logBase,
+          count: failedCount,
+          message,
+        },
+        error,
       );
     }
 
@@ -334,6 +460,7 @@ export class ParseRetrieveService {
   private async emitPersistTrigger(params: {
     runId: string;
     fetchedCount: number;
+    correlationId?: string;
   }): Promise<void> {
     const payload = createRecipeIngestionRunTriggerPayload(params);
     const key = recipeIngestionRunTriggerKey(params.runId);
@@ -348,9 +475,14 @@ export class ParseRetrieveService {
         error instanceof Error
           ? error.message
           : 'Parse retrieve completed trigger publish failed';
-      this.logger.warn(
-        `Parse retrieve completed trigger publish failed runId=${params.runId}: ${message}`,
-      );
+      logIngestion(this.logger, 'warn', {
+        event: RECIPE_INGESTION_LOG_EVENTS.TRIGGER_PUBLISH_FAILED,
+        stage: ParseRetrieveService.STAGE,
+        correlationId: params.correlationId,
+        runId: params.runId,
+        topic: KAFKA_TOPICS.RECIPE_INGESTION_PERSIST_TRIGGERED,
+        message,
+      });
     }
   }
 }

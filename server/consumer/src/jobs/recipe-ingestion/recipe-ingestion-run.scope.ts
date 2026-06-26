@@ -12,7 +12,9 @@ export class RecipeIngestionRunScopeError extends Error {
   }
 }
 
-export interface RecipeIngestionRunScopeOptions {
+import type { RecipeIngestionLoggingOptions } from './recipe-ingestion-logger';
+
+export interface RecipeIngestionRunScopeOptions extends RecipeIngestionLoggingOptions {
   jobId?: string;
   runId?: string;
   runIdCount?: number;

@@ -3,9 +3,14 @@ import { NestFactory } from '@nestjs/core';
 import {
   DEFAULT_RECIPE_FETCH_LIMIT,
   MAX_RECIPE_FETCH_LIMIT,
+  generateCorrelationId,
 } from '@mealio/shared';
 import { findUnknownCliArgs } from '../cli-args.util';
 import { PublicDataFetchLimitError } from '../../integrations/public-data/public-data-api.client';
+import {
+  logRecipeIngestionCli,
+  RECIPE_INGESTION_LOG_EVENTS,
+} from '../recipe-ingestion/recipe-ingestion-logger';
 import { RecipeIngestionFetchModule } from './recipe-ingestion-fetch.module';
 import { FetchService } from './services/fetch.service';
 
@@ -22,12 +27,21 @@ import { FetchService } from './services/fetch.service';
  */
 async function main(): Promise<void> {
   const logger = new Logger('RecipeIngestionFetchCLI');
+  const correlationId = generateCorrelationId();
+  const stage = 'fetch' as const;
   const args = process.argv.slice(2);
   const unknownArgs = findUnknownCliArgs(args, {
     flags: [{ name: '--fetch-limit', takesValue: true }],
   });
   if (unknownArgs.length > 0) {
-    logger.error(`Unknown CLI argument(s): ${unknownArgs.join(', ')}`);
+    logRecipeIngestionCli(
+      logger,
+      'error',
+      RECIPE_INGESTION_LOG_EVENTS.CLI_UNKNOWN_ARGS,
+      stage,
+      correlationId,
+      { message: `Unknown CLI argument(s): ${unknownArgs.join(', ')}` },
+    );
     return;
   }
 
@@ -35,15 +49,34 @@ async function main(): Promise<void> {
 
   const app = await NestFactory.createApplicationContext(
     RecipeIngestionFetchModule,
-    { logger: ['log', 'error', 'warn'] },
+    { logger: ['log', 'error', 'warn', 'debug'] },
   );
 
   try {
     const service = app.get(FetchService);
-    logger.log(`Starting fetch fetchLimit=${fetchLimit}`);
-    const result = await service.fetch({ fetchLimit });
-    logger.log(
-      `Fetch complete startIdx=${result.startIdx} endIdx=${result.endIdx} runId=${result.runId ?? 'n/a'} fetchedCount=${result.fetchedCount} exhausted=${result.exhausted}`,
+    logRecipeIngestionCli(
+      logger,
+      'log',
+      RECIPE_INGESTION_LOG_EVENTS.CLI_STARTED,
+      stage,
+      correlationId,
+      { fetchLimit },
+    );
+    const result = await service.fetch({ fetchLimit, correlationId });
+    logRecipeIngestionCli(
+      logger,
+      'log',
+      RECIPE_INGESTION_LOG_EVENTS.CLI_COMPLETED,
+      stage,
+      correlationId,
+      {
+        outcome: result.exhausted && result.fetchedCount === 0 ? 'no_op' : 'success',
+        startIdx: result.startIdx,
+        endIdx: result.endIdx,
+        runId: result.runId,
+        fetchedCount: result.fetchedCount,
+        exhausted: result.exhausted,
+      },
     );
   } finally {
     await app.close();

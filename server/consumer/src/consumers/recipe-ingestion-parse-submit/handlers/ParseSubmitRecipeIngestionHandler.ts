@@ -8,7 +8,11 @@ export class ParseSubmitRecipeIngestionHandler {
 
   async execute(
     payload: RecipeIngestionFetchToParseSubmitPayload,
+    correlationId?: string,
   ): Promise<void> {
-    await this.parseSubmitService.submit({ runId: payload.runId });
+    await this.parseSubmitService.submit({
+      runId: payload.runId,
+      correlationId,
+    });
   }
 }

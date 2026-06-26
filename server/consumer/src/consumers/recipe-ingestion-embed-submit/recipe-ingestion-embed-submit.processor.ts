@@ -48,8 +48,9 @@ export class RecipeIngestionEmbedSubmitProcessor extends BaseTopicProcessor<Reci
 
   protected async processEvent(
     event: RecipeIngestionPersistToEmbedSubmitPayload,
-    _message: EachMessagePayload,
+    message: EachMessagePayload,
   ): Promise<void> {
-    await this.handler.execute(event);
+    const correlationId = this.resolveCorrelationId(message);
+    await this.handler.execute(event, correlationId);
   }
 }

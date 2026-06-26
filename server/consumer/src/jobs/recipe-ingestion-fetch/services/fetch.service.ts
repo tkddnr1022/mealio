@@ -4,11 +4,18 @@ import {
   KAFKA_TOPICS,
   MAX_RECIPE_FETCH_LIMIT,
   MAX_RECIPE_INGESTION_RETRY_COUNT,
+  RECIPE_INGESTION_RETRY_BASE_DELAY_MS,
 } from '@mealio/shared';
 import {
   createRecipeIngestionRunTriggerPayload,
   recipeIngestionRunTriggerKey,
 } from 'src/jobs/recipe-ingestion/recipe-ingestion-range-trigger.payload';
+import {
+  logIngestion,
+  logIngestionError,
+  RECIPE_INGESTION_LOG_EVENTS,
+  type RecipeIngestionLoggingOptions,
+} from 'src/jobs/recipe-ingestion/recipe-ingestion-logger';
 import { randomUUID } from 'node:crypto';
 import {
   PublicDataApiClient,
@@ -19,9 +26,8 @@ import { KafkaProducerService } from 'src/integrations/kafka/kafka-producer.serv
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { RecipeIngestionStateRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-state.repository';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
-import { RECIPE_INGESTION_RETRY_BASE_DELAY_MS } from '@mealio/shared';
 
-export interface FetchOptions {
+export interface FetchOptions extends RecipeIngestionLoggingOptions {
   fetchLimit?: number;
   maxApiRetries?: number;
 }
@@ -42,6 +48,7 @@ export interface FetchResult {
 @Injectable()
 export class FetchService {
   private readonly logger = new Logger(FetchService.name);
+  private static readonly STAGE = 'fetch' as const;
 
   constructor(
     private readonly publicDataApiClient: PublicDataApiClient,
@@ -53,6 +60,16 @@ export class FetchService {
 
   async fetch(options: FetchOptions = {}): Promise<FetchResult> {
     const startedAt = Date.now();
+    const logBase = {
+      stage: FetchService.STAGE,
+      correlationId: options.correlationId,
+    };
+
+    logIngestion(this.logger, 'log', {
+      event: RECIPE_INGESTION_LOG_EVENTS.STAGE_STARTED,
+      ...logBase,
+    });
+
     try {
       const fetchLimit = this.resolveFetchLimit(options.fetchLimit);
       const maxApiRetries =
@@ -72,17 +89,33 @@ export class FetchService {
         startIdx,
         endIdx,
         maxApiRetries,
+        options.correlationId,
       );
 
       if (response.kind === 'empty') {
-        this.logger.log(
-          `No more recipes (INFO-200) startIdx=${startIdx} endIdx=${endIdx}`,
-        );
+        logIngestion(this.logger, 'log', {
+          event: RECIPE_INGESTION_LOG_EVENTS.STAGE_NO_OP,
+          outcome: 'no_op',
+          ...logBase,
+          startIdx,
+          endIdx,
+          message: 'No more recipes (INFO-200)',
+        });
         this.metrics.recordIngestionStage('fetch', 'skipped');
         this.metrics.observeIngestionStageLatency(
           'fetch',
           Date.now() - startedAt,
         );
+        logIngestion(this.logger, 'log', {
+          event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
+          durationMs: Date.now() - startedAt,
+          ...logBase,
+          outcome: 'no_op',
+          startIdx,
+          endIdx,
+          fetchedCount: 0,
+          exhausted: true,
+        });
         return {
           startIdx,
           endIdx,
@@ -93,10 +126,19 @@ export class FetchService {
 
       const runId = randomUUID();
       let fetchedCount = 0;
+      let rowSkippedCount = 0;
+      let upsertFailedCount = 0;
+
       for (const row of response.rows) {
         const sourceId = this.extractSourceId(row);
         if (!sourceId) {
-          this.logger.warn('Skipping row without RCP_SEQ');
+          rowSkippedCount++;
+          logIngestion(this.logger, 'warn', {
+            event: RECIPE_INGESTION_LOG_EVENTS.ROW_SKIPPED,
+            ...logBase,
+            runId,
+            message: 'Skipping row without RCP_SEQ',
+          });
           continue;
         }
 
@@ -104,21 +146,26 @@ export class FetchService {
           await this.jobRepository.upsertFetched(sourceId, row, runId);
           fetchedCount++;
         } catch (error) {
+          upsertFailedCount++;
           const message =
             error instanceof Error ? error.message : 'Unknown fetch error';
           await this.jobRepository.recordFetchFailure(sourceId, message);
-          this.logger.warn(`Failed to upsert sourceId=${sourceId}: ${message}`);
+          logIngestion(this.logger, 'warn', {
+            event: RECIPE_INGESTION_LOG_EVENTS.ROW_SKIPPED,
+            ...logBase,
+            runId,
+            sourceRecipeId: sourceId,
+            message,
+          });
         }
       }
 
       await this.stateRepository.setLastEndIdx(endIdx);
-      this.logger.log(
-        `Fetched ${fetchedCount} recipes startIdx=${startIdx} endIdx=${endIdx} runId=${runId}`,
-      );
       if (fetchedCount > 0) {
         await this.emitFetchCompletedTrigger({
           runId,
           fetchedCount,
+          correlationId: options.correlationId,
         });
       }
       this.metrics.recordIngestionStage('fetch', 'success', fetchedCount);
@@ -126,6 +173,20 @@ export class FetchService {
         'fetch',
         Date.now() - startedAt,
       );
+
+      logIngestion(this.logger, 'log', {
+        event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
+        durationMs: Date.now() - startedAt,
+        ...logBase,
+        outcome: 'success',
+        runId,
+        startIdx,
+        endIdx,
+        fetchedCount,
+        rowSkippedCount,
+        upsertFailedCount,
+        exhausted: false,
+      });
 
       return {
         startIdx,
@@ -139,6 +200,16 @@ export class FetchService {
       this.metrics.observeIngestionStageLatency(
         'fetch',
         Date.now() - startedAt,
+      );
+      logIngestionError(
+        this.logger,
+        {
+          event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
+          outcome: 'failed',
+          ...logBase,
+          durationMs: Date.now() - startedAt,
+        },
+        error,
       );
       throw error;
     }
@@ -182,6 +253,7 @@ export class FetchService {
     startIdx: number,
     endIdx: number,
     maxAttempts: number,
+    correlationId?: string,
   ) {
     let lastError: PublicDataApiError | undefined;
 
@@ -200,9 +272,18 @@ export class FetchService {
 
         const delayMs =
           RECIPE_INGESTION_RETRY_BASE_DELAY_MS * 2 ** (attempt - 1);
-        this.logger.warn(
-          `Recoverable API error code=${error.code} attempt=${attempt}/${maxAttempts}, retrying in ${delayMs}ms`,
-        );
+        logIngestion(this.logger, 'warn', {
+          event: RECIPE_INGESTION_LOG_EVENTS.DEGRADED,
+          stage: FetchService.STAGE,
+          correlationId,
+          startIdx,
+          endIdx,
+          apiErrorCode: error.code,
+          attempt,
+          maxAttempts,
+          delayMs,
+          message: 'Recoverable API error, retrying',
+        });
         await this.sleep(delayMs);
       }
     }
@@ -220,6 +301,7 @@ export class FetchService {
   private async emitFetchCompletedTrigger(params: {
     runId: string;
     fetchedCount: number;
+    correlationId?: string;
   }): Promise<void> {
     const payload = createRecipeIngestionRunTriggerPayload(params);
     const key = recipeIngestionRunTriggerKey(params.runId);
@@ -235,9 +317,14 @@ export class FetchService {
         error instanceof Error
           ? error.message
           : 'Fetch completed trigger publish failed';
-      this.logger.warn(
-        `Fetch completed trigger publish failed runId=${params.runId}: ${message}`,
-      );
+      logIngestion(this.logger, 'warn', {
+        event: RECIPE_INGESTION_LOG_EVENTS.TRIGGER_PUBLISH_FAILED,
+        stage: FetchService.STAGE,
+        correlationId: params.correlationId,
+        runId: params.runId,
+        topic: KAFKA_TOPICS.RECIPE_INGESTION_PARSE_SUBMIT_TRIGGERED,
+        message,
+      });
     }
   }
 }

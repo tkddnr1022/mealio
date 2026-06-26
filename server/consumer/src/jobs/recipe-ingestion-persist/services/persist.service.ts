@@ -6,6 +6,12 @@ import {
   recipeIngestionRunTriggerKey,
 } from 'src/jobs/recipe-ingestion/recipe-ingestion-range-trigger.payload';
 import { assertRunScopeAndJobIdMutuallyExclusive } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.scope';
+import {
+  logIngestion,
+  logIngestionError,
+  RECIPE_INGESTION_LOG_EVENTS,
+  type RecipeIngestionLoggingOptions,
+} from 'src/jobs/recipe-ingestion/recipe-ingestion-logger';
 import { resolveRecipeIngestionTargetJobs } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
@@ -29,7 +35,7 @@ export class PersistJobIdError extends Error {
   }
 }
 
-export interface PersistOptions {
+export interface PersistOptions extends RecipeIngestionLoggingOptions {
   jobId?: string;
   runId?: string;
   runIdCount?: number;
@@ -44,6 +50,7 @@ export interface PersistResult {
 @Injectable()
 export class PersistService {
   private readonly logger = new Logger(PersistService.name);
+  private static readonly STAGE = 'persist' as const;
 
   constructor(
     private readonly jobRepository: RecipeIngestionJobRepository,
@@ -53,14 +60,60 @@ export class PersistService {
   ) {}
 
   async persist(options: PersistOptions = {}): Promise<PersistResult> {
+    const startedAt = Date.now();
+    const logBase = {
+      stage: PersistService.STAGE,
+      correlationId: options.correlationId,
+      runId: options.runId,
+      jobId: options.jobId,
+    };
+
+    logIngestion(this.logger, 'log', {
+      event: RECIPE_INGESTION_LOG_EVENTS.STAGE_STARTED,
+      ...logBase,
+    });
+
     assertRunScopeAndJobIdMutuallyExclusive(options);
     if (options.jobId) {
-      const outcome = await this.persistByJobId(options.jobId);
-      return {
-        persistedCount: outcome === 'persisted' ? 1 : 0,
-        skippedCount: outcome === 'skipped' ? 1 : 0,
-        failedCount: 0,
-      };
+      try {
+        const outcome = await this.persistByJobId(
+          options.jobId,
+          options.correlationId,
+        );
+        const result = {
+          persistedCount: outcome === 'persisted' ? 1 : 0,
+          skippedCount: outcome === 'skipped' ? 1 : 0,
+          failedCount: 0,
+        };
+        logIngestion(this.logger, 'log', {
+          event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
+          durationMs: Date.now() - startedAt,
+          ...logBase,
+          outcome: outcome === 'persisted' ? 'success' : 'skipped',
+          ...result,
+        });
+        return result;
+      } catch (error) {
+        logIngestionError(
+          this.logger,
+          {
+            event: RECIPE_INGESTION_LOG_EVENTS.JOB_FAILED,
+            ...logBase,
+            jobId: options.jobId,
+          },
+          error,
+        );
+        logIngestion(this.logger, 'log', {
+          event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
+          durationMs: Date.now() - startedAt,
+          ...logBase,
+          outcome: 'failed',
+          persistedCount: 0,
+          skippedCount: 0,
+          failedCount: 1,
+        });
+        throw error;
+      }
     }
 
     const candidates = await resolveRecipeIngestionTargetJobs(
@@ -69,6 +122,21 @@ export class PersistService {
       options,
     );
     if (candidates.length === 0) {
+      logIngestion(this.logger, 'log', {
+        event: RECIPE_INGESTION_LOG_EVENTS.STAGE_NO_OP,
+        outcome: 'no_op',
+        ...logBase,
+        message: 'No parse-retrieved jobs',
+      });
+      logIngestion(this.logger, 'log', {
+        event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
+        durationMs: Date.now() - startedAt,
+        ...logBase,
+        outcome: 'no_op',
+        persistedCount: 0,
+        skippedCount: 0,
+        failedCount: 0,
+      });
       return { persistedCount: 0, skippedCount: 0, failedCount: 0 };
     }
 
@@ -78,22 +146,57 @@ export class PersistService {
 
     for (const job of candidates) {
       try {
-        const outcome = await this.persistByJobId(String(job._id));
+        const outcome = await this.persistByJobId(
+          String(job._id),
+          options.correlationId,
+        );
         if (outcome === 'persisted') persistedCount++;
         else skippedCount++;
       } catch (error) {
         failedCount++;
-        this.logger.error(
-          `jobId=${String(job._id)} persist failed in batch: ${(error as Error).message}`,
+        logIngestionError(
+          this.logger,
+          {
+            event: RECIPE_INGESTION_LOG_EVENTS.JOB_FAILED,
+            ...logBase,
+            jobId: String(job._id),
+            message: 'Persist failed in batch',
+          },
+          error,
         );
       }
     }
 
+    const outcome =
+      failedCount > 0
+        ? ('failed' as const)
+        : persistedCount > 0
+          ? ('success' as const)
+          : ('skipped' as const);
+    logIngestion(this.logger, 'log', {
+      event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
+      durationMs: Date.now() - startedAt,
+      ...logBase,
+      outcome,
+      persistedCount,
+      skippedCount,
+      failedCount,
+      candidateCount: candidates.length,
+    });
+
     return { persistedCount, skippedCount, failedCount };
   }
 
-  async persistByJobId(jobId: string): Promise<'persisted' | 'skipped'> {
+  async persistByJobId(
+    jobId: string,
+    correlationId?: string,
+  ): Promise<'persisted' | 'skipped'> {
     const startedAt = Date.now();
+    const logBase = {
+      stage: PersistService.STAGE,
+      correlationId,
+      jobId,
+    };
     const job = await this.jobRepository.findById(jobId);
     if (!job) {
       this.metrics.recordIngestionStage('persist', 'skipped');
@@ -121,7 +224,11 @@ export class PersistService {
     try {
       const data = validateRetrievedData(persisting.retrievedData);
       this.metrics.recordParseConfidence(data.parseConfidence);
-      const result = await this.recipeCreationService.execute(persisting, data);
+      const result = await this.recipeCreationService.execute(
+        persisting,
+        data,
+        { correlationId },
+      );
       for (const method of result.matchMethods) {
         this.metrics.recordIngredientMatchMethod(method);
       }
@@ -136,9 +243,12 @@ export class PersistService {
         },
       );
       if (!persisted) {
-        this.logger.warn(
-          `jobId=${jobId} persist succeeded but persisting→persisted transition failed`,
-        );
+        logIngestion(this.logger, 'warn', {
+          event: RECIPE_INGESTION_LOG_EVENTS.JOB_TRANSITION_FAILED,
+          ...logBase,
+          runId: persisting.runId,
+          message: 'persist succeeded but persisting→persisted transition failed',
+        });
       } else if (
         typeof persisted.runId === 'string' &&
         persisted.runId.length > 0
@@ -146,6 +256,7 @@ export class PersistService {
         await this.emitEmbedSubmitTrigger({
           runId: persisted.runId,
           fetchedCount: 1,
+          correlationId,
         });
       }
 
@@ -173,6 +284,7 @@ export class PersistService {
   private async emitEmbedSubmitTrigger(params: {
     runId: string;
     fetchedCount: number;
+    correlationId?: string;
   }): Promise<void> {
     const payload = createRecipeIngestionRunTriggerPayload(params);
     const key = recipeIngestionRunTriggerKey(params.runId);
@@ -187,9 +299,14 @@ export class PersistService {
         error instanceof Error
           ? error.message
           : 'Persist completed trigger publish failed';
-      this.logger.warn(
-        `Persist completed trigger publish failed runId=${params.runId}: ${message}`,
-      );
+      logIngestion(this.logger, 'warn', {
+        event: RECIPE_INGESTION_LOG_EVENTS.TRIGGER_PUBLISH_FAILED,
+        stage: PersistService.STAGE,
+        correlationId: params.correlationId,
+        runId: params.runId,
+        topic: KAFKA_TOPICS.RECIPE_INGESTION_EMBED_SUBMIT_TRIGGERED,
+        message,
+      });
     }
   }
 }

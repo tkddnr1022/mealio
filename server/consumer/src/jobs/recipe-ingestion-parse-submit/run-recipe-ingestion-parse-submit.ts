@@ -1,7 +1,12 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { generateCorrelationId } from '@mealio/shared';
 import { findUnknownCliArgs } from '../cli-args.util';
 import { parseRecipeIngestionTargetCliArgs } from '../recipe-ingestion/recipe-ingestion-run.cli';
+import {
+  logRecipeIngestionCli,
+  RECIPE_INGESTION_LOG_EVENTS,
+} from '../recipe-ingestion/recipe-ingestion-logger';
 import { RecipeIngestionParseSubmitModule } from './recipe-ingestion-parse-submit.module';
 import {
   ParseSubmitJobIdError,
@@ -12,6 +17,8 @@ import {
 
 async function main(): Promise<void> {
   const logger = new Logger('RecipeIngestionParseSubmitCLI');
+  const correlationId = generateCorrelationId();
+  const stage = 'parse-submit' as const;
   const args = process.argv.slice(2);
   const unknownArgs = findUnknownCliArgs(args, {
     flags: [
@@ -23,7 +30,14 @@ async function main(): Promise<void> {
     ],
   });
   if (unknownArgs.length > 0) {
-    logger.error(`Unknown CLI argument(s): ${unknownArgs.join(', ')}`);
+    logRecipeIngestionCli(
+      logger,
+      'error',
+      RECIPE_INGESTION_LOG_EVENTS.CLI_UNKNOWN_ARGS,
+      stage,
+      correlationId,
+      { message: `Unknown CLI argument(s): ${unknownArgs.join(', ')}` },
+    );
     return;
   }
 
@@ -38,21 +52,43 @@ async function main(): Promise<void> {
 
   const app = await NestFactory.createApplicationContext(
     RecipeIngestionParseSubmitModule,
-    { logger: ['log', 'error', 'warn'] },
+    { logger: ['log', 'error', 'warn', 'debug'] },
   );
 
   try {
     const service = app.get(ParseSubmitService);
-    logger.log(
-      `Starting parse-submit jobId=${target.jobId ?? 'n/a'} runId=${target.runId ?? 'n/a'} runIdCount=${target.runIdCount ?? 'n/a'} retryFailed=${retryFailed} retryFailedLimit=${retryFailedLimit}`,
+    logRecipeIngestionCli(
+      logger,
+      'log',
+      RECIPE_INGESTION_LOG_EVENTS.CLI_STARTED,
+      stage,
+      correlationId,
+      {
+        jobId: target.jobId,
+        runId: target.runId,
+        runIdCount: target.runIdCount,
+        retryFailed,
+        retryFailedLimit,
+      },
     );
     const result = await service.submit({
       ...target,
       retryFailed,
       retryFailedLimit,
+      correlationId,
     });
-    logger.log(
-      `Parse submit complete submittedCount=${result.submittedCount} batchId=${result.batchId ?? 'n/a'} skippedCount=${result.skippedCount}`,
+    logRecipeIngestionCli(
+      logger,
+      'log',
+      RECIPE_INGESTION_LOG_EVENTS.CLI_COMPLETED,
+      stage,
+      correlationId,
+      {
+        outcome: result.submittedCount > 0 ? 'success' : 'skipped',
+        submittedCount: result.submittedCount,
+        batchId: result.batchId,
+        skippedCount: result.skippedCount,
+      },
     );
   } finally {
     await app.close();

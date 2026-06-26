@@ -8,7 +8,11 @@ export class EmbedSubmitRecipeIngestionHandler {
 
   async execute(
     payload: RecipeIngestionPersistToEmbedSubmitPayload,
+    correlationId?: string,
   ): Promise<void> {
-    await this.embedSubmitService.submit({ runId: payload.runId });
+    await this.embedSubmitService.submit({
+      runId: payload.runId,
+      correlationId,
+    });
   }
 }
