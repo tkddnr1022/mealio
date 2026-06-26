@@ -167,7 +167,9 @@ export class EmbedSubmitService {
         continue;
       }
       const doc =
-        await this.recipeEmbeddingDocumentService.buildDocumentByRecipeId(recipeId);
+        await this.recipeEmbeddingDocumentService.buildDocumentByRecipeId(
+          recipeId,
+        );
       if (!doc) {
         await this.rollbackEmbedStatus(
           String(job._id),
