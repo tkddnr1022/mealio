@@ -1,6 +1,6 @@
 # Recipe Ingestion 절차 (OpenAI Batch API 기반)
 
-공공데이터 레시피를 OpenAI Batch API로 변환·영속화하는 파이프라인의 **절차·상태 전이·멱등성 SSOT**이다. 구현 계획은 `../recipe_ingestion_plan.md`를 참조한다.
+공공데이터 레시피를 OpenAI Batch API로 변환·영속화하는 파이프라인의 **절차·상태 전이·멱등성 SSOT**이다.
 
 ---
 
