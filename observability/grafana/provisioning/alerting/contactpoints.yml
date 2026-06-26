@@ -18,8 +18,6 @@ contactPoints:
             {{ range .Alerts }}
             Topic: {{ .Labels.topic }}
             Value: {{ .ValueString }}
-            Runbook: https://github.com/your-org/mealio/blob/main/agent/observability/product_kpi_runbook.md
-            {{ end }}
 
   - orgId: 1
     name: slack-product
@@ -36,5 +34,3 @@ contactPoints:
             *KPI*: {{ .CommonLabels.alertname }}
             {{ range .Alerts }}
             Value: {{ .ValueString }}
-            Runbook: https://github.com/your-org/mealio/blob/main/agent/observability/product_kpi_runbook.md
-            {{ end }}
