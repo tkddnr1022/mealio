@@ -8,6 +8,14 @@ policies:
     group_interval: 5m
     repeat_interval: 4h
     routes:
+      # Grafana meta-alerts when rule queries return empty or datasource errors.
+      # Muted for Slack; evaluate in UI under alertname=DatasourceNoData|DatasourceError.
+      - receiver: slack-ops
+        matchers:
+          - alertname =~ DatasourceNoData|DatasourceError
+        mute_time_intervals:
+          - suppress-datasource-meta-alerts
+        continue: false
       - receiver: slack-product
         matchers:
           - team = product

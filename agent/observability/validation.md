@@ -213,6 +213,7 @@ Development에서는 위 비율·트레이스 샘플링을 1.0(또는 health/met
 | 9.9 | **Mealio Ops — Producer API & DB** (`mealio-producer-api`) | HTTP p95, DB slow query 패널 표시 |
 | 9.10 | **Mealio Product — EventLog** (`mealio-product-events`) | chatbot DAU, search volume 패널 표시 |
 | 9.11 | **Mealio Ops — Infra & Pushgateway** (`mealio-infra`) | scrape UP, CLI push stale 패널 표시 |
+| 9.12 | Alerting > Notification policies | `DatasourceNoData`·`DatasourceError`는 mute route 적용, Slack 미발송 |
 
 ---
 

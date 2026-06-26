@@ -100,6 +100,7 @@ always-on Consumer는 `METRICS_PORT` `/metrics`로 scrape하고, recipe-ingestio
 | `mealio-product-events` | Mealio Product — EventLog |
 
 - 알림 규칙은 `alerting/rules.yml`에 정의하며, Slack `#ops`와 `#product` 채널로 전송합니다.
+- Grafana meta-alerts(`DatasourceNoData`, `DatasourceError`)는 Slack으로 보내지 않습니다 (`alerting/mute_timings.yml`, `alerting/policies.yml`).
 
 로컬 환경에서는 Grafana `:3030`, Prometheus `:9090`, Pushgateway `:9091`에서 확인할 수 있습니다.
 

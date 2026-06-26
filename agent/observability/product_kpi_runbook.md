@@ -86,6 +86,17 @@ PromQL·대시보드: `observability/grafana/provisioning/dashboards/json/` (`me
 - **안정기**: 월간 리뷰 — 오탐/누락 비율 확인, 필요 시 ±20% 범위 내 조정.
 - **주요 변경(인프라 스케일, 기능 출시) 직후**: 즉시 ad-hoc 리뷰.
 
+### 1.4 Grafana meta-alerts (`DatasourceNoData` / `DatasourceError`)
+
+규칙 쿼리가 empty이거나 datasource 오류일 때 Grafana가 생성하는 **메타 알림**이다. 서비스 장애 alert(`ALERT_*`)와 구분한다.
+
+| alertname | 의미 | Slack |
+|-----------|------|-------|
+| `DatasourceNoData` | refId A 쿼리 결과 없음 (idle·미계측·PromQL empty) | **발송 안 함** — `mute_timings.yml` + `policies.yml` |
+| `DatasourceError` | Prometheus/MongoDB 쿼리 실행 오류 | **발송 안 함** (동일) |
+
+Grafana Alerting UI에서 `rulename`·`datasource_uid`로 원본 규칙을 확인한다. chronic No Data는 metric 수집·`noDataState` 점검 대상이다.
+
 ## 2. 장애 대응 절차
 
 ### 2.1 Kafka lag 급증 (`ALERT_KAFKA_LAG`)

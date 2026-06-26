@@ -19,6 +19,7 @@ contactPoints:
             Rule: {{ or .Labels.rulename .Labels.alertname }}
             Topic: {{ .Labels.topic }}
             Value: {{ .ValueString }}
+            {{ end }}
 
   - orgId: 1
     name: slack-product
@@ -36,3 +37,4 @@ contactPoints:
             {{ range .Alerts }}
             Rule: {{ or .Labels.rulename .Labels.alertname }}
             Value: {{ .ValueString }}
+            {{ end }}
