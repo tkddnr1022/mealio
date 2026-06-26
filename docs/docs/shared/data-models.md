@@ -4,7 +4,6 @@
 
 - PostgreSQL vs MongoDB에 무엇이 저장되나요?
 - Prisma·Mongoose 스키마의 코드 기준은 어디인가요?
-- 스키마를 변경할 때 어떤 문서를 함께 갱신해야 하나요?
 
 ## 저장소 분리
 
@@ -53,21 +52,22 @@ Mongoose 스키마의 코드 기준은 `server/shared/.../schemas/`입니다.
 | `recipe_ingestion_state` | `recipe-ingestion-state.schema.ts` | — |
 | `kpi_rollups` | `kpi-rollup.schema.ts` | 400일 |
 
-## 필드 의미·동기화
-
-[도메인](../project/domain) 문서와 `server/shared/.../schema.prisma`를 함께 참고하세요. Prisma와 Mongoose 스키마는 코드 기준과 **일치하도록 유지**해야 합니다.
-
-## 시드
+## 시드·인덱스
 
 ```bash
 pnpm run db:prisma:seed
 pnpm run db:mongoose:seed
 ```
 
+```bash
+pnpm run db:mongoose:sync-indexes              # local
+pnpm run db:mongoose:sync-indexes:production   # production
+```
+
 ## 변경 체크리스트
 
 1. `schema.prisma` 또는 Mongoose 스키마를 수정합니다.
-2. 마이그레이션을 생성하고 적용합니다.
+2. PostgreSQL 마이그레이션을 생성·적용하고, Mongoose 인덱스를 동기화합니다.
 3. [도메인](../project/domain) 문서와 본 문서를 갱신합니다.
 4. OpenAPI DTO와 관련 문서를 동기화합니다.
 5. Docusaurus의 본 문서와 도메인 문서를 갱신합니다.

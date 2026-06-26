@@ -70,6 +70,7 @@ docker compose --env-file .env.docker.local -f docker/compose-database.yml -f do
 ```bash
 pnpm run db:prisma:generate
 pnpm run db:prisma:migrate:dev
+pnpm run db:mongoose:sync-indexes
 pnpm run db:prisma:seed
 pnpm run db:mongoose:seed
 ```

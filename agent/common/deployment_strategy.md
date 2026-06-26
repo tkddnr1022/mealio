@@ -188,6 +188,7 @@ DB 시드·마이그레이션 후 앱은 호스트에서 기동:
 ```bash
 pnpm run db:prisma:generate
 pnpm run db:prisma:migrate:dev
+pnpm run db:mongoose:sync-indexes
 pnpm run db:prisma:seed
 pnpm run db:mongoose:seed
 
@@ -212,6 +213,7 @@ docker compose --env-file .env.docker -f docker/compose-database.yml -f docker/c
 
 ```bash
 pnpm run db:prisma:migrate:deploy
+pnpm run db:mongoose:sync-indexes:production
 ```
 
 앱 (인프라 Compose가 선행되어야 `mealio-net`에 Kafka 등이 준비됨):

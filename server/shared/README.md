@@ -45,6 +45,7 @@ DB 작업은 모노레포 루트 스크립트를 사용합니다.
 ```bash
 pnpm run db:prisma:generate
 pnpm run db:prisma:migrate:dev
+pnpm run db:mongoose:sync-indexes
 pnpm run db:prisma:seed
 pnpm run db:mongoose:seed
 ```

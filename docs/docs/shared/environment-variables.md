@@ -45,6 +45,7 @@ pnpm run db:prisma:generate
 pnpm run db:prisma:migrate:dev
 pnpm run db:prisma:seed    # POSTGRESQL_URL
 pnpm run db:mongoose:seed  # MONGODB_URL
+pnpm run db:mongoose:sync-indexes  # MONGODB_URL — 스키마 인덱스 동기화
 ```
 
 ## 관측성 (런타임 — producer·consumer env)
