@@ -205,7 +205,7 @@ Development에서는 위 비율·트레이스 샘플링을 1.0(또는 health/met
 | 9.1 | `http://localhost:3030` 접속 (admin/admin) | Grafana 로그인 성공 |
 | 9.2 | **Mealio Ops — Kafka Health** (`mealio-ops`) | fail rate, lag, processing p95 패널 데이터 표시 |
 | 9.3 | **Mealio Product — KPI Rollups** (`mealio-product`) | CVR, CTR, latency 패널 데이터 표시 |
-| 9.4 | Alerting > Alert rules | `ALERT_KAFKA_*`, `ALERT_RECIPE_INGESTION_*` 규칙 존재 |
+| 9.4 | Alerting > Alert rules | `mealio-ops-alerts`, `mealio-runtime-alerts`, `mealio-product-alerts`, `mealio-recipe-ingestion-alerts` 그룹 및 Runbook §1 Alert ID 존재 |
 | 9.5 | Prometheus datasource 쿼리 | Grafana Explore에서 정상 반환 |
 | 9.6 | MongoDB datasource 연결 (`mongodb` UID) | KPI 롤업 데이터 조회 가능 |
 | 9.7 | **Mealio — Recipe Ingestion Pipeline** (`mealio-recipe-ingestion`) | stage throughput, lag, Mongo backlog 패널 표시 |

@@ -6,7 +6,130 @@ groups:
     folder: Mealio
     interval: 1m
     rules:
-      # ALERT_KAFKA_FAIL_RATE — 처리 실패율 > 1% for 10m
+      # ALERT_TARGET_DOWN — scrape target DOWN for 3m
+      - uid: alert-target-down
+        title: ALERT_TARGET_DOWN
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: up{job=~"mealio-producer|mealio-consumer|pushgateway"} == 0
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+        for: 3m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Prometheus scrape target DOWN (job: {{ $labels.job }})"
+          description: >
+            대시보드: mealio-infra Target health.
+            Producer/Consumer/Pushgateway 프로세스·네트워크·METRICS_ENABLED 확인.
+
+      # ALERT_PRODUCER_5XX_RATE — 5xx > 1% for 10m
+      - uid: alert-producer-5xx-rate
+        title: ALERT_PRODUCER_5XX_RATE
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: >
+                sum(rate(http_requests_total{service="producer", status_code=~"5.."}[5m]))
+                / clamp_min(sum(rate(http_requests_total{service="producer"}[5m])), 1e-9)
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0.01]
+              refId: C
+        for: 10m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Producer HTTP 5xx rate > 1%"
+          description: >
+            5xx 비율: {{ $value }}.
+            대시보드: mealio-producer-api.
+            Sentry·route·status_code 라벨로 원인 분해.
+
+      # ALERT_PRODUCER_LATENCY_P95 — HTTP p95 > 2000ms for 10m
+      - uid: alert-producer-latency-p95
+        title: ALERT_PRODUCER_LATENCY_P95
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: >
+                histogram_quantile(0.95,
+                  sum by (le) (rate(http_request_duration_ms_bucket{service="producer"}[5m]))
+                )
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [2000]
+              refId: C
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Producer HTTP p95 latency > 2000ms"
+          description: >
+            p95: {{ $value }}ms.
+            대시보드: mealio-producer-api route별 latency 확인.
+
+      # ALERT_KAFKA_FAIL_RATE — activity-events|user-events 실패율 > 1% for 10m
       - uid: alert-kafka-fail-rate
         title: ALERT_KAFKA_FAIL_RATE
         condition: C
@@ -16,10 +139,10 @@ groups:
             datasourceUid: prometheus
             model:
               expr: >
-                sum by (topic) (rate(kafka_messages_failed_total{service="consumer"}[5m]))
+                sum by (topic) (rate(kafka_messages_failed_total{service="consumer", topic=~"activity-events|user-events"}[5m]))
                 /
-                (sum by (topic) (rate(kafka_messages_processed_total{service="consumer"}[5m]))
-                + sum by (topic) (rate(kafka_messages_failed_total{service="consumer"}[5m])))
+                (sum by (topic) (rate(kafka_messages_processed_total{service="consumer", topic=~"activity-events|user-events"}[5m]))
+                + sum by (topic) (rate(kafka_messages_failed_total{service="consumer", topic=~"activity-events|user-events"}[5m])))
               refId: A
           - refId: B
             relativeTimeRange: { from: 600, to: 0 }
@@ -49,6 +172,49 @@ groups:
             실패율: {{ $value }}.
             대응: product_kpi_runbook.md §2.2 참조.
             correlationId, topic, partition, offset 기준으로 Sentry/로그 필터.
+
+      # ALERT_KAFKA_FAIL_RATE_CRITICAL — activity-events|user-events 실패율 > 5% for 10m
+      - uid: alert-kafka-fail-rate-critical
+        title: ALERT_KAFKA_FAIL_RATE_CRITICAL
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: >
+                sum by (topic) (rate(kafka_messages_failed_total{service="consumer", topic=~"activity-events|user-events"}[5m]))
+                /
+                (sum by (topic) (rate(kafka_messages_processed_total{service="consumer", topic=~"activity-events|user-events"}[5m]))
+                + sum by (topic) (rate(kafka_messages_failed_total{service="consumer", topic=~"activity-events|user-events"}[5m])))
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0.05]
+              refId: C
+        for: 10m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Kafka 처리 실패율 > 5% (topic: {{ $labels.topic }})"
+          description: >
+            실패율: {{ $value }}.
+            L2 에스컬레이션. product_kpi_runbook.md §2.2·§4 참조.
 
       # ALERT_KAFKA_LAG — Consumer lag > 1000 for 15m
       - uid: alert-kafka-lag
@@ -90,7 +256,7 @@ groups:
             대응: product_kpi_runbook.md §2.1 참조.
             Consumer 스케일 아웃, poison message DLQ 격리 검토.
 
-      # ALERT_DLQ_SPIKE — DLQ 급증 (failed rate 3x baseline over 1h)
+      # ALERT_DLQ_SPIKE — failed rate 3x over 1h baseline for 10m
       - uid: alert-dlq-spike
         title: ALERT_DLQ_SPIKE
         condition: C
@@ -99,7 +265,13 @@ groups:
             relativeTimeRange: { from: 3600, to: 0 }
             datasourceUid: prometheus
             model:
-              expr: rate(kafka_messages_failed_total{service="consumer"}[5m])
+              expr: >
+                sum(rate(kafka_messages_failed_total{service="consumer"}[5m]))
+                /
+                clamp_min(
+                  avg_over_time(sum(rate(kafka_messages_failed_total{service="consumer"}[5m]))[1h:5m]),
+                  0.0001
+                )
               refId: A
           - refId: B
             relativeTimeRange: { from: 3600, to: 0 }
@@ -117,17 +289,565 @@ groups:
               conditions:
                 - evaluator:
                     type: gt
-                    params: [0.5]
+                    params: [3]
               refId: C
         for: 10m
         labels:
           severity: warning
           team: platform
         annotations:
-          summary: "DLQ 메시지 급증"
+          summary: "DLQ failed rate 3x over 1h baseline"
           description: >
+            현재/베이스라인 비율: {{ $value }}.
             대응: product_kpi_runbook.md §2.2 참조.
             DLQ 토픽 메시지 샘플링 후 원인 파악.
+
+      # ALERT_CHATBOT_LAG — chatbot-requests lag > 50 for 10m
+      - uid: alert-chatbot-lag
+        title: ALERT_CHATBOT_LAG
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: max(kafka_consumer_lag{service="consumer", topic="chatbot-requests"})
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [50]
+              refId: C
+        for: 10m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Chatbot topic lag > 50"
+          description: >
+            현재 lag: {{ $value }}.
+            대시보드: mealio-ops-kafka-extended.
+            chatbot consumer /ready, OpenAI 지연 확인.
+
+      # ALERT_CHATBOT_FAIL_RATE — chatbot-requests fail rate > 1% for 10m
+      - uid: alert-chatbot-fail-rate
+        title: ALERT_CHATBOT_FAIL_RATE
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: >
+                sum(rate(kafka_messages_failed_total{service="consumer", topic="chatbot-requests"}[5m]))
+                /
+                (sum(rate(kafka_messages_processed_total{service="consumer", topic="chatbot-requests"}[5m]))
+                + sum(rate(kafka_messages_failed_total{service="consumer", topic="chatbot-requests"}[5m])))
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0.01]
+              refId: C
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Chatbot topic fail rate > 1%"
+          description: >
+            실패율: {{ $value }}.
+            Sentry topic=chatbot-requests 필터, credit·tool 오류 확인.
+
+      # ALERT_CHATBOT_PROCESSING_P95 — chatbot processing p95 > 30s for 15m
+      - uid: alert-chatbot-processing-p95
+        title: ALERT_CHATBOT_PROCESSING_P95
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: >
+                histogram_quantile(0.95,
+                  sum by (le) (rate(kafka_message_processing_duration_ms_bucket{service="consumer", topic="chatbot-requests"}[5m]))
+                )
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [30000]
+              refId: C
+        for: 15m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Chatbot message processing p95 > 30s"
+          description: >
+            p95: {{ $value }}ms.
+            OpenAI latency·tool chain·SSE 타임아웃 확인.
+
+      # ALERT_CACHE_INVALIDATION_LAG — cache-invalidation lag > 500 for 15m
+      - uid: alert-cache-invalidation-lag
+        title: ALERT_CACHE_INVALIDATION_LAG
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: max(kafka_consumer_lag{service="consumer", topic="cache-invalidation"})
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [500]
+              refId: C
+        for: 15m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Cache invalidation topic lag > 500"
+          description: >
+            현재 lag: {{ $value }}.
+            Producer Redis 캐시 stale 가능. cache-invalidation consumer 확인.
+
+      # ALERT_CACHE_INVALIDATION_FAIL_RATE — cache-invalidation fail rate > 1% for 10m
+      - uid: alert-cache-invalidation-fail-rate
+        title: ALERT_CACHE_INVALIDATION_FAIL_RATE
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: >
+                sum(rate(kafka_messages_failed_total{service="consumer", topic="cache-invalidation"}[5m]))
+                /
+                (sum(rate(kafka_messages_processed_total{service="consumer", topic="cache-invalidation"}[5m]))
+                + sum(rate(kafka_messages_failed_total{service="consumer", topic="cache-invalidation"}[5m])))
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0.01]
+              refId: C
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Cache invalidation fail rate > 1%"
+          description: >
+            실패율: {{ $value }}.
+            Redis 연결·invalidation handler 로그 확인.
+
+  - orgId: 1
+    name: mealio-runtime-alerts
+    folder: Mealio
+    interval: 1m
+    rules:
+      # ALERT_DB_SLOW_QUERY_SPIKE — slow query rate > 0.1/s for 10m
+      - uid: alert-db-slow-query-spike
+        title: ALERT_DB_SLOW_QUERY_SPIKE
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: sum(rate(slow_queries_total{service="producer"}[5m]))
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0.1]
+              refId: C
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Producer slow query rate spike (>0.1/s)"
+          description: >
+            rate: {{ $value }}/s (threshold 500ms).
+            대시보드: mealio-producer-api Slow query rate.
+
+      # ALERT_DB_P95_LATENCY — DB query p95 > 1000ms for 10m
+      - uid: alert-db-p95-latency
+        title: ALERT_DB_P95_LATENCY
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: >
+                histogram_quantile(0.95,
+                  sum by (le) (rate(db_query_duration_ms_bucket{service="producer"}[5m]))
+                )
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [1000]
+              refId: C
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Producer DB query p95 > 1000ms"
+          description: >
+            p95: {{ $value }}ms.
+            engine·operation 라벨 분해 후 인덱스·lock 확인.
+
+      # ALERT_EVENT_LOOP_LAG — Node event loop p99 > 250ms for 10m
+      - uid: alert-event-loop-lag
+        title: ALERT_EVENT_LOOP_LAG
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: max by (service) (nodejs_eventloop_lag_p99_seconds{job=~"mealio-producer|mealio-consumer"})
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0.25]
+              refId: C
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Node.js event loop lag p99 > 250ms (service: {{ $labels.service }})"
+          description: >
+            lag: {{ $value }}s.
+            대시보드: mealio-infra Event loop lag.
+
+      # ALERT_MEMORY_HIGH — heap used ratio > 90% for 15m
+      - uid: alert-memory-high
+        title: ALERT_MEMORY_HIGH
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: >
+                max by (service) (
+                  nodejs_heap_size_used_bytes{job=~"mealio-producer|mealio-consumer"}
+                  / clamp_min(nodejs_heap_size_total_bytes{job=~"mealio-producer|mealio-consumer"}, 1)
+                )
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0.9]
+              refId: C
+        for: 15m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Node.js heap usage > 90% (service: {{ $labels.service }})"
+          description: >
+            heap ratio: {{ $value }}.
+            OOM 전조. 재시작·메모리 누수·부하 확인.
+
+      # ALERT_HTTP_INFLIGHT — in-flight requests > 100 for 5m
+      - uid: alert-http-inflight
+        title: ALERT_HTTP_INFLIGHT
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: http_inflight_requests{service="producer"}
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [100]
+              refId: C
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Producer in-flight HTTP requests > 100"
+          description: >
+            inflight: {{ $value }}.
+            요청 적체·DB/외부 API 병목 확인.
+
+  - orgId: 1
+    name: mealio-product-alerts
+    folder: Mealio
+    interval: 15m
+    rules:
+      # ALERT_RECO_LATENCY — user-events processing p95 > 5000ms for 30m (EventLog E2E proxy)
+      - uid: alert-reco-latency
+        title: ALERT_RECO_LATENCY
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 1800, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: >
+                histogram_quantile(0.95,
+                  sum by (le) (rate(kafka_message_processing_duration_ms_bucket{service="consumer", topic="user-events"}[5m]))
+                )
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 1800, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [5000]
+              refId: C
+        for: 30m
+        labels:
+          severity: warning
+          team: product
+        annotations:
+          summary: "Recommendation processing p95 > 5000ms (user-events proxy)"
+          description: >
+            p95: {{ $value }}ms.
+            대응: product_kpi_runbook.md §2.3 참조.
+            EventLog kpi_recommendation_e2e_latency 롤업과 교차 검증.
+
+      # ALERT_CHATBOT_DAU — 7d MA 대비 DAU -40% (MongoDB)
+      - uid: alert-chatbot-dau
+        title: ALERT_CHATBOT_DAU
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 604800, to: 0 }
+            datasourceUid: mongodb
+            model:
+              collection: event_logs
+              queryLanguage: json
+              queryText: '[{"$match":{"$expr":{"$and":[{"$eq":["$type","chatbot.message"]},{"$ne":["$actor.userId",null]},{"$gte":["$occurredAt",{"$dateSubtract":{"startDate":"$$NOW","unit":"day","amount":8}}]}]}}},{"$group":{"_id":{"$dateToString":{"format":"%Y-%m-%d","date":"$occurredAt"}},"users":{"$addToSet":"$actor.userId"}}},{"$project":{"dau":{"$size":"$users"},"date":"$_id"}},{"$sort":{"date":-1}},{"$group":{"_id":null,"days":{"$push":"$dau"}}},{"$project":{"todayDau":{"$arrayElemAt":["$days",0]},"ma7":{"$avg":{"$slice":["$days",1,7]}}}},{"$project":{"dropRatio":{"$cond":[{"$gt":["$ma7",0]},{"$divide":[{"$subtract":["$todayDau","$ma7"]},"$ma7"]},0]}}}]'
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 604800, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+              settings:
+                mode: dropNN
+                replaceWithValue: 0
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [-0.4]
+              refId: C
+        for: 2h
+        labels:
+          severity: info
+          team: product
+        annotations:
+          summary: "Chatbot DAU 7d MA drop > 40%"
+          description: >
+            MA 대비 변화율: {{ $value }}.
+            대시보드: mealio-product-events Chatbot DAU.
+
+      # ALERT_KPI_ROLLUP_STALE — 마지막 rollup 36h+ 경과 (MongoDB)
+      - uid: alert-kpi-rollup-stale
+        title: ALERT_KPI_ROLLUP_STALE
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 86400, to: 0 }
+            datasourceUid: mongodb
+            model:
+              collection: kpi_rollups
+              queryLanguage: json
+              queryText: '[{"$group":{"_id":null,"latest":{"$max":"$computedAt"}}},{"$project":{"stalenessSec":{"$divide":[{"$subtract":["$$NOW","$latest"]},1000]}}}]'
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 86400, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [129600]
+              refId: C
+        for: 1h
+        labels:
+          severity: warning
+          team: product
+        annotations:
+          summary: "KPI rollup stale (>36h since last computedAt)"
+          description: >
+            경과(초): {{ $value }}.
+            `pnpm --filter consumer run job:kpi-rollup` 실행·cron 확인.
 
   - orgId: 1
     name: mealio-recipe-ingestion-alerts
@@ -217,6 +937,127 @@ groups:
             parse-retrieve 완료 후 persist consumer 적체 가능.
             대시보드: mealio-recipe-ingestion, mealio-ops-kafka-extended.
 
+      # ALERT_RECIPE_INGESTION_EMBED_LAG — embed-submit trigger lag > 100 for 15m
+      - uid: alert-recipe-ingestion-embed-lag
+        title: ALERT_RECIPE_INGESTION_EMBED_LAG
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: max(kafka_consumer_lag{service="consumer", topic="recipe-ingestion-embed-submit-triggered"})
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [100]
+              refId: C
+        for: 15m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Recipe ingestion embed-submit trigger lag > 100"
+          description: >
+            현재 lag: {{ $value }}.
+            embed-submit consumer·OpenAI batch 상태 확인.
+
+      # ALERT_RECIPE_INGESTION_PARSE_SUBMIT_LAG — parse-submit trigger lag > 100 for 15m
+      - uid: alert-recipe-ingestion-parse-submit-lag
+        title: ALERT_RECIPE_INGESTION_PARSE_SUBMIT_LAG
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: max(kafka_consumer_lag{service="consumer", topic="recipe-ingestion-parse-submit-triggered"})
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [100]
+              refId: C
+        for: 15m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Recipe ingestion parse-submit trigger lag > 100"
+          description: >
+            현재 lag: {{ $value }}.
+            parse-submit consumer 처리량 확인.
+
+      # ALERT_RECIPE_INGESTION_KAFKA_FAIL — ingestion topic fail rate > 1% for 15m
+      - uid: alert-recipe-ingestion-kafka-fail
+        title: ALERT_RECIPE_INGESTION_KAFKA_FAIL
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: >
+                sum by (topic) (rate(kafka_messages_failed_total{service="consumer", topic=~"recipe-ingestion-.*"}[5m]))
+                /
+                (sum by (topic) (rate(kafka_messages_processed_total{service="consumer", topic=~"recipe-ingestion-.*"}[5m]))
+                + sum by (topic) (rate(kafka_messages_failed_total{service="consumer", topic=~"recipe-ingestion-.*"}[5m])))
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0.01]
+              refId: C
+        for: 15m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Recipe ingestion Kafka fail rate > 1% (topic: {{ $labels.topic }})"
+          description: >
+            실패율: {{ $value }}.
+            대시보드: mealio-ops-kafka-extended Ingestion topic fail rate.
+
       # ALERT_RECIPE_INGESTION_CLI_STALE — CLI push 24h+ 없음
       - uid: alert-recipe-ingestion-cli-stale
         title: ALERT_RECIPE_INGESTION_CLI_STALE
@@ -256,3 +1097,89 @@ groups:
             마지막 push 이후 경과(초): {{ $value }}.
             fetch/parse-retrieve cron 미실행 또는 PUSHGATEWAY_URL 미설정 가능.
             대시보드: mealio-infra.
+
+      # ALERT_INGESTION_LOW_CONFIDENCE — parse low confidence > 20% in 1h
+      - uid: alert-ingestion-low-confidence
+        title: ALERT_INGESTION_LOW_CONFIDENCE
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 3600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: >
+                sum(increase(recipe_ingestion_parse_confidence_total{level="low"}[1h]))
+                / clamp_min(sum(increase(recipe_ingestion_parse_confidence_total[1h])), 1)
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 3600, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0.2]
+              refId: C
+        for: 30m
+        labels:
+          severity: info
+          team: platform
+        annotations:
+          summary: "Recipe ingestion low parse confidence > 20% (1h)"
+          description: >
+            low 비율: {{ $value }}.
+            OpenAI parse 품질·소스 데이터 확인.
+
+      # ALERT_LLM_TOKEN_SPIKE — LLM token rate 3x over 24h baseline
+      - uid: alert-llm-token-spike
+        title: ALERT_LLM_TOKEN_SPIKE
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 86400, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: >
+                sum(rate(recipe_ingestion_llm_tokens_total[1h]))
+                /
+                clamp_min(
+                  avg_over_time(sum(rate(recipe_ingestion_llm_tokens_total[1h]))[24h:1h]),
+                  0.001
+                )
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 86400, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [3]
+              refId: C
+        for: 1h
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Recipe ingestion LLM token usage 3x over 24h baseline"
+          description: >
+            현재/베이스라인 비율: {{ $value }}.
+            batch 크기·재시도·OpenAI quota 확인.

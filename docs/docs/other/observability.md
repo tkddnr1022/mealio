@@ -111,17 +111,14 @@ docker compose -f docker/compose-database.yml -f docker/compose-kafka.yml -f doc
 
 운영(Ops)과 제품(Product) 알림을 분리합니다.
 
-| Alert ID | KPI | 채널 |
+| 그룹 | 대표 Alert ID | 채널 |
 | --- | --- | --- |
-| `ALERT_KAFKA_FAIL_RATE` | `kpi_kafka_fail_rate` | Slack #ops |
-| `ALERT_KAFKA_LAG` | `kpi_kafka_lag_p95` | Slack #ops + on-call |
-| `ALERT_DLQ_SPIKE` | `kpi_dlq_backlog` | Slack #ops |
-| `ALERT_RECO_LATENCY` | `kpi_recommendation_e2e_latency` | Slack #product |
-| `ALERT_CVR_DROP` | `kpi_recipe_favorite_cvr` | Slack #product |
-| `ALERT_CHATBOT_DAU` | `kpi_chatbot_dau_messages` | Slack #product |
-| `ALERT_RECIPE_INGESTION_STAGE_FAIL` | recipe ingestion stage fail rate | Slack #ops |
-| `ALERT_RECIPE_INGESTION_PERSIST_LAG` | persist trigger lag | Slack #ops |
-| `ALERT_RECIPE_INGESTION_CLI_STALE` | CLI Pushgateway push stale | Slack #ops |
+| `mealio-ops-alerts` | `ALERT_TARGET_DOWN`, `ALERT_PRODUCER_5XX_RATE`, `ALERT_KAFKA_*`, `ALERT_CHATBOT_*`, `ALERT_CACHE_INVALIDATION_*` | Slack #ops |
+| `mealio-runtime-alerts` | `ALERT_DB_*`, `ALERT_EVENT_LOOP_LAG`, `ALERT_MEMORY_HIGH`, `ALERT_HTTP_INFLIGHT` | Slack #ops |
+| `mealio-product-alerts` | `ALERT_RECO_LATENCY`, `ALERT_CHATBOT_DAU`, `ALERT_KPI_ROLLUP_STALE` | Slack #product |
+| `mealio-recipe-ingestion-alerts` | `ALERT_RECIPE_INGESTION_*`, `ALERT_INGESTION_LOW_CONFIDENCE`, `ALERT_LLM_TOKEN_SPIKE` | Slack #ops |
+
+전체 Alert ID·임계치·대응 절차는 내부 Runbook `agent/observability/product_kpi_runbook.md` §1을 참조합니다.
 
 장애 대응 절차와 임계치 근거는 [Consumer 운영/복구](../consumer/operations) 문서를 참고합니다.
 
