@@ -104,7 +104,12 @@ pnpm --filter consumer run job:kpi-rollup --backfill 7
 |----------|-----|---------|-------------|
 | **Mealio Overview** | `mealio-overview` | HTTP rate, p95, throughput, lag | Prometheus |
 | **Mealio Ops — Kafka Health** | `mealio-ops` | fail rate, lag, processing p95, DLQ | Prometheus |
+| **Mealio Ops — Kafka Ingestion & Chatbot** | `mealio-ops-kafka-extended` | ingestion trigger lag/fail, chatbot-requests | Prometheus |
+| **Mealio Ops — Producer API & DB** | `mealio-producer-api` | route p95, 5xx, DB slow query | Prometheus |
+| **Mealio Ops — Infra & Pushgateway** | `mealio-infra` | scrape UP, Node.js runtime, CLI push stale | Prometheus |
+| **Mealio — Recipe Ingestion Pipeline** | `mealio-recipe-ingestion` | stage fail rate, latency, confidence, Mongo backlog | Prometheus + MongoDB |
 | **Mealio Product — KPI Rollups** | `mealio-product` | CVR, CTR, latency p95, rollup table | MongoDB (`kpi_rollups`) |
+| **Mealio Product — EventLog** | `mealio-product-events` | chatbot DAU, search volume, signup/login | MongoDB (`event_logs`) |
 | **Mealio — UX** | — | LCP/INP/CLS | Vercel Analytics, Sentry |
 
 Grafana provisioning 경로: `observability/grafana/provisioning/dashboards/json/`

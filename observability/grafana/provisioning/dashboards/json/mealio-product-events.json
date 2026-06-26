@@ -1,0 +1,137 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "title": "KPI Rollups",
+      "type": "link",
+      "url": "/d/mealio-product/mealio-product-kpi-rollups",
+      "targetBlank": false
+    }
+  ],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Engagement",
+      "type": "row",
+      "panels": []
+    },
+    {
+      "datasource": {
+        "type": "haohanyang-mongodb-datasource",
+        "uid": "mongodb"
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
+      "id": 1,
+      "title": "Chatbot DAU (daily)",
+      "type": "timeseries",
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "targets": [
+        {
+          "collection": "event_logs",
+          "queryLanguage": "json",
+          "queryText": "[{\"$match\":{\"type\":\"chatbot.message\",\"actor.userId\":{\"$exists\":true,\"$ne\":null}}},{\"$group\":{\"_id\":{\"$dateToString\":{\"format\":\"%Y-%m-%d\",\"date\":\"$occurredAt\"}},\"users\":{\"$addToSet\":\"$actor.userId\"}}},{\"$project\":{\"time\":{\"$toDate\":\"$_id\"},\"dau\":{\"$size\":\"$users\"}}},{\"$sort\":{\"time\":1}}]",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "haohanyang-mongodb-datasource",
+        "uid": "mongodb"
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
+      "id": 2,
+      "title": "Recipe views vs favorites (daily count)",
+      "type": "timeseries",
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "targets": [
+        {
+          "collection": "event_logs",
+          "queryLanguage": "json",
+          "queryText": "[{\"$match\":{\"type\":{\"$in\":[\"recipe.view\",\"recipe.favorites_add\"]}}},{\"$group\":{\"_id\":{\"date\":{\"$dateToString\":{\"format\":\"%Y-%m-%d\",\"date\":\"$occurredAt\"}},\"type\":\"$type\"},\"count\":{\"$sum\":1}}},{\"$group\":{\"_id\":\"$_id.date\",\"metrics\":{\"$push\":{\"type\":\"$_id.type\",\"count\":\"$count\"}}}},{\"$project\":{\"time\":{\"$toDate\":\"$_id\"},\"views\":{\"$let\":{\"vars\":{\"v\":{\"$filter\":{\"input\":\"$metrics\",\"as\":\"m\",\"cond\":{\"$eq\":[\"$$m.type\",\"recipe.view\"]}}}},\"in\":{\"$ifNull\":[{\"$arrayElemAt\":[\"$$v.count\",0]},0]}}},\"favorites\":{\"$let\":{\"vars\":{\"f\":{\"$filter\":{\"input\":\"$metrics\",\"as\":\"m\",\"cond\":{\"$eq\":[\"$$m.type\",\"recipe.favorites_add\"]}}}},\"in\":{\"$ifNull\":[{\"$arrayElemAt\":[\"$$f.count\",0]},0]}}}}},{\"$sort\":{\"time\":1}}]",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+      "id": 101,
+      "title": "Search & Auth",
+      "type": "row",
+      "panels": []
+    },
+    {
+      "datasource": {
+        "type": "haohanyang-mongodb-datasource",
+        "uid": "mongodb"
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 10 },
+      "id": 3,
+      "title": "Search query vs click (daily)",
+      "type": "timeseries",
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "targets": [
+        {
+          "collection": "event_logs",
+          "queryLanguage": "json",
+          "queryText": "[{\"$match\":{\"type\":{\"$in\":[\"search.query\",\"search.click\"]}}},{\"$group\":{\"_id\":{\"date\":{\"$dateToString\":{\"format\":\"%Y-%m-%d\",\"date\":\"$occurredAt\"}},\"type\":\"$type\"},\"count\":{\"$sum\":1}}},{\"$group\":{\"_id\":\"$_id.date\",\"metrics\":{\"$push\":{\"type\":\"$_id.type\",\"count\":\"$count\"}}}},{\"$project\":{\"time\":{\"$toDate\":\"$_id\"},\"queries\":{\"$let\":{\"vars\":{\"q\":{\"$filter\":{\"input\":\"$metrics\",\"as\":\"m\",\"cond\":{\"$eq\":[\"$$m.type\",\"search.query\"]}}}},\"in\":{\"$ifNull\":[{\"$arrayElemAt\":[\"$$q.count\",0]},0]}}},\"clicks\":{\"$let\":{\"vars\":{\"c\":{\"$filter\":{\"input\":\"$metrics\",\"as\":\"m\",\"cond\":{\"$eq\":[\"$$m.type\",\"search.click\"]}}}},\"in\":{\"$ifNull\":[{\"$arrayElemAt\":[\"$$c.count\",0]},0]}}}}},{\"$sort\":{\"time\":1}}]",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "haohanyang-mongodb-datasource",
+        "uid": "mongodb"
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 10 },
+      "id": 4,
+      "title": "Signup & login (daily)",
+      "type": "timeseries",
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "targets": [
+        {
+          "collection": "event_logs",
+          "queryLanguage": "json",
+          "queryText": "[{\"$match\":{\"type\":{\"$in\":[\"signup\",\"login\"]}}},{\"$group\":{\"_id\":{\"date\":{\"$dateToString\":{\"format\":\"%Y-%m-%d\",\"date\":\"$occurredAt\"}},\"type\":\"$type\"},\"count\":{\"$sum\":1}}},{\"$group\":{\"_id\":\"$_id.date\",\"metrics\":{\"$push\":{\"type\":\"$_id.type\",\"count\":\"$count\"}}}},{\"$project\":{\"time\":{\"$toDate\":\"$_id\"},\"signup\":{\"$let\":{\"vars\":{\"s\":{\"$filter\":{\"input\":\"$metrics\",\"as\":\"m\",\"cond\":{\"$eq\":[\"$$m.type\",\"signup\"]}}}},\"in\":{\"$ifNull\":[{\"$arrayElemAt\":[\"$$s.count\",0]},0]}}},\"login\":{\"$let\":{\"vars\":{\"l\":{\"$filter\":{\"input\":\"$metrics\",\"as\":\"m\",\"cond\":{\"$eq\":[\"$$m.type\",\"login\"]}}}},\"in\":{\"$ifNull\":[{\"$arrayElemAt\":[\"$$l.count\",0]},0]}}}}},{\"$sort\":{\"time\":1}}]",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "haohanyang-mongodb-datasource",
+        "uid": "mongodb"
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 18 },
+      "id": 5,
+      "title": "Daily event volume by type (top 30 days)",
+      "type": "table",
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "targets": [
+        {
+          "collection": "event_logs",
+          "queryLanguage": "json",
+          "queryText": "[{\"$group\":{\"_id\":{\"date\":{\"$dateToString\":{\"format\":\"%Y-%m-%d\",\"date\":\"$occurredAt\"}},\"type\":\"$type\"},\"count\":{\"$sum\":1}}},{\"$sort\":{\"_id.date\":-1,\"count\":-1}},{\"$limit\":100},{\"$project\":{\"_id\":0,\"date\":\"$_id.date\",\"type\":\"$_id.type\",\"count\":1}}]",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 39,
+  "tags": ["mealio", "product"],
+  "templating": { "list": [] },
+  "time": { "from": "now-30d", "to": "now" },
+  "timezone": "browser",
+  "title": "Mealio Product — EventLog",
+  "uid": "mealio-product-events",
+  "version": 1
+}

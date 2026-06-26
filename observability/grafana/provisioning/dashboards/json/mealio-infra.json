@@ -1,0 +1,175 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "title": "Overview",
+      "type": "link",
+      "url": "/d/mealio-overview/mealio-overview",
+      "targetBlank": false
+    }
+  ],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Scrape Targets",
+      "type": "row",
+      "panels": []
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "options": { "0": { "color": "red", "text": "DOWN" } }, "type": "value" },
+            { "options": { "1": { "color": "green", "text": "UP" } }, "type": "value" }
+          ],
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 1 },
+      "id": 1,
+      "title": "Target health",
+      "type": "stat",
+      "options": { "colorMode": "background", "graphMode": "none" },
+      "targets": [
+        {
+          "expr": "max by (job) (up{job=~\"prometheus|mealio-producer|mealio-consumer|pushgateway\"})",
+          "legendFormat": "{{job}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 7 },
+      "id": 101,
+      "title": "Node.js Runtime",
+      "type": "row",
+      "panels": []
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 2,
+      "title": "Heap used",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "max by (service) (process_resident_memory_bytes{job=~\"mealio-producer|mealio-consumer\"})",
+          "legendFormat": "{{service}} RSS",
+          "refId": "A"
+        },
+        {
+          "expr": "max by (service) (nodejs_heap_size_used_bytes{job=~\"mealio-producer|mealio-consumer\"})",
+          "legendFormat": "{{service}} heap used",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 3,
+      "title": "CPU usage",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "max by (service) (rate(process_cpu_seconds_total{job=~\"mealio-producer|mealio-consumer\"}[5m]))",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "id": 4,
+      "title": "Event loop lag p99",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "max by (service) (nodejs_eventloop_lag_p99_seconds{job=~\"mealio-producer|mealio-consumer\"})",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "id": 5,
+      "title": "Active handles / requests",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "max by (service) (nodejs_active_handles_total{job=~\"mealio-producer|mealio-consumer\"})",
+          "legendFormat": "{{service}} handles",
+          "refId": "A"
+        },
+        {
+          "expr": "max by (service) (nodejs_active_requests_total{job=~\"mealio-producer|mealio-consumer\"})",
+          "legendFormat": "{{service}} requests",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 24 },
+      "id": 102,
+      "title": "Pushgateway (recipe-ingestion CLI)",
+      "type": "row",
+      "panels": []
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 25 },
+      "id": 6,
+      "title": "Seconds since last CLI push",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "max by (stage) (time() - push_time_seconds{job=\"recipe_ingestion_cli\"})",
+          "legendFormat": "stage={{stage}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 25 },
+      "id": 7,
+      "title": "Pushgateway metric groups",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "count by (job, stage) (recipe_ingestion_stage_total{job=\"recipe_ingestion_cli\"})",
+          "legendFormat": "{{job}} {{stage}}",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["mealio", "ops", "infra"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "title": "Mealio Ops — Infra & Pushgateway",
+  "uid": "mealio-infra",
+  "version": 2
+}

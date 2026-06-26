@@ -1,0 +1,162 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "title": "Overview",
+      "type": "link",
+      "url": "/d/mealio-overview/mealio-overview",
+      "targetBlank": false
+    }
+  ],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "HTTP SLO",
+      "type": "row",
+      "panels": []
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
+      "id": 1,
+      "title": "Request rate by route",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum by (route) (rate(http_requests_total{service=\"producer\"}[5m]))",
+          "legendFormat": "{{route}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
+      "id": 2,
+      "title": "5xx error rate",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total{service=\"producer\", status_code=~\"5..\"}[5m])) / clamp_min(sum(rate(http_requests_total{service=\"producer\"}[5m])), 1e-9)",
+          "legendFormat": "5xx rate",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
+      "id": 3,
+      "title": "HTTP p95 latency by route",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, route) (rate(http_request_duration_ms_bucket{service=\"producer\"}[5m])))",
+          "legendFormat": "{{route}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 9 },
+      "id": 4,
+      "title": "In-flight requests",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "http_inflight_requests{service=\"producer\"}",
+          "legendFormat": "inflight",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 17 },
+      "id": 101,
+      "title": "Database",
+      "type": "row",
+      "panels": []
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 18 },
+      "id": 5,
+      "title": "DB query p95 by engine",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, engine) (rate(db_query_duration_ms_bucket{service=\"producer\"}[5m])))",
+          "legendFormat": "{{engine}} p95",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 18 },
+      "id": 6,
+      "title": "DB query rate by engine",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum by (engine) (rate(db_queries_total{service=\"producer\"}[5m]))",
+          "legendFormat": "{{engine}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 26 },
+      "id": 7,
+      "title": "Slow query rate",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum by (engine, operation) (rate(slow_queries_total{service=\"producer\"}[5m]))",
+          "legendFormat": "{{engine}} {{operation}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 26 },
+      "id": 8,
+      "title": "DB query p95 by operation (top routes)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "topk(10, histogram_quantile(0.95, sum by (le, engine, operation) (rate(db_query_duration_ms_bucket{service=\"producer\"}[5m]))))",
+          "legendFormat": "{{engine}} {{operation}}",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["mealio", "ops", "producer"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "title": "Mealio Ops — Producer API & DB",
+  "uid": "mealio-producer-api",
+  "version": 1
+}

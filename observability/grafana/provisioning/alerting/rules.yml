@@ -128,3 +128,131 @@ groups:
           description: >
             대응: product_kpi_runbook.md §2.2 참조.
             DLQ 토픽 메시지 샘플링 후 원인 파악.
+
+  - orgId: 1
+    name: mealio-recipe-ingestion-alerts
+    folder: Mealio
+    interval: 1m
+    rules:
+      # ALERT_RECIPE_INGESTION_STAGE_FAIL — persist/parse-retrieve 단계 fail rate > 5% for 30m
+      - uid: alert-recipe-ingestion-stage-fail
+        title: ALERT_RECIPE_INGESTION_STAGE_FAIL
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 1800, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: >
+                sum by (stage) (increase(recipe_ingestion_stage_total{outcome="failed", stage=~"persist|parse-retrieve"}[30m]))
+                /
+                clamp_min(sum by (stage) (increase(recipe_ingestion_stage_total{stage=~"persist|parse-retrieve"}[30m])), 1)
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 1800, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0.05]
+              refId: C
+        for: 30m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Recipe ingestion stage fail rate > 5% (stage: {{ $labels.stage }})"
+          description: >
+            실패율: {{ $value }}.
+            대시보드: mealio-recipe-ingestion.
+            persist/parse-retrieve 로그에서 correlationId·jobId 확인.
+
+      # ALERT_RECIPE_INGESTION_PERSIST_LAG — persist trigger lag > 100 for 15m
+      - uid: alert-recipe-ingestion-persist-lag
+        title: ALERT_RECIPE_INGESTION_PERSIST_LAG
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: max(kafka_consumer_lag{service="consumer", topic="recipe-ingestion-persist-triggered"})
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [100]
+              refId: C
+        for: 15m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Recipe ingestion persist trigger lag > 100"
+          description: >
+            현재 lag: {{ $value }}.
+            parse-retrieve 완료 후 persist consumer 적체 가능.
+            대시보드: mealio-recipe-ingestion, mealio-ops-kafka-extended.
+
+      # ALERT_RECIPE_INGESTION_CLI_STALE — CLI push 24h+ 없음
+      - uid: alert-recipe-ingestion-cli-stale
+        title: ALERT_RECIPE_INGESTION_CLI_STALE
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 86400, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: time() - max(push_time_seconds{job="recipe_ingestion_cli"})
+              refId: A
+          - refId: B
+            relativeTimeRange: { from: 86400, to: 0 }
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [86400]
+              refId: C
+        for: 1h
+        labels:
+          severity: info
+          team: platform
+        annotations:
+          summary: "Recipe ingestion CLI Pushgateway push stale (>24h)"
+          description: >
+            마지막 push 이후 경과(초): {{ $value }}.
+            fetch/parse-retrieve cron 미실행 또는 PUSHGATEWAY_URL 미설정 가능.
+            대시보드: mealio-infra.

@@ -12,8 +12,11 @@
 | `ALERT_RECO_LATENCY` | `kpi_recommendation_e2e_latency` | EventLog p95 > 5000ms for 1h (daily job or ad-hoc) | warning | Slack #product |
 | `ALERT_CVR_DROP` | `kpi_recipe_favorite_cvr` | 일 CVR 전주 대비 -30% (롤업 후) | info | Slack #product |
 | `ALERT_CHATBOT_DAU` | `kpi_chatbot_dau_messages` | 7일 이동평균 -40% | info | Slack #product |
+| `ALERT_RECIPE_INGESTION_STAGE_FAIL` | recipe ingestion stage fail rate | `persist`/`parse-retrieve` fail rate > 5% for 30m | warning | Slack #ops |
+| `ALERT_RECIPE_INGESTION_PERSIST_LAG` | persist trigger lag | `recipe-ingestion-persist-triggered` lag > 100 for 15m | warning | Slack #ops |
+| `ALERT_RECIPE_INGESTION_CLI_STALE` | CLI Pushgateway push | 마지막 push 24h+ 경과 | info | Slack #ops |
 
-PromQL: Grafana Ops 대시보드 (`observability/grafana/provisioning/dashboards/json/mealio-ops.json`) 및 알림 규칙 (`observability/grafana/provisioning/alerting/rules.yml`) 참조
+PromQL·대시보드: `observability/grafana/provisioning/dashboards/json/` (`mealio-ops.json`, `mealio-recipe-ingestion.json`, `mealio-ops-kafka-extended.json`, `mealio-infra.json` 등) 및 알림 규칙 (`observability/grafana/provisioning/alerting/rules.yml`) 참조
 
 ### 1.1 임계치 초기값 근거
 
@@ -25,6 +28,9 @@ PromQL: Grafana Ops 대시보드 (`observability/grafana/provisioning/dashboards
 | `ALERT_RECO_LATENCY` > 5000ms | UX 체감 한계(5s). 추천 결과가 즉시 반영되지 않아도 UX 저하는 제한적 |
 | `ALERT_CVR_DROP` -30% WoW | 자연 변동(±10~15%) 대비 2배 이탈 시 조사 트리거 |
 | `ALERT_CHATBOT_DAU` -40% 7d MA | 주말/공휴일 변동 감안 후 40% 이탈이면 이상 신호 |
+| `ALERT_RECIPE_INGESTION_STAGE_FAIL` > 5% | persist·parse-retrieve는 downstream 영향 큼. batch 특성상 30m 윈도 |
+| `ALERT_RECIPE_INGESTION_PERSIST_LAG` > 100 | ingestion trigger는 저빈도·소량. 100은 parse 완료 후 persist 적체 조기 감지 |
+| `ALERT_RECIPE_INGESTION_CLI_STALE` 24h | fetch/parse-retrieve cron 주기 대비 CLI 미실행 감지 |
 
 ### 1.2 재조정 주기
 
@@ -70,6 +76,25 @@ PromQL: Grafana Ops 대시보드 (`observability/grafana/provisioning/dashboards
 4. 데이터 이슈 vs 실제 UX 회귀 구분 후 제품 티켓.
 
 수동 검증 시나리오는 [validation.md](./validation.md) §7~9를 따른다.
+
+### 2.5 Recipe ingestion 단계 실패 (`ALERT_RECIPE_INGESTION_STAGE_FAIL`)
+
+1. **Mealio — Recipe Ingestion Pipeline** (`mealio-recipe-ingestion`)에서 stage·outcome 분해.
+2. MongoDB `recipe_ingestion_jobs` failed 목록·`errorMessage` 확인.
+3. persist 실패: PostgreSQL·재료 매칭 로그. parse-retrieve 실패: OpenAI Batch 상태·`batchId`.
+4. `--retry-failed` CLI 또는 수동 `job:recipe-ingestion-persist --job-id`로 복구.
+
+### 2.6 Persist trigger lag (`ALERT_RECIPE_INGESTION_PERSIST_LAG`)
+
+1. **Mealio Ops — Kafka Ingestion & Chatbot**에서 `recipe-ingestion-persist-triggered` lag 확인.
+2. always-on persist consumer `/ready`, `METRICS_ENABLED` 확인.
+3. parse-retrieve CLI·consumer 처리량과 lag 상관 확인.
+
+### 2.7 CLI push stale (`ALERT_RECIPE_INGESTION_CLI_STALE`)
+
+1. **Mealio Ops — Infra & Pushgateway**에서 `push_time_seconds` 경과 확인.
+2. cron/ECS scheduled task·`PUSHGATEWAY_URL` 환경 변수 확인.
+3. 수동 `pnpm run recipe-ingestion:fetch` 실행 후 Pushgateway 메트릭 갱신 여부 확인.
 
 ## 3. 로그·추적 필드
 

@@ -4,7 +4,26 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "title": "Recipe Ingestion",
+      "type": "link",
+      "url": "/d/mealio-recipe-ingestion/mealio-recipe-ingestion-pipeline",
+      "targetBlank": false
+    },
+    {
+      "title": "Producer API",
+      "type": "link",
+      "url": "/d/mealio-producer-api/mealio-ops-producer-api-and-db",
+      "targetBlank": false
+    },
+    {
+      "title": "Product KPI",
+      "type": "link",
+      "url": "/d/mealio-product/mealio-product-kpi-rollups",
+      "targetBlank": false
+    }
+  ],
   "panels": [
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },

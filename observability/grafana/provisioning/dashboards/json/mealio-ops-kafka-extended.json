@@ -1,0 +1,178 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "title": "Core Kafka Health",
+      "type": "link",
+      "url": "/d/mealio-ops/mealio-ops-kafka-health",
+      "targetBlank": false
+    },
+    {
+      "title": "Recipe Ingestion Pipeline",
+      "type": "link",
+      "url": "/d/mealio-recipe-ingestion/mealio-recipe-ingestion-pipeline",
+      "targetBlank": false
+    }
+  ],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Recipe Ingestion Triggers",
+      "type": "row",
+      "panels": []
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
+      "id": 1,
+      "title": "Ingestion topic lag",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "max by (topic, consumer_group) (kafka_consumer_lag{service=\"consumer\", topic=~\"recipe-ingestion-.*\"})",
+          "legendFormat": "{{topic}} / {{consumer_group}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
+      "id": 2,
+      "title": "Ingestion topic fail rate (5m)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum by (topic) (rate(kafka_messages_failed_total{service=\"consumer\", topic=~\"recipe-ingestion-.*\"}[5m])) / (sum by (topic) (rate(kafka_messages_processed_total{service=\"consumer\", topic=~\"recipe-ingestion-.*\"}[5m])) + sum by (topic) (rate(kafka_messages_failed_total{service=\"consumer\", topic=~\"recipe-ingestion-.*\"}[5m])))",
+          "legendFormat": "{{topic}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
+      "id": 3,
+      "title": "Ingestion topic throughput",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum by (topic) (rate(kafka_messages_processed_total{service=\"consumer\", topic=~\"recipe-ingestion-.*\"}[5m]))",
+          "legendFormat": "processed {{topic}}",
+          "refId": "A"
+        },
+        {
+          "expr": "sum by (topic) (rate(kafka_messages_failed_total{service=\"consumer\", topic=~\"recipe-ingestion-.*\"}[5m]))",
+          "legendFormat": "failed {{topic}}",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 9 },
+      "id": 4,
+      "title": "Ingestion topic processing p95",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, topic) (rate(kafka_message_processing_duration_ms_bucket{service=\"consumer\", topic=~\"recipe-ingestion-.*\"}[5m])))",
+          "legendFormat": "{{topic}} p95",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 17 },
+      "id": 101,
+      "title": "Chatbot Requests",
+      "type": "row",
+      "panels": []
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 18 },
+      "id": 5,
+      "title": "Chatbot topic lag",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "max by (topic, consumer_group) (kafka_consumer_lag{service=\"consumer\", topic=\"chatbot-requests\"})",
+          "legendFormat": "{{topic}} / {{consumer_group}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 18 },
+      "id": 6,
+      "title": "Chatbot topic fail rate (5m)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum(rate(kafka_messages_failed_total{service=\"consumer\", topic=\"chatbot-requests\"}[5m])) / (sum(rate(kafka_messages_processed_total{service=\"consumer\", topic=\"chatbot-requests\"}[5m])) + sum(rate(kafka_messages_failed_total{service=\"consumer\", topic=\"chatbot-requests\"}[5m])))",
+          "legendFormat": "chatbot-requests",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 26 },
+      "id": 7,
+      "title": "Chatbot throughput",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum(rate(kafka_messages_processed_total{service=\"consumer\", topic=\"chatbot-requests\"}[5m]))",
+          "legendFormat": "processed",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(kafka_messages_failed_total{service=\"consumer\", topic=\"chatbot-requests\"}[5m]))",
+          "legendFormat": "failed",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 26 },
+      "id": 8,
+      "title": "Chatbot processing p95",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(kafka_message_processing_duration_ms_bucket{service=\"consumer\", topic=\"chatbot-requests\"}[5m])))",
+          "legendFormat": "p95",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["mealio", "ops", "kafka"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "title": "Mealio Ops — Kafka Ingestion & Chatbot",
+  "uid": "mealio-ops-kafka-extended",
+  "version": 1
+}

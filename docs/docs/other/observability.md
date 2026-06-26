@@ -86,7 +86,19 @@ always-on Consumer는 `METRICS_PORT` `/metrics`로 scrape하고, recipe-ingestio
 ## Grafana
 
 - 대시보드 프로비저닝 설정은 `observability/grafana/`에 있습니다.
-- 운영 대시보드는 `mealio-ops.json`을 사용합니다.
+- 프로비저닝 대시보드 UID:
+
+| UID | 제목 |
+| --- | --- |
+| `mealio-overview` | Mealio Overview |
+| `mealio-ops` | Mealio Ops — Kafka Health |
+| `mealio-ops-kafka-extended` | Mealio Ops — Kafka Ingestion & Chatbot |
+| `mealio-producer-api` | Mealio Ops — Producer API & DB |
+| `mealio-infra` | Mealio Ops — Infra & Pushgateway |
+| `mealio-recipe-ingestion` | Mealio — Recipe Ingestion Pipeline |
+| `mealio-product` | Mealio Product — KPI Rollups |
+| `mealio-product-events` | Mealio Product — EventLog |
+
 - 알림 규칙은 `alerting/rules.yml`에 정의하며, Slack `#ops`와 `#product` 채널로 전송합니다.
 
 로컬 환경에서는 Grafana `:3030`, Prometheus `:9090`, Pushgateway `:9091`에서 확인할 수 있습니다.
@@ -107,6 +119,9 @@ docker compose -f docker/compose-database.yml -f docker/compose-kafka.yml -f doc
 | `ALERT_RECO_LATENCY` | `kpi_recommendation_e2e_latency` | Slack #product |
 | `ALERT_CVR_DROP` | `kpi_recipe_favorite_cvr` | Slack #product |
 | `ALERT_CHATBOT_DAU` | `kpi_chatbot_dau_messages` | Slack #product |
+| `ALERT_RECIPE_INGESTION_STAGE_FAIL` | recipe ingestion stage fail rate | Slack #ops |
+| `ALERT_RECIPE_INGESTION_PERSIST_LAG` | persist trigger lag | Slack #ops |
+| `ALERT_RECIPE_INGESTION_CLI_STALE` | CLI Pushgateway push stale | Slack #ops |
 
 장애 대응 절차와 임계치 근거는 [Consumer 운영/복구](../consumer/operations) 문서를 참고합니다.
 
