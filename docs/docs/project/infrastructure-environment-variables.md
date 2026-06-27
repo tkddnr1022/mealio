@@ -44,6 +44,8 @@ docker compose --env-file .env.docker.local -f docker/compose-database.yml -f do
 | Compose | `compose-database.yml` |
 | 앱 env 정합 | `DATABASE_URL`의 user·password·database와 일치 |
 
+Grafana PostgreSQL view는 `prisma migrate deploy`로 적용한다 (`20260628000000_add_grafana_readonly_views`).
+
 ## Redis
 
 로컬 Redis는 `compose-database.yml`에서 **고정 포트 6379**로 기동하며, 앱의 `REDIS_URL`은 `redis://127.0.0.1:6379` 형식으로 맞춥니다.
@@ -125,6 +127,15 @@ docker compose --env-file .env.docker.local -f docker/compose-database.yml -f do
 | 예시 | `mongodb:27017` / `devuser` / `devpassword` / `devdb` |
 | Compose | `compose-monitoring.yml` |
 | 패턴 | Docker 네트워크 내부 호스트명(`mongodb`)과 `MONGO_*`·`POSTGRES_*` 계정과 일치 |
+
+### `GRAFANA_POSTGRES_HOST` / `GRAFANA_POSTGRES_USER` / `GRAFANA_POSTGRES_PASSWORD` / `GRAFANA_POSTGRES_DATABASE`
+
+| 항목 | 내용 |
+| --- | --- |
+| 설명 | Grafana PostgreSQL 데이터소스 접속 정보 (도메인 SSOT 스냅샷) |
+| 예시 | `postgres:5432` / `devuser` / `devpassword` / `devdb` |
+| Compose | `compose-monitoring.yml` |
+| 패턴 | `POSTGRES_*`·`POSTGRESQL_URL`과 자격 증명 일치 |
 
 ### `SLACK_OPS_WEBHOOK_URL` / `SLACK_PRODUCT_WEBHOOK_URL`
 

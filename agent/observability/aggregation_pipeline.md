@@ -110,6 +110,7 @@ pnpm --filter consumer run job:kpi-rollup --backfill 7
 | **Mealio — Recipe Ingestion Pipeline** | `mealio-recipe-ingestion` | stage fail rate, latency, confidence, Mongo backlog | Prometheus + MongoDB |
 | **Mealio Product — KPI Rollups** | `mealio-product` | CVR, CTR, latency p95, rollup table | MongoDB (`kpi_rollups`) |
 | **Mealio Product — EventLog** | `mealio-product-events` | chatbot DAU, search volume, signup/login | MongoDB (`event_logs`) |
+| **Mealio Product — Domain Snapshot** | `mealio-product-domain` | recipe catalog, embedding coverage, signups, recommendations | PostgreSQL (`grafana_*` views) |
 | **Mealio — UX** | — | LCP/INP/CLS | Vercel Analytics, Sentry |
 
 Grafana provisioning 경로: `observability/grafana/provisioning/dashboards/json/`
@@ -120,8 +121,11 @@ Grafana provisioning 경로: `observability/grafana/provisioning/dashboards/json
 |------|-----|------|-----------------|
 | Prometheus | `prometheus` | prometheus | `datasources/prometheus.yml` |
 | MongoDB | `mongodb` | [haohanyang-mongodb-datasource](https://github.com/haohanyang/mongodb-datasource) | `datasources/mongodb.yml` |
+| PostgreSQL | `postgresql` | postgres (Grafana 내장) | `datasources/postgresql.yml` |
 
 MongoDB 플러그인은 `docker/compose-monitoring.yml`의 `GF_INSTALL_PLUGINS`(GitHub release zip)와 `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS`로 자동 설치한다. Grafana Labs 공식(엔터프라이즈) 플러그인 대신 커뮤니티 오픈소스 플러그인을 사용한다.
+
+PostgreSQL 데이터소스는 **도메인 SSOT 스냅샷** 전용이다. view 정의는 Prisma 마이그레이션 `20260628000000_add_grafana_readonly_views`에 있다. 패널 refresh는 5m 이상을 권장한다.
 
 알림 임계치·장애 대응은 [product_kpi_runbook.md](./product_kpi_runbook.md)를 참조한다.
 

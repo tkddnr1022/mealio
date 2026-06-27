@@ -208,6 +208,8 @@ Development에서는 위 비율·트레이스 샘플링을 1.0(또는 health/met
 | 9.4 | Alerting > Alert rules | `mealio-ops-alerts`, `mealio-runtime-alerts`, `mealio-product-alerts`, `mealio-recipe-ingestion-alerts` 그룹 및 Runbook §1 Alert ID 존재 |
 | 9.5 | Prometheus datasource 쿼리 | Grafana Explore에서 정상 반환 |
 | 9.6 | MongoDB datasource 연결 (`mongodb` UID) | KPI 롤업 데이터 조회 가능 |
+| 9.6.1 | PostgreSQL datasource 연결 (`postgresql` UID) | `grafana_recipe_catalog_snapshot` 조회 가능 |
+| 9.6.2 | **Mealio Product — Domain Snapshot** (`mealio-product-domain`) | catalog, embedding, signup, recommendation 패널 표시 |
 | 9.7 | **Mealio — Recipe Ingestion Pipeline** (`mealio-recipe-ingestion`) | stage throughput, lag, Mongo backlog 패널 표시 |
 | 9.8 | **Mealio Ops — Kafka Ingestion & Chatbot** (`mealio-ops-kafka-extended`) | ingestion·chatbot 토픽 lag/fail rate 표시 |
 | 9.9 | **Mealio Ops — Producer API & DB** (`mealio-producer-api`) | HTTP p95, DB slow query 패널 표시 |
