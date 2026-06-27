@@ -48,8 +48,7 @@ import { ParseSubmitService } from './services/parse-submit.service';
   providers: [
     {
       provide: OBSERVABILITY_CONFIG,
-      useFactory: () =>
-        createObservabilityConfig('consumer'),
+      useFactory: () => createObservabilityConfig('consumer'),
     },
     ConsumerMetricsService,
     RecipeIngestionJobRepository,

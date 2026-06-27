@@ -50,8 +50,7 @@ import { KafkaModule } from '../../integrations/kafka/kafka.module';
   providers: [
     {
       provide: OBSERVABILITY_CONFIG,
-      useFactory: () =>
-        createObservabilityConfig('consumer'),
+      useFactory: () => createObservabilityConfig('consumer'),
     },
     ConsumerMetricsService,
     RecipeIngestionJobRepository,

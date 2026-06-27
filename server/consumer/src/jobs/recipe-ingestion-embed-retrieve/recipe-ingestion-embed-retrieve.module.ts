@@ -42,8 +42,7 @@ import { EmbedRetrieveService } from './services/embed-retrieve.service';
   providers: [
     {
       provide: OBSERVABILITY_CONFIG,
-      useFactory: () =>
-        createObservabilityConfig('consumer'),
+      useFactory: () => createObservabilityConfig('consumer'),
     },
     ConsumerMetricsService,
     RecipeIngestionJobRepository,

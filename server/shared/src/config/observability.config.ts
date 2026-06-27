@@ -83,7 +83,10 @@ export function createObservabilityConfig(
 
   return {
     ...base,
-    metricsPort: parsePositiveInt(readRequiredEnv('METRICS_PORT'), 'METRICS_PORT'),
+    metricsPort: parsePositiveInt(
+      readRequiredEnv('METRICS_PORT'),
+      'METRICS_PORT',
+    ),
     slowQueryThresholdMs: SLOW_QUERY_THRESHOLD_MS,
   };
 }
