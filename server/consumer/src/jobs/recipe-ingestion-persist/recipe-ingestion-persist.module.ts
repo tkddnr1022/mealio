@@ -51,7 +51,7 @@ import { KafkaModule } from '../../integrations/kafka/kafka.module';
     {
       provide: OBSERVABILITY_CONFIG,
       useFactory: () =>
-        createObservabilityConfig('consumer', { requireMetricsPort: false }),
+        createObservabilityConfig('consumer'),
     },
     ConsumerMetricsService,
     RecipeIngestionJobRepository,

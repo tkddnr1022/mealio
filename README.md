@@ -98,8 +98,8 @@ cp server/consumer/.env.docker.example server/consumer/.env.docker.local
 | `KAFKA_UI_BOOTSTRAP_SERVERS` | Kafka UI 부트스트랩 서버 | `kafka:19092` |
 | `PROMETHEUS_TARGETS_MODE` | Prometheus 스크랩 대상 모드 (`host` / `compose`) | `host` |
 | `PROMETHEUS_PORT` | Prometheus 포트 | `9090` |
-| `PROMETHEUS_PRODUCER_PORT` | Producer 메트릭 스크랩 포트 | `3000` |
-| `PROMETHEUS_CONSUMER_PORT` | Consumer 메트릭 스크랩 포트 | `9100` |
+| `PROMETHEUS_PRODUCER_PORT` | Producer 메트릭 스크랩 포트 | `9100` |
+| `PROMETHEUS_CONSUMER_PORT` | Consumer 메트릭 스크랩 포트 | `9101` |
 | `PUSHGATEWAY_PORT` | Pushgateway 호스트 포트 (컨테이너 내부 `9091`) | `9091` |
 | `GRAFANA_PORT` | Grafana 포트 | `3030` |
 | `GRAFANA_ADMIN_USER` | Grafana 관리자 사용자명 | `admin` |
@@ -149,7 +149,7 @@ pnpm run start:client
 
 ```bash
 # 인프라 (DB/Kafka/Redis/Kafka UI/관측)
-docker compose --env-file .env.docker.local -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
+docker compose --env-file .env.docker.production.local -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
 ```
 
 ```bash

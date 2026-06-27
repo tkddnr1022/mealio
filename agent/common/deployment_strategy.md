@@ -232,7 +232,7 @@ Docker Compose로 앱을 띄울 때 패키지 `.env.docker` 연결 URL 예시:
 
 - 로컬 Compose DB: `postgres` / `mongodb` / `redis` / `kafka:19092` 등 **서비스명** 기준
 - EC2 + 매니지드 DB: `MONGODB_URL`(Atlas), `POSTGRESQL_URL`(Neon pooler), `REDIS_URL`(Upstash `rediss://`), `KAFKA_BROKERS`(`kafka:19092`)
-- `PORT`(client·producer), `METRICS_PORT`(consumer), `PUSHGATEWAY_PORT`(monitoring Compose) — 패키지·루트 `.env.docker`에서 관리
+- `PORT`(client·producer), `METRICS_PORT`(producer·consumer), `PUSHGATEWAY_PORT`(monitoring Compose) — 패키지·루트 `.env.docker`에서 관리
 - Docker 앱 배포 시 `.env.docker`의 `PROMETHEUS_TARGETS_MODE=compose` (호스트 개발은 `host`)
 
 ### 프로덕션 EC2 (매니지드 DB — Vercel 대신 Docker 선택 시)

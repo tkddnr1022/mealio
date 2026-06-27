@@ -45,7 +45,7 @@ import { EmbedSubmitService } from './services/embed-submit.service';
     {
       provide: OBSERVABILITY_CONFIG,
       useFactory: () =>
-        createObservabilityConfig('consumer', { requireMetricsPort: false }),
+        createObservabilityConfig('consumer'),
     },
     ConsumerMetricsService,
     RecipeIngestionJobRepository,

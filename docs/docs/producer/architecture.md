@@ -67,7 +67,7 @@ flowchart TD
 ## 관측성
 
 - `server/producer/.../correlation-id.middleware.ts`는 요청을 추적합니다.
-- `server/producer/.../metrics.controller.ts`는 `METRICS_ENABLED=true`일 때 `PORT`와 동일 포트의 `/metrics`를 노출합니다.
+- `server/producer/.../metrics-exporter.service.ts`는 `METRICS_ENABLED=true`일 때 `METRICS_PORT`에서 `/metrics`를 노출합니다.
 - Sentry 연동은 `@mealio/shared/observability`를 사용합니다.
 
 ## 정책 파일

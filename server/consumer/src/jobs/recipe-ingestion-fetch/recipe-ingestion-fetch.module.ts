@@ -42,7 +42,7 @@ import { FetchService } from './services/fetch.service';
     {
       provide: OBSERVABILITY_CONFIG,
       useFactory: () =>
-        createObservabilityConfig('consumer', { requireMetricsPort: false }),
+        createObservabilityConfig('consumer'),
     },
     ConsumerMetricsService,
     RecipeIngestionJobRepository,

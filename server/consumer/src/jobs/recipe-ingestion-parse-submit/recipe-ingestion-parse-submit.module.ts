@@ -49,7 +49,7 @@ import { ParseSubmitService } from './services/parse-submit.service';
     {
       provide: OBSERVABILITY_CONFIG,
       useFactory: () =>
-        createObservabilityConfig('consumer', { requireMetricsPort: false }),
+        createObservabilityConfig('consumer'),
     },
     ConsumerMetricsService,
     RecipeIngestionJobRepository,

@@ -43,7 +43,7 @@ import { EmbedRetrieveService } from './services/embed-retrieve.service';
     {
       provide: OBSERVABILITY_CONFIG,
       useFactory: () =>
-        createObservabilityConfig('consumer', { requireMetricsPort: false }),
+        createObservabilityConfig('consumer'),
     },
     ConsumerMetricsService,
     RecipeIngestionJobRepository,

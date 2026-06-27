@@ -19,6 +19,7 @@ services:
     environment:
       APP_ENV: ${APP_ENV:?APP_ENV is required}
       METRICS_ENABLED: ${METRICS_ENABLED:?METRICS_ENABLED is required}
+      METRICS_PORT: ${METRICS_PORT:?METRICS_PORT is required}
       POSTGRESQL_URL: ${POSTGRESQL_URL:?POSTGRESQL_URL is required}
       MONGODB_URL: ${MONGODB_URL:?MONGODB_URL is required}
       REDIS_URL: ${REDIS_URL:?REDIS_URL is required}

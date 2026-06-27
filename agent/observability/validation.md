@@ -15,7 +15,7 @@
 | `NEXT_PUBLIC_SENTRY_DSN` | Client `.env` | 설정 | 비워도 됨 |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Client `.env` | 설정 | 비워도 됨 |
 | `METRICS_ENABLED` | Producer `.env`, Consumer `.env` | `true` | `true` |
-| `METRICS_PORT` | Consumer `.env` | 설정 (`METRICS_ENABLED=true` 시) | 예: `9100` |
+| `METRICS_PORT` | Producer `.env`, Consumer `.env` | 설정 (`METRICS_ENABLED=true` 시) | Producer 예: `9100`, Consumer 예: `9101` |
 | `PUSHGATEWAY_URL` | Consumer `.env` | CLI ingestion 메트릭 push 시 설정 | 예: `http://localhost:9091` (호스트), `http://pushgateway:9091` (Compose) |
 | `PUSHGATEWAY_PORT` | 루트 `.env.docker` | Compose Pushgateway 호스트 포트 | 예: `9091` |
 | `SLACK_OPS_WEBHOOK_URL` | Grafana / alerting | 설정 | 선택 |
@@ -58,7 +58,7 @@
 
 | # | 시나리오 | 기대 결과 |
 |---|----------|-----------|
-| 4.1.1 | `GET /metrics` 호출 | Prometheus 텍스트 포맷 반환 |
+| 4.1.1 | `METRICS_PORT`의 `GET /metrics` 호출 | Prometheus 텍스트 포맷 반환 |
 | 4.1.2 | API 요청 수회 후 `/metrics` | `http_request_duration_seconds` 히스토그램 증가 |
 | 4.1.3 | DB 쿼리 실행 후 `/metrics` | Prisma/Mongoose 쿼리 duration 메트릭 존재 |
 | 4.1.4 | 슬로우 쿼리 임계 초과 유발 | `slow_query_total` counter 증가 + 로그 출력 |

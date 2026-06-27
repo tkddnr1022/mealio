@@ -19,21 +19,18 @@ describe('createObservabilityConfig', () => {
   it('should return metrics-disabled config when METRICS_ENABLED=false', () => {
     process.env.METRICS_ENABLED = 'false';
 
-    const config = createObservabilityConfig('producer', {
-      requireMetricsPort: false,
-    });
+    const config = createObservabilityConfig('producer');
 
     expect(config.metricsEnabled).toBe(false);
     expect(config.slowQueryThresholdMs).toBeUndefined();
+    expect(config.metricsPort).toBeUndefined();
   });
 
   it('should read SENTRY_DSN_PRODUCER for producer', () => {
     process.env.METRICS_ENABLED = 'false';
     process.env.SENTRY_DSN_PRODUCER = 'https://example@o0.ingest.sentry.io/1';
 
-    const config = createObservabilityConfig('producer', {
-      requireMetricsPort: false,
-    });
+    const config = createObservabilityConfig('producer');
 
     expect(config.sentryDsn).toBe('https://example@o0.ingest.sentry.io/1');
   });
@@ -42,34 +39,35 @@ describe('createObservabilityConfig', () => {
     process.env.METRICS_ENABLED = 'false';
     process.env.SENTRY_DSN_CONSUMER = 'https://example@o0.ingest.sentry.io/2';
 
-    const config = createObservabilityConfig('consumer', {
-      requireMetricsPort: false,
-    });
+    const config = createObservabilityConfig('consumer');
 
     expect(config.sentryDsn).toBe('https://example@o0.ingest.sentry.io/2');
   });
 
-  it('should parse producer observability vars when METRICS_ENABLED=true', () => {
+  it.each([
+    ['producer', '9100'],
+    ['consumer', '9101'],
+  ] as const)(
+    'should parse %s observability vars when METRICS_ENABLED=true',
+    (serviceName, metricsPort) => {
+      process.env.METRICS_ENABLED = 'true';
+      process.env.METRICS_PORT = metricsPort;
+
+      const config = createObservabilityConfig(serviceName);
+
+      expect(config.metricsEnabled).toBe(true);
+      expect(config.slowQueryThresholdMs).toBe(SLOW_QUERY_THRESHOLD_MS);
+      expect(config.metricsPort).toBe(Number(metricsPort));
+    },
+  );
+
+  it('should throw when METRICS_PORT is missing and METRICS_ENABLED=true', () => {
     process.env.METRICS_ENABLED = 'true';
+    delete process.env.METRICS_PORT;
 
-    const config = createObservabilityConfig('producer', {
-      requireMetricsPort: false,
-    });
-
-    expect(config.metricsEnabled).toBe(true);
-    expect(config.slowQueryThresholdMs).toBe(SLOW_QUERY_THRESHOLD_MS);
-    expect(config.metricsPort).toBeUndefined();
-  });
-
-  it('should require METRICS_PORT for consumer when METRICS_ENABLED=true', () => {
-    process.env.METRICS_ENABLED = 'true';
-    process.env.METRICS_PORT = '9091';
-
-    const config = createObservabilityConfig('consumer', {
-      requireMetricsPort: true,
-    });
-
-    expect(config.metricsPort).toBe(9091);
+    expect(() => createObservabilityConfig('producer')).toThrow(
+      'METRICS_PORT is required',
+    );
   });
 
   it('should throw when METRICS_ENABLED is missing', () => {

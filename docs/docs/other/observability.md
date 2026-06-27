@@ -73,7 +73,7 @@ GA4는 UI 퍼널, EventLog는 도메인 확정·추천·KPI 원본의 단일 근
 
 운영 메트릭(Prometheus)과 제품 이벤트(EventLog·GA4)는 **수집 경로를 분리**합니다.
 
-always-on Consumer는 `METRICS_PORT` `/metrics`로 scrape하고, recipe-ingestion **CLI** batch job은 종료 직전 Pushgateway로 push합니다 (`PUSHGATEWAY_URL` 설정 시). Prometheus는 Pushgateway를 함께 scrape합니다.
+always-on Producer·Consumer는 각각 `METRICS_PORT` `/metrics`로 scrape하고, recipe-ingestion **CLI** batch job은 종료 직전 Pushgateway로 push합니다 (`PUSHGATEWAY_URL` 설정 시). Prometheus는 Pushgateway를 함께 scrape합니다.
 
 ## Correlation-Id
 

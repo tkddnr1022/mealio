@@ -52,6 +52,7 @@ cp .env.docker.example .env.docker.local      # Docker Compose
 | `SENTRY_ENABLED` | Sentry 활성화 | `false` |
 | `SENTRY_DSN_PRODUCER` | Producer Sentry DSN | (비움) |
 | `METRICS_ENABLED` | Prometheus 메트릭 노출 | `true` |
+| `METRICS_PORT` | 메트릭 HTTP 포트, `METRICS_ENABLED=true` 시 필수 | `9100` |
 
 ## 사용 방법
 

@@ -6,9 +6,7 @@ import { AppModule } from './app.module';
 async function bootstrap(): Promise<void> {
   const BootstrapLogger = new Logger('ConsumerBootstrap');
   const ObservabilityLogger = new Logger('Observability');
-  const observability = createObservabilityConfig('consumer', {
-    requireMetricsPort: true,
-  });
+  const observability = createObservabilityConfig('consumer');
   initSentry({ config: observability });
 
   // HTTP 서버 없이 DI 컨테이너만 구동하는 워커 모드

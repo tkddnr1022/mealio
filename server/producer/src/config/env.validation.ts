@@ -87,7 +87,6 @@ export const envValidationSchema = Joi.object({
 
   ...buildObservabilityEnvRules({
     serviceName: 'producer',
-    requireMetricsPort: false,
   }),
 });
 

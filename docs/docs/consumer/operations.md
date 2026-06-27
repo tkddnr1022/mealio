@@ -14,7 +14,7 @@
 | Sentry | `SENTRY_DSN_CONSUMER` |
 | 로그 | `correlationId`, topic, partition |
 
-메트릭은 `METRICS_PORT`(기본 9100)에서 수집합니다.
+메트릭은 `METRICS_PORT`(기본 9101)에서 수집합니다.
 
 ## 주요 알림·대응
 

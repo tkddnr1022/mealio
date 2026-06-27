@@ -95,7 +95,7 @@ Grafana PostgreSQL view는 `prisma migrate deploy`로 적용한다 (`20260628000
 | 항목 | 내용 |
 | --- | --- |
 | 설명 | Prometheus UI 포트·producer·consumer `/metrics` 포트 |
-| 예시 | `9090` / `3000` / `9100` |
+| 예시 | `9090` / `9100` / `9101` |
 | Compose | `compose-monitoring.yml` |
 | 패턴 | `PROMETHEUS_TARGETS_MODE=host`일 때 producer·consumer는 호스트에서 해당 포트로 노출 |
 

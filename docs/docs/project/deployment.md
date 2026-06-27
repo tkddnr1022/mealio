@@ -52,8 +52,7 @@
 
 ### Prometheus / Grafana / Pushgateway
 
-- producer는 `PORT`와 동일 포트에서 `/metrics`를 노출합니다 (`METRICS_ENABLED=true`).
-- consumer는 별도 `METRICS_PORT`에서 `/metrics`를 노출합니다.
+- producer·consumer는 별도 `METRICS_PORT`에서 `/metrics`를 노출합니다 (`METRICS_ENABLED=true`).
 - recipe-ingestion CLI batch job은 `PUSHGATEWAY_URL`로 Pushgateway에 메트릭을 push합니다.
 - `PROMETHEUS_TARGETS_MODE`를 `host`(호스트 기동) 또는 `compose`(컨테이너 기동)로 구분합니다.
 

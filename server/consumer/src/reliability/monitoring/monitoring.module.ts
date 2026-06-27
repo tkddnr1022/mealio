@@ -14,8 +14,7 @@ import { MetricsExporterService } from './metrics-exporter.service';
   providers: [
     {
       provide: OBSERVABILITY_CONFIG,
-      useFactory: () =>
-        createObservabilityConfig('consumer', { requireMetricsPort: true }),
+      useFactory: () => createObservabilityConfig('consumer'),
     },
     ConsumerMetricsService,
     ConsumerLagMonitor,

@@ -153,7 +153,7 @@
 | **server/producer/src/optimization/monitoring/** | |
 | server/producer/src/optimization/monitoring/monitoring.module.ts | 모니터링 통합 모듈 (Sentry·메트릭·예외필터 묶음) |
 | server/producer/src/optimization/monitoring/metrics.service.ts | Prometheus 메트릭 |
-| server/producer/src/optimization/monitoring/metrics.controller.ts | GET /metrics 엔드포인트 |
+| server/producer/src/optimization/monitoring/metrics-exporter.service.ts | GET /metrics (METRICS_PORT) |
 | server/producer/src/optimization/monitoring/http-metrics.middleware.ts | HTTP 요청/응답 메트릭 미들웨어 (duration·status) |
 | server/producer/src/optimization/monitoring/slow-query.interceptor.ts | 느린 쿼리 로깅 |
 | server/producer/src/optimization/monitoring/global-exception.filter.ts | 전역 예외 필터 (미처리 에러 Sentry 전송·JSON 응답) |

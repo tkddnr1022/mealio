@@ -12,9 +12,7 @@ import { AppModule } from './app.module';
 import { createSwaggerConfig } from './config/swagger.config';
 
 async function bootstrap() {
-  const observability = createObservabilityConfig('producer', {
-    requireMetricsPort: false,
-  });
+  const observability = createObservabilityConfig('producer');
   initSentry({
     config: observability,
     integrations: [httpIntegration()],
