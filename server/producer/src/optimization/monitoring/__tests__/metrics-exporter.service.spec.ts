@@ -1,7 +1,7 @@
 import type { Server } from 'node:http';
 import type { ObservabilityConfig } from '@mealio/shared';
 import { MetricsExporterService } from '../metrics-exporter.service';
-import { MetricsService, OBSERVABILITY_CONFIG } from '../metrics.service';
+import { MetricsService } from '../metrics.service';
 
 jest.mock('node:http', () => ({
   createServer: jest.fn(),
@@ -73,7 +73,7 @@ describe('MetricsExporterService', () => {
       end: jest.fn(),
     };
 
-    await requestHandler({ url: '/metrics' }, res);
+    requestHandler({ url: '/metrics' }, res);
 
     await new Promise((resolve) => setImmediate(resolve));
 
