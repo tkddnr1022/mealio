@@ -110,7 +110,8 @@ Vercel 배포 시 `Client`는 EC2 외부(Vercel 엣지)에 위치하고 API만 N
 ### Security Group
 
 - Inbound 허용: `80`, `443`, `22`(관리 IP만)
-- 앱·Kafka·메트릭 포트(`PORT`, `9092`, `9090` 등)는 **외부 미노출**, Nginx 또는 localhost 바인딩
+- Compose 포트 매핑은 호스트의 모든 인터페이스(`0.0.0.0`)에 바인딩되며, 외부 노출 여부는 Security Group으로 제어
+- 앱·Kafka·메트릭 포트(`PORT`, `9092`, `9090` 등)는 SG에서 **외부 미노출**을 기본으로 하고, 공개가 필요한 서비스만 Nginx(80/443) 또는 허용 포트로 라우팅
 - Atlas / Neon / Upstash는 각 콘솔에서 EC2 egress IP allowlist 또는 공개 엔드포인트 + 자격 증명으로 접근
 
 ### Grafana 접근

@@ -15,7 +15,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
     ports:
-      - "127.0.0.1:${PORT:?PORT is required}:${PORT:?PORT is required}"
+      - "${PORT:?PORT is required}:${PORT:?PORT is required}"
     environment:
       APP_ENV: ${APP_ENV:?APP_ENV is required}
       METRICS_ENABLED: ${METRICS_ENABLED:?METRICS_ENABLED is required}

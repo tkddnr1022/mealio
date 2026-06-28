@@ -13,7 +13,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
     ports:
-      - "127.0.0.1:${KAFKA_UI_PORT:?KAFKA_UI_PORT is required}:8080"
+      - "${KAFKA_UI_PORT:?KAFKA_UI_PORT is required}:8080"
     environment:
       DYNAMIC_CONFIG_ENABLED: "true"
       KAFKA_CLUSTERS_0_NAME: ${KAFKA_UI_CLUSTER_NAME:?KAFKA_UI_CLUSTER_NAME is required}
