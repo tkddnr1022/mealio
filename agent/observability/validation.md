@@ -16,6 +16,7 @@
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Client `.env` | 설정 | 비워도 됨 |
 | `METRICS_ENABLED` | Producer `.env`, Consumer `.env` | `true` | `true` |
 | `METRICS_PORT` | Producer `.env`, Consumer `.env` | 설정 (`METRICS_ENABLED=true` 시) | Producer 예: `9100`, Consumer 예: `9101` |
+| `SLOW_QUERY_THRESHOLD_MS` | Producer `.env`, Consumer `.env` | 설정 (`METRICS_ENABLED=true` 시) | 예: `500` |
 | `PUSHGATEWAY_URL` | Consumer `.env` | CLI ingestion 메트릭 push 시 설정 | 예: `http://localhost:9091` (호스트), `http://pushgateway:9091` (Compose) |
 | `PUSHGATEWAY_PORT` | 루트 `.env.docker` | Compose Pushgateway 호스트 포트 | 예: `9091` |
 | `SLACK_OPS_WEBHOOK_URL` | Grafana / alerting | 설정 | 선택 |

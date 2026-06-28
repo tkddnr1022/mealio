@@ -2,7 +2,6 @@ import {
   createObservabilityConfig,
   isMetricsEnabledFromEnv,
   resolveBackendSentryEnabled,
-  SLOW_QUERY_THRESHOLD_MS,
 } from '@mealio/shared';
 
 describe('createObservabilityConfig', () => {
@@ -52,14 +51,45 @@ describe('createObservabilityConfig', () => {
     (serviceName, metricsPort) => {
       process.env.METRICS_ENABLED = 'true';
       process.env.METRICS_PORT = metricsPort;
+      process.env.SLOW_QUERY_THRESHOLD_MS = '500';
 
       const config = createObservabilityConfig(serviceName);
 
       expect(config.metricsEnabled).toBe(true);
-      expect(config.slowQueryThresholdMs).toBe(SLOW_QUERY_THRESHOLD_MS);
+      expect(config.slowQueryThresholdMs).toBe(500);
       expect(config.metricsPort).toBe(Number(metricsPort));
     },
   );
+
+  it('should read SLOW_QUERY_THRESHOLD_MS from env when METRICS_ENABLED=true', () => {
+    process.env.METRICS_ENABLED = 'true';
+    process.env.METRICS_PORT = '9100';
+    process.env.SLOW_QUERY_THRESHOLD_MS = '750';
+
+    const config = createObservabilityConfig('producer');
+
+    expect(config.slowQueryThresholdMs).toBe(750);
+  });
+
+  it('should throw when SLOW_QUERY_THRESHOLD_MS is missing and METRICS_ENABLED=true', () => {
+    process.env.METRICS_ENABLED = 'true';
+    process.env.METRICS_PORT = '9100';
+    delete process.env.SLOW_QUERY_THRESHOLD_MS;
+
+    expect(() => createObservabilityConfig('producer')).toThrow(
+      'SLOW_QUERY_THRESHOLD_MS is required',
+    );
+  });
+
+  it('should throw when SLOW_QUERY_THRESHOLD_MS is invalid and METRICS_ENABLED=true', () => {
+    process.env.METRICS_ENABLED = 'true';
+    process.env.METRICS_PORT = '9100';
+    process.env.SLOW_QUERY_THRESHOLD_MS = '0';
+
+    expect(() => createObservabilityConfig('producer')).toThrow(
+      'SLOW_QUERY_THRESHOLD_MS must be a positive integer',
+    );
+  });
 
   it('should throw when METRICS_PORT is missing and METRICS_ENABLED=true', () => {
     process.env.METRICS_ENABLED = 'true';

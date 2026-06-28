@@ -68,7 +68,7 @@ PromQL·대시보드: `observability/grafana/provisioning/dashboards/json/` (`me
 | `ALERT_CHATBOT_LAG` > 50 | 실시간 대화 UX. core topic보다 낮은 임계치 |
 | `ALERT_CHATBOT_PROCESSING_P95` > 30s | SSE·LLM 체감 한계 |
 | `ALERT_CACHE_INVALIDATION_LAG` > 500 | 비동기 토픽. 누적 시 Producer 캐시 stale |
-| `ALERT_DB_SLOW_QUERY_SPIKE` > 0.1/s | 500ms 초과 쿼리 급증 (policy `SLOW_QUERY_THRESHOLD_MS`) |
+| `ALERT_DB_SLOW_QUERY_SPIKE` > 0.1/s | `SLOW_QUERY_THRESHOLD_MS` env 초과 쿼리 급증 |
 | `ALERT_EVENT_LOOP_LAG` > 250ms | Node 블로킹 조기 감지 |
 | `ALERT_MEMORY_HIGH` > 90% | OOM 전조 |
 | `ALERT_RECO_LATENCY` > 5000ms | UX 체감 한계(5s). `user-events` histogram은 EventLog E2E proxy |

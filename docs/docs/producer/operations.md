@@ -33,7 +33,7 @@
 | --- | --- |
 | 401 급증 | refresh 세션·쿠키 도메인, OAuth callback URL |
 | 429 급증 | rate limit 정책, Redis 연결 |
-| API 느림 | Redis hit rate, Prisma slow query (`SLOW_QUERY_THRESHOLD_MS` policy, 기본 500ms) |
+| API 느림 | Redis hit rate, Prisma slow query (`SLOW_QUERY_THRESHOLD_MS`) |
 | Kafka 발행 실패 | broker 연결, 토픽 존재 여부 |
 
 ## 배포·환경

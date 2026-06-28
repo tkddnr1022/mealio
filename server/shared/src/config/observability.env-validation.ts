@@ -42,6 +42,19 @@ export function buildObservabilityEnvRules(
       }),
       otherwise: Joi.optional(),
     }),
+    SLOW_QUERY_THRESHOLD_MS: Joi.when('METRICS_ENABLED', {
+      is: metricsEnabledOn,
+      then: Joi.string()
+        .pattern(/^[1-9]\d*$/)
+        .required()
+        .messages({
+          'any.required':
+            'SLOW_QUERY_THRESHOLD_MS is required when METRICS_ENABLED=true',
+          'string.pattern.base':
+            'SLOW_QUERY_THRESHOLD_MS must be a positive integer',
+        }),
+      otherwise: Joi.optional(),
+    }),
   };
 
   return rules;
