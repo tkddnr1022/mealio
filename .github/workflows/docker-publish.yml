@@ -28,10 +28,15 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
 
+      # paths-filter passes base/ref to `git fetch`; `sha^` is invalid as a refspec.
+      - name: Resolve parent commit
+        id: base
+        run: echo "sha=$(git rev-parse HEAD^)" >> "$GITHUB_OUTPUT"
+
       - uses: dorny/paths-filter@v3
         id: filter
         with:
-          base: ${{ github.event.workflow_run.head_sha }}^
+          base: ${{ steps.base.outputs.sha }}
           ref: ${{ github.event.workflow_run.head_sha }}
           filters: |
             server:
