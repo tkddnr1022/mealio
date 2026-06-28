@@ -38,6 +38,17 @@ cp server/shared/.env.example server/shared/.env.local
 | 사용처 | `server/shared/.../seed.ts`, `MongooseSchemasModule`(producer·consumer 런타임) |
 | 패턴 | [인프라 env](../project/infrastructure-environment-variables) `MONGO_*`와 자격 증명 일치 |
 
+### `KAFKA_BROKERS` / `KAFKA_CLIENT_ID`
+
+| 항목 | 내용 |
+| --- | --- |
+| 설명 | Kafka 브로커 목록·클라이언트 ID (토픽 생성 CLI) |
+| 예시 (호스트) | `localhost:9092`, `mealio-kafka-admin` |
+| 사용처 | `server/shared/src/kafka/create-topics.ts` |
+| 패턴 | [인프라 env](../project/infrastructure-environment-variables) `KAFKA_EXTERNAL_HOST`·`KAFKA_EXTERNAL_PORT`와 일치. EC2 호스트 배포 시 published 포트(예: `localhost:9092`) 사용 |
+
+`KAFKA_TOPIC_PARTITIONS`, `KAFKA_TOPIC_REPLICATION_FACTOR`는 선택 값입니다.
+
 ## 사용 명령
 
 ```bash
@@ -46,6 +57,7 @@ pnpm run db:prisma:migrate:dev
 pnpm run db:prisma:seed    # POSTGRESQL_URL
 pnpm run db:mongoose:seed  # MONGODB_URL
 pnpm run db:mongoose:sync-indexes  # MONGODB_URL — 스키마 인덱스 동기화
+pnpm run db:kafka:create-topics  # KAFKA_BROKERS — Kafka 토픽 생성
 ```
 
 ## 관측성 (런타임 — producer·consumer env)

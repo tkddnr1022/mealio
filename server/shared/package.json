@@ -24,8 +24,6 @@
     "mongoose:seed": "ts-node src/database/mongoose/seed.ts",
     "mongoose:sync-indexes": "ts-node src/database/mongoose/sync-indexes.ts",
     "kafka:create-topics": "ts-node src/kafka/create-topics.ts",
-    "kafka:create-topics:local": "ts-node src/kafka/create-topics.ts --env-file ../producer/.env.local",
-    "kafka:create-topics:production": "ts-node src/kafka/create-topics.ts --env-file ../producer/.env.docker.local --docker",
     "clean": "rimraf dist src/database/prisma/generated"
   },
   "dependencies": {

@@ -71,9 +71,9 @@
     "db:mongoose:sync-indexes": "cross-env APP_ENV=local pnpm --filter @mealio/shared run mongoose:sync-indexes",
     "db:mongoose:sync-indexes:development": "cross-env APP_ENV=development pnpm --filter @mealio/shared run mongoose:sync-indexes",
     "db:mongoose:sync-indexes:production": "cross-env APP_ENV=production pnpm --filter @mealio/shared run mongoose:sync-indexes",
-    "db:kafka:create-topics": "cross-env APP_ENV=local pnpm --filter @mealio/shared run kafka:create-topics:local",
-    "db:kafka:create-topics:development": "cross-env APP_ENV=development pnpm --filter @mealio/shared run kafka:create-topics:development",
-    "db:kafka:create-topics:production": "cross-env APP_ENV=production pnpm --filter @mealio/shared run kafka:create-topics:production"
+    "db:kafka:create-topics": "cross-env APP_ENV=local pnpm --filter @mealio/shared run kafka:create-topics",
+    "db:kafka:create-topics:development": "cross-env APP_ENV=development pnpm --filter @mealio/shared run kafka:create-topics",
+    "db:kafka:create-topics:production": "cross-env APP_ENV=production pnpm --filter @mealio/shared run kafka:create-topics"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",

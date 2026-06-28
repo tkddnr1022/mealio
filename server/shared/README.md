@@ -37,6 +37,8 @@ cp .env.example .env.local
 | --- | --- | --- |
 | `POSTGRESQL_URL` | PostgreSQL 연결 URL (Prisma) | `postgresql://devuser:devpassword@localhost:5432/devdb` |
 | `MONGODB_URL` | MongoDB 연결 URL (Mongoose 시드) | `mongodb://devuser:devpassword@localhost:27017/devdb?authSource=admin` |
+| `KAFKA_BROKERS` | Kafka 브로커 목록 (토픽 생성 CLI) | `localhost:9092` |
+| `KAFKA_CLIENT_ID` | Kafka 클라이언트 ID (토픽 생성 CLI) | `mealio-kafka-admin` |
 
 ## 사용 방법
 

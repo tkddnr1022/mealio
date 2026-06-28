@@ -73,6 +73,7 @@ cp .env.docker.example .env.docker.local
 
 # 호스트에서 앱 실행용
 cp client/.env.example client/.env.local
+cp server/shared/.env.example server/shared/.env.local
 cp server/producer/.env.example server/producer/.env.local
 cp server/consumer/.env.example server/consumer/.env.local
 

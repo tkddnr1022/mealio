@@ -170,6 +170,7 @@ cp server/consumer/.env.docker.example server/consumer/.env.docker
 | `client/.env` | 호스트에서 `pnpm run start:client` 실행 시. 템플릿: `cp client/.env.example client/.env` |
 | `server/producer/.env` | 호스트에서 `pnpm run start:producer` 실행 시. 템플릿: `cp server/producer/.env.example server/producer/.env` |
 | `server/consumer/.env` | 호스트에서 `pnpm run start:consumer` 실행 시. 템플릿: `cp server/consumer/.env.example server/consumer/.env` |
+| `server/shared/.env.local` | Prisma·Mongoose·Kafka 토픽 CLI(`db:*`). 템플릿: `cp server/shared/.env.example server/shared/.env.local` |
 | `client/.env.docker` | `compose-client` 기동 시 client 컨테이너 env. 템플릿: `cp client/.env.docker.example client/.env.docker` |
 | `server/producer/.env.docker` | `compose-producer` 컨테이너 env. 템플릿: `cp server/producer/.env.docker.example server/producer/.env.docker` |
 | `server/consumer/.env.docker` | `compose-consumer` 컨테이너 env. 템플릿: `cp server/consumer/.env.docker.example server/consumer/.env.docker` |
@@ -220,7 +221,7 @@ pnpm run db:mongoose:sync-indexes:production
 pnpm run db:kafka:create-topics:production
 ```
 
-`db:kafka:create-topics:production`은 EC2에서 `compose-kafka` 기동 후·`compose-producer`/`compose-consumer` 기동 전에 실행한다. Docker Kafka(`mealio-kafka`)에 `--docker` 모드로 메인·DLQ 토픽 14개를 생성한다. 브로커에 직접 접속할 때는 `pnpm run db:kafka:create-topics:production -- --env-file server/producer/.env.docker`처럼 `--docker` 없이 `KAFKA_BROKERS`로 실행한다.
+`db:kafka:create-topics:production`은 EC2에서 `compose-kafka` 기동 후·`compose-producer`/`compose-consumer` 기동 전에 실행한다. KafkaJS Admin API로 메인·DLQ 토픽 14개를 생성한다. env는 `server/shared/.env.production.local`(또는 `.env.local`)을 사용한다. EC2 **호스트**에서 실행할 때는 `KAFKA_BROKERS`를 published 포트 기준(예: `localhost:9092`)으로 맞춘다. 앱 Compose용 `kafka:19092`와 다를 수 있다.
 
 앱 (인프라 Compose가 선행되어야 `mealio-net`에 Kafka 등이 준비됨):
 

@@ -36,6 +36,7 @@ cp .env.docker.example .env.docker.local
 
 # 호스트에서 앱 실행용
 cp client/.env.example client/.env.local
+cp server/shared/.env.example server/shared/.env.local
 cp server/producer/.env.example server/producer/.env.local
 cp server/consumer/.env.example server/consumer/.env.local
 ```
@@ -43,6 +44,7 @@ cp server/consumer/.env.example server/consumer/.env.local
 | 파일 | 용도 |
 | --- | --- |
 | `.env.docker.local` | MongoDB·PostgreSQL·Redis·Kafka·Prometheus·Grafana |
+| `server/shared/.env.local` | Prisma·Mongoose·Kafka 토픽 CLI (`db:*`) |
 | `client/.env.local` | Next.js API URL, OAuth 콜백 경로 등 |
 | `server/producer/.env.local` | DB URL, Redis, Kafka, JWT, OAuth 클라이언트 |
 | `server/consumer/.env.local` | DB URL, Redis, Kafka, OpenAI 등 |

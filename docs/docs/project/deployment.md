@@ -103,6 +103,7 @@
 | `client/.env.local` | 호스트 client |
 | `server/producer/.env.local` | 호스트 producer |
 | `server/consumer/.env.local` | 호스트 consumer |
+| `server/shared/.env.local` | Prisma·Mongoose·Kafka 토픽 CLI (`db:*`) |
 | `*.env.docker.local` | Docker로 앱 기동 시 |
 
 변수별 사용처·예시·환경별 패턴은 [환경 변수](./getting-started#2-환경-변수-준비)와 패키지별 문서를 참고하세요.
