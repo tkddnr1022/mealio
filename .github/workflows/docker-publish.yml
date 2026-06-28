@@ -1,6 +1,7 @@
 name: Docker Publish
 
 # Runs after CI succeeds on main/master, or manually via workflow_dispatch.
+# Pushes multi-arch manifest lists (linux/amd64, linux/arm64) for Intel/AMD and Graviton EC2.
 # Required repository secrets:
 #   DOCKERHUB_USERNAME — Docker Hub account name
 #   DOCKERHUB_TOKEN    — Docker Hub access token (Settings → Security → Access Tokens)
@@ -96,6 +97,7 @@ jobs:
         with:
           context: .
           file: ${{ matrix.dockerfile }}
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
