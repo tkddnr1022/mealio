@@ -1,7 +1,8 @@
 import type { HTMLAttributes, ReactNode } from 'react';
+import { buildAriaLabel } from '@/lib/utils/a11y';
 import { cn } from '@/lib/utils/cn';
-import { Button } from '@/components/ui/Button';
 import { IconShell } from '@/components/ui/IconShell';
+import { NavLink } from '@/components/ui/NavLink';
 
 export interface InfoScreenProps extends Omit<
   HTMLAttributes<HTMLElement>,
@@ -59,13 +60,18 @@ export function InfoScreen({
       ) : null}
       <p className="typo-body-regular style-text-secondary">{message}</p>
       {showButton ? (
-        <Button
+        <NavLink
           href={buttonHref}
-          variant="primary"
-          size="large"
-          label={buttonLabel}
-          className="w-auto self-center"
-        />
+          className={cn(
+            'inline-flex w-auto items-center justify-center self-center rounded-full px-4 py-3 no-underline outline-none transition-colors typo-label-button',
+            'bg-primary-default style-text-button-primary hover:bg-primary-hover',
+            'focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default',
+          )}
+          aria-label={buildAriaLabel('link', buttonLabel?.trim() ?? '')}
+          replace
+        >
+          {buttonLabel}
+        </NavLink>
       ) : null}
     </section>
   );
