@@ -20,15 +20,13 @@
 
 |---|------|------|------|
 
-| 4 | `client/src/app/(auth)/login/LoginClientPage.tsx:44` | **OAuth 로그인 직전 외부 링크에서 `router.back()` 대응** | 뒤로가기가 OAuth provider로 돌아가는 엣지 케이스 |
+| 4 | `server/producer/src/modules/inventory/inventory.service.ts:271` | **인벤토리 캐시 전략 검토** | Cache-Aside + Mongo 폴백 경로, 트래픽 증가 시 병목 |
 
-| 5 | `server/producer/src/modules/inventory/inventory.service.ts:271` | **인벤토리 캐시 전략 검토** | Cache-Aside + Mongo 폴백 경로, 트래픽 증가 시 병목 |
+| 5 | `server/producer/src/modules/recipes/recipes.service.ts:260` | **검색 API 조인 비용·Write Behind 캐시 정책 검토** | 짧은 TTL Cache-Aside로 조회 부담 큼 (주석에도 명시) |
 
-| 6 | `server/producer/src/modules/recipes/recipes.service.ts:260` | **검색 API 조인 비용·Write Behind 캐시 정책 검토** | 짧은 TTL Cache-Aside로 조회 부담 큼 (주석에도 명시) |
+| 6 | `server/producer/src/modules/users/users.service.ts:79` | **유저 조회 캐시 적용 검토** | 반복 조회 최적화 여지 |
 
-| 7 | `server/producer/src/modules/users/users.service.ts:79` | **유저 조회 캐시 적용 검토** | 반복 조회 최적화 여지 |
-
-| 8 | `server/shared/src/constants/cache-keys.ts:27` | **캐시 키 재사용 전략 수립** | 키 체계·무효화 범위 SSOT 부재 |
+| 7 | `server/shared/src/constants/cache-keys.ts:27` | **캐시 키 재사용 전략 수립** | 키 체계·무효화 범위 SSOT 부재 |
 
 ---
 
@@ -78,7 +76,7 @@
 
 |------|------|-----------|
 
-| **인증/OAuth** | 2 | refresh-bridge 오류 분기, 로그인 back |
+| **인증/OAuth** | 1 | refresh-bridge 오류 분기 |
 
 | **캐시** | 7 | 무효화 경로 미연결, 전략·키 SSOT, `@Cacheable` 미구현 |
 
@@ -112,7 +110,7 @@ flowchart TD
 
 1. **1스프린트**: P0 3건 (보안·데이터·캐시 stale)
 
-2. **2스프린트**: P1 인증/캐시 (#4-8)
+2. **2스프린트**: P1 캐시 (#4-7)
 
 3. **3스프린트**: P2 성능 (#11-14)
 

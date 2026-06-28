@@ -13,6 +13,7 @@ import {
 import { notifyApiError } from '@/lib/toast';
 import { ApiError } from '@/lib/api/error';
 import { notifyAuthSessionCleared } from '@/lib/auth/auth-session';
+import { HOME_PATH } from '@/lib/constants/routes.constants';
 
 function LoginPageContent() {
   const searchParams = useSearchParams();
@@ -43,8 +44,7 @@ function LoginPageContent() {
       <Navbar
         displayBackButton
         displayTitle={false}
-        // TODO: 이전 페이지가 외부 링크(OAuth 로그인)인 경우 대응
-        onBack={() => router.back()}
+        onBack={() => router.replace(HOME_PATH)}
       />
 
       <main className="flex min-h-0 flex-1 flex-col px-4 py-6">
