@@ -116,6 +116,14 @@ cp server/consumer/.env.docker.example server/consumer/.env.docker.local
 | `GRAFANA_POSTGRES_DATABASE` | Grafana PostgreSQL 데이터베이스명 | `devdb` |
 | `SLACK_OPS_WEBHOOK_URL` | 운영 Slack 웹훅 URL (`none`이면 비활성) | `none` |
 | `SLACK_PRODUCT_WEBHOOK_URL` | 제품 Slack 웹훅 URL (`none`이면 비활성) | `none` |
+| `MONGODB_MEMORY_LIMIT` | MongoDB 컨테이너 메모리 limit | `768M` |
+| `POSTGRES_MEMORY_LIMIT` | PostgreSQL 컨테이너 메모리 limit | `1G` |
+| `REDIS_MEMORY_LIMIT` | Redis 컨테이너 메모리 limit | `256M` |
+| `KAFKA_MEMORY_LIMIT` | Kafka 컨테이너 메모리 limit (`KAFKA_HEAP_OPTS` 256M보다 크게) | `768M` |
+| `KAFKA_UI_MEMORY_LIMIT` | Kafka UI 컨테이너 메모리 limit | `512M` |
+| `PUSHGATEWAY_MEMORY_LIMIT` | Pushgateway 컨테이너 메모리 limit | `128M` |
+| `PROMETHEUS_MEMORY_LIMIT` | Prometheus 컨테이너 메모리 limit | `512M` |
+| `GRAFANA_MEMORY_LIMIT` | Grafana 컨테이너 메모리 limit | `512M` |
 
 | 패키지 | README |
 | --- | --- |

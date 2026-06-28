@@ -129,6 +129,7 @@ OAuth **콜백 URL**은 producer의 `OAUTH_CALLBACK_BASE_URL`에서 설정합니
 | `VERCEL_URL` | Vercel이 주입하는 호스트(프로토콜 없음) | `env.vercelHost` |
 | `SENTRY_ORG` / `SENTRY_PROJECT` / `SENTRY_AUTH_TOKEN` | Sentry 소스맵 업로드 (CI·Vercel) | `client/next.config.ts` |
 | `CI` | CI 환경 플래그 | Sentry plugin silent 모드, ISR fetch 스킵 |
+| `MEMORY_LIMIT` | client 컨테이너 메모리 limit (`deploy.resources.limits.memory`) | `docker/compose-client.yml` |
 
 ## 관련 문서
 

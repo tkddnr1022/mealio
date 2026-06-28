@@ -158,6 +158,29 @@ Grafana PostgreSQL view는 `prisma migrate deploy`로 적용한다 (`20260628000
 | Compose | `compose-monitoring.yml` |
 | 패턴 | 실제 URL이 없으면 `none`으로 두어 provisioning 오류를 방지 |
 
+## 컨테이너 메모리 limit
+
+루트 `.env.docker.local`의 `*_MEMORY_LIMIT` 변수는 Compose `deploy.resources.limits.memory`에 매핑됩니다. 값은 Docker 단위(`512M`, `1G` 등)를 사용합니다.
+
+| 변수 | 기본값(예시) | Compose |
+| --- | --- | --- |
+| `MONGODB_MEMORY_LIMIT` | `768M` | `compose-database.yml` |
+| `POSTGRES_MEMORY_LIMIT` | `1G` | `compose-database.yml` |
+| `REDIS_MEMORY_LIMIT` | `256M` | `compose-database.yml` |
+| `KAFKA_MEMORY_LIMIT` | `768M` | `compose-kafka.yml` |
+| `KAFKA_UI_MEMORY_LIMIT` | `512M` | `compose-kafka-ui.yml` |
+| `PUSHGATEWAY_MEMORY_LIMIT` | `128M` | `compose-monitoring.yml` |
+| `PROMETHEUS_MEMORY_LIMIT` | `512M` | `compose-monitoring.yml` |
+| `GRAFANA_MEMORY_LIMIT` | `512M` | `compose-monitoring.yml` |
+
+앱 컨테이너 limit은 각 패키지 `.env.docker.local`에서 관리합니다.
+
+| 변수 | 패키지 env | 기본값(예시) | Compose |
+| --- | --- | --- | --- |
+| `MEMORY_LIMIT` | `server/producer/.env.docker.local` | `768M` | `compose-producer.yml` |
+| `MEMORY_LIMIT` | `server/consumer/.env.docker.local` | `1G` | `compose-consumer.yml` |
+| `MEMORY_LIMIT` | `client/.env.docker.local` | `512M` | `compose-client.yml` |
+
 ## 관련 문서
 
 - [로컬 개발/온보딩 — 환경 변수 준비](./getting-started#2-환경-변수-준비)

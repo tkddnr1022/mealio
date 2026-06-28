@@ -13,6 +13,10 @@ services:
     image: prom/pushgateway:v1.10.0
     container_name: mealio-pushgateway
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${PUSHGATEWAY_MEMORY_LIMIT:?PUSHGATEWAY_MEMORY_LIMIT is required}
     logging: *default-logging
     ports:
       - "${PUSHGATEWAY_PORT:?PUSHGATEWAY_PORT is required}:9091"
@@ -23,6 +27,10 @@ services:
     image: prom/prometheus:v3.2.1
     container_name: mealio-prometheus
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${PROMETHEUS_MEMORY_LIMIT:?PROMETHEUS_MEMORY_LIMIT is required}
     logging: *default-logging
     ports:
       - "${PROMETHEUS_PORT:?PROMETHEUS_PORT is required}:9090"
@@ -76,6 +84,10 @@ services:
     image: grafana/grafana:11.5.2
     container_name: mealio-grafana
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${GRAFANA_MEMORY_LIMIT:?GRAFANA_MEMORY_LIMIT is required}
     logging: *default-logging
     ports:
       - "${GRAFANA_PORT:?GRAFANA_PORT is required}:3030"

@@ -11,6 +11,10 @@ services:
     image: mongo:8.2.3
     container_name: mealio-mongodb
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${MONGODB_MEMORY_LIMIT:?MONGODB_MEMORY_LIMIT is required}
     logging: *default-logging
     ports:
       - "27017:27017"
@@ -32,6 +36,10 @@ services:
     image: pgvector/pgvector:pg18
     container_name: mealio-postgres
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${POSTGRES_MEMORY_LIMIT:?POSTGRES_MEMORY_LIMIT is required}
     logging: *default-logging
     ports:
       - "5432:5432"
@@ -58,6 +66,10 @@ services:
     image: redis:7.2-alpine
     container_name: mealio-redis
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${REDIS_MEMORY_LIMIT:?REDIS_MEMORY_LIMIT is required}
     logging: *default-logging
     ports:
       - "6379:6379"

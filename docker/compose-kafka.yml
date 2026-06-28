@@ -11,6 +11,10 @@ services:
     image: apache/kafka:3.9.1
     container_name: mealio-kafka
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${KAFKA_MEMORY_LIMIT:?KAFKA_MEMORY_LIMIT is required}
     logging: *default-logging
     ports:
       - "${KAFKA_EXTERNAL_PORT:?KAFKA_EXTERNAL_PORT is required}:9092"

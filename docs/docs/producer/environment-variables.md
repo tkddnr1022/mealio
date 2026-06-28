@@ -29,6 +29,14 @@ cp server/producer/.env.example server/producer/.env.local
 | 사용처 | `docker/compose-producer.yml` `services.producer.image` |
 | 패턴 | Compose가 `image` 태그를 해석하거나 Docker Hub에 Push |
 
+### `MEMORY_LIMIT`
+
+| 항목 | 내용 |
+| --- | --- |
+| 설명 | producer 컨테이너 메모리 limit (`deploy.resources.limits.memory`) |
+| 예시 | `768M` |
+| 사용처 | `docker/compose-producer.yml` |
+
 ## 공통
 
 ### `APP_ENV`

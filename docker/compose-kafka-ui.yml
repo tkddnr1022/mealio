@@ -11,6 +11,10 @@ services:
     image: provectuslabs/kafka-ui:latest
     container_name: mealio-kafka-ui
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${KAFKA_UI_MEMORY_LIMIT:?KAFKA_UI_MEMORY_LIMIT is required}
     logging: *default-logging
     ports:
       - "${KAFKA_UI_PORT:?KAFKA_UI_PORT is required}:8080"

@@ -29,6 +29,14 @@ cp server/consumer/.env.example server/consumer/.env.local
 | 사용처 | `docker/compose-consumer.yml` `services.consumer.image` |
 | 패턴 | Compose가 `image` 태그를 해석하거나 Docker Hub에 Push |
 
+### `MEMORY_LIMIT`
+
+| 항목 | 내용 |
+| --- | --- |
+| 설명 | consumer 컨테이너 메모리 limit (`deploy.resources.limits.memory`) |
+| 예시 | `1G` |
+| 사용처 | `docker/compose-consumer.yml` |
+
 ## 공통
 
 ### `APP_ENV`
