@@ -33,6 +33,7 @@ cp .env.docker.example .env.docker.local      # Docker Compose
 
 | 변수 | 설명 | 기본값(예시) |
 | --- | --- | --- |
+| `DOCKERHUB_USERNAME` | Compose `image` 태그 접두사 | `local` |
 | `APP_ENV` | 실행 환경 (`package.json`/Compose에서 런타임 주입) | `local` |
 | `POSTGRESQL_URL` | PostgreSQL 연결 URL | `postgresql://devuser:devpassword@localhost:5432/devdb` |
 | `MONGODB_URL` | MongoDB 연결 URL | `mongodb://devuser:devpassword@localhost:27017/devdb?authSource=admin` |

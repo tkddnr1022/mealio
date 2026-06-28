@@ -8,6 +8,7 @@ x-logging: &default-logging
 
 services:
   producer:
+    image: ${DOCKERHUB_USERNAME:?DOCKERHUB_USERNAME is required}/mealio-producer:latest
     build:
       context: ..
       dockerfile: docker/Dockerfile.producer

@@ -8,6 +8,7 @@ x-logging: &default-logging
 
 services:
   consumer:
+    image: ${DOCKERHUB_USERNAME:?DOCKERHUB_USERNAME is required}/mealio-consumer:latest
     build:
       context: ..
       dockerfile: docker/Dockerfile.consumer

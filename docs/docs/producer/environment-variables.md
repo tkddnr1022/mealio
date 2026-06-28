@@ -18,6 +18,17 @@ cp server/producer/.env.example server/producer/.env.local
 
 `POSTGRESQL_URL`, `MONGODB_URL`, `REDIS_URL`, `KAFKA_BROKERS`는 [consumer 환경 변수](../consumer/environment-variables)와 **동일한 연결 정보**를 사용합니다. 호스트명만 환경에 맞게 바꿉니다.
 
+## Docker Compose
+
+### `DOCKERHUB_USERNAME`
+
+| 항목 | 내용 |
+| --- | --- |
+| 설명 | Docker Hub 계정명. Compose `image` 필드 `${DOCKERHUB_USERNAME}/mealio-producer:latest` 치환에 사용 |
+| 예시 | `your-dockerhub-username` |
+| 사용처 | `docker/compose-producer.yml` `services.producer.image` |
+| 패턴 | Compose가 `image` 태그를 해석하거나 Docker Hub에 Push |
+
 ## 공통
 
 ### `APP_ENV`

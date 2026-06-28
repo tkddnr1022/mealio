@@ -176,6 +176,8 @@ cp server/consumer/.env.docker.example server/consumer/.env.docker
 
 `compose-client`·`compose-producer`·`compose-consumer`는 Compose YAML에 env 파일 경로를 고정하지 않는다. 기동 시 `--env-file`로 각 패키지 `.env.docker`(앱)를 전달하면 `${VAR}` 치환·`environment`·빌드 arg에 반영된다. 인프라 Compose는 별도로 `--env-file .env.docker`를 사용한다.
 
+`compose-producer`·`compose-consumer`는 `image: ${DOCKERHUB_USERNAME}/mealio-producer:latest`(또는 `mealio-consumer`) 형식을 사용한다. `DOCKERHUB_USERNAME`은 각 패키지 `.env.docker`에 두고 `--env-file`로 전달한다. CI(`docker-publish` 워크플로)가 푸시하는 Docker Hub 이미지 이름과 동일한 접두사를 쓴다. 앱 부팅 Joi 검증 대상은 아니다.
+
 ### 개발 환경
 
 인프라 기동 (`README.md` Usage · Development):
@@ -415,7 +417,7 @@ EC2 Docker로 프론트를 같이 호스팅하면 Vercel 비용은 $0이지만, 
 - [ ] API·OAuth URL: `FRONTEND_APP_BASE_URL`, `OAUTH_CALLBACK_BASE_URL`, `NEXT_PUBLIC_API_BASE_URL`
 - [ ] EC2 + Nginx TLS, Security Group
 - [ ] Atlas / Neon / Upstash 프로젝트 생성, EC2 IP allowlist
-- [ ] 루트 `.env.docker`(인프라), 패키지 `.env.docker`: `MONGODB_URL`, `POSTGRESQL_URL`, `REDIS_URL`, `KAFKA_BROKERS`, 시크릿
+- [ ] 루트 `.env.docker`(인프라), 패키지 `.env.docker`: `MONGODB_URL`, `POSTGRESQL_URL`, `REDIS_URL`, `KAFKA_BROKERS`, `DOCKERHUB_USERNAME`(producer·consumer compose), 시크릿
 - [ ] `prisma migrate deploy` (Neon)
 - [ ] `compose-kafka` + `compose-monitoring` 기동 → `pnpm run db:kafka:create-topics:production` → `compose-producer`·`compose-consumer`·`compose-client` 기동
 - [ ] Prometheus·Pushgateway 타겟 UP, Grafana 대시보드·인증

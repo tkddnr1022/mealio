@@ -33,6 +33,7 @@ cp .env.docker.example .env.docker.local      # Docker Compose
 
 | 변수 | 설명 | 기본값(예시) |
 | --- | --- | --- |
+| `DOCKERHUB_USERNAME` | Compose `image` 태그 접두사 | `local` |
 | `APP_ENV` | 실행 환경 (`package.json`/Compose에서 런타임 주입) | `local` |
 | `PORT` | HTTP 서버 포트 | `3000` |
 | `JWT_SECRET` | JWT 서명 시크릿 (256비트 이상 권장) | `a-string-secret-at-least-256-bits-long` |

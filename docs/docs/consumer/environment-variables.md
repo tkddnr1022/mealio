@@ -18,6 +18,17 @@ cp server/consumer/.env.example server/consumer/.env.local
 
 `METRICS_ENABLED=true`이면 `METRICS_PORT`에서 별도로 `/metrics` 엔드포인트를 노출합니다.
 
+## Docker Compose
+
+### `DOCKERHUB_USERNAME`
+
+| 항목 | 내용 |
+| --- | --- |
+| 설명 | Docker Hub 계정명. Compose `image` 필드 `${DOCKERHUB_USERNAME}/mealio-consumer:latest` 치환에 사용 |
+| 예시 | `your-dockerhub-username` |
+| 사용처 | `docker/compose-consumer.yml` `services.consumer.image` |
+| 패턴 | Compose가 `image` 태그를 해석하거나 Docker Hub에 Push |
+
 ## 공통
 
 ### `APP_ENV`
