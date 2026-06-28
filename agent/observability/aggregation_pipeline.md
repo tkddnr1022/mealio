@@ -125,6 +125,8 @@ Grafana provisioning 경로: `observability/grafana/provisioning/dashboards/json
 
 MongoDB 플러그인은 `docker/compose-monitoring.yml`의 `GF_INSTALL_PLUGINS`(GitHub release zip)와 `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS`로 자동 설치한다. Grafana Labs 공식(엔터프라이즈) 플러그인 대신 커뮤니티 오픈소스 플러그인을 사용한다.
 
+`datasources/mongodb.yml`은 `GRAFANA_MONGODB_CONNECTION_SCHEME`(`mongodb` | `mongodb+srv`)로 연결 스킴을 선택한다. 로컬 Compose는 `mongodb` + `host:port`, Atlas는 `mongodb+srv` + 클러스터 호스트명만 설정한다.
+
 PostgreSQL 데이터소스는 **도메인 SSOT 스냅샷** 전용이다. view 정의는 Prisma 마이그레이션 `20260628000000_add_grafana_readonly_views`에 있다. 패널 refresh는 5m 이상을 권장한다.
 
 알림 임계치·장애 대응은 [product_kpi_runbook.md](./product_kpi_runbook.md)를 참조한다.

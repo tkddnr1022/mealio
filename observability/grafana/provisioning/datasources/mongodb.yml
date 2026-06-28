@@ -6,7 +6,7 @@ datasources:
     type: haohanyang-mongodb-datasource
     access: proxy
     jsonData:
-      connectionStringScheme: mongodb+srv
+      connectionStringScheme: $__env{GRAFANA_MONGODB_CONNECTION_SCHEME}
       host: $__env{GRAFANA_MONGODB_HOST}
       database: $__env{GRAFANA_MONGODB_DATABASE}
       authType: username-password

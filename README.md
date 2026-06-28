@@ -104,7 +104,8 @@ cp server/consumer/.env.docker.example server/consumer/.env.docker.local
 | `GRAFANA_PORT` | Grafana 포트 | `3030` |
 | `GRAFANA_ADMIN_USER` | Grafana 관리자 사용자명 | `admin` |
 | `GRAFANA_ADMIN_PASSWORD` | Grafana 관리자 비밀번호 | `admin` |
-| `GRAFANA_MONGODB_HOST` | Grafana MongoDB 데이터소스 호스트 | `mongodb:27017` |
+| `GRAFANA_MONGODB_CONNECTION_SCHEME` | Grafana MongoDB 연결 스킴 (`mongodb` 또는 `mongodb+srv`) | `mongodb` |
+| `GRAFANA_MONGODB_HOST` | Grafana MongoDB 데이터소스 호스트 (`mongodb`: `host:port`, `mongodb+srv`: 호스트명만) | `mongodb:27017` |
 | `GRAFANA_MONGODB_USER` | Grafana MongoDB 사용자명 | `devuser` |
 | `GRAFANA_MONGODB_PASSWORD` | Grafana MongoDB 비밀번호 | `devpassword` |
 | `GRAFANA_MONGODB_DATABASE` | Grafana MongoDB 데이터베이스명 | `devdb` |

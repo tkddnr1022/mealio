@@ -119,14 +119,26 @@ Grafana PostgreSQL view는 `prisma migrate deploy`로 적용한다 (`20260628000
 | 예시 | `3030` / `admin` / `admin` |
 | Compose | `compose-monitoring.yml` |
 
+### `GRAFANA_MONGODB_CONNECTION_SCHEME`
+
+| 항목 | 내용 |
+| --- | --- |
+| 설명 | Grafana MongoDB 데이터소스 연결 스킴 |
+| 허용 값 | `mongodb`(표준), `mongodb+srv`(Atlas 등 DNS seed list) |
+| 예시 (로컬) | `mongodb` |
+| 예시 (Atlas) | `mongodb+srv` |
+| Compose | `compose-monitoring.yml` (미설정 시 `mongodb`) |
+| 패턴 | `GRAFANA_MONGODB_HOST` 형식과 쌍으로 맞춤 — `mongodb`는 `host:port`, `mongodb+srv`는 호스트명만 |
+
 ### `GRAFANA_MONGODB_HOST` / `GRAFANA_MONGODB_USER` / `GRAFANA_MONGODB_PASSWORD` / `GRAFANA_MONGODB_DATABASE`
 
 | 항목 | 내용 |
 | --- | --- |
 | 설명 | Grafana MongoDB 데이터소스 접속 정보 |
-| 예시 | `mongodb:27017` / `devuser` / `devpassword` / `devdb` |
+| 예시 (로컬) | `mongodb:27017` / `devuser` / `devpassword` / `devdb` |
+| 예시 (Atlas) | `cluster0.xxxxx.mongodb.net` / Atlas 사용자 / 비밀번호 / DB명 |
 | Compose | `compose-monitoring.yml` |
-| 패턴 | Docker 네트워크 내부 호스트명(`mongodb`)과 `MONGO_*`·`POSTGRES_*` 계정과 일치 |
+| 패턴 | Docker 네트워크 내부 호스트명(`mongodb`)과 `MONGO_*`·`POSTGRES_*` 계정과 일치. Atlas는 `GRAFANA_MONGODB_CONNECTION_SCHEME=mongodb+srv`와 함께 설정 |
 
 ### `GRAFANA_POSTGRES_HOST` / `GRAFANA_POSTGRES_USER` / `GRAFANA_POSTGRES_PASSWORD` / `GRAFANA_POSTGRES_DATABASE`
 
