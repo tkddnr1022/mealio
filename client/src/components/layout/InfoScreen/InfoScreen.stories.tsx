@@ -1,6 +1,7 @@
 import { SearchX } from 'lucide-react';
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite';
 import { InfoScreen } from '@/components/layout/InfoScreen';
+import { HOME_PATH } from '@/lib/constants/routes.constants';
 
 const figmaFrame: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,22.5rem)] bg-background-primary">
@@ -22,7 +23,7 @@ const meta = {
     message: 'Message',
     showButton: true,
     buttonLabel: 'Label',
-    buttonHref: '/',
+    buttonHref: HOME_PATH,
   },
 } satisfies Meta<typeof InfoScreen>;
 

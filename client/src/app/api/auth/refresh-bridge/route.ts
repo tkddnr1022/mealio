@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { resolveApiBaseUrl } from '@/lib/config/env';
+import { HOME_PATH } from '@/lib/constants/routes.constants';
 import { NEXT_QUERY_PARAM, buildLoginUrl } from '@/lib/auth/routes';
 
 function resolveRefreshUrl(request: NextRequest): string {
@@ -13,8 +14,8 @@ function resolveRefreshUrl(request: NextRequest): string {
 }
 
 function sanitizeNextPath(raw: string | null): string {
-  if (!raw) return '/';
-  if (!raw.startsWith('/') || raw.startsWith('//')) return '/';
+  if (!raw) return HOME_PATH;
+  if (!raw.startsWith('/') || raw.startsWith('//')) return HOME_PATH;
   return raw;
 }
 

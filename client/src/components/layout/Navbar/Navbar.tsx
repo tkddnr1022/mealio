@@ -4,10 +4,8 @@ import { type ReactNode } from 'react';
 import { BackButton } from '@/components/ui/buttons/BackButton';
 import { NavLink } from '@/components/ui/NavLink';
 import { APP_BRAND_NAME } from '@/lib/constants/app.constants';
+import { HOME_PATH } from '@/lib/constants/routes.constants';
 import { cn } from '@/lib/utils/cn';
-
-/** 로고 탭 시 앱 메인(레시피 탭)으로 이동 — 루트 `/` 리다이렉트와 동일 */
-const NAVBAR_LOGO_HREF = '/recipe' as const;
 
 export interface NavbarProps {
   className?: string;
@@ -50,7 +48,7 @@ export function Navbar({
           {showTitle ? (
             <h1 className="typo-logo-small m-0 min-w-0 max-w-[min(100vw-8rem,28rem)] text-center">
               <NavLink
-                href={NAVBAR_LOGO_HREF}
+                href={HOME_PATH}
                 className="block truncate style-text-primary no-underline outline-none transition-colors focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default"
               >
                 {APP_BRAND_NAME}

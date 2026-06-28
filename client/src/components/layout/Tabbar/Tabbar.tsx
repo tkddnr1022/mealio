@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { NavLink } from '@/components/ui/NavLink';
 import { cn } from '@/lib/utils/cn';
+import { HOME_PATH } from '@/lib/constants/routes.constants';
 import { buildAriaLabel } from '@/lib/utils/a11y';
 
 /**
@@ -32,7 +33,7 @@ const TABS: readonly {
   label: string;
   Icon: LucideIcon;
 }[] = [
-  { id: 'recipe', href: '/recipe', label: '레시피', Icon: CookingPot },
+  { id: 'recipe', href: HOME_PATH, label: '레시피', Icon: CookingPot },
   { id: 'chatbot', href: '/chatbot/list', label: '챗봇', Icon: MessageCircle },
   {
     id: 'inventory',

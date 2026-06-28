@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Info } from 'lucide-react';
 
 import { InfoScreen } from '@/components/layout/InfoScreen';
+import { HOME_PATH } from '@/lib/constants/routes.constants';
 
 export const metadata: Metadata = {
   title: '페이지를 찾을 수 없어요',
@@ -24,7 +25,7 @@ export default function NotFound() {
             />
           }
           buttonLabel="홈으로 돌아가기"
-          buttonHref="/"
+          buttonHref={HOME_PATH}
         />
       </div>
     </main>

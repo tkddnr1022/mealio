@@ -3,6 +3,7 @@ import { type ComponentProps, useState } from 'react';
 import { fn } from 'storybook/test';
 
 import { Tabbar, type TabbarTabId } from '@/components/layout/Tabbar';
+import { HOME_PATH } from '@/lib/constants/routes.constants';
 
 const meta = {
   title: 'Layout/Tabbar',
@@ -14,7 +15,7 @@ const meta = {
     nextjs: {
       appDirectory: true,
       navigation: {
-        pathname: '/recipe',
+        pathname: HOME_PATH,
       },
     },
   },
@@ -59,7 +60,7 @@ export const ActiveRecipe = {
   args: { activeId: 'recipe' },
   parameters: {
     nextjs: {
-      navigation: { pathname: '/recipe' },
+      navigation: { pathname: HOME_PATH },
     },
   },
 } satisfies Story;

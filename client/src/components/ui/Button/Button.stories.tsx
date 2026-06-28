@@ -4,6 +4,7 @@ import {
   type ButtonVariant,
   Button,
 } from '@/components/ui/Button';
+import { HOME_PATH } from '@/lib/constants/routes.constants';
 
 const figmaWidth: Decorator = (Story) => (
   <div className="w-[min(100vw-2rem,26rem)]">
@@ -111,7 +112,7 @@ export const InternalNavPrimary = {
     variant: 'primary',
     size: 'large',
     label: '레시피 홈으로',
-    href: '/recipe',
+    href: HOME_PATH,
   },
 } satisfies Story;
 

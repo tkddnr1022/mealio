@@ -1,3 +1,5 @@
+import { HOME_PATH } from '@/lib/constants/routes.constants';
+
 /**
  * 인증 관련 라우트 상수·헬퍼.
  *
@@ -30,9 +32,6 @@ export const LOGIN_PATH = '/login';
 
 /** OAuth 성공 후 백엔드가 리다이렉트하는 콜백 경로(클라이언트 AuthStatus 마킹). */
 export const OAUTH_CALLBACK_PATH = '/oauth/callback';
-
-/** OAuth 성공 후 `next`가 없을 때 기본 목적지 (프론트 SSOT). */
-export const DEFAULT_POST_LOGIN_PATH = '/recipe';
 
 /** 로그인 후 복귀할 원래 경로를 담는 쿼리 파라미터 이름 */
 export const NEXT_QUERY_PARAM = 'next';
@@ -67,7 +66,7 @@ export function isProtectedPath(pathname: string): boolean {
  */
 export function resolveSafeNextPath(
   raw: string | null | undefined,
-  fallback: string = DEFAULT_POST_LOGIN_PATH,
+  fallback: string = HOME_PATH,
 ): string {
   if (!raw) return fallback;
   const trimmed = raw.trim();

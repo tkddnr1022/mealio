@@ -3,6 +3,7 @@ import { Geist_Mono, Noto_Sans_KR, Plus_Jakarta_Sans } from 'next/font/google';
 import type { ViewportMap } from 'storybook/viewport';
 
 import '../src/app/globals.css';
+import { HOME_PATH } from '../src/lib/constants/routes.constants';
 import React from 'react';
 
 /** agent/design/spec/design_tokens.json system.breakpoint 기준 (mobile-max 767, tablet 768-1023, desktop ≥1024) */
@@ -81,7 +82,7 @@ const preview: Preview = {
     nextjs: {
       appDirectory: true,
       navigation: {
-        pathname: '/recipe',
+        pathname: HOME_PATH,
       },
     },
   },

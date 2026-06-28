@@ -1,5 +1,6 @@
 import type { HTMLAttributes } from 'react';
 import { APP_BRAND_NAME } from '@/lib/constants/app.constants';
+import { HOME_PATH } from '@/lib/constants/routes.constants';
 import { cn } from '@/lib/utils/cn';
 import { NavLink } from '@/components/ui/NavLink';
 
@@ -27,7 +28,7 @@ export function LoginHeader({
       data-name="LoginHeader"
       {...rest}
     >
-      <NavLink href={'/recipe'} className="typo-logo-large style-text-primary">
+      <NavLink href={HOME_PATH} className="typo-logo-large style-text-primary">
         {title}
       </NavLink>
       <p className="typo-body-medium style-text-secondary">{subtitle}</p>

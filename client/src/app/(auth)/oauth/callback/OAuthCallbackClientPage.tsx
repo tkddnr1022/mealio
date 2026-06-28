@@ -5,11 +5,7 @@ import { Suspense, useEffect, useRef } from 'react';
 
 import { FullPageSuspenseFallback } from '@/components/layout/FullPageSuspenseFallback';
 import { useAuth } from '@/lib/auth/auth-context';
-import {
-  DEFAULT_POST_LOGIN_PATH,
-  NEXT_QUERY_PARAM,
-  resolveSafeNextPath,
-} from '@/lib/auth/routes';
+import { NEXT_QUERY_PARAM, resolveSafeNextPath } from '@/lib/auth/routes';
 
 function OAuthCallbackPageContent() {
   const searchParams = useSearchParams();
@@ -21,10 +17,7 @@ function OAuthCallbackPageContent() {
     if (handledRef.current) return;
     handledRef.current = true;
 
-    const nextPath = resolveSafeNextPath(
-      searchParams.get(NEXT_QUERY_PARAM),
-      DEFAULT_POST_LOGIN_PATH,
-    );
+    const nextPath = resolveSafeNextPath(searchParams.get(NEXT_QUERY_PARAM));
 
     void (async () => {
       await refresh();

@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
+import { HOME_PATH } from '@/lib/constants/routes.constants';
+
 import {
   buildLoginUrl,
   buildSsrRefreshBridgeUrl,
-  DEFAULT_POST_LOGIN_PATH,
   NEXT_QUERY_PARAM,
   resolveSafeNextPath,
   SESSION_EXPIRED_QUERY_PARAM,
@@ -26,8 +27,8 @@ describe('auth routes helpers', () => {
 
   it('resolveSafeNextPath rejects unsafe paths', () => {
     expect(resolveSafeNextPath('/mypage')).toBe('/mypage');
-    expect(resolveSafeNextPath('//evil')).toBe(DEFAULT_POST_LOGIN_PATH);
-    expect(resolveSafeNextPath(null)).toBe(DEFAULT_POST_LOGIN_PATH);
+    expect(resolveSafeNextPath('//evil')).toBe(HOME_PATH);
+    expect(resolveSafeNextPath(null)).toBe(HOME_PATH);
   });
 
   it('buildSsrRefreshBridgeUrl includes next and refreshed guard', () => {

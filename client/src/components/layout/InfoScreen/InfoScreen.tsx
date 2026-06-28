@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from 'react';
+import { HOME_PATH } from '@/lib/constants/routes.constants';
 import { buildAriaLabel } from '@/lib/utils/a11y';
 import { cn } from '@/lib/utils/cn';
 import { IconShell } from '@/components/ui/IconShell';
@@ -33,7 +34,7 @@ export function InfoScreen({
   icon,
   showButton = true,
   buttonLabel,
-  buttonHref = '/',
+  buttonHref = HOME_PATH,
   ...rest
 }: InfoScreenProps) {
   const headingId =

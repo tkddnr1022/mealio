@@ -208,7 +208,7 @@ OAuth는 **백엔드 주도** 흐름을 따른다(§3.1, `../../backend/guidelin
 |------|------|
 | **client/src/lib/auth/** | 인증 상태·세션·보호 라우트 |
 | client/src/lib/auth/providers.ts | OAuth Provider 식별자 상수(`google` \| `kakao` \| `naver`), 진입 URL 빌드(`buildOAuthEntryUrl`, 비어 있지 않은 `next`면 `?next=` — 검증은 백엔드) |
-| client/src/lib/auth/routes.ts | 보호 경로·`LOGIN_PATH`, `OAUTH_CALLBACK_PATH`, `DEFAULT_POST_LOGIN_PATH`, `NEXT_QUERY_PARAM`, `SESSION_EXPIRED_QUERY_PARAM`, `SSR_REFRESH_BRIDGE_PATH`, `SSR_REFRESH_GUARD_QUERY_PARAM`, `buildLoginUrl`, `buildSsrRefreshBridgeUrl`, `resolveSafeNextPath` |
+| client/src/lib/auth/routes.ts | 보호 경로·`LOGIN_PATH`, `OAUTH_CALLBACK_PATH`, `NEXT_QUERY_PARAM`, `SESSION_EXPIRED_QUERY_PARAM`, `SSR_REFRESH_BRIDGE_PATH`, `SSR_REFRESH_GUARD_QUERY_PARAM`, `buildLoginUrl`, `buildSsrRefreshBridgeUrl`, `resolveSafeNextPath` |
 | client/src/lib/auth/session.ts | access/refresh 쿠키 이름 re-export(`@/lib/constants/auth.constants`) 및 `fetchCurrentUser` re-export |
 | client/src/lib/auth/session.server.ts | `'server-only'`. `hasAuthCookie()`(refresh 쿠키 존재), `getServerSession()`(`GET /api/v1/users/me`, 401→`null`) |
 | client/src/lib/auth/session.client.ts | CSR 전용 세션 유틸. 클라이언트에서 현재 유저 조회·캐시 연동 |

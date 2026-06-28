@@ -40,7 +40,7 @@ export function isOAuthProvider(value: unknown): value is OAuthProvider {
  *
  * @example
  * window.location.assign(buildOAuthEntryUrl('google'));
- * window.location.assign(buildOAuthEntryUrl('google', { next: '/recipe' }));
+ * window.location.assign(buildOAuthEntryUrl('google', { next: HOME_PATH }));
  */
 export function buildOAuthEntryUrl(
   provider: OAuthProvider,

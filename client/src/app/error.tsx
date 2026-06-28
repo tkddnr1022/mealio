@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { Info } from 'lucide-react';
 
 import { InfoScreen } from '@/components/layout/InfoScreen';
+import { HOME_PATH } from '@/lib/constants/routes.constants';
 import { resolveErrorBoundaryMessage } from '@/lib/utils/resolveErrorBoundaryMessage';
 
 interface RootErrorProps {
@@ -35,7 +36,7 @@ export default function RootError({ error }: RootErrorProps) {
             />
           }
           buttonLabel="홈으로 돌아가기"
-          buttonHref="/"
+          buttonHref={HOME_PATH}
         />
       </div>
     </main>
