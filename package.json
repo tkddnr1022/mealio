@@ -12,7 +12,7 @@
     "build:consumer": "npm run build -w server/consumer",
     "build:shared": "npm run build -w server/shared",
     "start:client": "cross-env APP_ENV=local npm run dev -w client",
-    "start:client:development": "cross-env APP_ENV=development npm run dev -w client",
+    "start:client:development": "cross-env APP_ENV=development npm run dev:development -w client",
     "start:client:production": "cross-env APP_ENV=production npm run start -w client",
     "start:storybook": "npm run storybook -w client",
     "start:producer": "cross-env APP_ENV=local npm run start:dev -w server/producer",

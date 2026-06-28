@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "dotenv -c -- next dev",
+    "dev:development": "dotenv -c development -- next dev",
     "build": "next build",
     "postbuild": "shx mkdir -p .next/standalone/client/.next && shx cp -r public .next/standalone/client/public && shx cp -r .next/static .next/standalone/client/.next/static",
-    "start": "dotenv -c -- node .next/standalone/client/server.js",
+    "start": "dotenv -c production -- node .next/standalone/client/server.js",
     "lint": "eslint",
     "test:unit": "vitest run --project unit",
     "test:unit:observability": "vitest run --project unit src/lib/observability",
