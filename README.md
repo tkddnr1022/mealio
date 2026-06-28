@@ -136,6 +136,7 @@ docker compose --env-file .env.docker.local -f docker/compose-database.yml -f do
 pnpm run db:prisma:generate
 pnpm run db:prisma:migrate:dev
 pnpm run db:mongoose:sync-indexes
+pnpm run db:kafka:create-topics
 pnpm run db:prisma:seed
 pnpm run db:mongoose:seed
 ```
@@ -156,6 +157,7 @@ docker compose --env-file .env.docker.production.local -f docker/compose-databas
 ```bash
 pnpm run db:prisma:migrate:deploy
 pnpm run db:mongoose:sync-indexes:production
+pnpm run db:kafka:create-topics:production
 ```
 
 ```bash

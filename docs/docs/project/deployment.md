@@ -49,6 +49,7 @@
 
 - producer·consumer 모두 동일 브로커에 연결합니다.
 - `kafka-ui`는 개발 전용으로 프로덕션에는 배포하지 않습니다.
+- 토픽은 `pnpm run db:kafka:create-topics:production`으로 생성합니다.
 
 ### Prometheus / Grafana / Pushgateway
 
@@ -111,9 +112,10 @@
 1. CI가 통과해야 합니다 (`pnpm run ci`).
 2. DB 마이그레이션을 적용합니다 (`db:prisma:migrate:deploy`).
 3. 인프라 Compose(Kafka·관측)를 먼저 기동합니다.
-4. producer·consumer 이미지를 빌드·기동합니다.
-5. client를 배포합니다.
-6. 헬스·메트릭·validation 시나리오를 확인합니다.
+4. Kafka 토픽을 생성합니다 (`pnpm run db:kafka:create-topics:production`).
+5. producer·consumer 이미지를 빌드·기동합니다.
+6. client를 배포합니다.
+7. 헬스·메트릭·validation 시나리오를 확인합니다.
 
 ## 관련 문서
 

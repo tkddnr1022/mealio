@@ -206,7 +206,7 @@
 
 ## 2.2 Kafka 토픽 명세
 
-토픽·DLQ 상수는 `@mealio/shared`의 `KAFKA_TOPICS`, `KAFKA_DLQ_TOPICS`에 정의되어 있으며, Producer의 KafkaAdminService가 로컬 환경에서 메인·DLQ 토픽을 생성한다.
+토픽·DLQ 상수는 `@mealio/shared`의 `KAFKA_TOPICS`, `KAFKA_DLQ_TOPICS`에 정의되어 있으며, Producer의 KafkaAdminService가 로컬 환경에서 메인·DLQ 토픽을 생성한다. 프로덕션 배포 전에는 `pnpm run db:kafka:create-topics:production`(`server/shared/src/kafka/create-topics.ts`)으로 수동 생성한다.
 
 | 토픽 (메인) | DLQ 토픽 | Consumer 그룹 | 발행 주체 | 용도·페이로드 개요 |
 |-------------|-----------|----------------|-----------|---------------------|
