@@ -1,31 +1,57 @@
 name: Docker Publish
 
+# Runs after CI succeeds on main/master, or manually via workflow_dispatch.
 # Required repository secrets:
 #   DOCKERHUB_USERNAME — Docker Hub account name
 #   DOCKERHUB_TOKEN    — Docker Hub access token (Settings → Security → Access Tokens)
 
 on:
-  push:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [main, master]
-    paths:
-      - "docker/Dockerfile.producer"
-      - "docker/Dockerfile.consumer"
-      - "server/producer/**"
-      - "server/consumer/**"
-      - "server/shared/**"
-      - "package.json"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      - ".github/workflows/docker-publish.yml"
   workflow_dispatch:
 
 concurrency:
-  group: docker-publish-${{ github.ref }}
+  group: docker-publish-${{ github.event.workflow_run.head_sha || github.sha }}
   cancel-in-progress: true
 
 jobs:
+  changes:
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      server: ${{ steps.filter.outputs.server }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          base: ${{ github.event.workflow_run.head_sha }}^
+          ref: ${{ github.event.workflow_run.head_sha }}
+          filters: |
+            server:
+              - docker/Dockerfile.producer
+              - docker/Dockerfile.consumer
+              - server/producer/**
+              - server/consumer/**
+              - server/shared/**
+              - package.json
+              - pnpm-lock.yaml
+              - pnpm-workspace.yaml
+              - .github/workflows/docker-publish.yml
+
   build-and-push:
     name: Build & Push (${{ matrix.service }})
+    needs: changes
+    if: |
+      always() &&
+      (github.event_name == 'workflow_dispatch' ||
+        (needs.changes.result == 'success' && needs.changes.outputs.server == 'true'))
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -39,6 +65,8 @@ jobs:
             image: mealio-consumer
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
