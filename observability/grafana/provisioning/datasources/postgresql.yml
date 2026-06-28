@@ -9,7 +9,7 @@ datasources:
     user: $__env{GRAFANA_POSTGRES_USER}
     jsonData:
       database: $__env{GRAFANA_POSTGRES_DATABASE}
-      sslmode: disable
+      sslmode: enable
       postgresVersion: 1800
     secureJsonData:
       password: $__env{GRAFANA_POSTGRES_PASSWORD}
