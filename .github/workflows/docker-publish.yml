@@ -17,24 +17,49 @@ concurrency:
   group: docker-publish-${{ github.event.workflow_run.head_sha || github.sha }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   changes:
-    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     outputs:
-      server: ${{ steps.filter.outputs.server }}
+      server: ${{ steps.set-server.outputs.server }}
     steps:
-      - uses: actions/checkout@v4
+      - if: github.event_name == 'workflow_run'
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
 
-      # paths-filter passes base/ref to `git fetch`; `sha^` is invalid as a refspec.
-      - name: Resolve parent commit
+      # Compare since the previous successful CI run (not just HEAD^) so multi-commit pushes
+      # and server changes in an earlier commit are not missed.
+      - if: github.event_name == 'workflow_run'
+        name: Resolve diff base
         id: base
-        run: echo "sha=$(git rev-parse HEAD^)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          set -euo pipefail
+          PREV=$(gh api \
+            "/repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs" \
+            -f branch="$BRANCH" \
+            -f status=completed \
+            -f per_page=20 \
+            --jq "[.workflow_runs[] | select(.conclusion == \"success\" and .head_sha != \"$HEAD_SHA\")][0].head_sha // empty")
+          if [ -z "$PREV" ]; then
+            PREV=$(git rev-parse HEAD^)
+          fi
+          echo "sha=$PREV" >> "$GITHUB_OUTPUT"
 
-      - uses: dorny/paths-filter@v3
+      - if: github.event_name == 'workflow_run'
+        uses: dorny/paths-filter@v3
         id: filter
         with:
           base: ${{ steps.base.outputs.sha }}
@@ -51,13 +76,21 @@ jobs:
               - pnpm-workspace.yaml
               - .github/workflows/docker-publish.yml
 
+      - name: Set server output
+        id: set-server
+        env:
+          FILTER_RESULT: ${{ steps.filter.outputs.server }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "server=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "server=${FILTER_RESULT}" >> "$GITHUB_OUTPUT"
+          fi
+
   build-and-push:
     name: Build & Push (${{ matrix.service }})
     needs: changes
-    if: |
-      always() &&
-      (github.event_name == 'workflow_dispatch' ||
-        (needs.changes.result == 'success' && needs.changes.outputs.server == 'true'))
+    if: needs.changes.result == 'success' && needs.changes.outputs.server == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
