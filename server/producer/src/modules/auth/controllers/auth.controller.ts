@@ -37,6 +37,7 @@ import {
   OAUTH_STATE_COOKIE_NAME,
   REFRESH_TOKEN_COOKIE_NAME,
 } from '../../../constants/auth-cookie.constants';
+import { getAuthCookieOptions } from '../utils/auth-cookie-options.util';
 import { isSecureCookie } from '../utils/cookie-security.util';
 
 @ApiTags('Authentication')
@@ -225,36 +226,22 @@ export class AuthController {
     accessToken: string,
     refreshToken: string,
   ): void {
+    const options = getAuthCookieOptions(this.config);
     res.cookie(ACCESS_TOKEN_COOKIE_NAME, accessToken, {
-      httpOnly: true,
-      secure: isSecureCookie(this.config),
-      sameSite: 'lax',
+      ...options,
       maxAge: this.authService.getAccessTokenCookieMaxAgeMs(),
-      path: '/',
     });
 
     res.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
-      httpOnly: true,
-      secure: isSecureCookie(this.config),
-      sameSite: 'lax',
+      ...options,
       maxAge: this.authService.getRefreshTokenCookieMaxAgeMs(),
-      path: '/',
     });
   }
 
   private clearAuthCookies(res: Response): void {
-    res.clearCookie(ACCESS_TOKEN_COOKIE_NAME, {
-      httpOnly: true,
-      secure: isSecureCookie(this.config),
-      sameSite: 'lax',
-      path: '/',
-    });
-    res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, {
-      httpOnly: true,
-      secure: isSecureCookie(this.config),
-      sameSite: 'lax',
-      path: '/',
-    });
+    const options = getAuthCookieOptions(this.config);
+    res.clearCookie(ACCESS_TOKEN_COOKIE_NAME, options);
+    res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, options);
   }
 
   private getOAuthCookieOptions(): {

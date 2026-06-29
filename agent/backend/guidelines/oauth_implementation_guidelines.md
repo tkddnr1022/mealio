@@ -35,7 +35,7 @@
 |------|------|
 | **Method / Path** | `GET /api/v1/auth/{provider}/callback` |
 | **Query** | 성공 시 `code`(필수), `state`(선택). 실패 시 `error`, `error_description` 가능 |
-| **동작(성공)** | 1) Authorization Code로 OAuth Token 요청 2) OAuth Token으로 사용자 정보 요청 3) 사용자 생성/조회 4) 자체 JWT 발급 5) **302 Redirect** to `FRONTEND_APP_BASE_URL` + `FRONTEND_OAUTH_SUCCESS_CALLBACK_PATH`(검증된 `next`가 있으면 `?next=` 포함) + **Set-Cookie**로 `accessToken`/`refreshToken` 전달 (HttpOnly, Secure, SameSite=Lax, Path=/) |
+| **동작(성공)** | 1) Authorization Code로 OAuth Token 요청 2) OAuth Token으로 사용자 정보 요청 3) 사용자 생성/조회 4) 자체 JWT 발급 5) **302 Redirect** to `FRONTEND_APP_BASE_URL` + `FRONTEND_OAUTH_SUCCESS_CALLBACK_PATH`(검증된 `next`가 있으면 `?next=` 포함) + **Set-Cookie**로 `accessToken`/`refreshToken` 전달 (HttpOnly, Secure, SameSite=Lax, Path=/, split-domain 시 `Domain=.example.com` — `FRONTEND_APP_BASE_URL`·`OAUTH_CALLBACK_BASE_URL`에서 자동 추론) |
 | **동작(실패)** | OAuth 실패를 `FRONTEND_APP_BASE_URL` + `FRONTEND_OAUTH_ERROR_PATH`로 **302 Redirect**하고 쿼리로 `errorCode`, `errorMessage`, optional `next`(안전한 경로만)를 전달 |
 
 - 프론트로 돌아갈 URL은 **베이스 + 경로**로 나눈다.
@@ -50,7 +50,7 @@
 |------|------|
 | **Method / Path** | `POST /api/v1/auth/refresh` |
 | **인증** | HttpOnly `refreshToken` 쿠키(opaque token, 예: `sessionId.secret`) |
-| **동작(성공)** | DB(`auth_refresh_sessions`)에서 세션 검증(SSOT) → 기존 세션 revoke → 신규 세션 생성 → **access/refresh 동시 회전 발급** → `Set-Cookie`로 `accessToken`/`refreshToken` 재설정 (HttpOnly, Secure, SameSite=Lax, Path=/) |
+| **동작(성공)** | DB(`auth_refresh_sessions`)에서 세션 검증(SSOT) → 기존 세션 revoke → 신규 세션 생성 → **access/refresh 동시 회전 발급** → `Set-Cookie`로 `accessToken`/`refreshToken` 재설정 (HttpOnly, Secure, SameSite=Lax, Path=/, OAuth 콜백과 동일 `Domain` 정책) |
 | **동작(실패)** | `401 Unauthorized`. 이미 revoke·교체된 refresh 재사용이 감지되면 해당 사용자의 활성 refresh 세션을 일괄 revoke한다. |
 | **캐시** | Redis(`auth:refresh:session:{sessionId}`)는 조회 가속용이며, 최종 판정·폐기는 PostgreSQL이 담당한다. |
 
