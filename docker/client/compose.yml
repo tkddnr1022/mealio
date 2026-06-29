@@ -9,7 +9,7 @@ x-logging: &default-logging
 services:
   client:
     build:
-      context: ..
+      context: ../..
       dockerfile: docker/Dockerfile.client
       extra_hosts:
         - host.docker.internal:host-gateway

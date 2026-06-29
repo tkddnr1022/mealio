@@ -1,0 +1,26 @@
+name: mealio
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  pushgateway:
+    image: prom/pushgateway:v1.10.0
+    container_name: mealio-pushgateway
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${PUSHGATEWAY_MEMORY_LIMIT:?PUSHGATEWAY_MEMORY_LIMIT is required}
+    logging: *default-logging
+    ports:
+      - "${PUSHGATEWAY_PORT:?PUSHGATEWAY_PORT is required}:9091"
+    networks:
+      - mealio-net
+
+networks:
+  mealio-net:
+    name: mealio-net

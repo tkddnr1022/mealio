@@ -59,7 +59,7 @@ pnpm run recipe-ingestion:fetch  # ingestion 단계별
 
 ## 배포
 
-- EC2에서는 `docker/compose-consumer.yml`로 배포합니다.
+- EC2에서는 `docker/consumer/compose.yml`로 배포합니다.
 - Kafka·DB 장애 시 Producer는 쓰기 이벤트가 적체되며, 복구 후 lag 소진을 모니터링해야 합니다.
 
 ## 관련 문서

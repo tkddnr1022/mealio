@@ -26,7 +26,7 @@ cp server/producer/.env.example server/producer/.env.local
 | --- | --- |
 | 설명 | Docker Hub 계정명. Compose `image` 필드 `${DOCKERHUB_USERNAME}/mealio-producer:latest` 치환에 사용 |
 | 예시 | `your-dockerhub-username` |
-| 사용처 | `docker/compose-producer.yml` `services.producer.image` |
+| 사용처 | `docker/producer/compose.yml` `services.producer.image` |
 | 패턴 | Compose가 `image` 태그를 해석하거나 Docker Hub에 Push |
 
 ### `MEMORY_LIMIT`
@@ -35,7 +35,7 @@ cp server/producer/.env.example server/producer/.env.local
 | --- | --- |
 | 설명 | producer 컨테이너 메모리 limit (`deploy.resources.limits.memory`) |
 | 예시 | `768M` |
-| 사용처 | `docker/compose-producer.yml` |
+| 사용처 | `docker/producer/compose.yml` |
 
 ## 공통
 

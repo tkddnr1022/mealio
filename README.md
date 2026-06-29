@@ -138,7 +138,7 @@ cp server/consumer/.env.docker.example server/consumer/.env.docker.local
 
 ```bash
 # 인프라 (DB/Kafka/Redis/Kafka UI/관측)
-docker compose --env-file .env.docker.local -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
+docker compose --env-file .env.docker.local -f docker/mongodb/compose.yml -f docker/postgres/compose.yml -f docker/redis/compose.yml -f docker/kafka/compose.yml -f docker/kafka-ui/compose.yml -f docker/pushgateway/compose.yml -f docker/prometheus/compose.yml -f docker/grafana/compose.yml up -d
 ```
 
 ```bash
@@ -160,7 +160,7 @@ pnpm run start:client
 
 ```bash
 # 인프라 (DB/Kafka/Redis/Kafka UI/관측)
-docker compose --env-file .env.docker.production.local -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
+docker compose --env-file .env.docker.production.local -f docker/mongodb/compose.yml -f docker/postgres/compose.yml -f docker/redis/compose.yml -f docker/kafka/compose.yml -f docker/kafka-ui/compose.yml -f docker/pushgateway/compose.yml -f docker/prometheus/compose.yml -f docker/grafana/compose.yml up -d
 ```
 
 ```bash
@@ -170,11 +170,11 @@ pnpm run db:kafka:create-topics:production
 ```
 
 ```bash
-docker compose --env-file server/producer/.env.docker.local -f docker/compose-producer.yml up -d --build
+docker compose --env-file server/producer/.env.docker.local -f docker/producer/compose.yml up -d --build
 
-docker compose --env-file server/consumer/.env.docker.local -f docker/compose-consumer.yml up -d --build
+docker compose --env-file server/consumer/.env.docker.local -f docker/consumer/compose.yml up -d --build
 
-docker compose --env-file client/.env.docker.local -f docker/compose-client.yml up -d --build
+docker compose --env-file client/.env.docker.local -f docker/client/compose.yml up -d --build
 ```
 
 ## 라이선스 (License)

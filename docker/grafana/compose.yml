@@ -1,0 +1,63 @@
+name: mealio
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  grafana:
+    image: grafana/grafana:11.5.2
+    container_name: mealio-grafana
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${GRAFANA_MEMORY_LIMIT:?GRAFANA_MEMORY_LIMIT is required}
+    logging: *default-logging
+    ports:
+      - "${GRAFANA_PORT:?GRAFANA_PORT is required}:3030"
+    environment:
+      GF_SERVER_HTTP_PORT: "3030"
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:?GRAFANA_ADMIN_USER is required}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_INSTALL_PLUGINS: https://github.com/haohanyang/mongodb-datasource/releases/download/v0.5.0/haohanyang-mongodb-datasource-0.5.0.zip;haohanyang-mongodb-datasource
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: haohanyang-mongodb-datasource
+      SLACK_OPS_WEBHOOK_URL: ${SLACK_OPS_WEBHOOK_URL:?SLACK_OPS_WEBHOOK_URL is required}
+      SLACK_PRODUCT_WEBHOOK_URL: ${SLACK_PRODUCT_WEBHOOK_URL:?SLACK_PRODUCT_WEBHOOK_URL is required}
+      GRAFANA_MONGODB_CONNECTION_SCHEME: ${GRAFANA_MONGODB_CONNECTION_SCHEME:-mongodb}
+      GRAFANA_MONGODB_HOST: ${GRAFANA_MONGODB_HOST:?GRAFANA_MONGODB_HOST is required}
+      GRAFANA_MONGODB_USER: ${GRAFANA_MONGODB_USER:?GRAFANA_MONGODB_USER is required}
+      GRAFANA_MONGODB_PASSWORD: ${GRAFANA_MONGODB_PASSWORD:?GRAFANA_MONGODB_PASSWORD is required}
+      GRAFANA_MONGODB_DATABASE: ${GRAFANA_MONGODB_DATABASE:?GRAFANA_MONGODB_DATABASE is required}
+      GRAFANA_POSTGRES_HOST: ${GRAFANA_POSTGRES_HOST:?GRAFANA_POSTGRES_HOST is required}
+      GRAFANA_POSTGRES_USER: ${GRAFANA_POSTGRES_USER:?GRAFANA_POSTGRES_USER is required}
+      GRAFANA_POSTGRES_PASSWORD: ${GRAFANA_POSTGRES_PASSWORD:?GRAFANA_POSTGRES_PASSWORD is required}
+      GRAFANA_POSTGRES_DATABASE: ${GRAFANA_POSTGRES_DATABASE:?GRAFANA_POSTGRES_DATABASE is required}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ../../observability/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - mealio-net
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:3030/api/health || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 45s
+
+volumes:
+  grafana_data:
+
+networks:
+  mealio-net:
+    name: mealio-net

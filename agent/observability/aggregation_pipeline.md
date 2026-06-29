@@ -123,7 +123,7 @@ Grafana provisioning 경로: `observability/grafana/provisioning/dashboards/json
 | MongoDB | `mongodb` | [haohanyang-mongodb-datasource](https://github.com/haohanyang/mongodb-datasource) | `datasources/mongodb.yml` |
 | PostgreSQL | `postgresql` | postgres (Grafana 내장) | `datasources/postgresql.yml` |
 
-MongoDB 플러그인은 `docker/compose-monitoring.yml`의 `GF_INSTALL_PLUGINS`(GitHub release zip)와 `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS`로 자동 설치한다. Grafana Labs 공식(엔터프라이즈) 플러그인 대신 커뮤니티 오픈소스 플러그인을 사용한다.
+MongoDB 플러그인은 `docker/grafana/compose.yml`의 `GF_INSTALL_PLUGINS`(GitHub release zip)와 `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS`로 자동 설치한다. Grafana Labs 공식(엔터프라이즈) 플러그인 대신 커뮤니티 오픈소스 플러그인을 사용한다.
 
 `datasources/mongodb.yml`은 `GRAFANA_MONGODB_CONNECTION_SCHEME`(`mongodb` | `mongodb+srv`)로 연결 스킴을 선택한다. 로컬 Compose는 `mongodb` + `host:port`, Atlas는 `mongodb+srv` + 클러스터 호스트명만 설정한다.
 

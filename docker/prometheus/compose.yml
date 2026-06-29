@@ -1,0 +1,74 @@
+# PROMETHEUS_TARGETS_MODE=host → 호스트 producer/consumer (개발)
+# PROMETHEUS_TARGETS_MODE=compose → docker/producer·docker/consumer 컨테이너 스크랩 (프로덕션)
+name: mealio
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  prometheus:
+    image: prom/prometheus:v3.2.1
+    container_name: mealio-prometheus
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${PROMETHEUS_MEMORY_LIMIT:?PROMETHEUS_MEMORY_LIMIT is required}
+    logging: *default-logging
+    ports:
+      - "${PROMETHEUS_PORT:?PROMETHEUS_PORT is required}:9090"
+    environment:
+      PROMETHEUS_TARGETS_MODE: ${PROMETHEUS_TARGETS_MODE:?PROMETHEUS_TARGETS_MODE is required}
+      PROMETHEUS_PRODUCER_PORT: ${PROMETHEUS_PRODUCER_PORT:?PROMETHEUS_PRODUCER_PORT is required}
+      PROMETHEUS_CONSUMER_PORT: ${PROMETHEUS_CONSUMER_PORT:?PROMETHEUS_CONSUMER_PORT is required}
+      PUSHGATEWAY_PORT: ${PUSHGATEWAY_PORT:?PUSHGATEWAY_PORT is required}
+    entrypoint:
+      - /bin/sh
+      - -ec
+      - |
+        if [ "$$PROMETHEUS_TARGETS_MODE" = "host" ]; then
+          sed -e "s/host.docker.internal:9100/host.docker.internal:$$PROMETHEUS_PRODUCER_PORT/" \
+              -e "s/host.docker.internal:9101/host.docker.internal:$$PROMETHEUS_CONSUMER_PORT/" \
+              -e "s/host.docker.internal:9091/host.docker.internal:$$PUSHGATEWAY_PORT/" \
+              /etc/prometheus/prometheus.host.yml > /tmp/prometheus.yml
+        else
+          sed -e "s/producer:9100/producer:$$PROMETHEUS_PRODUCER_PORT/" \
+              -e "s/consumer:9101/consumer:$$PROMETHEUS_CONSUMER_PORT/" \
+              /etc/prometheus/prometheus.yml > /tmp/prometheus.yml
+        fi
+        exec /bin/prometheus \
+          --config.file=/tmp/prometheus.yml \
+          --storage.tsdb.path=/prometheus \
+          --web.enable-lifecycle
+    volumes:
+      - ../../observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../../observability/prometheus/prometheus.host.yml:/etc/prometheus/prometheus.host.yml:ro
+      - prometheus_data:/prometheus
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - mealio-net
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:9090/-/healthy",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+volumes:
+  prometheus_data:
+
+networks:
+  mealio-net:
+    name: mealio-net

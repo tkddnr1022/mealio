@@ -26,7 +26,7 @@ cp server/consumer/.env.example server/consumer/.env.local
 | --- | --- |
 | 설명 | Docker Hub 계정명. Compose `image` 필드 `${DOCKERHUB_USERNAME}/mealio-consumer:latest` 치환에 사용 |
 | 예시 | `your-dockerhub-username` |
-| 사용처 | `docker/compose-consumer.yml` `services.consumer.image` |
+| 사용처 | `docker/consumer/compose.yml` `services.consumer.image` |
 | 패턴 | Compose가 `image` 태그를 해석하거나 Docker Hub에 Push |
 
 ### `MEMORY_LIMIT`
@@ -35,7 +35,7 @@ cp server/consumer/.env.example server/consumer/.env.local
 | --- | --- |
 | 설명 | consumer 컨테이너 메모리 limit (`deploy.resources.limits.memory`) |
 | 예시 | `1G` |
-| 사용처 | `docker/compose-consumer.yml` |
+| 사용처 | `docker/consumer/compose.yml` |
 
 ## 공통
 

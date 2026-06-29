@@ -1,6 +1,6 @@
 # 관측성 통합 검증 시나리오
 
-관측성 스택 전체를 대상으로 한 수동 검증 체크리스트. staging 또는 로컬 Compose 인프라(`docker/compose-database.yml` 등, `agent/common/deployment_strategy.md` §4)에서 수행한다.
+관측성 스택 전체를 대상으로 한 수동 검증 체크리스트. staging 또는 로컬 Compose 인프라(`docker/mongodb/compose.yml` 등, `agent/common/deployment_strategy.md` §4)에서 수행한다.
 
 ---
 
@@ -24,7 +24,7 @@
 
 ### 인프라
 
-- `docker compose -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-monitoring.yml up -d` — Kafka, Redis, PostgreSQL, MongoDB, Prometheus, **Pushgateway**, Grafana 정상 기동.
+- `docker compose -f docker/mongodb/compose.yml -f docker/postgres/compose.yml -f docker/redis/compose.yml -f docker/kafka/compose.yml -f docker/pushgateway/compose.yml -f docker/prometheus/compose.yml -f docker/grafana/compose.yml up -d` — Kafka, Redis, PostgreSQL, MongoDB, Prometheus, **Pushgateway**, Grafana 정상 기동.
 - Producer/Consumer 서버 기동 완료.
 - Client 앱 빌드·서빙 (로컬: `pnpm --filter client dev`).
 

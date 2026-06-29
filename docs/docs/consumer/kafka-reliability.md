@@ -65,7 +65,7 @@ flowchart TD
 
 ## 로컬 개발
 
-- `docker compose -f docker/compose-kafka.yml up -d`로 로컬 브로커를 띄우고, Kafka UI(`:8080`)로 토픽을 확인합니다.
+- `docker compose -f docker/kafka/compose.yml up -d`로 로컬 브로커를 띄우고, Kafka UI(`:8080`)로 토픽을 확인합니다.
 - Producer를 기동하면 로컬 토픽·DLQ가 자동으로 생성됩니다.
 
 ## 관련 문서

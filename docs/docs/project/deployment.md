@@ -26,7 +26,7 @@
 - SSR·ISR을 사용하므로 Node.js 서버 런타임이 필요합니다.
 - `NEXT_PUBLIC_*` 변수는 **이미지 빌드 시** 번들에 인라이닝됩니다. 값이 바뀌면 재빌드가 필요합니다.
 - `INTERNAL_API_BASE_URL`을 설정하면 SSR에서 내부 네트워크를 통해 producer를 호출할 수 있습니다.
-- Docker 배포 시 `docker/compose-client.yml`과 `docker/Dockerfile.client`를 사용합니다.
+- Docker 배포 시 `docker/client/compose.yml`과 `docker/Dockerfile.client`를 사용합니다.
 
 ### producer / consumer
 
@@ -63,11 +63,11 @@
 
 | 컴포넌트 | 배포 방식 |
 | --- | --- |
-| client | `compose-client.yml` 또는 Vercel |
-| producer | `compose-producer.yml` |
-| consumer | `compose-consumer.yml` |
-| Kafka | `compose-kafka.yml` |
-| Prometheus/Grafana | `compose-monitoring.yml` |
+| client | `docker/client/compose.yml` 또는 Vercel |
+| producer | `docker/producer/compose.yml` |
+| consumer | `docker/consumer/compose.yml` |
+| Kafka | `docker/kafka/compose.yml` |
+| Prometheus/Grafana/Pushgateway | `docker/prometheus/compose.yml`, `docker/grafana/compose.yml`, `docker/pushgateway/compose.yml` |
 | DB·Redis | 자체 호스팅 또는 관리형 서비스 |
 | kafka-ui | **미배포** (개발 전용) |
 
@@ -77,21 +77,25 @@
 | --- | --- |
 | producer, consumer, client | **호스트** (`pnpm run start:*`) |
 | DB, Redis, Kafka, 관측 | **Docker Compose** |
-| compose-producer/consumer/client | **미기동** |
+| `docker/producer`·`docker/consumer`·`docker/client` | **미기동** |
 
 → [로컬 개발/온보딩](./getting-started)
 
-## Compose 파일 (`docker/`)
+## Compose 파일 (`docker/{서비스명}/compose.yml`)
 
 | 파일 | 대상 | prod | dev |
 | --- | --- | --- | --- |
-| `compose-database.yml` | mongo, postgres, redis | ✗ | ✓ |
-| `compose-kafka.yml` | kafka | ✓ | ✓ |
-| `compose-kafka-ui.yml` | kafka-ui | ✗ | ✓ |
-| `compose-monitoring.yml` | prometheus, grafana, pushgateway | ✓ | ✓ |
-| `compose-producer.yml` | producer | ✓ | ✗ |
-| `compose-consumer.yml` | consumer | ✓ | ✗ |
-| `compose-client.yml` | client | 선택 | 선택 |
+| `docker/mongodb/compose.yml` | mongodb | ✗ | ✓ |
+| `docker/postgres/compose.yml` | postgres | ✗ | ✓ |
+| `docker/redis/compose.yml` | redis | ✗ | ✓ |
+| `docker/kafka/compose.yml` | kafka | ✓ | ✓ |
+| `docker/kafka-ui/compose.yml` | kafka-ui | ✗ | ✓ |
+| `docker/pushgateway/compose.yml` | pushgateway | ✓ | ✓ |
+| `docker/prometheus/compose.yml` | prometheus | ✓ | ✓ |
+| `docker/grafana/compose.yml` | grafana | ✓ | ✓ |
+| `docker/producer/compose.yml` | producer | ✓ | ✗ |
+| `docker/consumer/compose.yml` | consumer | ✓ | ✗ |
+| `docker/client/compose.yml` | client | 선택 | 선택 |
 
 기동 순서는 **인프라 Compose를 먼저** 기동한 뒤 앱 Compose를 기동합니다. 모든 Compose 파일은 동일한 브리지 네트워크(`mealio-net`)를 공유합니다.
 

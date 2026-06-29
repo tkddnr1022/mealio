@@ -17,7 +17,7 @@
 ## 메트릭 (Prometheus)
 
 - Endpoint는 `METRICS_PORT`의 `/metrics`이며 `METRICS_ENABLED=true`일 때 노출됩니다.
-- 스크랩은 `docker/compose-monitoring.yml`에서 수행하며, `PROMETHEUS_PRODUCER_PORT`(기본 9100)를 사용합니다.
+- 스크랩은 `docker/prometheus/compose.yml`에서 수행하며, `PROMETHEUS_PRODUCER_PORT`(기본 9100)를 사용합니다.
 
 주요 지표는 HTTP latency, Kafka produce 성공/실패, Redis·DB 연결 상태입니다.
 
@@ -38,7 +38,7 @@
 
 ## 배포·환경
 
-- Docker 배포 시 `docker/compose-producer.yml`을 사용합니다.
+- Docker 배포 시 `docker/producer/compose.yml`을 사용합니다.
 - 컨테이너 env는 `server/producer/.env.docker.local`을 사용합니다.
 - `POSTGRESQL_URL`, `MONGODB_URL`, `REDIS_URL`은 각 환경에 맞는 연결 문자열로 설정합니다.
 

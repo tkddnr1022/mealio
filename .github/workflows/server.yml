@@ -107,7 +107,7 @@ jobs:
           PARAMS=$(jq -n \
             --arg user "$RUN_AS_USER" \
             --arg path "$DEPLOY_PATH" \
-            '{commands: ["sudo -u \($user) -H bash -lc \"set -euo pipefail && cd \($path) && git pull && docker compose --env-file server/producer/.env.docker.development.local -f docker/compose-producer.yml up -d --pull always && docker compose --env-file server/consumer/.env.docker.development.local -f docker/compose-consumer.yml up -d --pull always && docker system prune -a -f\""]}')
+            '{commands: ["sudo -u \($user) -H bash -lc \"set -euo pipefail && cd \($path) && git pull && docker compose --env-file server/producer/.env.docker.development.local -f docker/producer/compose.yml up -d --pull always && docker compose --env-file server/consumer/.env.docker.development.local -f docker/consumer/compose.yml up -d --pull always && docker system prune -a -f\""]}')
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \

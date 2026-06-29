@@ -62,10 +62,10 @@ cp server/consumer/.env.example server/consumer/.env.local
 ## 3. 인프라 기동 (Docker Compose)
 
 ```bash
-docker compose --env-file .env.docker.local -f docker/compose-database.yml -f docker/compose-kafka.yml -f docker/compose-kafka-ui.yml -f docker/compose-monitoring.yml up -d
+docker compose --env-file .env.docker.local -f docker/mongodb/compose.yml -f docker/postgres/compose.yml -f docker/redis/compose.yml -f docker/kafka/compose.yml -f docker/kafka-ui/compose.yml -f docker/pushgateway/compose.yml -f docker/prometheus/compose.yml -f docker/grafana/compose.yml up -d
 ```
 
-기동되는 서비스: MongoDB, PostgreSQL, Redis, Kafka, Kafka UI, Prometheus, Grafana.
+기동되는 서비스: MongoDB, PostgreSQL, Redis, Kafka, Kafka UI, Pushgateway, Prometheus, Grafana.
 
 ## 4. DB 마이그레이션·시드
 
