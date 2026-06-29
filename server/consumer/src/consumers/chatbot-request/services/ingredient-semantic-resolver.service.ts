@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { INGREDIENT_VECTOR_MATCH_THRESHOLD, PrismaService } from '@mealio/shared';
+import {
+  INGREDIENT_VECTOR_MATCH_THRESHOLD,
+  PrismaService,
+} from '@mealio/shared';
 import { OpenAIService } from 'src/integrations/openai/openai.service';
 import { IngredientEmbeddingRepository } from 'src/persistence/repositories/postgresql/ingredient-embedding.repository';
 import { IngredientRepository } from 'src/persistence/repositories/postgresql/ingredient.repository';
@@ -99,7 +102,9 @@ export class IngredientSemanticResolverService {
 
   private normalizeNames(names: string[]): string[] {
     return [
-      ...new Set(names.map((name) => name.trim()).filter((name) => name.length > 0)),
+      ...new Set(
+        names.map((name) => name.trim()).filter((name) => name.length > 0),
+      ),
     ];
   }
 }

@@ -44,9 +44,7 @@ describe('IngredientSemanticResolverService', () => {
     const { service, openaiService, ingredientEmbeddingRepository } =
       createService({
         ingredientRepository: {
-          findByName: jest
-            .fn()
-            .mockResolvedValue({ id: 1, name: '닭가슴살' }),
+          findByName: jest.fn().mockResolvedValue({ id: 1, name: '닭가슴살' }),
         },
       });
 

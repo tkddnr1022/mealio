@@ -77,29 +77,31 @@ describe('SearchRecipesHandler', () => {
           우유: { id: 99, name: '우유' },
         };
 
-        return names.map((name) => {
-          const mustHave = mustHaveMap[name];
-          if (mustHave) {
-            return {
-              inputName: name,
-              ingredientId: mustHave.id,
-              canonicalName: mustHave.name,
-              score: 1,
-              matchMethod: 'exact' as const,
-            };
-          }
-          const avoid = avoidMap[name];
-          if (avoid) {
-            return {
-              inputName: name,
-              ingredientId: avoid.id,
-              canonicalName: avoid.name,
-              score: 1,
-              matchMethod: 'exact' as const,
-            };
-          }
-          return null;
-        }).filter(Boolean);
+        return names
+          .map((name) => {
+            const mustHave = mustHaveMap[name];
+            if (mustHave) {
+              return {
+                inputName: name,
+                ingredientId: mustHave.id,
+                canonicalName: mustHave.name,
+                score: 1,
+                matchMethod: 'exact' as const,
+              };
+            }
+            const avoid = avoidMap[name];
+            if (avoid) {
+              return {
+                inputName: name,
+                ingredientId: avoid.id,
+                canonicalName: avoid.name,
+                score: 1,
+                matchMethod: 'exact' as const,
+              };
+            }
+            return null;
+          })
+          .filter(Boolean);
       }),
       ...overrides.ingredientSemanticResolverService,
     };
@@ -164,9 +166,9 @@ describe('SearchRecipesHandler', () => {
       { userId: 10 },
     );
 
-    expect(ingredientSemanticResolverService.resolveNames).toHaveBeenCalledTimes(
-      2,
-    );
+    expect(
+      ingredientSemanticResolverService.resolveNames,
+    ).toHaveBeenCalledTimes(2);
     expect(recipeEmbeddingRepository.searchTopK).toHaveBeenCalledWith(
       expect.objectContaining({
         excludeIngredientIds: [99, 50],

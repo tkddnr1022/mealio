@@ -11,6 +11,9 @@ export const CHATBOT_CONVERSATION_LIST_LIMIT = 20;
 export const USER_ACTIVITY_LIST_LIMIT = 20;
 
 /** 커서 페이지네이션: 현재 페이지 조회 결과 개수가 limit과 같으면 다음 페이지가 있다고 판단한다. */
-export function hasCursorNextPage(pageItemCount: number, limit: number): boolean {
+export function hasCursorNextPage(
+  pageItemCount: number,
+  limit: number,
+): boolean {
   return pageItemCount === limit;
 }
