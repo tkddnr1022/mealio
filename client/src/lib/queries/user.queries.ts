@@ -8,12 +8,16 @@
  *   이 훅은 `AuthProvider`의 단일 소스이기도 하며, 임의 컴포넌트도 동일 캐시를 공유한다.
  * - `useUpdateNickname`: `PATCH /api/v1/users/me/nickname`. 성공 시 `userQueries.me` 캐시를
  *   invalidate하여 최신 프로필을 재조회한다.
+ * - {@link useMyActivitiesInfinite}: 커서 기반 활동 내역 infinite 조회
  */
 
 import {
+  useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
+  type InfiniteData,
+  type UseInfiniteQueryOptions,
   type UseMutationOptions,
   type UseQueryOptions,
 } from '@tanstack/react-query';
@@ -21,6 +25,10 @@ import {
 import { getMyActivities, updateMyNickname } from '@/lib/api/domains';
 import { fetchCurrentUser } from '@/lib/auth/session.client';
 import { QUERY_CACHE } from '@/lib/policy/cache.policy';
+import {
+  hasCursorNextPage,
+  USER_ACTIVITY_LIST_LIMIT,
+} from '@/lib/policy/pagination.policy';
 import type {
   UpdateNicknameRequest,
   UpdateNicknameResponse,
@@ -34,8 +42,8 @@ import type {
 export const userQueries = {
   all: ['users'] as const,
   me: () => [...userQueries.all, 'me'] as const,
-  activities: (query: UserActivityQuery = {}) =>
-    [...userQueries.all, 'activities', query] as const,
+  activitiesInfinite: (params: Omit<UserActivityQuery, 'cursor'>) =>
+    [...userQueries.all, 'activities', 'infinite', params] as const,
 } as const;
 
 // ─── 훅 ───────────────────────────────────────────────────────────────────────
@@ -111,19 +119,33 @@ export function useUpdateNickname(
   });
 }
 
-type UserActivityQueryOpts = Omit<
-  UseQueryOptions<UserActivityList, Error, UserActivityList>,
-  'queryKey' | 'queryFn'
->;
-
-export function useMyActivities(
-  params: UserActivityQuery = {},
-  options?: UserActivityQueryOpts,
+/**
+ * 커서 기반 Infinite 조회. 다음 페이지 존재 여부는 현재 페이지 `items.length === limit`으로 판단한다.
+ */
+export function useMyActivitiesInfinite(
+  params: Omit<UserActivityQuery, 'cursor'> = {},
+  options?: Omit<
+    UseInfiniteQueryOptions<
+      UserActivityList,
+      Error,
+      InfiniteData<UserActivityList>,
+      ReturnType<typeof userQueries.activitiesInfinite>,
+      string | undefined
+    >,
+    'queryKey' | 'queryFn' | 'getNextPageParam' | 'initialPageParam' | 'select'
+  >,
 ) {
   const { meta: metaOption, ...rest } = options ?? {};
-  return useQuery<UserActivityList, Error>({
-    queryKey: userQueries.activities(params),
-    queryFn: ({ signal }) => getMyActivities(params, { signal }),
+  return useInfiniteQuery({
+    queryKey: userQueries.activitiesInfinite(params),
+    queryFn: ({ pageParam, signal }) =>
+      getMyActivities({ ...params, cursor: pageParam }, { signal }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => {
+      const limit = params.limit ?? USER_ACTIVITY_LIST_LIMIT;
+      if (!hasCursorNextPage(lastPage.items.length, limit)) return undefined;
+      return lastPage.nextCursor ?? undefined;
+    },
     ...QUERY_CACHE.user,
     ...rest,
     meta: {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { InfoScreen } from '@/components/layout/InfoScreen';
@@ -9,32 +9,28 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Tabbar } from '@/components/layout/Tabbar';
 import { ActivityList } from '@/components/mypage/ActivityList';
 import { ListLoadMore } from '@/components/ui/ListLoadMore';
-import { useMyActivities } from '@/lib/queries/user.queries';
-import type { UserActivityItem } from '@/lib/types/user';
 import { FooterText } from '@/components/ui/FooterText';
-
-const PAGE_SIZE = 20;
+import { USER_ACTIVITY_LIST_LIMIT } from '@/lib/policy/pagination.policy';
+import { useMyActivitiesInfinite } from '@/lib/queries/user.queries';
 
 export function ActivityClientPage() {
   const router = useRouter();
   const pathname = usePathname();
-  const [cursor, setCursor] = useState<string | null>(null);
-  const [items, setItems] = useState<UserActivityItem[]>([]);
-
-  const activityQuery = useMyActivities(
-    { limit: PAGE_SIZE, cursor: cursor ?? undefined },
+  const {
+    data: listData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useMyActivitiesInfinite(
+    { limit: USER_ACTIVITY_LIST_LIMIT },
     { meta: { currentUrl: pathname } },
   );
 
-  const mergedItems = useMemo(() => {
-    const latest = activityQuery.data?.items ?? [];
-    if (cursor == null) {
-      return latest;
-    }
-    return [...items, ...latest];
-  }, [activityQuery.data?.items, cursor, items]);
-
-  const hasMore = Boolean(activityQuery.data?.nextCursor);
+  const items = useMemo(
+    () => listData?.pages.flatMap((page) => page.items) ?? [],
+    [listData?.pages],
+  );
 
   return (
     <>
@@ -44,7 +40,7 @@ export function ActivityClientPage() {
         onBack={() => router.back()}
       />
       <MainContent>
-        {mergedItems.length === 0 && !activityQuery.isLoading ? (
+        {items.length === 0 && !isLoading ? (
           <InfoScreen
             title="아직 활동 내역이 없어요"
             message="레시피를 조회하거나 챗봇을 사용하면 기록이 쌓여요."
@@ -52,14 +48,11 @@ export function ActivityClientPage() {
           />
         ) : (
           <>
-            <ActivityList items={mergedItems} />
+            <ActivityList items={items} />
             <ListLoadMore
-              hasMore={hasMore}
-              isLoading={activityQuery.isFetching}
-              onLoadMore={() => {
-                setItems(mergedItems);
-                setCursor(activityQuery.data?.nextCursor ?? null);
-              }}
+              hasMore={hasNextPage ?? false}
+              isLoading={isFetchingNextPage}
+              onLoadMore={() => void fetchNextPage()}
             />
             <FooterText>최근 90일간의 활동 내역만 보관돼요</FooterText>
           </>

@@ -21,6 +21,10 @@ import {
 
 import { getConversationHistory, getConversationList } from '@/lib/api/domains';
 import { QUERY_CACHE } from '@/lib/policy/cache.policy';
+import {
+  CHATBOT_CONVERSATION_LIST_LIMIT,
+  hasCursorNextPage,
+} from '@/lib/policy/pagination.policy';
 import type {
   ConversationHistory,
   ConversationList,
@@ -69,7 +73,7 @@ export function invalidateChatbotAfterStreamDone(
 // ─── 훅 ───────────────────────────────────────────────────────────────────────
 
 /**
- * 커서 기반 Infinite 조회. `nextCursor`가 null이면 마지막 페이지로 간주한다.
+ * 커서 기반 Infinite 조회. 다음 페이지 존재 여부는 현재 페이지 `items.length === limit`으로 판단한다.
  */
 export function useConversationListInfinite(
   params: Omit<ConversationListQuery, 'cursor'> = {},
@@ -90,7 +94,11 @@ export function useConversationListInfinite(
     queryFn: ({ pageParam }) =>
       getConversationList({ ...params, cursor: pageParam }),
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    getNextPageParam: (lastPage) => {
+      const limit = params.limit ?? CHATBOT_CONVERSATION_LIST_LIMIT;
+      if (!hasCursorNextPage(lastPage.items.length, limit)) return undefined;
+      return lastPage.nextCursor ?? undefined;
+    },
     ...QUERY_CACHE.chatbot,
     ...rest,
     meta: {
