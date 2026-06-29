@@ -177,7 +177,7 @@ cp server/consumer/.env.docker.example server/consumer/.env.docker
 
 `compose-client`·`compose-producer`·`compose-consumer`는 Compose YAML에 env 파일 경로를 고정하지 않는다. 기동 시 `--env-file`로 각 패키지 `.env.docker`(앱)를 전달하면 `${VAR}` 치환·`environment`·빌드 arg에 반영된다. 인프라 Compose는 별도로 `--env-file .env.docker`를 사용한다.
 
-`compose-producer`·`compose-consumer`는 `image: ${DOCKERHUB_USERNAME}/mealio-producer:latest`(또는 `mealio-consumer`) 형식을 사용한다. `DOCKERHUB_USERNAME`은 각 패키지 `.env.docker`에 두고 `--env-file`로 전달한다. CI(`docker-publish` 워크플로)가 푸시하는 Docker Hub 이미지 이름과 동일한 접두사를 쓴다. 앱 부팅 Joi 검증 대상은 아니다.
+`compose-producer`·`compose-consumer`는 `image: ${DOCKERHUB_USERNAME}/mealio-producer:latest`(또는 `mealio-consumer`) 형식을 사용한다. `DOCKERHUB_USERNAME`은 각 패키지 `.env.docker`에 두고 `--env-file`로 전달한다. CI(`server` 워크플로)가 푸시하는 Docker Hub 이미지 이름과 동일한 접두사를 쓴다. 앱 부팅 Joi 검증 대상은 아니다.
 
 ### 개발 환경
 
