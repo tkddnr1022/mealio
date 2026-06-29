@@ -19,7 +19,7 @@ function toRecipeSummary(recipe: InventoryFavoriteRecipe): RecipeSummary {
 
 export function InventoryFavoriteRecipesClientPage() {
   const currentUrl = usePathname();
-  const { data } = useMyInventory({
+  const { data, isLoading } = useMyInventory({
     meta: {
       currentUrl,
     },
@@ -35,6 +35,7 @@ export function InventoryFavoriteRecipesClientPage() {
   return (
     <InventoryPageShell
       tab="favoriteRecipes"
+      isLoading={isLoading}
       isEmpty={recipes.length === 0}
       infoScreenProps={{
         title: '관심 레시피가 없어요',

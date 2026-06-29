@@ -10,6 +10,7 @@ import { Tabbar } from '@/components/layout/Tabbar';
 import { ActivityList } from '@/components/mypage/ActivityList';
 import { ListLoadMore } from '@/components/ui/ListLoadMore';
 import { FooterText } from '@/components/ui/FooterText';
+import { Spinner } from '@/components/ui/Spinner';
 import { USER_ACTIVITY_LIST_LIMIT } from '@/lib/policy/pagination.policy';
 import { useMyActivitiesInfinite } from '@/lib/queries/user.queries';
 
@@ -39,8 +40,10 @@ export function ActivityClientPage() {
         displayBackButton
         onBack={() => router.back()}
       />
-      <MainContent>
-        {items.length === 0 && !isLoading ? (
+      <MainContent centered={isLoading && items.length === 0}>
+        {isLoading && items.length === 0 ? (
+          <Spinner />
+        ) : items.length === 0 ? (
           <InfoScreen
             title="아직 활동 내역이 없어요"
             message="레시피를 조회하거나 챗봇을 사용하면 기록이 쌓여요."

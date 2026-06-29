@@ -14,6 +14,7 @@ import {
   type InventorySubTabbarItem,
 } from '@/components/inventory';
 import { AddButton } from '@/components/ui/buttons/AddButton';
+import { Spinner } from '@/components/ui/Spinner';
 
 export type InventoryViewTab =
   | 'ownedIngredients'
@@ -40,6 +41,8 @@ const INVENTORY_SUB_TABS: readonly InventorySubTabbarItem[] = [
 
 export interface InventoryPageShellProps {
   tab: InventoryViewTab;
+  /** 초기 데이터 로딩 중 */
+  isLoading?: boolean;
   /** 빈 상태일 때 InfoScreen을 표시 */
   isEmpty?: boolean;
   /** 빈 상태 시 InfoScreen에 전달할 props */
@@ -53,6 +56,7 @@ export interface InventoryPageShellProps {
 // TODO: Layout으로 네이밍 변경
 export function InventoryPageShell({
   tab,
+  isLoading = false,
   isEmpty = false,
   infoScreenProps,
   addHref,
@@ -71,7 +75,13 @@ export function InventoryPageShell({
         paddingX={tab === 'favoriteRecipes'}
         paddingY={tab === 'favoriteRecipes'}
       >
-        {isEmpty ? <InfoScreen {...infoScreenProps} /> : children}
+        {isLoading && isEmpty ? (
+          <Spinner />
+        ) : isEmpty ? (
+          <InfoScreen {...infoScreenProps} />
+        ) : (
+          children
+        )}
       </MainContent>
       <Tabbar activeId="inventory" />
     </>

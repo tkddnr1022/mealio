@@ -10,7 +10,7 @@ import { usePathname } from 'next/navigation';
 
 export function InventoryFavoriteIngredientsClientPage() {
   const currentUrl = usePathname();
-  const { data } = useMyInventory({
+  const { data, isLoading } = useMyInventory({
     meta: {
       currentUrl,
     },
@@ -27,6 +27,7 @@ export function InventoryFavoriteIngredientsClientPage() {
   return (
     <InventoryPageShell
       tab="favoriteIngredients"
+      isLoading={isLoading}
       isEmpty={items.length === 0}
       infoScreenProps={{
         title: '관심 재료가 없어요',

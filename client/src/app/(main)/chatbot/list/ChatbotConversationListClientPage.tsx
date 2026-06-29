@@ -13,6 +13,7 @@ import { InfoScreen } from '@/components/layout/InfoScreen';
 import { AddButton } from '@/components/ui/buttons/AddButton';
 import { FooterText } from '@/components/ui/FooterText';
 import { ListLoadMore } from '@/components/ui/ListLoadMore';
+import { Spinner } from '@/components/ui/Spinner';
 
 const TITLE_TEXT_MAX = 20;
 
@@ -60,9 +61,9 @@ export function ChatbotConversationListClientPage() {
         }
       />
 
-      <MainContent centered={!hasChats && !isLoading} scroll={hasChats}>
+      <MainContent centered={!hasChats} scroll={hasChats}>
         {isLoading && !hasChats ? (
-          <p className="typo-body-regular style-text-secondary">불러오는 중…</p>
+          <Spinner />
         ) : hasChats ? (
           <>
             <ChatList
