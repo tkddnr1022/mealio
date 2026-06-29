@@ -21,7 +21,10 @@ on:
   push:
     branches: [master, main]
     paths:
-      - 'docker/**'
+      - 'docker/producer/compose.yml'
+      - 'docker/producer/Dockerfile.producer'
+      - 'docker/consumer/compose.yml'
+      - 'docker/consumer/Dockerfile.consumer'
       - 'server/**'
       - 'package.json'
       - 'pnpm-lock.yaml'
