@@ -13,10 +13,7 @@
  */
 import { Kafka } from 'kafkajs';
 import { loadEnvFiles } from '../config/load-env-files';
-import {
-  createKafkaConfig,
-  LOCAL_TOPIC_CONFIG,
-} from '../config/kafka.config';
+import { createKafkaConfig, LOCAL_TOPIC_CONFIG } from '../config/kafka.config';
 import { KAFKA_DLQ_TOPICS, KAFKA_TOPICS } from '../constants/kafka-topics';
 
 loadEnvFiles();
@@ -52,10 +49,7 @@ function parseArgs(argv: string[]): ScriptOptions {
 }
 
 function getRequiredTopics(): string[] {
-  return [
-    ...Object.values(KAFKA_TOPICS),
-    ...Object.values(KAFKA_DLQ_TOPICS),
-  ];
+  return [...Object.values(KAFKA_TOPICS), ...Object.values(KAFKA_DLQ_TOPICS)];
 }
 
 function getTopicConfig(): TopicConfig {

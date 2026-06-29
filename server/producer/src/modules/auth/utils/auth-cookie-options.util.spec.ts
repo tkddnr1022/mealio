@@ -5,9 +5,7 @@ import {
   resolveAuthCookieDomain,
 } from './auth-cookie-options.util';
 
-function mockConfig(
-  values: Record<string, string | undefined>,
-): ConfigService {
+function mockConfig(values: Record<string, string | undefined>): ConfigService {
   return {
     get: (key: string) => values[key],
     getOrThrow: (key: string) => {
