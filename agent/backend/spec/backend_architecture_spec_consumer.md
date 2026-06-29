@@ -46,6 +46,7 @@
 | server/consumer/src/consumers/chatbot-request/handlers/SyncConversationMetaHandler.ts | 성공 턴 후 `chatbot_conversations` 동기화: `chatbot.start`면 LLM 제목·메타 생성, `chatbot.message`면 `updatedAt` 갱신 |
 | server/consumer/src/consumers/chatbot-request/services/recipe-search-query.service.ts | search_recipes 핸들러용 Prisma 조회 — ANN 후보 `recipeId` 목록에 hard constraint(`isPublished`, 기피 재료) 적용 후 상세 fetch |
 | server/consumer/src/consumers/chatbot-request/services/recipe-search-query-expansion.service.ts | search_recipes Query Expansion — 원질의 보존 + LLM 확장 질의 생성(실패 시 원질의 fallback) |
+| server/consumer/src/consumers/chatbot-request/services/ingredient-semantic-resolver.service.ts | search_recipes 재료명 → Ingredient ID 해상 — exact name → `IngredientEmbedding` ANN(`INGREDIENT_VECTOR_MATCH_THRESHOLD`) |
 | server/consumer/src/persistence/repositories/mongodb/chatbot-conversation.repository.ts | ChatbotConversation 메타 (`createWithTitle` 생성·제목 없는 스텁 보정, `chatbot.message` 시 `touchUpdatedAt`) |
 | server/consumer/src/consumers/chatbot-request/tools/chatbot-tools.definition.ts | OpenAI tools 배열 (search_recipes, get_user_inventory 등) |
 | server/consumer/src/consumers/chatbot-request/tools/tool-dispatcher.ts | function name → Handler 매핑·실행 |
@@ -105,7 +106,7 @@
 | server/consumer/src/persistence/repositories/postgresql/recipe-ingredient.repository.ts | RecipeIngredient 조회·`replaceForRecipe` 트랜잭션 쓰기 (ingestion persist) |
 | server/consumer/src/persistence/repositories/postgresql/recommendation.repository.ts | UserRecipeRecommendation upsert·랭크 재정렬·top N 조회 |
 | server/consumer/src/persistence/repositories/postgresql/recipe-embedding.repository.ts | RecipeEmbedding(pgvector) raw query — 업서트·전체 코퍼스 ANN `searchTopK`(published·기피 재료 ID hard exclude) |
-| server/consumer/src/persistence/repositories/postgresql/ingredient-embedding.repository.ts | IngredientEmbedding(pgvector) raw query — 업서트·`findMissingIds` (embed-submit·embed-retrieve) |
+| server/consumer/src/persistence/repositories/postgresql/ingredient-embedding.repository.ts | IngredientEmbedding(pgvector) raw query — 업서트·`findMissingIds`·ANN searchTopK (embed-submit·embed-retrieve·search_recipes 재료명 해상) |
 | server/consumer/src/persistence/repositories/postgresql/recipe-category.repository.ts | RecipeCategory 조회·persist 시 proposed category upsert |
 | server/consumer/src/persistence/repositories/postgresql/ingredient-category.repository.ts | IngredientCategory 조회·persist 시 proposed category upsert |
 | **server/consumer/src/persistence/repositories/mongodb/** | |

@@ -37,6 +37,7 @@ describe('SearchRecipesHandler', () => {
       recipeEmbeddingRepository?: Record<string, jest.Mock>;
       recipeSearchQueryService?: Record<string, jest.Mock>;
       recipeSearchQueryExpansionService?: Record<string, jest.Mock>;
+      ingredientSemanticResolverService?: Record<string, jest.Mock>;
     } = {},
   ) => {
     const prismaService = {
@@ -67,6 +68,41 @@ describe('SearchRecipesHandler', () => {
         .mockResolvedValue(['base query', 'expanded query']),
       ...overrides.recipeSearchQueryExpansionService,
     };
+    const ingredientSemanticResolverService = {
+      resolveNames: jest.fn().mockImplementation(async (names: string[]) => {
+        const mustHaveMap: Record<string, { id: number; name: string }> = {
+          닭가슴살: { id: 1, name: '닭가슴살' },
+        };
+        const avoidMap: Record<string, { id: number; name: string }> = {
+          우유: { id: 99, name: '우유' },
+        };
+
+        return names.map((name) => {
+          const mustHave = mustHaveMap[name];
+          if (mustHave) {
+            return {
+              inputName: name,
+              ingredientId: mustHave.id,
+              canonicalName: mustHave.name,
+              score: 1,
+              matchMethod: 'exact' as const,
+            };
+          }
+          const avoid = avoidMap[name];
+          if (avoid) {
+            return {
+              inputName: name,
+              ingredientId: avoid.id,
+              canonicalName: avoid.name,
+              score: 1,
+              matchMethod: 'exact' as const,
+            };
+          }
+          return null;
+        }).filter(Boolean);
+      }),
+      ...overrides.ingredientSemanticResolverService,
+    };
 
     const handler = new SearchRecipesHandler(
       prismaService as never,
@@ -74,6 +110,7 @@ describe('SearchRecipesHandler', () => {
       recipeEmbeddingRepository as never,
       recipeSearchQueryService as never,
       recipeSearchQueryExpansionService as never,
+      ingredientSemanticResolverService as never,
     );
 
     return {
@@ -83,8 +120,59 @@ describe('SearchRecipesHandler', () => {
       recipeEmbeddingRepository,
       recipeSearchQueryService,
       recipeSearchQueryExpansionService,
+      ingredientSemanticResolverService,
     };
   };
+
+  it('avoidIngredients를 Ingredient ID로 해상해 ANN 제외에 병합한다', async () => {
+    const {
+      handler,
+      recipeEmbeddingRepository,
+      ingredientSemanticResolverService,
+    } = createHandler({
+      ingredientSemanticResolverService: {
+        resolveNames: jest
+          .fn()
+          .mockResolvedValueOnce([
+            {
+              inputName: '닭가슴살',
+              ingredientId: 1,
+              canonicalName: '닭가슴살',
+              score: 1,
+              matchMethod: 'exact',
+            },
+          ])
+          .mockResolvedValueOnce([
+            {
+              inputName: '우유',
+              ingredientId: 50,
+              canonicalName: '우유',
+              score: 0.95,
+              matchMethod: 'vector',
+            },
+          ]),
+      },
+    });
+
+    await handler.execute(
+      {
+        keywords: ['저녁'],
+        mustHaveIngredients: ['닭가슴살'],
+        avoidIngredients: ['우유'],
+        avoidIngredientIds: [99],
+      },
+      { userId: 10 },
+    );
+
+    expect(ingredientSemanticResolverService.resolveNames).toHaveBeenCalledTimes(
+      2,
+    );
+    expect(recipeEmbeddingRepository.searchTopK).toHaveBeenCalledWith(
+      expect.objectContaining({
+        excludeIngredientIds: [99, 50],
+      }),
+    );
+  });
 
   it('semantic 검색 후 hard constraint 조회를 수행한다', async () => {
     const {

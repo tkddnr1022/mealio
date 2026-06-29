@@ -3,6 +3,8 @@ import { PrismaService } from '@mealio/shared';
 import { OpenAIService } from 'src/integrations/openai/openai.service';
 import { RecipeSearchQueryService } from '../services/recipe-search-query.service';
 import { RecipeSearchQueryExpansionService } from '../services/recipe-search-query-expansion.service';
+import { IngredientSemanticResolverService } from '../services/ingredient-semantic-resolver.service';
+import type { ResolvedIngredient } from '../services/ingredient-semantic-resolver.service';
 import { RecipeEmbeddingRepository } from 'src/persistence/repositories/postgresql/recipe-embedding.repository';
 import type { RecipeSemanticScore } from 'src/persistence/repositories/postgresql/recipe-embedding.repository';
 import { formatNutritionSummary } from '@mealio/shared';
@@ -61,6 +63,14 @@ export interface SearchRecipesOptions {
   userId: number;
 }
 
+interface ResolvedSearchIngredients {
+  mustHave: ResolvedIngredient[];
+  avoid: ResolvedIngredient[];
+  mergedAvoidIngredientIds: number[];
+  mustHaveIngredientIds: number[];
+  mustHaveCanonicalNames: string[];
+}
+
 /**
  * search_recipes 함수 실행 — semantic-first 후보 수집 후 hard/soft 제약 기반 재랭킹.
  */
@@ -74,14 +84,20 @@ export class SearchRecipesHandler {
     private readonly recipeEmbeddingRepository: RecipeEmbeddingRepository,
     private readonly recipeSearchQueryService: RecipeSearchQueryService,
     private readonly recipeSearchQueryExpansionService: RecipeSearchQueryExpansionService,
+    private readonly ingredientSemanticResolverService: IngredientSemanticResolverService,
   ) {}
 
   async execute(
     payload: SearchRecipesPayload,
     options: SearchRecipesOptions,
   ): Promise<SearchedRecipe[]> {
-    const keywords = this.buildKeywords(payload);
-    const baseQueryText = this.buildSemanticQueryText(payload, keywords);
+    const resolvedIngredients = await this.resolveSearchIngredients(payload);
+    const keywords = this.buildKeywords(payload, resolvedIngredients);
+    const baseQueryText = this.buildSemanticQueryText(
+      payload,
+      keywords,
+      resolvedIngredients,
+    );
     if (baseQueryText.length === 0) {
       return [];
     }
@@ -89,7 +105,10 @@ export class SearchRecipesHandler {
     const queryTexts =
       await this.recipeSearchQueryExpansionService.expandQueries({
         baseQueryText,
-        mustHaveIngredients: payload.mustHaveIngredients,
+        mustHaveIngredients:
+          resolvedIngredients.mustHaveCanonicalNames.length > 0
+            ? resolvedIngredients.mustHaveCanonicalNames
+            : payload.mustHaveIngredients,
         avoidIngredients: payload.avoidIngredients,
       });
     const queryEmbeddings =
@@ -103,7 +122,7 @@ export class SearchRecipesHandler {
         this.recipeEmbeddingRepository.searchTopK({
           queryEmbedding,
           limit: RECIPE_SEARCH_ANN_TOP_K_PER_QUERY,
-          excludeIngredientIds: payload.avoidIngredientIds,
+          excludeIngredientIds: resolvedIngredients.mergedAvoidIngredientIds,
         }),
       ),
     );
@@ -124,13 +143,13 @@ export class SearchRecipesHandler {
     const recipes = await this.recipeSearchQueryService.fetchRecipesByIds(
       candidateRecipeIds,
       {
-        excludeIngredientIds: payload.avoidIngredientIds,
+        excludeIngredientIds: resolvedIngredients.mergedAvoidIngredientIds,
         excludeIngredientNames: payload.avoidIngredients,
       },
     );
 
     this.logger.debug(
-      `semantic search queries=${queryTexts.length} candidates=${candidateRecipeIds.length} fetched=${recipes.length}`,
+      `semantic search queries=${queryTexts.length} candidates=${candidateRecipeIds.length} fetched=${recipes.length} resolvedMustHave=${resolvedIngredients.mustHave.length} resolvedAvoid=${resolvedIngredients.avoid.length}`,
     );
 
     return this.rerankRecipes(
@@ -138,7 +157,36 @@ export class SearchRecipesHandler {
       payload,
       options,
       semanticScoreByRecipeId,
+      resolvedIngredients,
     );
+  }
+
+  private async resolveSearchIngredients(
+    payload: SearchRecipesPayload,
+  ): Promise<ResolvedSearchIngredients> {
+    const [mustHave, avoid] = await Promise.all([
+      this.ingredientSemanticResolverService.resolveNames(
+        payload.mustHaveIngredients ?? [],
+      ),
+      this.ingredientSemanticResolverService.resolveNames(
+        payload.avoidIngredients ?? [],
+      ),
+    ]);
+
+    const mergedAvoidIngredientIds = this.mergeUniquePositiveIds([
+      ...(payload.avoidIngredientIds ?? []),
+      ...avoid.map((item) => item.ingredientId),
+    ]);
+    const mustHaveIngredientIds = mustHave.map((item) => item.ingredientId);
+    const mustHaveCanonicalNames = mustHave.map((item) => item.canonicalName);
+
+    return {
+      mustHave,
+      avoid,
+      mergedAvoidIngredientIds,
+      mustHaveIngredientIds,
+      mustHaveCanonicalNames,
+    };
   }
 
   private mergeSemanticScores(
@@ -180,8 +228,9 @@ export class SearchRecipesHandler {
     payload: SearchRecipesPayload,
     options: SearchRecipesOptions,
     semanticScoreByRecipeId: Map<number, number>,
+    resolvedIngredients: ResolvedSearchIngredients,
   ): Promise<SearchedRecipe[]> {
-    const keywords = this.buildKeywords(payload);
+    const keywords = this.buildKeywords(payload, resolvedIngredients);
     const recipeIds = recipes.map((recipe) => recipe.id);
 
     const preferenceRows = await this.prisma.userRecipeRecommendation.findMany({
@@ -222,6 +271,7 @@ export class SearchRecipesHandler {
         const softConstraintScore = this.computeSoftConstraintScore(
           recipe,
           payload,
+          resolvedIngredients,
         );
         const finalScore =
           semanticScore * RECIPE_SEARCH_RERANK_WEIGHT.semantic +
@@ -287,10 +337,18 @@ export class SearchRecipesHandler {
     }));
   }
 
-  private buildKeywords(payload: SearchRecipesPayload): string[] {
+  private buildKeywords(
+    payload: SearchRecipesPayload,
+    resolvedIngredients: ResolvedSearchIngredients,
+  ): string[] {
+    const mustHaveNames =
+      resolvedIngredients.mustHaveCanonicalNames.length > 0
+        ? resolvedIngredients.mustHaveCanonicalNames
+        : (payload.mustHaveIngredients ?? []);
+
     return this.normalizeLowerCaseValues([
       ...(payload.keywords ?? []),
-      ...(payload.mustHaveIngredients ?? []),
+      ...mustHaveNames,
     ]);
   }
 
@@ -303,10 +361,16 @@ export class SearchRecipesHandler {
   private buildSemanticQueryText(
     payload: SearchRecipesPayload,
     keywords: string[],
+    resolvedIngredients: ResolvedSearchIngredients,
   ): string {
+    const mustHaveNames =
+      resolvedIngredients.mustHaveCanonicalNames.length > 0
+        ? resolvedIngredients.mustHaveCanonicalNames
+        : (payload.mustHaveIngredients ?? []);
+
     const sections = [
       `keywords: ${keywords.join(', ')}`,
-      `must_have: ${(payload.mustHaveIngredients ?? []).join(', ')}`,
+      `must_have: ${mustHaveNames.join(', ')}`,
       `avoid: ${(payload.avoidIngredients ?? []).join(', ')}`,
       `cook_time: ${this.formatRangeContext(
         payload.cookTime?.gte,
@@ -364,6 +428,7 @@ export class SearchRecipesHandler {
   private computeSoftConstraintScore(
     recipe: RecipeSearchCandidate,
     payload: SearchRecipesPayload,
+    resolvedIngredients: ResolvedSearchIngredients,
   ): number {
     const scores: number[] = [];
 
@@ -403,21 +468,34 @@ export class SearchRecipesHandler {
       scores.push(matched ? 1 : 0);
     }
 
-    const mustHaveIngredients = this.normalizeLowerCaseValues(
-      payload.mustHaveIngredients ?? [],
+    const mustHaveIngredientIds = this.normalizePositiveIds(
+      resolvedIngredients.mustHaveIngredientIds,
     );
-    if (mustHaveIngredients.length > 0) {
-      const ingredientNames = recipe.recipeIngredients.map((row) =>
-        row.ingredient.name.toLowerCase(),
+    if (mustHaveIngredientIds.length > 0) {
+      const recipeIngredientIds = recipe.recipeIngredients.map(
+        (row) => row.ingredientId,
       );
-      const hitCount = mustHaveIngredients.reduce(
-        (count, ingredient) =>
-          ingredientNames.some((name) => name.includes(ingredient))
-            ? count + 1
-            : count,
-        0,
+      const hitCount = mustHaveIngredientIds.filter((ingredientId) =>
+        recipeIngredientIds.includes(ingredientId),
+      ).length;
+      scores.push(hitCount / mustHaveIngredientIds.length);
+    } else {
+      const mustHaveIngredients = this.normalizeLowerCaseValues(
+        payload.mustHaveIngredients ?? [],
       );
-      scores.push(hitCount / mustHaveIngredients.length);
+      if (mustHaveIngredients.length > 0) {
+        const ingredientNames = recipe.recipeIngredients.map((row) =>
+          row.ingredient.name.toLowerCase(),
+        );
+        const hitCount = mustHaveIngredients.reduce(
+          (count, ingredient) =>
+            ingredientNames.some((name) => name.includes(ingredient))
+              ? count + 1
+              : count,
+          0,
+        );
+        scores.push(hitCount / mustHaveIngredients.length);
+      }
     }
 
     if (scores.length === 0) {
@@ -544,6 +622,10 @@ export class SearchRecipesHandler {
   }
 
   private normalizePositiveIds(values: number[]): number[] {
+    return this.mergeUniquePositiveIds(values);
+  }
+
+  private mergeUniquePositiveIds(values: number[]): number[] {
     return [
       ...new Set(
         values.filter((value) => Number.isInteger(value) && value > 0),
