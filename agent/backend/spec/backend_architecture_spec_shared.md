@@ -22,7 +22,7 @@
 | server/shared/src/constants/asset-url-prefixes.ts | ASSET_URL_PREFIX (RECIPE_IMAGE, INGREDIENT_CATEGORY_ICON). 레시피 이미지/재료 카테고리 아이콘 URL prefix 공통 사용 |
 | server/shared/src/policy/user-credits.policy.ts | 챗봇 크레딧: `DEFAULT_USER_CREDIT_*`, `TOKENS_PER_CREDIT`, `computeChatbotCreditCost`. `@mealio/shared` `index.ts` re-export |
 | server/shared/src/database/prisma/schema.prisma | PostgreSQL 스키마 (User·크레딧 필드·ChatbotCreditDeduction, RecipeCategory, Recipe, RecipeStats, IngredientCategory, Ingredient, RecipeIngredient, UserRecipeRecommendation) |
-| server/shared/src/database/prisma/seed.ts | 로컬/개발용 시드 스크립트. `User` 삽입 시 `user-credits.policy`로 `credit_balance`·`credit_monthly_limit` 설정 |
+| server/shared/src/database/prisma/seed.ts | 프로덕션 초기 배포·recipe ingestion용 카테고리 마스터 시드(레시피 10·재료 20). |
 | server/shared/src/database/prisma/prisma-pool.config.ts | PrismaPoolConfig 타입, PRISMA_POOL_CONFIG DI 토큰 (커넥션 풀 설정용). PrismaService·PrismaModule에서 참조 |
 | server/shared/src/database/prisma/prisma.service.ts | PrismaService (NestJS, OnModuleInit/OnModuleDestroy, PrismaPg 어댑터. PRISMA_POOL_CONFIG 주입) |
 | server/shared/src/database/prisma/prisma.module.ts | PrismaModule. forRoot(config) / forRootAsync({ useFactory }) 로 connection pool config 주입. Producer/Consumer에서 import 시 config 전달 |
@@ -30,7 +30,7 @@
 | server/shared/src/database/prisma/migrations/ | PostgreSQL 마이그레이션 |
 | server/shared/src/database/mongoose/mongoose-pool.config.ts | MongoosePoolConfig 타입 (커넥션 풀 설정). 앱에서는 풀만 정의, URI·retry·readPreference 등은 shared 공용 |
 | server/shared/src/database/mongoose/mongoose.module.ts | MongooseSchemasModule. forRoot(poolConfig) / forRootAsync 로 풀 config 주입. URI·스키마(EventLog, ChatbotLog, Inventory)는 shared에서 공용 관리 |
-| server/shared/src/database/mongoose/seed.ts | MongoDB 로컬/개발용 시드 스크립트 |
+| server/shared/src/database/mongoose/seed.ts | MongoDB 시드 stub(데이터 삽입 없음). 인덱스는 `sync-indexes` CLI 사용 |
 | server/shared/src/database/mongoose/sync-indexes.ts | MongoDB 인덱스 동기화 CLI (`connection.syncIndexes`) |
 | server/shared/src/kafka/create-topics.ts | Kafka 메인·DLQ 토픽 배포 전 생성 CLI (`pnpm run db:kafka:create-topics:production`) |
 | server/shared/src/database/mongoose/schemas/index.ts | Mongoose 스키마 배럴 export |

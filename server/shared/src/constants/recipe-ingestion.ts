@@ -61,7 +61,7 @@ export const RECIPE_INGESTION_STATE_KEY = 'singleton';
 /** PostgreSQL Recipe.source — 공공데이터 API(식품의약품안전처) 출처 식별자 */
 export const RECIPE_INGESTION_RECIPE_SOURCE = 'foodsafety';
 
-/** 카테고리 매핑 실패 시 기본 레시피 카테고리 id (seed: KOREAN) */
+/** 카테고리 매핑 실패 시 기본 레시피 카테고리 id (seed: SIDE_DISH) */
 export const RECIPE_INGESTION_DEFAULT_RECIPE_CATEGORY_ID = 1;
 
 /** 재료 카테고리 매핑 실패 시 기본 재료 카테고리 id (seed: VEGETABLE) */
