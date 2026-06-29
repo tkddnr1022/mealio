@@ -94,7 +94,7 @@ export class EmbedRetrieveService {
         event: RECIPE_INGESTION_LOG_EVENTS.STAGE_NO_OP,
         outcome: 'no_op',
         ...logBase,
-        message: 'No embed-submitted batches',
+        message: 'No embed_submitted batches',
       });
       this.metrics.recordIngestionStage('embed-retrieve', 'skipped');
       this.metrics.observeIngestionStageLatency(

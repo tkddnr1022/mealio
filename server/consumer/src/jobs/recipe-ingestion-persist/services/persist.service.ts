@@ -126,7 +126,7 @@ export class PersistService {
         event: RECIPE_INGESTION_LOG_EVENTS.STAGE_NO_OP,
         outcome: 'no_op',
         ...logBase,
-        message: 'No parse-retrieved jobs',
+        message: 'No parse_retrieved jobs',
       });
       logIngestion(this.logger, 'log', {
         event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,

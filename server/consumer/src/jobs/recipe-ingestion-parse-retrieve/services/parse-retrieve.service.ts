@@ -105,7 +105,7 @@ export class ParseRetrieveService {
         event: RECIPE_INGESTION_LOG_EVENTS.STAGE_NO_OP,
         outcome: 'no_op',
         ...logBase,
-        message: 'No parse-submitted batches',
+        message: 'No parse_submitted batches',
       });
       this.metrics.recordIngestionStage('parse-retrieve', 'skipped');
       this.metrics.observeIngestionStageLatency(
