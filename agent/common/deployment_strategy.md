@@ -296,7 +296,7 @@ docker compose --env-file client/.env.docker -f docker/client/compose.yml up -d 
 |---|---|---|
 | `MONGODB_URL` | Atlas | `mongodb://...@mongodb:27017/...` (기본) |
 | `POSTGRESQL_URL` | Neon | `postgresql://...@postgres:5432/...` (기본) |
-| `REDIS_URL` | Upstash | `redis://redis:6379` (기본) |
+| `REDIS_URL` | Upstash | `redis://:devpassword@redis:6379` (기본) |
 
 루트 `.env.docker.example`(인프라 → `.env.docker`)와 각 패키지 `.env.example`·`.env.docker.example`, 배포 시크릿 저장소(AWS SSM Parameter Store, GitHub Actions secrets 등)를 동기화한다.
 

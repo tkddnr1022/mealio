@@ -92,6 +92,8 @@ cp server/consumer/.env.docker.example server/consumer/.env.docker.local
 | `POSTGRES_USER` | PostgreSQL 사용자명 | `devuser` |
 | `POSTGRES_PASSWORD` | PostgreSQL 비밀번호 | `devpassword` |
 | `POSTGRES_DB` | PostgreSQL 데이터베이스명 | `devdb` |
+| `REDIS_PASSWORD` | Redis 비밀번호 (`requirepass`) | `devpassword` |
+| `REDIS_EXTERNAL_PORT` | 호스트에서 Redis 접속 포트 | `6379` |
 | `KAFKA_EXTERNAL_HOST` | 호스트에서 Kafka 접속 호스트 | `localhost` |
 | `KAFKA_EXTERNAL_PORT` | 호스트에서 Kafka 접속 포트 | `9092` |
 | `KAFKA_UI_PORT` | Kafka UI 포트 | `8080` |

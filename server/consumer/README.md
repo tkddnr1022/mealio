@@ -37,7 +37,7 @@ cp .env.docker.example .env.docker.local      # Docker Compose
 | `APP_ENV` | 실행 환경 (`package.json`/Compose에서 런타임 주입) | `local` |
 | `POSTGRESQL_URL` | PostgreSQL 연결 URL | `postgresql://devuser:devpassword@localhost:5432/devdb` |
 | `MONGODB_URL` | MongoDB 연결 URL | `mongodb://devuser:devpassword@localhost:27017/devdb?authSource=admin` |
-| `REDIS_URL` | Redis 연결 URL | `redis://localhost:6379` |
+| `REDIS_URL` | Redis 연결 URL | `redis://:devpassword@localhost:6379` |
 | `KAFKA_CLIENT_ID` | Kafka 클라이언트 ID | `mealio-consumer` |
 | `KAFKA_BROKERS` | Kafka 브로커 목록 | `localhost:9092` |
 | `OPENAI_API_KEY` | OpenAI API 키 | `sk-...` |

@@ -74,6 +74,8 @@ cp server/consumer/.env.example server/consumer/.env.local
 | 항목 | 내용 |
 | --- | --- |
 | 설명 | Handler 캐시·챗봇 스트림 이벤트 발행 |
+| 예시 (로컬) | `redis://:devpassword@localhost:6379` |
+| 예시 (Compose 앱) | `redis://:devpassword@redis:6379` |
 | 사용처 | `@mealio/shared` Redis 모듈 |
 
 ### `KAFKA_BROKERS` / `KAFKA_CLIENT_ID`

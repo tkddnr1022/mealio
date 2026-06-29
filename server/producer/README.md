@@ -39,7 +39,7 @@ cp .env.docker.example .env.docker.local      # Docker Compose
 | `JWT_SECRET` | JWT 서명 시크릿 (256비트 이상 권장) | `a-string-secret-at-least-256-bits-long` |
 | `POSTGRESQL_URL` | PostgreSQL 연결 URL | `postgresql://devuser:devpassword@localhost:5432/devdb` |
 | `MONGODB_URL` | MongoDB 연결 URL | `mongodb://devuser:devpassword@localhost:27017/devdb?authSource=admin` |
-| `REDIS_URL` | Redis 연결 URL | `redis://localhost:6379` |
+| `REDIS_URL` | Redis 연결 URL | `redis://:devpassword@localhost:6379` |
 | `KAFKA_BROKERS` | Kafka 브로커 목록 | `localhost:9092` |
 | `KAFKA_CLIENT_ID` | Kafka 클라이언트 ID | `mealio-producer` |
 | `GOOGLE_CLIENT_ID` | Google OAuth 클라이언트 ID | `example.apps.googleusercontent.com` |

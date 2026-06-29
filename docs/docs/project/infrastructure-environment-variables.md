@@ -48,7 +48,16 @@ Grafana PostgreSQL view는 `prisma migrate deploy`로 적용한다 (`20260628000
 
 ## Redis
 
-로컬 Redis는 `docker/redis/compose.yml`에서 **고정 포트 6379**로 기동하며, 앱의 `REDIS_URL`은 `redis://127.0.0.1:6379` 형식으로 맞춥니다.
+`docker/redis/compose.yml`에서 비밀번호 인증·호스트 포트를 설정합니다.
+
+### `REDIS_PASSWORD` / `REDIS_EXTERNAL_PORT`
+
+| 항목 | 내용 |
+| --- | --- |
+| 설명 | Redis `requirepass` 비밀번호·호스트에서 접속할 때 바인딩 포트 |
+| 예시 | `devpassword` / `6379` |
+| Compose | `docker/redis/compose.yml` |
+| 앱 env 정합 | `REDIS_URL`에 동일 비밀번호 포함 (`redis://:devpassword@127.0.0.1:6379`) |
 
 ## Kafka
 
