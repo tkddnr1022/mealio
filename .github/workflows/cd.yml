@@ -38,6 +38,7 @@ jobs:
           script: |
             set -euo pipefail
             cd "${EC2_DEPLOY_PATH:-$HOME/mealio}"
+            git pull
             docker compose --env-file server/producer/.env.docker.development.local -f docker/compose-producer.yml up -d --pull always
             docker compose --env-file server/consumer/.env.docker.development.local -f docker/compose-consumer.yml up -d --pull always
             docker system prune -a -f
