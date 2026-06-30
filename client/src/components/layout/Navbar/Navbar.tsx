@@ -37,7 +37,7 @@ export function Navbar({
         className,
       )}
     >
-      <div className="mx-auto h-12 w-full max-w-(--layout-content-max-width) px-2">
+      <div className="mx-auto h-12 w-full px-2">
         <div className="relative flex h-full items-center justify-center">
           {showBack && (
             <div className="absolute left-0 top-1/2 -translate-y-1/2">

@@ -13,7 +13,7 @@ export interface AppRootFrameProps {
 export function AppRootFrame({ className = '', children }: AppRootFrameProps) {
   return (
     <div className={cn('flex h-dvh w-full justify-center', className)}>
-      <div className="flex flex-col size-full max-w-[400px] overflow-hidden">
+      <div className="flex flex-col size-full max-w-[767px] overflow-hidden">
         {children}
       </div>
     </div>

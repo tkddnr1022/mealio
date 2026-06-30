@@ -28,7 +28,7 @@ export default function GlobalError({ error }: GlobalErrorProps) {
     <html lang="ko">
       <body className="antialiased">
         <div className="flex h-screen w-full justify-center">
-          <div className="flex size-full max-w-[400px] flex-col overflow-hidden">
+          <div className="flex size-full flex-col overflow-hidden">
             <main className="flex min-h-0 flex-1 flex-col items-center justify-center bg-background-primary-default px-4">
               <div className="w-full max-w-(--layout-content-max-width)">
                 <InfoScreen
