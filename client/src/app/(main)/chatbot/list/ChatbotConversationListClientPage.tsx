@@ -89,7 +89,7 @@ export function ChatbotConversationListClientPage() {
             title="대화 기록이 없어요"
             message="첫 대화를 시작해 보세요"
             buttonLabel="대화 시작"
-            buttonHref="/chatbot/list/new"
+            buttonHref="/chatbot/new"
           />
         )}
       </MainContent>
