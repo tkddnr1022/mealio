@@ -1,11 +1,13 @@
 import { User } from 'lucide-react';
 import type { HTMLAttributes } from 'react';
-import { type OAuthProvider } from '@/lib/types/auth';
+import {
+  getProfileIconShellAriaLabel,
+  OAUTH_PROVIDER_META,
+  type ProfileIconShellProvider,
+} from '@/lib/auth/providers';
 import { cn } from '@/lib/utils/cn';
 import { AdaptiveImage } from '@/components/ui/AdaptiveImage';
 import { IconShell } from '@/components/ui/IconShell';
-
-export type ProfileIconShellProvider = 'none' | OAuthProvider;
 
 export interface ProfileIconShellProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
@@ -15,32 +17,13 @@ export interface ProfileIconShellProps extends Omit<
   provider?: ProfileIconShellProvider;
 }
 
-const OAUTH_PROVIDER_META: Record<
-  OAuthProvider,
-  Readonly<{
-    className: string;
-    iconSrc: string;
-  }>
-> = {
-  kakao: {
-    className: 'bg-provider-kakao-primary text-provider-kakao-on-primary',
-    iconSrc: '/oauth/kakao.svg',
-  },
-  naver: {
-    className: 'bg-provider-naver-primary text-provider-naver-on-primary',
-    iconSrc: '/oauth/naver.svg',
-  },
-  google: {
-    className: 'bg-provider-google-primary text-provider-google-on-primary',
-    iconSrc: '/oauth/google.svg',
-  },
-};
-
 export function ProfileIconShell({
   className = '',
   provider = 'none',
   ...rest
 }: ProfileIconShellProps) {
+  const ariaLabel = getProfileIconShellAriaLabel(provider);
+
   if (provider === 'none') {
     return (
       <IconShell
@@ -48,6 +31,7 @@ export function ProfileIconShell({
         size="xlarge"
         className={className}
         icon={<User className="size-8" strokeWidth={2} aria-hidden />}
+        aria-label={ariaLabel}
         data-name="ProfileIconShell"
         data-provider={provider}
         {...rest}
@@ -65,6 +49,8 @@ export function ProfileIconShell({
         providerClassName,
         className,
       )}
+      role="img"
+      aria-label={ariaLabel}
       data-name="ProfileIconShell"
       data-provider={provider}
       {...rest}

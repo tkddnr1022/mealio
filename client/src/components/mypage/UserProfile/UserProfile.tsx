@@ -2,8 +2,8 @@ import type { HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils/cn';
 import {
   ProfileIconShell,
-  type ProfileIconShellProvider,
 } from '@/components/ui/ProfileIconShell';
+import { type ProfileIconShellProvider } from '@/lib/auth/providers';
 
 export interface UserProfileProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
@@ -32,10 +32,7 @@ export function UserProfile({
       data-name="UserProfile"
       {...rest}
     >
-      <ProfileIconShell
-        aria-hidden
-        provider={loggedIn ? provider : 'none'}
-      />
+      <ProfileIconShell provider={loggedIn ? provider : 'none'} />
       <div className="min-w-0 flex-1">
         {loggedIn ? (
           <>

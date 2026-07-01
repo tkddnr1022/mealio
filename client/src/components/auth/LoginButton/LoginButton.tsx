@@ -1,33 +1,8 @@
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react';
-import { type OAuthProvider } from '@/lib/types/auth';
+import { OAUTH_PROVIDER_META, type OAuthProvider } from '@/lib/auth/providers';
 import { cn } from '@/lib/utils/cn';
 import { AdaptiveImage } from '@/components/ui/AdaptiveImage';
 import { NavLink } from '@/components/ui/NavLink';
-
-const PROVIDER_META: Record<
-  OAuthProvider,
-  Readonly<{
-    label: string;
-    className: string;
-    iconSrc: string;
-  }>
-> = {
-  kakao: {
-    label: '카카오 로그인',
-    className: 'bg-provider-kakao-primary text-provider-kakao-on-primary',
-    iconSrc: '/oauth/kakao.svg',
-  },
-  naver: {
-    label: '네이버 로그인',
-    className: 'bg-provider-naver-primary text-provider-naver-on-primary',
-    iconSrc: '/oauth/naver.svg',
-  },
-  google: {
-    label: '구글 로그인',
-    className: 'bg-provider-google-primary text-provider-google-on-primary',
-    iconSrc: '/oauth/google.svg',
-  },
-};
 
 type LoginButtonShared = Readonly<{
   className?: string;
@@ -48,10 +23,10 @@ export function LoginButton(props: LoginButtonProps) {
   const className = props.className ?? '';
   const provider = props.provider ?? 'kakao';
   const {
-    label,
+    loginLabel: label,
     className: providerClassName,
     iconSrc,
-  } = PROVIDER_META[provider];
+  } = OAUTH_PROVIDER_META[provider];
 
   const surfaceClass = cn(
     'flex w-full items-center justify-between rounded-xl px-4 py-4 outline-none transition-opacity hover:opacity-90 focus-visible:outline-(length:--border-width-focus) focus-visible:outline-offset-2 focus-visible:outline-primary-default',

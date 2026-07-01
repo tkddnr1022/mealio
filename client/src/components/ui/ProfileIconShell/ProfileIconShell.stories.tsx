@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import {
   ProfileIconShell,
-  type ProfileIconShellProvider,
 } from '@/components/ui/ProfileIconShell';
+import { type ProfileIconShellProvider } from '@/lib/auth/providers';
 
 const providerOptions = [
   'none',

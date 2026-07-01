@@ -12,6 +12,7 @@ import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import { env } from '@/lib/config/env';
 import { OAUTH_PROVIDERS } from '@/lib/types/auth';
 import type { OAuthProvider } from '@/lib/types/auth';
+import { buildAriaLabel } from '@/lib/utils/a11y';
 
 export type { OAuthProvider } from '@/lib/types/auth';
 
@@ -22,10 +23,61 @@ export const OAUTH_PROVIDER_LABELS: Readonly<Record<OAuthProvider, string>> = {
   naver: '네이버',
 };
 
+export const OAUTH_PROVIDER_META: Readonly<
+  Record<
+    OAuthProvider,
+    Readonly<{
+      loginLabel: string;
+      className: string;
+      iconSrc: string;
+    }>
+  >
+> = {
+  kakao: {
+    loginLabel: '카카오 로그인',
+    className: 'bg-provider-kakao-primary text-provider-kakao-on-primary',
+    iconSrc: '/oauth/kakao.svg',
+  },
+  naver: {
+    loginLabel: '네이버 로그인',
+    className: 'bg-provider-naver-primary text-provider-naver-on-primary',
+    iconSrc: '/oauth/naver.svg',
+  },
+  google: {
+    loginLabel: '구글 로그인',
+    className: 'bg-provider-google-primary text-provider-google-on-primary',
+    iconSrc: '/oauth/google.svg',
+  },
+};
+
+export type ProfileIconShellProvider = 'none' | OAuthProvider;
+
 export function isOAuthProvider(value: unknown): value is OAuthProvider {
   return (
     typeof value === 'string' &&
     (OAUTH_PROVIDERS as readonly string[]).includes(value)
+  );
+}
+
+export function toProfileIconShellProvider(
+  platformName?: string,
+): ProfileIconShellProvider {
+  if (platformName !== undefined && isOAuthProvider(platformName)) {
+    return platformName;
+  }
+  return 'none';
+}
+
+export function getProfileIconShellAriaLabel(
+  provider: ProfileIconShellProvider,
+): string {
+  if (provider === 'none') {
+    return buildAriaLabel('image', '기본 프로필');
+  }
+
+  return buildAriaLabel(
+    'image',
+    `${OAUTH_PROVIDER_LABELS[provider]} 계정 프로필`,
   );
 }
 
