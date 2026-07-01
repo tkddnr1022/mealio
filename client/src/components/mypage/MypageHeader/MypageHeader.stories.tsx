@@ -28,6 +28,7 @@ export const LoggedIn: Story = {
     creditUsed: 250,
     creditMax: 1000,
     userProfileProps: {
+      provider: 'kakao',
       nickname: '김레시피',
       email: 'recipe@example.com',
     },

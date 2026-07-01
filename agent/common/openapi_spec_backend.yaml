@@ -1513,8 +1513,16 @@ components:
       description: Opaque refresh token이 포함된 HttpOnly 쿠키 (Path=/)
 
   schemas:
-    User:
+    UserProfile:
       type: object
+      required:
+        - id
+        - email
+        - nickname
+        - platformName
+        - createdAt
+        - creditBalance
+        - creditMonthlyLimit
       properties:
         id:
           type: integer
@@ -1527,6 +1535,13 @@ components:
         nickname:
           type: string
           description: 닉네임
+        platformName:
+          type: string
+          description: 로그인 플랫폼 (google, kakao, naver 등)
+        createdAt:
+          type: string
+          format: date-time
+          description: 가입일시
         creditBalance:
           type: integer
           description: 남은 챗봇 크레딧
@@ -1537,18 +1552,10 @@ components:
         id: 123
         email: user@example.com
         nickname: 요리왕
+        platformName: kakao
+        createdAt: '2025-01-01T00:00:00.000Z'
         creditBalance: 750
         creditMonthlyLimit: 1000
-
-    UserProfile:
-      allOf:
-        - $ref: '#/components/schemas/User'
-        - type: object
-          properties:
-            createdAt:
-              type: string
-              format: date-time
-              description: 가입일시
 
     UserActivityItem:
       type: object

@@ -36,6 +36,7 @@ export class UsersService {
           id: user.id,
           email: user.email,
           nickname: user.nickname,
+          platformName: user.platformName,
           createdAt: user.createdAt,
           creditBalance: user.creditBalance,
           creditMonthlyLimit: user.creditMonthlyLimit,

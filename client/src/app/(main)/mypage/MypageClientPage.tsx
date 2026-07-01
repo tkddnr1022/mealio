@@ -15,9 +15,21 @@ import { MainContent } from '@/components/layout/MainContent';
 import { Navbar } from '@/components/layout/Navbar';
 import { Tabbar } from '@/components/layout/Tabbar';
 import { MenuSection, MypageHeader } from '@/components/mypage';
+import type { ProfileIconShellProvider } from '@/components/ui/ProfileIconShell';
 import { AuthStatus, useAuth } from '@/lib/auth/auth-context';
 import { buildLoginUrl } from '@/lib/auth/routes';
 import { useLogoutMutation } from '@/lib/queries/auth.queries';
+import { OAUTH_PROVIDERS, type OAuthProvider } from '@/lib/types/auth';
+
+function toProfileProvider(platformName?: string): ProfileIconShellProvider {
+  if (
+    platformName !== undefined &&
+    OAUTH_PROVIDERS.includes(platformName as OAuthProvider)
+  ) {
+    return platformName as OAuthProvider;
+  }
+  return 'none';
+}
 
 export function MypageClientPage() {
   const router = useRouter();
@@ -44,7 +56,13 @@ export function MypageClientPage() {
           creditUsed={creditUsed}
           creditMax={creditMax}
           userProfileProps={
-            loggedIn ? { nickname, email } : { message: '로그인이 필요해요' }
+            loggedIn
+              ? {
+                  nickname,
+                  email,
+                  provider: toProfileProvider(user?.platformName),
+                }
+              : { message: '로그인이 필요해요' }
           }
         />
 

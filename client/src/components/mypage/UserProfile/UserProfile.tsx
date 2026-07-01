@@ -1,6 +1,9 @@
-import { User } from 'lucide-react';
 import type { HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils/cn';
+import {
+  ProfileIconShell,
+  type ProfileIconShellProvider,
+} from '@/components/ui/ProfileIconShell';
 
 export interface UserProfileProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
@@ -8,6 +11,7 @@ export interface UserProfileProps extends Omit<
 > {
   className?: string;
   loggedIn?: boolean;
+  provider?: ProfileIconShellProvider;
   nickname?: string;
   email?: string;
   message?: string;
@@ -16,6 +20,7 @@ export interface UserProfileProps extends Omit<
 export function UserProfile({
   className = '',
   loggedIn = true,
+  provider = 'none',
   nickname = 'Nickname',
   email = 'recipe@example.com',
   message = '로그인이 필요해요',
@@ -27,12 +32,10 @@ export function UserProfile({
       data-name="UserProfile"
       {...rest}
     >
-      <span
+      <ProfileIconShell
         aria-hidden
-        className="inline-flex size-16 shrink-0 items-center justify-center rounded-full bg-dropdown-selected-default style-text-accent"
-      >
-        <User className="size-8" strokeWidth={2} />
-      </span>
+        provider={loggedIn ? provider : 'none'}
+      />
       <div className="min-w-0 flex-1">
         {loggedIn ? (
           <>

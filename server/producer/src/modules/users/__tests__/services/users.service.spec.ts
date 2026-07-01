@@ -33,6 +33,7 @@ describe('UsersService', () => {
     id: 1,
     email: 'test@example.com',
     nickname: 'TestUser',
+    platformName: 'local',
     createdAt: mockUser.createdAt,
     creditBalance: 500,
     creditMonthlyLimit: 1000,
@@ -117,6 +118,7 @@ describe('UsersService', () => {
       expect(result.id).toBe(1);
       expect(result.email).toBe('test@example.com');
       expect(result.nickname).toBe('TestUser');
+      expect(result.platformName).toBe('local');
       expect(result.createdAt).toEqual(mockUser.createdAt);
       expect(result.creditBalance).toBe(500);
       expect(result.creditMonthlyLimit).toBe(1000);

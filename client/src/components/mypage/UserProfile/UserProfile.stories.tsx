@@ -25,6 +25,17 @@ export const LoggedIn = {
   name: 'loggedIn=true',
   args: {
     loggedIn: true,
+    provider: 'kakao',
+    nickname: '김레시피',
+    email: 'recipe@example.com',
+  },
+} satisfies Story;
+
+export const LoggedInGoogle = {
+  name: 'loggedIn=true · provider=google',
+  args: {
+    loggedIn: true,
+    provider: 'google',
     nickname: '김레시피',
     email: 'recipe@example.com',
   },

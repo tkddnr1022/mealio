@@ -19,6 +19,7 @@ const mockUser = {
   id: 1,
   email: 'user@example.com',
   nickname: 'mealio',
+  platformName: 'kakao',
   createdAt: '2026-01-01T00:00:00.000Z',
   creditBalance: 10,
   creditMonthlyLimit: 100,

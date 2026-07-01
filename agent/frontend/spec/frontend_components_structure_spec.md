@@ -51,6 +51,7 @@
 | client/src/components/ui/ActionGroup/ | 액션 버튼 그룹 |
 | client/src/components/ui/Thumbnail/ | 썸네일 세트(`square`) |
 | client/src/components/ui/IconShell/ | 아이콘 래퍼 세트(`variant` × `size`) |
+| client/src/components/ui/ProfileIconShell/ | 프로필 아이콘 셸 세트(`provider`: `none`/`google`/`kakao`/`naver`, `IconShell` `xlarge` 동일 크기) |
 | client/src/components/ui/PaginationDot/ | 페이지네이션 점 세트(`active`/`inactive`) |
 | client/src/components/ui/SliderPagination/ | 슬라이더 페이지네이션 세트(`activeIndex`) |
 | client/src/components/ui/Spinner/ | 로딩 스피너(`Spinner`) |
@@ -149,7 +150,7 @@
 | 경로 | 역할 |
 |------|------|
 | **client/src/components/mypage/** | 마이페이지 도메인 컴포넌트 묶음 |
-| client/src/components/mypage/UserProfile/ | 사용자 프로필 세트(`loggedIn`) |
+| client/src/components/mypage/UserProfile/ | 사용자 프로필 세트(`loggedIn` × `provider`) |
 | client/src/components/mypage/StatCard/ | 통계 카드 |
 | client/src/components/mypage/CreditUsageCard/ | 크레딧 사용량 카드(`used` × `max` × `label`) |
 | client/src/components/mypage/MypageHeader/ | 마이페이지 헤더 세트(`loggedIn`, 선택 `creditUsed`/`creditMax`로 `CreditUsageCard` 연동) |

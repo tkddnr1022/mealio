@@ -16,6 +16,7 @@ describe('UsersController', () => {
     id: 1,
     email: 'test@example.com',
     nickname: 'TestUser',
+    platformName: 'kakao',
     createdAt: new Date('2025-01-01T00:00:00.000Z'),
     creditBalance: 500,
     creditMonthlyLimit: 1000,

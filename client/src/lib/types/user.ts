@@ -9,6 +9,8 @@ export interface UserProfile {
   id: number;
   email: string;
   nickname: string;
+  /** 로그인 플랫폼 (google, kakao, naver 등) */
+  platformName: string;
   /** ISO 8601 */
   createdAt: string;
   /** 남은 챗봇 크레딧 */

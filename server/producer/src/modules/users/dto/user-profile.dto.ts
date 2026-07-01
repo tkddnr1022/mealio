@@ -10,6 +10,9 @@ export class UserProfileDto {
   @ApiProperty({ example: '요리마스터', description: '닉네임' })
   nickname: string;
 
+  @ApiProperty({ example: 'kakao', description: '로그인 플랫폼 (google, kakao, naver 등)' })
+  platformName: string;
+
   @ApiProperty({ example: '2025-01-01T00:00:00.000Z', description: '가입일시' })
   createdAt: Date;
 
