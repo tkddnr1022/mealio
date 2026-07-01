@@ -24,6 +24,7 @@ export class MetricsService implements OnModuleInit {
   private dbQueryDurationMs?: Histogram<string>;
   private dbQueriesTotal?: Counter<string>;
   private slowQueriesTotal?: Counter<string>;
+  private rateLimitBlockedTotal?: Counter<string>;
 
   constructor(
     @Inject(OBSERVABILITY_CONFIG)
@@ -79,6 +80,12 @@ export class MetricsService implements OnModuleInit {
       name: 'slow_queries_total',
       help: 'Slow database queries exceeding threshold',
       labelNames: ['engine', 'operation'] as const,
+      registers: [this.registry],
+    });
+
+    this.rateLimitBlockedTotal = new Counter({
+      name: 'rate_limit_blocked_total',
+      help: 'API requests blocked by Redis rate limit middleware (HTTP 429)',
       registers: [this.registry],
     });
   }
@@ -149,6 +156,12 @@ export class MetricsService implements OnModuleInit {
   decHttpInflight(): void {
     if (this.enabled) {
       this.httpInflightRequests!.dec();
+    }
+  }
+
+  recordRateLimitBlocked(): void {
+    if (this.enabled) {
+      this.rateLimitBlockedTotal!.inc();
     }
   }
 }

@@ -63,6 +63,7 @@
 | 4.1.2 | API 요청 수회 후 `/metrics` | `http_request_duration_seconds` 히스토그램 증가 |
 | 4.1.3 | DB 쿼리 실행 후 `/metrics` | Prisma/Mongoose 쿼리 duration 메트릭 존재 |
 | 4.1.4 | 슬로우 쿼리 임계 초과 유발 | `slow_query_total` counter 증가 + 로그 출력 |
+| 4.1.5 | API 레이트 리밋 초과 유발 | `rate_limit_blocked_total` counter 증가, HTTP 429 응답 |
 
 ### 4.2 Consumer
 

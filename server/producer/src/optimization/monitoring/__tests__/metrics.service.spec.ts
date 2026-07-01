@@ -18,10 +18,12 @@ describe('MetricsService', () => {
     const service = new MetricsService(enabledConfig);
     service.onModuleInit();
     service.recordHttpRequest('GET', '/health', 200, 12);
+    service.recordRateLimitBlocked();
 
     const output = await service.getMetrics();
     expect(output).toContain('http_requests_total');
     expect(output).toContain('http_request_duration_ms');
+    expect(output).toContain('rate_limit_blocked_total');
   });
 
   it('should not increment metrics when disabled', async () => {

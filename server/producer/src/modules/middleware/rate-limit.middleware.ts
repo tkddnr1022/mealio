@@ -5,6 +5,7 @@ import {
   RATE_LIMIT_MAX_REQUESTS_PER_WINDOW,
   RATE_LIMIT_WINDOW_SECONDS,
 } from '../../policy/rate-limit.policy';
+import { MetricsService } from '../../optimization/monitoring/metrics.service';
 
 /**
  * API 레이트 리밋 미들웨어 (Redis 기반)
@@ -16,7 +17,10 @@ import {
  */
 @Injectable()
 export class RateLimitMiddleware implements NestMiddleware {
-  constructor(private readonly redisService: RedisService) {}
+  constructor(
+    private readonly redisService: RedisService,
+    private readonly metricsService: MetricsService,
+  ) {}
 
   async use(req: Request, res: Response, next: NextFunction): Promise<void> {
     // 헬스체크 엔드포인트는 제한 대상에서 제외
@@ -57,6 +61,8 @@ export class RateLimitMiddleware implements NestMiddleware {
         if (ttl > 0) {
           res.setHeader('Retry-After', ttl.toString());
         }
+
+        this.metricsService.recordRateLimitBlocked();
 
         res.status(HttpStatus.TOO_MANY_REQUESTS).json({
           statusCode: HttpStatus.TOO_MANY_REQUESTS,
