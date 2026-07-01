@@ -1,8 +1,6 @@
 import type { HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils/cn';
-import {
-  ProfileIconShell,
-} from '@/components/ui/ProfileIconShell';
+import { ProfileIconShell } from '@/components/ui/ProfileIconShell';
 import { type ProfileIconShellProvider } from '@/lib/auth/providers';
 
 export interface UserProfileProps extends Omit<
