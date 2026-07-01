@@ -6,6 +6,9 @@ x-logging: &default-logging
     max-size: "10m"
     max-file: "3"
 
+x-timezone: &timezone
+  TZ: Asia/Seoul
+
 services:
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -19,6 +22,7 @@ services:
     ports:
       - "${KAFKA_UI_PORT:?KAFKA_UI_PORT is required}:8080"
     environment:
+      <<: *timezone
       DYNAMIC_CONFIG_ENABLED: "true"
       KAFKA_CLUSTERS_0_NAME: ${KAFKA_UI_CLUSTER_NAME:?KAFKA_UI_CLUSTER_NAME is required}
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: ${KAFKA_UI_BOOTSTRAP_SERVERS:?KAFKA_UI_BOOTSTRAP_SERVERS is required}

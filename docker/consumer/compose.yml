@@ -6,6 +6,9 @@ x-logging: &default-logging
     max-size: "10m"
     max-file: "3"
 
+x-timezone: &timezone
+  TZ: Asia/Seoul
+
 services:
   consumer:
     image: ${DOCKERHUB_USERNAME:?DOCKERHUB_USERNAME is required}/mealio-consumer:latest
@@ -20,6 +23,7 @@ services:
           memory: ${MEMORY_LIMIT:?MEMORY_LIMIT is required}
     logging: *default-logging
     environment:
+      <<: *timezone
       APP_ENV: ${APP_ENV:?APP_ENV is required}
       METRICS_ENABLED: ${METRICS_ENABLED:?METRICS_ENABLED is required}
       POSTGRESQL_URL: ${POSTGRESQL_URL:?POSTGRESQL_URL is required}

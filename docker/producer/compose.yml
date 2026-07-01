@@ -6,6 +6,9 @@ x-logging: &default-logging
     max-size: "10m"
     max-file: "3"
 
+x-timezone: &timezone
+  TZ: Asia/Seoul
+
 services:
   producer:
     image: ${DOCKERHUB_USERNAME:?DOCKERHUB_USERNAME is required}/mealio-producer:latest
@@ -22,6 +25,7 @@ services:
     ports:
       - "${PORT:?PORT is required}:${PORT:?PORT is required}"
     environment:
+      <<: *timezone
       APP_ENV: ${APP_ENV:?APP_ENV is required}
       METRICS_ENABLED: ${METRICS_ENABLED:?METRICS_ENABLED is required}
       METRICS_PORT: ${METRICS_PORT:?METRICS_PORT is required}

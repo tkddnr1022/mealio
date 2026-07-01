@@ -6,6 +6,9 @@ x-logging: &default-logging
     max-size: "10m"
     max-file: "3"
 
+x-timezone: &timezone
+  TZ: Asia/Seoul
+
 services:
   pushgateway:
     image: prom/pushgateway:v1.10.0
@@ -18,6 +21,8 @@ services:
     logging: *default-logging
     ports:
       - "${PUSHGATEWAY_PORT:?PUSHGATEWAY_PORT is required}:9091"
+    environment:
+      <<: *timezone
     networks:
       - mealio-net
 

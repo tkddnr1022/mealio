@@ -8,6 +8,9 @@ x-logging: &default-logging
     max-size: "10m"
     max-file: "3"
 
+x-timezone: &timezone
+  TZ: Asia/Seoul
+
 services:
   prometheus:
     image: prom/prometheus:v3.2.1
@@ -21,6 +24,7 @@ services:
     ports:
       - "${PROMETHEUS_PORT:?PROMETHEUS_PORT is required}:9090"
     environment:
+      <<: *timezone
       PROMETHEUS_TARGETS_MODE: ${PROMETHEUS_TARGETS_MODE:?PROMETHEUS_TARGETS_MODE is required}
       PROMETHEUS_PRODUCER_PORT: ${PROMETHEUS_PRODUCER_PORT:?PROMETHEUS_PRODUCER_PORT is required}
       PROMETHEUS_CONSUMER_PORT: ${PROMETHEUS_CONSUMER_PORT:?PROMETHEUS_CONSUMER_PORT is required}

@@ -6,6 +6,9 @@ x-logging: &default-logging
     max-size: "10m"
     max-file: "3"
 
+x-timezone: &timezone
+  TZ: Asia/Seoul
+
 services:
   client:
     build:
@@ -31,6 +34,7 @@ services:
     ports:
       - "${PORT:?PORT is required}:${PORT:?PORT is required}"
     environment:
+      <<: *timezone
       APP_ENV: ${APP_ENV:?APP_ENV is required}
       PORT: ${PORT:?PORT is required}
       HOSTNAME: 0.0.0.0
