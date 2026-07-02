@@ -24,6 +24,7 @@ services:
     logging: *default-logging
     ports:
       - "${PORT:?PORT is required}:${PORT:?PORT is required}"
+      - "${METRICS_PORT:?METRICS_PORT is required}:${METRICS_PORT:?METRICS_PORT is required}"
     environment:
       <<: *timezone
       APP_ENV: ${APP_ENV:?APP_ENV is required}

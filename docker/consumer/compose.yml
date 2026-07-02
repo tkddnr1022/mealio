@@ -22,6 +22,8 @@ services:
         limits:
           memory: ${MEMORY_LIMIT:?MEMORY_LIMIT is required}
     logging: *default-logging
+    ports:
+      - "${METRICS_PORT:?METRICS_PORT is required}:${METRICS_PORT:?METRICS_PORT is required}"
     environment:
       <<: *timezone
       APP_ENV: ${APP_ENV:?APP_ENV is required}
