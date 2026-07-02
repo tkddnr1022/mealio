@@ -1,5 +1,5 @@
 # PROMETHEUS_*_TARGET — .env.docker에서 host:port 스크랩 대상 지정
-# 호스트 개발: host.docker.internal:9100 / Compose 앱: producer:9100
+# 기본: producer:9100 / consumer:9101 / pushgateway:9091 — 호스트 개발 시 host.docker.internal:포트
 name: mealio
 
 x-logging: &default-logging

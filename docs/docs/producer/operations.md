@@ -17,7 +17,7 @@
 ## 메트릭 (Prometheus)
 
 - Endpoint는 `METRICS_PORT`의 `/metrics`이며 `METRICS_ENABLED=true`일 때 노출됩니다.
-- 스크랩은 `docker/prometheus/compose.yml`에서 수행하며, `PROMETHEUS_PRODUCER_TARGET`(예: `host.docker.internal:9100` 또는 `producer:9100`)을 사용합니다.
+- 스크랩은 `docker/prometheus/compose.yml`에서 수행하며, `PROMETHEUS_PRODUCER_TARGET`(기본 `producer:9100`, 호스트 개발 시 `host.docker.internal:9100`)을 사용합니다.
 
 주요 지표는 HTTP latency, Kafka produce 성공/실패, Redis·DB 연결 상태입니다.
 

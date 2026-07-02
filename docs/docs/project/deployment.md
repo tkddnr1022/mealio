@@ -54,13 +54,13 @@
 ### Prometheus
 
 - producer·consumer는 별도 `METRICS_PORT`에서 `/metrics`를 노출합니다 (`METRICS_ENABLED=true`).
-- `.env.docker`의 `PROMETHEUS_PRODUCER_TARGET`·`PROMETHEUS_CONSUMER_TARGET`으로 스크랩 대상(`host:port`)을 지정합니다. 호스트 개발은 `host.docker.internal:포트`, Compose 앱 배포는 `producer:9100`·`consumer:9101`을 사용합니다.
+- `.env.docker`의 `PROMETHEUS_PRODUCER_TARGET`·`PROMETHEUS_CONSUMER_TARGET`으로 스크랩 대상(`host:port`)을 지정합니다. 기본값은 `producer:9100`·`consumer:9101`이며, 호스트에서 앱을 직접 실행할 때는 `host.docker.internal:포트`로 덮어씁니다.
 
 ### Pushgateway
 
 - recipe-ingestion CLI batch job은 `PUSHGATEWAY_URL`로 Pushgateway에 메트릭을 push합니다.
 - `PUSHGATEWAY_PORT`로 호스트 바인딩 포트를 지정합니다.
-- Prometheus는 `PROMETHEUS_PUSHGATEWAY_TARGET`으로 Pushgateway를 스크랩합니다. 호스트 개발은 `host.docker.internal:9091`, Compose 앱 배포는 `pushgateway:9091`을 사용합니다.
+- Prometheus는 `PROMETHEUS_PUSHGATEWAY_TARGET`으로 Pushgateway를 스크랩합니다. 기본값은 `pushgateway:9091`이며, 호스트 개발 시 `host.docker.internal:9091`로 덮어씁니다.
 
 ## 환경별 배치
 

@@ -102,20 +102,20 @@ Grafana PostgreSQL view는 `prisma migrate deploy`로 적용한다 (`20260628000
 | 항목 | 내용 |
 | --- | --- |
 | 설명 | producer·consumer `/metrics` 스크랩 대상 (`host:port`) |
+| 기본값 | `producer:9100` / `consumer:9101` |
 | 예시 (호스트 개발) | `host.docker.internal:9100` / `host.docker.internal:9101` |
-| 예시 (Compose 앱) | `producer:9100` / `consumer:9101` |
 | Compose | `docker/prometheus/compose.yml` |
-| 패턴 | producer·consumer `METRICS_PORT`와 포트를 맞춥니다. 호스트 개발 시 `host.docker.internal`을 사용합니다. |
+| 패턴 | producer·consumer `METRICS_PORT`와 포트를 맞춥니다. Compose 앱은 서비스명, 호스트 개발은 `host.docker.internal`을 사용합니다. |
 
 ### `PROMETHEUS_PUSHGATEWAY_TARGET`
 
 | 항목 | 내용 |
 | --- | --- |
 | 설명 | Prometheus가 Pushgateway를 스크랩할 때 사용하는 대상 (`host:port`) |
+| 기본값 | `pushgateway:9091` |
 | 예시 (호스트 개발) | `host.docker.internal:9091` |
-| 예시 (Compose 앱) | `pushgateway:9091` |
 | Compose | `docker/prometheus/compose.yml` |
-| 패턴 | `PUSHGATEWAY_PORT`와 포트를 맞춥니다. 호스트 개발 시 `host.docker.internal`을 사용합니다. |
+| 패턴 | `PUSHGATEWAY_PORT`와 포트를 맞춥니다. Compose 앱은 서비스명, 호스트 개발은 `host.docker.internal`을 사용합니다. |
 
 ## Pushgateway
 

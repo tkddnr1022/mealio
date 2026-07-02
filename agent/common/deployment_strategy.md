@@ -245,8 +245,8 @@ Docker Compose로 앱을 띄울 때 패키지 `.env.docker` 연결 URL 예시:
 - EC2 + 매니지드 DB: `MONGODB_URL`(Atlas), `POSTGRESQL_URL`(Neon pooler), `REDIS_URL`(Upstash `rediss://`), `KAFKA_BROKERS`(`kafka:19092`)
 - `PORT`(client·producer), `METRICS_PORT`(producer·consumer) — 패키지 `.env.docker`에서 관리
 - `PUSHGATEWAY_PORT` — 루트 `.env.docker`, `docker/pushgateway/compose.yml` 호스트 바인딩
-- Prometheus 스크랩 대상 — 루트 `.env.docker`의 `PROMETHEUS_PRODUCER_TARGET`·`PROMETHEUS_CONSUMER_TARGET` (`host:port`). 호스트 개발은 `host.docker.internal:포트`, Compose 앱 배포는 `producer:9100`·`consumer:9101`
-- Pushgateway 스크랩 대상 — `PROMETHEUS_PUSHGATEWAY_TARGET`. 호스트 개발은 `host.docker.internal:9091`, Compose 앱 배포는 `pushgateway:9091`
+- Prometheus 스크랩 대상 — 루트 `.env.docker`의 `PROMETHEUS_PRODUCER_TARGET`·`PROMETHEUS_CONSUMER_TARGET` (`host:port`). 기본값 `producer:9100`·`consumer:9101`, 호스트 개발 시 `host.docker.internal:포트`로 덮어씀
+- Pushgateway 스크랩 대상 — `PROMETHEUS_PUSHGATEWAY_TARGET`. 기본값 `pushgateway:9091`, 호스트 개발 시 `host.docker.internal:9091`로 덮어씀
 
 ### 프로덕션 EC2 (매니지드 DB — Vercel 대신 Docker 선택 시)
 
