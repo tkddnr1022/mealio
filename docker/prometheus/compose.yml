@@ -1,5 +1,5 @@
-# PROMETHEUS_TARGETS_MODE=host → 호스트 producer/consumer (개발)
-# PROMETHEUS_TARGETS_MODE=compose → docker/producer·docker/consumer 컨테이너 스크랩 (프로덕션)
+# PROMETHEUS_*_TARGET — .env.docker에서 host:port 스크랩 대상 지정
+# 호스트 개발: host.docker.internal:9100 / Compose 앱: producer:9100
 name: mealio
 
 x-logging: &default-logging
@@ -25,31 +25,23 @@ services:
       - "${PROMETHEUS_PORT:?PROMETHEUS_PORT is required}:9090"
     environment:
       <<: *timezone
-      PROMETHEUS_TARGETS_MODE: ${PROMETHEUS_TARGETS_MODE:?PROMETHEUS_TARGETS_MODE is required}
-      PROMETHEUS_PRODUCER_PORT: ${PROMETHEUS_PRODUCER_PORT:?PROMETHEUS_PRODUCER_PORT is required}
-      PROMETHEUS_CONSUMER_PORT: ${PROMETHEUS_CONSUMER_PORT:?PROMETHEUS_CONSUMER_PORT is required}
-      PUSHGATEWAY_PORT: ${PUSHGATEWAY_PORT:?PUSHGATEWAY_PORT is required}
+      PROMETHEUS_PRODUCER_TARGET: ${PROMETHEUS_PRODUCER_TARGET:?PROMETHEUS_PRODUCER_TARGET is required}
+      PROMETHEUS_CONSUMER_TARGET: ${PROMETHEUS_CONSUMER_TARGET:?PROMETHEUS_CONSUMER_TARGET is required}
+      PROMETHEUS_PUSHGATEWAY_TARGET: ${PROMETHEUS_PUSHGATEWAY_TARGET:?PROMETHEUS_PUSHGATEWAY_TARGET is required}
     entrypoint:
       - /bin/sh
       - -ec
       - |
-        if [ "$$PROMETHEUS_TARGETS_MODE" = "host" ]; then
-          sed -e "s/host.docker.internal:9100/host.docker.internal:$$PROMETHEUS_PRODUCER_PORT/" \
-              -e "s/host.docker.internal:9101/host.docker.internal:$$PROMETHEUS_CONSUMER_PORT/" \
-              -e "s/host.docker.internal:9091/host.docker.internal:$$PUSHGATEWAY_PORT/" \
-              /etc/prometheus/prometheus.host.yml > /tmp/prometheus.yml
-        else
-          sed -e "s/producer:9100/producer:$$PROMETHEUS_PRODUCER_PORT/" \
-              -e "s/consumer:9101/consumer:$$PROMETHEUS_CONSUMER_PORT/" \
-              /etc/prometheus/prometheus.yml > /tmp/prometheus.yml
-        fi
+        sed -e "s/__PROMETHEUS_PRODUCER_TARGET__/$$PROMETHEUS_PRODUCER_TARGET/" \
+            -e "s/__PROMETHEUS_CONSUMER_TARGET__/$$PROMETHEUS_CONSUMER_TARGET/" \
+            -e "s/__PROMETHEUS_PUSHGATEWAY_TARGET__/$$PROMETHEUS_PUSHGATEWAY_TARGET/" \
+            /etc/prometheus/prometheus.yml > /tmp/prometheus.yml
         exec /bin/prometheus \
           --config.file=/tmp/prometheus.yml \
           --storage.tsdb.path=/prometheus \
           --web.enable-lifecycle
     volumes:
       - ../../observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ../../observability/prometheus/prometheus.host.yml:/etc/prometheus/prometheus.host.yml:ro
       - prometheus_data:/prometheus
     extra_hosts:
       - "host.docker.internal:host-gateway"

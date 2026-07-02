@@ -17,7 +17,7 @@
 | 관계 DB | PostgreSQL | Prisma, pgvector 확장 |
 | 문서 DB | MongoDB | Mongoose |
 | 캐시 | Redis | Cache-Aside, 세션 |
-| 관측성 | Prometheus, Grafana | 메트릭 수집·시각화 |
+| 관측성 | Prometheus, Pushgateway, Grafana | 메트릭 수집·push·시각화 |
 
 ## 배포 시 고려 사항
 
@@ -51,11 +51,16 @@
 - `kafka-ui`는 개발 전용으로 프로덕션에는 배포하지 않습니다.
 - 토픽은 `pnpm run db:kafka:create-topics:production`으로 생성합니다.
 
-### Prometheus / Grafana / Pushgateway
+### Prometheus
 
 - producer·consumer는 별도 `METRICS_PORT`에서 `/metrics`를 노출합니다 (`METRICS_ENABLED=true`).
+- `.env.docker`의 `PROMETHEUS_PRODUCER_TARGET`·`PROMETHEUS_CONSUMER_TARGET`으로 스크랩 대상(`host:port`)을 지정합니다. 호스트 개발은 `host.docker.internal:포트`, Compose 앱 배포는 `producer:9100`·`consumer:9101`을 사용합니다.
+
+### Pushgateway
+
 - recipe-ingestion CLI batch job은 `PUSHGATEWAY_URL`로 Pushgateway에 메트릭을 push합니다.
-- `PROMETHEUS_TARGETS_MODE`를 `host`(호스트 기동) 또는 `compose`(컨테이너 기동)로 구분합니다.
+- `PUSHGATEWAY_PORT`로 호스트 바인딩 포트를 지정합니다.
+- Prometheus는 `PROMETHEUS_PUSHGATEWAY_TARGET`으로 Pushgateway를 스크랩합니다. 호스트 개발은 `host.docker.internal:9091`, Compose 앱 배포는 `pushgateway:9091`을 사용합니다.
 
 ## 환경별 배치
 
@@ -67,7 +72,9 @@
 | producer | `docker/producer/compose.yml` |
 | consumer | `docker/consumer/compose.yml` |
 | Kafka | `docker/kafka/compose.yml` |
-| Prometheus/Grafana/Pushgateway | `docker/prometheus/compose.yml`, `docker/grafana/compose.yml`, `docker/pushgateway/compose.yml` |
+| Prometheus | `docker/prometheus/compose.yml` |
+| Pushgateway | `docker/pushgateway/compose.yml` |
+| Grafana | `docker/grafana/compose.yml` |
 | DB·Redis | 자체 호스팅 또는 관리형 서비스 |
 | kafka-ui | **미배포** (개발 전용) |
 

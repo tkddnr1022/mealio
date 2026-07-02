@@ -8,7 +8,7 @@
 
 ## 개요
 
-루트 `.env.docker.local`은 **앱 패키지 env와 별도**이며, MongoDB·PostgreSQL·Redis·Kafka·Kafka UI·Prometheus·Grafana Compose 기동에 사용합니다.
+루트 `.env.docker.local`은 **앱 패키지 env와 별도**이며, MongoDB·PostgreSQL·Redis·Kafka·Kafka UI·Prometheus·Pushgateway·Grafana Compose 기동에 사용합니다.
 
 ```bash
 cp .env.docker.example .env.docker.local
@@ -87,34 +87,48 @@ Grafana PostgreSQL view는 `prisma migrate deploy`로 적용한다 (`20260628000
 
 ## Prometheus
 
-`docker/prometheus/compose.yml`에서 스크랩 대상 모드를 선택합니다.
+`docker/prometheus/compose.yml`에서 스크랩 대상을 `host:port` 형식으로 지정합니다.
 
-### `PROMETHEUS_TARGETS_MODE`
-
-| 항목 | 내용 |
-| --- | --- |
-| 설명 | 메트릭 스크랩 대상 모드 |
-| 값 | `host`(호스트에서 기동한 producer·consumer) 또는 `compose`(Compose로 기동한 앱 컨테이너) |
-| 예시 (로컬) | `host` |
-| 예시 (프로덕션) | `compose` |
-| Compose | `docker/prometheus/compose.yml` |
-
-### `PROMETHEUS_PORT` / `PROMETHEUS_PRODUCER_PORT` / `PROMETHEUS_CONSUMER_PORT`
+### `PROMETHEUS_PORT`
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | Prometheus UI 포트·producer·consumer `/metrics` 포트 |
-| 예시 | `9090` / `9100` / `9101` |
+| 설명 | Prometheus UI 호스트 바인딩 포트 |
+| 예시 | `9090` |
 | Compose | `docker/prometheus/compose.yml` |
-| 패턴 | `PROMETHEUS_TARGETS_MODE=host`일 때 producer·consumer는 호스트에서 해당 포트로 노출 |
+
+### `PROMETHEUS_PRODUCER_TARGET` / `PROMETHEUS_CONSUMER_TARGET`
+
+| 항목 | 내용 |
+| --- | --- |
+| 설명 | producer·consumer `/metrics` 스크랩 대상 (`host:port`) |
+| 예시 (호스트 개발) | `host.docker.internal:9100` / `host.docker.internal:9101` |
+| 예시 (Compose 앱) | `producer:9100` / `consumer:9101` |
+| Compose | `docker/prometheus/compose.yml` |
+| 패턴 | producer·consumer `METRICS_PORT`와 포트를 맞춥니다. 호스트 개발 시 `host.docker.internal`을 사용합니다. |
+
+### `PROMETHEUS_PUSHGATEWAY_TARGET`
+
+| 항목 | 내용 |
+| --- | --- |
+| 설명 | Prometheus가 Pushgateway를 스크랩할 때 사용하는 대상 (`host:port`) |
+| 예시 (호스트 개발) | `host.docker.internal:9091` |
+| 예시 (Compose 앱) | `pushgateway:9091` |
+| Compose | `docker/prometheus/compose.yml` |
+| 패턴 | `PUSHGATEWAY_PORT`와 포트를 맞춥니다. 호스트 개발 시 `host.docker.internal`을 사용합니다. |
+
+## Pushgateway
+
+`docker/pushgateway/compose.yml`에서 recipe-ingestion CLI batch job 메트릭 push 수집을 제공합니다.
 
 ### `PUSHGATEWAY_PORT`
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | Pushgateway 호스트 바인딩 포트 |
+| 설명 | Pushgateway 호스트 바인딩 포트 (컨테이너 내부 `9091`) |
 | 예시 | `9091` |
 | Compose | `docker/pushgateway/compose.yml` |
+| 앱 env 정합 | Consumer `PUSHGATEWAY_URL`의 호스트·포트와 일치 (호스트 CLI: `http://localhost:9091`, Compose 내부: `http://pushgateway:9091`) |
 
 ## Grafana
 
@@ -189,8 +203,8 @@ Grafana PostgreSQL view는 `prisma migrate deploy`로 적용한다 (`20260628000
 | `REDIS_MEMORY_LIMIT` | `256M` | `docker/redis/compose.yml` |
 | `KAFKA_MEMORY_LIMIT` | `768M` | `docker/kafka/compose.yml` |
 | `KAFKA_UI_MEMORY_LIMIT` | `512M` | `docker/kafka-ui/compose.yml` |
-| `PUSHGATEWAY_MEMORY_LIMIT` | `128M` | `docker/pushgateway/compose.yml` |
 | `PROMETHEUS_MEMORY_LIMIT` | `512M` | `docker/prometheus/compose.yml` |
+| `PUSHGATEWAY_MEMORY_LIMIT` | `128M` | `docker/pushgateway/compose.yml` |
 | `GRAFANA_MEMORY_LIMIT` | `512M` | `docker/grafana/compose.yml` |
 
 앱 컨테이너 limit은 각 패키지 `.env.docker.local`에서 관리합니다.

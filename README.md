@@ -99,10 +99,10 @@ cp server/consumer/.env.docker.example server/consumer/.env.docker.local
 | `KAFKA_UI_PORT` | Kafka UI 포트 | `8080` |
 | `KAFKA_UI_CLUSTER_NAME` | Kafka UI 클러스터 표시명 | `mealio` |
 | `KAFKA_UI_BOOTSTRAP_SERVERS` | Kafka UI 부트스트랩 서버 | `kafka:19092` |
-| `PROMETHEUS_TARGETS_MODE` | Prometheus 스크랩 대상 모드 (`host` / `compose`) | `host` |
 | `PROMETHEUS_PORT` | Prometheus 포트 | `9090` |
-| `PROMETHEUS_PRODUCER_PORT` | Producer 메트릭 스크랩 포트 | `9100` |
-| `PROMETHEUS_CONSUMER_PORT` | Consumer 메트릭 스크랩 포트 | `9101` |
+| `PROMETHEUS_PRODUCER_TARGET` | Producer 메트릭 스크랩 대상 (`host:port`) | `host.docker.internal:9100` |
+| `PROMETHEUS_CONSUMER_TARGET` | Consumer 메트릭 스크랩 대상 (`host:port`) | `host.docker.internal:9101` |
+| `PROMETHEUS_PUSHGATEWAY_TARGET` | Prometheus가 Pushgateway를 스크랩할 대상 (`host:port`) | `host.docker.internal:9091` |
 | `PUSHGATEWAY_PORT` | Pushgateway 호스트 포트 (컨테이너 내부 `9091`) | `9091` |
 | `GRAFANA_PORT` | Grafana 포트 | `3030` |
 | `GRAFANA_ADMIN_USER` | Grafana 관리자 사용자명 | `admin` |
@@ -124,8 +124,8 @@ cp server/consumer/.env.docker.example server/consumer/.env.docker.local
 | `REDIS_MEMORY_LIMIT` | Redis 컨테이너 메모리 limit | `256M` |
 | `KAFKA_MEMORY_LIMIT` | Kafka 컨테이너 메모리 limit (`KAFKA_HEAP_OPTS` 256M보다 크게) | `768M` |
 | `KAFKA_UI_MEMORY_LIMIT` | Kafka UI 컨테이너 메모리 limit | `512M` |
-| `PUSHGATEWAY_MEMORY_LIMIT` | Pushgateway 컨테이너 메모리 limit | `128M` |
 | `PROMETHEUS_MEMORY_LIMIT` | Prometheus 컨테이너 메모리 limit | `512M` |
+| `PUSHGATEWAY_MEMORY_LIMIT` | Pushgateway 컨테이너 메모리 limit | `128M` |
 | `GRAFANA_MEMORY_LIMIT` | Grafana 컨테이너 메모리 limit | `512M` |
 
 | 패키지 | README |
