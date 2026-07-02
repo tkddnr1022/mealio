@@ -127,6 +127,8 @@ MongoDB 플러그인은 `docker/grafana/compose.yml`의 `GF_INSTALL_PLUGINS`(Git
 
 `datasources/mongodb.yml`은 `GRAFANA_MONGODB_CONNECTION_SCHEME`(`mongodb` | `mongodb+srv`)로 연결 스킴을 선택한다. 로컬 Compose는 `mongodb` + `host:port`, Atlas는 `mongodb+srv` + 클러스터 호스트명만 설정한다.
 
+`datasources/postgresql.yml`은 `GRAFANA_POSTGRES_SSL_MODE`(`disable` | `require` | `verify-ca` | `verify-full`)로 TLS/SSL 모드를 선택한다. 로컬 Compose는 `disable`, RDS 등 TLS 필수 환경은 `require` 이상을 설정한다.
+
 PostgreSQL 데이터소스는 **도메인 SSOT 스냅샷** 전용이다. view 정의는 Prisma 마이그레이션 `20260628000000_add_grafana_readonly_views`에 있다. 패널 refresh는 5m 이상을 권장한다.
 
 알림 임계치·장애 대응은 [product_kpi_runbook.md](./product_kpi_runbook.md)를 참조한다.

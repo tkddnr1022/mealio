@@ -116,6 +116,7 @@ cp server/consumer/.env.docker.example server/consumer/.env.docker.local
 | `GRAFANA_POSTGRES_USER` | Grafana PostgreSQL 사용자명 | `devuser` |
 | `GRAFANA_POSTGRES_PASSWORD` | Grafana PostgreSQL 비밀번호 | `devpassword` |
 | `GRAFANA_POSTGRES_DATABASE` | Grafana PostgreSQL 데이터베이스명 | `devdb` |
+| `GRAFANA_POSTGRES_SSL_MODE` | Grafana PostgreSQL TLS/SSL 모드 (`disable`, `require`, `verify-ca`, `verify-full`) | `disable` |
 | `SLACK_OPS_WEBHOOK_URL` | 운영 Slack 웹훅 URL (`none`이면 비활성) | `none` |
 | `SLACK_PRODUCT_WEBHOOK_URL` | 제품 Slack 웹훅 URL (`none`이면 비활성) | `none` |
 | `MONGODB_MEMORY_LIMIT` | MongoDB 컨테이너 메모리 limit | `768M` |

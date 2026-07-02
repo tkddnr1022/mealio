@@ -149,6 +149,17 @@ Grafana PostgreSQL view는 `prisma migrate deploy`로 적용한다 (`20260628000
 | Compose | `docker/grafana/compose.yml` |
 | 패턴 | Docker 네트워크 내부 호스트명(`mongodb`)과 `MONGO_*`·`POSTGRES_*` 계정과 일치. Atlas는 `GRAFANA_MONGODB_CONNECTION_SCHEME=mongodb+srv`와 함께 설정 |
 
+### `GRAFANA_POSTGRES_SSL_MODE`
+
+| 항목 | 내용 |
+| --- | --- |
+| 설명 | Grafana PostgreSQL 데이터소스 TLS/SSL 모드 (`datasources/postgresql.yml`의 `jsonData.sslmode`) |
+| 허용 값 | `disable`(기본), `require`, `verify-ca`, `verify-full` |
+| 예시 (로컬) | `disable` |
+| 예시 (RDS 등 TLS 필수) | `require` 또는 `verify-full` |
+| Compose | `docker/grafana/compose.yml` (미설정 시 `disable`) |
+| 패턴 | 로컬 Compose PostgreSQL은 SSL 미사용이므로 `disable`. 관리형 DB는 호스트 정책에 맞춤 |
+
 ### `GRAFANA_POSTGRES_HOST` / `GRAFANA_POSTGRES_USER` / `GRAFANA_POSTGRES_PASSWORD` / `GRAFANA_POSTGRES_DATABASE`
 
 | 항목 | 내용 |
@@ -156,7 +167,7 @@ Grafana PostgreSQL view는 `prisma migrate deploy`로 적용한다 (`20260628000
 | 설명 | Grafana PostgreSQL 데이터소스 접속 정보 (도메인 SSOT 스냅샷) |
 | 예시 | `postgres:5432` / `devuser` / `devpassword` / `devdb` |
 | Compose | `docker/grafana/compose.yml` |
-| 패턴 | `POSTGRES_*`·`POSTGRESQL_URL`과 자격 증명 일치 |
+| 패턴 | `POSTGRES_*`·`POSTGRESQL_URL`과 자격 증명 일치. TLS는 `GRAFANA_POSTGRES_SSL_MODE`로 별도 설정 |
 
 ### `SLACK_OPS_WEBHOOK_URL` / `SLACK_PRODUCT_WEBHOOK_URL`
 
