@@ -40,6 +40,8 @@
 | embed-retrieve | CLI (standalone job) | `job:recipe-ingestion-embed-retrieve` | Embedding Batch 완료 확인·RecipeEmbedding upsert |
 | failed 재시도·검수 | CLI | `job:recipe-ingestion-parse-submit --retry-failed` | Admin API·UI 향후 계획 |
 
+**로컬 개발**
+
 ```bash
 pnpm --filter consumer run job:recipe-ingestion-fetch
 pnpm --filter consumer run job:recipe-ingestion-fetch --fetch-limit 100
@@ -53,20 +55,40 @@ pnpm --filter consumer run job:recipe-ingestion-embed-retrieve --run-id <runId>
 pnpm --filter consumer run job:recipe-ingestion-parse-submit --retry-failed
 ```
 
+**프로덕션 (EC2 Docker)**
+
+```bash
+docker/scripts/run-job.sh recipe-ingestion-fetch
+docker/scripts/run-job.sh recipe-ingestion-fetch --fetch-limit 100
+docker/scripts/run-job.sh recipe-ingestion-parse-submit
+docker/scripts/run-job.sh recipe-ingestion-parse-submit --run-id <runId>
+docker/scripts/run-job.sh recipe-ingestion-parse-retrieve
+docker/scripts/run-job.sh recipe-ingestion-parse-retrieve --run-id <runId>
+docker/scripts/run-job.sh recipe-ingestion-persist --run-id <runId>
+docker/scripts/run-job.sh recipe-ingestion-embed-submit --run-id <runId>
+docker/scripts/run-job.sh recipe-ingestion-embed-retrieve --run-id <runId>
+docker/scripts/run-job.sh recipe-ingestion-parse-submit --retry-failed
+```
+
 - fetch 기본값: `fetchLimit=100` (`--fetch-limit`, 최대 1000)
 - **cron → CLI → NestJS ApplicationContext** (standalone job). `run-kpi-rollup.ts`와 동일 패턴
 
-### 2.3 스케줄링 (ECS / cron) — 운영 레이어
+### 2.3 스케줄링 (EC2 cron) — 운영 레이어
 
-단계별 CLI를 **별도 Scheduled Task**로 등록하고, fetch·submit·retrieve를 독립 파이프라인으로 운영한다.
+단계별 CLI를 **별도 cron 항목**으로 등록하고, fetch·submit·retrieve를 독립 파이프라인으로 운영한다.
 
-| 호출 대상 | 주기 (초안) | 비고 |
-|-----------|-------------|------|
-| `job:recipe-ingestion-fetch` | 운영 정책에 따라 확정 | 공공데이터 수집 |
-| `job:recipe-ingestion-parse-submit` | 운영 정책에 따라 확정 (fallback) | `status: fetched` → OpenAI Batch. Kafka 트리거 유실 시 보완 |
-| `job:recipe-ingestion-parse-retrieve` | 1~5분 | Batch 완료 확인·결과 반영 |
-| `job:recipe-ingestion-persist` | 운영 정책에 따라 확정 | `status: parse_retrieved` direct persist (수동/배치) |
+프로덕션 cron 주기 SSOT: `docker/scripts/consumer.cron.example`
+
+| 호출 대상 | 주기 | 비고 |
+|-----------|------|------|
+| `job:recipe-ingestion-fetch` | `consumer.cron.example` 참조 | 공공데이터 수집 |
+| `job:recipe-ingestion-parse-submit` | `consumer.cron.example` 참조 (fallback) | `status: fetched` → OpenAI Batch. Kafka 트리거 유실 시 보완 |
+| `job:recipe-ingestion-parse-retrieve` | `consumer.cron.example` 참조 | Batch 완료 확인·결과 반영 |
+| `job:recipe-ingestion-persist` | `consumer.cron.example` 참조 | `status: parse_retrieved` direct persist (수동/배치) |
+| `job:recipe-ingestion-embed-submit` | `consumer.cron.example` 참조 (fallback) | `status: persisted` → OpenAI Embedding Batch. Kafka 트리거 유실 시 보완 |
+| `job:recipe-ingestion-embed-retrieve` | `consumer.cron.example` 참조 | Embedding Batch 완료 확인·결과 적재 |
 | `recipe-ingestion-parse-submit-triggered` consumer | always-on | fetch 완료 트리거 → submit |
+| `recipe-ingestion-embed-submit-triggered` consumer | always-on | persist 완료 트리거 → embed-submit |
 | `recipe-ingestion-persist` consumer | always-on | Kafka 구독 |
 
 **운영 조율 정책 (예시)** — 구현 코드가 아닌 스케줄·runbook에서 정의:

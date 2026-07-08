@@ -1,0 +1,35 @@
+# Mealio consumer cron
+#
+# 사전 준비:
+#   1. /home/ubuntu/mealio/server/consumer/.env.docker.local 에 환경 변수 작성
+#   2. chmod +x /home/ubuntu/mealio/docker/scripts/run-job.sh
+#
+# 적용 방법:
+#   1. 이 파일을 consumer.cron 으로 복사한다.
+#   2. 필요 시 cron 주기를 조정한다.
+#   3. crontab consumer.cron
+
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DOCKERHUB_USERNAME=tkddnr1022
+MEALIO_ENV_FILE=/home/ubuntu/mealio/server/consumer/.env.docker.local
+
+# ─── KPI Rollup ───────────────────────────────────────────────────────────────
+# 매일 10:00 KST
+0 10 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh kpi-rollup
+
+# ─── Recipe Ingestion ─────────────────────────────────────────────────────────
+# fetch — 매일 11:00 KST
+0 11 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-fetch
+
+# parse-submit (fallback) — 매일 11:30 KST
+30 11 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-parse-submit
+
+# parse-retrieve — 매 5분
+*/5 * * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-parse-retrieve
+
+# embed-submit (fallback) — 매일 14:30 KST
+30 14 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-embed-submit
+
+# embed-retrieve — 매 5분
+*/5 * * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-embed-retrieve

@@ -3,7 +3,7 @@
 ## 이 문서로 해결할 질문
 
 - Consumer standalone job은 무엇이 있고 어떻게 실행하나요?
-- cron·ECS Scheduled Task와의 관계는 무엇인가요?
+- 프로덕션(EC2)에서 배치 잡을 어떻게 실행하나요?
 
 ## Always-on vs Job
 
@@ -54,25 +54,35 @@ pnpm run recipe-ingestion:embed-retrieve
 
 단계별 상세는 [레시피 수집 상세](./recipe-ingestion)를 참고하세요.
 
-## 프로덕션 스케줄 (예시)
+## 프로덕션 실행 (EC2 Docker)
 
-| Task | 주기 | 배포 |
+프로덕션(EC2)에서는 consumer 이미지를 재사용한 일회성 컨테이너로 각 배치 잡을 실행합니다. `docker/scripts/run-job.sh`가 `mealio-net` 네트워크에 연결된 컨테이너를 생성하고 종료 후 자동 삭제합니다.
+
+```bash
+docker/scripts/run-job.sh kpi-rollup
+docker/scripts/run-job.sh kpi-rollup 2026-05-22
+docker/scripts/run-job.sh recipe-ingestion-fetch --fetch-limit 100
+docker/scripts/run-job.sh recipe-ingestion-parse-retrieve
+```
+
+cron 등록 예시는 `docker/scripts/consumer.cron.example`을 참고하고, 실제 등록은 `crontab consumer.cron`으로 적용합니다.
+
+| Task | cron 주기(예시) | 비고 |
 | --- | --- | --- |
-| kpi-rollup | 일 1회 | ECS Scheduled Task |
-| recipe-ingestion-fetch | 운영 정책 | 별도 태스크 |
-| recipe-ingestion-parse-submit | fetch 이후 | 별도 태스크 |
-| recipe-ingestion-parse-retrieve | 1~5분 | 별도 태스크 |
-| recipe-ingestion-embed-submit | persist 이후 | 별도 태스크 |
-| recipe-ingestion-embed-retrieve | 1~5분 | 별도 태스크 |
-
-fetch·submit cron 주기와 `fetchLimit`는 운영 runbook에서 조율합니다.
+| kpi-rollup | 매일 10:00 KST | 전일 EventLog 집계 |
+| recipe-ingestion-fetch | 매일 11:00 KST | 공공데이터 수집 |
+| recipe-ingestion-parse-submit | 매일 11:30 KST (fallback) | Kafka 트리거 유실 시 보완 |
+| recipe-ingestion-parse-retrieve | 매 5분 | pending 없으면 no-op |
+| recipe-ingestion-embed-submit | 매일 14:30 KST (fallback) | Kafka 트리거 유실 시 보완 |
+| recipe-ingestion-embed-retrieve | 매 5분 | pending 없으면 no-op |
 
 ## 새 Job 추가 시
 
 1. `server/consumer/.../` job 모듈과 `run-*.ts` CLI를 추가합니다.
 2. `server/consumer/package.json`에 script를 등록합니다.
-3. 관련 consumer 문서(아키텍처·배치·운영)를 갱신합니다.
-4. 필요하면 [Observability](../other/observability) 검증 시나리오를 추가합니다.
+3. `docker/scripts/consumer.cron.example`에 cron 항목을 추가합니다.
+4. 관련 consumer 문서(아키텍처·배치·운영)를 갱신합니다.
+5. 필요하면 [Observability](../other/observability) 검증 시나리오를 추가합니다.
 
 ## 관련 문서
 
