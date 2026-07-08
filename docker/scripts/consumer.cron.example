@@ -3,7 +3,7 @@
 # 사전 준비:
 #   1. /home/ubuntu/mealio/server/consumer/.env.docker.local 에 환경 변수 작성
 #   2. chmod +x /home/ubuntu/mealio/docker/scripts/run-job.sh
-#   3. sudo mkdir -p /var/log/mealio
+#   3. sudo mkdir -p /var/log/mealio && sudo chown ubuntu:ubuntu /var/log/mealio
 #
 # 적용 방법:
 #   1. 이 파일을 consumer.cron 으로 복사한다.
