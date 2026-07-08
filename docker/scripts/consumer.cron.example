@@ -3,33 +3,39 @@
 # 사전 준비:
 #   1. /home/ubuntu/mealio/server/consumer/.env.docker.local 에 환경 변수 작성
 #   2. chmod +x /home/ubuntu/mealio/docker/scripts/run-job.sh
+#   3. LOG_DIR 에 cron 실행 사용자(예: ubuntu) 쓰기 권한 확보
 #
 # 적용 방법:
 #   1. 이 파일을 consumer.cron 으로 복사한다.
 #   2. 필요 시 cron 주기를 조정한다.
 #   3. crontab consumer.cron
+#
+# 로그:
+#   - kpi-rollup → ${LOG_DIR}/kpi-rollup.log
+#   - recipe-ingestion-* → ${LOG_DIR}/recipe-ingestion.log
 
 SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DOCKERHUB_USERNAME=tkddnr1022
 MEALIO_ENV_FILE=/home/ubuntu/mealio/server/consumer/.env.docker.local
+LOG_DIR=/var/log/mealio
 
 # ─── KPI Rollup ───────────────────────────────────────────────────────────────
 # 매일 10:00 KST
-0 10 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh kpi-rollup
+0 10 * * * mkdir -p "$LOG_DIR" && /home/ubuntu/mealio/docker/scripts/run-job.sh kpi-rollup >> "$LOG_DIR/kpi-rollup.log" 2>&1
 
 # ─── Recipe Ingestion ─────────────────────────────────────────────────────────
 # fetch — 매일 11:00 KST
-0 11 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-fetch
+0 11 * * * mkdir -p "$LOG_DIR" && /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-fetch >> "$LOG_DIR/recipe-ingestion.log" 2>&1
 
 # parse-submit (fallback) — 매일 11:30 KST
-30 11 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-parse-submit
+30 11 * * * mkdir -p "$LOG_DIR" && /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-parse-submit >> "$LOG_DIR/recipe-ingestion.log" 2>&1
 
 # parse-retrieve — 매 5분
-*/5 * * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-parse-retrieve
+*/5 * * * * mkdir -p "$LOG_DIR" && /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-parse-retrieve >> "$LOG_DIR/recipe-ingestion.log" 2>&1
 
 # embed-submit (fallback) — 매일 14:30 KST
-30 14 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-embed-submit
+30 14 * * * mkdir -p "$LOG_DIR" && /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-embed-submit >> "$LOG_DIR/recipe-ingestion.log" 2>&1
 
 # embed-retrieve — 매 5분
-*/5 * * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-embed-retrieve
+*/5 * * * * mkdir -p "$LOG_DIR" && /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-embed-retrieve >> "$LOG_DIR/recipe-ingestion.log" 2>&1

@@ -24,25 +24,10 @@ shift
 ENV_FILE="${MEALIO_ENV_FILE:?MEALIO_ENV_FILE must be set}"
 IMAGE="${DOCKERHUB_USERNAME:?DOCKERHUB_USERNAME must be set}/mealio-consumer:latest"
 CONTAINER_NAME="mealio-job-${JOB}-$(date +%s)"
-LOG_DIR="/var/log/mealio"
-
-mkdir -p "${LOG_DIR}"
-
-case "${JOB}" in
-  kpi-rollup)
-    LOG_FILE="${LOG_DIR}/kpi-rollup.log"
-    ;;
-  recipe-ingestion-*)
-    LOG_FILE="${LOG_DIR}/recipe-ingestion.log"
-    ;;
-  *)
-    LOG_FILE="${LOG_DIR}/${JOB}.log"
-    ;;
-esac
 
 docker run --rm \
   --name "${CONTAINER_NAME}" \
   --network mealio-net \
   --env-file "${ENV_FILE}" \
   "${IMAGE}" \
-  node "dist/jobs/${JOB}/run-${JOB}.js" "$@" >> "${LOG_FILE}" 2>&1
+  node "dist/jobs/${JOB}/run-${JOB}.js" "$@"
