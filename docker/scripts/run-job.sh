@@ -29,5 +29,6 @@ docker run --rm \
   --name "${CONTAINER_NAME}" \
   --network mealio-net \
   --env-file "${ENV_FILE}" \
+  -e TZ=Asia/Seoul \
   "${IMAGE}" \
   node "dist/jobs/${JOB}/run-${JOB}.js" "$@"
