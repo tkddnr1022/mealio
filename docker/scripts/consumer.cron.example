@@ -17,7 +17,7 @@
 SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DOCKERHUB_USERNAME=tkddnr1022
-MEALIO_ENV_FILE=/home/ubuntu/mealio/server/consumer/.env.docker.local
+ENV_FILE=/home/ubuntu/mealio/server/consumer/.env.docker.development.local
 LOG_DIR=/var/log/mealio
 
 # ─── KPI Rollup ───────────────────────────────────────────────────────────────
@@ -33,6 +33,9 @@ LOG_DIR=/var/log/mealio
 
 # parse-retrieve — 매 5분
 */5 * * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-parse-retrieve >> "$LOG_DIR/recipe-ingestion.log" 2>&1
+
+# persist (fallback) — 매일 13:00 KST
+00 13 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-persist >> "$LOG_DIR/recipe-ingestion.log" 2>&1
 
 # embed-submit (fallback) — 매일 14:30 KST
 30 14 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-embed-submit >> "$LOG_DIR/recipe-ingestion.log" 2>&1
