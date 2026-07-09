@@ -48,6 +48,7 @@ services:
       FRONTEND_APP_BASE_URL: ${FRONTEND_APP_BASE_URL:?FRONTEND_APP_BASE_URL is required}
       SENTRY_ENABLED: ${SENTRY_ENABLED:?SENTRY_ENABLED is required}
       SENTRY_DSN_PRODUCER: ${SENTRY_DSN_PRODUCER:?SENTRY_DSN_PRODUCER is required}
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET:?INTERNAL_API_SECRET is required}
     networks:
       - mealio-net
     healthcheck:
