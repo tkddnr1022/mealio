@@ -1,7 +1,16 @@
 import { Injectable, NestMiddleware, HttpStatus } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { timingSafeEqual } from 'node:crypto';
 import type { Request, Response, NextFunction } from 'express';
-import { RedisService, cacheKeyRateLimitApi } from '@mealio/shared';
 import {
+  RedisService,
+  cacheKeyRateLimitApi,
+  cacheKeyRateLimitInternalApi,
+} from '@mealio/shared';
+import { INTERNAL_API_SECRET_HEADER } from '../../constants/internal-api.constants';
+import {
+  INTERNAL_RATE_LIMIT_MAX_REQUESTS_PER_WINDOW,
+  INTERNAL_RATE_LIMIT_WINDOW_SECONDS,
   RATE_LIMIT_MAX_REQUESTS_PER_WINDOW,
   RATE_LIMIT_WINDOW_SECONDS,
 } from '../../policy/rate-limit.policy';
@@ -10,7 +19,8 @@ import { MetricsService } from '../../optimization/monitoring/metrics.service';
 /**
  * API 레이트 리밋 미들웨어 (Redis 기반)
  *
- * - IP 기준 분당 요청 수를 제한한다.
+ * - 공개 트래픽: IP 기준 고정 윈도우 제한.
+ * - `INTERNAL_API_SECRET`이 유효한 내부 트래픽: 별도 윈도우·한도 적용.
  * - Redis INCR + EXPIRE를 사용하여 단순한 고정 윈도우 알고리즘을 구현한다.
  * - 제한 초과 시 429 Too Many Requests 응답과 함께 X-RateLimit-* 헤더를 반환한다.
  *
@@ -20,43 +30,44 @@ export class RateLimitMiddleware implements NestMiddleware {
   constructor(
     private readonly redisService: RedisService,
     private readonly metricsService: MetricsService,
+    private readonly configService: ConfigService,
   ) {}
 
   async use(req: Request, res: Response, next: NextFunction): Promise<void> {
-    // 헬스체크 엔드포인트는 제한 대상에서 제외
     if (req.path === '/health' || req.path === '/ready') {
       return next();
     }
 
-    const identifier = this.getIdentifier(req);
+    const isInternalApi = this.isAuthorizedInternalApiRequest(req);
+    const windowSize = isInternalApi
+      ? INTERNAL_RATE_LIMIT_WINDOW_SECONDS
+      : RATE_LIMIT_WINDOW_SECONDS;
+    const maxRequests = isInternalApi
+      ? INTERNAL_RATE_LIMIT_MAX_REQUESTS_PER_WINDOW
+      : RATE_LIMIT_MAX_REQUESTS_PER_WINDOW;
+
+    const ipIdentifier = this.getIpIdentifier(req);
     const now = Math.floor(Date.now() / 1000);
-    const windowSize = RATE_LIMIT_WINDOW_SECONDS;
     const windowId = Math.floor(now / windowSize);
 
-    const key = cacheKeyRateLimitApi(identifier, windowId);
+    const key = isInternalApi
+      ? cacheKeyRateLimitInternalApi(windowId)
+      : cacheKeyRateLimitApi(ipIdentifier, windowId);
 
     try {
       const client = this.redisService.getClient();
 
       const currentCount = await client.incr(key);
       if (currentCount === 1) {
-        // 첫 요청이면 TTL 설정
         await client.expire(key, windowSize);
       }
 
-      const remaining = Math.max(
-        RATE_LIMIT_MAX_REQUESTS_PER_WINDOW - currentCount,
-        0,
-      );
+      const remaining = Math.max(maxRequests - currentCount, 0);
 
-      // 기본 RateLimit 헤더 설정
-      res.setHeader(
-        'X-RateLimit-Limit',
-        RATE_LIMIT_MAX_REQUESTS_PER_WINDOW.toString(),
-      );
+      res.setHeader('X-RateLimit-Limit', maxRequests.toString());
       res.setHeader('X-RateLimit-Remaining', remaining.toString());
 
-      if (currentCount > RATE_LIMIT_MAX_REQUESTS_PER_WINDOW) {
+      if (currentCount > maxRequests) {
         const ttl = await client.ttl(key);
         if (ttl > 0) {
           res.setHeader('Retry-After', ttl.toString());
@@ -74,16 +85,11 @@ export class RateLimitMiddleware implements NestMiddleware {
 
       next();
     } catch {
-      // 레이트 리미터 장애 시에는 서비스 가용성을 우선하여 통과시키고, 로깅은 RedisService에서 처리
       next();
     }
   }
 
-  /**
-   * 레이트 리밋 식별자
-   * - 기본: IP 주소 (프록시 환경에서는 X-Forwarded-For 우선)
-   */
-  private getIdentifier(req: Request): string {
+  private getIpIdentifier(req: Request): string {
     const xff = (req.headers['x-forwarded-for'] as string | undefined) ?? '';
     const ip =
       xff.split(',')[0].trim() ||
@@ -91,5 +97,23 @@ export class RateLimitMiddleware implements NestMiddleware {
       req.socket?.remoteAddress ||
       'unknown';
     return ip.replace(/[:.]/g, '_');
+  }
+
+  private isAuthorizedInternalApiRequest(req: Request): boolean {
+    const expected = this.configService
+      .get<string>('INTERNAL_API_SECRET')
+      ?.trim();
+    if (!expected) return false;
+
+    const headerKey = INTERNAL_API_SECRET_HEADER.toLowerCase();
+    const raw = req.headers[headerKey];
+    const provided = Array.isArray(raw) ? raw[0] : raw;
+    if (!provided || typeof provided !== 'string') return false;
+
+    const expectedBuf = Buffer.from(expected);
+    const providedBuf = Buffer.from(provided);
+    if (expectedBuf.length !== providedBuf.length) return false;
+
+    return timingSafeEqual(expectedBuf, providedBuf);
   }
 }

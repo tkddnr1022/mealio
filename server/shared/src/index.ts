@@ -107,6 +107,7 @@ export {
   cacheKeyChatbotFoodCategories,
   cacheKeyRecipeIngestionFoodCategories,
   cacheKeyRateLimitApi,
+  cacheKeyRateLimitInternalApi,
   cacheKeyRecipeDetail,
   cacheKeyRecommendation,
   cacheKeyDedupeRecipeView,

@@ -33,6 +33,8 @@ Producer `CacheService`, Consumer Handler, 무효화 핸들러는 `server/shared
 | `cacheKeyIngredientById(id)` | `ingredient:by-id:7` |
 | `cacheKeyChatbotFoodCategories()` | `recipe:chatbot:food-categories` |
 | `cacheKeyRecipeIngestionFoodCategories()` | `recipe:ingestion:food-categories` |
+| `cacheKeyRateLimitApi(identifier, windowId)` | `rate_limit:api:{identifier}:{windowId}` |
+| `cacheKeyRateLimitInternalApi(windowId)` | `rate_limit:api:internal:{windowId}` |
 | `cacheKeyDedupeRecipeView(...)` | `dedupe:recipe:view:{id}:{actor}` |
 
 ## 무효화 패턴

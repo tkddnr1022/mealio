@@ -14,6 +14,7 @@ import {
 import { ApiError } from './error';
 import { parseErrorResponse } from './error.parser';
 import { buildQueryString, type Query } from './query';
+import { serverFetchRequestInterceptor } from './server/server-fetch.interceptor';
 
 /**
  * 백엔드 REST/SSE API를 호출하는 fetch 래퍼.
@@ -419,7 +420,9 @@ export function createHttpClient(config: HttpClientConfig = {}): HttpClient {
   return new HttpClient(config);
 }
 
-export const httpClient: HttpClient = createHttpClient();
+export const httpClient: HttpClient = createHttpClient({
+  requestInterceptors: [serverFetchRequestInterceptor],
+});
 
 // ─── 내부 유틸 ─────────────────────────────────────────────────────────────────
 

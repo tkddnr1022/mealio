@@ -23,7 +23,8 @@
 | server/producer/src/constants/auth-cookie.constants.ts | Access·Refresh HttpOnly 쿠키 이름 |
 | **server/producer/src/policy/** | 운영·제품 튜닝 정책 (`*.policy.ts`) |
 | server/producer/src/policy/cache.policy.ts | Redis 캐시 TTL(초) SSOT |
-| server/producer/src/policy/rate-limit.policy.ts | API 레이트 리밋 윈도우·최대 요청 수 |
+| server/producer/src/policy/rate-limit.policy.ts | API 레이트 리밋 윈도우·최대 요청 수(공개·`INTERNAL_API_SECRET` 내부 트래픽 분리) |
+| server/producer/src/constants/internal-api.constants.ts | 내부 API 트래픽 식별 헤더(`X-Internal-Api-Secret`) |
 | server/producer/src/policy/chatbot.policy.ts | 챗봇 SSE 스트림 타임아웃(ms) |
 | server/producer/src/policy/prisma-pool.policy.ts | Prisma 커넥션 풀 (PRISMA_POOL_CONFIG 주입용) |
 | server/producer/src/policy/mongoose-pool.policy.ts | Mongoose 커넥션 풀 (MongooseSchemasModule.forRoot 주입용) |
@@ -49,7 +50,7 @@
 | server/producer/src/modules/health/health.service.ts | DB·캐시·외부 연동 상태 체크 로직 |
 | server/producer/src/modules/health/health.controller.ts | GET /health, /ready 엔드포인트 |
 | **server/producer/src/modules/middleware/** | 전역/라우트 미들웨어 |
-| server/producer/src/modules/middleware/rate-limit.middleware.ts | API 요청 제한 (Redis 기반 Rate Limiting) |
+| server/producer/src/modules/middleware/rate-limit.middleware.ts | API 요청 제한 (Redis 기반 Rate Limiting). `INTERNAL_API_SECRET`·`X-Internal-Api-Secret` 일치 시 내부 전용 윈도우·한도 적용 |
 | server/producer/src/modules/middleware/logging.middleware.ts | 요청/응답 로깅 |
 | server/producer/src/modules/middleware/correlation-id.middleware.ts | 분산 추적용 Correlation ID 부여·전파 |
 | server/producer/src/modules/middleware/observability-http-paths.ts | HTTP 경로 정규화 (메트릭·로그용 path grouping) |

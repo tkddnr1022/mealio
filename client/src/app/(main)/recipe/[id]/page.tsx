@@ -17,7 +17,7 @@ interface RecipeDetailPageProps {
   }>;
 }
 
-const STATIC_PARAMS_SIZE = 100;
+const STATIC_PARAMS_SIZE = 50;
 
 export async function generateStaticParams(): Promise<{ id: string }[]> {
   const result = await fetchForIsr({

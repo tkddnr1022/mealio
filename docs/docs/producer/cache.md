@@ -64,7 +64,7 @@ TTL은 `server/producer/.../cache.policy.ts`에서 초 단위로 정의합니다
 
 `rate_limit:api:{identifier}:{windowId}` 키로 Redis 기반 API 요청 제한을 적용하며, 애플리케이션 데이터 캐시와 분리됩니다.
 
-구현은 `server/producer/.../rate-limit.middleware.ts`에 있습니다.
+구현은 `server/producer/.../rate-limit.middleware.ts`에 있습니다. `INTERNAL_API_SECRET`이 유효한 내부 트래픽은 `rate_limit:api:internal:{windowId}` 공유 버킷에 별도 윈도우·한도가 적용됩니다.
 
 ## 변경 시 체크리스트
 

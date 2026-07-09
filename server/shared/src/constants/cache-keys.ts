@@ -105,6 +105,11 @@ export function cacheKeyRateLimitApi(
   return buildCacheKey(CACHE_KEY_PREFIX.RATE_LIMIT_API, identifier, windowId);
 }
 
+/** Producer 내부 API 레이트 리밋: `rate_limit:api:internal:{windowId}` (IP 무관 공유 버킷) */
+export function cacheKeyRateLimitInternalApi(windowId: number): string {
+  return cacheKeyRateLimitApi('internal', windowId);
+}
+
 /** Producer 레시피 상세 캐시 — `recipe:{recipeId}` */
 export function cacheKeyRecipeDetail(recipeId: number): string {
   return buildCacheKey(CACHE_KEY_PREFIX.RECIPE, recipeId);

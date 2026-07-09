@@ -85,6 +85,10 @@ export const envValidationSchema = Joi.object({
     'any.required': 'NAVER_CLIENT_SECRET is required',
   }),
 
+  INTERNAL_API_SECRET: Joi.string().min(1).optional().allow('').messages({
+    'string.empty': 'INTERNAL_API_SECRET must not be empty when set',
+  }),
+
   ...buildObservabilityEnvRules({
     serviceName: 'producer',
   }),

@@ -9,6 +9,7 @@ info:
     |------|------|
     | `NEXT_PUBLIC_API_BASE_URL` | 백엔드 API base URL. 비어 있으면 same-origin으로 `POST /api/v1/auth/refresh` 호출 |
     | `REVALIDATE_SECRET` | `POST /api/revalidate` 웹훅 secret (서버 전용) |
+    | `INTERNAL_API_SECRET` | SSR·빌드 시 producer `X-Internal-Api-Secret` 헤더 (서버 전용, producer `INTERNAL_API_SECRET`과 동일) |
   version: 1.0.0
   contact:
     name: API Support

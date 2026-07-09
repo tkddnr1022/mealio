@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
+import { INTERNAL_API_SECRET_HEADER } from '@/lib/constants/internal-api.constants';
 import { createHttpClient } from './http-client';
+import { serverFetchRequestInterceptor } from './server/server-fetch.interceptor';
 
 describe('HttpClient SSR auth behavior', () => {
   it('does not attempt token refresh on SSR 401 response', async () => {
@@ -52,6 +54,29 @@ describe('HttpClient SSR auth behavior', () => {
         next: { revalidate: 300 },
         cache: 'force-cache',
       }),
+    );
+  });
+
+  it('adds X-Internal-Api-Secret header on SSR when INTERNAL_API_SECRET is set', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ data: [] }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    vi.stubEnv('INTERNAL_API_SECRET', 'local-internal-secret');
+
+    const client = createHttpClient({
+      baseUrl: 'https://api.mealio.test',
+      requestInterceptors: [serverFetchRequestInterceptor],
+    });
+
+    await client.get(API_ENDPOINTS.recipes.categories);
+
+    const requestHeaders = fetchMock.mock.calls[0]?.[1]?.headers as Headers;
+    expect(requestHeaders.get(INTERNAL_API_SECRET_HEADER)).toBe(
+      'local-internal-secret',
     );
   });
 });

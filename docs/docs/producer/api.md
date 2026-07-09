@@ -44,8 +44,9 @@ Apidog 등 외부 도구로 Swagger 스펙을 export한 뒤 import할 수 있습
 ## Rate Limiting
 
 - Redis 기반으로 `rate_limit:api:{identifier}:{windowId}` 키를 사용합니다.
-- 정책은 `server/producer/.../rate-limit.policy.ts`에 정의되어 있습니다(60초 윈도우, 최대 100요청).
+- 정책은 `server/producer/.../rate-limit.policy.ts`에 정의되어 있습니다.
 - 미들웨어는 `server/producer/.../rate-limit.middleware.ts`입니다.
+- Next.js SSR·빌드 트래픽은 요청 헤더 `X-Internal-Api-Secret`이 환경 변수 `INTERNAL_API_SECRET`과 일치할 때 **내부 전용** 레이트 리밋 버킷(`rate_limit:api:internal:{windowId}`)을 사용합니다(IP 무관).
 
 ## 엔드포인트 인덱스 (요약)
 
