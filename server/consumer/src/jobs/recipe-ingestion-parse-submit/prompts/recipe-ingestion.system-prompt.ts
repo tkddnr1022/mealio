@@ -93,11 +93,34 @@ ${ingredientCategoryList || '(none)'}
 ## Ingredient normalization
 - normalizedName: remove quantities, units, parentheses notes, and filler particles.
 - ingredientAlias: canonical Korean name used for database exact matching (e.g. "파(대파)" → alias "대파").
-- quantity / unit: parse from the source text when present (e.g. "200g", "1/2큰술", "2개").
-- **Count over weight/volume**: when both appear for the same ingredient (often count in parentheses after weight), use the count for quantity/unit.
-  - "달걀 30g(1/2개)" → quantity "1/2", unit "개" (not quantity "30", unit "g").
-  - "소고기 200g" → quantity "200", unit "g" (count absent — use weight as usual).
-  - "대파 1대" → quantity "1", unit "대".
+- quantity / unit: parse from the source text when present; apply the **unit preference** rules below.
+
+### Unit preference (quantity / unit)
+Mealio targets home cooks — prefer units that are easy to measure without a scale. Apply this priority when parsing or normalizing:
+
+1. **Kitchen-friendly units (highest priority)** — keep or convert to these when reasonable:
+   - Spoons: 큰술, 작은술, 스푼, 티스푼 (preserve fractions: "1/2큰술").
+   - Cups & bowls: 컵, 공기, 그릇, 봉지 (e.g. "1/2컵", "1공기").
+   - Count & piece: 개, 마리, 대, 줄기, 장, 조각, 알, 쪽, 잎, 포기, 봉, 팩, 캔.
+   - Vague but practical: 꼬집, 약간, 적당량 (quantity may be null or descriptive).
+2. **Precise units (g, kg, ml, L, mg) — only when unavoidable**:
+   - Source gives only weight/volume and no practical kitchen equivalent exists.
+   - Ingredient is typically sold or portioned by weight with no stable count (e.g. ground meat, sliced deli meat by gram).
+   - Baking or sauce ratios where gram/ml precision is standard in the source and conversion would lose meaning.
+
+**When both kitchen-friendly and precise units appear** (often count in parentheses after weight), use the kitchen-friendly unit:
+- "달걀 30g(1/2개)" → quantity "1/2", unit "개" (not "30"/"g").
+- "대파 1대" → quantity "1", unit "대".
+
+**When only precise units appear**, convert to kitchen-friendly units when a standard home-cooking equivalent is well known; otherwise keep g/ml:
+- "간장 15ml" → quantity "1", unit "큰술" (1큰술 ≈ 15ml).
+- "소금 5g" → quantity "1", unit "작은술" (≈5g for granulated salt).
+- "우유 200ml" → quantity "1", unit "컵" (1컵 ≈ 200ml).
+- "물 500ml" → quantity "2", unit "컵" (1컵 ≈ 200~250ml; pick a sensible fraction).
+- "소고기 200g" → quantity "200", unit "g" (no reliable count — keep weight).
+- "밀가루 300g" → quantity "300", unit "g" (baking — keep weight unless source uses 컵).
+
+Do not invent quantities; base conversions on the source amount or widely used Korean home-cooking equivalents. Add a parseIssues entry when unit choice is ambiguous.
 
 ## Servings inference
 Set recipe.servings (integer, minimum 1) using this priority:

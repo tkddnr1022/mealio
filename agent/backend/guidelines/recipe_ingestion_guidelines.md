@@ -385,7 +385,7 @@ submit은 선택된 job 그룹을 Batch API에 제출하고, 반환된 `batch_id
    - 단계·기법·재료 기반 `difficulty`(1-3) 추론 지시
    - MANUAL·조리법 기반 `cookingTimeMinutes`(분) 추론 지시
    - 재료명 정규화·`ingredient_alias`(canonical 재료명) 반환 지시
-   - **`quantity`/`unit` 파싱: 중량·부피와 개수가 함께 있으면 개수 우선** (예: `달걀 30g(1/2개)` → quantity `1/2`, unit `개` — `30`/`g` 아님)
+   - **`quantity`/`unit` 파싱: 가정용 계량 단위 우선** — 스푼·컵·개·마리 등 주방 친화 단위를 최우선; `g`/`ml` 등 정밀 단위는 불가피할 때만 사용. 중량·부피와 개수가 함께 있으면 개수·주방 단위 우선 (예: `달걀 30g(1/2개)` → `1/2`/`개`). 원문이 `ml`/`g`만 있을 때 표준 환산(예: 간장 15ml→1큰술)이 가능하면 변환
    - `parse_confidence: high | medium | low`, `parse_issues` 반환 지시
 
 5. **Files API 업로드**
@@ -463,8 +463,9 @@ Kafka `recipe-ingestion-persist-triggered` 소비 → payload `runId`로 `parse_
    ```
    1차: 원문 정규화 (괄호·조사·수량 제거, 공백 정리)
         예) "대파(흰 부분)" → "대파", "달걀 2개" → "달걀", "달걀 30g(1/2개)" → "달걀"
-        quantity/unit: 중량·부피와 개수가 함께 있으면 **개수 우선**
+        quantity/unit: **주방 친화 단위 우선** (스푼·컵·개·마리 등); `g`/`ml`은 불가피할 때만. 중량·부피와 개수가 함께 있으면 **개수·주방 단위 우선**
         예) "달걀 30g(1/2개)" → quantity `1/2`, unit `개` (30g 아님)
+        예) "간장 15ml" → quantity `1`, unit `큰술` (표준 환산 가능 시)
    2차: LLM `retrieved_data`의 `ingredient_alias`(canonical명) → Ingredient.name exact match
         예) 원문 "파(대파)" + ingredient_alias "대파" → DB "대파"
    3차: 1차 정규화 결과 → Ingredient.name exact match

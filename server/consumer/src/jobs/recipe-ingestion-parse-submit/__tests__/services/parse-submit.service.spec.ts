@@ -418,7 +418,9 @@ describe('buildRecipeIngestionSystemPrompt', () => {
     expect(prompt).toContain('Infer from ingredient quantities');
     expect(prompt).toContain('integer 1-3');
     expect(prompt).toContain('cookingTimeMinutes');
-    expect(prompt).toContain('Count over weight/volume');
+    expect(prompt).toContain('Unit preference (quantity / unit)');
+    expect(prompt).toContain('Kitchen-friendly units');
     expect(prompt).toContain('달걀 30g(1/2개)');
+    expect(prompt).toContain('간장 15ml');
   });
 });
