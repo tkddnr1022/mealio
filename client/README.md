@@ -41,7 +41,7 @@ cp .env.docker.example .env.docker.local      # Docker Compose
 | `NEXT_PUBLIC_SENTRY_DSN` | Sentry 브라우저 DSN | (비움) |
 | `NEXT_PUBLIC_SITE_URL` | 메타·OG용 사이트 URL | (비움) |
 | `REVALIDATE_SECRET` | `/api/revalidate` ISR 재검증 시크릿 | (비움) |
-| `INTERNAL_API_SECRET` | SSR·빌드 시 producer `X-Internal-Api-Secret` (producer와 동일 값) | (비움) |
+| `INTERNAL_API_SECRET` | SSR·빌드 시 producer `X-Internal-Api-Secret` | `a-string-secret-at-least-256-bits-long` |
 
 ## 사용 방법
 

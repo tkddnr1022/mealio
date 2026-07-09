@@ -100,7 +100,7 @@ OAuth **콜백 URL**은 producer의 `OAUTH_CALLBACK_BASE_URL`에서 설정합니
 | 설명 | Next.js SSR·빌드 fetch가 producer에 보내는 `X-Internal-Api-Secret` 값 |
 | 예시 | 임의의 긴 랜덤 문자열 (producer `INTERNAL_API_SECRET`과 동일) |
 | 사용처 | `client/src/lib/api/server/server-fetch.interceptor.ts` → `HttpClient` SSR 요청 |
-| 패턴 | 비우면 헤더를 보내지 않으며, producer 공개 레이트 리밋이 적용됩니다. |
+| 패턴 | SSR·빌드 `HttpClient`가 `X-Internal-Api-Secret` 헤더로 전달합니다. |
 
 ## 관측성
 

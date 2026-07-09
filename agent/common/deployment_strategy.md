@@ -394,14 +394,14 @@ docker compose --env-file client/.env.docker -f docker/client/compose.yml up -d 
 - `FRONTEND_APP_BASE_URL`: Vercel 프로덕션 URL
 - `OAUTH_CALLBACK_BASE_URL` / API 호출: APP Instance API 도메인 (`https://api.<domain>`)
 - Preview 배포: Preview URL을 OAuth·CORS allowlist에 등록
-- 환경 변수: `client/.env.example`의 `NEXT_PUBLIC_*`·`REVALIDATE_SECRET`; 시크릿은 서버 전용 env에만 둔다
+- 환경 변수: `client/.env.example`의 `NEXT_PUBLIC_*`·`REVALIDATE_SECRET`·`INTERNAL_API_SECRET`(producer와 동일); 시크릿은 서버 전용 env에만 둔다
 
 ### 옵션 B — APP Instance Docker
 
 - `docker/Dockerfile.client` + `docker/client/compose.yml`
 - Nginx가 `PORT` 컨테이너로 프록시; `FRONTEND_APP_BASE_URL`은 공개 HTTPS URL
 - `NEXT_PUBLIC_*`는 build-arg로 이미지에 bake; API URL은 APP Instance API 도메인
-- `REVALIDATE_SECRET`: compose 런타임 env
+- `REVALIDATE_SECRET`·`INTERNAL_API_SECRET`: compose 런타임 env (`INTERNAL_API_SECRET`은 producer와 동일 값)
 
 ---
 

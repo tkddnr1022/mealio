@@ -97,7 +97,7 @@ describe('RateLimitMiddleware', () => {
     expect(res.status).toHaveBeenCalledWith(HttpStatus.TOO_MANY_REQUESTS);
   });
 
-  it('applies public rate limit when INTERNAL_API_SECRET is not configured', async () => {
+  it('applies public rate limit when internal secret is absent in runtime config', async () => {
     const { redisService, client } = createRedisMock();
     client.incr.mockResolvedValue(1);
     const middleware = createMiddleware(redisService, undefined);
