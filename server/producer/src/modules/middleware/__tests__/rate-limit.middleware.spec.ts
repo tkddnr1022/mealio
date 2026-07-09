@@ -51,11 +51,7 @@ describe('RateLimitMiddleware', () => {
       recordRateLimitBlocked: jest.fn(),
     } as unknown as MetricsService;
 
-    return new RateLimitMiddleware(
-      redisService,
-      metricsService,
-      configService,
-    );
+    return new RateLimitMiddleware(redisService, metricsService, configService);
   };
 
   it('applies internal rate limit bucket for authorized internal API requests', async () => {
