@@ -1,6 +1,6 @@
 'use client';
 
-import { Analytics } from '@vercel/analytics/react';
+import { Analytics } from '@vercel/analytics/next';
 import { useReportWebVitals } from 'next/web-vitals';
 import { useEffect, useRef } from 'react';
 
