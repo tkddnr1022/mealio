@@ -38,7 +38,6 @@
 
 - `prisma migrate deploy`를 배포 파이프라인에 포함합니다.
 - recipe ingestion은 pgvector 확장이 필요합니다.
-- Connection pooler 사용을 권장합니다.
 
 ### Redis
 
@@ -64,19 +63,31 @@
 
 ## 환경별 배치
 
-### 프로덕션
+### 프로덕션(예시)
+
+> 아래 배치는 예시이므로 실제 운영 환경에서는 트래픽·비용·보안 요구사항에 맞게 구성을 조정하세요.
+
+데모 배포 예시에서는 역할에 따라 두 서버로 나눠 운영합니다.
+
+**앱 서버** (Nginx·producer·consumer):
 
 | 컴포넌트 | 배포 방식 |
 | --- | --- |
-| client | `docker/client/compose.yml` 또는 Vercel |
 | producer | `docker/producer/compose.yml` |
 | consumer | `docker/consumer/compose.yml` |
+
+**인프라 서버** (DB·메시지·관측):
+
+| 컴포넌트 | 배포 방식 |
+| --- | --- |
+| PostgreSQL | `docker/postgres/compose.yml` |
+| Redis | `docker/redis/compose.yml` |
 | Kafka | `docker/kafka/compose.yml` |
 | Prometheus | `docker/prometheus/compose.yml` |
 | Pushgateway | `docker/pushgateway/compose.yml` |
 | Grafana | `docker/grafana/compose.yml` |
-| DB·Redis | 자체 호스팅 또는 관리형 서비스 |
-| kafka-ui | **미배포** (개발 전용) |
+
+이 외에 client는 Vercel, MongoDB는 MongoDB Atlas에 배포합니다.
 
 ### 개발 (로컬)
 

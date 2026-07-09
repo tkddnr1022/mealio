@@ -13,27 +13,24 @@ graph TB
             R53[DNS Routing]
         end
 
-        subgraph "EC2 Instance"
+        subgraph "APP Instance — Public Subnet (Docker Compose)"
+            NGINX[Nginx<br/>Reverse Proxy]
             subgraph "Producer Runtime"
-                API[NestJS API<br/>REST/GraphQL]
+                API[NestJS Producer<br/>:4000]
             end
             subgraph "Consumer Runtime"
-                CONSUMER[Kafka Consumer<br/>Event Processor]
+                CONSUMER[NestJS Consumer<br/>Event Processor]
             end
         end
 
-        subgraph "Message Broker"
-            MSK[AWS MSK<br/>Apache Kafka]
+        subgraph "INFRA Instance — Private Subnet (Docker Compose)"
+            PG[(PostgreSQL<br/>:5432)]
+            REDIS[(Redis<br/>:6379)]
+            KAFKA[Apache Kafka<br/>:9092]
             TOPICS["Topics:<br/>- activity-events<br/>- user-events<br/>- cache-invalidation<br/>- chatbot-requests"]
-        end
-
-        subgraph "Cache Layer"
-            REDIS[AWS ElastiCache<br/>Redis]
-        end
-
-        subgraph "Database Layer"
-            RDS[(AWS RDS<br/>PostgreSQL)]
-            MONGO[(MongoDB Atlas)]
+            PROM[Prometheus]
+            PGW[Pushgateway<br/>:9091]
+            GRAFANA[Grafana]
         end
 
         subgraph "Storage"
@@ -42,6 +39,7 @@ graph TB
     end
 
     subgraph "External Services"
+        MONGO[(MongoDB Atlas)]
         OPENAI[OpenAI API<br/>GPT-4]
         SENTRY[Sentry<br/>Error Tracking]
         GA[Google Analytics<br/>User Metrics]
@@ -60,39 +58,48 @@ graph TB
     WEB --> CF
     CF --> VERCEL
     VERCEL --> R53
-    R53 --> API
+    R53 --> NGINX
+    NGINX --> API
 
     %% API Connections
     API --> REDIS
-    API --> RDS
+    API --> PG
     API --> MONGO
-    API --> MSK
+    API --> KAFKA
     API --> S3
     API --> OPENAI
     API --> SENTRY
     API --> GA
 
     %% Kafka Flow
-    MSK --> TOPICS
+    KAFKA --> TOPICS
     TOPICS --> CONSUMER
 
     %% Consumer Connections
     CONSUMER --> REDIS
-    CONSUMER --> RDS
+    CONSUMER --> PG
     CONSUMER --> MONGO
     CONSUMER --> OPENAI
     CONSUMER --> S3
+    CONSUMER --> PGW
+
+    %% Monitoring (Prometheus scrapes APP Instance metrics)
+    PROM --> API
+    PROM --> CONSUMER
+    PROM --> PGW
+    GRAFANA --> PROM
 
     %% Data Model References
-    RDS -.-> SQL_DATA
+    PG -.-> SQL_DATA
     MONGO -.-> NOSQL_DATA
 
     style VERCEL fill:#000000,color:#fff
     style API fill:#e0234e,color:#fff
     style CONSUMER fill:#e0234e,color:#fff
-    style MSK fill:#231f20,color:#fff
+    style KAFKA fill:#231f20,color:#fff
     style REDIS fill:#dc382d,color:#fff
-    style RDS fill:#527fff,color:#fff
+    style PG fill:#527fff,color:#fff
     style MONGO fill:#13aa52,color:#fff
     style OPENAI fill:#10a37f,color:#fff
     style CF fill:#f38020,color:#fff
+    style NGINX fill:#009639,color:#fff
