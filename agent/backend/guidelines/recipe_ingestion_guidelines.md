@@ -479,7 +479,13 @@ Kafka `recipe-ingestion-persist-triggered` 소비 → payload `runId`로 `parse_
    - **`difficulty`**: LLM 추론값(1-3) → `Recipe.difficulty`. 누락·레거시 payload는 `RECIPE_INGESTION_DEFAULT_DIFFICULTY`(2) fallback; 범위 밖은 clamp (`server/shared/src/policy/recipe-ingestion.policy.ts`, `validators/parse_retrieved-data.validator.ts`)
    - **`cookTime`**: LLM `cookingTimeMinutes` → `Recipe.cookTime`. 누락·레거시 payload는 `RECIPE_INGESTION_DEFAULT_COOK_TIME_MINUTES`(30) fallback; 5-180분 clamp (`server/shared/src/policy/recipe-ingestion.policy.ts`, `validators/parse_retrieved-data.validator.ts`)
 5. job 업데이트: `status: persisted`, `persisted_at: now()`, `new_ingredient_ids` (신규 재료가 있을 때)
-6. 성공 시 `recipe-ingestion-embed-submit-triggered` Kafka 발행 (payload `{ runId, fetchedCount, triggeredAt }`)
+6. **persist 완료 트리거 발행**
+   ```
+   배치 처리 전체에서 성공한 job의 runId별 성공 건수 집계
+   → Kafka recipe-ingestion-embed-submit-triggered
+      payload: { runId, fetchedCount, triggeredAt }
+      key: "runId"
+   ```
 
 ### 5.5 embed-submit
 

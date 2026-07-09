@@ -47,6 +47,10 @@ export interface PersistResult {
   failedCount: number;
 }
 
+export type PersistByJobIdResult =
+  | { outcome: 'persisted'; runId?: string }
+  | { outcome: 'skipped' };
+
 @Injectable()
 export class PersistService {
   private readonly logger = new Logger(PersistService.name);
@@ -80,16 +84,23 @@ export class PersistService {
           options.jobId,
           options.correlationId,
         );
+        if (outcome.outcome === 'persisted' && outcome.runId) {
+          await this.emitEmbedSubmitTrigger({
+            runId: outcome.runId,
+            fetchedCount: 1,
+            correlationId: options.correlationId,
+          });
+        }
         const result = {
-          persistedCount: outcome === 'persisted' ? 1 : 0,
-          skippedCount: outcome === 'skipped' ? 1 : 0,
+          persistedCount: outcome.outcome === 'persisted' ? 1 : 0,
+          skippedCount: outcome.outcome === 'skipped' ? 1 : 0,
           failedCount: 0,
         };
         logIngestion(this.logger, 'log', {
           event: RECIPE_INGESTION_LOG_EVENTS.STAGE_COMPLETED,
           durationMs: Date.now() - startedAt,
           ...logBase,
-          outcome: outcome === 'persisted' ? 'success' : 'skipped',
+          outcome: outcome.outcome === 'persisted' ? 'success' : 'skipped',
           ...result,
         });
         return result;
@@ -143,6 +154,7 @@ export class PersistService {
     let persistedCount = 0;
     let skippedCount = 0;
     let failedCount = 0;
+    const persistedCountByRunId = new Map<string, number>();
 
     for (const job of candidates) {
       try {
@@ -150,8 +162,17 @@ export class PersistService {
           String(job._id),
           options.correlationId,
         );
-        if (outcome === 'persisted') persistedCount++;
-        else skippedCount++;
+        if (outcome.outcome === 'persisted') {
+          persistedCount++;
+          if (outcome.runId) {
+            persistedCountByRunId.set(
+              outcome.runId,
+              (persistedCountByRunId.get(outcome.runId) ?? 0) + 1,
+            );
+          }
+        } else {
+          skippedCount++;
+        }
       } catch (error) {
         failedCount++;
         logIngestionError(
@@ -165,6 +186,14 @@ export class PersistService {
           error,
         );
       }
+    }
+
+    for (const [runId, count] of persistedCountByRunId) {
+      await this.emitEmbedSubmitTrigger({
+        runId,
+        fetchedCount: count,
+        correlationId: options.correlationId,
+      });
     }
 
     const outcome =
@@ -190,7 +219,7 @@ export class PersistService {
   async persistByJobId(
     jobId: string,
     correlationId?: string,
-  ): Promise<'persisted' | 'skipped'> {
+  ): Promise<PersistByJobIdResult> {
     const startedAt = Date.now();
     const logBase = {
       stage: PersistService.STAGE,
@@ -200,15 +229,15 @@ export class PersistService {
     const job = await this.jobRepository.findById(jobId);
     if (!job) {
       this.metrics.recordIngestionStage('persist', 'skipped');
-      return 'skipped';
+      return { outcome: 'skipped' };
     }
     if (job.status === 'persisted' || job.status === 'persisting') {
       this.metrics.recordIngestionStage('persist', 'skipped');
-      return 'skipped';
+      return { outcome: 'skipped' };
     }
     if (job.status !== 'parse_retrieved') {
       this.metrics.recordIngestionStage('persist', 'skipped');
-      return 'skipped';
+      return { outcome: 'skipped' };
     }
 
     const persisting = await this.jobRepository.transitionStatus(
@@ -218,7 +247,7 @@ export class PersistService {
     );
     if (!persisting) {
       this.metrics.recordIngestionStage('persist', 'skipped');
-      return 'skipped';
+      return { outcome: 'skipped' };
     }
 
     try {
@@ -250,15 +279,6 @@ export class PersistService {
           message:
             'persist succeeded but persisting→persisted transition failed',
         });
-      } else if (
-        typeof persisted.runId === 'string' &&
-        persisted.runId.length > 0
-      ) {
-        await this.emitEmbedSubmitTrigger({
-          runId: persisted.runId,
-          fetchedCount: 1,
-          correlationId,
-        });
       }
 
       this.metrics.recordIngestionStage('persist', 'success');
@@ -266,7 +286,13 @@ export class PersistService {
         'persist',
         Date.now() - startedAt,
       );
-      return 'persisted';
+      const runId =
+        persisted &&
+        typeof persisted.runId === 'string' &&
+        persisted.runId.length > 0
+          ? persisted.runId
+          : undefined;
+      return { outcome: 'persisted', runId };
     } catch (error) {
       const message =
         error instanceof RetrievedDataValidationError || error instanceof Error
