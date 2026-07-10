@@ -193,7 +193,7 @@ Development에서는 위 비율·트레이스 샘플링을 1.0(또는 health/met
 | 8A.7 | `job:recipe-ingestion-embed-retrieve --run-id <runId>` 실행 | `embed_retrieved` 증가, RecipeEmbedding upsert 확인 |
 | 8A.8 | persist/embed 실패 유도 후 복구 | `recipe_ingestion_stage_total{stage=\"persist|embed-retrieve\",outcome=\"failed\"}` 증가 후 재시도 시 `success` 증가 |
 | 8A.9 | fetch CLI 실행 후 로그 grep | JSON 로그에 `event=recipe_ingestion_cli_started`, `correlationId`, `stage=fetch` 존재 |
-| 8A.10 | parse-submit 성공 실행 후 로그 grep | `event=recipe_ingestion_batch_submitted`, `batchId`, `runId` 존재 |
+| 8A.10 | parse-submit 성공 실행 후 로그 grep | `event=recipe_ingestion_batch_submitted`, `batchId`(OpenAI Batch ID), `runId` 존재. Mongo job에는 `parseBatchId` 기록 |
 | 8A.11 | parse-retrieve 대상 0건 실행 | `event=recipe_ingestion_stage_no_op`, `stage=parse-retrieve` 존재 |
 | 8A.12 | 동일 `correlationId`로 stage_started → stage_completed 체인 | 단일 CLI 실행 내 lifecycle 이벤트 연속 확인 |
 | 8A.13 | `PUSHGATEWAY_URL` 미설정 상태에서 fetch CLI 실행 | job 정상 완료, push skip (warn 없음) |

@@ -109,37 +109,37 @@ describe('RecipeIngestionJobRepository', () => {
     });
   });
 
-  describe('transitionManyByBatchId', () => {
-    it('should bulk update jobs in a batch', async () => {
+  describe('transitionManyByParseBatchId', () => {
+    it('should bulk update jobs in a parse batch', async () => {
       const exec = jest.fn().mockResolvedValue({ modifiedCount: 3 });
       jest.spyOn(model, 'updateMany').mockReturnValue({ exec } as never);
 
-      const count = await repository.transitionManyByBatchId(
+      const count = await repository.transitionManyByParseBatchId(
         'batch_abc',
         'parse_submitted',
         'parse_retrieving',
       );
 
       expect(model.updateMany).toHaveBeenCalledWith(
-        { batchId: 'batch_abc', status: 'parse_submitted' },
+        { parseBatchId: 'batch_abc', status: 'parse_submitted' },
         { $set: { status: 'parse_retrieving' } },
       );
       expect(count).toBe(3);
     });
   });
 
-  describe('findDistinctBatchIdsByStatus', () => {
-    it('should query distinct batchId for status', async () => {
+  describe('findDistinctParseBatchIdsByStatus', () => {
+    it('should query distinct parseBatchId for status', async () => {
       jest
         .spyOn(model, 'distinct')
         .mockResolvedValue(['batch_1', 'batch_2'] as never);
 
       const result =
-        await repository.findDistinctBatchIdsByStatus('parse_submitted');
+        await repository.findDistinctParseBatchIdsByStatus('parse_submitted');
 
-      expect(model.distinct).toHaveBeenCalledWith('batchId', {
+      expect(model.distinct).toHaveBeenCalledWith('parseBatchId', {
         status: 'parse_submitted',
-        batchId: { $exists: true, $ne: null },
+        parseBatchId: { $exists: true, $ne: null },
       });
       expect(result).toEqual(['batch_1', 'batch_2']);
     });

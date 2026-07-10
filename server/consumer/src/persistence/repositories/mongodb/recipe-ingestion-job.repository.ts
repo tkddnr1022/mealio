@@ -12,7 +12,8 @@ import {
 export type RecipeIngestionJobStatusUpdate = Partial<
   Pick<
     RecipeIngestionJobDocument,
-    | 'batchId'
+    | 'parseBatchId'
+    | 'embedBatchId'
     | 'runId'
     | 'retrievedData'
     | 'errorMessage'
@@ -180,13 +181,23 @@ export class RecipeIngestionJobRepository {
       .exec();
   }
 
-  async findDistinctBatchIdsByRunIds(runIds: string[]): Promise<string[]> {
+  async findDistinctParseBatchIdsByRunIds(runIds: string[]): Promise<string[]> {
     if (runIds.length === 0) {
       return [];
     }
-    return this.jobModel.distinct('batchId', {
+    return this.jobModel.distinct('parseBatchId', {
       runId: { $in: runIds },
-      batchId: { $exists: true, $ne: null },
+      parseBatchId: { $exists: true, $ne: null },
+    });
+  }
+
+  async findDistinctEmbedBatchIdsByRunIds(runIds: string[]): Promise<string[]> {
+    if (runIds.length === 0) {
+      return [];
+    }
+    return this.jobModel.distinct('embedBatchId', {
+      runId: { $in: runIds },
+      embedBatchId: { $exists: true, $ne: null },
     });
   }
 
@@ -265,14 +276,33 @@ export class RecipeIngestionJobRepository {
     return result.modifiedCount;
   }
 
-  async forceTransitionManyByBatchId(
-    batchId: string,
+  async forceTransitionManyByParseBatchId(
+    parseBatchId: string,
     toStatus: RecipeIngestionJobStatus,
     updates: RecipeIngestionJobStatusUpdate = {},
   ): Promise<number> {
     const result = await this.jobModel
       .updateMany(
-        { batchId },
+        { parseBatchId },
+        {
+          $set: {
+            status: toStatus,
+            ...updates,
+          },
+        },
+      )
+      .exec();
+    return result.modifiedCount;
+  }
+
+  async forceTransitionManyByEmbedBatchId(
+    embedBatchId: string,
+    toStatus: RecipeIngestionJobStatus,
+    updates: RecipeIngestionJobStatusUpdate = {},
+  ): Promise<number> {
+    const result = await this.jobModel
+      .updateMany(
+        { embedBatchId },
         {
           $set: {
             status: toStatus,
@@ -355,17 +385,17 @@ export class RecipeIngestionJobRepository {
     return rows.map((row) => row._id);
   }
 
-  async findDistinctBatchIdsByStatus(
+  async findDistinctParseBatchIdsByStatus(
     status: RecipeIngestionJobStatus,
     runIds?: string[],
   ): Promise<string[]> {
     const filter: {
       status: RecipeIngestionJobStatus;
-      batchId: { $exists: true; $ne: null };
+      parseBatchId: { $exists: true; $ne: null };
       runId?: { $in: string[] };
     } = {
       status,
-      batchId: { $exists: true, $ne: null },
+      parseBatchId: { $exists: true, $ne: null },
     };
     if (runIds !== undefined) {
       if (runIds.length === 0) {
@@ -373,15 +403,49 @@ export class RecipeIngestionJobRepository {
       }
       filter.runId = { $in: runIds };
     }
-    return this.jobModel.distinct('batchId', filter);
+    return this.jobModel.distinct('parseBatchId', filter);
   }
 
-  async findByBatchId(
-    batchId: string,
+  async findDistinctEmbedBatchIdsByStatus(
+    status: RecipeIngestionJobStatus,
+    runIds?: string[],
+  ): Promise<string[]> {
+    const filter: {
+      status: RecipeIngestionJobStatus;
+      embedBatchId: { $exists: true; $ne: null };
+      runId?: { $in: string[] };
+    } = {
+      status,
+      embedBatchId: { $exists: true, $ne: null },
+    };
+    if (runIds !== undefined) {
+      if (runIds.length === 0) {
+        return [];
+      }
+      filter.runId = { $in: runIds };
+    }
+    return this.jobModel.distinct('embedBatchId', filter);
+  }
+
+  async findByParseBatchId(
+    parseBatchId: string,
     status?: RecipeIngestionJobStatus,
   ): Promise<RecipeIngestionJobDocument[]> {
-    const filter: { batchId: string; status?: RecipeIngestionJobStatus } = {
-      batchId,
+    const filter: { parseBatchId: string; status?: RecipeIngestionJobStatus } = {
+      parseBatchId,
+    };
+    if (status !== undefined) {
+      filter.status = status;
+    }
+    return this.jobModel.find(filter).exec();
+  }
+
+  async findByEmbedBatchId(
+    embedBatchId: string,
+    status?: RecipeIngestionJobStatus,
+  ): Promise<RecipeIngestionJobDocument[]> {
+    const filter: { embedBatchId: string; status?: RecipeIngestionJobStatus } = {
+      embedBatchId,
     };
     if (status !== undefined) {
       filter.status = status;
@@ -390,18 +454,42 @@ export class RecipeIngestionJobRepository {
   }
 
   /**
-   * batchId 소속 job 일괄 상태 전환
+   * parseBatchId 소속 job 일괄 상태 전환
    * @returns modifiedCount
    */
-  async transitionManyByBatchId(
-    batchId: string,
+  async transitionManyByParseBatchId(
+    parseBatchId: string,
     fromStatus: RecipeIngestionJobStatus,
     toStatus: RecipeIngestionJobStatus,
     updates: RecipeIngestionJobStatusUpdate = {},
   ): Promise<number> {
     const result = await this.jobModel
       .updateMany(
-        { batchId, status: fromStatus },
+        { parseBatchId, status: fromStatus },
+        {
+          $set: {
+            status: toStatus,
+            ...updates,
+          },
+        },
+      )
+      .exec();
+    return result.modifiedCount;
+  }
+
+  /**
+   * embedBatchId 소속 job 일괄 상태 전환
+   * @returns modifiedCount
+   */
+  async transitionManyByEmbedBatchId(
+    embedBatchId: string,
+    fromStatus: RecipeIngestionJobStatus,
+    toStatus: RecipeIngestionJobStatus,
+    updates: RecipeIngestionJobStatusUpdate = {},
+  ): Promise<number> {
+    const result = await this.jobModel
+      .updateMany(
+        { embedBatchId, status: fromStatus },
         {
           $set: {
             status: toStatus,
@@ -472,7 +560,7 @@ export class RecipeIngestionJobRepository {
     errorMessage: string,
   ): Promise<number> {
     const jobs = await this.jobModel
-      .find({ batchId, status: 'parse_submitted' })
+      .find({ parseBatchId: batchId, status: 'parse_submitted' })
       .exec();
 
     let rolledBack = 0;
@@ -495,7 +583,7 @@ export class RecipeIngestionJobRepository {
               ...(failed ? { failedAt: now } : {}),
               ...(!failed
                 ? {
-                    batchId: undefined,
+                    parseBatchId: undefined,
                     parseSubmittedAt: undefined,
                   }
                 : {}),
@@ -521,7 +609,7 @@ export class RecipeIngestionJobRepository {
     errorMessage: string,
   ): Promise<number> {
     const jobs = await this.jobModel
-      .find({ batchId, status: 'parse_retrieving' })
+      .find({ parseBatchId: batchId, status: 'parse_retrieving' })
       .exec();
 
     let rolledBack = 0;
@@ -545,7 +633,7 @@ export class RecipeIngestionJobRepository {
               ...(failed ? { failedAt: now } : {}),
               ...(!failed
                 ? {
-                    batchId: undefined,
+                    parseBatchId: undefined,
                     parseSubmittedAt: undefined,
                     retrievedData: undefined,
                     parseRetrievedAt: undefined,
@@ -600,7 +688,7 @@ export class RecipeIngestionJobRepository {
             ...(failed ? { failedAt: now } : {}),
             ...(!failed
               ? {
-                  batchId: undefined,
+                  parseBatchId: undefined,
                   parseSubmittedAt: undefined,
                   retrievedData: undefined,
                   parseRetrievedAt: undefined,

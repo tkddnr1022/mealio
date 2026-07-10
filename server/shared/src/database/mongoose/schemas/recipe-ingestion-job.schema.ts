@@ -42,7 +42,10 @@ export class RecipeIngestionJob extends Document {
   rawData?: Record<string, unknown>;
 
   @Prop({ type: String, index: true })
-  batchId?: string;
+  parseBatchId?: string;
+
+  @Prop({ type: String, index: true })
+  embedBatchId?: string;
 
   @Prop({ type: String, index: true })
   runId?: string;
@@ -90,5 +93,6 @@ export const RecipeIngestionJobSchema =
   SchemaFactory.createForClass(RecipeIngestionJob);
 
 RecipeIngestionJobSchema.index({ status: 1, retryCount: 1 });
-RecipeIngestionJobSchema.index({ batchId: 1, status: 1 });
+RecipeIngestionJobSchema.index({ parseBatchId: 1, status: 1 });
+RecipeIngestionJobSchema.index({ embedBatchId: 1, status: 1 });
 RecipeIngestionJobSchema.index({ runId: 1, status: 1 });

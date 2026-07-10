@@ -91,6 +91,7 @@ export class EmbedRetrieveService {
     const batchIds = await resolveRecipeIngestionRetrieveBatchIds(
       this.jobRepository,
       'embed_submitted',
+      'embed',
       options,
     );
     if (batchIds.length === 0) {
@@ -219,7 +220,7 @@ export class EmbedRetrieveService {
       correlationId,
       batchId,
     };
-    const submittedJobs = await this.jobRepository.findByBatchId(
+    const submittedJobs = await this.jobRepository.findByEmbedBatchId(
       batchId,
       force ? undefined : 'embed_submitted',
     );
@@ -261,6 +262,7 @@ export class EmbedRetrieveService {
     }
 
     const locked = await transitionIngestionJobsByBatchId(this.jobRepository, {
+      stage: 'embed',
       batchId,
       fromStatus: 'embed_submitted',
       toStatus: 'embed_retrieving',
@@ -328,7 +330,7 @@ export class EmbedRetrieveService {
         if (done) retrievedCount++;
       }
 
-      const remaining = await this.jobRepository.findByBatchId(
+      const remaining = await this.jobRepository.findByEmbedBatchId(
         batchId,
         force ? undefined : 'embed_retrieving',
       );
@@ -391,7 +393,7 @@ export class EmbedRetrieveService {
     batchId: string,
     errorMessage: string,
   ): Promise<number> {
-    const jobs = await this.jobRepository.findByBatchId(
+    const jobs = await this.jobRepository.findByEmbedBatchId(
       batchId,
       'embed_submitted',
     );
@@ -411,7 +413,7 @@ export class EmbedRetrieveService {
     batchId: string,
     errorMessage: string,
   ): Promise<number> {
-    const jobs = await this.jobRepository.findByBatchId(
+    const jobs = await this.jobRepository.findByEmbedBatchId(
       batchId,
       'embed_retrieving',
     );
@@ -451,7 +453,9 @@ export class EmbedRetrieveService {
         retryCount: nextRetryCount,
         errorMessage,
         ...(failed ? { failedAt: new Date() } : {}),
-        ...(!failed ? { batchId: undefined, embedSubmittedAt: undefined } : {}),
+        ...(!failed
+          ? { embedBatchId: undefined, embedSubmittedAt: undefined }
+          : {}),
       },
     );
     return !!updated;

@@ -149,7 +149,7 @@
 | server/consumer/src/jobs/recipe-ingestion/recipe-ingestion-logger.ts | 구조화 로깅 래퍼 (`logIngestion`, event taxonomy) |
 | server/consumer/src/jobs/recipe-ingestion/recipe-ingestion-range-trigger.payload.ts | parse-submit-triggered·persist-triggered Kafka 트리거 공통 payload 타입·검증·key 헬퍼 (Consumer SSOT) |
 | server/consumer/src/jobs/recipe-ingestion/recipe-ingestion-run.scope.ts | submit/retrieve/persist run scope 해석 (`runId` vs `runIdCount`; submit/persist는 `jobId` 추가) |
-| server/consumer/src/jobs/recipe-ingestion/recipe-ingestion-run.target.ts | submit/persist 작업 대상 job 조회 · retrieve batchId 조회 |
+| server/consumer/src/jobs/recipe-ingestion/recipe-ingestion-run.target.ts | submit/persist 작업 대상 job 조회 · retrieve `parseBatchId`/`embedBatchId` 조회 |
 | server/consumer/src/jobs/recipe-ingestion/recipe-ingestion-run.cli.ts | run scope CLI (`--run-id`, `--run-id-count`) · submit/persist용 `--job-id` 파서 |
 | **server/consumer/src/jobs/kpi-rollup/** | KPI 롤업 배치 잡 |
 | server/consumer/src/jobs/kpi-rollup/kpi-rollup.module.ts | KPI 롤업 모듈 |

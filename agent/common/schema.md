@@ -589,7 +589,8 @@
 | status | String | 파이프라인 단계 (required, index). §3.4.1 enum |
 | retryCount | Number | 단계 실패 재시도 횟수 (required, default 0) |
 | rawData | Mixed | 공공 API row 원본 JSON (optional) |
-| batchId | String | OpenAI Batch Job ID — parse·embed 제출 이후 (optional, index) |
+| parseBatchId | String | OpenAI Parse Batch Job ID — parse-submit 이후 (optional, index) |
+| embedBatchId | String | OpenAI Embedding Batch Job ID — embed-submit 이후 (optional, index) |
 | runId | String | fetch 시작 시 생성되는 파이프라인 실행 단위 UUID (optional, index) |
 | retrievedData | Mixed | parse Batch LLM 변환 결과 JSON (optional). §3.4.2 |
 | errorMessage | String | 마지막 단계 실패 메시지 (optional) |
@@ -660,7 +661,7 @@
 | categoryId | Number \| null | `IngredientCategory.id` (optional) |
 | proposedCategory | { key, name } \| null | 재료 카테고리 매핑 제안 (optional) |
 
-**인덱스**: `(sourceId)` unique, `(status)`, `(batchId)`, `(runId)`, `(status, retryCount)`, `(batchId, status)`, `(runId, status)`
+**인덱스**: `(sourceId)` unique, `(status)`, `(parseBatchId)`, `(embedBatchId)`, `(runId)`, `(status, retryCount)`, `(parseBatchId, status)`, `(embedBatchId, status)`, `(runId, status)`
 
 **문서 구조 예시**
 
@@ -672,7 +673,7 @@
   "retryCount": 0,
   "runId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   "rawData": { "RCP_SEQ": "12345", "RCP_NM": "김치찌개", "MANUAL01": "..." },
-  "batchId": "batch_abc123",
+  "parseBatchId": "batch_abc123",
   "retrievedData": {
     "recipe": {
       "title": "김치찌개",

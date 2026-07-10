@@ -339,7 +339,7 @@ export class ParseSubmitService {
           fromStatus: 'parse_submitting',
           toStatus: 'parse_submitted',
           updates: {
-            batchId,
+            parseBatchId: batchId,
             parseSubmittedAt: new Date(),
             errorMessage: undefined,
           },

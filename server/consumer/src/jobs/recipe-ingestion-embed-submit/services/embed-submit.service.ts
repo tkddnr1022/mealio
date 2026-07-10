@@ -307,7 +307,7 @@ export class EmbedSubmitService {
           fromStatus: 'embed_submitting',
           toStatus: 'embed_submitted',
           updates: {
-            batchId,
+            embedBatchId: batchId,
             embedSubmittedAt: new Date(),
             errorMessage: undefined,
           },

@@ -10,8 +10,10 @@ type TransitionRepository = Pick<
   | 'forceTransitionStatus'
   | 'transitionManyByIds'
   | 'forceTransitionManyByIds'
-  | 'transitionManyByBatchId'
-  | 'forceTransitionManyByBatchId'
+  | 'transitionManyByParseBatchId'
+  | 'forceTransitionManyByParseBatchId'
+  | 'transitionManyByEmbedBatchId'
+  | 'forceTransitionManyByEmbedBatchId'
 >;
 
 type FindByIdsRepository = Pick<
@@ -72,6 +74,7 @@ export async function transitionIngestionJobsByIds(
 export async function transitionIngestionJobsByBatchId(
   repository: TransitionRepository,
   params: {
+    stage: 'parse' | 'embed';
     batchId: string;
     fromStatus: RecipeIngestionJobStatus;
     toStatus: RecipeIngestionJobStatus;
@@ -80,18 +83,31 @@ export async function transitionIngestionJobsByBatchId(
   },
 ): Promise<number> {
   if (params.force) {
-    return repository.forceTransitionManyByBatchId(
-      params.batchId,
-      params.toStatus,
-      params.updates,
-    );
+    return params.stage === 'parse'
+      ? repository.forceTransitionManyByParseBatchId(
+          params.batchId,
+          params.toStatus,
+          params.updates,
+        )
+      : repository.forceTransitionManyByEmbedBatchId(
+          params.batchId,
+          params.toStatus,
+          params.updates,
+        );
   }
-  return repository.transitionManyByBatchId(
-    params.batchId,
-    params.fromStatus,
-    params.toStatus,
-    params.updates,
-  );
+  return params.stage === 'parse'
+    ? repository.transitionManyByParseBatchId(
+        params.batchId,
+        params.fromStatus,
+        params.toStatus,
+        params.updates,
+      )
+    : repository.transitionManyByEmbedBatchId(
+        params.batchId,
+        params.fromStatus,
+        params.toStatus,
+        params.updates,
+      );
 }
 
 export async function findIngestionJobsByIds(

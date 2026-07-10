@@ -101,6 +101,7 @@ export class ParseRetrieveService {
     const batchIds = await resolveRecipeIngestionRetrieveBatchIds(
       this.jobRepository,
       'parse_submitted',
+      'parse',
       options,
     );
 
@@ -242,7 +243,7 @@ export class ParseRetrieveService {
       correlationId,
       batchId,
     };
-    const submittedJobs = await this.jobRepository.findByBatchId(
+    const submittedJobs = await this.jobRepository.findByParseBatchId(
       batchId,
       force ? undefined : 'parse_submitted',
     );
@@ -257,13 +258,13 @@ export class ParseRetrieveService {
     if (distinctRunIds.size > 1) {
       const rolled = await this.jobRepository.rollbackSubmittedBatchWithRetry(
         batchId,
-        'runId:batchId invariant violation',
+        'runId:parseBatchId invariant violation',
       );
       logIngestion(this.logger, 'error', {
         event: RECIPE_INGESTION_LOG_EVENTS.BATCH_FAILED,
         ...logBase,
         count: rolled,
-        message: 'runId:batchId invariant violation',
+        message: 'runId:parseBatchId invariant violation',
       });
       return {
         retrievedCount: 0,
@@ -364,6 +365,7 @@ export class ParseRetrieveService {
       batchId,
     };
     const locked = await transitionIngestionJobsByBatchId(this.jobRepository, {
+      stage: 'parse',
       batchId,
       fromStatus: 'parse_submitted',
       toStatus: 'parse_retrieving',
@@ -419,7 +421,7 @@ export class ParseRetrieveService {
         retrievedCount++;
       }
 
-      const remaining = await this.jobRepository.findByBatchId(
+      const remaining = await this.jobRepository.findByParseBatchId(
         batchId,
         force ? undefined : 'parse_retrieving',
       );

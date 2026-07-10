@@ -32,10 +32,10 @@ flowchart LR
 | 단계 | 실행 | 결과 |
 | --- | --- | --- |
 | fetch | cron / CLI | `status: fetched` |
-| parse-submit | cron / CLI | `batch_id`, `parse_submitted` |
+| parse-submit | cron / CLI | `parse_batch_id`, `parse_submitted` |
 | parse-retrieve | cron / CLI | `parse_retrieved` + Kafka 이벤트 |
 | persist | always-on consumer | `persisted` + Recipe row |
-| embed-submit | cron / CLI + Kafka | 임베딩 Batch 요청 생성 |
+| embed-submit | cron / CLI + Kafka | `embed_batch_id`, `embed_submitted` |
 | embed-retrieve | cron / CLI | RecipeEmbedding(pgvector) upsert + `embed_retrieved` |
 
 ## 저장소

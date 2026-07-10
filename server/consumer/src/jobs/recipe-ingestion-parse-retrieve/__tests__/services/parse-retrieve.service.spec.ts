@@ -22,22 +22,22 @@ const BATCH_ID = 'batch-xyz';
 function mockSubmittedJobsForBatch(
   jobRepository: {
     findDistinctRunIdsByStatus: jest.Mock;
-    findDistinctBatchIdsByStatus: jest.Mock;
-    findByBatchId: jest.Mock;
+    findDistinctParseBatchIdsByStatus: jest.Mock;
+    findByParseBatchId: jest.Mock;
   },
   batchId = BATCH_ID,
   runId = 'run-1',
 ) {
   jobRepository.findDistinctRunIdsByStatus.mockResolvedValue([runId]);
-  jobRepository.findDistinctBatchIdsByStatus.mockResolvedValue([batchId]);
-  jobRepository.findByBatchId.mockImplementation(
+  jobRepository.findDistinctParseBatchIdsByStatus.mockResolvedValue([batchId]);
+  jobRepository.findByParseBatchId.mockImplementation(
     async (_batchId: string, status?: string) => {
       if (status === 'parse_submitted') {
         return [
           {
             _id: new Types.ObjectId(JOB_ID_1),
             status: 'parse_submitted',
-            batchId,
+            parseBatchId: batchId,
             runId,
           },
         ] as never;
@@ -86,13 +86,13 @@ describe('ParseRetrieveService', () => {
     Pick<
       RecipeIngestionJobRepository,
       | 'findDistinctRunIdsByStatus'
-      | 'findDistinctBatchIdsByStatus'
+      | 'findDistinctParseBatchIdsByStatus'
       | 'rollbackSubmittedBatchWithRetry'
-      | 'transitionManyByBatchId'
+      | 'transitionManyByParseBatchId'
       | 'transitionStatus'
       | 'rollbackRetrievingJobWithRetry'
       | 'rollbackRetrievingBatchWithRetry'
-      | 'findByBatchId'
+      | 'findByParseBatchId'
     >
   >;
   let openAiBatchService: jest.Mocked<
@@ -111,13 +111,13 @@ describe('ParseRetrieveService', () => {
   beforeEach(async () => {
     jobRepository = {
       findDistinctRunIdsByStatus: jest.fn(),
-      findDistinctBatchIdsByStatus: jest.fn(),
+      findDistinctParseBatchIdsByStatus: jest.fn(),
       rollbackSubmittedBatchWithRetry: jest.fn(),
-      transitionManyByBatchId: jest.fn(),
+      transitionManyByParseBatchId: jest.fn(),
       transitionStatus: jest.fn(),
       rollbackRetrievingJobWithRetry: jest.fn(),
       rollbackRetrievingBatchWithRetry: jest.fn(),
-      findByBatchId: jest.fn(),
+      findByParseBatchId: jest.fn(),
     };
     openAiBatchService = {
       getBatch: jest.fn(),
@@ -152,7 +152,7 @@ describe('ParseRetrieveService', () => {
   describe('no-op', () => {
     it('should exit when no parse_submitted batches', async () => {
       jobRepository.findDistinctRunIdsByStatus.mockResolvedValue([]);
-      jobRepository.findDistinctBatchIdsByStatus.mockResolvedValue([]);
+      jobRepository.findDistinctParseBatchIdsByStatus.mockResolvedValue([]);
 
       const result = await service.retrieve();
 
@@ -160,7 +160,9 @@ describe('ParseRetrieveService', () => {
         'parse_submitted',
         1,
       );
-      expect(jobRepository.findDistinctBatchIdsByStatus).toHaveBeenCalledWith(
+      expect(
+        jobRepository.findDistinctParseBatchIdsByStatus,
+      ).toHaveBeenCalledWith(
         'parse_submitted',
         [],
       );
@@ -174,12 +176,14 @@ describe('ParseRetrieveService', () => {
     });
 
     it('should query parse_submitted batches filtered by runId when runId provided', async () => {
-      jobRepository.findDistinctBatchIdsByStatus.mockResolvedValue([]);
+      jobRepository.findDistinctParseBatchIdsByStatus.mockResolvedValue([]);
 
       await service.retrieve({ runId: 'run-1' });
 
       expect(jobRepository.findDistinctRunIdsByStatus).not.toHaveBeenCalled();
-      expect(jobRepository.findDistinctBatchIdsByStatus).toHaveBeenCalledWith(
+      expect(
+        jobRepository.findDistinctParseBatchIdsByStatus,
+      ).toHaveBeenCalledWith(
         'parse_submitted',
         ['run-1'],
       );
@@ -197,7 +201,7 @@ describe('ParseRetrieveService', () => {
       const result = await service.retrieve();
 
       expect(result.skippedBatchCount).toBe(1);
-      expect(jobRepository.transitionManyByBatchId).not.toHaveBeenCalled();
+      expect(jobRepository.transitionManyByParseBatchId).not.toHaveBeenCalled();
       expect(
         jobRepository.rollbackSubmittedBatchWithRetry,
       ).not.toHaveBeenCalled();
@@ -233,8 +237,8 @@ describe('ParseRetrieveService', () => {
         status: 'completed',
         outputFileId: 'file-output',
       });
-      jobRepository.transitionManyByBatchId.mockResolvedValue(2);
-      jobRepository.findByBatchId.mockResolvedValue([]);
+      jobRepository.transitionManyByParseBatchId.mockResolvedValue(2);
+      jobRepository.findByParseBatchId.mockResolvedValue([]);
     });
 
     it('should mark jobs parse_retrieved and emit Kafka range payload', async () => {
@@ -255,10 +259,11 @@ describe('ParseRetrieveService', () => {
 
       const result = await service.retrieve();
 
-      expect(jobRepository.transitionManyByBatchId).toHaveBeenCalledWith(
+      expect(jobRepository.transitionManyByParseBatchId).toHaveBeenCalledWith(
         BATCH_ID,
         'parse_submitted',
         'parse_retrieving',
+        undefined,
       );
       expect(jobRepository.transitionStatus).toHaveBeenCalledTimes(2);
       expect(jobRepository.transitionStatus).toHaveBeenCalledWith(
@@ -321,7 +326,7 @@ describe('ParseRetrieveService', () => {
         _id: new Types.ObjectId(JOB_ID_1),
         runId: 'run-1',
       } as never);
-      jobRepository.findByBatchId.mockResolvedValue([
+      jobRepository.findByParseBatchId.mockResolvedValue([
         { _id: new Types.ObjectId(JOB_ID_2) },
       ] as never);
       jobRepository.rollbackRetrievingJobWithRetry.mockResolvedValue(true);
@@ -352,17 +357,17 @@ describe('ParseRetrieveService', () => {
 
   it('should rollback parse_submitted jobs when batch contains multiple runIds', async () => {
     mockSubmittedJobsForBatch(jobRepository);
-    jobRepository.findByBatchId.mockResolvedValueOnce([
+    jobRepository.findByParseBatchId.mockResolvedValueOnce([
       {
         _id: new Types.ObjectId(JOB_ID_1),
         status: 'parse_submitted',
-        batchId: BATCH_ID,
+        parseBatchId: BATCH_ID,
         runId: 'run-1',
       },
       {
         _id: new Types.ObjectId(JOB_ID_2),
         status: 'parse_submitted',
-        batchId: BATCH_ID,
+        parseBatchId: BATCH_ID,
         runId: 'run-2',
       },
     ] as never);
@@ -372,7 +377,7 @@ describe('ParseRetrieveService', () => {
 
     expect(jobRepository.rollbackSubmittedBatchWithRetry).toHaveBeenCalledWith(
       BATCH_ID,
-      expect.stringContaining('runId:batchId invariant violation'),
+      expect.stringContaining('runId:parseBatchId invariant violation'),
     );
     expect(openAiBatchService.getBatch).not.toHaveBeenCalled();
     expect(result.failedCount).toBe(2);

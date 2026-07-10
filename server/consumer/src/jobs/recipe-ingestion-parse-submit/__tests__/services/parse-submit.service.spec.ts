@@ -191,6 +191,7 @@ describe('ParseSubmitService', () => {
         [jobId],
         'fetched',
         'parse_submitting',
+        undefined,
       );
       expect(categoryContextService.getCategoryContext).toHaveBeenCalled();
 
@@ -207,7 +208,7 @@ describe('ParseSubmitService', () => {
         'parse_submitting',
         'parse_submitted',
         expect.objectContaining({
-          batchId: 'batch-xyz',
+          parseBatchId: 'batch-xyz',
           parseSubmittedAt: expect.any(Date),
         }),
       );
@@ -308,14 +309,14 @@ describe('ParseSubmitService', () => {
         [jobId],
         'parse_submitting',
         'parse_submitted',
-        expect.objectContaining({ batchId: 'batch-run-1' }),
+        expect.objectContaining({ parseBatchId: 'batch-run-1' }),
       );
       expect(jobRepository.transitionManyByIds).toHaveBeenNthCalledWith(
         4,
         [jobId2],
         'parse_submitting',
         'parse_submitted',
-        expect.objectContaining({ batchId: 'batch-run-2' }),
+        expect.objectContaining({ parseBatchId: 'batch-run-2' }),
       );
       expect(result.submittedCount).toBe(2);
       expect(result.batchId).toBeUndefined();

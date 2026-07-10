@@ -84,12 +84,15 @@ export async function findRecipeIngestionJobsByRunIds(
 }
 
 export function distinctBatchIdsFromJobs(
-  jobs: Array<Pick<RecipeIngestionJobDocument, 'batchId'>>,
+  jobs: Array<Pick<RecipeIngestionJobDocument, 'parseBatchId' | 'embedBatchId'>>,
+  stage: 'parse' | 'embed',
 ): string[] {
   const batchIds = new Set<string>();
+  const field = stage === 'parse' ? 'parseBatchId' : 'embedBatchId';
   for (const job of jobs) {
-    if (typeof job.batchId === 'string' && job.batchId.length > 0) {
-      batchIds.add(job.batchId);
+    const batchId = job[field];
+    if (typeof batchId === 'string' && batchId.length > 0) {
+      batchIds.add(batchId);
     }
   }
   return [...batchIds];
@@ -122,17 +125,20 @@ export async function resolveRecipeIngestionTargetJobs(
 export type RecipeIngestionRetrieveBatchRepository = Pick<
   RecipeIngestionJobRepository,
   | 'findDistinctRunIdsByStatus'
-  | 'findDistinctBatchIdsByStatus'
-  | 'findDistinctBatchIdsByRunIds'
+  | 'findDistinctParseBatchIdsByStatus'
+  | 'findDistinctParseBatchIdsByRunIds'
+  | 'findDistinctEmbedBatchIdsByStatus'
+  | 'findDistinctEmbedBatchIdsByRunIds'
 >;
 
 /**
- * parse-retrieve / embed-retrieve — run scope → submitted job의 distinct batchId.
- * runId:batchId 1:1 전제하에 batch 작업 단위를 조회한다.
+ * parse-retrieve / embed-retrieve — run scope → 제출된 job의 stage별 distinct batchId.
+ * runId:parseBatchId, runId:embedBatchId 1:1 전제하에 batch 작업 단위를 조회한다.
  */
 export async function resolveRecipeIngestionRetrieveBatchIds(
   repository: RecipeIngestionRetrieveBatchRepository,
   status: RecipeIngestionJobStatus,
+  stage: 'parse' | 'embed',
   options: RecipeIngestionRunScopeOnlyOptions,
 ): Promise<string[]> {
   const runIds = await resolveRecipeIngestionTargetRunIds(
@@ -141,7 +147,11 @@ export async function resolveRecipeIngestionRetrieveBatchIds(
     options,
   );
   if (options.force) {
-    return repository.findDistinctBatchIdsByRunIds(runIds);
+    return stage === 'parse'
+      ? repository.findDistinctParseBatchIdsByRunIds(runIds)
+      : repository.findDistinctEmbedBatchIdsByRunIds(runIds);
   }
-  return repository.findDistinctBatchIdsByStatus(status, runIds);
+  return stage === 'parse'
+    ? repository.findDistinctParseBatchIdsByStatus(status, runIds)
+    : repository.findDistinctEmbedBatchIdsByStatus(status, runIds);
 }
