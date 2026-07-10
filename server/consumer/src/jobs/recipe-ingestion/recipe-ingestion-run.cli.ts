@@ -15,6 +15,32 @@ export const RECIPE_INGESTION_NO_KAFKA_CLI_FLAG_DEFINITION: CliFlagDefinition = 
   name: RECIPE_INGESTION_NO_KAFKA_CLI_FLAG,
 };
 
+export const RECIPE_INGESTION_FORCE_CLI_FLAG = '--force';
+
+export function parseForceCliFlag(args: string[]): boolean {
+  return args.includes(RECIPE_INGESTION_FORCE_CLI_FLAG);
+}
+
+export const RECIPE_INGESTION_FORCE_REQUIRES_TARGET_MESSAGE =
+  '--force requires --job-id or --run-id';
+
+export function parseForceCliArg(
+  args: string[],
+  createError: (message: string) => Error,
+): boolean {
+  if (!parseForceCliFlag(args)) {
+    return false;
+  }
+  if (!args.includes('--job-id') && !args.includes('--run-id')) {
+    throw createError(RECIPE_INGESTION_FORCE_REQUIRES_TARGET_MESSAGE);
+  }
+  return true;
+}
+
+export const RECIPE_INGESTION_FORCE_CLI_FLAG_DEFINITION: CliFlagDefinition = {
+  name: RECIPE_INGESTION_FORCE_CLI_FLAG,
+};
+
 export function parseJobIdCliArg(
   args: string[],
   createError: (message: string) => Error,

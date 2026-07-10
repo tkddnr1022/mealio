@@ -13,6 +13,7 @@ import {
   type RecipeIngestionLoggingOptions,
 } from 'src/jobs/recipe-ingestion/recipe-ingestion-logger';
 import { resolveRecipeIngestionTargetJobs } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
+import { transitionIngestionJobStatus } from 'src/jobs/recipe-ingestion/recipe-ingestion-status-transition';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
 import {
@@ -39,6 +40,7 @@ export interface PersistOptions extends RecipeIngestionLoggingOptions {
   jobId?: string;
   runId?: string;
   runIdCount?: number;
+  force?: boolean;
 }
 
 export interface PersistResult {
@@ -83,6 +85,7 @@ export class PersistService {
         const outcome = await this.persistByJobId(
           options.jobId,
           options.correlationId,
+          options.force,
         );
         if (outcome.outcome === 'persisted' && outcome.runId) {
           await this.emitEmbedSubmitTrigger({
@@ -161,6 +164,7 @@ export class PersistService {
         const outcome = await this.persistByJobId(
           String(job._id),
           options.correlationId,
+          options.force,
         );
         if (outcome.outcome === 'persisted') {
           persistedCount++;
@@ -219,6 +223,7 @@ export class PersistService {
   async persistByJobId(
     jobId: string,
     correlationId?: string,
+    force?: boolean,
   ): Promise<PersistByJobIdResult> {
     const startedAt = Date.now();
     const logBase = {
@@ -231,20 +236,23 @@ export class PersistService {
       this.metrics.recordIngestionStage('persist', 'skipped');
       return { outcome: 'skipped' };
     }
-    if (job.status === 'persisted' || job.status === 'persisting') {
-      this.metrics.recordIngestionStage('persist', 'skipped');
-      return { outcome: 'skipped' };
-    }
-    if (job.status !== 'parse_retrieved') {
-      this.metrics.recordIngestionStage('persist', 'skipped');
-      return { outcome: 'skipped' };
+    if (!force) {
+      if (job.status === 'persisted' || job.status === 'persisting') {
+        this.metrics.recordIngestionStage('persist', 'skipped');
+        return { outcome: 'skipped' };
+      }
+      if (job.status !== 'parse_retrieved') {
+        this.metrics.recordIngestionStage('persist', 'skipped');
+        return { outcome: 'skipped' };
+      }
     }
 
-    const persisting = await this.jobRepository.transitionStatus(
-      jobId,
-      'parse_retrieved',
-      'persisting',
-    );
+    const persisting = await transitionIngestionJobStatus(this.jobRepository, {
+      id: jobId,
+      fromStatus: 'parse_retrieved',
+      toStatus: 'persisting',
+      force,
+    });
     if (!persisting) {
       this.metrics.recordIngestionStage('persist', 'skipped');
       return { outcome: 'skipped' };
@@ -262,15 +270,16 @@ export class PersistService {
         this.metrics.recordIngredientMatchMethod(method);
       }
 
-      const persisted = await this.jobRepository.transitionStatus(
-        jobId,
-        'persisting',
-        'persisted',
-        {
+      const persisted = await transitionIngestionJobStatus(this.jobRepository, {
+        id: jobId,
+        fromStatus: 'persisting',
+        toStatus: 'persisted',
+        updates: {
           persistedAt: new Date(),
           newIngredientIds: result.newIngredientIds,
         },
-      );
+        force,
+      });
       if (!persisted) {
         logIngestion(this.logger, 'warn', {
           event: RECIPE_INGESTION_LOG_EVENTS.JOB_TRANSITION_FAILED,

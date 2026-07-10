@@ -151,6 +151,45 @@ export class RecipeIngestionJobRepository {
       .exec() as Promise<RecipeIngestionJobDocument>;
   }
 
+  async findManyByIds(
+    ids: string[],
+  ): Promise<RecipeIngestionJobDocument[]> {
+    const objectIds = ids
+      .filter((id) => Types.ObjectId.isValid(id))
+      .map((id) => new Types.ObjectId(id));
+    if (objectIds.length === 0) {
+      return [];
+    }
+    return this.jobModel
+      .find({ _id: { $in: objectIds } })
+      .sort({ fetchedAt: 1 })
+      .exec();
+  }
+
+  async findByRunId(runId: string): Promise<RecipeIngestionJobDocument[]> {
+    return this.jobModel.find({ runId }).sort({ fetchedAt: 1 }).exec();
+  }
+
+  async findByRunIds(runIds: string[]): Promise<RecipeIngestionJobDocument[]> {
+    if (runIds.length === 0) {
+      return [];
+    }
+    return this.jobModel
+      .find({ runId: { $in: runIds } })
+      .sort({ fetchedAt: 1 })
+      .exec();
+  }
+
+  async findDistinctBatchIdsByRunIds(runIds: string[]): Promise<string[]> {
+    if (runIds.length === 0) {
+      return [];
+    }
+    return this.jobModel.distinct('batchId', {
+      runId: { $in: runIds },
+      batchId: { $exists: true, $ne: null },
+    });
+  }
+
   /**
    * fromStatus 일치 시에만 toStatus로 전환 (낙관적 락)
    * @returns 갱신된 문서 또는 조건 불일치 시 null
@@ -176,6 +215,73 @@ export class RecipeIngestionJobRepository {
         { new: true },
       )
       .exec();
+  }
+
+  /** status 검증 없이 toStatus로 전환 (--force) */
+  async forceTransitionStatus(
+    id: string,
+    toStatus: RecipeIngestionJobStatus,
+    updates: RecipeIngestionJobStatusUpdate = {},
+  ): Promise<RecipeIngestionJobDocument | null> {
+    if (!Types.ObjectId.isValid(id)) {
+      return null;
+    }
+    return this.jobModel
+      .findOneAndUpdate(
+        { _id: id },
+        {
+          $set: {
+            status: toStatus,
+            ...updates,
+          },
+        },
+        { new: true },
+      )
+      .exec();
+  }
+
+  async forceTransitionManyByIds(
+    ids: string[],
+    toStatus: RecipeIngestionJobStatus,
+    updates: RecipeIngestionJobStatusUpdate = {},
+  ): Promise<number> {
+    const objectIds = ids
+      .filter((id) => Types.ObjectId.isValid(id))
+      .map((id) => new Types.ObjectId(id));
+    if (objectIds.length === 0) {
+      return 0;
+    }
+    const result = await this.jobModel
+      .updateMany(
+        { _id: { $in: objectIds } },
+        {
+          $set: {
+            status: toStatus,
+            ...updates,
+          },
+        },
+      )
+      .exec();
+    return result.modifiedCount;
+  }
+
+  async forceTransitionManyByBatchId(
+    batchId: string,
+    toStatus: RecipeIngestionJobStatus,
+    updates: RecipeIngestionJobStatusUpdate = {},
+  ): Promise<number> {
+    const result = await this.jobModel
+      .updateMany(
+        { batchId },
+        {
+          $set: {
+            status: toStatus,
+            ...updates,
+          },
+        },
+      )
+      .exec();
+    return result.modifiedCount;
   }
 
   /**

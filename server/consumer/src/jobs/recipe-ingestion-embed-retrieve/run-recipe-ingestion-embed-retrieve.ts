@@ -5,7 +5,11 @@ import {
   type ObservabilityConfig,
 } from '@mealio/shared';
 import { findUnknownCliArgs } from '../cli-args.util';
-import { parseRecipeIngestionRunCliArgs } from '../recipe-ingestion/recipe-ingestion-run.cli';
+import {
+  parseForceCliArg,
+  parseRecipeIngestionRunCliArgs,
+  RECIPE_INGESTION_FORCE_CLI_FLAG_DEFINITION,
+} from '../recipe-ingestion/recipe-ingestion-run.cli';
 import {
   logRecipeIngestionCli,
   RECIPE_INGESTION_LOG_EVENTS,
@@ -27,6 +31,7 @@ async function main(): Promise<void> {
     flags: [
       { name: '--run-id', takesValue: true },
       { name: '--run-id-count', takesValue: true },
+      RECIPE_INGESTION_FORCE_CLI_FLAG_DEFINITION,
     ],
   });
   if (unknownArgs.length > 0) {
@@ -41,6 +46,7 @@ async function main(): Promise<void> {
     return;
   }
 
+  const force = parseForceCliArg(args, (message) => new Error(message));
   const target = parseRecipeIngestionRunCliArgs(
     args,
     (message) => new Error(message),
@@ -60,9 +66,10 @@ async function main(): Promise<void> {
       {
         runId: target.runId,
         runIdCount: target.runIdCount,
+        force,
       },
     );
-    const result = await service.retrieve({ ...target, correlationId });
+    const result = await service.retrieve({ ...target, force, correlationId });
     logRecipeIngestionCli(
       logger,
       'log',

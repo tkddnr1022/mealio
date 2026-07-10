@@ -18,6 +18,10 @@ import {
   RECIPE_INGESTION_LOG_EVENTS,
 } from 'src/jobs/recipe-ingestion/recipe-ingestion-logger';
 import { resolveRecipeIngestionRetrieveBatchIds } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
+import {
+  transitionIngestionJobStatus,
+  transitionIngestionJobsByBatchId,
+} from 'src/jobs/recipe-ingestion/recipe-ingestion-status-transition';
 import type { RecipeIngestionRunScopeOnlyOptions } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.scope';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
@@ -136,7 +140,11 @@ export class ParseRetrieveService {
 
     for (const batchId of batchIds) {
       try {
-        const outcome = await this.processBatch(batchId, options.correlationId);
+        const outcome = await this.processBatch(
+          batchId,
+          options.correlationId,
+          options.force,
+        );
         retrievedCount += outcome.retrievedCount;
         failedCount += outcome.failedCount;
         if (outcome.retrievedCount > 0) {
@@ -222,6 +230,7 @@ export class ParseRetrieveService {
   private async processBatch(
     batchId: string,
     correlationId?: string,
+    force?: boolean,
   ): Promise<{
     retrievedCount: number;
     failedCount: number;
@@ -235,7 +244,7 @@ export class ParseRetrieveService {
     };
     const submittedJobs = await this.jobRepository.findByBatchId(
       batchId,
-      'parse_submitted',
+      force ? undefined : 'parse_submitted',
     );
     const distinctRunIds = new Set(
       submittedJobs
@@ -334,6 +343,7 @@ export class ParseRetrieveService {
       batchId,
       batch.outputFileId,
       correlationId,
+      force,
     );
   }
 
@@ -341,6 +351,7 @@ export class ParseRetrieveService {
     batchId: string,
     outputFileId: string,
     correlationId?: string,
+    force?: boolean,
   ): Promise<{
     retrievedCount: number;
     failedCount: number;
@@ -352,11 +363,12 @@ export class ParseRetrieveService {
       correlationId,
       batchId,
     };
-    const locked = await this.jobRepository.transitionManyByBatchId(
+    const locked = await transitionIngestionJobsByBatchId(this.jobRepository, {
       batchId,
-      'parse_submitted',
-      'parse_retrieving',
-    );
+      fromStatus: 'parse_submitted',
+      toStatus: 'parse_retrieving',
+      force,
+    });
     if (locked === 0) {
       return {
         retrievedCount: 0,
@@ -385,16 +397,17 @@ export class ParseRetrieveService {
           if (rolled) failedCount++;
           continue;
         }
-        const doc = await this.jobRepository.transitionStatus(
-          outcome.jobId,
-          'parse_retrieving',
-          'parse_retrieved',
-          {
+        const doc = await transitionIngestionJobStatus(this.jobRepository, {
+          id: outcome.jobId,
+          fromStatus: 'parse_retrieving',
+          toStatus: 'parse_retrieved',
+          updates: {
             retrievedData: outcome.retrievedData,
             parseRetrievedAt: new Date(),
             errorMessage: undefined,
           },
-        );
+          force,
+        });
         if (!doc) continue;
         if (typeof doc.runId === 'string' && doc.runId.length > 0) {
           retrievedCountByRunId.set(
@@ -408,7 +421,7 @@ export class ParseRetrieveService {
 
       const remaining = await this.jobRepository.findByBatchId(
         batchId,
-        'parse_retrieving',
+        force ? undefined : 'parse_retrieving',
       );
       for (const job of remaining) {
         const rolled = await this.jobRepository.rollbackRetrievingJobWithRetry(

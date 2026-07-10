@@ -5,7 +5,11 @@ import {
   type ObservabilityConfig,
 } from '@mealio/shared';
 import { findUnknownCliArgs } from '../cli-args.util';
-import { parseRecipeIngestionTargetCliArgs } from '../recipe-ingestion/recipe-ingestion-run.cli';
+import {
+  parseRecipeIngestionTargetCliArgs,
+  parseForceCliArg,
+  RECIPE_INGESTION_FORCE_CLI_FLAG_DEFINITION,
+} from '../recipe-ingestion/recipe-ingestion-run.cli';
 import {
   logRecipeIngestionCli,
   RECIPE_INGESTION_LOG_EVENTS,
@@ -35,6 +39,7 @@ async function main(): Promise<void> {
       { name: '--job-id', takesValue: true },
       { name: '--retry-failed' },
       { name: '--retry-failed-limit', takesValue: true },
+      RECIPE_INGESTION_FORCE_CLI_FLAG_DEFINITION,
     ],
   });
   if (unknownArgs.length > 0) {
@@ -49,6 +54,7 @@ async function main(): Promise<void> {
     return;
   }
 
+  const force = parseForceCliArg(args, (message) => new ParseSubmitRunIdError(message));
   const target = parseRecipeIngestionTargetCliArgs(args, (message) => {
     if (message.startsWith('--job-id')) {
       return new ParseSubmitJobIdError(message);
@@ -77,12 +83,14 @@ async function main(): Promise<void> {
         runIdCount: target.runIdCount,
         retryFailed,
         retryFailedLimit,
+        force,
       },
     );
     const result = await service.submit({
       ...target,
       retryFailed,
       retryFailedLimit,
+      force,
       correlationId,
     });
     logRecipeIngestionCli(

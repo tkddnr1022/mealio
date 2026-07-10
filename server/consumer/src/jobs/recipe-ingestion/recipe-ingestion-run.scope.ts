@@ -18,6 +18,8 @@ export interface RecipeIngestionRunScopeOptions extends RecipeIngestionLoggingOp
   jobId?: string;
   runId?: string;
   runIdCount?: number;
+  /** status 검증·조건부 전환을 생략하고 강제 진행 */
+  force?: boolean;
 }
 
 /** parse-retrieve 등 run scope만 사용하는 단계용 (`jobId` 제외). */

@@ -16,6 +16,10 @@ import {
   RECIPE_INGESTION_LOG_EVENTS,
 } from 'src/jobs/recipe-ingestion/recipe-ingestion-logger';
 import { resolveRecipeIngestionRetrieveBatchIds } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
+import {
+  transitionIngestionJobStatus,
+  transitionIngestionJobsByBatchId,
+} from 'src/jobs/recipe-ingestion/recipe-ingestion-status-transition';
 import type { RecipeIngestionRunScopeOnlyOptions } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.scope';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { IngredientEmbeddingRepository } from 'src/persistence/repositories/postgresql/ingredient-embedding.repository';
@@ -125,7 +129,11 @@ export class EmbedRetrieveService {
 
     for (const batchId of batchIds) {
       try {
-        const result = await this.processBatch(batchId, options.correlationId);
+        const result = await this.processBatch(
+          batchId,
+          options.correlationId,
+          options.force,
+        );
         retrievedCount += result.retrievedCount;
         failedCount += result.failedCount;
         if (result.skipped) skippedBatchCount++;
@@ -200,6 +208,7 @@ export class EmbedRetrieveService {
   private async processBatch(
     batchId: string,
     correlationId?: string,
+    force?: boolean,
   ): Promise<{
     retrievedCount: number;
     failedCount: number;
@@ -212,7 +221,7 @@ export class EmbedRetrieveService {
     };
     const submittedJobs = await this.jobRepository.findByBatchId(
       batchId,
-      'embed_submitted',
+      force ? undefined : 'embed_submitted',
     );
     if (submittedJobs.length === 0) {
       return { retrievedCount: 0, failedCount: 0, skipped: true };
@@ -251,11 +260,12 @@ export class EmbedRetrieveService {
       return { retrievedCount: 0, failedCount: 0, skipped: true };
     }
 
-    const locked = await this.jobRepository.transitionManyByBatchId(
+    const locked = await transitionIngestionJobsByBatchId(this.jobRepository, {
       batchId,
-      'embed_submitted',
-      'embed_retrieving',
-    );
+      fromStatus: 'embed_submitted',
+      toStatus: 'embed_retrieving',
+      force,
+    });
     if (locked === 0) {
       return { retrievedCount: 0, failedCount: 0, skipped: true };
     }
@@ -292,7 +302,8 @@ export class EmbedRetrieveService {
         }
 
         const job = await this.jobRepository.findById(outcome.jobId);
-        if (!job || job.status !== 'embed_retrieving') continue;
+        if (!job) continue;
+        if (!force && job.status !== 'embed_retrieving') continue;
         const recipeId = await this.findRecipeIdBySourceId(job.sourceId);
         if (!recipeId) {
           const rolled = await this.rollbackEmbedRetrievingJob(
@@ -307,18 +318,19 @@ export class EmbedRetrieveService {
           embedding: outcome.embedding,
           embeddingModel: this.openAiBatchService.getEmbeddingModel(),
         });
-        const done = await this.jobRepository.transitionStatus(
-          outcome.jobId,
-          'embed_retrieving',
-          'embed_retrieved',
-          { embedRetrievedAt: new Date(), errorMessage: undefined },
-        );
+        const done = await transitionIngestionJobStatus(this.jobRepository, {
+          id: outcome.jobId,
+          fromStatus: 'embed_retrieving',
+          toStatus: 'embed_retrieved',
+          updates: { embedRetrievedAt: new Date(), errorMessage: undefined },
+          force,
+        });
         if (done) retrievedCount++;
       }
 
       const remaining = await this.jobRepository.findByBatchId(
         batchId,
-        'embed_retrieving',
+        force ? undefined : 'embed_retrieving',
       );
       for (const job of remaining) {
         const rolled = await this.rollbackEmbedRetrievingJob(

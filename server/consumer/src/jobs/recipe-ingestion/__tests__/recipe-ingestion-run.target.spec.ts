@@ -90,6 +90,8 @@ describe('recipe-ingestion-run.target', () => {
         | 'findDistinctRunIdsByStatus'
         | 'findByStatusAndRunId'
         | 'findByStatusAndRunIds'
+        | 'findByRunId'
+        | 'findByRunIds'
       >
     >;
 
@@ -99,6 +101,8 @@ describe('recipe-ingestion-run.target', () => {
         findDistinctRunIdsByStatus: jest.fn(),
         findByStatusAndRunId: jest.fn(),
         findByStatusAndRunIds: jest.fn(),
+        findByRunId: jest.fn(),
+        findByRunIds: jest.fn(),
       };
     });
 
@@ -124,6 +128,18 @@ describe('recipe-ingestion-run.target', () => {
           jobId: JOB_ID,
         }),
       ).resolves.toEqual([]);
+    });
+
+    it('returns job for jobId mode when force is enabled', async () => {
+      const job = makeJob('parse_submitted');
+      repository.findById.mockResolvedValue(job as never);
+
+      await expect(
+        resolveRecipeIngestionTargetJobs(repository, 'fetched', {
+          jobId: JOB_ID,
+          force: true,
+        }),
+      ).resolves.toEqual([job]);
     });
 
     it('resolves jobs by run scope', async () => {
@@ -152,7 +168,9 @@ describe('recipe-ingestion-run.target', () => {
     let repository: jest.Mocked<
       Pick<
         RecipeIngestionJobRepository,
-        'findDistinctRunIdsByStatus' | 'findDistinctBatchIdsByStatus'
+        | 'findDistinctRunIdsByStatus'
+        | 'findDistinctBatchIdsByStatus'
+        | 'findDistinctBatchIdsByRunIds'
       >
     >;
 
@@ -160,6 +178,7 @@ describe('recipe-ingestion-run.target', () => {
       repository = {
         findDistinctRunIdsByStatus: jest.fn(),
         findDistinctBatchIdsByStatus: jest.fn(),
+        findDistinctBatchIdsByRunIds: jest.fn(),
       };
     });
 
@@ -199,6 +218,22 @@ describe('recipe-ingestion-run.target', () => {
         'parse_submitted',
         ['run-1'],
       );
+    });
+
+    it('uses batchIds by runIds when force is enabled', async () => {
+      repository.findDistinctBatchIdsByRunIds.mockResolvedValue(['batch-1']);
+
+      await expect(
+        resolveRecipeIngestionRetrieveBatchIds(repository, 'parse_submitted', {
+          runId: 'run-1',
+          force: true,
+        }),
+      ).resolves.toEqual(['batch-1']);
+
+      expect(repository.findDistinctBatchIdsByStatus).not.toHaveBeenCalled();
+      expect(repository.findDistinctBatchIdsByRunIds).toHaveBeenCalledWith([
+        'run-1',
+      ]);
     });
   });
 });

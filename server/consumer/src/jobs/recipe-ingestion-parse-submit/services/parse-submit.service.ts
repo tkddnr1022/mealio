@@ -17,6 +17,10 @@ import {
   type RecipeIngestionLoggingOptions,
 } from 'src/jobs/recipe-ingestion/recipe-ingestion-logger';
 import { resolveRecipeIngestionTargetJobs } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
+import {
+  findIngestionJobsByIds,
+  transitionIngestionJobsByIds,
+} from 'src/jobs/recipe-ingestion/recipe-ingestion-status-transition';
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
 import { buildRecipeIngestionSystemPrompt } from '../prompts/recipe-ingestion.system-prompt';
@@ -49,6 +53,7 @@ export interface ParseSubmitOptions extends RecipeIngestionLoggingOptions {
   runIdCount?: number;
   retryFailed?: boolean;
   retryFailedLimit?: number;
+  force?: boolean;
 }
 
 export interface ParseSubmitResult {
@@ -198,6 +203,7 @@ export class ParseSubmitService {
           systemPrompt,
           model,
           correlationId: options.correlationId,
+          force: options.force,
         });
         submittedCount += groupResult.submittedCount;
         if (groupResult.batchId) {
@@ -292,6 +298,7 @@ export class ParseSubmitService {
     systemPrompt: string;
     model: string;
     correlationId?: string;
+    force?: boolean;
   }): Promise<{ submittedCount: number; batchId?: string }> {
     const logBase = {
       stage: ParseSubmitService.STAGE,
@@ -299,18 +306,21 @@ export class ParseSubmitService {
       runId: params.runId,
     };
     const jobIds = params.jobs.map((job) => String(job._id));
-    const lockedCount = await this.jobRepository.transitionManyByIds(
-      jobIds,
-      'fetched',
-      'parse_submitting',
-    );
+    const lockedCount = await transitionIngestionJobsByIds(this.jobRepository, {
+      ids: jobIds,
+      fromStatus: 'fetched',
+      toStatus: 'parse_submitting',
+      force: params.force,
+    });
     if (lockedCount === 0) {
       return { submittedCount: 0 };
     }
 
-    const lockedJobs = await this.jobRepository.findManyByIdsAndStatus(
+    const lockedJobs = await findIngestionJobsByIds(
+      this.jobRepository,
       jobIds,
       'parse_submitting',
+      params.force,
     );
     const lockedIds = lockedJobs.map((job) => String(job._id));
     const jsonlContent = buildParseBatchJsonlContent(
@@ -322,14 +332,18 @@ export class ParseSubmitService {
     try {
       const { batchId } =
         await this.openAiBatchService.submitBatchJsonl(jsonlContent);
-      const submittedCount = await this.jobRepository.transitionManyByIds(
-        lockedIds,
-        'parse_submitting',
-        'parse_submitted',
+      const submittedCount = await transitionIngestionJobsByIds(
+        this.jobRepository,
         {
-          batchId,
-          parseSubmittedAt: new Date(),
-          errorMessage: undefined,
+          ids: lockedIds,
+          fromStatus: 'parse_submitting',
+          toStatus: 'parse_submitted',
+          updates: {
+            batchId,
+            parseSubmittedAt: new Date(),
+            errorMessage: undefined,
+          },
+          force: params.force,
         },
       );
       logIngestion(this.logger, 'log', {

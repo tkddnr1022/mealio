@@ -1,6 +1,9 @@
 import {
   parseJobIdCliArg,
+  parseForceCliArg,
+  parseForceCliFlag,
   parseNoKafkaCliFlag,
+  RECIPE_INGESTION_FORCE_REQUIRES_TARGET_MESSAGE,
   parseRecipeIngestionRunCliArgs,
   parseRecipeIngestionTargetCliArgs,
 } from '../recipe-ingestion-run.cli';
@@ -86,6 +89,49 @@ describe('parseRecipeIngestionTargetCliArgs', () => {
         createError,
       ),
     ).toThrow('--job-id cannot be used with --run-id or --run-id-count');
+  });
+});
+
+describe('parseForceCliFlag', () => {
+  it('returns false when --force is absent', () => {
+    expect(parseForceCliFlag([])).toBe(false);
+  });
+
+  it('returns true when --force is present', () => {
+    expect(parseForceCliFlag(['--force'])).toBe(true);
+    expect(parseForceCliFlag(['--run-id', 'run-1', '--force'])).toBe(true);
+  });
+});
+
+describe('parseForceCliArg', () => {
+  const createError = (message: string) => new Error(message);
+
+  it('returns false when --force is absent', () => {
+    expect(parseForceCliArg([], createError)).toBe(false);
+  });
+
+  it('returns true with --job-id', () => {
+    expect(
+      parseForceCliArg(
+        ['--job-id', '507f1f77bcf86cd799439011', '--force'],
+        createError,
+      ),
+    ).toBe(true);
+  });
+
+  it('returns true with --run-id', () => {
+    expect(
+      parseForceCliArg(['--run-id', 'run-1', '--force'], createError),
+    ).toBe(true);
+  });
+
+  it('rejects --force without --job-id or --run-id', () => {
+    expect(() => parseForceCliArg(['--force'], createError)).toThrow(
+      RECIPE_INGESTION_FORCE_REQUIRES_TARGET_MESSAGE,
+    );
+    expect(() =>
+      parseForceCliArg(['--run-id-count', '2', '--force'], createError),
+    ).toThrow(RECIPE_INGESTION_FORCE_REQUIRES_TARGET_MESSAGE);
   });
 });
 

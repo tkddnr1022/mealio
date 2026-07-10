@@ -5,7 +5,11 @@ import {
   type ObservabilityConfig,
 } from '@mealio/shared';
 import { findUnknownCliArgs } from '../cli-args.util';
-import { parseRecipeIngestionTargetCliArgs } from '../recipe-ingestion/recipe-ingestion-run.cli';
+import {
+  parseRecipeIngestionTargetCliArgs,
+  parseForceCliArg,
+  RECIPE_INGESTION_FORCE_CLI_FLAG_DEFINITION,
+} from '../recipe-ingestion/recipe-ingestion-run.cli';
 import {
   logRecipeIngestionCli,
   RECIPE_INGESTION_LOG_EVENTS,
@@ -32,6 +36,7 @@ async function main(): Promise<void> {
       { name: '--run-id', takesValue: true },
       { name: '--run-id-count', takesValue: true },
       { name: '--job-id', takesValue: true },
+      RECIPE_INGESTION_FORCE_CLI_FLAG_DEFINITION,
     ],
   });
   if (unknownArgs.length > 0) {
@@ -46,11 +51,14 @@ async function main(): Promise<void> {
     return;
   }
 
+  const force = parseForceCliArg(args, (message) => new EmbedSubmitRunIdError(message));
   const target = parseRecipeIngestionTargetCliArgs(args, (message) => {
     if (message.startsWith('--job-id'))
       return new EmbedSubmitJobIdError(message);
     return new EmbedSubmitRunIdError(message);
   });
+
+  const force = parseForceCliArg(args, (message) => new EmbedSubmitRunIdError(message));
 
   const app = await NestFactory.createApplicationContext(
     RecipeIngestionEmbedSubmitModule,
@@ -68,9 +76,10 @@ async function main(): Promise<void> {
         jobId: target.jobId,
         runId: target.runId,
         runIdCount: target.runIdCount,
+        force,
       },
     );
-    const result = await service.submit({ ...target, correlationId });
+    const result = await service.submit({ ...target, force, correlationId });
     logRecipeIngestionCli(
       logger,
       'log',

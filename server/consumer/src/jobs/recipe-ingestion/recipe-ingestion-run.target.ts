@@ -16,6 +16,8 @@ export type RecipeIngestionJobTargetRepository = Pick<
   | 'findDistinctRunIdsByStatus'
   | 'findByStatusAndRunId'
   | 'findByStatusAndRunIds'
+  | 'findByRunId'
+  | 'findByRunIds'
 >;
 
 type RecipeIngestionTargetScope =
@@ -34,9 +36,15 @@ async function resolveRecipeIngestionTargetScope(
 
   if (options.jobId) {
     const job = await repository.findById(options.jobId);
+    if (!job) {
+      return { mode: 'job', jobs: [] };
+    }
+    if (options.force) {
+      return { mode: 'job', jobs: [job] };
+    }
     return {
       mode: 'job',
-      jobs: job && job.status === status ? [job] : [],
+      jobs: job.status === status ? [job] : [],
     };
   }
 
@@ -51,13 +59,23 @@ async function resolveRecipeIngestionTargetScope(
 export async function findRecipeIngestionJobsByRunIds(
   repository: Pick<
     RecipeIngestionJobRepository,
-    'findByStatusAndRunId' | 'findByStatusAndRunIds'
+    | 'findByStatusAndRunId'
+    | 'findByStatusAndRunIds'
+    | 'findByRunId'
+    | 'findByRunIds'
   >,
   status: RecipeIngestionJobStatus,
   runIds: string[],
+  force?: boolean,
 ): Promise<RecipeIngestionJobDocument[]> {
   if (runIds.length === 0) {
     return [];
+  }
+  if (force) {
+    if (runIds.length === 1) {
+      return repository.findByRunId(runIds[0]);
+    }
+    return repository.findByRunIds(runIds);
   }
   if (runIds.length === 1) {
     return repository.findByStatusAndRunId(status, runIds[0]);
@@ -93,12 +111,19 @@ export async function resolveRecipeIngestionTargetJobs(
   if (scope.mode === 'job') {
     return scope.jobs;
   }
-  return findRecipeIngestionJobsByRunIds(repository, status, scope.runIds);
+  return findRecipeIngestionJobsByRunIds(
+    repository,
+    status,
+    scope.runIds,
+    options.force,
+  );
 }
 
 export type RecipeIngestionRetrieveBatchRepository = Pick<
   RecipeIngestionJobRepository,
-  'findDistinctRunIdsByStatus' | 'findDistinctBatchIdsByStatus'
+  | 'findDistinctRunIdsByStatus'
+  | 'findDistinctBatchIdsByStatus'
+  | 'findDistinctBatchIdsByRunIds'
 >;
 
 /**
@@ -115,5 +140,8 @@ export async function resolveRecipeIngestionRetrieveBatchIds(
     status,
     options,
   );
+  if (options.force) {
+    return repository.findDistinctBatchIdsByRunIds(runIds);
+  }
   return repository.findDistinctBatchIdsByStatus(status, runIds);
 }

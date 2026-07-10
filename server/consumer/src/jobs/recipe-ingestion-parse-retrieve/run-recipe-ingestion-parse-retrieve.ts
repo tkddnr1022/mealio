@@ -7,8 +7,10 @@ import {
 import { findUnknownCliArgs } from '../cli-args.util';
 import {
   parseRecipeIngestionRunCliArgs,
+  parseForceCliArg,
   parseNoKafkaCliFlag,
   RECIPE_INGESTION_NO_KAFKA_CLI_FLAG_DEFINITION,
+  RECIPE_INGESTION_FORCE_CLI_FLAG_DEFINITION,
 } from '../recipe-ingestion/recipe-ingestion-run.cli';
 import {
   logRecipeIngestionCli,
@@ -35,6 +37,7 @@ async function main(): Promise<void> {
       { name: '--run-id', takesValue: true },
       { name: '--run-id-count', takesValue: true },
       RECIPE_INGESTION_NO_KAFKA_CLI_FLAG_DEFINITION,
+      RECIPE_INGESTION_FORCE_CLI_FLAG_DEFINITION,
     ],
   });
   if (unknownArgs.length > 0) {
@@ -49,6 +52,10 @@ async function main(): Promise<void> {
     return;
   }
 
+  const force = parseForceCliArg(
+    args,
+    (message) => new ParseRetrieveRunIdError(message),
+  );
   const target = parseRecipeIngestionRunCliArgs(
     args,
     (message) => new ParseRetrieveRunIdError(message),
@@ -72,9 +79,10 @@ async function main(): Promise<void> {
         runId: target.runId,
         runIdCount: target.runIdCount,
         noKafka,
+        force,
       },
     );
-    const result = await service.retrieve({ ...target, correlationId });
+    const result = await service.retrieve({ ...target, force, correlationId });
     logRecipeIngestionCli(
       logger,
       'log',

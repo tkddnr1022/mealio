@@ -56,6 +56,8 @@ pnpm run recipe-ingestion:embed-retrieve
 
 로컬에서 Kafka 없이 실행할 때는 `--no-kafka`를 붙입니다. `KafkaModule`을 로드하지 않고 단계 간 트리거 발행을 생략합니다.
 
+status 불일치로 단계가 skip될 때 운영 복구용으로 `--force`를 붙이면 대상 job 조회·상태 전환에서 `status` 검증을 생략합니다. `--job-id` 또는 `--run-id`와 함께 지정해야 합니다.
+
 ## 프로덕션 실행 (EC2 Docker)
 
 프로덕션(EC2)에서는 consumer 이미지를 재사용한 일회성 컨테이너로 각 배치 잡을 실행합니다. `docker/scripts/run-job.sh`가 `mealio-net` 네트워크에 연결된 컨테이너를 생성하고 종료 후 자동 삭제합니다.

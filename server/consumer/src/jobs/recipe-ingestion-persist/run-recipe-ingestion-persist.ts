@@ -7,8 +7,10 @@ import {
 import { findUnknownCliArgs } from '../cli-args.util';
 import {
   parseRecipeIngestionTargetCliArgs,
+  parseForceCliArg,
   parseNoKafkaCliFlag,
   RECIPE_INGESTION_NO_KAFKA_CLI_FLAG_DEFINITION,
+  RECIPE_INGESTION_FORCE_CLI_FLAG_DEFINITION,
 } from '../recipe-ingestion/recipe-ingestion-run.cli';
 import {
   logRecipeIngestionCli,
@@ -35,6 +37,7 @@ import { RecipeIngestionPersistJobModule } from './recipe-ingestion-persist.modu
  *   pnpm --filter consumer run job:recipe-ingestion-persist --run-id-count 2
  *   pnpm --filter consumer run job:recipe-ingestion-persist --job-id <jobId>
  *   pnpm --filter consumer run job:recipe-ingestion-persist --no-kafka
+ *   pnpm --filter consumer run job:recipe-ingestion-persist --force --job-id <jobId>
  */
 async function main(): Promise<void> {
   const logger = new Logger('RecipeIngestionPersistCLI');
@@ -47,6 +50,7 @@ async function main(): Promise<void> {
       { name: '--run-id-count', takesValue: true },
       { name: '--job-id', takesValue: true },
       RECIPE_INGESTION_NO_KAFKA_CLI_FLAG_DEFINITION,
+      RECIPE_INGESTION_FORCE_CLI_FLAG_DEFINITION,
     ],
   });
   if (unknownArgs.length > 0) {
@@ -61,6 +65,12 @@ async function main(): Promise<void> {
     return;
   }
 
+  const force = parseForceCliArg(args, (message) => {
+    if (message.startsWith('--job-id')) {
+      return new PersistJobIdError(message);
+    }
+    return new PersistRunIdError(message);
+  });
   const target = parseRecipeIngestionTargetCliArgs(args, (message) => {
     if (message.startsWith('--job-id')) {
       return new PersistJobIdError(message);
@@ -87,9 +97,10 @@ async function main(): Promise<void> {
         runId: target.runId,
         runIdCount: target.runIdCount,
         noKafka,
+        force,
       },
     );
-    const result = await service.persist({ ...target, correlationId });
+    const result = await service.persist({ ...target, force, correlationId });
     logRecipeIngestionCli(
       logger,
       'log',

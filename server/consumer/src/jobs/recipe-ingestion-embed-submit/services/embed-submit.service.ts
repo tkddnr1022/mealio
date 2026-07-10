@@ -15,6 +15,11 @@ import {
   type RecipeIngestionLoggingOptions,
 } from 'src/jobs/recipe-ingestion/recipe-ingestion-logger';
 import { resolveRecipeIngestionTargetJobs } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
+import {
+  findIngestionJobsByIds,
+  transitionIngestionJobStatus,
+  transitionIngestionJobsByIds,
+} from 'src/jobs/recipe-ingestion/recipe-ingestion-status-transition';
 import { RecipeEmbeddingDocumentService } from '../integrations/recipe-embedding-document.integration';
 import { IngredientEmbeddingDocumentService } from '../integrations/ingredient-embedding-document';
 import { RecipeRepository } from 'src/persistence/repositories/postgresql/recipe.repository';
@@ -39,6 +44,7 @@ export interface EmbedSubmitOptions extends RecipeIngestionLoggingOptions {
   jobId?: string;
   runId?: string;
   runIdCount?: number;
+  force?: boolean;
 }
 
 export interface EmbedSubmitResult {
@@ -131,6 +137,7 @@ export class EmbedSubmitService {
         runId,
         jobs,
         options.correlationId,
+        options.force,
       );
       submittedCount += result.submittedCount;
       skippedCount += result.skippedCount;
@@ -194,6 +201,7 @@ export class EmbedSubmitService {
     runId: string,
     jobs: RecipeIngestionJobDocument[],
     correlationId?: string,
+    force?: boolean,
   ): Promise<{
     submittedCount: number;
     skippedCount: number;
@@ -205,17 +213,20 @@ export class EmbedSubmitService {
       runId,
     };
     const jobIds = jobs.map((job) => String(job._id));
-    const lockedCount = await this.jobRepository.transitionManyByIds(
-      jobIds,
-      'persisted',
-      'embed_submitting',
-    );
+    const lockedCount = await transitionIngestionJobsByIds(this.jobRepository, {
+      ids: jobIds,
+      fromStatus: 'persisted',
+      toStatus: 'embed_submitting',
+      force,
+    });
     if (lockedCount === 0) {
       return { submittedCount: 0, skippedCount: jobs.length };
     }
-    const lockedJobs = await this.jobRepository.findManyByIdsAndStatus(
+    const lockedJobs = await findIngestionJobsByIds(
+      this.jobRepository,
       jobIds,
       'embed_submitting',
+      force,
     );
 
     const lines: EmbedBatchJsonlRequestLine[] = [];
@@ -289,14 +300,18 @@ export class EmbedSubmitService {
     try {
       const { batchId } =
         await this.openAiBatchService.submitEmbeddingBatchJsonl(jsonl);
-      const submittedCount = await this.jobRepository.transitionManyByIds(
-        lineJobIds,
-        'embed_submitting',
-        'embed_submitted',
+      const submittedCount = await transitionIngestionJobsByIds(
+        this.jobRepository,
         {
-          batchId,
-          embedSubmittedAt: new Date(),
-          errorMessage: undefined,
+          ids: lineJobIds,
+          fromStatus: 'embed_submitting',
+          toStatus: 'embed_submitted',
+          updates: {
+            batchId,
+            embedSubmittedAt: new Date(),
+            errorMessage: undefined,
+          },
+          force,
         },
       );
       logIngestion(this.logger, 'log', {
