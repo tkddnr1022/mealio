@@ -70,6 +70,7 @@ docker/scripts/run-job.sh recipe-ingestion-embed-retrieve --run-id <runId>
 docker/scripts/run-job.sh recipe-ingestion-parse-submit --retry-failed
 ```
 
+- Kafka 브로커 없이 로컬에서 단계만 실행할 때: fetch·parse-retrieve·persist CLI에 `--no-kafka`를 붙인다. `KafkaModule`을 로드하지 않고 트리거 발행을 생략한다.
 - fetch 기본값: `fetchLimit=100` (`--fetch-limit`, 최대 1000)
 - **cron → CLI → NestJS ApplicationContext** (standalone job). `run-kpi-rollup.ts`와 동일 패턴
 

@@ -5,7 +5,11 @@ import {
   type ObservabilityConfig,
 } from '@mealio/shared';
 import { findUnknownCliArgs } from '../cli-args.util';
-import { parseRecipeIngestionRunCliArgs } from '../recipe-ingestion/recipe-ingestion-run.cli';
+import {
+  parseRecipeIngestionRunCliArgs,
+  parseNoKafkaCliFlag,
+  RECIPE_INGESTION_NO_KAFKA_CLI_FLAG_DEFINITION,
+} from '../recipe-ingestion/recipe-ingestion-run.cli';
 import {
   logRecipeIngestionCli,
   RECIPE_INGESTION_LOG_EVENTS,
@@ -30,6 +34,7 @@ async function main(): Promise<void> {
     flags: [
       { name: '--run-id', takesValue: true },
       { name: '--run-id-count', takesValue: true },
+      RECIPE_INGESTION_NO_KAFKA_CLI_FLAG_DEFINITION,
     ],
   });
   if (unknownArgs.length > 0) {
@@ -48,9 +53,10 @@ async function main(): Promise<void> {
     args,
     (message) => new ParseRetrieveRunIdError(message),
   );
+  const noKafka = parseNoKafkaCliFlag(args);
 
   const app = await NestFactory.createApplicationContext(
-    RecipeIngestionParseRetrieveModule,
+    RecipeIngestionParseRetrieveModule.register({ noKafka }),
     { logger: ['log', 'error', 'warn', 'debug'] },
   );
 
@@ -65,6 +71,7 @@ async function main(): Promise<void> {
       {
         runId: target.runId,
         runIdCount: target.runIdCount,
+        noKafka,
       },
     );
     const result = await service.retrieve({ ...target, correlationId });

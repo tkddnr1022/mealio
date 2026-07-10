@@ -7,6 +7,10 @@ import {
   type ObservabilityConfig,
 } from '@mealio/shared';
 import { findUnknownCliArgs } from '../cli-args.util';
+import {
+  parseNoKafkaCliFlag,
+  RECIPE_INGESTION_NO_KAFKA_CLI_FLAG_DEFINITION,
+} from '../recipe-ingestion/recipe-ingestion-run.cli';
 import { PublicDataFetchLimitError } from '../../integrations/public-data/public-data-api.client';
 import {
   logRecipeIngestionCli,
@@ -26,6 +30,7 @@ import { FetchService } from './services/fetch.service';
  * Usage:
  *   pnpm --filter consumer run job:recipe-ingestion-fetch
  *   pnpm --filter consumer run job:recipe-ingestion-fetch --fetch-limit 100
+ *   pnpm --filter consumer run job:recipe-ingestion-fetch --no-kafka
  *
  * fetch → parse-submit 순서·빈도는 구현 레이어가 아닌 운영 레이어(cron/ECS)에서 조율한다.
  *
@@ -37,7 +42,10 @@ async function main(): Promise<void> {
   const stage = 'fetch' as const;
   const args = process.argv.slice(2);
   const unknownArgs = findUnknownCliArgs(args, {
-    flags: [{ name: '--fetch-limit', takesValue: true }],
+    flags: [
+      { name: '--fetch-limit', takesValue: true },
+      RECIPE_INGESTION_NO_KAFKA_CLI_FLAG_DEFINITION,
+    ],
   });
   if (unknownArgs.length > 0) {
     logRecipeIngestionCli(
@@ -52,9 +60,10 @@ async function main(): Promise<void> {
   }
 
   const fetchLimit = parseFetchLimit(args);
+  const noKafka = parseNoKafkaCliFlag(args);
 
   const app = await NestFactory.createApplicationContext(
-    RecipeIngestionFetchModule,
+    RecipeIngestionFetchModule.register({ noKafka }),
     { logger: ['log', 'error', 'warn', 'debug'] },
   );
 
@@ -66,7 +75,7 @@ async function main(): Promise<void> {
       RECIPE_INGESTION_LOG_EVENTS.CLI_STARTED,
       stage,
       correlationId,
-      { fetchLimit },
+      { fetchLimit, noKafka },
     );
     const result = await service.fetch({ fetchLimit, correlationId });
     logRecipeIngestionCli(

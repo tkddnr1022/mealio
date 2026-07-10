@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import {
   createObservabilityConfig,
@@ -28,43 +28,68 @@ import { IngredientMatcherService } from './domains/ingredient-matcher.domain';
 import { PersistService } from 'src/jobs/recipe-ingestion-persist/services/persist.service';
 import { RecipeCreationService } from './domains/recipe-creation.domain';
 import { KafkaModule } from '../../integrations/kafka/kafka.module';
+import {
+  recipeIngestionKafkaProviders,
+  type RecipeIngestionKafkaModuleOptions,
+} from '../recipe-ingestion/recipe-ingestion-kafka.options';
+
+const baseImports = [
+  ConfigModule.forRoot({
+    isGlobal: true,
+    validationSchema: envValidationSchema,
+    validationOptions: envValidationOptions,
+    envFilePath: [
+      `.env.${process.env.APP_ENV}.local`,
+      '.env.local',
+      `.env.${process.env.APP_ENV}`,
+      '.env',
+    ],
+  }),
+  MongooseSchemasModule.forRoot(mongooseConnectionPoolConfig),
+  PrismaModule.forRoot(prismaConnectionPoolConfig),
+  OpenAIModule,
+] as const;
+
+const baseProviders = [
+  {
+    provide: OBSERVABILITY_CONFIG,
+    useFactory: () => createObservabilityConfig('consumer'),
+  },
+  ConsumerMetricsService,
+  RecipeIngestionJobRepository,
+  RecipeCategoryRepository,
+  IngredientCategoryRepository,
+  RecipeRepository,
+  IngredientEmbeddingRepository,
+  IngredientRepository,
+  RecipeIngredientRepository,
+  CategoryResolverService,
+  IngredientMatcherService,
+  RecipeCreationService,
+  PersistService,
+] as const;
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      validationSchema: envValidationSchema,
-      validationOptions: envValidationOptions,
-      envFilePath: [
-        `.env.${process.env.APP_ENV}.local`,
-        '.env.local',
-        `.env.${process.env.APP_ENV}`,
-        '.env',
-      ],
-    }),
-    MongooseSchemasModule.forRoot(mongooseConnectionPoolConfig),
-    PrismaModule.forRoot(prismaConnectionPoolConfig),
-    KafkaModule,
-    OpenAIModule,
-  ],
-  providers: [
-    {
-      provide: OBSERVABILITY_CONFIG,
-      useFactory: () => createObservabilityConfig('consumer'),
-    },
-    ConsumerMetricsService,
-    RecipeIngestionJobRepository,
-    RecipeCategoryRepository,
-    IngredientCategoryRepository,
-    RecipeRepository,
-    IngredientEmbeddingRepository,
-    IngredientRepository,
-    RecipeIngredientRepository,
-    CategoryResolverService,
-    IngredientMatcherService,
-    RecipeCreationService,
-    PersistService,
-  ],
+  imports: [...baseImports, KafkaModule],
+  providers: [...baseProviders],
   exports: [PersistService],
 })
-export class RecipeIngestionPersistJobModule {}
+export class RecipeIngestionPersistJobModule {
+  static register(
+    options: RecipeIngestionKafkaModuleOptions = {},
+  ): DynamicModule {
+    if (!options.noKafka) {
+      return { module: RecipeIngestionPersistJobModule };
+    }
+
+    return {
+      module: RecipeIngestionPersistJobModule,
+      imports: [...baseImports],
+      providers: [
+        ...baseProviders,
+        ...recipeIngestionKafkaProviders(options),
+      ],
+      exports: [PersistService],
+    };
+  }
+}

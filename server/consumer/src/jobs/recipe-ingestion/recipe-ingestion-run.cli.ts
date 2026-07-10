@@ -2,7 +2,18 @@ import {
   DEFAULT_RECIPE_INGESTION_RUN_ID_COUNT,
   MAX_RECIPE_INGESTION_RUN_ID_COUNT,
 } from '@mealio/shared';
+import type { CliFlagDefinition } from '../cli-args.util';
 import type { RecipeIngestionRunScopeOptions } from './recipe-ingestion-run.scope';
+
+export const RECIPE_INGESTION_NO_KAFKA_CLI_FLAG = '--no-kafka';
+
+export function parseNoKafkaCliFlag(args: string[]): boolean {
+  return args.includes(RECIPE_INGESTION_NO_KAFKA_CLI_FLAG);
+}
+
+export const RECIPE_INGESTION_NO_KAFKA_CLI_FLAG_DEFINITION: CliFlagDefinition = {
+  name: RECIPE_INGESTION_NO_KAFKA_CLI_FLAG,
+};
 
 export function parseJobIdCliArg(
   args: string[],

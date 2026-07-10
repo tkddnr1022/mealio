@@ -5,7 +5,11 @@ import {
   type ObservabilityConfig,
 } from '@mealio/shared';
 import { findUnknownCliArgs } from '../cli-args.util';
-import { parseRecipeIngestionTargetCliArgs } from '../recipe-ingestion/recipe-ingestion-run.cli';
+import {
+  parseRecipeIngestionTargetCliArgs,
+  parseNoKafkaCliFlag,
+  RECIPE_INGESTION_NO_KAFKA_CLI_FLAG_DEFINITION,
+} from '../recipe-ingestion/recipe-ingestion-run.cli';
 import {
   logRecipeIngestionCli,
   RECIPE_INGESTION_LOG_EVENTS,
@@ -30,6 +34,7 @@ import { RecipeIngestionPersistJobModule } from './recipe-ingestion-persist.modu
  *   pnpm --filter consumer run job:recipe-ingestion-persist --run-id <runId>
  *   pnpm --filter consumer run job:recipe-ingestion-persist --run-id-count 2
  *   pnpm --filter consumer run job:recipe-ingestion-persist --job-id <jobId>
+ *   pnpm --filter consumer run job:recipe-ingestion-persist --no-kafka
  */
 async function main(): Promise<void> {
   const logger = new Logger('RecipeIngestionPersistCLI');
@@ -41,6 +46,7 @@ async function main(): Promise<void> {
       { name: '--run-id', takesValue: true },
       { name: '--run-id-count', takesValue: true },
       { name: '--job-id', takesValue: true },
+      RECIPE_INGESTION_NO_KAFKA_CLI_FLAG_DEFINITION,
     ],
   });
   if (unknownArgs.length > 0) {
@@ -61,9 +67,10 @@ async function main(): Promise<void> {
     }
     return new PersistRunIdError(message);
   });
+  const noKafka = parseNoKafkaCliFlag(args);
 
   const app = await NestFactory.createApplicationContext(
-    RecipeIngestionPersistJobModule,
+    RecipeIngestionPersistJobModule.register({ noKafka }),
     { logger: ['log', 'error', 'warn', 'debug'] },
   );
 
@@ -79,6 +86,7 @@ async function main(): Promise<void> {
         jobId: target.jobId,
         runId: target.runId,
         runIdCount: target.runIdCount,
+        noKafka,
       },
     );
     const result = await service.persist({ ...target, correlationId });

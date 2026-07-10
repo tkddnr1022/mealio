@@ -1,5 +1,6 @@
 import {
   parseJobIdCliArg,
+  parseNoKafkaCliFlag,
   parseRecipeIngestionRunCliArgs,
   parseRecipeIngestionTargetCliArgs,
 } from '../recipe-ingestion-run.cli';
@@ -85,5 +86,19 @@ describe('parseRecipeIngestionTargetCliArgs', () => {
         createError,
       ),
     ).toThrow('--job-id cannot be used with --run-id or --run-id-count');
+  });
+});
+
+describe('parseNoKafkaCliFlag', () => {
+  it('returns false when --no-kafka is absent', () => {
+    expect(parseNoKafkaCliFlag([])).toBe(false);
+    expect(parseNoKafkaCliFlag(['--run-id', 'run-1'])).toBe(false);
+  });
+
+  it('returns true when --no-kafka is present', () => {
+    expect(parseNoKafkaCliFlag(['--no-kafka'])).toBe(true);
+    expect(
+      parseNoKafkaCliFlag(['--run-id', 'run-1', '--no-kafka']),
+    ).toBe(true);
   });
 });
