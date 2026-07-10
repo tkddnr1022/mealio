@@ -7,7 +7,8 @@ import { Injectable, Logger } from '@nestjs/common';
 export class NoOpKafkaProducerService {
   private readonly logger = new Logger(NoOpKafkaProducerService.name);
 
-  async emit<T>(topic: string, _payload: T, _key?: string): Promise<void> {
+  emit<T>(topic: string, _payload: T, _key?: string): Promise<void> {
     this.logger.debug(`Kafka disabled. Skipping publish to topic=${topic}`);
+    return Promise.resolve();
   }
 }

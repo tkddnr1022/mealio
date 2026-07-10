@@ -17,7 +17,6 @@ import {
 import { resolveRecipeIngestionTargetJobs } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.target';
 import {
   findIngestionJobsByIds,
-  transitionIngestionJobStatus,
   transitionIngestionJobsByIds,
 } from 'src/jobs/recipe-ingestion/recipe-ingestion-status-transition';
 import { RecipeEmbeddingDocumentService } from '../integrations/recipe-embedding-document.integration';
