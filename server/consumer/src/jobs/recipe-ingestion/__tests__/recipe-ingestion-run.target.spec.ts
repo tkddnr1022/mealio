@@ -72,25 +72,31 @@ describe('recipe-ingestion-run.target', () => {
   describe('distinctBatchIdsFromJobs', () => {
     it('returns unique non-empty parse batchIds', () => {
       expect(
-        distinctBatchIdsFromJobs([
-          { parseBatchId: 'batch-a' },
-          { parseBatchId: 'batch-a' },
-          { parseBatchId: 'batch-b' },
-          { parseBatchId: '' },
-          {},
-        ], 'parse'),
+        distinctBatchIdsFromJobs(
+          [
+            { parseBatchId: 'batch-a' },
+            { parseBatchId: 'batch-a' },
+            { parseBatchId: 'batch-b' },
+            { parseBatchId: '' },
+            {},
+          ],
+          'parse',
+        ),
       ).toEqual(['batch-a', 'batch-b']);
     });
 
     it('returns unique non-empty embed batchIds', () => {
       expect(
-        distinctBatchIdsFromJobs([
-          { embedBatchId: 'embed-a' },
-          { embedBatchId: 'embed-a' },
-          { embedBatchId: 'embed-b' },
-          { embedBatchId: '' },
-          {},
-        ], 'embed'),
+        distinctBatchIdsFromJobs(
+          [
+            { embedBatchId: 'embed-a' },
+            { embedBatchId: 'embed-a' },
+            { embedBatchId: 'embed-b' },
+            { embedBatchId: '' },
+            {},
+          ],
+          'embed',
+        ),
       ).toEqual(['embed-a', 'embed-b']);
     });
   });
@@ -228,7 +234,9 @@ describe('recipe-ingestion-run.target', () => {
 
     it('resolves embed batchIds by run scope', async () => {
       repository.findDistinctRunIdsByStatus.mockResolvedValue(['run-1']);
-      repository.findDistinctEmbedBatchIdsByStatus.mockResolvedValue(['embed-1']);
+      repository.findDistinctEmbedBatchIdsByStatus.mockResolvedValue([
+        'embed-1',
+      ]);
 
       await expect(
         resolveRecipeIngestionRetrieveBatchIds(
@@ -248,7 +256,9 @@ describe('recipe-ingestion-run.target', () => {
     });
 
     it('uses single runId without distinct run lookup', async () => {
-      repository.findDistinctParseBatchIdsByStatus.mockResolvedValue(['batch-1']);
+      repository.findDistinctParseBatchIdsByStatus.mockResolvedValue([
+        'batch-1',
+      ]);
 
       await expect(
         resolveRecipeIngestionRetrieveBatchIds(
@@ -269,7 +279,9 @@ describe('recipe-ingestion-run.target', () => {
     });
 
     it('uses parse batchIds by runIds when force is enabled', async () => {
-      repository.findDistinctParseBatchIdsByRunIds.mockResolvedValue(['batch-1']);
+      repository.findDistinctParseBatchIdsByRunIds.mockResolvedValue([
+        'batch-1',
+      ]);
 
       await expect(
         resolveRecipeIngestionRetrieveBatchIds(
@@ -283,10 +295,12 @@ describe('recipe-ingestion-run.target', () => {
         ),
       ).resolves.toEqual(['batch-1']);
 
-      expect(repository.findDistinctParseBatchIdsByStatus).not.toHaveBeenCalled();
-      expect(repository.findDistinctParseBatchIdsByRunIds).toHaveBeenCalledWith([
-        'run-1',
-      ]);
+      expect(
+        repository.findDistinctParseBatchIdsByStatus,
+      ).not.toHaveBeenCalled();
+      expect(repository.findDistinctParseBatchIdsByRunIds).toHaveBeenCalledWith(
+        ['run-1'],
+      );
     });
   });
 });

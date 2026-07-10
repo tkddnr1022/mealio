@@ -11,9 +11,10 @@ export function parseNoKafkaCliFlag(args: string[]): boolean {
   return args.includes(RECIPE_INGESTION_NO_KAFKA_CLI_FLAG);
 }
 
-export const RECIPE_INGESTION_NO_KAFKA_CLI_FLAG_DEFINITION: CliFlagDefinition = {
-  name: RECIPE_INGESTION_NO_KAFKA_CLI_FLAG,
-};
+export const RECIPE_INGESTION_NO_KAFKA_CLI_FLAG_DEFINITION: CliFlagDefinition =
+  {
+    name: RECIPE_INGESTION_NO_KAFKA_CLI_FLAG,
+  };
 
 export const RECIPE_INGESTION_FORCE_CLI_FLAG = '--force';
 

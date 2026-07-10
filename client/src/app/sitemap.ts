@@ -21,12 +21,13 @@ function toAbsoluteSitemapUrl(path: string): string {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date();
 
-  const staticEntries: MetadataRoute.Sitemap =
-    PUBLIC_SITEMAP_STATIC_PATHS.map((path) => ({
+  const staticEntries: MetadataRoute.Sitemap = PUBLIC_SITEMAP_STATIC_PATHS.map(
+    (path) => ({
       url: toAbsoluteSitemapUrl(path),
       lastModified,
       ...STATIC_SITEMAP_CONFIG[path],
-    }));
+    }),
+  );
 
   let recipeIds: number[] = [];
   try {

@@ -54,7 +54,10 @@ async function main(): Promise<void> {
     return;
   }
 
-  const force = parseForceCliArg(args, (message) => new ParseSubmitRunIdError(message));
+  const force = parseForceCliArg(
+    args,
+    (message) => new ParseSubmitRunIdError(message),
+  );
   const target = parseRecipeIngestionTargetCliArgs(args, (message) => {
     if (message.startsWith('--job-id')) {
       return new ParseSubmitJobIdError(message);

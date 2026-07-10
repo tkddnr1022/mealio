@@ -162,10 +162,7 @@ describe('ParseRetrieveService', () => {
       );
       expect(
         jobRepository.findDistinctParseBatchIdsByStatus,
-      ).toHaveBeenCalledWith(
-        'parse_submitted',
-        [],
-      );
+      ).toHaveBeenCalledWith('parse_submitted', []);
       expect(result).toEqual({
         batchCount: 0,
         retrievedCount: 0,
@@ -183,10 +180,7 @@ describe('ParseRetrieveService', () => {
       expect(jobRepository.findDistinctRunIdsByStatus).not.toHaveBeenCalled();
       expect(
         jobRepository.findDistinctParseBatchIdsByStatus,
-      ).toHaveBeenCalledWith(
-        'parse_submitted',
-        ['run-1'],
-      );
+      ).toHaveBeenCalledWith('parse_submitted', ['run-1']);
     });
   });
 

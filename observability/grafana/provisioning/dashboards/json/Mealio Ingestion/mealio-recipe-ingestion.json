@@ -44,7 +44,11 @@
       "gridPos": { "h": 5, "w": 24, "x": 0, "y": 1 },
       "id": 20,
       "options": {
-        "code": { "language": "markdown", "showLineNumbers": false, "showMiniMap": false },
+        "code": {
+          "language": "markdown",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
         "content": "| Stage | Cron job | Schedule (KST) | 실행 경로 |\n|-------|----------|----------------|----------|\n| fetch | `recipe-ingestion-fetch` | **매일 11:00** | CLI → Pushgateway |\n| parse-submit | `recipe-ingestion-parse-submit` | **매일 11:30** (fallback) | Kafka consumer + CLI fallback |\n| parse-retrieve | `recipe-ingestion-parse-retrieve` | **매 5분** | CLI → Pushgateway |\n| persist | `recipe-ingestion-persist` | **매일 13:00** (fallback) | Kafka consumer + CLI fallback |\n| embed-submit | `recipe-ingestion-embed-submit` | **매일 14:30** (fallback) | Kafka consumer + CLI fallback |\n| embed-retrieve | `recipe-ingestion-embed-retrieve` | **매 5분** | CLI → Pushgateway |\n\n패널 시간 윈도: **5분 cron** → `[5m]`·`[30m]`, **일 1회 cron** → `[24h]`, 알림 정합 → `persist`·`parse-retrieve` fail `[30m]`.",
         "mode": "markdown"
       },
@@ -104,15 +108,41 @@
         "defaults": { "unit": "s" },
         "overrides": [
           {
-            "matcher": { "id": "byRegexp", "options": "fetch|parse-submit|persist|embed-submit" },
+            "matcher": {
+              "id": "byRegexp",
+              "options": "fetch|parse-submit|persist|embed-submit"
+            },
             "properties": [
-              { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 90000 }, { "color": "red", "value": 172800 }] } }
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "color": "green", "value": null },
+                    { "color": "yellow", "value": 90000 },
+                    { "color": "red", "value": 172800 }
+                  ]
+                }
+              }
             ]
           },
           {
-            "matcher": { "id": "byRegexp", "options": "parse-retrieve|embed-retrieve" },
+            "matcher": {
+              "id": "byRegexp",
+              "options": "parse-retrieve|embed-retrieve"
+            },
             "properties": [
-              { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 600 }, { "color": "red", "value": 900 }] } }
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "color": "green", "value": null },
+                    { "color": "yellow", "value": 600 },
+                    { "color": "red", "value": 900 }
+                  ]
+                }
+              }
             ]
           }
         ]

@@ -84,7 +84,9 @@ export async function findRecipeIngestionJobsByRunIds(
 }
 
 export function distinctBatchIdsFromJobs(
-  jobs: Array<Pick<RecipeIngestionJobDocument, 'parseBatchId' | 'embedBatchId'>>,
+  jobs: Array<
+    Pick<RecipeIngestionJobDocument, 'parseBatchId' | 'embedBatchId'>
+  >,
   stage: 'parse' | 'embed',
 ): string[] {
   const batchIds = new Set<string>();

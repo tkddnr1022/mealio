@@ -85,10 +85,7 @@ export class RecipeIngestionPersistJobModule {
     return {
       module: RecipeIngestionPersistJobModule,
       imports: [...baseImports],
-      providers: [
-        ...baseProviders,
-        ...recipeIngestionKafkaProviders(options),
-      ],
+      providers: [...baseProviders, ...recipeIngestionKafkaProviders(options)],
       exports: [PersistService],
     };
   }

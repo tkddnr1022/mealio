@@ -143,8 +143,6 @@ describe('parseNoKafkaCliFlag', () => {
 
   it('returns true when --no-kafka is present', () => {
     expect(parseNoKafkaCliFlag(['--no-kafka'])).toBe(true);
-    expect(
-      parseNoKafkaCliFlag(['--run-id', 'run-1', '--no-kafka']),
-    ).toBe(true);
+    expect(parseNoKafkaCliFlag(['--run-id', 'run-1', '--no-kafka'])).toBe(true);
   });
 });

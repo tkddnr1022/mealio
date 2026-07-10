@@ -152,9 +152,7 @@ export class RecipeIngestionJobRepository {
       .exec() as Promise<RecipeIngestionJobDocument>;
   }
 
-  async findManyByIds(
-    ids: string[],
-  ): Promise<RecipeIngestionJobDocument[]> {
+  async findManyByIds(ids: string[]): Promise<RecipeIngestionJobDocument[]> {
     const objectIds = ids
       .filter((id) => Types.ObjectId.isValid(id))
       .map((id) => new Types.ObjectId(id));
@@ -431,9 +429,10 @@ export class RecipeIngestionJobRepository {
     parseBatchId: string,
     status?: RecipeIngestionJobStatus,
   ): Promise<RecipeIngestionJobDocument[]> {
-    const filter: { parseBatchId: string; status?: RecipeIngestionJobStatus } = {
-      parseBatchId,
-    };
+    const filter: { parseBatchId: string; status?: RecipeIngestionJobStatus } =
+      {
+        parseBatchId,
+      };
     if (status !== undefined) {
       filter.status = status;
     }
@@ -444,9 +443,10 @@ export class RecipeIngestionJobRepository {
     embedBatchId: string,
     status?: RecipeIngestionJobStatus,
   ): Promise<RecipeIngestionJobDocument[]> {
-    const filter: { embedBatchId: string; status?: RecipeIngestionJobStatus } = {
-      embedBatchId,
-    };
+    const filter: { embedBatchId: string; status?: RecipeIngestionJobStatus } =
+      {
+        embedBatchId,
+      };
     if (status !== undefined) {
       filter.status = status;
     }
