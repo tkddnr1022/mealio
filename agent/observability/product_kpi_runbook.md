@@ -52,7 +52,7 @@
 | `ALERT_INGESTION_LOW_CONFIDENCE` | parse confidence | low 비율 > 20% (1h) | info | Slack #ops |
 | `ALERT_LLM_TOKEN_SPIKE` | LLM token usage | 24h baseline 대비 3x for 1h | warning | Slack #ops |
 
-PromQL·대시보드: `observability/grafana/provisioning/dashboards/json/` (`mealio-ops.json`, `mealio-recipe-ingestion.json`, `mealio-ops-kafka-extended.json`, `mealio-infra.json`, `mealio-producer-api.json` 등) 및 알림 규칙 (`observability/grafana/provisioning/alerting/rules.yml`) 참조
+PromQL·대시보드: `observability/grafana/provisioning/dashboards/json/` (`ops/mealio-ops.json`, `ingestion/mealio-recipe-ingestion.json`, `ops/mealio-ops-kafka-extended.json`, `ops/mealio-infra.json`, `ops/mealio-producer-api.json` 등) 및 알림 규칙 (`observability/grafana/provisioning/alerting/rules.yml`) 참조. 구조 SSOT: [observability/grafana/README.md](../../observability/grafana/README.md)
 
 ### 1.1 임계치 초기값 근거
 
@@ -85,6 +85,30 @@ PromQL·대시보드: `observability/grafana/provisioning/dashboards/json/` (`me
 - **초기(런칭 후 4주)**: 주간 리뷰 — 실제 baseline 수집 후 임계치 재설정.
 - **안정기**: 월간 리뷰 — 오탐/누락 비율 확인, 필요 시 ±20% 범위 내 조정.
 - **주요 변경(인프라 스케일, 기능 출시) 직후**: 즉시 ad-hoc 리뷰.
+
+### 1.3 알림 라벨 표준
+
+모든 규칙은 `rules.yml` `labels`에 다음을 포함한다.
+
+| 라벨 | 값 | 용도 |
+|------|-----|------|
+| `team` | `platform` \| `product` | Slack 라우팅 (`policies.yml`) |
+| `severity` | `critical` \| `warning` \| `info` | 심각도·critical repeat 간격 |
+| `service` | `producer` \| `consumer` \| `kafka` \| `infra` \| `ingestion` \| `product-kpi` | 장애 범위 그룹핑 |
+| `runbook_url` | `agent/observability/product_kpi_runbook.md#…` | Slack·UI 대응 절차 링크 |
+
+### 1.3.1 Alert ID → 대시보드 UID
+
+| Alert ID (예) | 대시보드 UID |
+|---------------|--------------|
+| `ALERT_TARGET_DOWN` | `mealio-infra` |
+| `ALERT_PRODUCER_*`, `ALERT_DB_*`, `ALERT_HTTP_INFLIGHT` | `mealio-producer-api` |
+| `ALERT_KAFKA_*`, `ALERT_DLQ_SPIKE` | `mealio-ops` |
+| `ALERT_CHATBOT_*`, `ALERT_CACHE_INVALIDATION_*` | `mealio-ops-kafka-extended` |
+| `ALERT_EVENT_LOOP_LAG`, `ALERT_MEMORY_HIGH` | `mealio-infra` |
+| `ALERT_RECO_LATENCY`, `ALERT_KPI_ROLLUP_STALE` | `mealio-product` |
+| `ALERT_CHATBOT_DAU` | `mealio-product-events` |
+| `ALERT_RECIPE_INGESTION_*`, `ALERT_INGESTION_LOW_CONFIDENCE`, `ALERT_LLM_TOKEN_SPIKE` | `mealio-recipe-ingestion` |
 
 ### 1.4 Grafana meta-alerts (`DatasourceNoData` / `DatasourceError`)
 

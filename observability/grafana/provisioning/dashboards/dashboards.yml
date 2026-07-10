@@ -3,9 +3,10 @@ apiVersion: 1
 providers:
   - name: Mealio
     orgId: 1
-    folder: Mealio
+    folder: ''
     type: file
     disableDeletion: false
     editable: true
     options:
       path: /etc/grafana/provisioning/dashboards/json
+      foldersFromFilesStructure: true

@@ -202,22 +202,69 @@ Development에서는 위 비율·트레이스 샘플링을 1.0(또는 health/met
 
 ## 9. Grafana 대시보드·알림
 
+Grafana UI 폴더: **Mealio Ops**, **Mealio Product**, **Mealio Ingestion** — 디렉터리명 = `rules.yml` `folder` = `foldersFromFilesStructure` (`dashboards.yml`).
+
 | # | 시나리오 | 기대 결과 |
 |---|----------|-----------|
 | 9.1 | `http://localhost:3030` 접속 (admin/admin) | Grafana 로그인 성공 |
-| 9.2 | **Mealio Ops — Kafka Health** (`mealio-ops`) | fail rate, lag, processing p95 패널 데이터 표시 |
-| 9.3 | **Mealio Product — KPI Rollups** (`mealio-product`) | CVR, CTR, latency 패널 데이터 표시 |
-| 9.4 | Alerting > Alert rules | `mealio-ops-alerts`, `mealio-runtime-alerts`, `mealio-product-alerts`, `mealio-recipe-ingestion-alerts` 그룹 및 Runbook §1 Alert ID 존재 |
+| 9.1.1 | Dashboards > Browse | `Mealio Ops`, `Mealio Product`, `Mealio Ingestion` 폴더 3종 표시 |
+| 9.2 | **Mealio Ops — Kafka Health** (`mealio-ops`, 폴더 Ops) | fail rate, lag, processing p95 패널 데이터 표시 |
+| 9.3 | **Mealio Product — KPI Rollups** (`mealio-product`, 폴더 Product) | CVR, CTR, latency 패널 데이터 표시 |
+| 9.4 | Alerting > Alert rules | 4그룹·28규칙 존재. 폴더: `mealio-ops-alerts`·`mealio-runtime-alerts` → **Mealio Ops**, `mealio-product-alerts` → **Mealio Product**, `mealio-recipe-ingestion-alerts` → **Mealio Ingestion** |
+| 9.4.1 | Alert rule labels | 각 규칙에 `team`, `severity`, `service`, `runbook_url` 라벨 존재 |
 | 9.5 | Prometheus datasource 쿼리 | Grafana Explore에서 정상 반환 |
 | 9.6 | MongoDB datasource 연결 (`mongodb` UID) | KPI 롤업 데이터 조회 가능 |
 | 9.6.1 | PostgreSQL datasource 연결 (`postgresql` UID) | `grafana_recipe_catalog_snapshot` 조회 가능 |
-| 9.6.2 | **Mealio Product — Domain Snapshot** (`mealio-product-domain`) | catalog, embedding, signup, recommendation 패널 표시 |
-| 9.7 | **Mealio — Recipe Ingestion Pipeline** (`mealio-recipe-ingestion`) | stage throughput, lag, Mongo backlog 패널 표시 |
-| 9.8 | **Mealio Ops — Kafka Ingestion & Chatbot** (`mealio-ops-kafka-extended`) | ingestion·chatbot 토픽 lag/fail rate 표시 |
-| 9.9 | **Mealio Ops — Producer API & DB** (`mealio-producer-api`) | HTTP p95, DB slow query 패널 표시 |
-| 9.10 | **Mealio Product — EventLog** (`mealio-product-events`) | chatbot DAU, search volume 패널 표시 |
-| 9.11 | **Mealio Ops — Infra & Pushgateway** (`mealio-infra`) | scrape UP, CLI push stale 패널 표시 |
+| 9.6.2 | **Mealio Product — Domain Snapshot** (`mealio-product-domain`, 폴더 Product) | catalog, embedding, signup, recommendation 패널 표시 |
+| 9.7 | **Mealio — Recipe Ingestion Pipeline** (`mealio-recipe-ingestion`, 폴더 Ingestion) | stage throughput, lag, Mongo backlog 패널 표시 |
+| 9.8 | **Mealio Ops — Kafka Ingestion & Chatbot** (`mealio-ops-kafka-extended`, 폴더 Ops) | ingestion·chatbot 토픽 lag/fail rate 표시 |
+| 9.9 | **Mealio Ops — Producer API & DB** (`mealio-producer-api`, 폴더 Ops) | HTTP p95, DB slow query 패널 표시 |
+| 9.10 | **Mealio Product — EventLog** (`mealio-product-events`, 폴더 Product) | chatbot DAU, search volume 패널 표시 |
+| 9.11 | **Mealio Ops — Infra & Pushgateway** (`mealio-infra`, 폴더 Ops) | scrape UP, CLI push stale 패널 표시 |
 | 9.12 | Alerting > Notification policies | `DatasourceNoData`·`DatasourceError`는 mute route 적용, Slack 미발송 |
+| 9.13 | Alerting > Contact points | `slack-ops`, `slack-product` 존재. Slack 메시지에 `service`, `runbook_url` 표시 |
+
+---
+
+## 13. Grafana 프로비저닝 변경 후 회귀 점검
+
+`observability/grafana/` 대시보드·알림·데이터소스 YAML을 변경한 뒤 Grafana 재기동 시 아래 순서로 검증한다. 구조 SSOT: [observability/grafana/README.md](../../observability/grafana/README.md).
+
+### 13.1 재기동
+
+폴더 중복·빈 폴더 삭제 불가 시 **볼륨 초기화**를 권장한다 (`docker/grafana/reset-grafana-state.ps1`).
+
+```bash
+docker compose --env-file .env.docker.local \
+  -f docker/grafana/compose.yml restart grafana
+```
+
+### 13.2 필수 점검 체크리스트
+
+| 순서 | 항목 | 확인 방법 | 기대 결과 |
+|------|------|-----------|-----------|
+| 1 | 컨테이너 health | `docker compose ... ps grafana` | `healthy` |
+| 2 | Datasource 3종 | Configuration > Data sources | `prometheus`, `mongodb`, `postgresql` UID 연결·Test 성공 |
+| 3 | 대시보드 폴더 | Dashboards > Browse | `Mealio Ops`(5), `Mealio Product`(3), `Mealio Ingestion`(1) |
+| 4 | 대시보드 UID | 각 폴더에서 UID 확인 | §9 표 UID와 일치 |
+| 5 | 알림 그룹 | Alerting > Alert rules | 4그룹·28규칙. `Mealio Ops`, `Mealio Product`, `Mealio Ingestion` 폴더에 분산 |
+| 5.1 | 레거시 폴더 | Dashboards Browse | `Mealio Ops`·`Mealio Product`·`Mealio Ingestion` 3종만 유지. `Mealio / Ops` 등 슬래시 표기·빈 중복 폴더 수동 삭제 |
+| 6 | 알림 라벨 | 임의 규칙 1건 Inspect | `team`, `severity`, `service`, `runbook_url` 존재 |
+| 7 | Notification policies | Alerting > Notification policies | `team=product` → `slack-product`, meta-alert mute route |
+| 8 | Contact points | Alerting > Contact points | `slack-ops`, `slack-product` |
+| 9 | 샘플 패널 | §9.2·9.3·9.7 대시보드 열기 | Prometheus/MongoDB 패널 데이터 또는 No data(미기동 시) |
+| 10 | 문서 동기화 | PR 체크 | `agent/observability/`·`docs/docs/other/observability.md` 경로·UID 반영 |
+
+### 13.3 실패 시
+
+| 증상 | 조치 |
+|------|------|
+| 대시보드 미로드 | `dashboards.yml` `foldersFromFilesStructure`와 JSON 경로(`json/Mealio Ops/` 등)·`rules.yml` `folder` 제목 일치 확인 |
+| 알림 규칙 파싱 오류 | `rules.yml` YAML 들여쓰기·`labels` 블록 검증 |
+| Product 알림이 #ops로 전송 | 규칙 `team: product` 및 `policies.yml` `team = product` matcher 확인 |
+| Slack에 runbook 미표시 | `contactpoints.yml` 템플릿 `{{ .CommonLabels.runbook_url }}` 확인 |
+| 빈 `Mealio` 폴더 삭제 불가 | Alerting에 규칙 잔존. `rules.yml` `folder`가 도메인 폴더인지 확인 후 Grafana 재기동 |
+| 빈 `Mealio Ops`·`Mealio / Ops` 중복·삭제 불가 | 알림 규칙이 빈 폴더에 묶임 + 마이그레이션 UID 분리. `./docker/grafana/reset-grafana-state.ps1`로 볼륨 초기화 후 `foldersFromFilesStructure` 재프로비저닝 |
 
 ---
 
@@ -264,3 +311,4 @@ Development에서는 위 비율·트레이스 샘플링을 1.0(또는 health/met
 - KPI 계약·SSOT: [product_kpi_contract.md](./product_kpi_contract.md)
 - 이벤트 사전: [event_dictionary.md](./event_dictionary.md)
 - KPI 알림·장애 대응: [product_kpi_runbook.md](./product_kpi_runbook.md)
+- Grafana provisioning 구조: [observability/grafana/README.md](../../observability/grafana/README.md)

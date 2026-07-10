@@ -3,7 +3,7 @@ apiVersion: 1
 groups:
   - orgId: 1
     name: mealio-ops-alerts
-    folder: Mealio
+    folder: Mealio Ops
     interval: 1m
     rules:
       # ALERT_TARGET_DOWN — scrape target DOWN for 3m
@@ -39,6 +39,8 @@ groups:
         labels:
           severity: critical
           team: platform
+          service: infra
+          runbook_url: agent/observability/product_kpi_runbook.md#1.0-ops--인프라apikafka
         annotations:
           summary: "Prometheus scrape target DOWN (job: {{ $labels.job }})"
           description: >
@@ -80,6 +82,8 @@ groups:
         labels:
           severity: critical
           team: platform
+          service: producer
+          runbook_url: agent/observability/product_kpi_runbook.md#1.0-ops--인프라apikafka
         annotations:
           summary: "Producer HTTP 5xx rate > 1%"
           description: >
@@ -123,6 +127,8 @@ groups:
         labels:
           severity: warning
           team: platform
+          service: producer
+          runbook_url: agent/observability/product_kpi_runbook.md#1.0-ops--인프라apikafka
         annotations:
           summary: "Producer HTTP p95 latency > 2000ms"
           description: >
@@ -166,6 +172,8 @@ groups:
         labels:
           severity: warning
           team: platform
+          service: kafka
+          runbook_url: agent/observability/product_kpi_runbook.md#22-처리-실패율-상승-alert_kafka_fail_rate--alert_kafka_fail_rate_critical
         annotations:
           summary: "Kafka 처리 실패율 > 1% (topic: {{ $labels.topic }})"
           description: >
@@ -210,6 +218,8 @@ groups:
         labels:
           severity: critical
           team: platform
+          service: kafka
+          runbook_url: agent/observability/product_kpi_runbook.md#22-처리-실패율-상승-alert_kafka_fail_rate--alert_kafka_fail_rate_critical
         annotations:
           summary: "Kafka 처리 실패율 > 5% (topic: {{ $labels.topic }})"
           description: >
@@ -249,6 +259,8 @@ groups:
         labels:
           severity: critical
           team: platform
+          service: kafka
+          runbook_url: agent/observability/product_kpi_runbook.md#21-kafka-lag-급증-alert_kafka_lag
         annotations:
           summary: "Consumer lag > 1000 (topic: {{ $labels.topic }})"
           description: >
@@ -295,6 +307,8 @@ groups:
         labels:
           severity: warning
           team: platform
+          service: kafka
+          runbook_url: agent/observability/product_kpi_runbook.md#22-처리-실패율-상승-alert_kafka_fail_rate--alert_kafka_fail_rate_critical
         annotations:
           summary: "DLQ failed rate 3x over 1h baseline"
           description: >
@@ -335,6 +349,8 @@ groups:
         labels:
           severity: critical
           team: platform
+          service: kafka
+          runbook_url: agent/observability/product_kpi_runbook.md#1.0-ops--인프라apikafka
         annotations:
           summary: "Chatbot topic lag > 50"
           description: >
@@ -379,6 +395,8 @@ groups:
         labels:
           severity: warning
           team: platform
+          service: kafka
+          runbook_url: agent/observability/product_kpi_runbook.md#1.0-ops--인프라apikafka
         annotations:
           summary: "Chatbot topic fail rate > 1%"
           description: >
@@ -421,6 +439,8 @@ groups:
         labels:
           severity: warning
           team: platform
+          service: kafka
+          runbook_url: agent/observability/product_kpi_runbook.md#1.0-ops--인프라apikafka
         annotations:
           summary: "Chatbot message processing p95 > 30s"
           description: >
@@ -460,6 +480,8 @@ groups:
         labels:
           severity: warning
           team: platform
+          service: kafka
+          runbook_url: agent/observability/product_kpi_runbook.md#1.0-ops--인프라apikafka
         annotations:
           summary: "Cache invalidation topic lag > 500"
           description: >
@@ -503,6 +525,8 @@ groups:
         labels:
           severity: warning
           team: platform
+          service: kafka
+          runbook_url: agent/observability/product_kpi_runbook.md#1.0-ops--인프라apikafka
         annotations:
           summary: "Cache invalidation fail rate > 1%"
           description: >
@@ -511,7 +535,7 @@ groups:
 
   - orgId: 1
     name: mealio-runtime-alerts
-    folder: Mealio
+    folder: Mealio Ops
     interval: 1m
     rules:
       # ALERT_DB_SLOW_QUERY_SPIKE — slow query rate > 0.1/s for 10m
@@ -547,6 +571,8 @@ groups:
         labels:
           severity: warning
           team: platform
+          service: producer
+          runbook_url: agent/observability/product_kpi_runbook.md#101-runtime--nodedb
         annotations:
           summary: "Producer slow query rate spike (>0.1/s)"
           description: >
@@ -589,6 +615,8 @@ groups:
         labels:
           severity: warning
           team: platform
+          service: producer
+          runbook_url: agent/observability/product_kpi_runbook.md#101-runtime--nodedb
         annotations:
           summary: "Producer DB query p95 > 1000ms"
           description: >
@@ -628,6 +656,8 @@ groups:
         labels:
           severity: warning
           team: platform
+          service: infra
+          runbook_url: agent/observability/product_kpi_runbook.md#101-runtime--nodedb
         annotations:
           summary: "Node.js event loop lag p99 > 250ms (service: {{ $labels.service }})"
           description: >
@@ -671,6 +701,8 @@ groups:
         labels:
           severity: warning
           team: platform
+          service: infra
+          runbook_url: agent/observability/product_kpi_runbook.md#101-runtime--nodedb
         annotations:
           summary: "Node.js heap usage > 90% (service: {{ $labels.service }})"
           description: >
@@ -710,6 +742,8 @@ groups:
         labels:
           severity: warning
           team: platform
+          service: producer
+          runbook_url: agent/observability/product_kpi_runbook.md#101-runtime--nodedb
         annotations:
           summary: "Producer in-flight HTTP requests > 100"
           description: >
@@ -718,7 +752,7 @@ groups:
 
   - orgId: 1
     name: mealio-product-alerts
-    folder: Mealio
+    folder: Mealio Product
     interval: 15m
     rules:
       # ALERT_RECO_LATENCY — user-events processing p95 > 5000ms for 30m (EventLog E2E proxy)
@@ -757,6 +791,8 @@ groups:
         labels:
           severity: warning
           team: product
+          service: product-kpi
+          runbook_url: agent/observability/product_kpi_runbook.md#23-추천-반영-지연-alert_reco_latency
         annotations:
           summary: "Recommendation processing p95 > 5000ms (user-events proxy)"
           description: >
@@ -802,6 +838,8 @@ groups:
         labels:
           severity: info
           team: product
+          service: product-kpi
+          runbook_url: agent/observability/product_kpi_runbook.md#24-제품-cvr-급락-수동--mealio-product-대시보드
         annotations:
           summary: "Chatbot DAU 7d MA drop > 40%"
           description: >
@@ -843,6 +881,8 @@ groups:
         labels:
           severity: warning
           team: product
+          service: product-kpi
+          runbook_url: agent/observability/product_kpi_runbook.md#102-product--kpieventlog
         annotations:
           summary: "KPI rollup stale (>36h since last computedAt)"
           description: >
@@ -851,7 +891,7 @@ groups:
 
   - orgId: 1
     name: mealio-recipe-ingestion-alerts
-    folder: Mealio
+    folder: Mealio Ingestion
     interval: 1m
     rules:
       # ALERT_RECIPE_INGESTION_STAGE_FAIL — persist/parse-retrieve 단계 fail rate > 5% for 30m
@@ -890,6 +930,8 @@ groups:
         labels:
           severity: warning
           team: platform
+          service: ingestion
+          runbook_url: agent/observability/product_kpi_runbook.md#25-recipe-ingestion-단계-실패-alert_recipe_ingestion_stage_fail
         annotations:
           summary: "Recipe ingestion stage fail rate > 5% (stage: {{ $labels.stage }})"
           description: >
@@ -930,6 +972,8 @@ groups:
         labels:
           severity: warning
           team: platform
+          service: ingestion
+          runbook_url: agent/observability/product_kpi_runbook.md#26-persist-trigger-lag-alert_recipe_ingestion_persist_lag
         annotations:
           summary: "Recipe ingestion persist trigger lag > 100"
           description: >
@@ -970,6 +1014,8 @@ groups:
         labels:
           severity: warning
           team: platform
+          service: ingestion
+          runbook_url: agent/observability/product_kpi_runbook.md#26-persist-trigger-lag-alert_recipe_ingestion_persist_lag
         annotations:
           summary: "Recipe ingestion embed-submit trigger lag > 100"
           description: >
@@ -1009,6 +1055,8 @@ groups:
         labels:
           severity: warning
           team: platform
+          service: ingestion
+          runbook_url: agent/observability/product_kpi_runbook.md#26-persist-trigger-lag-alert_recipe_ingestion_persist_lag
         annotations:
           summary: "Recipe ingestion parse-submit trigger lag > 100"
           description: >
@@ -1052,6 +1100,8 @@ groups:
         labels:
           severity: warning
           team: platform
+          service: ingestion
+          runbook_url: agent/observability/product_kpi_runbook.md#25-recipe-ingestion-단계-실패-alert_recipe_ingestion_stage_fail
         annotations:
           summary: "Recipe ingestion Kafka fail rate > 1% (topic: {{ $labels.topic }})"
           description: >
@@ -1091,6 +1141,8 @@ groups:
         labels:
           severity: info
           team: platform
+          service: ingestion
+          runbook_url: agent/observability/product_kpi_runbook.md#27-cli-push-stale-alert_recipe_ingestion_cli_stale
         annotations:
           summary: "Recipe ingestion CLI Pushgateway push stale (>24h)"
           description: >
@@ -1133,6 +1185,8 @@ groups:
         labels:
           severity: info
           team: platform
+          service: ingestion
+          runbook_url: agent/observability/product_kpi_runbook.md#103-recipe-ingestion
         annotations:
           summary: "Recipe ingestion low parse confidence > 20% (1h)"
           description: >
@@ -1178,6 +1232,8 @@ groups:
         labels:
           severity: warning
           team: platform
+          service: ingestion
+          runbook_url: agent/observability/product_kpi_runbook.md#103-recipe-ingestion
         annotations:
           summary: "Recipe ingestion LLM token usage 3x over 24h baseline"
           description: >

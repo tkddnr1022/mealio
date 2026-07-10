@@ -83,7 +83,7 @@
       ]
     }
   ],
-  "refresh": "",
+  "refresh": "5m",
   "schemaVersion": 39,
   "tags": ["mealio", "product"],
   "templating": { "list": [] },

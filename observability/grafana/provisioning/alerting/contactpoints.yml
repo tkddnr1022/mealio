@@ -8,13 +8,14 @@ contactPoints:
         type: slack
         disableResolveMessage: false
         settings:
-          # 실 운영 시 Slack webhook URL 설정
           url: ${SLACK_OPS_WEBHOOK_URL}
           recipient: "#ops"
-          title: "[Mealio Ops] {{ .CommonLabels.alertname }}"
+          title: "[Mealio Ops] {{ .CommonLabels.alertname }} ({{ .CommonLabels.severity }})"
           text: |
             *Status*: {{ .Status }}
             *Alert*: {{ .CommonLabels.alertname }}
+            *Service*: {{ .CommonLabels.service }}
+            *Runbook*: {{ .CommonLabels.runbook_url }}
             {{ range .Alerts }}
             Rule: {{ or .Labels.rulename .Labels.alertname }}
             Topic: {{ .Labels.topic }}
@@ -30,10 +31,12 @@ contactPoints:
         settings:
           url: ${SLACK_PRODUCT_WEBHOOK_URL}
           recipient: "#product"
-          title: "[Mealio Product] {{ .CommonLabels.alertname }}"
+          title: "[Mealio Product] {{ .CommonLabels.alertname }} ({{ .CommonLabels.severity }})"
           text: |
             *Status*: {{ .Status }}
             *KPI*: {{ .CommonLabels.alertname }}
+            *Service*: {{ .CommonLabels.service }}
+            *Runbook*: {{ .CommonLabels.runbook_url }}
             {{ range .Alerts }}
             Rule: {{ or .Labels.rulename .Labels.alertname }}
             Value: {{ .ValueString }}

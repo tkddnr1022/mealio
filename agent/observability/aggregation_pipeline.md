@@ -45,7 +45,7 @@ flowchart TB
 | 롤업 | Prometheus recording rules (선택) |
 | 대시보드 | Ops — "Kafka health by topic" |
 
-PromQL: `observability/grafana/provisioning/dashboards/json/mealio-ops.json`, 알림: `observability/grafana/provisioning/alerting/rules.yml`
+PromQL: `observability/grafana/provisioning/dashboards/json/Mealio Ops/mealio-ops.json`, 알림: `observability/grafana/provisioning/alerting/rules.yml`
 
 ### 슬라이스 C — `kpi_recommendation_e2e_latency`
 
@@ -108,20 +108,20 @@ docker/scripts/run-job.sh kpi-rollup --backfill 7
 
 ## 4. 대시보드 분리
 
-| 대시보드 | UID | 패널 예 | 데이터 소스 |
-|----------|-----|---------|-------------|
-| **Mealio Overview** | `mealio-overview` | HTTP rate, p95, throughput, lag | Prometheus |
-| **Mealio Ops — Kafka Health** | `mealio-ops` | fail rate, lag, processing p95, DLQ | Prometheus |
-| **Mealio Ops — Kafka Ingestion & Chatbot** | `mealio-ops-kafka-extended` | ingestion trigger lag/fail, chatbot-requests | Prometheus |
-| **Mealio Ops — Producer API & DB** | `mealio-producer-api` | route p95, 5xx, DB slow query | Prometheus |
-| **Mealio Ops — Infra & Pushgateway** | `mealio-infra` | scrape UP, Node.js runtime, CLI push stale | Prometheus |
-| **Mealio — Recipe Ingestion Pipeline** | `mealio-recipe-ingestion` | stage fail rate, latency, confidence, Mongo backlog | Prometheus + MongoDB |
-| **Mealio Product — KPI Rollups** | `mealio-product` | CVR, CTR, latency p95, rollup table | MongoDB (`kpi_rollups`) |
-| **Mealio Product — EventLog** | `mealio-product-events` | chatbot DAU, search volume, signup/login | MongoDB (`event_logs`) |
-| **Mealio Product — Domain Snapshot** | `mealio-product-domain` | recipe catalog, embedding coverage, signups, recommendations | PostgreSQL (`grafana_*` views) |
-| **Mealio — UX** | — | LCP/INP/CLS | Vercel Analytics, Sentry |
+| 대시보드 | UID | Grafana 폴더 | 프로비저닝 경로 | 패널 예 | 데이터 소스 |
+|----------|-----|--------------|-----------------|---------|-------------|
+| **Mealio Overview** | `mealio-overview` | Mealio Ops | `json/Mealio Ops/mealio-overview.json` | HTTP rate, p95, throughput, lag | Prometheus |
+| **Mealio Ops — Kafka Health** | `mealio-ops` | Mealio Ops | `json/Mealio Ops/mealio-ops.json` | fail rate, lag, processing p95, DLQ | Prometheus |
+| **Mealio Ops — Kafka Ingestion & Chatbot** | `mealio-ops-kafka-extended` | Mealio Ops | `json/Mealio Ops/mealio-ops-kafka-extended.json` | ingestion trigger lag/fail, chatbot-requests | Prometheus |
+| **Mealio Ops — Producer API & DB** | `mealio-producer-api` | Mealio Ops | `json/Mealio Ops/mealio-producer-api.json` | route p95, 5xx, DB slow query | Prometheus |
+| **Mealio Ops — Infra & Pushgateway** | `mealio-infra` | Mealio Ops | `json/Mealio Ops/mealio-infra.json` | scrape UP, Node.js runtime, CLI push stale | Prometheus |
+| **Mealio — Recipe Ingestion Pipeline** | `mealio-recipe-ingestion` | Mealio Ingestion | `json/Mealio Ingestion/mealio-recipe-ingestion.json` | stage fail rate, latency, confidence, Mongo backlog | Prometheus + MongoDB |
+| **Mealio Product — KPI Rollups** | `mealio-product` | Mealio Product | `json/Mealio Product/mealio-product.json` | CVR, CTR, latency p95, rollup table | MongoDB (`kpi_rollups`) |
+| **Mealio Product — EventLog** | `mealio-product-events` | Mealio Product | `json/Mealio Product/mealio-product-events.json` | chatbot DAU, search volume, signup/login | MongoDB (`event_logs`) |
+| **Mealio Product — Domain Snapshot** | `mealio-product-domain` | Mealio Product | `json/Mealio Product/mealio-product-domain.json` | recipe catalog, embedding coverage, signups, recommendations | PostgreSQL (`grafana_*` views) |
+| **Mealio — UX** | — | (Grafana 외) | — | LCP/INP/CLS | Vercel Analytics, Sentry |
 
-Grafana provisioning 경로: `observability/grafana/provisioning/dashboards/json/`
+Grafana provisioning 루트: `observability/grafana/` (구조·네이밍 SSOT: [README.md](../../observability/grafana/README.md))
 
 ### 4.1 Grafana 데이터소스
 
@@ -151,3 +151,4 @@ PostgreSQL 데이터소스는 **도메인 SSOT 스냅샷** 전용이다. view �
 - [product_kpi_contract.md](./product_kpi_contract.md)
 - [product_kpi_runbook.md](./product_kpi_runbook.md)
 - [event_dictionary.md](./event_dictionary.md)
+- Grafana provisioning 구조: [observability/grafana/README.md](../../observability/grafana/README.md)

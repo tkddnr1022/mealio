@@ -40,6 +40,7 @@ mealio/
 │  ├─ consumer/            # Kafka Consumer 워커
 │  └─ shared/              # 공용 모듈(Prisma/Mongoose/Redis/Types)
 ├─ docker/                 # Docker Compose 및 client/server Dockerfile
+├─ observability/          # Prometheus·Grafana 프로비저닝 (대시보드·알림)
 ├─ agent/                  # 아키텍처/명세/가이드 문서
 └─ README.md
 ```
