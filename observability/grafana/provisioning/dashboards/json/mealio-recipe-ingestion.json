@@ -1,5 +1,18 @@
 {
-  "annotations": { "list": [] },
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Recipe ingestion pipeline ops dashboard. Cron schedule SSOT: docker/scripts/consumer.cron.example (KST).",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -10,6 +23,12 @@
       "type": "link",
       "url": "/d/mealio-ops-kafka-extended/mealio-ops-kafka-ingestion-and-chatbot",
       "targetBlank": false
+    },
+    {
+      "title": "Pushgateway (CLI detail)",
+      "type": "link",
+      "url": "/d/mealio-infra/mealio-ops-infra-and-pushgateway",
+      "targetBlank": false
     }
   ],
   "panels": [
@@ -17,6 +36,26 @@
       "collapsed": false,
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
       "id": 100,
+      "title": "Cron Schedule (SSOT: consumer.cron.example)",
+      "type": "row",
+      "panels": []
+    },
+    {
+      "gridPos": { "h": 5, "w": 24, "x": 0, "y": 1 },
+      "id": 20,
+      "options": {
+        "code": { "language": "markdown", "showLineNumbers": false, "showMiniMap": false },
+        "content": "| Stage | Cron job | Schedule (KST) | 실행 경로 |\n|-------|----------|----------------|----------|\n| fetch | `recipe-ingestion-fetch` | **매일 11:00** | CLI → Pushgateway |\n| parse-submit | `recipe-ingestion-parse-submit` | **매일 11:30** (fallback) | Kafka consumer + CLI fallback |\n| parse-retrieve | `recipe-ingestion-parse-retrieve` | **매 5분** | CLI → Pushgateway |\n| persist | `recipe-ingestion-persist` | **매일 13:00** (fallback) | Kafka consumer + CLI fallback |\n| embed-submit | `recipe-ingestion-embed-submit` | **매일 14:30** (fallback) | Kafka consumer + CLI fallback |\n| embed-retrieve | `recipe-ingestion-embed-retrieve` | **매 5분** | CLI → Pushgateway |\n\n패널 시간 윈도: **5분 cron** → `[5m]`·`[30m]`, **일 1회 cron** → `[24h]`, 알림 정합 → `persist`·`parse-retrieve` fail `[30m]`.",
+        "mode": "markdown"
+      },
+      "title": "Job cadence reference",
+      "type": "text",
+      "transparent": true
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 6 },
+      "id": 101,
       "title": "Pipeline Summary",
       "type": "row",
       "panels": []
@@ -27,14 +66,64 @@
         "defaults": { "unit": "percentunit", "min": 0, "max": 1 },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 1 },
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 7 },
       "id": 1,
-      "title": "Stage fail rate (1h)",
+      "title": "Stage fail rate (24h)",
       "type": "bargauge",
       "options": { "orientation": "horizontal", "displayMode": "gradient" },
       "targets": [
         {
-          "expr": "sum by (stage) (increase(recipe_ingestion_stage_total{outcome=\"failed\"}[1h])) / clamp_min(sum by (stage) (increase(recipe_ingestion_stage_total[1h])), 1)",
+          "expr": "sum by (stage) (increase(recipe_ingestion_stage_total{outcome=\"failed\"}[24h])) / clamp_min(sum by (stage) (increase(recipe_ingestion_stage_total[24h])), 1)",
+          "legendFormat": "{{stage}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "percentunit", "min": 0, "max": 1 },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 7 },
+      "id": 14,
+      "title": "Critical fail rate (30m) — parse-retrieve / persist",
+      "type": "bargauge",
+      "options": { "orientation": "horizontal", "displayMode": "gradient" },
+      "targets": [
+        {
+          "expr": "sum by (stage) (increase(recipe_ingestion_stage_total{outcome=\"failed\", stage=~\"persist|parse-retrieve\"}[30m])) / clamp_min(sum by (stage) (increase(recipe_ingestion_stage_total{stage=~\"persist|parse-retrieve\"}[30m])), 1)",
+          "legendFormat": "{{stage}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "s" },
+        "overrides": [
+          {
+            "matcher": { "id": "byRegexp", "options": "fetch|parse-submit|persist|embed-submit" },
+            "properties": [
+              { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 90000 }, { "color": "red", "value": 172800 }] } }
+            ]
+          },
+          {
+            "matcher": { "id": "byRegexp", "options": "parse-retrieve|embed-retrieve" },
+            "properties": [
+              { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 600 }, { "color": "red", "value": 900 }] } }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 7 },
+      "id": 15,
+      "title": "CLI push age by stage (5m warn 10m / daily warn 25h)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "time() - push_time_seconds{job=\"recipe_ingestion_cli\"}",
           "legendFormat": "{{stage}}",
           "refId": "A"
         }
@@ -43,13 +132,28 @@
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 1 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 15 },
       "id": 2,
-      "title": "Stage success throughput",
+      "title": "5-min CLI success (parse-retrieve, embed-retrieve)",
       "type": "timeseries",
       "targets": [
         {
-          "expr": "sum by (stage) (rate(recipe_ingestion_stage_total{outcome=\"success\"}[5m]))",
+          "expr": "sum by (stage) (rate(recipe_ingestion_stage_total{job=\"recipe_ingestion_cli\", outcome=\"success\", stage=~\"parse-retrieve|embed-retrieve\"}[5m]))",
+          "legendFormat": "{{stage}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 15 },
+      "id": 16,
+      "title": "Daily CLI runs (24h increase)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum by (stage) (increase(recipe_ingestion_stage_total{job=\"recipe_ingestion_cli\", outcome=\"success\", stage=~\"fetch|parse-submit|persist|embed-submit\"}[24h]))",
           "legendFormat": "{{stage}}",
           "refId": "A"
         }
@@ -58,13 +162,43 @@
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 1 },
-      "id": 3,
-      "title": "Outcome breakdown (failed / skipped)",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 15 },
+      "id": 17,
+      "title": "Always-on consumer success (Kafka path)",
       "type": "timeseries",
       "targets": [
         {
-          "expr": "sum by (stage, outcome) (rate(recipe_ingestion_stage_total{outcome=~\"failed|skipped\"}[5m]))",
+          "expr": "sum by (stage) (rate(recipe_ingestion_stage_total{job=\"mealio-consumer\", outcome=\"success\", stage=~\"parse-submit|persist|embed-submit\"}[5m]))",
+          "legendFormat": "{{stage}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 23 },
+      "id": 3,
+      "title": "5-min CLI failures / skips (30m rate)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum by (stage, outcome) (rate(recipe_ingestion_stage_total{job=\"recipe_ingestion_cli\", outcome=~\"failed|skipped\", stage=~\"parse-retrieve|embed-retrieve\"}[30m]))",
+          "legendFormat": "{{stage}} {{outcome}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 23 },
+      "id": 18,
+      "title": "Daily CLI failures / skips (24h increase)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum by (stage, outcome) (increase(recipe_ingestion_stage_total{job=\"recipe_ingestion_cli\", outcome=~\"failed|skipped\", stage=~\"fetch|parse-submit|persist|embed-submit\"}[24h]))",
           "legendFormat": "{{stage}} {{outcome}}",
           "refId": "A"
         }
@@ -72,8 +206,8 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
-      "id": 101,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 31 },
+      "id": 102,
       "title": "Latency & Kafka",
       "type": "row",
       "panels": []
@@ -81,18 +215,18 @@
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 10 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 32 },
       "id": 4,
-      "title": "Stage latency p95",
+      "title": "5-min CLI latency p95 / p50",
       "type": "timeseries",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by (le, stage) (rate(recipe_ingestion_stage_latency_ms_bucket[5m])))",
+          "expr": "histogram_quantile(0.95, sum by (le, stage) (rate(recipe_ingestion_stage_latency_ms_bucket{job=\"recipe_ingestion_cli\", stage=~\"parse-retrieve|embed-retrieve\"}[5m])))",
           "legendFormat": "{{stage}} p95",
           "refId": "A"
         },
         {
-          "expr": "histogram_quantile(0.50, sum by (le, stage) (rate(recipe_ingestion_stage_latency_ms_bucket[5m])))",
+          "expr": "histogram_quantile(0.50, sum by (le, stage) (rate(recipe_ingestion_stage_latency_ms_bucket{job=\"recipe_ingestion_cli\", stage=~\"parse-retrieve|embed-retrieve\"}[5m])))",
           "legendFormat": "{{stage}} p50",
           "refId": "B"
         }
@@ -100,8 +234,38 @@
     },
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 32 },
+      "id": 19,
+      "title": "Daily CLI latency p95 (24h)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, stage) (increase(recipe_ingestion_stage_latency_ms_bucket{job=\"recipe_ingestion_cli\", stage=~\"fetch|parse-submit|persist|embed-submit\"}[24h])))",
+          "legendFormat": "{{stage}} p95",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 32 },
+      "id": 21,
+      "title": "Consumer latency p95 (Kafka path, 5m)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, stage) (rate(recipe_ingestion_stage_latency_ms_bucket{job=\"mealio-consumer\", stage=~\"parse-submit|persist|embed-submit\"}[5m])))",
+          "legendFormat": "{{stage}} p95",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 10 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 40 },
       "id": 5,
       "title": "Ingestion trigger topic lag",
       "type": "timeseries",
@@ -116,13 +280,13 @@
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 18 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 40 },
       "id": 6,
-      "title": "Ingestion trigger topic fail rate",
+      "title": "Ingestion trigger topic fail rate (15m — alert window)",
       "type": "timeseries",
       "targets": [
         {
-          "expr": "sum by (topic) (rate(kafka_messages_failed_total{service=\"consumer\", topic=~\"recipe-ingestion-.*\"}[5m])) / (sum by (topic) (rate(kafka_messages_processed_total{service=\"consumer\", topic=~\"recipe-ingestion-.*\"}[5m])) + sum by (topic) (rate(kafka_messages_failed_total{service=\"consumer\", topic=~\"recipe-ingestion-.*\"}[5m])))",
+          "expr": "sum by (topic) (rate(kafka_messages_failed_total{service=\"consumer\", topic=~\"recipe-ingestion-.*\"}[15m])) / (sum by (topic) (rate(kafka_messages_processed_total{service=\"consumer\", topic=~\"recipe-ingestion-.*\"}[15m])) + sum by (topic) (rate(kafka_messages_failed_total{service=\"consumer\", topic=~\"recipe-ingestion-.*\"}[15m])))",
           "legendFormat": "{{topic}}",
           "refId": "A"
         }
@@ -130,8 +294,8 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 26 },
-      "id": 102,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 48 },
+      "id": 103,
       "title": "Quality & Cost",
       "type": "row",
       "panels": []
@@ -139,7 +303,7 @@
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 27 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 49 },
       "id": 7,
       "title": "Parse confidence (24h increase)",
       "type": "timeseries",
@@ -154,7 +318,7 @@
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 27 },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 49 },
       "id": 8,
       "title": "Ingredient match method (24h increase)",
       "type": "timeseries",
@@ -169,9 +333,9 @@
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 27 },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 49 },
       "id": 9,
-      "title": "LLM token usage rate",
+      "title": "LLM token usage (parse-retrieve, 1h rate)",
       "type": "timeseries",
       "targets": [
         {
@@ -183,8 +347,8 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 35 },
-      "id": 103,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 57 },
+      "id": 104,
       "title": "Execution Path & Mongo Backlog",
       "type": "row",
       "panels": []
@@ -192,20 +356,25 @@
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 36 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 58 },
       "id": 10,
-      "title": "CLI vs always-on success rate",
+      "title": "CLI vs consumer by stage (cadence-aware)",
       "type": "timeseries",
       "targets": [
         {
-          "expr": "sum by (stage) (rate(recipe_ingestion_stage_total{job=\"recipe_ingestion_cli\", outcome=\"success\"}[5m]))",
-          "legendFormat": "CLI {{stage}}",
+          "expr": "sum by (stage) (rate(recipe_ingestion_stage_total{job=\"recipe_ingestion_cli\", outcome=\"success\", stage=~\"parse-retrieve|embed-retrieve\"}[5m]))",
+          "legendFormat": "CLI 5m {{stage}}",
           "refId": "A"
         },
         {
-          "expr": "sum by (stage) (rate(recipe_ingestion_stage_total{job=\"mealio-consumer\", outcome=\"success\"}[5m]))",
-          "legendFormat": "consumer {{stage}}",
+          "expr": "sum by (stage) (increase(recipe_ingestion_stage_total{job=\"recipe_ingestion_cli\", outcome=\"success\", stage=~\"fetch|parse-submit|persist|embed-submit\"}[24h]))",
+          "legendFormat": "CLI daily {{stage}} (24h)",
           "refId": "B"
+        },
+        {
+          "expr": "sum by (stage) (rate(recipe_ingestion_stage_total{job=\"mealio-consumer\", outcome=\"success\", stage=~\"parse-submit|persist|embed-submit\"}[5m]))",
+          "legendFormat": "consumer {{stage}}",
+          "refId": "C"
         }
       ]
     },
@@ -214,7 +383,7 @@
         "type": "haohanyang-mongodb-datasource",
         "uid": "mongodb"
       },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 36 },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 58 },
       "id": 11,
       "title": "Fetch cursor (lastEndIdx)",
       "type": "table",
@@ -233,7 +402,7 @@
         "type": "haohanyang-mongodb-datasource",
         "uid": "mongodb"
       },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 36 },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 58 },
       "id": 12,
       "title": "Jobs by status",
       "type": "bargauge",
@@ -253,7 +422,7 @@
         "type": "haohanyang-mongodb-datasource",
         "uid": "mongodb"
       },
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 44 },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 66 },
       "id": 13,
       "title": "Recent failed jobs",
       "type": "table",
@@ -268,13 +437,13 @@
       ]
     }
   ],
-  "refresh": "30s",
+  "refresh": "1m",
   "schemaVersion": 39,
   "tags": ["mealio", "recipe-ingestion", "ops"],
   "templating": { "list": [] },
   "time": { "from": "now-24h", "to": "now" },
-  "timezone": "browser",
+  "timezone": "Asia/Seoul",
   "title": "Mealio — Recipe Ingestion Pipeline",
   "uid": "mealio-recipe-ingestion",
-  "version": 1
+  "version": 2
 }
