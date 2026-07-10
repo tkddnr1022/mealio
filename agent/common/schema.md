@@ -29,6 +29,8 @@
 * **Inventory**: 사용자가 보유 재료·관심 재료·관심 레시피 ID를 관리하는 상태 문서 (`inventories` 컬렉션)
 * **ChatbotLog**: LLM 챗봇 대화 기록 (`chatbot_logs` 컬렉션, 30일 TTL)
 * **EventLog**: 도메인 이벤트 스트림 (`event_logs` 컬렉션, 90일 TTL)
+* **RecipeIngestionJob**: 공공데이터 레시피 수집 파이프라인 job SSOT (`recipe_ingestion_jobs` 컬렉션)
+* **RecipeIngestionState**: 공공데이터 API 순번 페이징 커서 singleton (`recipe_ingestion_state` 컬렉션)
 
 ---
 
@@ -563,6 +565,173 @@
 
 ---
 
+### 3.4 RecipeIngestionJob
+
+**컬렉션**: `recipe_ingestion_jobs`  
+**TTL**: 없음  
+**의미**
+
+* 식품의약품안전처 공공데이터 API에서 수집한 레시피를 OpenAI Batch API로 변환·PostgreSQL 영속화·pgvector 임베딩까지 처리하는 **파이프라인 job SSOT**
+* `sourceId`(API `RCP_SEQ`) 기준 upsert 멱등 키. 성공 시 PostgreSQL `Recipe`(`source: foodsafety`, `sourceRecipeId`)·`RecipeEmbedding`으로 반영
+* 상세 절차·상태 전이: `agent/backend/guidelines/recipe_ingestion_guidelines.md`
+
+**LLM 활용 포인트**
+
+* `rawData`: 공공 API 원본 row — 재처리(replay)·deterministic 매핑 후보
+* `retrievedData`: parse Batch LLM 구조화 결과 — persist 검증 입력
+* `status`·단계별 타임스탬프: 파이프라인 진행·백로그·실패 검수
+
+**필드 설명** (Mongoose `RecipeIngestionJob`)
+
+| 필드 | 타입 | 의미 |
+| --- | --- | --- |
+| sourceId | Number | 공공데이터 API `RCP_SEQ` (required, unique, index) — upsert 멱등 키 |
+| status | String | 파이프라인 단계 (required, index). §3.4.1 enum |
+| retryCount | Number | 단계 실패 재시도 횟수 (required, default 0) |
+| rawData | Mixed | 공공 API row 원본 JSON (optional) |
+| batchId | String | OpenAI Batch Job ID — parse·embed 제출 이후 (optional, index) |
+| runId | String | fetch 시작 시 생성되는 파이프라인 실행 단위 UUID (optional, index) |
+| retrievedData | Mixed | parse Batch LLM 변환 결과 JSON (optional). §3.4.2 |
+| errorMessage | String | 마지막 단계 실패 메시지 (optional) |
+| newIngredientIds | [Number] | persist에서 신규 생성된 재료 ID 목록 (optional) |
+| fetchedAt | Date | fetch upsert 시각 (optional) |
+| parseSubmittedAt | Date | parse Batch 제출 완료 시각 (optional) |
+| parseRetrievedAt | Date | parse Batch 결과 반영 시각 (optional) |
+| persistedAt | Date | PostgreSQL 영속화 완료 시각 (optional) |
+| embedSubmittedAt | Date | embed Batch 제출 완료 시각 (optional) |
+| embedRetrievedAt | Date | RecipeEmbedding upsert 완료 시각 (optional) |
+| failedAt | Date | `failed` 전환 시각 (optional) |
+
+**§3.4.1 `status` (enum)**
+
+계약 SSOT: `@mealio/shared` `RECIPE_INGESTION_JOB_STATUSES`.
+
+| 값 | 단계 | 설명 |
+| --- | --- | --- |
+| `fetched` | fetch | 공공 API row upsert 완료, parse-submit 대기 |
+| `parse_submitting` | parse-submit | Parse Batch 제출 락 (in-flight) |
+| `parse_submitted` | parse-submit | Parse Batch 제출 완료, parse-retrieve 대기 |
+| `parse_retrieving` | parse-retrieve | Parse Batch output 처리 락 (in-flight) |
+| `parse_retrieved` | parse-retrieve | `retrievedData` 반영 완료, persist 대기 |
+| `persisting` | persist | PostgreSQL 영속화 락 (in-flight) |
+| `persisted` | persist | Recipe 도메인 upsert 완료, embed-submit 대기 |
+| `embed_submitting` | embed-submit | Embedding Batch 제출 락 (in-flight) |
+| `embed_submitted` | embed-submit | Embedding Batch 제출 완료, embed-retrieve 대기 |
+| `embed_retrieving` | embed-retrieve | Embedding Batch output 처리 락 (in-flight) |
+| `embed_retrieved` | embed-retrieve | RecipeEmbedding upsert 완료 (파이프라인 종료) |
+| `failed` | — | 재시도 상한 초과 등으로 중단, 수동 검수·재큐잉 대상 |
+
+**§3.4.2 `retrievedData` JSON** (parse Batch LLM 출력, camelCase)
+
+| 필드 | 타입 | 의미 |
+| --- | --- | --- |
+| recipe | RetrievedRecipe | 레시피 메타·조리 단계 |
+| ingredients | [RetrievedIngredient] | 재료 목록 (1건 이상) |
+| parseConfidence | String | `'high'` \| `'medium'` \| `'low'` — persist 최소 신뢰도 검증 |
+| parseIssues | [String] | 파싱 이슈 메모 (optional) |
+
+**RetrievedRecipe** (`retrievedData.recipe`)
+
+| 필드 | 타입 | 의미 |
+| --- | --- | --- |
+| title | String | 레시피 제목 (required) |
+| description | String \| null | 요약 설명 (optional) |
+| servings | Number \| null | 인분 (optional) |
+| difficulty | Number \| null | 난이도 1-3 추론값 → persist 시 clamp (optional) |
+| cookingTimeMinutes | Number \| null | 조리 시간(분) → `Recipe.cookTime` (optional) |
+| categoryId | Number \| null | `RecipeCategory.id` (optional) |
+| proposedCategory | { key, name } \| null | 카테고리 매핑 제안 (optional) |
+| steps | [String] \| [{ content, imageUrl? }] | 조리 단계 (required, 비어 있지 않음) |
+| tips | String \| null | 조리 팁 → `Recipe.cookingTip` (optional) |
+| imageUrl | String \| null | 대표 이미지 URL (optional) |
+| nutrition | Nutrition \| null | 1인분 영양 — `Recipe.nutrition`과 동일 키 (optional) |
+| cookingMethod | String \| null | 조리 방법 (optional) |
+| dishType | String \| null | 요리 종류 (optional) |
+
+**RetrievedIngredient** (`retrievedData.ingredients[]`)
+
+| 필드 | 타입 | 의미 |
+| --- | --- | --- |
+| rawName | String | 원문 재료명 (required) |
+| normalizedName | String | 정규화 재료명 (required) |
+| ingredientAlias | String | Ingredient 매칭용 canonical명 (required) |
+| quantity | String \| null | 수량 (optional) |
+| unit | String \| null | 단위 (optional) |
+| categoryId | Number \| null | `IngredientCategory.id` (optional) |
+| proposedCategory | { key, name } \| null | 재료 카테고리 매핑 제안 (optional) |
+
+**인덱스**: `(sourceId)` unique, `(status)`, `(batchId)`, `(runId)`, `(status, retryCount)`, `(batchId, status)`, `(runId, status)`
+
+**문서 구조 예시**
+
+```json
+{
+  "_id": "...",
+  "sourceId": 12345,
+  "status": "parse_retrieved",
+  "retryCount": 0,
+  "runId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "rawData": { "RCP_SEQ": "12345", "RCP_NM": "김치찌개", "MANUAL01": "..." },
+  "batchId": "batch_abc123",
+  "retrievedData": {
+    "recipe": {
+      "title": "김치찌개",
+      "steps": [{ "content": "김치를 볶는다." }],
+      "difficulty": 2,
+      "cookingTimeMinutes": 30
+    },
+    "ingredients": [
+      {
+        "rawName": "김치 200g",
+        "normalizedName": "김치",
+        "ingredientAlias": "김치",
+        "quantity": "200",
+        "unit": "g"
+      }
+    ],
+    "parseConfidence": "high"
+  },
+  "fetchedAt": "2025-01-25T00:00:00.000Z",
+  "parseSubmittedAt": "2025-01-25T01:00:00.000Z",
+  "parseRetrievedAt": "2025-01-25T02:00:00.000Z"
+}
+```
+
+---
+
+### 3.5 RecipeIngestionState
+
+**컬렉션**: `recipe_ingestion_state`  
+**TTL**: 없음  
+**의미**
+
+* 공공데이터 API **순번 페이징**(`startIdx`/`endIdx`) 커서를 보관하는 singleton 문서
+* fetch job이 `lastEndIdx`를 읽어 다음 수집 구간을 계산하고, 성공 시 갱신
+* job 멱등 키(`sourceId` = `RCP_SEQ`)와 역할이 분리됨 — API 순번은 커서, 레시피 중복 방지는 job upsert
+
+**필드 설명** (Mongoose `RecipeIngestionState`)
+
+| 필드 | 타입 | 의미 |
+| --- | --- | --- |
+| key | String | singleton 문서 키 (required, unique, default `'singleton'`) |
+| lastEndIdx | Number | 마지막으로 요청한 `endIdx` (required, default 0). 없으면 fetch 시 0으로 간주 |
+| updatedAt | Date | 마지막 갱신 시각 (timestamps) |
+
+**인덱스**: `(key)` unique
+
+**문서 구조 예시**
+
+```json
+{
+  "_id": "...",
+  "key": "singleton",
+  "lastEndIdx": 500,
+  "updatedAt": "2025-01-25T00:00:00.000Z"
+}
+```
+
+---
+
 ## 4. LLM 관점 통합 이해 요약
 
 ### 사용자 상태 이해
@@ -574,6 +743,13 @@
 
 * Recipe + RecipeIngredient + Ingredient + UserRecipeRecommendation → 개인화 결과 제공
 * Inventory → 필터링/개인화 조건
+* RecipeEmbedding → semantic 검색·챗봇 `search_recipes` ANN 기반
+
+### 레시피 수집 파이프라인
+
+* RecipeIngestionState → 공공 API 다음 수집 구간
+* RecipeIngestionJob → fetch→parse→persist→embed 단계별 상태·원본·LLM 변환 결과
+* persist 완료 시 Recipe(`source: foodsafety`)·RecipeIngredient·Ingredient; embed 완료 시 RecipeEmbedding
 
 ### 대화 및 행동 분석
 
@@ -586,4 +762,5 @@
 
 * **정형 데이터**: 무결성, 조인, 검색 최적화 + 추천 결과 SSOT
 * **비정형 데이터**: 유연성, 로그, LLM 친화적 컨텍스트
+* **수집 파이프라인**: Mongo job SSOT + PostgreSQL 도메인 SSOT 분리, `sourceId`·`(source, sourceRecipeId)` 멱등
 * **LLM 중심 설계**: 상태 + 맥락 + 이벤트를 모두 설명 가능
