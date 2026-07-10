@@ -10,9 +10,9 @@
 #   2. 필요 시 cron 주기를 조정한다.
 #   3. crontab consumer.cron
 #
-# 로그:
-#   - kpi-rollup → ${LOG_DIR}/kpi-rollup.log
-#   - recipe-ingestion-* → ${LOG_DIR}/recipe-ingestion.log
+# 로그 (KST 날짜별 파일):
+#   - kpi-rollup → ${LOG_DIR}/kpi-rollup-YYYY-MM-DD.log
+#   - recipe-ingestion-* → ${LOG_DIR}/recipe-ingestion-YYYY-MM-DD.log
 
 SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
@@ -22,23 +22,23 @@ LOG_DIR=/var/log/mealio
 
 # ─── KPI Rollup ───────────────────────────────────────────────────────────────
 # 매일 10:00 KST
-0 10 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh kpi-rollup >> "$LOG_DIR/kpi-rollup.log" 2>&1
+0 10 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh kpi-rollup >> "$LOG_DIR/kpi-rollup-$(date +\%Y-\%m-\%d).log" 2>&1
 
 # ─── Recipe Ingestion ─────────────────────────────────────────────────────────
 # fetch — 매일 11:00 KST
-0 11 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-fetch >> "$LOG_DIR/recipe-ingestion.log" 2>&1
+0 11 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-fetch >> "$LOG_DIR/recipe-ingestion-$(date +\%Y-\%m-\%d).log" 2>&1
 
 # parse-submit (fallback) — 매일 11:30 KST
-30 11 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-parse-submit >> "$LOG_DIR/recipe-ingestion.log" 2>&1
+30 11 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-parse-submit >> "$LOG_DIR/recipe-ingestion-$(date +\%Y-\%m-\%d).log" 2>&1
 
 # parse-retrieve — 매 5분
-*/5 * * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-parse-retrieve >> "$LOG_DIR/recipe-ingestion.log" 2>&1
+*/5 * * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-parse-retrieve >> "$LOG_DIR/recipe-ingestion-$(date +\%Y-\%m-\%d).log" 2>&1
 
 # persist (fallback) — 매일 13:00 KST
-00 13 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-persist >> "$LOG_DIR/recipe-ingestion.log" 2>&1
+00 13 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-persist >> "$LOG_DIR/recipe-ingestion-$(date +\%Y-\%m-\%d).log" 2>&1
 
 # embed-submit (fallback) — 매일 14:30 KST
-30 14 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-embed-submit >> "$LOG_DIR/recipe-ingestion.log" 2>&1
+30 14 * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-embed-submit >> "$LOG_DIR/recipe-ingestion-$(date +\%Y-\%m-\%d).log" 2>&1
 
 # embed-retrieve — 매 5분
-*/5 * * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-embed-retrieve >> "$LOG_DIR/recipe-ingestion.log" 2>&1
+*/5 * * * * /home/ubuntu/mealio/docker/scripts/run-job.sh recipe-ingestion-embed-retrieve >> "$LOG_DIR/recipe-ingestion-$(date +\%Y-\%m-\%d).log" 2>&1
