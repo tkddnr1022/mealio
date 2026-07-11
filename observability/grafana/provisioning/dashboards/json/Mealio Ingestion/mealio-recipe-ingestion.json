@@ -450,7 +450,11 @@
         "minVizWidth": 8,
         "namePlacement": "left",
         "orientation": "horizontal",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
         "showUnfilled": true,
         "sizing": "auto",
         "textMode": "value_and_name",
