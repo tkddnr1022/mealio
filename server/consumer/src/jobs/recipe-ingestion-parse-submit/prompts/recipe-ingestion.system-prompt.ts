@@ -96,31 +96,61 @@ ${ingredientCategoryList || '(none)'}
 - quantity / unit: parse from the source text when present; apply the **unit preference** rules below.
 
 ### Unit preference (quantity / unit)
-Mealio targets home cooks — prefer units that are easy to measure without a scale. Apply this priority when parsing or normalizing:
+Mealio targets home cooks — prefer units that are easy to measure without a scale.
+
+**Source context (식품안전나라 등 public API)**
+Raw ingredient text is often formatted as "이름(Ng)" or "이름(Nml)" for every item. That weight is a nutrition/portion hint — **not** the preferred Mealio display unit.
+**Default action:** convert g/ml to kitchen-friendly units whenever a standard Korean home-cooking equivalent exists.
+Keep g/ml **only** for items on the keep-list below.
 
 1. **Kitchen-friendly units (highest priority)** — keep or convert to these when reasonable:
-   - Spoons: 큰술, 작은술, 스푼, 티스푼 (preserve fractions: "1/2큰술").
-   - Cups & bowls: 컵, 공기, 그릇, 봉지 (e.g. "1/2컵", "1공기").
+   - Spoons: 큰술, 작은술, 스푼, 티스푼 (preserve fractions: "1/2큰술"). Reference: 1큰술 ≈ 15g/ml, 1작은술 ≈ 5g/ml.
+   - Cups & bowls: 컵, 공기, 그릇, 봉지 (e.g. "1/2컵", "1공기"). Reference: 1컵 ≈ 200ml.
    - Count & piece: 개, 마리, 대, 줄기, 장, 조각, 알, 쪽, 잎, 포기, 봉, 팩, 캔.
-   - Vague but practical: 꼬집, 약간, 적당량 (quantity may be null or descriptive).
-2. **Precise units (g, kg, ml, L, mg) — only when unavoidable**:
-   - Source gives only weight/volume and no practical kitchen equivalent exists.
-   - Ingredient is typically sold or portioned by weight with no stable count (e.g. ground meat, sliced deli meat by gram).
-   - Baking or sauce ratios where gram/ml precision is standard in the source and conversion would lose meaning.
+   - Vague but practical: 꼬집, 약간, 적당량 (quantity may be null).
+2. **Precise units (g, kg, ml, L, mg) — keep-list only**
+   Use g/ml only when no reliable kitchen-friendly equivalent exists:
+   - Ground/sliced meat or seafood by weight without a stable count (e.g. 돼지등심 120g, 닭고기살 30g, 바지락 50g).
+   - Dry flour/starch/breadcrumbs for baking or coating ratios when amount is substantial (e.g. 밀가루 300g) — small coating amounts (≤15g) may convert to 작은술 instead.
+   - Large bulk solids with no spoon/cup convention.
 
-**When both kitchen-friendly and precise units appear** (often count in parentheses after weight), use the kitchen-friendly unit:
+3. **Conversion table (apply when source has only g or ml)**
+
+   **Liquids & viscous seasonings** (treat 1g ≈ 1ml for thin liquids: 간장, 오일, 식초, 물, 우유, 즙, 소스, 케첩, 올리고당, 토마토 페스트, 버터 등):
+   - ≈15g/ml → 1큰술; ≈5g/ml → 1작은술; round to 1/2, 1/3, 2/3 when close.
+   - "저염간장(10g)" → quantity "2/3", unit "큰술".
+   - "올리브오일(10g)" → quantity "2/3", unit "큰술".
+   - "우유(50g)" → quantity "1/4", unit "컵".
+
+   **Dry seasonings & powders** (소금, 설탕, 후추, 가루류):
+   - 소금 ≈5g → 1작은술; <1g → quantity null, unit "꼬집" or "약간" (never keep g).
+   - "소금(0.3g)" → quantity null, unit "꼬집".
+   - "후춧가루(0.03g)" → quantity null, unit "약간".
+
+   **Countable produce & eggs** (달걀, 파프리카, 고추, 토마토, 양파 등):
+   - 달걀: ≈50-60g → 1개; ≈25-30g → 1/2개 — convert even when source lists g only (never keep g for eggs).
+   - "달걀(30g)" → quantity "1/2", unit "개".
+   - "달걀(50g)" → quantity "1", unit "개".
+   - Other produce: convert to 개/1/2개 when clearly one piece or half; note uncertainty in parseIssues.
+
+   **Small vegetable prep amounts** (당근 20g, 대파 20g, 무 20g used as dice/garnish):
+   - Prefer "약간" or piece units (쪽, 대) when clearly a small prep scrap.
+   - If no stable piece equivalent, keeping g is acceptable — but liquids, seasonings, and eggs must still convert.
+
+**When both kitchen-friendly and precise units appear** (count in parentheses after weight), use the kitchen-friendly unit:
 - "달걀 30g(1/2개)" → quantity "1/2", unit "개" (not "30"/"g").
 - "대파 1대" → quantity "1", unit "대".
 
-**When only precise units appear**, convert to kitchen-friendly units when a standard home-cooking equivalent is well known; otherwise keep g/ml:
-- "간장 15ml" → quantity "1", unit "큰술" (1큰술 ≈ 15ml).
-- "소금 5g" → quantity "1", unit "작은술" (≈5g for granulated salt).
-- "우유 200ml" → quantity "1", unit "컵" (1컵 ≈ 200ml).
-- "물 500ml" → quantity "2", unit "컵" (1컵 ≈ 200~250ml; pick a sensible fraction).
-- "소고기 200g" → quantity "200", unit "g" (no reliable count — keep weight).
-- "밀가루 300g" → quantity "300", unit "g" (baking — keep weight unless source uses 컵).
+**Public API style examples ("이름(Ng)" in parentheses)**
+- "달걀(30g)" → "1/2", "개"
+- "달걀(50g)" → "1", "개"
+- "저염간장(10g)" → "2/3", "큰술"
+- "소금(0.3g)" → null, "꼬집"
+- "우유(50g)" → "1/4", "컵"
+- "돼지등심(120g)" → "120", "g" (keep)
+- "밀가루(10g)" → "2", "작은술" (small coating amount)
 
-Do not invent quantities; base conversions on the source amount or widely used Korean home-cooking equivalents. Add a parseIssues entry when unit choice is ambiguous.
+Do not invent ingredients or amounts absent from the source. Converting an existing source weight (e.g. 10g 간장 → 2/3큰술) using the rules above is **required**, not invention. Add a brief parseIssues note when converting (e.g. "저염간장 10g → 2/3큰술 환산") or when unit choice is ambiguous.
 
 ## Servings inference
 Set recipe.servings (integer, minimum 1) using this priority:
@@ -166,6 +196,7 @@ Use this priority:
 Prefer conservative (lower) estimates when ambiguous. Add a parseIssues entry only when steps lack both explicit times and inferable method (still output best estimate).
 
 ## Quality signals
-- parseConfidence: "high" when mapping is unambiguous; "medium" when mostly correct but some fields are inferred or mildly ambiguous; "low" when data is incomplete, ambiguous, or heavily noisy.
-- parseIssues: list specific problems (missing fields, ambiguous category, unclear ingredient, etc.).`;
+- parseConfidence: "high" when mapping is unambiguous; "medium" when mostly correct but some fields are inferred or mildly ambiguous (including majority of ingredients left as g/ml when kitchen-friendly conversion was expected); "low" when data is incomplete, ambiguous, or heavily noisy.
+- parseIssues: list specific problems (missing fields, ambiguous category, unclear ingredient, unit conversions applied, etc.).
+- **Unit quality gate:** If more than half of ingredients remain unit "g" or "ml" AND the recipe includes liquids, seasonings, or eggs, set parseConfidence to at least "medium" and add parseIssues: "대부분의 재료가 g로 남아 가정용 단위 환산이 부족합니다." Eggs listed only as grams must convert to 개 — failure to convert is a parseIssues entry.`;
 }

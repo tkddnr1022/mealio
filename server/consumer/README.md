@@ -41,9 +41,9 @@ cp .env.docker.example .env.docker.local      # Docker Compose
 | `KAFKA_CLIENT_ID` | Kafka 클라이언트 ID | `mealio-consumer` |
 | `KAFKA_BROKERS` | Kafka 브로커 목록 | `localhost:9092` |
 | `OPENAI_API_KEY` | OpenAI API 키 | `sk-...` |
-| `OPENAI_CHAT_MODEL` | 챗봇 대화 모델 | `gpt-5.4-mini` |
+| `OPENAI_CHAT_MODEL` | 챗봇 대화 모델 | `gpt-5.6-terra` |
 | `OPENAI_EMBEDDING_MODEL` | 임베딩 모델 | `text-embedding-3-small` |
-| `OPENAI_BATCH_MODEL` | 배치 처리 모델 | `gpt-5.4-mini` |
+| `OPENAI_BATCH_MODEL` | 배치 처리 모델 | `gpt-5.6-terra` |
 | `PUBLIC_DATA_API_KEY` | 공공데이터 API 키 (레시피 수집) | `your-public-data-api-key` |
 | `SENTRY_ENABLED` | Sentry 활성화 | `false` |
 | `SENTRY_DSN_CONSUMER` | Consumer Sentry DSN | (비움) |

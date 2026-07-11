@@ -399,7 +399,7 @@ submit은 선택된 job 그룹을 Batch API에 제출하고, 반환된 OpenAI Ba
    - 단계·기법·재료 기반 `difficulty`(1-3) 추론 지시
    - MANUAL·조리법 기반 `cookingTimeMinutes`(분) 추론 지시
    - 재료명 정규화·`ingredient_alias`(canonical 재료명) 반환 지시
-   - **`quantity`/`unit` 파싱: 가정용 계량 단위 우선** — 스푼·컵·개·마리 등 주방 친화 단위를 최우선; `g`/`ml` 등 정밀 단위는 불가피할 때만 사용. 중량·부피와 개수가 함께 있으면 개수·주방 단위 우선 (예: `달걀 30g(1/2개)` → `1/2`/`개`). 원문이 `ml`/`g`만 있을 때 표준 환산(예: 간장 15ml→1큰술)이 가능하면 변환
+   - **`quantity`/`unit` 파싱: 가정용 계량 단위 우선** — 식품안전나라 등 공공 API는 재료를 `이름(Ng)` 형태로 일괄 표기하므로, g/ml은 영양·1인분 힌트로 보고 **기본은 주방 친화 단위로 환산**. 스푼·컵·개·마리·꼬집·약간 우선; `g`/`ml`은 고기·해산물 중량·베이킹 대량 분말 등 keep-list에만 사용. 액체·조미료·달걀·소량 시즈닝은 g 그대로 두지 않음 (예: `저염간장(10g)` → `2/3`/`큰술`, `달걀(30g)` → `1/2`/`개`, `소금(0.3g)` → null/`꼬집`). 환산 시 parseIssues에 간단히 기록. 과반 이상 g/ml 잔존 시 parseConfidence 하향·unit quality gate
    - `parse_confidence: high | medium | low`, `parse_issues` 반환 지시
 
 5. **Files API 업로드**
@@ -477,9 +477,11 @@ Kafka `recipe-ingestion-persist-triggered` 소비 → payload `runId`로 `parse_
    ```
    1차: 원문 정규화 (괄호·조사·수량 제거, 공백 정리)
         예) "대파(흰 부분)" → "대파", "달걀 2개" → "달걀", "달걀 30g(1/2개)" → "달걀"
-        quantity/unit: **주방 친화 단위 우선** (스푼·컵·개·마리 등); `g`/`ml`은 불가피할 때만. 중량·부피와 개수가 함께 있으면 **개수·주방 단위 우선**
-        예) "달걀 30g(1/2개)" → quantity `1/2`, unit `개` (30g 아님)
-        예) "간장 15ml" → quantity `1`, unit `큰술` (표준 환산 가능 시)
+        quantity/unit: **주방 친화 단위 우선** — 공공 API `이름(Ng)` 원문은 g/ml → 스푼·컵·개·꼬집 등으로 환산이 기본. `g`/`ml`은 고기·해산물 중량·대량 분말 등 keep-list만
+        예) "달걀(30g)" → quantity `1/2`, unit `개`
+        예) "저염간장(10g)" → quantity `2/3`, unit `큰술`
+        예) "소금(0.3g)" → quantity null, unit `꼬집`
+        예) "돼지등심(120g)" → quantity `120`, unit `g` (keep)
    2차: LLM `retrieved_data`의 `ingredient_alias`(canonical명) → Ingredient.name exact match
         예) 원문 "파(대파)" + ingredient_alias "대파" → DB "대파"
    3차: 1차 정규화 결과 → Ingredient.name exact match

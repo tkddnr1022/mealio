@@ -421,7 +421,10 @@ describe('buildRecipeIngestionSystemPrompt', () => {
     expect(prompt).toContain('cookingTimeMinutes');
     expect(prompt).toContain('Unit preference (quantity / unit)');
     expect(prompt).toContain('Kitchen-friendly units');
-    expect(prompt).toContain('달걀 30g(1/2개)');
-    expect(prompt).toContain('간장 15ml');
+    expect(prompt).toContain('Source context (식품안전나라 등 public API)');
+    expect(prompt).toContain('Conversion table');
+    expect(prompt).toContain('달걀(30g)');
+    expect(prompt).toContain('저염간장(10g)');
+    expect(prompt).toContain('Unit quality gate');
   });
 });
