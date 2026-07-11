@@ -6,6 +6,10 @@
  *
  * 단위: 밀리초(ms)
  */
+import type { RequestOptions } from '@/lib/api/http-client';
+
+import { CACHE_TAGS, recipeDetailTag } from '@/lib/constants/cache-tags.constants';
+
 const SECOND_MS = 1_000;
 const MINUTE_MS = 60 * SECOND_MS;
 
@@ -59,12 +63,61 @@ export type QueryCache = typeof QUERY_CACHE;
  */
 export const ISR_FETCH_REVALIDATE_SEC = 300;
 
-/** 주기 ISR(레시피 메인·필터·재료 필터·빌드타임 static-ids) */
-export const ISR_FETCH_PERIODIC = {
-  next: { revalidate: ISR_FETCH_REVALIDATE_SEC },
-} as const;
+function isrFetchPeriodic(tags: readonly string[]): RequestOptions {
+  return {
+    next: {
+      revalidate: ISR_FETCH_REVALIDATE_SEC,
+      tags: [...tags],
+    },
+  };
+}
 
-/** 온디맨드 ISR(레시피 상세) — `POST /api/revalidate`로만 무효화 */
-export const ISR_FETCH_ON_DEMAND = {
-  next: { revalidate: false as const },
-} as const;
+function isrFetchOnDemand(tags: readonly string[]): RequestOptions {
+  return {
+    next: {
+      revalidate: false as const,
+      tags: [...tags],
+    },
+  };
+}
+
+/** 주기 ISR — 레시피 메인 목록 (`/recipe`) */
+export const ISR_RECIPE_LIST_FETCH = isrFetchPeriodic([
+  CACHE_TAGS.recipes,
+  CACHE_TAGS.recipeList,
+]);
+
+/** 주기 ISR — 레시피 카테고리 (`/recipe/filter`) */
+export const ISR_RECIPE_CATEGORIES_FETCH = isrFetchPeriodic([
+  CACHE_TAGS.recipes,
+  CACHE_TAGS.recipeCategories,
+]);
+
+/** 주기 ISR — 재료 카테고리 (`/ingredient/filter`) */
+export const ISR_INGREDIENT_CATEGORIES_FETCH = isrFetchPeriodic([
+  CACHE_TAGS.ingredients,
+  CACHE_TAGS.ingredientCategories,
+]);
+
+/** 주기 ISR — `generateStaticParams`용 static-ids */
+export const ISR_RECIPE_STATIC_IDS_FETCH = isrFetchPeriodic([
+  CACHE_TAGS.recipes,
+  CACHE_TAGS.recipeStaticIds,
+]);
+
+/** 주기 ISR — sitemap 레시피 URL 목록 */
+export const ISR_SITEMAP_RECIPE_IDS_FETCH = isrFetchPeriodic([
+  CACHE_TAGS.recipes,
+  CACHE_TAGS.recipeStaticIds,
+  CACHE_TAGS.sitemap,
+]);
+
+/** 온디맨드 ISR — 레시피 상세 (`/recipe/[id]`) */
+export function isrRecipeDetailFetch(recipeId: number): RequestOptions {
+  return isrFetchOnDemand([
+    CACHE_TAGS.recipes,
+    CACHE_TAGS.recipeDetail,
+    recipeDetailTag(recipeId),
+  ]);
+}
+

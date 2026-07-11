@@ -1,36 +1,13 @@
 import { timingSafeEqual } from 'node:crypto';
 
-import { revalidatePath } from 'next/cache';
+import { revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
+
+import { parseRevalidateTags } from '@/lib/constants/cache-tags.constants';
 
 interface RevalidateRequestBody {
   secret?: unknown;
-  path?: unknown;
-}
-
-function parseRevalidatePath(raw: unknown): string | null {
-  if (typeof raw !== 'string') {
-    return null;
-  }
-
-  const trimmed = raw.trim();
-  if (trimmed.length === 0) {
-    return null;
-  }
-
-  if (!trimmed.startsWith('/')) {
-    return null;
-  }
-
-  if (trimmed.startsWith('//') || trimmed.includes('..')) {
-    return null;
-  }
-
-  if (trimmed.length > 1 && trimmed.endsWith('/')) {
-    return trimmed.slice(0, -1);
-  }
-
-  return trimmed;
+  tags?: unknown;
 }
 
 function isValidSecret(provided: unknown, expected: string): boolean {
@@ -79,20 +56,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   }
 
-  const path = parseRevalidatePath(body.path);
-  if (path === null) {
+  const tags = parseRevalidateTags(body.tags);
+  if (tags === null) {
     return NextResponse.json(
-      { ok: false, error: 'Invalid path' },
+      { ok: false, error: 'Invalid tags' },
       { status: 400 },
     );
   }
 
-  revalidatePath(path);
+  for (const tag of tags) {
+    revalidateTag(tag, 'max');
+  }
 
   return NextResponse.json({
     ok: true,
     revalidated: true,
-    path,
+    tags,
     now: Date.now(),
   });
 }

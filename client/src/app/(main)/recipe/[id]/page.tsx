@@ -6,8 +6,8 @@ import { fetchForIsr } from '@/lib/api/server';
 import { isApiError } from '@/lib/api/error';
 import { truncateForMeta } from '@/lib/metadata/meta-text';
 import {
-  ISR_FETCH_ON_DEMAND,
-  ISR_FETCH_PERIODIC,
+  ISR_RECIPE_STATIC_IDS_FETCH,
+  isrRecipeDetailFetch,
 } from '@/lib/policy/cache.policy';
 import type { RecipeDetail } from '@/lib/types/recipe';
 
@@ -22,7 +22,7 @@ const STATIC_PARAMS_SIZE = 50;
 export async function generateStaticParams(): Promise<{ id: string }[]> {
   const result = await fetchForIsr({
     fetcher: () =>
-      getRecipeStaticIds({ size: STATIC_PARAMS_SIZE }, ISR_FETCH_PERIODIC),
+      getRecipeStaticIds({ size: STATIC_PARAMS_SIZE }, ISR_RECIPE_STATIC_IDS_FETCH),
     fallback: { data: [] },
   });
 
@@ -45,7 +45,7 @@ export async function generateMetadata({
   }
 
   try {
-    const recipe = await getRecipeById(recipeId, ISR_FETCH_ON_DEMAND);
+    const recipe = await getRecipeById(recipeId, isrRecipeDetailFetch(recipeId));
     const rawDescription =
       recipe.description?.trim() ||
       `${recipe.title} 레시피 (${recipe.categoryName})의 재료·조리법 안내입니다.`;
@@ -86,7 +86,7 @@ export default async function RecipeDetailPage({
 
   let recipe: RecipeDetail;
   try {
-    recipe = await getRecipeById(recipeId, ISR_FETCH_ON_DEMAND);
+    recipe = await getRecipeById(recipeId, isrRecipeDetailFetch(recipeId));
   } catch (error) {
     if (isApiError(error) && error.status === 404) {
       notFound();

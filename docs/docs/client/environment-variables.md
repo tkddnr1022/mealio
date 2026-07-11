@@ -91,7 +91,7 @@ OAuth **콜백 URL**은 producer의 `OAUTH_CALLBACK_BASE_URL`에서 설정합니
 | 설명 | `POST /api/revalidate` 온디맨드 ISR 시크릿 |
 | 예시 | 임의의 긴 랜덤 문자열 |
 | 사용처 | `client/src/.../revalidate/route.ts` |
-| 패턴 | 요청 본문 `secret`과 timing-safe 비교 후 `revalidatePath`를 호출합니다. |
+| 패턴 | 요청 본문 `secret`과 timing-safe 비교 후 `tags` 배열의 각 항목에 `revalidateTag`를 호출합니다. |
 
 ### `INTERNAL_API_SECRET`
 

@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { RecipeMainClientPage } from './RecipeMainClientPage';
 import { getRecipeList } from '@/lib/api/domains';
 import { fetchForIsr } from '@/lib/api/server';
-import { ISR_FETCH_PERIODIC } from '@/lib/policy/cache.policy';
+import { ISR_RECIPE_LIST_FETCH } from '@/lib/policy/cache.policy';
 import { createEmptyPaginated } from '@/lib/utils/isr-fallback';
 import type { RecipeSummary } from '@/lib/types/recipe';
 
@@ -24,12 +24,12 @@ export default async function RecipeMainPage() {
   const [viewedResult, likedResult] = await Promise.all([
     fetchForIsr({
       fetcher: () =>
-        getRecipeList({ ...listParams, sort: 'viewCount' }, ISR_FETCH_PERIODIC),
+        getRecipeList({ ...listParams, sort: 'viewCount' }, ISR_RECIPE_LIST_FETCH),
       fallback: createEmptyPaginated<RecipeSummary>(),
     }),
     fetchForIsr({
       fetcher: () =>
-        getRecipeList({ ...listParams, sort: 'likeCount' }, ISR_FETCH_PERIODIC),
+        getRecipeList({ ...listParams, sort: 'likeCount' }, ISR_RECIPE_LIST_FETCH),
       fallback: createEmptyPaginated<RecipeSummary>(),
     }),
   ]);

@@ -5,7 +5,7 @@ import { FullPageSuspenseFallback } from '@/components/layout/FullPageSuspenseFa
 import { RecipeFilterClientPage } from './RecipeFilterClientPage';
 import { getRecipeCategories } from '@/lib/api/domains';
 import { fetchForIsr } from '@/lib/api/server';
-import { ISR_FETCH_PERIODIC } from '@/lib/policy/cache.policy';
+import { ISR_RECIPE_CATEGORIES_FETCH } from '@/lib/policy/cache.policy';
 import { createEmptyDataList } from '@/lib/utils/isr-fallback';
 import type { RecipeCategory } from '@/lib/types/recipe';
 
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default async function RecipeFilterPage() {
   const categoriesResult = await fetchForIsr({
-    fetcher: () => getRecipeCategories(ISR_FETCH_PERIODIC),
+    fetcher: () => getRecipeCategories(ISR_RECIPE_CATEGORIES_FETCH),
     fallback: createEmptyDataList<RecipeCategory>(),
   });
   const categories = categoriesResult.data;

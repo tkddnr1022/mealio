@@ -4,7 +4,7 @@ import { getRecipeStaticIds } from '@/lib/api/domains';
 import { fetchForIsr } from '@/lib/api/server';
 import { getMetadataBase } from '@/lib/config/app.config';
 import { HOME_PATH } from '@/lib/constants/routes.constants';
-import { ISR_FETCH_PERIODIC } from '@/lib/policy/cache.policy';
+import { ISR_SITEMAP_RECIPE_IDS_FETCH } from '@/lib/policy/cache.policy';
 import {
   PUBLIC_SITEMAP_STATIC_PATHS,
   RECIPE_DETAIL_SITEMAP_ENTRY,
@@ -35,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       fetcher: () =>
         getRecipeStaticIds(
           { size: SITEMAP_RECIPE_ID_LIMIT },
-          ISR_FETCH_PERIODIC,
+          ISR_SITEMAP_RECIPE_IDS_FETCH,
         ),
       fallback: { data: [] },
     });
