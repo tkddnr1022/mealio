@@ -393,14 +393,16 @@ submit은 선택된 job 그룹을 Batch API에 제출하고, 반환된 OpenAI Ba
    - 출력 JSON 스키마 (레시피, 재료, 레시피-재료)
    - **이미지·영양·조리 메타**: `imageUrl`, `nutrition`, `cookingMethod`, `dishType`, `steps[].imageUrl`
    - 어조 규칙 (~요 체 등)
-   - 노이즈 제거 (MANUAL 필드 말미 단일 영문자 등)
+   - 노이즈 제거 (MANUAL 필드 말미 단일 영문자 등), **조리도구 제외**, **재료 중복 병합**
+   - **`RCP_PARTS_DTLS` ↔ MANUAL 재료 병합** — 물·육수·기름·반죽용 분말 등 조리 단계 정량 재료 auto-add; 무정량 조미료는 parseIssue만. 동의어(애호박↔단호박)는 단일 항목·alias 통일. 전체 불일치 시 parseConfidence `low`·servings=1
    - 카테고리 목록 (ID, 이름) — 선택 또는 신규 제안
-   - **칼로리 기반 `servings` 추측** — INFO_ENG(1인분)과 재료량 기반 총 칼로리 추산으로 인분 계산; 실패 시 `servings=1` fallback 및 parseConfidence 하향
+   - **칼로리 기반 `servings` 추측** — INFO_ENG(1인분)과 재료량 기반 총 칼로리 추산; **튀김/조리용 기름은 섭취량 산정 제외**; INFO_ENG 비정상 범위·ratio>15 재검증; count-only 단백질(닭 1마리 등) 가식부 fallback; 실패 시 `servings=1` 및 parseConfidence 하향
    - 단계·기법·재료 기반 `difficulty`(1-3) 추론 지시
-   - MANUAL·조리법 기반 `cookingTimeMinutes`(분) 추론 지시
+   - MANUAL·조리법 기반 `cookingTimeMinutes`(분) 추론 — **패시브 시간 정책**(불리기 제외, 숙성·굳히기 포함 규칙), 조리법별 default minute
    - 재료명 정규화·`ingredient_alias`(canonical 재료명) 반환 지시
-   - **`quantity`/`unit` 파싱: 가정용 계량 단위 우선** — 식품안전나라 등 공공 API는 재료를 `이름(Ng)` 형태로 일괄 표기하므로, g/ml은 영양·1인분 힌트로 보고 **기본은 주방 친화 단위로 환산**. 스푼·컵·개·마리·꼬집·약간 우선; `g`/`ml`은 고기·해산물 중량·베이킹 대량 분말 등 keep-list에만 사용. 액체·조미료·달걀·소량 시즈닝은 g 그대로 두지 않음 (예: `저염간장(10g)` → `2/3`/`큰술`, `달걀(30g)` → `1/2`/`개`, `소금(0.3g)` → null/`꼬집`). 환산 시 parseIssues에 간단히 기록. 과반 이상 g/ml 잔존 시 parseConfidence 하향·unit quality gate
-   - `parse_confidence: high | medium | low`, `parse_issues` 반환 지시
+   - **`quantity`/`unit` 파싱: 가정용 계량 단위 우선** — 식품안전나라 등 공공 API는 재료를 `이름(Ng)` 형태로 일괄 표기하므로, g/ml은 영양·1인분 힌트로 보고 **기본은 주방 친화 단위로 환산**. **mandatory conversion checklist**(액체·조미료·달걀·곡물), **produce decision tree**(g vs 약간 vs 개), keep-list(고기·불규칙 고형). routine 환산은 parseIssues 생략·배치 요약; ambiguous·quality gate 위반만 기록. 과반 g/ml 잔존 시 parseConfidence 하향
+   - `parse_confidence: high | medium | low`, `parse_issues` 반환 — **emission policy**(0–2건 목표, reconciliation·inference·gate 위반 위주)
+   - parseIssue 유형·빈도 SSOT: [`recipe_ingestion_parse_issues_catalog.md`](../temp/recipe_ingestion_parse_issues_catalog.md)
 
 5. **Files API 업로드**
    ```
