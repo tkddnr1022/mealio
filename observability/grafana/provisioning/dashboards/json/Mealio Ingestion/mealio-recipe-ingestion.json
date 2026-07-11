@@ -436,8 +436,37 @@
       "id": 12,
       "title": "Jobs by status",
       "type": "bargauge",
-      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
-      "options": { "orientation": "horizontal", "displayMode": "gradient" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "min": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "gradient",
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "left",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "textMode": "value_and_name",
+        "valueMode": "color"
+      },
+      "transformations": [
+        {
+          "id": "rowsToFields",
+          "options": {
+            "mappings": [
+              { "fieldName": "status", "handlerKey": "field.name" },
+              { "fieldName": "count", "handlerKey": "field.value" }
+            ]
+          }
+        }
+      ],
       "targets": [
         {
           "collection": "recipe_ingestion_jobs",
@@ -475,5 +504,5 @@
   "timezone": "Asia/Seoul",
   "title": "Mealio — Recipe Ingestion Pipeline",
   "uid": "mealio-recipe-ingestion",
-  "version": 2
+  "version": 3
 }
