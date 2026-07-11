@@ -49,7 +49,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "| Stage | Cron job | Schedule (KST) | 실행 경로 |\n|-------|----------|----------------|----------|\n| fetch | `recipe-ingestion-fetch` | **매일 11:00** | CLI → Pushgateway |\n| parse-submit | `recipe-ingestion-parse-submit` | **매일 11:30** (fallback) | Kafka consumer + CLI fallback |\n| parse-retrieve | `recipe-ingestion-parse-retrieve` | **매 5분** | CLI → Pushgateway |\n| persist | `recipe-ingestion-persist` | **매일 13:00** (fallback) | Kafka consumer + CLI fallback |\n| embed-submit | `recipe-ingestion-embed-submit` | **매일 14:30** (fallback) | Kafka consumer + CLI fallback |\n| embed-retrieve | `recipe-ingestion-embed-retrieve` | **매 5분** | CLI → Pushgateway |\n\n패널 시간 윈도: **5분 cron** → `[5m]`·`[30m]`, **일 1회 cron** → `[24h]`, 알림 정합 → `persist`·`parse-retrieve` fail `[30m]`.",
+        "content": "| Stage | Cron job | Schedule (KST) | 실행 경로 |\n|-------|----------|----------------|----------|\n| fetch | `recipe-ingestion-fetch` | **매일 11:00** | CLI → Pushgateway |\n| parse-submit | `recipe-ingestion-parse-submit` | **매일 11:30** (fallback) | Kafka consumer + CLI fallback |\n| parse-retrieve | `recipe-ingestion-parse-retrieve` | **매 5분** | CLI → Pushgateway |\n| persist | `recipe-ingestion-persist` | **매일 13:00** (fallback) | Kafka consumer + CLI fallback |\n| embed-submit | `recipe-ingestion-embed-submit` | **매일 14:30** (fallback) | Kafka consumer + CLI fallback |\n| embed-retrieve | `recipe-ingestion-embed-retrieve` | **매 5분** | CLI → Pushgateway |\n\n패널 시간 윈도: **5분 cron** → `[5m]`·`[30m]`, **일 1회 cron** → `[24h]`.",
         "mode": "markdown"
       },
       "title": "Job cadence reference",
@@ -70,7 +70,7 @@
         "defaults": { "unit": "percentunit", "min": 0, "max": 1 },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 7 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 7 },
       "id": 1,
       "title": "Stage fail rate (24h)",
       "type": "bargauge",
@@ -93,40 +93,6 @@
       "targets": [
         {
           "expr": "(sum by (stage) (increase(recipe_ingestion_stage_total{outcome=\"failed\"}[24h])) / clamp_min(sum by (stage) (increase(recipe_ingestion_stage_total[24h])), 1)) or (label_replace(vector(0), \"stage\", \"fetch\", \"\", \"\") or label_replace(vector(0), \"stage\", \"parse-submit\", \"\", \"\") or label_replace(vector(0), \"stage\", \"parse-retrieve\", \"\", \"\") or label_replace(vector(0), \"stage\", \"persist\", \"\", \"\") or label_replace(vector(0), \"stage\", \"embed-submit\", \"\", \"\") or label_replace(vector(0), \"stage\", \"embed-retrieve\", \"\", \"\"))",
-          "legendFormat": "{{stage}}",
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "fieldConfig": {
-        "defaults": { "unit": "percentunit", "min": 0, "max": 1 },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 7 },
-      "id": 14,
-      "title": "Critical fail rate (30m) — parse-retrieve / persist",
-      "type": "bargauge",
-      "options": {
-        "displayMode": "gradient",
-        "minVizHeight": 16,
-        "minVizWidth": 8,
-        "namePlacement": "left",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "textMode": "value_and_name",
-        "valueMode": "color"
-      },
-      "targets": [
-        {
-          "expr": "(sum by (stage) (increase(recipe_ingestion_stage_total{outcome=\"failed\", stage=~\"persist|parse-retrieve\"}[30m])) / clamp_min(sum by (stage) (increase(recipe_ingestion_stage_total{stage=~\"persist|parse-retrieve\"}[30m])), 1)) or (label_replace(vector(0), \"stage\", \"persist\", \"\", \"\") or label_replace(vector(0), \"stage\", \"parse-retrieve\", \"\", \"\"))",
           "legendFormat": "{{stage}}",
           "refId": "A"
         }
@@ -545,5 +511,5 @@
   "timezone": "Asia/Seoul",
   "title": "Mealio — Recipe Ingestion Pipeline",
   "uid": "mealio-recipe-ingestion",
-  "version": 5
+  "version": 6
 }
