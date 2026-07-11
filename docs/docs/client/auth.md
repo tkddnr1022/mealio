@@ -6,7 +6,7 @@
 - Proxy·SSR·CSR 각각의 인증 책임은 무엇인가요?
 - 401 발생 시 refresh는 어디서 처리되나요?
 
-## 설계 원칙: Proxy–SSR–CSR 분리
+## 설계 원칙: Proxy-SSR-CSR 분리
 
 OAuth는 **백엔드 주도**입니다. 프론트는 Authorization Code·토큰 교환을 하지 않고, 아래 3계층으로 역할을 나눕니다.
 
