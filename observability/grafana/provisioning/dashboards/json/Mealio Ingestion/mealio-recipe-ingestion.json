@@ -365,11 +365,11 @@
       "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
       "gridPos": { "h": 8, "w": 8, "x": 16, "y": 49 },
       "id": 9,
-      "title": "LLM token usage (parse-retrieve, 1h rate)",
+      "title": "LLM token usage (parse-retrieve, 24h increase)",
       "type": "timeseries",
       "targets": [
         {
-          "expr": "sum by (token_type) (rate(recipe_ingestion_llm_tokens_total[1h]))",
+          "expr": "sum by (token_type) (increase(recipe_ingestion_llm_tokens_total[24h]))",
           "legendFormat": "{{token_type}}",
           "refId": "A"
         }
