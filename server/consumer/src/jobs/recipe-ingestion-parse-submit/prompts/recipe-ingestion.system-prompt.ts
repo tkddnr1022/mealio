@@ -4,7 +4,6 @@ import type { RecipeIngestionCategoryContext } from '../services/category-contex
  * OpenAI Batch system prompt — 공공데이터 raw_data → 구조화 JSON 변환 지시
  * @see agent/backend/guidelines/recipe_ingestion_guidelines.md §5.2
  */
-// TODO: servings inference 정확도 향상 필요
 export function buildRecipeIngestionSystemPrompt(
   categories: RecipeIngestionCategoryContext,
 ): string {
@@ -24,7 +23,7 @@ Convert the user's raw public API recipe JSON into a single JSON object (no mark
   "recipe": {
     "title": "string (required, Korean recipe name)",
     "description": "string (optional, 1-2 sentences in ~요체)",
-    "servings": "number | null",
+    "servings": "number (required, integer, minimum 1)",
     "difficulty": "number (required, integer 1-3 — inferred from recipe complexity)",
     "cookingTimeMinutes": "number (required, integer minutes — inferred total active + passive cook time)",
     "categoryId": "number | null (existing recipe category id)",
@@ -153,14 +152,34 @@ Keep g/ml **only** for items on the keep-list below.
 Do not invent ingredients or amounts absent from the source. Converting an existing source weight (e.g. 10g 간장 → 2/3큰술) using the rules above is **required**, not invention. Add a brief parseIssues note when converting (e.g. "저염간장 10g → 2/3큰술 환산") or when unit choice is ambiguous.
 
 ## Servings inference
-Set recipe.servings (integer, minimum 1) using this priority:
-1. **Infer from ingredient quantities** — estimate from parsed ingredient amounts:
-   - Staple bases: 밥/쌀 (e.g. 1공기≈1인, 2컵≈2인), 면/국수 (per-person portions).
-   - Proteins: 달걀/계란 (2개≈1~2인), 고기·생선 (100~150g per person as a rough guide for main dishes).
-   - Side dishes (반찬): smaller total amounts often imply 2~4인; adjust down for clearly single-portion snacks.
-   - Broths/soups: liquid volume (e.g. 4컵≈2~4인 depending on dish type).
-   - Combine multiple signals; prefer conservative (lower) estimates when ambiguous.
-2. **Null** — only if quantities are missing or too ambiguous to estimate; add a parseIssues entry explaining why.
+Set recipe.servings (integer, minimum 1, always required) using **calorie-based inference** from public API nutrition data.
+
+### Source nutrition assumption
+- recipe.nutrition.calories (INFO_ENG) is **per serving (1인분)** — never treat it as total recipe calories.
+
+### Primary method — calorie ratio
+1. **Estimate total recipe calories** from parsed ingredient amounts:
+   - Prefer parenthetical g/ml weights from the source (e.g. "돼지등심(120g)", "우유(50g)").
+   - When only kitchen units are available, convert back to approximate grams using the conversion table (1큰술 ≈ 15g/ml, 1작은술 ≈ 5g/ml, 1컵 ≈ 200ml, 1개 달걀 ≈ 50g).
+   - Assign approximate kcal per ingredient using common Korean home-cooking references (examples, not exhaustive):
+     - Staples (밥·면·감자·빵): ~100-150 kcal per 100g
+     - Meat & seafood: ~150-250 kcal per 100g (lean vs fatty)
+     - Eggs: ~70 kcal each; tofu: ~80 kcal per 100g
+     - Vegetables & mushrooms: ~20-40 kcal per 100g
+     - Oils & fats: ~900 kcal per 100g; nuts: ~600 kcal per 100g
+     - Sugars & syrups: ~400 kcal per 100g; soy sauce & vinegar: ~50-100 kcal per 100g
+   - Include all quantifiable ingredients (proteins, staples, oil, sugar); use conservative mid-range estimates when food type is ambiguous.
+   - Sum to get **estimated_total_kcal**.
+2. **Compute servings**: servings = round(estimated_total_kcal / source_per_serving_kcal), where source_per_serving_kcal = recipe.nutrition.calories.
+3. **Sanity check**: clamp to integer ≥ 1. If the ratio is implausible (e.g. computed servings < 1 after rounding logic, or > 20), reconsider ingredient kcal estimates once. If still implausible, treat as inference failure (see fallback).
+
+### Fallback — inference failure
+When calorie-based inference cannot run or fails — missing or zero INFO_ENG, fewer than half of ingredients have quantifiable amounts, or the ratio remains implausible after reconsideration:
+- Set recipe.servings to **1**.
+- Downgrade parseConfidence: cap at **"medium"** when otherwise "high"; cap at **"low"** when otherwise "medium" or "high".
+- Add a parseIssues entry (e.g. "인분 칼로리 기반 servings 추정 불가 — 1인분으로 fallback").
+
+Do not output null for servings.
 
 ## Difficulty inference
 Set recipe.difficulty (integer 1-3, always required) from steps, techniques, and ingredients. Mealio labels: 1 쉬움, 2 보통, 3 어려움.
@@ -196,7 +215,7 @@ Use this priority:
 Prefer conservative (lower) estimates when ambiguous. Add a parseIssues entry only when steps lack both explicit times and inferable method (still output best estimate).
 
 ## Quality signals
-- parseConfidence: "high" when mapping is unambiguous; "medium" when mostly correct but some fields are inferred or mildly ambiguous (including majority of ingredients left as g/ml when kitchen-friendly conversion was expected); "low" when data is incomplete, ambiguous, or heavily noisy.
+- parseConfidence: "high" when mapping is unambiguous; "medium" when mostly correct but some fields are inferred or mildly ambiguous (including majority of ingredients left as g/ml when kitchen-friendly conversion was expected, or servings fallback to 1); "low" when data is incomplete, ambiguous, or heavily noisy.
 - parseIssues: list specific problems (missing fields, ambiguous category, unclear ingredient, unit conversions applied, etc.).
 - **Unit quality gate:** If more than half of ingredients remain unit "g" or "ml" AND the recipe includes liquids, seasonings, or eggs, set parseConfidence to at least "medium" and add parseIssues: "대부분의 재료가 g로 남아 가정용 단위 환산이 부족합니다." Eggs listed only as grams must convert to 개 — failure to convert is a parseIssues entry.`;
 }

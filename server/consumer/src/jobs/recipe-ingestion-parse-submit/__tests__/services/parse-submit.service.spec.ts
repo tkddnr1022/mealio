@@ -416,7 +416,10 @@ describe('buildRecipeIngestionSystemPrompt', () => {
     expect(prompt).toContain('Servings inference');
     expect(prompt).toContain('Difficulty inference');
     expect(prompt).toContain('Cook time inference');
-    expect(prompt).toContain('Infer from ingredient quantities');
+    expect(prompt).toContain('calorie-based inference');
+    expect(prompt).toContain('per serving (1인분)');
+    expect(prompt).toContain('estimated_total_kcal');
+    expect(prompt).toContain('servings fallback to 1');
     expect(prompt).toContain('integer 1-3');
     expect(prompt).toContain('cookingTimeMinutes');
     expect(prompt).toContain('Unit preference (quantity / unit)');

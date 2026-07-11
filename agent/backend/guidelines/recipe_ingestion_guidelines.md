@@ -395,7 +395,7 @@ submit은 선택된 job 그룹을 Batch API에 제출하고, 반환된 OpenAI Ba
    - 어조 규칙 (~요 체 등)
    - 노이즈 제거 (MANUAL 필드 말미 단일 영문자 등)
    - 카테고리 목록 (ID, 이름) — 선택 또는 신규 제안
-   - 재료량 기반 `servings` 추측 혹은 `null` 처리
+   - **칼로리 기반 `servings` 추측** — INFO_ENG(1인분)과 재료량 기반 총 칼로리 추산으로 인분 계산; 실패 시 `servings=1` fallback 및 parseConfidence 하향
    - 단계·기법·재료 기반 `difficulty`(1-3) 추론 지시
    - MANUAL·조리법 기반 `cookingTimeMinutes`(분) 추론 지시
    - 재료명 정규화·`ingredient_alias`(canonical 재료명) 반환 지시
