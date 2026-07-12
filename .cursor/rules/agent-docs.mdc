@@ -42,7 +42,7 @@ alwaysApply: true
 
 | 파일 | 설명 | 참고 용도 |
 |------|------|-----------|
-| **proposal.md** | 기획서 | 서비스 개요, 기능, 스택(Next.js, Nest.js, PostgreSQL, MongoDB, Kafka, Redis 등), 배포(Vercel, AWS), 데이터·메시지 브로커 전략을 파악할 때 |
+| **prd.md** | 기획서 | 서비스 개요, 기능, 스택(Next.js, Nest.js, PostgreSQL, MongoDB, Kafka, Redis 등), 배포(Vercel, AWS), 데이터·메시지 브로커 전략을 파악할 때 |
 | **schema.md** | 통합 데이터 스키마 (RDB + NoSQL) | User, Recipe, Ingredient, RecipeIngredient, Inventory, ChatbotLog, EventLog 등 엔티티/필드·의미, RDB vs NoSQL 구분, LLM 활용 포인트를 이해할 때 |
 | **architecture.mermaid** | 시스템 아키텍처 다이어그램 (Mermaid) | Client, CDN(Vercel), EC2(Producer/Consumer), Kafka, Redis, RDS, MongoDB, S3, OpenAI 등 구성요소와 연결 관계를 시각적으로 파악할 때 |
 | **screen_flowchart.mermaid** | 화면 플로우 다이어그램 (Mermaid) | `agent/frontend/spec/frontend_architecture_spec.md` §2 라우팅 맵을 기반으로 한 화면 전환·탭 간 이동 흐름을 시각적으로 파악할 때 |
@@ -128,13 +128,13 @@ alwaysApply: true
 ## 작업별 권장 참조 순서
 
 - **백엔드 API/모듈/DB**  
-  `agent/backend/spec/backend_architecture_spec.md` → `agent/common/spec_driven_development_guidelines.md` → `agent/common/schema.md` → `agent/common/openapi_spec_backend.yaml` → `agent/common/proposal.md`
+  `agent/backend/spec/backend_architecture_spec.md` → `agent/common/spec_driven_development_guidelines.md` → `agent/common/schema.md` → `agent/common/openapi_spec_backend.yaml` → `agent/common/prd.md`
 
 - **OAuth/인증 (백엔드 주도)**  
   `agent/backend/guidelines/oauth_implementation_guidelines.md` → `agent/backend/spec/backend_architecture_spec_producer.md` (1.3) → `agent/common/openapi_spec_backend.yaml` → `agent/common/openapi_spec_frontend.yaml` (`/api/auth/refresh-bridge`) → `agent/frontend/spec/frontend_architecture_spec.md` (3.1)
 
 - **프론트엔드 페이지/라우팅**  
-  `agent/frontend/spec/frontend_architecture_spec.md` (특히 §2 페이지 구조 및 라우팅 맵) → `agent/common/screen_flowchart.mermaid` (화면 전환·탭 흐름 확인) → `agent/common/spec_driven_development_guidelines.md` → `agent/frontend/guidelines/frontend_development_guidelines.md` → `agent/common/openapi_spec_backend.yaml` → `agent/common/openapi_spec_frontend.yaml` → `agent/common/proposal.md`
+  `agent/frontend/spec/frontend_architecture_spec.md` (특히 §2 페이지 구조 및 라우팅 맵) → `agent/common/screen_flowchart.mermaid` (화면 전환·탭 흐름 확인) → `agent/common/spec_driven_development_guidelines.md` → `agent/frontend/guidelines/frontend_development_guidelines.md` → `agent/common/openapi_spec_backend.yaml` → `agent/common/openapi_spec_frontend.yaml` → `agent/common/prd.md`
 
 - **프론트엔드 컴포넌트 구조/컨벤션**  
   `agent/frontend/spec/frontend_components_structure_spec.md` → `agent/frontend/guidelines/frontend_component_conventions_guidelines.md` → `agent/frontend/spec/frontend_architecture_spec.md` (라우팅 그룹/탭 매핑 확인) → `agent/frontend/guidelines/frontend_development_guidelines.md` (Storybook·코드 스플리팅·성능·**§9 접근성/`buildAriaLabel`**·**§10 리다이렉트 원칙**; OAuth 계약은 명세·`oauth_implementation_guidelines.md` 참조)
@@ -146,10 +146,10 @@ alwaysApply: true
   `agent/frontend/spec/frontend_architecture_spec.md` (§5.1 Route Handler 표) → `agent/common/openapi_spec_frontend.yaml` → `agent/frontend/guidelines/frontend_development_guidelines.md` (ISR·`/api/revalidate` 등)
 
 - **전체 시스템 구조·배포**  
-  `agent/common/architecture.mermaid` → `agent/common/proposal.md` → `agent/backend/spec/backend_architecture_spec.md` / `agent/frontend/spec/frontend_architecture_spec.md` (지침은 `agent/backend/guidelines/`·`agent/frontend/guidelines/` 내 해당 문서 참고)
+  `agent/common/architecture.mermaid` → `agent/common/prd.md` → `agent/backend/spec/backend_architecture_spec.md` / `agent/frontend/spec/frontend_architecture_spec.md` (지침은 `agent/backend/guidelines/`·`agent/frontend/guidelines/` 내 해당 문서 참고)
 
 - **기획·스택·배포 정책**  
-  `agent/common/proposal.md` → `agent/common/architecture.mermaid`
+  `agent/common/prd.md` → `agent/common/architecture.mermaid`
 
 - **관측성·모니터링**  
   `validation.md` (통합 검증) → `frontend_event_instrumentation.md` (프론트 계측) → `product_kpi_contract.md`·`event_dictionary.md`·`aggregation_pipeline.md` (KPI 정의·이벤트·집계) → `product_kpi_runbook.md` (알림·장애 대응)
