@@ -7,88 +7,50 @@ slug: /
 ## 이 문서로 해결할 질문
 
 - Mealio는 어떤 서비스인가요?
-- 핵심 기능과 기술 스택은 무엇인가요?
-- 데이터·이벤트 처리의 큰 그림은 무엇인가요?
+- 어떤 문제를 어떤 방식으로 해결하나요?
+- 상세 문서는 어디부터 보면 되나요?
 
 ## 서비스 소개
 
-**Mealio**는 AI 기반 맞춤형 레시피 추천 플랫폼입니다. 사용자의 보유·관심 재료와 행동 이력을 반영해 레시피를 추천하고, Function Calling 기반 챗봇으로 요리 가이드를 제공합니다.
+**Mealio**는 AI 기반 맞춤형 레시피 추천 플랫폼입니다. 사용자가 가진 재료와 관심사, 서비스 이용 이력을 반영해 레시피를 추천하고, 챗봇으로 요리 과정까지 이어 줍니다.
 
-## 핵심 기능
+## 무엇을 하나요
 
-| 기능 | 설명 |
+Mealio는 아래 기능을 중심으로 동작합니다.
+
+- **소셜 로그인**으로 계정을 만들고 세션을 유지합니다.
+- **보유·관심 재료와 관심 레시피**를 관리합니다.
+- **맞춤 추천·검색·상세**로 레시피를 탐색합니다.
+- **추천·요리 가이드 챗봇**으로 대화를 이어 갑니다.
+- **마이페이지**에서 프로필·활동·이용량을 확인합니다.
+
+레시피 원천 데이터는 공공 데이터를 수집·가공해 서비스에 반영합니다. 제품·도메인 KPI는 관측·분석 파이프라인으로 추적합니다.
+
+## 어떻게 구성되어 있나요
+
+프론트엔드(웹)와 API, 비동기 워커가 모노레포로 나뉘어 있습니다. 사용자 요청은 API가 처리하고, 추천 갱신·로그·캐시 정합·데이터 수집처럼 시간이 걸리는 일은 이벤트 기반으로 백그라운드에서 이어집니다.
+
+저장소는 정형 도메인(관계형 DB), 사용자 상태·로그(문서 DB), 캐시·스트림(인메모리)으로 역할을 나눕니다. LLM은 챗봇과 데이터 가공에 사용합니다.
+
+구성·데이터 흐름의 세부 그림은 [시스템 아키텍처](project/architecture)를, 패키지 경계는 [모노레포 구조](project/monorepo)를 참고하세요.
+
+## 문서 읽는 순서
+
+| 목적 | 문서 |
 | --- | --- |
-| 보유·관심 재료 관리 | Inventory(MongoDB)로 사용자별 재료 상태 관리 |
-| 관심 레시피 | 즐겨찾기·추천 점수 반영 |
-| 맞춤 레시피 | `UserRecipeRecommendation` 원본 테이블 + 이벤트 기반 갱신 |
-| 레시피 검색·상세 | PostgreSQL + Redis 캐시, ISR 페이지 |
-| 레시피 추천 챗봇 | OpenAI Function Calling, SSE 스트리밍 |
-| 레시피 데이터 ETL | 공공데이터 → OpenAI Batch → persist 파이프라인 |
+| 로컬에서 돌려 보기 | [로컬 개발/온보딩](project/getting-started) |
+| 컴포넌트·동기/비동기 경계 | [시스템 아키텍처](project/architecture) |
+| 엔티티·저장소 역할 | [도메인](project/domain) |
+| 추천·수집·배포 | [추천 시스템](project/recommendation), [레시피 수집(ETL)](project/recipe-ingestion), [배포/환경 전략](project/deployment) |
+| 주요 사용자 흐름 검증 | [E2E 시나리오](project/e2e-scenarios) |
 
-## 기술 스택
-
-| 영역 | 기술 |
-| --- | --- |
-| Frontend | Next.js (App Router), TypeScript, React Query |
-| Backend API | NestJS (`producer`) |
-| 비동기 처리 | Kafka Consumer (`consumer`) |
-| RDB | PostgreSQL + Prisma |
-| NoSQL | MongoDB + Mongoose |
-| Cache | Redis |
-| Message Broker | Kafka |
-| LLM | OpenAI API |
-| Observability | Sentry, Prometheus, Grafana, GA4 |
-| 문서·계약 | OpenAPI, Storybook, Docusaurus |
-
-## 아키텍처 요약
-
-```mermaid
-flowchart TB
-    C[client] --> P[producer]
-    P -->|실시간 API + 캐시 + Kafka 발행| K[Kafka]
-    K --> CV[consumer]
-    CV --> D[PostgreSQL / MongoDB / Redis / OpenAI]
-```
-
-자세한 내용은 [시스템 아키텍처](project/architecture) 문서를 참고하세요.
-
-## 이벤트 드리븐 설계
-
-Producer는 **명령(쓰기) API 성공 = Kafka 발행**까지 책임집니다. DB 반영·추천 갱신·캐시 무효화는 Consumer가 비동기로 처리합니다.
-
-| Kafka 토픽 | 용도 |
-| --- | --- |
-| `user-events` | 프로필·재료함·관심 레시피 |
-| `activity-events` | 조회·공유·검색 |
-| `chatbot-requests` | 챗봇 메시지 |
-| `cache-invalidation` | Redis 키 삭제 |
-
-프론트는 Optimistic UI로 즉시 반영하고, Consumer 완료 후 캐시가 정합됩니다.
-
-## 레시피 데이터
-
-- **원천**: 식약처 공공데이터(조리식품 레시피 DB)입니다.
-- **수집**: Consumer standalone job으로 fetch → submit → retrieve → persist 단계를 수행합니다.
-- **가공**: OpenAI Batch API로 정규화·매핑합니다.
-
-→ [레시피 수집(ETL)](project/recipe-ingestion)
-
-## 모노레포 패키지
-
-| 패키지 | 역할 |
-| --- | --- |
-| `client` | Next.js 프론트엔드 |
-| `server/producer` | REST API |
-| `server/consumer` | Kafka Consumer·배치 |
-| `server/shared` | Prisma/Mongoose/Redis/타입 |
-| `docs` | Docusaurus 공개 문서 사이트 |
-
-→ [모노레포 구조](project/monorepo)
+패키지별 구현·계약은 사이드바의 **client** · **producer** · **consumer** · **shared** 문서로 이어집니다.
 
 ## 관련 문서
 
 - [시스템 아키텍처](project/architecture)
 - [도메인](project/domain)
+- [모노레포 구조](project/monorepo)
 - [로컬 개발/온보딩](project/getting-started)
 - [배포/환경 전략](project/deployment)
 - [E2E 시나리오](project/e2e-scenarios)
