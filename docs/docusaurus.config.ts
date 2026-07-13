@@ -9,7 +9,6 @@ import {
   GITHUB_USERNAME,
 } from './src/constants/github';
 
-const isGithubPages = process.env.GITHUB_PAGES === 'true';
 const isCI = process.env.CI === 'true';
 const brokenLinkPolicy = isCI ? 'throw' : 'warn';
 
@@ -17,7 +16,7 @@ const config: Config = {
   title: 'Mealio Docs',
   tagline: 'AI 기반 맞춤형 레시피 추천 플랫폼',
   url: GITHUB_PAGES_BASE_URL,
-  baseUrl: isGithubPages ? '/mealio/' : '/',
+  baseUrl: '/',
   organizationName: GITHUB_USERNAME,
   projectName: GITHUB_REPO,
   onBrokenLinks: brokenLinkPolicy,

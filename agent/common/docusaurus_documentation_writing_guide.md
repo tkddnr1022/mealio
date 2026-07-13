@@ -337,7 +337,7 @@ CI(`CI=true`)에서는 `onBrokenLinks`·`onBrokenMarkdownLinks`가 `throw`이다
    ```bash
    pnpm install
    pnpm start:docs          # 로컬 미리보기
-   pnpm run ci:build:docs   # CI와 동일 (baseUrl: /mealio/)
+   pnpm run ci:build:docs   # CI와 동일
    ```
 
 7. **코드 변경과 함께** — 구현 PR이면 `agent/` 명세·OpenAPI도 같은 단위로 갱신한다 (`other/contributing` 워크플로 참고).
@@ -388,9 +388,9 @@ CI(`CI=true`)에서는 `onBrokenLinks`·`onBrokenMarkdownLinks`가 `throw`이다
 
 ```bash
 pnpm install
-pnpm start:docs          # 개발 서버 (baseUrl: /)
-pnpm build:docs          # 로컬 정적 빌드 (baseUrl: /)
-pnpm run ci:build:docs   # CI·GitHub Pages와 동일 (baseUrl: /mealio/)
+pnpm start:docs          # 개발 서버
+pnpm build:docs          # 로컬 정적 빌드
+pnpm run ci:build:docs   # CI·GitHub Pages와 동일
 ```
 
 ### CI·배포
@@ -401,7 +401,7 @@ pnpm run ci:build:docs   # CI·GitHub Pages와 동일 (baseUrl: /mealio/)
 | `.github/workflows/docs.yml` | `docs/**` 등 변경 시 `main` push | GitHub Pages 배포 |
 
 - 배포 URL: `https://tkddnr1022.github.io/mealio`
-- `GITHUB_PAGES=true`일 때 `baseUrl`은 `/mealio/`
+- `baseUrl`은 `/`로 고정 (`docusaurus.config.ts`)
 - 로케일: `ko` (`docusaurus.config.ts` `i18n`)
 
 ---
