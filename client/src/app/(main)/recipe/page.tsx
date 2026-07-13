@@ -10,7 +10,7 @@ import type { RecipeSummary } from '@/lib/types/recipe';
 export const metadata: Metadata = {
   title: '레시피',
   description:
-    '조회수·좋아요 기준 인기 레시피를 둘러보고, 맞춤 추천을 받을 수 있습니다.',
+    '최신·조회수·좋아요 기준 레시피를 둘러보고, 맞춤 추천을 받을 수 있습니다.',
 };
 
 const SECTION_SIZE = 12;
@@ -21,7 +21,12 @@ export default async function RecipeMainPage() {
     size: SECTION_SIZE,
   } as const;
 
-  const [viewedResult, likedResult] = await Promise.all([
+  const [latestResult, viewedResult, likedResult] = await Promise.all([
+    fetchForIsr({
+      fetcher: () =>
+        getRecipeList({ ...listParams, sort: 'latest' }, ISR_RECIPE_LIST_FETCH),
+      fallback: createEmptyPaginated<RecipeSummary>(),
+    }),
     fetchForIsr({
       fetcher: () =>
         getRecipeList({ ...listParams, sort: 'viewCount' }, ISR_RECIPE_LIST_FETCH),
@@ -34,11 +39,13 @@ export default async function RecipeMainPage() {
     }),
   ]);
 
+  const latestRecipes = latestResult.data;
   const mostViewedRecipes = viewedResult.data;
   const mostLikedRecipes = likedResult.data;
 
   return (
     <RecipeMainClientPage
+      latestRecipes={latestRecipes}
       mostViewedRecipes={mostViewedRecipes}
       mostLikedRecipes={mostLikedRecipes}
     />

@@ -12,11 +12,13 @@ import type { RecipeSummary } from '@/lib/types/recipe';
 import { usePathname } from 'next/navigation';
 
 export interface RecipeMainClientPageProps {
+  latestRecipes: readonly RecipeSummary[];
   mostViewedRecipes: readonly RecipeSummary[];
   mostLikedRecipes: readonly RecipeSummary[];
 }
 
 export function RecipeMainClientPage({
+  latestRecipes,
   mostViewedRecipes,
   mostLikedRecipes,
 }: RecipeMainClientPageProps) {
@@ -50,6 +52,16 @@ export function RecipeMainClientPage({
             layout={{ columns: 2, rows: 1 }}
           />
         ) : null}
+
+        <RecipeSection
+          title="새로운 레시피"
+          recipes={latestRecipes}
+          emptyFallback={
+            <p className="typo-body-regular px-4 style-text-caption">
+              표시할 레시피가 없어요.
+            </p>
+          }
+        />
 
         <RecipeSection
           title="많이 본 레시피"
