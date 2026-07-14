@@ -50,14 +50,16 @@ Grafana PostgreSQL view는 `prisma migrate deploy`로 적용한다 (`20260628000
 
 `docker/redis/compose.yml`에서 비밀번호 인증·호스트 포트를 설정합니다.
 
-### `REDIS_PASSWORD` / `REDIS_EXTERNAL_PORT`
+### `REDIS_PASSWORD` / `REDIS_EXTERNAL_PORT` / `REDIS_MAXMEMORY`
 
 | 항목 | 내용 |
 | --- | --- |
-| 설명 | Redis `requirepass` 비밀번호·호스트에서 접속할 때 바인딩 포트 |
-| 예시 | `devpassword` / `6379` |
+| 설명 | Redis `requirepass` 비밀번호·호스트 바인딩 포트·캐시 데이터 메모리 상한 |
+| 예시 | `devpassword` / `6379` / `192mb` |
 | Compose | `docker/redis/compose.yml` |
 | 앱 env 정합 | `REDIS_URL`에 동일 비밀번호 포함 (`redis://:devpassword@127.0.0.1:6379`) |
+
+`REDIS_MAXMEMORY`는 컨테이너 limit보다 작게 설정하여 Redis 프로세스와 AOF 버퍼가 사용할 여유 메모리를 확보합니다. 상한에 도달하면 `allkeys-lru` 정책으로 캐시 키를 제거합니다.
 
 ## Kafka
 
@@ -71,6 +73,19 @@ Grafana PostgreSQL view는 `prisma migrate deploy`로 적용한다 (`20260628000
 | 예시 | `localhost` / `9092` |
 | Compose | `docker/kafka/compose.yml` |
 | 앱 env 정합 | `KAFKA_BROKERS`는 `{KAFKA_EXTERNAL_HOST}:{KAFKA_EXTERNAL_PORT}`와 일치 |
+
+Compose는 publish 포트와 advertised listener 포트에 동일한 `KAFKA_EXTERNAL_PORT`를 사용합니다.
+
+### `KAFKA_LOG_RETENTION_HOURS` / `KAFKA_LOG_RETENTION_BYTES` / `KAFKA_LOG_SEGMENT_BYTES`
+
+| 항목 | 내용 |
+| --- | --- |
+| 설명 | Kafka 로그 보존 시간·파티션별 보존 용량·segment 용량 |
+| 예시 | `168` / `536870912` / `134217728` |
+| Compose | `docker/kafka/compose.yml` |
+| 패턴 | 시간 또는 용량 조건 중 먼저 도달한 조건에 따라 오래된 segment를 정리 |
+
+브로커의 자동 토픽 생성은 비활성화됩니다. 배포 전 `pnpm run db:kafka:create-topics:production`으로 메인·DLQ 토픽을 생성합니다.
 
 ## Kafka UI
 

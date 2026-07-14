@@ -95,8 +95,12 @@ cp server/consumer/.env.docker.example server/consumer/.env.docker.local
 | `POSTGRES_DB` | PostgreSQL 데이터베이스명 | `devdb` |
 | `REDIS_PASSWORD` | Redis 비밀번호 (`requirepass`) | `devpassword` |
 | `REDIS_EXTERNAL_PORT` | 호스트에서 Redis 접속 포트 | `6379` |
+| `REDIS_MAXMEMORY` | Redis 캐시 데이터 메모리 상한 (`allkeys-lru`) | `192mb` |
 | `KAFKA_EXTERNAL_HOST` | 호스트에서 Kafka 접속 호스트 | `localhost` |
 | `KAFKA_EXTERNAL_PORT` | 호스트에서 Kafka 접속 포트 | `9092` |
+| `KAFKA_LOG_RETENTION_HOURS` | Kafka 로그 보존 시간 | `168` |
+| `KAFKA_LOG_RETENTION_BYTES` | Kafka 파티션별 로그 보존 용량(bytes) | `536870912` |
+| `KAFKA_LOG_SEGMENT_BYTES` | Kafka 로그 segment 용량(bytes) | `134217728` |
 | `KAFKA_UI_PORT` | Kafka UI 포트 | `8080` |
 | `KAFKA_UI_CLUSTER_NAME` | Kafka UI 클러스터 표시명 | `mealio` |
 | `KAFKA_UI_BOOTSTRAP_SERVERS` | Kafka UI 부트스트랩 서버 | `kafka:19092` |

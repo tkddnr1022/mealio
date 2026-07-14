@@ -43,12 +43,14 @@
 
 - Cache-Aside, OAuth/세션에 사용합니다.
 - TLS 연결을 지원합니다 (`rediss://`).
+- 컨테이너 메모리 limit 안에서 캐시 상한을 두고 `allkeys-lru`로 키를 정리합니다.
 
 ### Kafka
 
 - producer·consumer 모두 동일 브로커에 연결합니다.
 - `kafka-ui`는 개발 전용으로 프로덕션에는 배포하지 않습니다.
 - 토픽은 `pnpm run db:kafka:create-topics:production`으로 생성합니다.
+- 브로커의 자동 토픽 생성을 비활성화하고 시간·파티션별 용량 기준으로 로그를 정리합니다.
 
 ### Prometheus
 
@@ -104,8 +106,8 @@
 | 파일 | 대상 | prod | dev |
 | --- | --- | --- | --- |
 | `docker/mongodb/compose.yml` | mongodb | ✗ | ✓ |
-| `docker/postgres/compose.yml` | postgres | ✗ | ✓ |
-| `docker/redis/compose.yml` | redis | ✗ | ✓ |
+| `docker/postgres/compose.yml` | postgres | ✓ | ✓ |
+| `docker/redis/compose.yml` | redis | ✓ | ✓ |
 | `docker/kafka/compose.yml` | kafka | ✓ | ✓ |
 | `docker/kafka-ui/compose.yml` | kafka-ui | ✗ | ✓ |
 | `docker/pushgateway/compose.yml` | pushgateway | ✓ | ✓ |

@@ -8,7 +8,7 @@ Mealio 데모 배포는 아래 스택으로 **고정**한다.
 |---|---|---|---|
 | 프론트엔드 | **Vercel** 또는 **APP Instance** | `client` (Next.js) — 배포 시 **둘 중 하나 선택** | Vercel Git 연동 또는 `docker/client/compose.yml` |
 | 백엔드·앱 | **APP Instance** (t4g.small, Public Subnet) | `producer`(:4000), `consumer`, Nginx | **Docker Compose** (`docker/producer`, `docker/consumer`) |
-| 인프라·메시지·관측 | **INFRA Instance** (t4g.small, Private Subnet) | `postgres`(:5432), `redis`(:6379), `kafka`(:9092), `prometheus`, `pushgateway`(:9091), `grafana` | **Docker Compose** (`docker/postgres`, `docker/redis`, `docker/kafka`, `docker/pushgateway`, `docker/prometheus`, `docker/grafana`) |
+| 인프라·메시지·관측 | **INFRA Instance** (t4g.medium, Private Subnet) | `postgres`(:5432), `redis`(:6379), `kafka`(:9092), `prometheus`, `pushgateway`(:9091), `grafana` | **Docker Compose** (`docker/postgres`, `docker/redis`, `docker/kafka`, `docker/pushgateway`, `docker/prometheus`, `docker/grafana`) |
 | 문서 DB | **MongoDB Atlas** | EventLog, ChatbotLog, NoSQL 도메인 (퍼블릭 호스트 접속) | Atlas 매니지드 (EC2 Compose 대상 아님) |
 
 프로덕션 EC2(APP·INFRA Instance)에 배포되는 `producer`, `consumer`, PostgreSQL, Redis, Kafka, Prometheus, Pushgateway, Grafana는 모두 **Docker Compose**(`docker/{서비스명}/compose.yml`)로 컨테이너 기동한다. Nginx는 호스트 OS에서 직접 실행하거나 별도 compose로 운영한다.
@@ -26,7 +26,7 @@ Mealio 데모 배포는 아래 스택으로 **고정**한다.
 
 ### 설계 원칙
 
-- **인스턴스 최소 성능 확보·비용 최적화**: 역할별 `t4g.small` 2개 분리, Public IP 1개(APP Instance)만 사용
+- **인스턴스 최소 성능 확보·비용 최적화**: APP은 `t4g.small`, INFRA는 컨테이너 메모리 limit 합계 약 3.2 GiB를 수용하는 `t4g.medium`으로 분리하고 Public IP 1개(APP Instance)만 사용
 - **저트래픽**: 동시 사용자 수십 이하, `recipe-ingestion`은 일 1회 이하의 느린 배치
 - **역할 분리**: APP Instance는 앱(Nginx·Producer·Consumer), INFRA Instance는 DB·메시지·관측; 문서 DB는 Atlas(매니지드) SSOT
 - **네트워크 격리**: INFRA Instance는 퍼블릭 IP 없이 프라이빗 서브넷에 배치, APP Instance NAT를 통해 인터넷 연결
@@ -151,11 +151,14 @@ iptables -A FORWARD -j ACCEPT
 
 ### INFRA Instance
 
-- 인스턴스: `t4g.small` (2 vCPU, 2 GiB) + gp3 20 GB
+- 인스턴스: `t4g.medium` (2 vCPU, 4 GiB) + gp3 20 GB
 - OS: Ubuntu 22.04 LTS
 - 서브넷: Private (Public IP 없음, 라우팅: APP Instance NAT 경유 인터넷 연결)
 - 역할: PostgreSQL(:5432), Redis(:6379), Kafka(:9092), Prometheus, Pushgateway(:9091), Grafana
 - 오케스트레이션: Docker Compose (`docker/postgres`, `docker/redis`, `docker/kafka`, `docker/pushgateway`, `docker/prometheus`, `docker/grafana`)
+- 리소스 기준: 프로덕션 컨테이너 memory limit 합계는 약 3.2 GiB이며, 나머지는 호스트 OS·Docker 데몬에 확보한다.
+- Redis: 컨테이너 256 MiB 중 데이터 상한은 `REDIS_MAXMEMORY=192mb`, eviction은 `allkeys-lru`를 사용한다.
+- Kafka: 자동 토픽 생성을 끄고 배포 단계에서 토픽을 생성한다. 기본 보존 한도는 168시간 또는 파티션당 512 MiB 중 먼저 도달한 조건이며 segment는 128 MiB이다.
 
 #### Security Group — INFRA Instance
 
@@ -463,11 +466,11 @@ Slack 웹훅(`SLACK_OPS_WEBHOOK_URL` 등)은 선택 연동.
 |---|---|
 | Vercel Hobby | $0 (팀·Pro 필요 시 별도) |
 | EC2 APP Instance `t4g.small` | $12~15 |
-| EC2 INFRA Instance `t4g.small` | $12~15 |
+| EC2 INFRA Instance `t4g.medium` | $24~30 |
 | EBS gp3 APP 12GB + INFRA 20GB | $3~4 |
 | 데이터 전송·기타 AWS | $3~8 |
 | MongoDB Atlas M0 | $0 (상위 플랜 시 증가) |
-| **합계** | **약 $30~42 / 월** |
+| **합계** | **약 $42~57 / 월** |
 
 APP Instance Docker로 프론트를 같이 호스팅하면 Vercel 비용은 $0이지만, 동일 APP Instance 리소스를 공유한다.
 

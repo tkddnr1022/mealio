@@ -24,7 +24,16 @@ services:
     environment:
       <<: *timezone
       REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      - --maxmemory
+      - ${REDIS_MAXMEMORY:?REDIS_MAXMEMORY is required}
+      - --maxmemory-policy
+      - allkeys-lru
     volumes:
       - redis_data:/data
     networks:
