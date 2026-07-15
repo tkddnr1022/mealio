@@ -69,7 +69,7 @@ export interface ParseBatchJsonlRequestLine {
   body: {
     model: string;
     max_completion_tokens: number;
-    reasoning_effort: 'minimal' | 'low' | 'medium' | 'high';
+    reasoning_effort: 'minimal' | 'low' | 'medium' | 'high' | 'none';
     verbosity: 'low' | 'medium' | 'high';
     response_format: { type: 'json_object' };
     messages: Array<{ role: 'system' | 'user'; content: string }>;

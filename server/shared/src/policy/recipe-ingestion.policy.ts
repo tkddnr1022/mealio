@@ -39,7 +39,7 @@ export const RECIPE_INGESTION_COOK_TIME_MAX = 180;
 
 /** OpenAI Batch submit 파라미터 */
 export const RECIPE_INGESTION_OPENAI_BATCH_MAX_TOKENS = 8_192;
-export const RECIPE_INGESTION_OPENAI_BATCH_REASONING_EFFORT = 'low' as const;
+export const RECIPE_INGESTION_OPENAI_BATCH_REASONING_EFFORT = 'none' as const;
 export const RECIPE_INGESTION_OPENAI_BATCH_VERBOSITY = 'low' as const;
 
 /** 재료 벡터 매칭 cosine similarity 임계값 (이상 → match, 미만 → new) */
