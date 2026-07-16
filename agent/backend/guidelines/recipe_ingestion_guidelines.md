@@ -400,7 +400,7 @@ submit은 선택된 job 그룹을 Batch API에 제출하고, 반환된 OpenAI Ba
    - 단계·기법·재료 기반 `difficulty`(1-3) 추론 지시
    - MANUAL·조리법 기반 `cookingTimeMinutes`(분) 추론 — **패시브 시간 정책**(불리기 제외, 숙성·굳히기 포함 규칙), 조리법별 default minute
    - 재료명 정규화·`ingredient_alias`(canonical 재료명) 반환 지시
-   - **`quantity`/`unit` 파싱: 가정용 계량 단위 우선** — 식품안전나라 등 공공 API는 재료를 `이름(Ng)` 형태로 일괄 표기하므로, g/ml은 영양·1인분 힌트로 보고 **기본은 주방 친화 단위로 환산**. **mandatory conversion checklist**(액체·조미료·달걀·곡물), **produce decision tree**(g vs 약간 vs 개), keep-list(고기·불규칙 고형). routine 환산은 parseIssues 생략·배치 요약; ambiguous·quality gate 위반만 기록. 과반 g/ml 잔존 시 parseConfidence 하향
+   - **`quantity`/`unit` 파싱: 가정용 계량 단위 우선** — 식품안전나라 등 공공 API는 재료를 `이름(Ng)` 형태로 일괄 표기하므로, g/ml은 영양·1인분 힌트로 보고 **기본은 주방 친화 단위로 환산**. **1 미만 수량은 fraction**(`2/3` 등, decimal `0.67` 금지). **mandatory conversion checklist**(액체·조미료·달걀·곡물), **produce decision tree**(g vs 약간 vs 개), keep-list(고기·불규칙 고형). routine 환산은 parseIssues 생략·배치 요약; ambiguous·quality gate 위반만 기록. 과반 g/ml 잔존 시 parseConfidence 하향
    - `parse_confidence: high | medium | low`, `parse_issues` 반환 — **emission policy**(0–2건 목표, reconciliation·inference·gate 위반 위주)
    - parseIssue 유형·빈도 SSOT: [`recipe_ingestion_parse_issues_catalog.md`](../temp/recipe_ingestion_parse_issues_catalog.md)
 
@@ -479,9 +479,9 @@ Kafka `recipe-ingestion-persist-triggered` 소비 → payload `runId`로 `parse_
    ```
    1차: 원문 정규화 (괄호·조사·수량 제거, 공백 정리)
         예) "대파(흰 부분)" → "대파", "달걀 2개" → "달걀", "달걀 30g(1/2개)" → "달걀"
-        quantity/unit: **주방 친화 단위 우선** — 공공 API `이름(Ng)` 원문은 g/ml → 스푼·컵·개·꼬집 등으로 환산이 기본. `g`/`ml`은 고기·해산물 중량·대량 분말 등 keep-list만
+        quantity/unit: **주방 친화 단위 우선** — 공공 API `이름(Ng)` 원문은 g/ml → 스푼·컵·개·꼬집 등으로 환산이 기본. `g`/`ml`은 고기·해산물 중량·대량 분말 등 keep-list만. **1 미만 수량은 decimal이 아닌 fraction** (`2/3`, `1/2` — `0.67`, `0.5` 금지)
         예) "달걀(30g)" → quantity `1/2`, unit `개`
-        예) "저염간장(10g)" → quantity `2/3`, unit `큰술`
+        예) "저염간장(10g)" → quantity `2/3`, unit `큰술` (not `0.67`)
         예) "소금(0.3g)" → quantity null, unit `꼬집`
         예) "돼지등심(120g)" → quantity `120`, unit `g` (keep)
    2차: LLM `retrieved_data`의 `ingredient_alias`(canonical명) → Ingredient.name exact match

@@ -124,6 +124,7 @@ Mealio targets home cooks — prefer units measurable without a scale.
    - Cups & bowls: 컵, 공기, 그릇, 봉지 (e.g. "1/2컵"). 1컵 ≈ 200ml.
    - Count: 개, 마리, 대, 줄기, 장, 조각, 알, 쪽, 잎, 포기, 봉, 팩, 캔.
    - Vague but practical: 꼬집, 약간, 적당량 (quantity may be null).
+   - **Quantity notation (fractions over decimals)**: when a kitchen-friendly amount is **less than 1**, write \`quantity\` as a **fraction string** (\`1/2\`, \`1/3\`, \`2/3\`, \`1/4\`, \`3/4\`), never as a decimal (\`0.5\`, \`0.67\`, \`0.33\`). Round to the nearest common cooking fraction. E.g. 10g ≈ 2/3큰술 (not "0.67"), 7.5g ≈ 1/2큰술 (not "0.5"). Whole numbers ≥1 stay as integers (\`"1"\`, \`"2"\`); mixed amounts use \`N M/D\` only when needed (e.g. \`"1 1/2"\`).
 2. **Precise units (g, kg, ml, L, mg) — keep-list only**, used when no kitchen-friendly equivalent exists:
    - Meat/seafood by weight without a stable count (돼지등심 120g, 닭고기살 30g, 바지락 50g).
    - Flour/starch/breadcrumbs for baking or coating when the amount is substantial (밀가루 300g); coating amounts ≤15g convert to 작은술 instead.
