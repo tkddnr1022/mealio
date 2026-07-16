@@ -171,7 +171,7 @@
 | 이벤트 타입 | `ChatbotStreamEvent`: `type: 'chunk' \| 'done' \| 'error' \| 'tool_call'` (@mealio/shared `types/events`). `done.data`에는 `conversationId`, `isCreditDepleted`(크레딧 소진 여부), 선택 `suggestedRecipes`가 포함된다. |
 | Kafka 토픽 | CHATBOT_REQUESTS (@mealio/shared `KAFKA_TOPICS`) |
 
-챗봇 6단계 흐름·설계 원칙은 `../guidelines/backend_development_guidelines.md` §5에 정의되어 있다.
+챗봇 E2E·Function Calling·SSE·체이닝·크레딧 절차는 `../guidelines/chatbot_guidelines.md`에 정의되어 있다.
 
 ## 1.3 OAuth (백엔드 주도) 명세
 

@@ -39,7 +39,7 @@
 | server/consumer/src/consumers/chatbot-request/handlers/ProcessChatHandler.ts | OpenAI Responses API 스트리밍·Function Calling(`function_call`/`function_call_output`), `previous_response_id` 체이닝, Redis ChatbotStreamEvent 발행. 턴 종료 시 `lastResponseId` 저장. 성공 종료 직전 `ChatbotCreditService.debitForCompletedChatbotTurn`으로 멱등 크레딧 차감 후 `done`에 `isCreditDepleted` 포함 |
 | server/consumer/src/consumers/chatbot-request/services/chatbot-credit.service.ts | 챗봇 턴 완료 시 Prisma 트랜잭션으로 `chatbot_credit_deductions`(streamChannelId PK) 멱등 삽입·`User.creditBalance` 차감·차감 크레딧 기록. `@mealio/shared`의 `computeChatbotCreditCost` 사용. 신규 차감 시 `cache-invalidation`(USER_PROFILE) 토픽 발행 |
 | server/consumer/src/consumers/chatbot-request/handlers/InventoryHandler.ts | get_user_inventory — Inventory 조회(`ingredients.owned`, `ingredients.favorite`, `recipes.favorite`), Ingredient id→name(Redis 캐시) 반환 |
-| server/consumer/src/consumers/chatbot-request/handlers/SearchRecipesHandler.ts | search_recipes — semantic-first 후보 수집(pgvector ANN + Query Expansion) 후 hard/soft 제약 기반 재랭킹. 상세 §2.7 |
+| server/consumer/src/consumers/chatbot-request/handlers/SearchRecipesHandler.ts | search_recipes — semantic-first 후보 수집(pgvector ANN + Query Expansion) 후 hard/soft 제약 기반 재랭킹. 상세 `../guidelines/chatbot_guidelines.md` §5 |
 | server/consumer/src/consumers/chatbot-request/handlers/FinalizeRecipeSelectionHandler.ts | finalize_recipe_selection — 챗봇 추천 레시피 최종 선택·확정 처리 |
 | server/consumer/src/consumers/chatbot-request/handlers/FoodCategoriesHandler.ts | get_food_categories — 레시피·재료 카테고리 마스터 조회(Redis 캐시 1시간) |
 | server/consumer/src/consumers/chatbot-request/handlers/SaveChatLogHandler.ts | 스트림 종료 후 ChatbotLog 저장 |
@@ -50,7 +50,7 @@
 | server/consumer/src/persistence/repositories/mongodb/chatbot-conversation.repository.ts | ChatbotConversation 메타 (`createWithTitle`, `touchUpdatedAt`, Responses 체이닝용 `getLastResponseId`/`saveLastResponseId`) |
 | server/consumer/src/consumers/chatbot-request/tools/chatbot-tools.definition.ts | Responses API 평탄 tools 배열 (`type`/`name`/`parameters`/`strict`) |
 | server/consumer/src/consumers/chatbot-request/tools/tool-dispatcher.ts | function name → Handler 매핑·실행 |
-| server/consumer/src/consumers/chatbot-request/context/conversation.manager.ts | `CHATBOT_SYSTEM_INSTRUCTIONS` — Responses top-level `instructions`용 시스템 프롬프트. 상세 §2.3 |
+| server/consumer/src/consumers/chatbot-request/context/conversation.manager.ts | `CHATBOT_SYSTEM_INSTRUCTIONS` — Responses top-level `instructions`용 시스템 프롬프트. 상세 `../guidelines/chatbot_guidelines.md` §7 |
 | **server/consumer/src/consumers/user-events/** | 토픽 §2.2 user-events |
 | server/consumer/src/consumers/user-events/user-events.processor.ts | 해당 토픽 processor |
 | server/consumer/src/consumers/user-events/user-events.module.ts | 그룹 모듈 정의 (CacheInvalidationModule import) |
@@ -229,11 +229,13 @@
 
 - **conversation.manager**: `consumers/chatbot-request/context/conversation.manager.ts` — `CHATBOT_SYSTEM_INSTRUCTIONS`를 export. ProcessChatHandler가 매 Responses 요청의 top-level `instructions`로 재전송한다.
 - **ProcessChatHandler**: `ChatbotConversation.lastResponseId`를 읽어 `previous_response_id`로 전달하고, 턴의 최종 `response.id`를 `saveLastResponseId`로 저장한다. tool round는 `function_call_output` input + 직전 round `response.id`로 체이닝한다.
-- 연속 대화·저장 기간·오류 전파 규칙은 `../guidelines/backend_development_guidelines.md` §5.4에 정의되어 있다.
+- 연속 대화·저장 기간·오류 전파 규칙은 `../guidelines/chatbot_guidelines.md` §7에 정의되어 있다.
 
 ---
 
 ## 2.4 챗봇 크레딧 멱등 차감 및 스트림 `done` 계약
+
+절차·멱등·`done.isCreditDepleted` 계약 SSOT는 `../guidelines/chatbot_guidelines.md` §8에 정의되어 있다.
 
 - **모델·정책**: `@mealio/shared` Prisma `User.creditBalance` / `User.creditMonthlyLimit`, `ChatbotCreditDeduction`(테이블 `chatbot_credit_deductions`, PK `stream_channel_id`). 비용 계산·기본값은 `server/shared/src/policy/user-credits.policy.ts`(`computeChatbotCreditCost`, `DEFAULT_USER_CREDIT_*` 등).
 - **ChatbotCreditService** (`consumers/chatbot-request/services/chatbot-credit.service.ts`): 동일 `streamChannelId`에 대해 `createMany` + `skipDuplicates`로 멱등 슬롯 확보 후, `usage.totalTokens` 기반 비용만큼 `creditBalance`를 감소(잔액 상한 클램프). 재처리 시 이중 차감 없음. 신규 차감이 발생한 경우에만 `KafkaProducerService`로 **cache-invalidation** 토픽(USER_PROFILE)을 발행해 Producer 캐시와 정합을 맞춘다.
@@ -308,4 +310,4 @@
 
 ---
 
-Function Calling 기반 챗봇 흐름·설계 원칙은 `../guidelines/backend_development_guidelines.md` §5에 정의되어 있다.
+Function Calling 기반 챗봇 흐름·설계 원칙은 `../guidelines/chatbot_guidelines.md`에 정의되어 있다.

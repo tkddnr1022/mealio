@@ -120,7 +120,7 @@ CI 프리렌더 soft-fallback 한계: 백엔드 미연결 상태로 배포되면
 → Consumer → OpenAI API → Redis → SSE → 클라이언트
 ```
 
-클라이언트는 `EventSource` 또는 fetch + ReadableStream으로 SSE를 구독하고, `ChatbotStreamEvent` 타입(`intent` | `chunk` | `done` | `error`)에 따라 UI를 갱신한다. Redis 채널·이벤트 타입·6단계 흐름은 `../../backend/spec/backend_architecture_spec.md`(§1.2) 및 `../../backend/guidelines/backend_development_guidelines.md` §5에 정의되어 있다.
+클라이언트는 `EventSource` 또는 fetch + ReadableStream으로 SSE를 구독하고, `ChatbotStreamEvent` 타입(`intent` | `chunk` | `done` | `error`)에 따라 UI를 갱신한다. Redis 채널·이벤트 타입·E2E 흐름은 `../../backend/spec/backend_architecture_spec_producer.md` §1.2 및 `../../backend/guidelines/chatbot_guidelines.md`에 정의되어 있다.
 
 ### 2.3 레시피 목록 (점진적 로딩)
 

@@ -360,6 +360,7 @@
 
 * 사용자-LLM 대화 메시지 단위 로그
 * 역할(role), 메시지, 컨텍스트, LLM 메타(토큰·모델), 지연·성공·에러 포함
+* 상세 절차·체이닝·SSE: `agent/backend/guidelines/chatbot_guidelines.md`
 
 **LLM 활용 포인트**
 
