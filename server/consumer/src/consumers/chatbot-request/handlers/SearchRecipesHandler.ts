@@ -326,15 +326,20 @@ export class SearchRecipesHandler {
       dishType: r.dishType,
       nutritionSummary: r.nutritionSummary,
       topInstructionSnippet: r.topInstructionSnippet,
-      semanticScore: r.semanticScore,
-      keywordScore: r.keywordScore,
-      inventoryMatchScore: r.inventoryMatchScore,
-      userPreferenceScore: r.userPreferenceScore,
-      softConstraintScore: r.softConstraintScore,
-      finalScore: r.finalScore,
+      semanticScore: this.roundScore(r.semanticScore),
+      keywordScore: this.roundScore(r.keywordScore),
+      inventoryMatchScore: this.roundScore(r.inventoryMatchScore),
+      userPreferenceScore: this.roundScore(r.userPreferenceScore),
+      softConstraintScore: this.roundScore(r.softConstraintScore),
+      finalScore: this.roundScore(r.finalScore),
       missingIngredients: r.missingIngredients,
       reasonSignals: r.reasonSignals,
     }));
+  }
+
+  /** 결과 출력용 score를 소수점 4자리로 제한한다. */
+  private roundScore(score: number): number {
+    return Number(score.toFixed(4));
   }
 
   private buildKeywords(
