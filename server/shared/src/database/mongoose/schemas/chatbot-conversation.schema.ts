@@ -23,6 +23,10 @@ export class ChatbotConversation extends Document {
   })
   titleSource?: string;
 
+  /** OpenAI Responses API 체이닝용 마지막 response.id */
+  @Prop({ type: String })
+  lastResponseId?: string;
+
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -30,27 +30,18 @@ export class RecipeSearchQueryExpansionService {
     }
 
     try {
-      const completion = await this.openaiService.createChatCompletion(
-        [
-          {
-            role: 'system',
-            content: [
-              'You expand recipe search queries for semantic retrieval.',
-              'Return JSON: {"queries":["..."]}.',
-              `Provide up to ${RECIPE_SEARCH_QUERY_EXPANSION_MAX} alternative queries.`,
-              'Preserve must-have and avoid ingredient intent from the original query.',
-              'Do not include avoid ingredients in expanded queries.',
-              'Use Korean when the original query is Korean.',
-            ].join(' '),
-          },
-          {
-            role: 'user',
-            content: this.buildExpansionPrompt(input),
-          },
-        ],
+      const completion = await this.openaiService.createResponse(
+        [{ role: 'user', content: this.buildExpansionPrompt(input) }],
         {
-          temperature: 0.3,
-          maxTokens: 300,
+          instructions: [
+            'You expand recipe search queries for semantic retrieval.',
+            'Return JSON: {"queries":["..."]}.',
+            `Provide up to ${RECIPE_SEARCH_QUERY_EXPANSION_MAX} alternative queries.`,
+            'Preserve must-have and avoid ingredient intent from the original query.',
+            'Do not include avoid ingredients in expanded queries.',
+            'Use Korean when the original query is Korean.',
+          ].join(' '),
+          maxOutputTokens: 300,
           responseFormat: { type: 'json_object' },
         },
       );
@@ -90,6 +81,8 @@ export class RecipeSearchQueryExpansionService {
     if (avoid.length > 0) {
       sections.push(`avoid_ingredients: ${avoid.join(', ')}`);
     }
+
+    sections.push('Respond in json: {"queries":["..."]}.');
 
     return sections.join('\n');
   }

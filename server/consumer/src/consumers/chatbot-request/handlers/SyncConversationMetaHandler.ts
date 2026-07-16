@@ -77,21 +77,15 @@ export class SyncConversationMetaHandler {
   }
 
   private async generateTitle(question: string): Promise<string | null> {
-    const { content } = await this.openai.createChatCompletion(
-      [
-        {
-          role: 'system',
-          content:
-            '너는 요리·식재료 도우미 대화의 제목을 짓는 역할이다. 아래 텍스트는 사용자의 질문·요청이다. ' +
-            '이 내용을 바탕으로 대화 주제를 한국어 한 줄 제목으로 요약한다. 출력은 제목만. ' +
-            '따옴표·줄바꿈·이모지 없이 60자 이내로 짧게. 설명이나 접두사 금지.',
-        },
-        {
-          role: 'user',
-          content: question,
-        },
-      ],
-      { temperature: 0.3, maxTokens: 80 },
+    const { content } = await this.openai.createResponse(
+      [{ role: 'user', content: question }],
+      {
+        instructions:
+          '너는 요리·식재료 도우미 대화의 제목을 짓는 역할이다. 아래 텍스트는 사용자의 질문·요청이다. ' +
+          '이 내용을 바탕으로 대화 주제를 한국어 한 줄 제목으로 요약한다. 출력은 제목만. ' +
+          '따옴표·줄바꿈·이모지 없이 60자 이내로 짧게. 설명이나 접두사 금지.',
+        maxOutputTokens: 80,
+      },
     );
 
     const title =

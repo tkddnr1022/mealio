@@ -14,7 +14,6 @@ import { KafkaModule } from 'src/integrations/kafka/kafka.module';
 import { OpenAIModule } from 'src/integrations/openai/openai.module';
 import { RetryStrategy } from '../base/retry.strategy';
 import { DeadLetterHandler } from 'src/reliability/dead-letter/dlq.handler';
-import { ChatbotLogRepository } from 'src/persistence/repositories/mongodb/chatbot-log.repository';
 import { EventLogRepository } from 'src/persistence/repositories/mongodb/event-log.repository';
 import { ChatbotRequestProcessor } from './chatbot-request.processor';
 import { ChatbotRequestConsumer } from './chatbot-request.consumer';
@@ -52,7 +51,6 @@ import { FinalizeRecipeSelectionHandler } from './handlers/FinalizeRecipeSelecti
   providers: [
     RetryStrategy,
     DeadLetterHandler,
-    ChatbotLogRepository,
     EventLogRepository,
     SearchRecipesHandler,
     FoodCategoriesHandler,

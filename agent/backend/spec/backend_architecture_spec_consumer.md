@@ -36,7 +36,7 @@
 | server/consumer/src/consumers/chatbot-request/chatbot-request.processor.ts | 해당 토픽 processor |
 | server/consumer/src/consumers/chatbot-request/chatbot-request.module.ts | 그룹 모듈 정의 |
 | server/consumer/src/consumers/chatbot-request/chatbot-request.consumer.ts | 해당 토픽 구독. 토픽 §2.2 |
-| server/consumer/src/consumers/chatbot-request/handlers/ProcessChatHandler.ts | GPT Function Calling·스트리밍, tool_calls 디스패치, Redis ChatbotStreamEvent 발행. 턴 성공 종료 직전 `ChatbotCreditService.debitForCompletedChatbotTurn`으로 멱등 크레딧 차감 후 `done` 이벤트에 `isCreditDepleted` 포함 |
+| server/consumer/src/consumers/chatbot-request/handlers/ProcessChatHandler.ts | OpenAI Responses API 스트리밍·Function Calling(`function_call`/`function_call_output`), `previous_response_id` 체이닝, Redis ChatbotStreamEvent 발행. 턴 종료 시 `lastResponseId` 저장. 성공 종료 직전 `ChatbotCreditService.debitForCompletedChatbotTurn`으로 멱등 크레딧 차감 후 `done`에 `isCreditDepleted` 포함 |
 | server/consumer/src/consumers/chatbot-request/services/chatbot-credit.service.ts | 챗봇 턴 완료 시 Prisma 트랜잭션으로 `chatbot_credit_deductions`(streamChannelId PK) 멱등 삽입·`User.creditBalance` 차감·차감 크레딧 기록. `@mealio/shared`의 `computeChatbotCreditCost` 사용. 신규 차감 시 `cache-invalidation`(USER_PROFILE) 토픽 발행 |
 | server/consumer/src/consumers/chatbot-request/handlers/InventoryHandler.ts | get_user_inventory — Inventory 조회(`ingredients.owned`, `ingredients.favorite`, `recipes.favorite`), Ingredient id→name(Redis 캐시) 반환 |
 | server/consumer/src/consumers/chatbot-request/handlers/SearchRecipesHandler.ts | search_recipes — semantic-first 후보 수집(pgvector ANN + Query Expansion) 후 hard/soft 제약 기반 재랭킹. 상세 §2.7 |
@@ -47,10 +47,10 @@
 | server/consumer/src/consumers/chatbot-request/services/recipe-search-query.service.ts | search_recipes 핸들러용 Prisma 조회 — ANN 후보 `recipeId` 목록에 hard constraint(`isPublished`, 기피 재료) 적용 후 상세 fetch |
 | server/consumer/src/consumers/chatbot-request/services/recipe-search-query-expansion.service.ts | search_recipes Query Expansion — 원질의 보존 + LLM 확장 질의 생성(실패 시 원질의 fallback) |
 | server/consumer/src/consumers/chatbot-request/services/ingredient-semantic-resolver.service.ts | search_recipes 재료명 → Ingredient ID 해상 — exact name → `IngredientEmbedding` ANN(`INGREDIENT_VECTOR_MATCH_THRESHOLD`) |
-| server/consumer/src/persistence/repositories/mongodb/chatbot-conversation.repository.ts | ChatbotConversation 메타 (`createWithTitle` 생성·제목 없는 스텁 보정, `chatbot.message` 시 `touchUpdatedAt`) |
-| server/consumer/src/consumers/chatbot-request/tools/chatbot-tools.definition.ts | OpenAI tools 배열 (search_recipes, get_user_inventory 등) |
+| server/consumer/src/persistence/repositories/mongodb/chatbot-conversation.repository.ts | ChatbotConversation 메타 (`createWithTitle`, `touchUpdatedAt`, Responses 체이닝용 `getLastResponseId`/`saveLastResponseId`) |
+| server/consumer/src/consumers/chatbot-request/tools/chatbot-tools.definition.ts | Responses API 평탄 tools 배열 (`type`/`name`/`parameters`/`strict`) |
 | server/consumer/src/consumers/chatbot-request/tools/tool-dispatcher.ts | function name → Handler 매핑·실행 |
-| server/consumer/src/consumers/chatbot-request/context/conversation.manager.ts | 대화 히스토리 — buildMessagesForGpt, PreviousTurn, 시스템 프롬프트. 상세 §2.3 |
+| server/consumer/src/consumers/chatbot-request/context/conversation.manager.ts | `CHATBOT_SYSTEM_INSTRUCTIONS` — Responses top-level `instructions`용 시스템 프롬프트. 상세 §2.3 |
 | **server/consumer/src/consumers/user-events/** | 토픽 §2.2 user-events |
 | server/consumer/src/consumers/user-events/user-events.processor.ts | 해당 토픽 processor |
 | server/consumer/src/consumers/user-events/user-events.module.ts | 그룹 모듈 정의 (CacheInvalidationModule import) |
@@ -78,7 +78,7 @@
 | server/consumer/src/integrations/kafka/kafka-producer.service.ts | Consumer 내부 토픽 발행 (connect/disconnect, emit). 토픽 §2.2 |
 | **server/consumer/src/integrations/openai/** | |
 | server/consumer/src/integrations/openai/openai.module.ts | OpenAI 통합 모듈 |
-| server/consumer/src/integrations/openai/openai.service.ts | GPT API 래퍼 |
+| server/consumer/src/integrations/openai/openai.service.ts | OpenAI Responses API 래퍼 (`createResponse`/`createResponseStream`, usage `input_tokens`→`promptTokens` 매핑) |
 | server/consumer/src/integrations/openai/response-parser.ts | JSON 파싱·검증 |
 | server/consumer/src/integrations/openai/rate-limiter.ts | API 호출 제한 |
 | server/consumer/src/integrations/openai/openai-batch.service.ts | OpenAI Batch API 래퍼 (recipe ingestion submit/retrieve) |
@@ -111,7 +111,6 @@
 | server/consumer/src/persistence/repositories/postgresql/ingredient-category.repository.ts | IngredientCategory 조회·persist 시 proposed category upsert |
 | **server/consumer/src/persistence/repositories/mongodb/** | |
 | server/consumer/src/persistence/repositories/mongodb/event-log.repository.ts | EventLog 저장 (Mongoose) |
-| server/consumer/src/persistence/repositories/mongodb/chatbot-log.repository.ts | ChatbotLog 저장 (Mongoose) |
 | server/consumer/src/persistence/repositories/mongodb/inventory.repository.ts | Inventory 저장 (Mongoose) |
 | server/consumer/src/persistence/repositories/mongodb/recipe-ingestion-job.repository.ts | Recipe ingestion job CRUD·상태 전환 (Mongoose) |
 | server/consumer/src/persistence/repositories/mongodb/recipe-ingestion-state.repository.ts | Recipe ingestion API 커서 singleton (Mongoose) |
@@ -211,7 +210,7 @@
 
 | 토픽 (메인) | DLQ 토픽 | Consumer 그룹 | 발행 주체 | 용도·페이로드 개요 |
 |-------------|-----------|----------------|-----------|---------------------|
-| **chatbot-requests** | chatbot-requests-dlq | chatbot-group | Producer (POST /api/v1/chatbot/messages 등) | 챗봇 메시지 요청. payload: userId, message, conversationId?, streamChannelId. Consumer: ProcessChatHandler(GPT·tool call), SaveChatLogHandler(ChatbotLog 저장), `chatbot.start`·`chatbot.message` 성공 후 SyncConversationMetaHandler(대화 메타 동기화), Redis 스트림 이벤트 발행. 성공 턴 완료 시 ChatbotCreditService로 멱등 크레딧 차감·`done.data.isCreditDepleted` 반영, 차감 시 내부적으로 **cache-invalidation**(USER_PROFILE) 발행. |
+| **chatbot-requests** | chatbot-requests-dlq | chatbot-group | Producer (POST /api/v1/chatbot/messages 등) | 챗봇 메시지 요청. payload: userId, message, conversationId?, streamChannelId. Consumer: ProcessChatHandler(Responses API·`previous_response_id` 체이닝·function_call), SaveChatLogHandler(ChatbotLog 저장), `chatbot.start`·`chatbot.message` 성공 후 SyncConversationMetaHandler(대화 메타 동기화), Redis 스트림 이벤트 발행. 성공 턴 완료 시 ChatbotCreditService로 멱등 크레딧 차감·`done.data.isCreditDepleted` 반영, 차감 시 내부적으로 **cache-invalidation**(USER_PROFILE) 발행. |
 | **activity-events** | activity-events-dlq | activity-events-group | Producer (레시피 조회수 기록 API/공유, `POST /api/v1/recipes/search-queries`·search-clicks 등) | 비로그인 포함 활동 이벤트. payload: type(`recipe.view` \| `recipe.share` \| `search.query` \| `search.click`), actor(type, userId?, ipAddress?, userAgent?), entity?, payload?, metadata?. Consumer: EventLog 저장, `recipe.view` 시 viewCount 증가, `ActivityRecommendationService`로 추천 보정. `recipe.view`는 `POST /api/v1/recipes/:recipeId/views`에서 발행되며, Producer에서 dedupe key를 `user:{id}` 우선/비로그인 `ip:{ip}`(`unknown-ip` fallback) 기준으로 제어한다. `search.query`는 `POST /api/v1/recipes/search-queries`에서 발행한다. |
 | **user-events** | user-events-dlq | analytics-group | Producer (닉네임 변경, 재료 CRUD, 관심 레시피 추가/삭제 등) | 로그인 유저 도메인 이벤트. payload: UserEvent \| InventoryEvent. Consumer: UpdateUserProfileHandler, UpdateInventoryHandler, TrackUserActivityHandler(EventLog), RecommendationHandler, 캐시 무효화 요청(CacheInvalidationRequestService). |
 | **cache-invalidation** | cache-invalidation-dlq | cache-invalidation-group | Consumer 내부 (CacheInvalidationRequestService) | 캐시 무효화 지시. payload: type(USER_PROFILE \| INVENTORY \| RECIPE \| RECOMMENDATION), userId 또는 recipeIds[]. Handler가 직접 발행하지 않고 RequestService가 발행. Consumer: RedisInvalidationHandler로 Redis 키/패턴 삭제. |
@@ -226,11 +225,11 @@
 
 ---
 
-## 2.3 챗봇 모듈: 대화 히스토리 컨텍스트 처리
+## 2.3 챗봇 모듈: Responses `previous_response_id` 체이닝
 
-- **conversation.manager**: `consumers/chatbot-request/context/conversation.manager.ts` — `buildMessagesForGpt(previousTurns, newUserMessage)`로 GPT용 메시지 배열 생성(시스템 프롬프트 + 이전 턴 + 새 사용자 메시지).
-- **ProcessChatHandler**: `consumers/chatbot-request/handlers/ProcessChatHandler.ts` — GPT 호출 전 위 함수를 호출해 `messages`를 얻어 OpenAI API에 전달. 이전 턴은 ChatbotLog에서 `conversationId`(context.conversationId) 기준으로 조회해 공급할 수 있음(확장 시).
-- 대화 히스토리 규칙·저장소·조회 설계·토큰 제한은 `../guidelines/backend_development_guidelines.md` §5.4에 정의되어 있다.
+- **conversation.manager**: `consumers/chatbot-request/context/conversation.manager.ts` — `CHATBOT_SYSTEM_INSTRUCTIONS`를 export. ProcessChatHandler가 매 Responses 요청의 top-level `instructions`로 재전송한다.
+- **ProcessChatHandler**: `ChatbotConversation.lastResponseId`를 읽어 `previous_response_id`로 전달하고, 턴의 최종 `response.id`를 `saveLastResponseId`로 저장한다. tool round는 `function_call_output` input + 직전 round `response.id`로 체이닝한다.
+- 연속 대화·저장 기간·오류 전파 규칙은 `../guidelines/backend_development_guidelines.md` §5.4에 정의되어 있다.
 
 ---
 

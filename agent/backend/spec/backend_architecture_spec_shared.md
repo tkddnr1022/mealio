@@ -35,7 +35,7 @@
 | server/shared/src/kafka/create-topics.ts | Kafka 메인·DLQ 토픽 배포 전 생성 CLI (`pnpm run db:kafka:create-topics:production`) |
 | server/shared/src/database/mongoose/schemas/index.ts | Mongoose 스키마 배럴 export |
 | server/shared/src/database/mongoose/schemas/chatbot-log.schema.ts | ChatbotLog 스키마 |
-| server/shared/src/database/mongoose/schemas/chatbot-conversation.schema.ts | ChatbotConversation 스키마 |
+| server/shared/src/database/mongoose/schemas/chatbot-conversation.schema.ts | ChatbotConversation 스키마 (`title`·`titleSource`·Responses 체이닝용 `lastResponseId`) |
 | server/shared/src/database/mongoose/schemas/event-log.schema.ts | EventLog 스키마 |
 | server/shared/src/database/mongoose/schemas/inventory.schema.ts | Inventory 스키마 (`ingredients.ownedIds`, `ingredients.favoriteIds`, `recipes.favoriteIds` 포함) |
 | server/shared/src/database/mongoose/schemas/kpi-rollup.schema.ts | KPI 롤업 집계 문서 스키마 |

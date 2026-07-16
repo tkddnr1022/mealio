@@ -1,7 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
+import type {
+  ResponseInput,
+  ResponseStreamEvent,
+} from 'openai/resources/responses/responses';
 import type { Stream } from 'openai/streaming';
-import type { ChatCompletionChunk } from 'openai/resources/chat/completions';
 import {
   RedisService,
   getChatbotStreamChannel,
@@ -11,13 +13,10 @@ import {
   type ChatbotStreamToolCallEvent,
 } from '@mealio/shared';
 import { OpenAIService } from 'src/integrations/openai/openai.service';
-import {
-  ChatbotLogRepository,
-  DEFAULT_RECENT_TURNS_LIMIT,
-} from 'src/persistence/repositories/mongodb/chatbot-log.repository';
+import { ChatbotConversationRepository } from 'src/persistence/repositories/mongodb/chatbot-conversation.repository';
 import { ToolDispatcher, type ToolContext } from '../tools/tool-dispatcher';
 import { CHATBOT_TOOLS } from '../tools/chatbot-tools.definition';
-import { buildMessagesForGpt } from '../context/conversation.manager';
+import { CHATBOT_SYSTEM_INSTRUCTIONS } from '../context/conversation.manager';
 import type { SearchedRecipe } from './SearchRecipesHandler';
 import { ChatbotCreditService } from '../services/chatbot-credit.service';
 
@@ -35,6 +34,12 @@ interface RetrievalMeta {
   topScores: number[];
 }
 
+interface StreamToolCall {
+  callId: string;
+  name: string;
+  arguments: string;
+}
+
 @Injectable()
 export class ProcessChatHandler {
   private readonly logger = new Logger(ProcessChatHandler.name);
@@ -43,7 +48,7 @@ export class ProcessChatHandler {
     private readonly openai: OpenAIService,
     private readonly redis: RedisService,
     private readonly toolDispatcher: ToolDispatcher,
-    private readonly chatbotLogRepository: ChatbotLogRepository,
+    private readonly chatbotConversationRepository: ChatbotConversationRepository,
     private readonly chatbotCreditService: ChatbotCreditService,
   ) {}
 
@@ -106,22 +111,22 @@ export class ProcessChatHandler {
       userId: payload.userId,
     };
 
-    const previousTurns = await this.chatbotLogRepository.findRecentTurns(
-      payload.userId,
-      { conversationId: payload.conversationId },
-      DEFAULT_RECENT_TURNS_LIMIT,
-    );
+    let previousResponseId =
+      await this.chatbotConversationRepository.getLastResponseId(
+        payload.userId,
+        conversationId,
+      );
 
-    const messages: ChatCompletionMessageParam[] = buildMessagesForGpt(
-      previousTurns,
-      payload.message,
-    );
+    let roundInput: string | ResponseInput = [
+      { role: 'user', content: payload.message },
+    ];
     let fullContent = '';
     let usage:
       | { promptTokens: number; completionTokens: number; totalTokens: number }
       | undefined;
     let model: string | undefined;
     let retrievalMeta: RetrievalMeta | undefined;
+    let finalResponseId: string | undefined;
 
     const publishDoneWithCredits = async () => {
       let isCreditDepleted = false;
@@ -160,16 +165,17 @@ export class ProcessChatHandler {
 
     const maxToolRounds = 5;
     for (let round = 0; round < maxToolRounds; round++) {
-      const stream = await this.openai.createChatCompletionStream(messages, {
+      const stream = await this.openai.createResponseStream(roundInput, {
+        instructions: CHATBOT_SYSTEM_INSTRUCTIONS,
         tools: CHATBOT_TOOLS,
+        previousResponseId,
       });
 
       const {
-        content: roundContent,
         toolCalls,
-        finishReason,
         usage: roundUsage,
         model: roundModel,
+        responseId,
       } = await this.consumeStream(stream, (chunk) => {
         if (chunk.content) {
           fullContent += chunk.content;
@@ -207,18 +213,13 @@ export class ProcessChatHandler {
       if (roundModel && !model) {
         model = roundModel;
       }
+      if (responseId) {
+        previousResponseId = responseId;
+        finalResponseId = responseId;
+      }
 
-      if (finishReason === 'tool_calls' && toolCalls?.length) {
-        const assistantMessage: ChatCompletionMessageParam = {
-          role: 'assistant',
-          content: roundContent ?? null,
-          tool_calls: toolCalls.map((tc) => ({
-            id: tc.id,
-            type: 'function' as const,
-            function: { name: tc.name, arguments: tc.arguments },
-          })),
-        };
-        messages.push(assistantMessage);
+      if (toolCalls?.length) {
+        const functionCallOutputs: ResponseInput = [];
 
         for (const tc of toolCalls) {
           publish({
@@ -241,10 +242,10 @@ export class ProcessChatHandler {
             args,
             toolContext,
           );
-          messages.push({
-            role: 'tool',
-            tool_call_id: tc.id,
-            content: result,
+          functionCallOutputs.push({
+            type: 'function_call_output',
+            call_id: tc.callId,
+            output: result,
           });
           const candidates = toolContext.candidateRecipes ?? [];
           const selected = toolContext.selectedRecipes ?? [];
@@ -257,7 +258,16 @@ export class ProcessChatHandler {
               .slice(0, 5),
           };
         }
+
+        roundInput = functionCallOutputs;
       } else {
+        if (finalResponseId) {
+          await this.chatbotConversationRepository.saveLastResponseId(
+            payload.userId,
+            conversationId,
+            finalResponseId,
+          );
+        }
         const suggestedRecipes = this.resolveSuggestedRecipes(toolContext);
         const finalRetrieval = this.buildFinalRetrievalMeta(
           retrievalMeta,
@@ -275,6 +285,13 @@ export class ProcessChatHandler {
       }
     }
 
+    if (finalResponseId) {
+      await this.chatbotConversationRepository.saveLastResponseId(
+        payload.userId,
+        conversationId,
+        finalResponseId,
+      );
+    }
     const suggestedRecipes = this.resolveSuggestedRecipes(toolContext);
     const finalRetrieval = this.buildFinalRetrievalMeta(
       retrievalMeta,
@@ -322,96 +339,127 @@ export class ProcessChatHandler {
   }
 
   private async consumeStream(
-    stream: Stream<ChatCompletionChunk>,
+    stream: Stream<ResponseStreamEvent>,
     onChunk: (chunk: {
       content?: string;
-      toolCalls?: Array<{ id: string; name: string; arguments: string }>;
-      finishReason?: string;
+      toolCalls?: StreamToolCall[];
     }) => void,
   ): Promise<{
     content: string;
-    toolCalls?: Array<{ id: string; name: string; arguments: string }>;
-    finishReason?: string;
+    toolCalls?: StreamToolCall[];
     usage?: {
       promptTokens: number;
       completionTokens: number;
       totalTokens: number;
     };
     model?: string;
+    responseId?: string;
   }> {
     let content = '';
-    const toolCallsBuffer = new Map<
+    const toolCallsByOutputIndex = new Map<
       number,
-      { id: string; name: string; args: string[] }
+      { callId: string; name: string; args: string[] }
     >();
-    let finishReason: string | undefined;
-    let returnToolCalls:
-      | Array<{ id: string; name: string; arguments: string }>
-      | undefined;
     let streamUsage:
       | { promptTokens: number; completionTokens: number; totalTokens: number }
       | undefined;
     let streamModel: string | undefined;
+    let responseId: string | undefined;
+    let completedToolCalls: StreamToolCall[] | undefined;
 
-    for await (const chunk of stream) {
-      if (chunk.model) {
-        streamModel = chunk.model;
-      }
-      if (chunk.usage && chunk.usage.prompt_tokens != null) {
-        streamUsage = {
-          promptTokens: chunk.usage.prompt_tokens,
-          completionTokens: chunk.usage.completion_tokens ?? 0,
-          totalTokens:
-            chunk.usage.total_tokens ??
-            chunk.usage.prompt_tokens + (chunk.usage.completion_tokens ?? 0),
-        };
-      }
-      const choice = chunk.choices[0];
-      if (!choice) continue;
-
-      const delta = choice.delta;
-      if (delta?.content && typeof delta.content === 'string') {
-        content += delta.content;
-        onChunk({ content: delta.content });
-      }
-      if (delta?.tool_calls?.length) {
-        for (const tc of delta.tool_calls) {
-          const index = tc.index ?? 0;
-          if (!toolCallsBuffer.has(index)) {
-            toolCallsBuffer.set(index, {
-              id: tc.id ?? '',
-              name: tc.function?.name ?? '',
-              args: tc.function?.arguments ? [tc.function.arguments] : [],
-            });
-          } else {
-            const buf = toolCallsBuffer.get(index)!;
-            if (tc.id) buf.id = tc.id;
-            if (tc.function?.name) buf.name = tc.function.name;
-            if (tc.function?.arguments) buf.args.push(tc.function.arguments);
-          }
+    for await (const event of stream) {
+      if (event.type === 'response.output_text.delta') {
+        if (typeof event.delta === 'string' && event.delta.length > 0) {
+          content += event.delta;
+          onChunk({ content: event.delta });
         }
+        continue;
       }
-      if (choice.finish_reason) {
-        finishReason = choice.finish_reason;
-        if (toolCallsBuffer.size > 0) {
-          returnToolCalls = Array.from(toolCallsBuffer.entries())
+
+      if (event.type === 'response.output_item.added') {
+        const item = event.item;
+        if (item.type === 'function_call') {
+          toolCallsByOutputIndex.set(event.output_index, {
+            callId: item.call_id,
+            name: item.name,
+            args: item.arguments ? [item.arguments] : [],
+          });
+          onChunk({
+            toolCalls: [
+              {
+                callId: item.call_id,
+                name: item.name,
+                arguments: item.arguments ?? '',
+              },
+            ],
+          });
+        }
+        continue;
+      }
+
+      if (event.type === 'response.function_call_arguments.delta') {
+        const buf = toolCallsByOutputIndex.get(event.output_index);
+        if (buf && typeof event.delta === 'string') {
+          buf.args.push(event.delta);
+        }
+        continue;
+      }
+
+      if (event.type === 'response.function_call_arguments.done') {
+        const buf = toolCallsByOutputIndex.get(event.output_index);
+        if (buf) {
+          buf.args = [event.arguments];
+        }
+        continue;
+      }
+
+      if (event.type === 'response.completed') {
+        responseId = event.response.id;
+        streamModel = event.response.model;
+        if (event.response.usage) {
+          streamUsage = {
+            promptTokens: event.response.usage.input_tokens,
+            completionTokens: event.response.usage.output_tokens,
+            totalTokens:
+              event.response.usage.total_tokens ??
+              event.response.usage.input_tokens +
+                event.response.usage.output_tokens,
+          };
+        }
+
+        const fromOutput = (event.response.output ?? [])
+          .filter(
+            (item): item is Extract<typeof item, { type: 'function_call' }> =>
+              item.type === 'function_call',
+          )
+          .map((item) => ({
+            callId: item.call_id,
+            name: item.name,
+            arguments: item.arguments ?? '',
+          }))
+          .filter((tc) => tc.name.length > 0);
+
+        if (fromOutput.length > 0) {
+          completedToolCalls = fromOutput;
+        } else if (toolCallsByOutputIndex.size > 0) {
+          completedToolCalls = Array.from(toolCallsByOutputIndex.entries())
             .sort(([a], [b]) => a - b)
             .map(([, b]) => ({
-              id: b.id,
+              callId: b.callId,
               name: b.name,
               arguments: b.args.join(''),
             }))
             .filter((t) => t.name.length > 0);
-          onChunk({ toolCalls: returnToolCalls, finishReason });
         }
       }
     }
+
     return {
       content,
-      toolCalls: returnToolCalls,
-      finishReason,
+      toolCalls: completedToolCalls,
       usage: streamUsage,
       model: streamModel,
+      responseId,
     };
   }
 }

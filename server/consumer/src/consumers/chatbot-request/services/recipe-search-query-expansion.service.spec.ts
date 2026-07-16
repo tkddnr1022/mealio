@@ -3,7 +3,7 @@ import { RecipeSearchQueryExpansionService } from './recipe-search-query-expansi
 describe('RecipeSearchQueryExpansionService', () => {
   it('LLM이 확장 질의를 반환하면 원질의와 함께 dedup된 목록을 반환한다', async () => {
     const openaiService = {
-      createChatCompletion: jest.fn().mockResolvedValue({
+      createResponse: jest.fn().mockResolvedValue({
         content: JSON.stringify({
           queries: ['고단백 닭가슴살 요리', '운동 후 단백질 식단'],
         }),
@@ -24,12 +24,12 @@ describe('RecipeSearchQueryExpansionService', () => {
       '고단백 닭가슴살 요리',
       '운동 후 단백질 식단',
     ]);
-    expect(openaiService.createChatCompletion).toHaveBeenCalled();
+    expect(openaiService.createResponse).toHaveBeenCalled();
   });
 
   it('LLM 호출 실패 시 원질의만 반환한다', async () => {
     const openaiService = {
-      createChatCompletion: jest.fn().mockRejectedValue(new Error('timeout')),
+      createResponse: jest.fn().mockRejectedValue(new Error('timeout')),
     };
     const service = new RecipeSearchQueryExpansionService(
       openaiService as never,
@@ -44,7 +44,7 @@ describe('RecipeSearchQueryExpansionService', () => {
 
   it('빈 base query는 빈 배열을 반환한다', async () => {
     const openaiService = {
-      createChatCompletion: jest.fn(),
+      createResponse: jest.fn(),
     };
     const service = new RecipeSearchQueryExpansionService(
       openaiService as never,
@@ -55,6 +55,6 @@ describe('RecipeSearchQueryExpansionService', () => {
     });
 
     expect(result).toEqual([]);
-    expect(openaiService.createChatCompletion).not.toHaveBeenCalled();
+    expect(openaiService.createResponse).not.toHaveBeenCalled();
   });
 });

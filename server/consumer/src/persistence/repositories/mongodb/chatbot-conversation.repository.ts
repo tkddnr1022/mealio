@@ -92,4 +92,48 @@ export class ChatbotConversationRepository {
       )
       .exec();
   }
+
+  async getLastResponseId(
+    userId: number,
+    conversationId: string,
+  ): Promise<string | undefined> {
+    if (!conversationId || conversationId === 'unknown') {
+      return undefined;
+    }
+    const doc = await this.model
+      .findOne({ userId, conversationId })
+      .select('lastResponseId')
+      .lean()
+      .exec();
+    const id = doc?.lastResponseId;
+    return typeof id === 'string' && id.length > 0 ? id : undefined;
+  }
+
+  /**
+   * Responses API 체이닝용 lastResponseId 저장(메타 행이 없으면 생성).
+   */
+  async saveLastResponseId(
+    userId: number,
+    conversationId: string,
+    responseId: string,
+  ): Promise<void> {
+    if (!conversationId || conversationId === 'unknown' || !responseId) {
+      return;
+    }
+    const now = new Date();
+    await this.model
+      .updateOne(
+        { userId, conversationId },
+        {
+          $set: { lastResponseId: responseId, updatedAt: now },
+          $setOnInsert: {
+            userId,
+            conversationId,
+            createdAt: now,
+          },
+        },
+        { upsert: true },
+      )
+      .exec();
+  }
 }

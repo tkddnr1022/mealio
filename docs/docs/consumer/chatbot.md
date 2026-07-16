@@ -24,11 +24,11 @@ flowchart TD
 
 | 단계 | 동작 |
 | --- | --- |
-| 1 | `buildMessagesForGpt()`로 메시지 배열 구성 (`server/consumer/.../conversation.manager.ts`) |
-| 2 | OpenAI Chat Completions 스트리밍 호출 |
-| 3 | `tool_calls` 발생 시 해당 Handler 디스패치 |
-| 4 | 응답 chunk를 Redis `chatbot:stream:{streamChannelId}`에 발행 |
-| 5 | 턴 완료 시 `done` 이벤트 + 크레딧 차감 |
+| 1 | `ChatbotConversation.lastResponseId` 조회 + `CHATBOT_SYSTEM_INSTRUCTIONS` 준비 |
+| 2 | OpenAI Responses API 스트리밍 호출 (`previous_response_id` 체이닝, `store: true`) |
+| 3 | `function_call` 발생 시 Handler 디스패치 후 `function_call_output`으로 다음 round |
+| 4 | `response.output_text.delta`를 Redis `chatbot:stream:{streamChannelId}`에 발행 |
+| 5 | 턴 완료 시 `lastResponseId` 저장 + `done` 이벤트 + 크레딧 차감 |
 
 핵심 구현은 `server/consumer/.../ProcessChatHandler.ts`에 있습니다.
 
@@ -45,11 +45,11 @@ flowchart TD
 
 tool 호출 시 Consumer가 DB/Redis에서 직접 조회합니다.
 
-## ChatbotLog 저장
+## ChatbotLog·대화 상태
 
 - MongoDB `chatbot_logs` 컬렉션에 저장하며, TTL은 30일입니다.
-- `SaveChatLogHandler`가 user/assistant 턴을 `conversationId`와 함께 저장합니다.
-- 히스토리 확장 시 `conversationId` 기준 최근 N턴을 조회해 `buildMessagesForGpt`에 전달합니다.
+- `SaveChatLogHandler`가 user/assistant 턴을 `conversationId`와 함께 저장합니다(감사·분석용).
+- 연속 대화 컨텍스트는 `chatbot_conversations.lastResponseId`와 Responses `previous_response_id` 체이닝으로 유지합니다.
 
 ## 크레딧 멱등 차감
 

@@ -15,9 +15,6 @@ class LLMMetadata {
   totalTokens: number;
 
   @Prop({ type: Number })
-  temperature?: number;
-
-  @Prop({ type: Number })
   maxTokens?: number;
 }
 

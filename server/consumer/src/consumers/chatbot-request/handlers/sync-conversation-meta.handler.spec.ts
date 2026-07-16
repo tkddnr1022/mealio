@@ -6,7 +6,7 @@ import { SyncConversationMetaHandler } from './SyncConversationMetaHandler';
 
 describe('SyncConversationMetaHandler', () => {
   let handler: SyncConversationMetaHandler;
-  let openai: jest.Mocked<Pick<OpenAIService, 'createChatCompletion'>>;
+  let openai: jest.Mocked<Pick<OpenAIService, 'createResponse'>>;
   let conversations: jest.Mocked<
     Pick<
       ChatbotConversationRepository,
@@ -15,7 +15,7 @@ describe('SyncConversationMetaHandler', () => {
   >;
 
   beforeEach(async () => {
-    openai = { createChatCompletion: jest.fn() };
+    openai = { createResponse: jest.fn() };
     conversations = {
       hasTitle: jest.fn().mockResolvedValue(false),
       createWithTitle: jest.fn().mockResolvedValue(undefined),
@@ -34,9 +34,9 @@ describe('SyncConversationMetaHandler', () => {
   });
 
   it('START이면 제목이 비어 있을 때 LLM 후 createWithTitle을 호출한다', async () => {
-    openai.createChatCompletion.mockResolvedValue({
+    openai.createResponse.mockResolvedValue({
       content: '  김치 요리 추천  ',
-      finishReason: 'stop',
+      finishReason: 'completed',
     });
 
     await handler.execute({
@@ -46,7 +46,7 @@ describe('SyncConversationMetaHandler', () => {
       eventType: ChatbotEventType.START,
     });
 
-    expect(openai.createChatCompletion).toHaveBeenCalled();
+    expect(openai.createResponse).toHaveBeenCalled();
     expect(conversations.createWithTitle).toHaveBeenCalledWith(
       1,
       'conv_a',
@@ -66,7 +66,7 @@ describe('SyncConversationMetaHandler', () => {
       eventType: ChatbotEventType.START,
     });
 
-    expect(openai.createChatCompletion).not.toHaveBeenCalled();
+    expect(openai.createResponse).not.toHaveBeenCalled();
     expect(conversations.createWithTitle).not.toHaveBeenCalled();
   });
 
@@ -78,7 +78,7 @@ describe('SyncConversationMetaHandler', () => {
       eventType: ChatbotEventType.MESSAGE,
     });
 
-    expect(openai.createChatCompletion).not.toHaveBeenCalled();
+    expect(openai.createResponse).not.toHaveBeenCalled();
     expect(conversations.createWithTitle).not.toHaveBeenCalled();
     expect(conversations.touchUpdatedAt).toHaveBeenCalledWith(1, 'conv_c');
   });
@@ -91,7 +91,7 @@ describe('SyncConversationMetaHandler', () => {
       eventType: ChatbotEventType.START,
     });
 
-    expect(openai.createChatCompletion).not.toHaveBeenCalled();
+    expect(openai.createResponse).not.toHaveBeenCalled();
     expect(conversations.touchUpdatedAt).not.toHaveBeenCalled();
   });
 });

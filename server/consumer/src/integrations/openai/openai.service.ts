@@ -2,31 +2,18 @@ import { Injectable, Optional, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import type {
-  ChatCompletionMessageParam,
-  ChatCompletionTool,
-  ChatCompletionChunk,
-} from 'openai/resources/chat/completions';
+  ResponseInput,
+  ResponseStreamEvent,
+  Tool,
+} from 'openai/resources/responses/responses';
 import type { Stream } from 'openai/streaming';
 import { OpenAIRateLimiter } from './rate-limiter';
 
-/** 스트리밍 청크 한 조각 (onChunk 인자) */
-export interface ChatStreamChunk {
-  content?: string;
-  toolCalls?: Array<{
-    id: string;
-    name: string;
-    arguments: string;
-  }>;
-  finishReason?: string;
-}
-
-/** 스트리밍 청크 콜백 */
-export type OnChunk = (chunk: ChatStreamChunk) => void;
-
-/** 비스트리밍 채팅 완료 결과 */
-export interface ChatCompletionResult {
+/** 비스트리밍 Responses 결과 */
+export interface ResponseResult {
   content: string | null;
   finishReason: string;
+  responseId?: string;
   usage?: {
     promptTokens: number;
     completionTokens: number;
@@ -80,150 +67,114 @@ export class OpenAIService {
   }
 
   /**
-   * 비스트리밍 채팅 완료 (레시피 생성 등 JSON 응답용).
+   * 비스트리밍 Responses 호출 (제목 생성·질의 확장 등 JSON/텍스트 응답용).
    */
-  async createChatCompletion(
-    messages: ChatCompletionMessageParam[],
+  async createResponse(
+    input: string | ResponseInput,
     options?: {
-      temperature?: number;
-      maxTokens?: number;
+      instructions?: string;
+      maxOutputTokens?: number;
       responseFormat?: { type: 'json_object' };
+      tools?: Tool[];
+      previousResponseId?: string;
     },
-  ): Promise<ChatCompletionResult> {
+  ): Promise<ResponseResult> {
     await this.rateLimiter?.acquire();
 
-    const body: OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming =
-      {
-        model: this.model,
-        messages,
-        temperature: options?.temperature ?? 1,
-        ...(options?.maxTokens != null && {
-          max_completion_tokens: options.maxTokens,
+    const response = await this.client.responses.create({
+      model: this.model,
+      input,
+      store: true,
+      ...(options?.instructions != null && {
+        instructions: options.instructions,
+      }),
+      ...(options?.maxOutputTokens != null && {
+        max_output_tokens: options.maxOutputTokens,
+      }),
+      ...(options?.responseFormat && {
+        text: { format: options.responseFormat },
+      }),
+      ...(options?.tools &&
+        options.tools.length > 0 && {
+          tools: options.tools,
+          tool_choice: 'auto' as const,
         }),
-        ...(options?.responseFormat && {
-          response_format: options.responseFormat,
-        }),
-      };
+      ...(options?.previousResponseId && {
+        previous_response_id: options.previousResponseId,
+      }),
+    });
 
-    const completion = await this.client.chat.completions.create(body);
-    const choice = completion.choices[0];
     const content =
-      choice?.message?.content && typeof choice.message.content === 'string'
-        ? choice.message.content
+      typeof response.output_text === 'string' && response.output_text.length > 0
+        ? response.output_text
         : null;
 
     return {
       content,
-      finishReason: choice?.finish_reason ?? 'unknown',
-      usage: completion.usage
+      finishReason: this.mapFinishReason(response),
+      responseId: response.id,
+      usage: response.usage
         ? {
-            promptTokens: completion.usage.prompt_tokens,
-            completionTokens: completion.usage.completion_tokens,
-            totalTokens: completion.usage.total_tokens,
+            promptTokens: response.usage.input_tokens,
+            completionTokens: response.usage.output_tokens,
+            totalTokens:
+              response.usage.total_tokens ??
+              response.usage.input_tokens + response.usage.output_tokens,
           }
         : undefined,
     };
   }
 
   /**
-   * 스트리밍 채팅 완료 (챗봇 Function Calling·스트리밍용).
-   * tools 전달 시 Function Calling 사용. onChunk로 델타 콘텐츠·tool_calls 전달.
+   * 스트리밍 Responses 호출 (챗봇 Function Calling·스트리밍용).
+   * tools·previousResponseId·instructions를 전달한다. 이벤트 파싱은 호출측에서 수행한다.
    */
-  async createChatCompletionStream(
-    messages: ChatCompletionMessageParam[],
+  async createResponseStream(
+    input: string | ResponseInput,
     options?: {
-      tools?: ChatCompletionTool[];
-      onChunk?: OnChunk;
+      instructions?: string;
+      tools?: Tool[];
+      previousResponseId?: string;
     },
-  ): Promise<Stream<ChatCompletionChunk>> {
+  ): Promise<Stream<ResponseStreamEvent>> {
     await this.rateLimiter?.acquire();
 
-    const body: OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming = {
+    return this.client.responses.create({
       model: this.model,
-      messages,
+      input,
       stream: true,
       store: true,
-      stream_options: { include_usage: true },
+      ...(options?.instructions != null && {
+        instructions: options.instructions,
+      }),
       ...(options?.tools &&
         options.tools.length > 0 && {
           tools: options.tools,
-          tool_choice: 'auto',
+          tool_choice: 'auto' as const,
         }),
-    };
-
-    const stream = await this.client.chat.completions.create(body);
-
-    if (options?.onChunk) {
-      this.forwardStreamToCallback(stream, options.onChunk).catch(() => {
-        // 소비자에서 에러 처리; 여기서는 무시
-      });
-    }
-
-    return stream;
+      ...(options?.previousResponseId && {
+        previous_response_id: options.previousResponseId,
+      }),
+    });
   }
 
-  /**
-   * 스트림을 순회하며 onChunk 호출 (content delta, tool_calls 수집 후 전달).
-   */
-  private async forwardStreamToCallback(
-    stream: AsyncIterable<ChatCompletionChunk>,
-    onChunk: OnChunk,
-  ): Promise<void> {
-    const toolCallsBuffer = new Map<
-      string,
-      { id: string; name: string; args: string[] }
-    >();
-
-    for await (const chunk of stream) {
-      const choice = chunk.choices[0];
-      if (!choice) continue;
-
-      const delta = choice.delta;
-      let content: string | undefined;
-      let toolCalls: ChatStreamChunk['toolCalls'];
-      let finishReason: string | undefined;
-
-      if (delta?.content) {
-        content = typeof delta.content === 'string' ? delta.content : undefined;
-      }
-
-      if (delta?.tool_calls?.length) {
-        for (const tc of delta.tool_calls) {
-          const id = tc.id ?? '';
-          if (!toolCallsBuffer.has(id)) {
-            toolCallsBuffer.set(id, {
-              id,
-              name: tc.function?.name ?? '',
-              args: [],
-            });
-          }
-          const buf = toolCallsBuffer.get(id)!;
-          if (tc.function?.arguments) {
-            buf.args.push(tc.function.arguments);
-          }
-        }
-      }
-
-      if (choice.finish_reason) {
-        finishReason = choice.finish_reason;
-        if (toolCallsBuffer.size > 0) {
-          toolCalls = Array.from(toolCallsBuffer.values()).map((b) => ({
-            id: b.id,
-            name: b.name,
-            arguments: b.args.join(''),
-          }));
-          toolCallsBuffer.clear();
-        }
-      }
-
-      if (content !== undefined || toolCalls !== undefined || finishReason) {
-        onChunk({
-          ...(content !== undefined && { content }),
-          ...(toolCalls !== undefined && { toolCalls }),
-          ...(finishReason !== undefined && { finishReason }),
-        });
-      }
+  private mapFinishReason(response: {
+    status?: string | null;
+    incomplete_details?: { reason?: string | null } | null;
+  }): string {
+    if (response.status === 'completed') {
+      return 'completed';
     }
+    if (response.status === 'incomplete') {
+      if (response.incomplete_details?.reason === 'max_output_tokens') {
+        return 'length';
+      }
+      return response.incomplete_details?.reason ?? 'incomplete';
+    }
+    if (response.status === 'failed') {
+      return 'failed';
+    }
+    return response.status ?? 'unknown';
   }
 
   getModel(): string {

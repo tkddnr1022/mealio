@@ -411,7 +411,6 @@
 | promptTokens     | Number  | (required)    |
 | completionTokens | Number  | (required)    |
 | totalTokens      | Number  | (required)    |
-| temperature      | Number  | (optional)    |
 | maxTokens        | Number  | (optional)    |
 
 **인덱스**: `(userId, createdAt DESC)`, `(userId, context.conversationId, createdAt ASC, _id ASC)` — 동일 `createdAt`(예: 한 번의 `insertMany`) 시 삽입 순서 타이브레이크, `(success, createdAt DESC)`, `(llm.model, createdAt DESC)`, TTL `(createdAt, 30일)`
@@ -432,8 +431,7 @@
     "model": "gpt-4-turbo",
     "promptTokens": 100,
     "completionTokens": 50,
-    "totalTokens": 150,
-    "temperature": 0.7
+    "totalTokens": 150
   },
   "latency": 820,
   "success": true,
@@ -462,6 +460,7 @@
 | conversationId | String | 대화 ID (required, index) |
 | title          | String | 표시용 제목 (optional, max 120). MESSAGE만 오고 제목 없을 수 있음 |
 | titleSource    | String | `'llm'` \| `'manual'` (optional, default `llm`) |
+| lastResponseId | String | OpenAI Responses API 체이닝용 마지막 `response.id` (optional). 턴 종료 시 갱신 |
 | createdAt      | Date   | 생성 시각 (timestamps) |
 | updatedAt      | Date   | 마지막 활동 갱신 시각 (timestamps). 목록 정렬 기준 |
 

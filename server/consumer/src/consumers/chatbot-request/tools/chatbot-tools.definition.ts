@@ -1,127 +1,131 @@
-import type { ChatCompletionTool } from 'openai/resources/chat/completions';
+import type { Tool } from 'openai/resources/responses/responses';
 
 /**
- * OpenAI Function Calling용 tools 배열 (search_recipes, get_user_inventory 등)
+ * OpenAI Responses API Function Calling용 tools 배열 (평탄 구조).
  */
-export const CHATBOT_TOOLS: ChatCompletionTool[] = [
+export const CHATBOT_TOOLS: Tool[] = [
   {
     type: 'function',
-    function: {
-      name: 'get_user_inventory',
-      description:
-        '사용자의 인벤토리를 조회합니다. 응답 구조는 ownedIngredients, favoriteIngredients, favoriteRecipes 입니다. 재료 항목에는 id, name, 재료 분류(categoryId, categoryName, categoryKey)가 포함되고, favoriteRecipes는 레시피 요약 정보를 포함합니다. 재료 분류 기반 필터링 시 search_recipes의 ingredientCategoryIds에 categoryId를 넣을 수 있습니다.',
+    name: 'get_user_inventory',
+    description:
+      '사용자의 인벤토리를 조회합니다. 응답 구조는 ownedIngredients, favoriteIngredients, favoriteRecipes 입니다. 재료 항목에는 id, name, 재료 분류(categoryId, categoryName, categoryKey)가 포함되고, favoriteRecipes는 레시피 요약 정보를 포함합니다. 재료 분류 기반 필터링 시 search_recipes의 ingredientCategoryIds에 categoryId를 넣을 수 있습니다.',
+    parameters: {
+      type: 'object',
+      properties: {},
     },
+    strict: null,
   },
   {
     type: 'function',
-    function: {
-      name: 'get_food_categories',
-      description:
-        '레시피 종류(한식·양식 등)와 재료 분류(채소·육류 등)의 id·key·name 목록을 조회합니다. 사용자가 "한식"처럼 말할 때 search_recipes의 recipeCategoryIds / ingredientCategoryIds에 쓸 수 있는 숫자 id를 확인할 때 호출하세요.',
+    name: 'get_food_categories',
+    description:
+      '레시피 종류(한식·양식 등)와 재료 분류(채소·육류 등)의 id·key·name 목록을 조회합니다. 사용자가 "한식"처럼 말할 때 search_recipes의 recipeCategoryIds / ingredientCategoryIds에 쓸 수 있는 숫자 id를 확인할 때 호출하세요.',
+    parameters: {
+      type: 'object',
+      properties: {},
     },
+    strict: null,
   },
   {
     type: 'function',
-    function: {
-      name: 'search_recipes',
-      description:
-        '키워드·조리시간·인분·재료/카테고리 조건으로 레시피를 검색합니다. 사용자 요청에서 해석한 조건은 이 함수 인자에 직접 전달하세요. 항상 최대 10개 후보를 반환하며, 최종 추천 레시피는 이 결과 안에서 직접 고르세요. get_user_inventory로 재료 id·재료 분류를, get_food_categories로 레시피/재료 분류 id를 확인해 조합할 수 있습니다.',
-      parameters: {
-        type: 'object',
-        properties: {
-          keywords: {
-            type: 'array',
-            items: { type: 'string' },
-            description:
-              '제목·설명에 매칭할 키워드 (예: 간단, 저녁, 김치). 비우면 키워드 필터 없음.',
-          },
-          ingredientIds: {
-            type: 'array',
-            items: { type: 'number' },
-            description:
-              '보유 인벤토리와 겹치는 재료가 많은 레시피에 가산점. get_user_inventory 결과의 ownedIngredients/favoriteIngredients id 목록을 사용.',
-          },
-          mustHaveIngredients: {
-            type: 'array',
-            items: { type: 'string' },
-            description:
-              '반드시 포함되면 좋은 재료 이름 목록(예: 닭가슴살, 두부). 이름 기반으로 검색 필터에 반영.',
-          },
-          avoidIngredientIds: {
-            type: 'array',
-            items: { type: 'number' },
-            description:
-              '제외할 재료 id 목록. get_user_inventory 결과의 ownedIngredients/favoriteIngredients id 목록을 사용.',
-          },
-          avoidIngredients: {
-            type: 'array',
-            items: { type: 'string' },
-            description:
-              '제외할 재료 이름 목록(예: 우유, 땅콩). 이름 기반 제외 필터에 반영.',
-          },
-          cookTime: {
-            type: 'object',
-            properties: {
-              gte: {
-                type: 'number',
-                description: '최소 조리 시간(분).',
-              },
-              lte: {
-                type: 'number',
-                description:
-                  '최대 조리 시간(분). 예: "30분 이내"는 { "lte": 30 }.',
-              },
+    name: 'search_recipes',
+    description:
+      '키워드·조리시간·인분·재료/카테고리 조건으로 레시피를 검색합니다. 사용자 요청에서 해석한 조건은 이 함수 인자에 직접 전달하세요. 항상 최대 10개 후보를 반환하며, 최종 추천 레시피는 이 결과 안에서 직접 고르세요. get_user_inventory로 재료 id·재료 분류를, get_food_categories로 레시피/재료 분류 id를 확인해 조합할 수 있습니다.',
+    parameters: {
+      type: 'object',
+      properties: {
+        keywords: {
+          type: 'array',
+          items: { type: 'string' },
+          description:
+            '제목·설명에 매칭할 키워드 (예: 간단, 저녁, 김치). 비우면 키워드 필터 없음.',
+        },
+        ingredientIds: {
+          type: 'array',
+          items: { type: 'number' },
+          description:
+            '보유 인벤토리와 겹치는 재료가 많은 레시피에 가산점. get_user_inventory 결과의 ownedIngredients/favoriteIngredients id 목록을 사용.',
+        },
+        mustHaveIngredients: {
+          type: 'array',
+          items: { type: 'string' },
+          description:
+            '반드시 포함되면 좋은 재료 이름 목록(예: 닭가슴살, 두부). 이름 기반으로 검색 필터에 반영.',
+        },
+        avoidIngredientIds: {
+          type: 'array',
+          items: { type: 'number' },
+          description:
+            '제외할 재료 id 목록. get_user_inventory 결과의 ownedIngredients/favoriteIngredients id 목록을 사용.',
+        },
+        avoidIngredients: {
+          type: 'array',
+          items: { type: 'string' },
+          description:
+            '제외할 재료 이름 목록(예: 우유, 땅콩). 이름 기반 제외 필터에 반영.',
+        },
+        cookTime: {
+          type: 'object',
+          properties: {
+            gte: {
+              type: 'number',
+              description: '최소 조리 시간(분).',
             },
-            description: '조리 시간 범위(분). gte/lte로 최소·최대를 지정.',
-          },
-          servings: {
-            type: 'object',
-            properties: {
-              gte: {
-                type: 'number',
-                description: '최소 인분.',
-              },
-              lte: {
-                type: 'number',
-                description: '최대 인분.',
-              },
+            lte: {
+              type: 'number',
+              description:
+                '최대 조리 시간(분). 예: "30분 이내"는 { "lte": 30 }.',
             },
-            description: '인분 범위. gte/lte로 최소·최대를 지정.',
           },
-          recipeCategoryIds: {
-            type: 'array',
-            items: { type: 'number' },
-            description:
-              '레시피 종류(한식 등)로 한정. get_food_categories의 recipeCategories id.',
+          description: '조리 시간 범위(분). gte/lte로 최소·최대를 지정.',
+        },
+        servings: {
+          type: 'object',
+          properties: {
+            gte: {
+              type: 'number',
+              description: '최소 인분.',
+            },
+            lte: {
+              type: 'number',
+              description: '최대 인분.',
+            },
           },
-          ingredientCategoryIds: {
-            type: 'array',
-            items: { type: 'number' },
-            description:
-              '해당 재료 분류를 쓰는 레시피만 포함. get_food_categories 또는 get_user_inventory 결과의 *Ingredients[].categoryId.',
-          },
+          description: '인분 범위. gte/lte로 최소·최대를 지정.',
+        },
+        recipeCategoryIds: {
+          type: 'array',
+          items: { type: 'number' },
+          description:
+            '레시피 종류(한식 등)로 한정. get_food_categories의 recipeCategories id.',
+        },
+        ingredientCategoryIds: {
+          type: 'array',
+          items: { type: 'number' },
+          description:
+            '해당 재료 분류를 쓰는 레시피만 포함. get_food_categories 또는 get_user_inventory 결과의 *Ingredients[].categoryId.',
         },
       },
     },
+    strict: null,
   },
   {
     type: 'function',
-    function: {
-      name: 'finalize_recipe_selection',
-      description:
-        'search_recipes 후보 안에서 최종 추천 레시피를 확정합니다. 반드시 후보에 포함된 recipe id만 selectedRecipeIds로 전달하세요. selectedRecipeIds 배열 순서는 추천 우선순위이며, 앞쪽일수록 더 강하게 추천합니다(1번째=1순위). 최종 답변에서 레시피를 소개할 때도 이 순서를 그대로 따르세요.',
-      parameters: {
-        type: 'object',
-        properties: {
-          selectedRecipeIds: {
-            type: 'array',
-            items: { type: 'number' },
-            description:
-              'search_recipes 결과 중 최종 추천으로 확정한 recipe id 목록(권장 3~5개). 배열 순서=추천 순위(1번째 id가 1순위, 마지막이 순위가 가장 낮음). 사용자에게 소개할 순서와 동일하게 배치하세요.',
-          },
+    name: 'finalize_recipe_selection',
+    description:
+      'search_recipes 후보 안에서 최종 추천 레시피를 확정합니다. 반드시 후보에 포함된 recipe id만 selectedRecipeIds로 전달하세요. selectedRecipeIds 배열 순서는 추천 우선순위이며, 앞쪽일수록 더 강하게 추천합니다(1번째=1순위). 최종 답변에서 레시피를 소개할 때도 이 순서를 그대로 따르세요.',
+    parameters: {
+      type: 'object',
+      properties: {
+        selectedRecipeIds: {
+          type: 'array',
+          items: { type: 'number' },
+          description:
+            'search_recipes 결과 중 최종 추천으로 확정한 recipe id 목록(권장 3~5개). 배열 순서=추천 순위(1번째 id가 1순위, 마지막이 순위가 가장 낮음). 사용자에게 소개할 순서와 동일하게 배치하세요.',
         },
-        required: ['selectedRecipeIds'],
       },
+      required: ['selectedRecipeIds'],
     },
+    strict: null,
   },
 ];
