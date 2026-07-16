@@ -200,7 +200,8 @@ describe('ParseSubmitService', () => {
       const line = JSON.parse(jsonlArg.split('\n')[0]);
       expect(line.custom_id).toBe(jobId);
       expect(line.body.model).toBe(MOCK_BATCH_MODEL);
-      expect(line.body.response_format).toEqual({ type: 'json_object' });
+      expect(line.url).toBe('/v1/responses');
+      expect(line.body.text.format).toEqual({ type: 'json_object' });
 
       expect(jobRepository.transitionManyByIds).toHaveBeenNthCalledWith(
         2,
@@ -368,17 +369,17 @@ describe('buildParseBatchJsonlLine', () => {
     expect(line).toEqual({
       custom_id: jobId,
       method: 'POST',
-      url: '/v1/chat/completions',
+      url: '/v1/responses',
       body: {
         model: MOCK_BATCH_MODEL,
-        max_completion_tokens: 8192,
-        reasoning_effort: 'low',
-        verbosity: 'low',
-        response_format: { type: 'json_object' },
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: JSON.stringify(rawData) },
-        ],
+        max_output_tokens: 8192,
+        reasoning: { effort: 'low' },
+        text: {
+          format: { type: 'json_object' },
+          verbosity: 'low',
+        },
+        instructions: systemPrompt,
+        input: JSON.stringify(rawData),
       },
     });
   });

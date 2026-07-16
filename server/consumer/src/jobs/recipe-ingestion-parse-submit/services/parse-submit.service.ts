@@ -65,14 +65,17 @@ export interface ParseSubmitResult {
 export interface ParseBatchJsonlRequestLine {
   custom_id: string;
   method: 'POST';
-  url: '/v1/chat/completions';
+  url: '/v1/responses';
   body: {
     model: string;
-    max_completion_tokens: number;
-    reasoning_effort: 'minimal' | 'low' | 'medium' | 'high';
-    verbosity: 'low' | 'medium' | 'high';
-    response_format: { type: 'json_object' };
-    messages: Array<{ role: 'system' | 'user'; content: string }>;
+    max_output_tokens: number;
+    reasoning: { effort: 'minimal' | 'low' | 'medium' | 'high' };
+    text: {
+      format: { type: 'json_object' };
+      verbosity: 'low' | 'medium' | 'high';
+    };
+    instructions: string;
+    input: string;
   };
 }
 
@@ -383,17 +386,17 @@ export function buildParseBatchJsonlLine(
   return {
     custom_id: String(job._id),
     method: 'POST',
-    url: '/v1/chat/completions',
+    url: '/v1/responses',
     body: {
       model,
-      max_completion_tokens: RECIPE_INGESTION_OPENAI_BATCH_MAX_TOKENS,
-      reasoning_effort: RECIPE_INGESTION_OPENAI_BATCH_REASONING_EFFORT,
-      verbosity: RECIPE_INGESTION_OPENAI_BATCH_VERBOSITY,
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: JSON.stringify(job.rawData ?? {}) },
-      ],
+      max_output_tokens: RECIPE_INGESTION_OPENAI_BATCH_MAX_TOKENS,
+      reasoning: { effort: RECIPE_INGESTION_OPENAI_BATCH_REASONING_EFFORT },
+      text: {
+        format: { type: 'json_object' },
+        verbosity: RECIPE_INGESTION_OPENAI_BATCH_VERBOSITY,
+      },
+      instructions: systemPrompt,
+      input: JSON.stringify(job.rawData ?? {}),
     },
   };
 }

@@ -54,17 +54,10 @@ function successLine(jobId: string, data: Record<string, unknown>) {
     response: {
       status_code: 200,
       body: {
-        choices: [
-          {
-            message: {
-              role: 'assistant',
-              content: JSON.stringify(data),
-            },
-          },
-        ],
+        output_text: JSON.stringify(data),
         usage: {
-          prompt_tokens: 11,
-          completion_tokens: 7,
+          input_tokens: 11,
+          output_tokens: 7,
           total_tokens: 18,
         },
       },
@@ -423,7 +416,7 @@ describe('parseParseBatchOutputLine', () => {
       response: {
         status_code: 200,
         body: {
-          choices: [{ message: { content: 'not-json' } }],
+          output_text: 'not-json',
         },
       },
     });

@@ -48,10 +48,14 @@ export interface ParseBatchOutputJsonlLine {
   response?: {
     status_code?: number;
     body?: {
-      choices?: Array<{ message?: { content?: string } }>;
+      output_text?: string;
+      output?: Array<{
+        type?: string;
+        content?: Array<{ type?: string; text?: string }>;
+      }>;
       usage?: {
-        prompt_tokens?: number;
-        completion_tokens?: number;
+        input_tokens?: number;
+        output_tokens?: number;
         total_tokens?: number;
       };
     };
@@ -540,24 +544,15 @@ export function parseParseBatchOutputLine(
       errorMessage: `Batch line status_code=${statusCode ?? 'missing'}`,
     };
   }
-  const content = line.response?.body?.choices?.[0]?.message?.content;
+  const content = extractResponsesOutputText(line.response?.body);
   if (typeof content !== 'string' || content.length === 0) {
-    return { ok: false, jobId, errorMessage: 'Empty completion content' };
+    return { ok: false, jobId, errorMessage: 'Empty response content' };
   }
   try {
     const retrievedData = JSON.parse(content) as Record<string, unknown>;
-    const usageRaw = line.response?.body as
-      | {
-          usage?: {
-            prompt_tokens?: number;
-            completion_tokens?: number;
-            total_tokens?: number;
-          };
-        }
-      | undefined;
-    const usage = usageRaw?.usage;
-    const inputTokens = Number(usage?.prompt_tokens ?? 0);
-    const outputTokens = Number(usage?.completion_tokens ?? 0);
+    const usage = line.response?.body?.usage;
+    const inputTokens = Number(usage?.input_tokens ?? 0);
+    const outputTokens = Number(usage?.output_tokens ?? 0);
     const totalTokens = Number(
       usage?.total_tokens ?? inputTokens + outputTokens,
     );
@@ -575,7 +570,29 @@ export function parseParseBatchOutputLine(
     return {
       ok: false,
       jobId,
-      errorMessage: 'Invalid JSON in completion content',
+      errorMessage: 'Invalid JSON in response content',
     };
   }
+}
+
+function extractResponsesOutputText(
+  body:
+    | NonNullable<NonNullable<ParseBatchOutputJsonlLine['response']>['body']>
+    | undefined,
+): string | undefined {
+  if (body == null) return undefined;
+  if (typeof body.output_text === 'string' && body.output_text.length > 0) {
+    return body.output_text;
+  }
+  const texts: string[] = [];
+  for (const item of body.output ?? []) {
+    if (item.type !== 'message') continue;
+    for (const part of item.content ?? []) {
+      if (part.type === 'output_text' && typeof part.text === 'string') {
+        texts.push(part.text);
+      }
+    }
+  }
+  const joined = texts.join('');
+  return joined.length > 0 ? joined : undefined;
 }

@@ -72,10 +72,7 @@ export class OpenAIBatchService {
   async submitBatchJsonl(
     jsonlContent: string,
   ): Promise<OpenAIBatchSubmitResult> {
-    return this.submitBatchJsonlWithEndpoint(
-      jsonlContent,
-      '/v1/chat/completions',
-    );
+    return this.submitBatchJsonlWithEndpoint(jsonlContent, '/v1/responses');
   }
 
   async submitEmbeddingBatchJsonl(
@@ -86,7 +83,7 @@ export class OpenAIBatchService {
 
   async submitBatchJsonlWithEndpoint(
     jsonlContent: string,
-    endpoint: '/v1/chat/completions' | '/v1/embeddings',
+    endpoint: '/v1/responses' | '/v1/embeddings',
   ): Promise<OpenAIBatchSubmitResult> {
     try {
       const file = await this.client.files.create({

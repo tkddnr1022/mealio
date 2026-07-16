@@ -384,7 +384,7 @@ submit은 선택된 job 그룹을 Batch API에 제출하고, 반환된 OpenAI Ba
 4. **JSONL 생성** — runId 그룹별 대상 job, `custom_id` = `recipe_ingestion_job._id`
 
    ```jsonl
-   {"custom_id": "{recipe_ingestion_job._id}", "method": "POST", "url": "/v1/chat/completions", "body": {"model": "{OPENAI_BATCH_MODEL}", "max_completion_tokens": 8192, "reasoning_effort": "low", "verbosity": "low", "response_format": {"type": "json_object"}, "messages": [{"role": "system", "content": "{system_prompt}"}, {"role": "user", "content": "{raw_data_json}"}]}}
+   {"custom_id": "{recipe_ingestion_job._id}", "method": "POST", "url": "/v1/responses", "body": {"model": "{OPENAI_BATCH_MODEL}", "max_output_tokens": 8192, "reasoning": {"effort": "low"}, "text": {"format": {"type": "json_object"}, "verbosity": "low"}, "instructions": "{system_prompt}", "input": "{raw_data_json}"}}
    ```
 
    `model`은 환경 변수 `OPENAI_BATCH_MODEL` 값을 사용한다.
@@ -415,7 +415,7 @@ submit은 선택된 job 그룹을 Batch API에 제출하고, 반환된 OpenAI Ba
    ```
    POST https://api.openai.com/v1/batches
      input_file_id: {file_id}
-     endpoint: "/v1/chat/completions"
+     endpoint: "/v1/responses"
      completion_window: "24h"
    → batch_id
    ```
