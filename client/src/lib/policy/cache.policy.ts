@@ -8,7 +8,10 @@
  */
 import type { RequestOptions } from '@/lib/api/http-client';
 
-import { CACHE_TAGS, recipeDetailTag } from '@/lib/constants/cache-tags.constants';
+import {
+  CACHE_TAGS,
+  recipeDetailTag,
+} from '@/lib/constants/cache-tags.constants';
 
 const SECOND_MS = 1_000;
 const MINUTE_MS = 60 * SECOND_MS;
@@ -120,4 +123,3 @@ export function isrRecipeDetailFetch(recipeId: number): RequestOptions {
     recipeDetailTag(recipeId),
   ]);
 }
-

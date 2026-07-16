@@ -105,7 +105,8 @@ export class OpenAIService {
     });
 
     const content =
-      typeof response.output_text === 'string' && response.output_text.length > 0
+      typeof response.output_text === 'string' &&
+      response.output_text.length > 0
         ? response.output_text
         : null;
 

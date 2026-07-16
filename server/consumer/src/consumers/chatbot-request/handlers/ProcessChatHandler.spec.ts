@@ -173,7 +173,10 @@ describe('ProcessChatHandler', () => {
       )
       .mockResolvedValueOnce(
         eventsOf([
-          { type: 'response.output_text.delta', delta: '재료 기준으로 추천해요' },
+          {
+            type: 'response.output_text.delta',
+            delta: '재료 기준으로 추천해요',
+          },
           {
             type: 'response.completed',
             response: {

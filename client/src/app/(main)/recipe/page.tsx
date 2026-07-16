@@ -29,12 +29,18 @@ export default async function RecipeMainPage() {
     }),
     fetchForIsr({
       fetcher: () =>
-        getRecipeList({ ...listParams, sort: 'viewCount' }, ISR_RECIPE_LIST_FETCH),
+        getRecipeList(
+          { ...listParams, sort: 'viewCount' },
+          ISR_RECIPE_LIST_FETCH,
+        ),
       fallback: createEmptyPaginated<RecipeSummary>(),
     }),
     fetchForIsr({
       fetcher: () =>
-        getRecipeList({ ...listParams, sort: 'likeCount' }, ISR_RECIPE_LIST_FETCH),
+        getRecipeList(
+          { ...listParams, sort: 'likeCount' },
+          ISR_RECIPE_LIST_FETCH,
+        ),
       fallback: createEmptyPaginated<RecipeSummary>(),
     }),
   ]);

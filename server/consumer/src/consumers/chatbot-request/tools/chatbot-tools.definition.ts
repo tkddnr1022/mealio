@@ -77,8 +77,7 @@ export const CHATBOT_TOOLS: Tool[] = [
                 'Maximum cook time in minutes. Example: "30분 이내" → { "lte": 30 }.',
             },
           },
-          description:
-            'Cook time range in minutes. Use gte/lte for min/max.',
+          description: 'Cook time range in minutes. Use gte/lte for min/max.',
         },
         servings: {
           type: 'object',
