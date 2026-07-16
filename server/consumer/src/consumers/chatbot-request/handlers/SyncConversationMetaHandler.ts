@@ -81,9 +81,9 @@ export class SyncConversationMetaHandler {
       [{ role: 'user', content: question }],
       {
         instructions:
-          '너는 요리·식재료 도우미 대화의 제목을 짓는 역할이다. 아래 텍스트는 사용자의 질문·요청이다. ' +
-          '이 내용을 바탕으로 대화 주제를 한국어 한 줄 제목으로 요약한다. 출력은 제목만. ' +
-          '따옴표·줄바꿈·이모지 없이 60자 이내로 짧게. 설명이나 접두사 금지.',
+          'You write titles for cooking and ingredient assistant conversations. The text below is the user question/request. ' +
+          'Summarize the conversation topic as a single-line Korean title. Output the title only. ' +
+          'Keep it short (within 60 characters), with no quotes, line breaks, or emoji. No explanations or prefixes.',
         maxOutputTokens: 80,
       },
     );
