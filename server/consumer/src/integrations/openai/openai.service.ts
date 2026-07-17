@@ -21,6 +21,14 @@ export interface ResponseResult {
   };
 }
 
+/** Responses API `text.format` Structured Outputs (`json_schema`) */
+export type ResponseTextFormat = {
+  type: 'json_schema';
+  name: string;
+  strict: boolean;
+  schema: Record<string, unknown>;
+};
+
 @Injectable()
 export class OpenAIService {
   private readonly client: OpenAI;
@@ -74,7 +82,7 @@ export class OpenAIService {
     options?: {
       instructions?: string;
       maxOutputTokens?: number;
-      responseFormat?: { type: 'json_object' };
+      responseFormat?: ResponseTextFormat;
       tools?: Tool[];
       previousResponseId?: string;
     },

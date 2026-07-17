@@ -15,50 +15,26 @@ export function buildRecipeIngestionSystemPrompt(
     .map((c) => `- id=${c.id}, key="${c.key}", name="${c.name}"`)
     .join('\n');
 
-  return `You are a Korean recipe-data parser for the Mealio service. Convert the user's raw public-API recipe JSON into a single JSON object matching the schema below — JSON only, no markdown, no extra text, no invented content.
+  return `You are a Korean recipe-data parser for the Mealio service. Convert the user's raw public-API recipe JSON into a single JSON object matching the Structured Outputs schema — no invented content.
 
-## Output JSON schema
-{
-  "recipe": {
-    "title": "string (required, concise Korean recipe name)",
-    "description": "string (optional, 1-2 sentences in ~요체)",
-    "servings": "number (required, integer, minimum 1)",
-    "difficulty": "number (required, integer 1-3 — inferred from recipe complexity)",
-    "cookingTimeMinutes": "number (required, integer minutes — inferred total active + passive cook time)",
-    "categoryId": "number | null (existing recipe category id)",
-    "proposedCategory": { "key": "string", "name": "string" } | null,
-    "imageUrl": "string | null (recipe thumbnail URL from ATT_FILE_NO_MK or ATT_FILE_NO_MAIN)",
-    "nutrition": {
-      "calories": "number | null (INFO_ENG, kcal)",
-      "carbohydrates": "number | null (INFO_CAR, g)",
-      "protein": "number | null (INFO_PRO, g)",
-      "fat": "number | null (INFO_FAT, g)",
-      "sodium": "number | null (INFO_NA, mg)"
-    } | null,
-    "cookingMethod": "string | null (RCP_WAY2)",
-    "dishType": "string | null (RCP_PAT2)",
-    "steps": [
-      {
-        "content": "string (ordered cooking step, ~요체)",
-        "imageUrl": "string | null (MANUAL_IMGnn URL when present)"
-      }
-    ],
-    "tips": "string | null (RCP_NA_TIP → recipe.tips, 저감 조리법 TIP)"
-  },
-  "ingredients": [
-    {
-      "rawName": "string (as written in source)",
-      "normalizedName": "string (quantity/unit/parentheses removed)",
-      "ingredientAlias": "string (canonical Korean ingredient name for DB matching)",
-      "quantity": "string | null",
-      "unit": "string | null",
-      "categoryId": "number | null (existing ingredient category id)",
-      "proposedCategory": { "key": "string", "name": "string" } | null
-    }
-  ],
-  "parseConfidence": "high | medium | low",
-  "parseIssues": ["string"] (empty array if none)
-}
+## Output field semantics
+The response shape is enforced by the API \`json_schema\` (\`recipe\`, \`ingredients\`, \`parseConfidence\`, \`parseIssues\`). Field meanings:
+- recipe.title: concise Korean recipe name (required)
+- recipe.description: 1-2 sentences in ~요체, or null
+- recipe.servings: integer ≥ 1 (required — inferred)
+- recipe.difficulty: integer 1-3 (required — inferred from complexity)
+- recipe.cookingTimeMinutes: integer minutes (required — inferred total active + passive cook time)
+- recipe.categoryId: existing recipe category id, or null
+- recipe.proposedCategory: { key, name } when categoryId is null, else null
+- recipe.imageUrl: ATT_FILE_NO_MK or ATT_FILE_NO_MAIN URL, or null
+- recipe.nutrition: { calories(INFO_ENG kcal), carbohydrates(INFO_CAR g), protein(INFO_PRO g), fat(INFO_FAT g), sodium(INFO_NA mg) } or null
+- recipe.cookingMethod: RCP_WAY2 or null
+- recipe.dishType: RCP_PAT2 or null
+- recipe.steps[]: { content (~요체), imageUrl (MANUAL_IMGnn or null) }
+- recipe.tips: RCP_NA_TIP or null
+- ingredients[]: { rawName, normalizedName, ingredientAlias, quantity, unit, categoryId, proposedCategory }
+- parseConfidence: high | medium | low
+- parseIssues: string array (empty if none)
 
 ## General principles
 - **Ground in source.** Copy or directly derive every field from the input. Only \`categoryId\`/\`proposedCategory\`, \`servings\`, \`difficulty\`, \`cookingTimeMinutes\`, and \`parseConfidence\` require inference — each has dedicated rules below. Never invent steps, ingredients, or numeric nutrition.

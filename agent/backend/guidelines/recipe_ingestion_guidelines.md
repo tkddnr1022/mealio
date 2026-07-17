@@ -384,13 +384,15 @@ submit은 선택된 job 그룹을 Batch API에 제출하고, 반환된 OpenAI Ba
 4. **JSONL 생성** — runId 그룹별 대상 job, `custom_id` = `recipe_ingestion_job._id`
 
    ```jsonl
-   {"custom_id": "{recipe_ingestion_job._id}", "method": "POST", "url": "/v1/responses", "body": {"model": "{OPENAI_BATCH_MODEL}", "max_output_tokens": 8192, "reasoning": {"effort": "low"}, "text": {"format": {"type": "json_object"}, "verbosity": "low"}, "instructions": "{system_prompt}", "input": "{raw_data_json}"}}
+   {"custom_id": "{recipe_ingestion_job._id}", "method": "POST", "url": "/v1/responses", "body": {"model": "{OPENAI_BATCH_MODEL}", "max_output_tokens": 8192, "reasoning": {"effort": "low"}, "text": {"format": {"type": "json_schema", "name": "recipe_ingestion_parse", "strict": true, "schema": "{RECIPE_INGESTION_PARSE_JSON_SCHEMA}"}, "verbosity": "low"}, "instructions": "{system_prompt}", "input": "{raw_data_json}"}}
    ```
 
    `model`은 환경 변수 `OPENAI_BATCH_MODEL` 값을 사용한다.
 
+   `text.format`는 OpenAI Structured Outputs(`json_schema`, `strict: true`)를 사용한다. 스키마 SSOT: `server/consumer/src/jobs/recipe-ingestion-parse-submit/schemas/recipe-ingestion-parse.schema.ts` (`recipe` · `ingredients` · `parseConfidence` · `parseIssues`).
+
    `system_prompt` 포함 항목:
-   - 출력 JSON 스키마 (레시피, 재료, 레시피-재료)
+   - 출력 필드 의미·추론 규칙 (구조 제약은 `json_schema`가 강제)
    - **이미지·영양·조리 메타**: `imageUrl`, `nutrition`, `cookingMethod`, `dishType`, `steps[].imageUrl`
    - 어조 규칙 (~요 체 등)
    - 노이즈 제거 (MANUAL 필드 말미 단일 영문자 등), **조리도구 제외**, **재료 중복 병합**

@@ -24,6 +24,10 @@ import {
 import { RecipeIngestionJobRepository } from 'src/persistence/repositories/mongodb/recipe-ingestion-job.repository';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
 import { buildRecipeIngestionSystemPrompt } from '../prompts/recipe-ingestion.system-prompt';
+import {
+  RECIPE_INGESTION_PARSE_TEXT_FORMAT,
+  type RecipeIngestionParseTextFormat,
+} from '../schemas/recipe-ingestion-parse.schema';
 import { CategoryContextService } from './category-context.service';
 
 export class ParseSubmitRunIdError extends Error {
@@ -71,7 +75,7 @@ export interface ParseBatchJsonlRequestLine {
     max_output_tokens: number;
     reasoning: { effort: 'minimal' | 'low' | 'medium' | 'high' };
     text: {
-      format: { type: 'json_object' };
+      format: RecipeIngestionParseTextFormat;
       verbosity: 'low' | 'medium' | 'high';
     };
     instructions: string;
@@ -392,7 +396,7 @@ export function buildParseBatchJsonlLine(
       max_output_tokens: RECIPE_INGESTION_OPENAI_BATCH_MAX_TOKENS,
       reasoning: { effort: RECIPE_INGESTION_OPENAI_BATCH_REASONING_EFFORT },
       text: {
-        format: { type: 'json_object' },
+        format: RECIPE_INGESTION_PARSE_TEXT_FORMAT,
         verbosity: RECIPE_INGESTION_OPENAI_BATCH_VERBOSITY,
       },
       instructions: systemPrompt,

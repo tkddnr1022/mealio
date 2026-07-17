@@ -24,7 +24,16 @@ describe('RecipeSearchQueryExpansionService', () => {
       '고단백 닭가슴살 요리',
       '운동 후 단백질 식단',
     ]);
-    expect(openaiService.createResponse).toHaveBeenCalled();
+    expect(openaiService.createResponse).toHaveBeenCalledWith(
+      expect.any(Array),
+      expect.objectContaining({
+        responseFormat: expect.objectContaining({
+          type: 'json_schema',
+          name: 'recipe_search_query_expansion',
+          strict: true,
+        }),
+      }),
+    );
   });
 
   it('LLM 호출 실패 시 원질의만 반환한다', async () => {

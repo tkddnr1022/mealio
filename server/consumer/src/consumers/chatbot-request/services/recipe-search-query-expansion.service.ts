@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { OpenAIService } from 'src/integrations/openai/openai.service';
+import {
+  OpenAIService,
+  type ResponseTextFormat,
+} from 'src/integrations/openai/openai.service';
 import { parseJson } from 'src/integrations/openai/response-parser';
 import { RECIPE_SEARCH_QUERY_EXPANSION_MAX } from '../../../policy/recipe-search.policy';
 
@@ -10,8 +13,27 @@ export interface QueryExpansionInput {
 }
 
 interface QueryExpansionResponse {
-  queries?: string[];
+  queries: string[];
 }
+
+/** Query Expansion Structured Outputs (`text.format` json_schema) */
+const QUERY_EXPANSION_TEXT_FORMAT: ResponseTextFormat = {
+  type: 'json_schema',
+  name: 'recipe_search_query_expansion',
+  strict: true,
+  schema: {
+    type: 'object',
+    properties: {
+      queries: {
+        type: 'array',
+        items: { type: 'string' },
+        maxItems: RECIPE_SEARCH_QUERY_EXPANSION_MAX,
+      },
+    },
+    required: ['queries'],
+    additionalProperties: false,
+  },
+};
 
 @Injectable()
 export class RecipeSearchQueryExpansionService {
@@ -35,14 +57,13 @@ export class RecipeSearchQueryExpansionService {
         {
           instructions: [
             'You expand recipe search queries for semantic retrieval.',
-            'Return JSON: {"queries":["..."]}.',
-            `Provide up to ${RECIPE_SEARCH_QUERY_EXPANSION_MAX} alternative queries.`,
+            `Provide up to ${RECIPE_SEARCH_QUERY_EXPANSION_MAX} alternative queries in the queries array.`,
             'Preserve must-have and avoid ingredient intent from the original query.',
             'Do not include avoid ingredients in expanded queries.',
             'Use Korean when the original query is Korean.',
           ].join(' '),
           maxOutputTokens: 300,
-          responseFormat: { type: 'json_object' },
+          responseFormat: QUERY_EXPANSION_TEXT_FORMAT,
         },
       );
 
@@ -81,8 +102,6 @@ export class RecipeSearchQueryExpansionService {
     if (avoid.length > 0) {
       sections.push(`avoid_ingredients: ${avoid.join(', ')}`);
     }
-
-    sections.push('Respond in json: {"queries":["..."]}.');
 
     return sections.join('\n');
   }

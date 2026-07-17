@@ -42,12 +42,24 @@ describe('OpenAIService', () => {
         },
       });
 
+      const jsonSchemaFormat = {
+        type: 'json_schema' as const,
+        name: 'recipe_search_query_expansion',
+        strict: true as const,
+        schema: {
+          type: 'object',
+          properties: { queries: { type: 'array', items: { type: 'string' } } },
+          required: ['queries'],
+          additionalProperties: false,
+        },
+      };
+
       const result = await service.createResponse(
         [{ role: 'user', content: 'hello' }],
         {
           instructions: 'sys',
           maxOutputTokens: 100,
-          responseFormat: { type: 'json_object' },
+          responseFormat: jsonSchemaFormat,
         },
       );
 
@@ -57,7 +69,7 @@ describe('OpenAIService', () => {
           input: [{ role: 'user', content: 'hello' }],
           instructions: 'sys',
           max_output_tokens: 100,
-          text: { format: { type: 'json_object' } },
+          text: { format: jsonSchemaFormat },
           store: true,
         }),
       );

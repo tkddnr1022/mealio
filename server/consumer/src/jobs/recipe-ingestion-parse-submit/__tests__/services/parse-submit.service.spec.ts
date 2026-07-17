@@ -13,6 +13,7 @@ import {
 } from '../../services/parse-submit.service';
 import { RecipeIngestionRunScopeError } from 'src/jobs/recipe-ingestion/recipe-ingestion-run.scope';
 import { buildRecipeIngestionSystemPrompt } from '../../prompts/recipe-ingestion.system-prompt';
+import { RECIPE_INGESTION_PARSE_TEXT_FORMAT } from '../../schemas/recipe-ingestion-parse.schema';
 import { ConsumerMetricsService } from 'src/reliability/monitoring/consumer-metrics.service';
 
 const MOCK_BATCH_MODEL = 'gpt-4o-mini-batch';
@@ -201,7 +202,20 @@ describe('ParseSubmitService', () => {
       expect(line.custom_id).toBe(jobId);
       expect(line.body.model).toBe(MOCK_BATCH_MODEL);
       expect(line.url).toBe('/v1/responses');
-      expect(line.body.text.format).toEqual({ type: 'json_object' });
+      expect(line.body.text.format.type).toBe('json_schema');
+      expect(line.body.text.format.name).toBe('recipe_ingestion_parse');
+      expect(line.body.text.format.strict).toBe(true);
+      expect(line.body.text.format.schema).toEqual(
+        expect.objectContaining({
+          type: 'object',
+          required: expect.arrayContaining([
+            'recipe',
+            'ingredients',
+            'parseConfidence',
+            'parseIssues',
+          ]),
+        }),
+      );
 
       expect(jobRepository.transitionManyByIds).toHaveBeenNthCalledWith(
         2,
@@ -375,7 +389,7 @@ describe('buildParseBatchJsonlLine', () => {
         max_output_tokens: 8192,
         reasoning: { effort: 'low' },
         text: {
-          format: { type: 'json_object' },
+          format: RECIPE_INGESTION_PARSE_TEXT_FORMAT,
           verbosity: 'low',
         },
         instructions: systemPrompt,
