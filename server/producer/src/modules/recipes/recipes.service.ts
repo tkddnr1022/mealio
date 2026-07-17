@@ -424,7 +424,6 @@ export class RecipeQueryService {
       categoryId: recipe.categoryId,
       categoryName: recipe.categoryMeta.name,
       cookingMethod: recipe.cookingMethod ?? null,
-      dishType: recipe.dishType ?? null,
       nutrition: parseRecipeNutrition(recipe.nutrition),
       cookingTip: recipe.cookingTip ?? null,
       source: recipe.source ?? null,

@@ -75,7 +75,6 @@ const recipeSchema = {
     imageUrl: nullableString,
     nutrition: nutritionSchema,
     cookingMethod: nullableString,
-    dishType: nullableString,
     steps: {
       type: 'array',
       minItems: 1,
@@ -94,7 +93,6 @@ const recipeSchema = {
     'imageUrl',
     'nutrition',
     'cookingMethod',
-    'dishType',
     'steps',
     'tips',
   ],

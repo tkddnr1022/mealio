@@ -46,7 +46,6 @@ describe('RecipeQueryService', () => {
     isPublished: true,
     instructions: [{ step: 1, content: '재료를 준비한다.' }],
     cookingMethod: '볶기',
-    dishType: '밥',
     nutrition: {
       calories: 420,
       carbohydrates: 55,
@@ -329,7 +328,6 @@ describe('RecipeQueryService', () => {
       expect(result.ingredients[0].name).toBe('김치');
       expect(result.ingredients[0].amount).toBe(100);
       expect(result.cookingMethod).toBe('볶기');
-      expect(result.dishType).toBe('밥');
       expect(result.nutrition?.calories).toBe(420);
       expect(result.cookingTip).toContain('저염');
     });
@@ -357,7 +355,6 @@ describe('RecipeQueryService', () => {
         categoryId: 1,
         categoryName: '한식',
         cookingMethod: null,
-        dishType: null,
         nutrition: null,
         cookingTip: null,
         source: null,

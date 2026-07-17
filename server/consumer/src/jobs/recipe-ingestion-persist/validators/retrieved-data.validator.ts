@@ -69,7 +69,6 @@ export interface RetrievedRecipePayload {
   imageUrl?: string | null;
   nutrition?: RetrievedNutritionPayload | null;
   cookingMethod?: string | null;
-  dishType?: string | null;
 }
 
 export interface ValidatedRetrievedRecipePayload extends Omit<

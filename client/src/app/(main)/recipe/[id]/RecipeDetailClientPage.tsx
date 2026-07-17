@@ -53,13 +53,6 @@ function buildRecipeClassificationHashTags(
       href: buildRecipeSearchHref({ q: cookingMethod }),
     });
   }
-  const dishType = recipe.dishType?.trim();
-  if (dishType) {
-    items.push({
-      label: dishType,
-      href: buildRecipeSearchHref({ q: dishType }),
-    });
-  }
   return items;
 }
 

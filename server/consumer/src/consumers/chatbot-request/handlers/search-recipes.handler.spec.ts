@@ -10,7 +10,6 @@ describe('SearchRecipesHandler', () => {
     imageUrl: null,
     servings: 2,
     cookingMethod: '볶기',
-    dishType: '샐러드',
     cookingTip: '소금은 조금만 넣으세요',
     nutrition: { protein: 25, sodium: 400, calories: 280 },
     instructions: [{ step: 1, content: '닭가슴살을 굽습니다.' }],
@@ -216,7 +215,6 @@ describe('SearchRecipesHandler', () => {
     );
     expect(result[0]).toMatchObject({
       cookingMethod: '볶기',
-      dishType: '샐러드',
       nutritionSummary: '280kcal, 단백질 25g, 나트륨 400mg',
       topInstructionSnippet: '1. 닭가슴살을 굽습니다.',
       softConstraintScore: expect.any(Number),
@@ -262,15 +260,14 @@ describe('SearchRecipesHandler', () => {
     expect(result).toEqual([]);
   });
 
-  it('dishType·cookingMethod가 키워드와 맞으면 keywordScore가 올라간다', async () => {
+  it('cookingMethod·title이 키워드와 맞으면 keywordScore가 올라간다', async () => {
     const { handler } = createHandler({
       recipeSearchQueryService: {
         fetchRecipesByIds: jest.fn().mockResolvedValue([
           createRecipe({
-            title: '요리',
+            title: '국',
             description: '',
             cookingMethod: '찌기',
-            dishType: '국',
           }),
         ]),
       },

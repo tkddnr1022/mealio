@@ -21,7 +21,6 @@ const parse_retrievedData: RetrievedDataPayload = {
       sodium: 500,
     },
     cookingMethod: '끓이기',
-    dishType: '찌개',
     steps: [
       {
         content: '물을 넣어 끓여요.',
@@ -105,7 +104,6 @@ describe('RecipeCreationService', () => {
         cookTime: 25,
         imageUrl: parse_retrievedData.recipe.imageUrl,
         cookingMethod: '끓이기',
-        dishType: '찌개',
         cookingTip: '저염 된장을 사용하세요.',
         nutrition: {
           calories: 250,

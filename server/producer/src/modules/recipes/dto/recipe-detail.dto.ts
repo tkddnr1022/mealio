@@ -56,9 +56,6 @@ export class RecipeDetailDto extends RecipeSummaryDto {
   @ApiProperty({ example: '찌기', nullable: true, description: '조리 방법' })
   cookingMethod: string | null;
 
-  @ApiProperty({ example: '반찬', nullable: true, description: '요리 종류' })
-  dishType: string | null;
-
   @ApiProperty({
     type: RecipeNutritionDto,
     nullable: true,

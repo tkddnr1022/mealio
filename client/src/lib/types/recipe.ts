@@ -74,8 +74,6 @@ export interface RecipeDetail extends RecipeSummary {
   categoryName: string;
   /** 조리 방법 (예: 찌기, 볶기) */
   cookingMethod: string | null;
-  /** 요리 종류 (예: 반찬, 국) */
-  dishType: string | null;
   nutrition: RecipeNutrition | null;
   /** 저감·건강 조리 팁 */
   cookingTip: string | null;
@@ -123,7 +121,7 @@ export interface RecipeListQuery {
 
 /** `GET /recipes/search` 쿼리 파라미터 */
 export interface RecipeSearchQuery extends RecipeListQuery {
-  /** 제목·설명·조리방법·요리종류 키워드 검색 */
+  /** 제목·설명·조리방법 키워드 검색 */
   q?: string;
   categoryId?: number;
 }

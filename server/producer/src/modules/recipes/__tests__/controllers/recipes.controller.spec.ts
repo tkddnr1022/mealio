@@ -38,7 +38,6 @@ describe('RecipesController', () => {
     categoryId: 1,
     categoryName: '한식',
     cookingMethod: '볶기',
-    dishType: '밥',
     nutrition: {
       calories: 420,
       carbohydrates: 55,

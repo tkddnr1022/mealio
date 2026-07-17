@@ -60,7 +60,6 @@ export class RecipeEmbeddingDocumentService {
     ];
     if (recipe.cookingMethod)
       lines.push(`cooking_method: ${recipe.cookingMethod}`);
-    if (recipe.dishType) lines.push(`dish_type: ${recipe.dishType}`);
 
     const nutritionText = formatRecipeNutritionSummary(recipe.nutrition, {
       locale: 'en',

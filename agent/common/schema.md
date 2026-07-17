@@ -118,7 +118,6 @@
 | imageUrl        | image_url    | VARCHAR(512)    | 레시피 이미지 URL (nullable)     |
 | servings        | servings     | INT             | 인분 (기본값 2)                  |
 | cookingMethod   | cooking_method | VARCHAR(50)   | 조리 방법 (예: 찌기, 볶기). nullable |
-| dishType        | dish_type    | VARCHAR(50)     | 요리 종류 (예: 반찬, 국). nullable |
 | nutrition       | nutrition    | JSON            | 1인분 영양 정보. nullable. `{ calories, carbohydrates, protein, fat, sodium }` (단위: kcal·g·mg) |
 | cookingTip      | cooking_tip  | TEXT            | 저감·건강 조리 팁. nullable      |
 | source          | source       | VARCHAR(50)     | 데이터 출처 식별자 (예: `foodsafety`). nullable |
@@ -647,7 +646,6 @@
 | imageUrl | String \| null | 대표 이미지 URL (optional) |
 | nutrition | Nutrition \| null | 1인분 영양 — `Recipe.nutrition`과 동일 키 (optional) |
 | cookingMethod | String \| null | 조리 방법 (optional) |
-| dishType | String \| null | 요리 종류 (optional) |
 
 **RetrievedIngredient** (`retrievedData.ingredients[]`)
 

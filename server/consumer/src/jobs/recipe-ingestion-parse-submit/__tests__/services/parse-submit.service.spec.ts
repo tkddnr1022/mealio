@@ -444,5 +444,8 @@ describe('buildRecipeIngestionSystemPrompt', () => {
     expect(prompt).toContain('달걀(30g)');
     expect(prompt).toContain('저염간장(10g)');
     expect(prompt).toContain('Unit quality gate');
+    expect(prompt).toContain('RCP_PAT2');
+    expect(prompt).toContain('category-selection hint');
+    expect(prompt).not.toContain('recipe.dishType');
   });
 });

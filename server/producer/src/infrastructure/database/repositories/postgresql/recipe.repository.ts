@@ -21,7 +21,7 @@ export interface RecipeStaticIdsParams {
 }
 
 export interface RecipeSearchParams {
-  /** 비어 있거나 생략이면 제목·설명·조리방법·요리종류 contains 조건 없음 */
+  /** 비어 있거나 생략이면 제목·설명·조리방법 contains 조건 없음 */
   keyword?: string;
   page: number;
   size: number;
@@ -214,7 +214,6 @@ export class RecipeRepository {
           { title: { contains: keyword, mode: 'insensitive' } },
           { description: { contains: keyword, mode: 'insensitive' } },
           { cookingMethod: { contains: keyword, mode: 'insensitive' } },
-          { dishType: { contains: keyword, mode: 'insensitive' } },
         ],
       });
     }

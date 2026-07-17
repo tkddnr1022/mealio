@@ -27,7 +27,7 @@ function toNumberArray(value: unknown): number[] | undefined {
 export class RecipeSearchQueryDto {
   @ApiPropertyOptional({
     description:
-      '검색 키워드 (제목·설명·조리방법·요리종류 부분 일치, 생략 시 텍스트 검색 없음)',
+      '검색 키워드 (제목·설명·조리방법 부분 일치, 생략 시 텍스트 검색 없음)',
     minLength: 1,
   })
   @IsOptional()

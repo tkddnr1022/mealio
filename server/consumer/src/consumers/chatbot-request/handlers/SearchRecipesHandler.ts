@@ -34,7 +34,6 @@ export interface SearchedRecipe {
   categoryId: number;
   categoryName: string;
   cookingMethod?: string | null;
-  dishType?: string | null;
   nutritionSummary?: string | null;
   topInstructionSnippet?: string | null;
   semanticScore?: number;
@@ -323,7 +322,6 @@ export class SearchRecipesHandler {
       categoryId: r.categoryId,
       categoryName: r.categoryMeta.name,
       cookingMethod: r.cookingMethod,
-      dishType: r.dishType,
       nutritionSummary: r.nutritionSummary,
       topInstructionSnippet: r.topInstructionSnippet,
       semanticScore: this.roundScore(r.semanticScore),
@@ -672,14 +670,12 @@ export class SearchRecipesHandler {
     title: string;
     description: string | null;
     cookingMethod: string | null;
-    dishType: string | null;
     cookingTip: string | null;
   }): string {
     return [
       recipe.title,
       recipe.description ?? '',
       recipe.cookingMethod ?? '',
-      recipe.dishType ?? '',
       recipe.cookingTip ?? '',
     ]
       .join(' ')

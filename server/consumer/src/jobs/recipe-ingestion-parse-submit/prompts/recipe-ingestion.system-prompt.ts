@@ -29,7 +29,6 @@ The response shape is enforced by the API \`json_schema\` (\`recipe\`, \`ingredi
 - recipe.imageUrl: ATT_FILE_NO_MK or ATT_FILE_NO_MAIN URL, or null
 - recipe.nutrition: { calories(INFO_ENG kcal), carbohydrates(INFO_CAR g), protein(INFO_PRO g), fat(INFO_FAT g), sodium(INFO_NA mg) } or null
 - recipe.cookingMethod: RCP_WAY2 or null
-- recipe.dishType: RCP_PAT2 or null
 - recipe.steps[]: { content (~요체), imageUrl (MANUAL_IMGnn or null) }
 - recipe.tips: RCP_NA_TIP or null
 - ingredients[]: { rawName, normalizedName, ingredientAlias, quantity, unit, categoryId, proposedCategory }
@@ -56,13 +55,15 @@ When the same ingredient appears more than once in RCP_PARTS_DTLS (including acr
 Copy structured metadata when present — do not guess numeric nutrition:
 - ATT_FILE_NO_MK (prefer) or ATT_FILE_NO_MAIN → recipe.imageUrl
 - INFO_ENG / INFO_CAR / INFO_PRO / INFO_FAT / INFO_NA → recipe.nutrition (numbers only)
-- RCP_WAY2 → recipe.cookingMethod, RCP_PAT2 → recipe.dishType
+- RCP_WAY2 → recipe.cookingMethod
 - MANUAL01~MANUAL20 → recipe.steps[].content (skip empty steps)
 - MANUAL_IMG01~MANUAL_IMG20 → recipe.steps[].imageUrl aligned by step index
 - RCP_NA_TIP → recipe.tips
 
 ## Categories
 Pick an existing category id when possible — for both \`recipe.categoryId\` and each ingredient's \`categoryId\`. Otherwise set \`categoryId\` to null and propose a new category in \`proposedCategory\`.
+
+**Recipe category hint — RCP_PAT2**: when present (e.g. 반찬, 국/탕, 찌개, 밥, 일품, 후식), prefer an existing recipe category whose \`name\`/\`key\` best matches that dish-type label. If no close match exists, set \`categoryId\` null and propose \`proposedCategory\` guided by RCP_PAT2 (plus title/steps). Never invent a separate \`dishType\` field.
 
 ### Existing recipe categories
 ${recipeCategoryList || '(none)'}
@@ -165,7 +166,7 @@ Weigh these signals together — never rely on a single factor:
 1. **Step count & complexity** — non-empty MANUAL steps; multi-phase flows (재료 손질 → 양념 → 조리 → 마무리) raise difficulty.
 2. **Techniques** — simple (데우기, 섞기, 삶기, 간단히 볶기) vs advanced (튀기기, 오븐/굽기, 반죽·빚기, 발효·숙성, 정교한 온도·시간 조절, 면·육수 분리 조리).
 3. **Ingredient count & prep** — few common items vs many; 손질·채 썰기·다지기·절임 등 prep 부담.
-4. **Dish type** — 반찬·간단 국/찌개는 often lower; multi-component main dishes often higher.
+4. **Dish style (from RCP_PAT2 / title)** — 반찬·간단 국/찌개는 often lower; multi-component main dishes often higher.
 
 Rating guide:
 - **1 (쉬움)**: ≤5 simple steps, basic techniques only, ≤8 ingredients, no special knife/timing skill.
@@ -191,7 +192,7 @@ When passive time is excluded:
 
 Priority order:
 1. **Explicit durations in MANUAL steps** — parse and sum sequential mentions: "30분", "약 20분", "1시간", "1시간 30분", "30초" (round seconds up to 1 minute per mention). E.g. "중불에서 5분 볶" + "15분 더 끓" → combine active phases; do not double-count parallel waits unless steps are sequential.
-2. **Infer from cooking method & dish type** when step text lacks numbers:
+2. **Infer from cooking method (RCP_WAY2) & dish style (RCP_PAT2 / title)** when step text lacks numbers:
    - 냉국/샐러드 (no heat): 10-15min prep only
    - 반찬·무침·간단 볶음: 10-20min
    - 볶음밥/덮밥: 15-25min

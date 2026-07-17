@@ -175,7 +175,7 @@ describe('RecipeRepository', () => {
       );
     });
 
-    it('키워드 검색 시 제목·설명·조리방법·요리종류를 OR 조건으로 조회한다', async () => {
+    it('키워드 검색 시 제목·설명·조리방법을 OR 조건으로 조회한다', async () => {
       await repository.searchByKeyword({
         keyword: '볶기',
         page: 1,
@@ -193,7 +193,6 @@ describe('RecipeRepository', () => {
                   { title: { contains: '볶기', mode: 'insensitive' } },
                   { description: { contains: '볶기', mode: 'insensitive' } },
                   { cookingMethod: { contains: '볶기', mode: 'insensitive' } },
-                  { dishType: { contains: '볶기', mode: 'insensitive' } },
                 ],
               },
             ],

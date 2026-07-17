@@ -11,7 +11,6 @@ export interface RecipeForEmbeddingDocument {
   difficulty: number;
   servings: number;
   cookingMethod: string | null;
-  dishType: string | null;
   nutrition: unknown;
   cookingTip: string | null;
   updatedAt: Date;
@@ -39,7 +38,6 @@ export interface RecipeIngestionUpsertInput {
   imageUrl: string | null;
   nutrition: Prisma.InputJsonValue | typeof Prisma.JsonNull;
   cookingMethod: string | null;
-  dishType: string | null;
   cookingTip: string | null;
   source: string;
   sourceRecipeId: string;
@@ -92,7 +90,6 @@ export class RecipeRepository {
         difficulty: true,
         servings: true,
         cookingMethod: true,
-        dishType: true,
         nutrition: true,
         cookingTip: true,
         updatedAt: true,

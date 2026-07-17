@@ -80,7 +80,6 @@ model Recipe {
   imageUrl     String?  @map("image_url") @db.VarChar(512)
   servings     Int      @default(2)
   cookingMethod String? @map("cooking_method") @db.VarChar(50)
-  dishType     String?  @map("dish_type") @db.VarChar(50)
   nutrition    Json?
   cookingTip   String?  @map("cooking_tip") @db.Text
   source       String?  @db.VarChar(50)

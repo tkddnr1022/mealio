@@ -146,7 +146,6 @@ export class RecipeCreationService {
         imageUrl: normalizeFoodsafetyImageUrl(data.recipe.imageUrl),
         nutrition: toNutritionJson(data.recipe.nutrition),
         cookingMethod: data.recipe.cookingMethod?.trim().slice(0, 50) ?? null,
-        dishType: data.recipe.dishType?.trim().slice(0, 50) ?? null,
         cookingTip: data.recipe.tips?.trim() ?? null,
         source: RECIPE_INGESTION_RECIPE_SOURCE,
         sourceRecipeId,

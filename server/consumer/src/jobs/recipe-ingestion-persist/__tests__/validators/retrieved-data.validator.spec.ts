@@ -52,7 +52,6 @@ describe('validateRetrievedData', () => {
           sodium: 700,
         },
         cookingMethod: '끓이기',
-        dishType: '국/탕',
         steps: [
           { content: '물을 넣어요.', imageUrl: 'http://example.com/s1.png' },
           { content: '끓여요.' },
