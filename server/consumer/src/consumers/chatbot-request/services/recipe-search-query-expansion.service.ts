@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   OpenAIService,
   type ResponseTextFormat,
@@ -38,8 +39,16 @@ const QUERY_EXPANSION_TEXT_FORMAT: ResponseTextFormat = {
 @Injectable()
 export class RecipeSearchQueryExpansionService {
   private readonly logger = new Logger(RecipeSearchQueryExpansionService.name);
+  private readonly queryExpansionModel: string;
 
-  constructor(private readonly openaiService: OpenAIService) {}
+  constructor(
+    private readonly openaiService: OpenAIService,
+    config: ConfigService,
+  ) {
+    this.queryExpansionModel = config.getOrThrow<string>(
+      'OPENAI_QUERY_EXPANSION_MODEL',
+    );
+  }
 
   /**
    * 원질의를 보존하고 의미적으로 다양한 확장 질의를 생성한다.
@@ -55,6 +64,7 @@ export class RecipeSearchQueryExpansionService {
       const completion = await this.openaiService.createResponse(
         [{ role: 'user', content: this.buildExpansionPrompt(input) }],
         {
+          model: this.queryExpansionModel,
           instructions: [
             'You expand recipe search queries for semantic retrieval.',
             `Provide up to ${RECIPE_SEARCH_QUERY_EXPANSION_MAX} alternative queries in the queries array.`,

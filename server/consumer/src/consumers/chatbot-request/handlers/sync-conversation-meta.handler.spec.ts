@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import { ChatbotEventType } from '@mealio/shared';
 import { OpenAIService } from 'src/integrations/openai/openai.service';
 import { ChatbotConversationRepository } from 'src/persistence/repositories/mongodb/chatbot-conversation.repository';
@@ -27,6 +28,15 @@ describe('SyncConversationMetaHandler', () => {
         SyncConversationMetaHandler,
         { provide: OpenAIService, useValue: openai },
         { provide: ChatbotConversationRepository, useValue: conversations },
+        {
+          provide: ConfigService,
+          useValue: {
+            getOrThrow: (key: string) => {
+              if (key === 'OPENAI_TITLE_MODEL') return 'gpt-title-test';
+              throw new Error(`missing ${key}`);
+            },
+          },
+        },
       ],
     }).compile();
 
@@ -46,7 +56,10 @@ describe('SyncConversationMetaHandler', () => {
       eventType: ChatbotEventType.START,
     });
 
-    expect(openai.createResponse).toHaveBeenCalled();
+    expect(openai.createResponse).toHaveBeenCalledWith(
+      [{ role: 'user', content: '김치로 뭐 해먹지' }],
+      expect.objectContaining({ model: 'gpt-title-test' }),
+    );
     expect(conversations.createWithTitle).toHaveBeenCalledWith(
       1,
       'conv_a',

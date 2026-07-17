@@ -43,9 +43,9 @@
 | server/consumer/src/consumers/chatbot-request/handlers/FinalizeRecipeSelectionHandler.ts | finalize_recipe_selection — 챗봇 추천 레시피 최종 선택·확정 처리 |
 | server/consumer/src/consumers/chatbot-request/handlers/FoodCategoriesHandler.ts | get_food_categories — 레시피·재료 카테고리 마스터 조회(Redis 캐시 1시간) |
 | server/consumer/src/consumers/chatbot-request/handlers/SaveChatLogHandler.ts | 스트림 종료 후 ChatbotLog 저장 |
-| server/consumer/src/consumers/chatbot-request/handlers/SyncConversationMetaHandler.ts | 성공 턴 후 `chatbot_conversations` 동기화: `chatbot.start`면 LLM 제목·메타 생성, `chatbot.message`면 `updatedAt` 갱신 |
+| server/consumer/src/consumers/chatbot-request/handlers/SyncConversationMetaHandler.ts | 성공 턴 후 `chatbot_conversations` 동기화: `chatbot.start`면 LLM(`OPENAI_TITLE_MODEL`) 제목·메타 생성, `chatbot.message`면 `updatedAt` 갱신 |
 | server/consumer/src/consumers/chatbot-request/services/recipe-search-query.service.ts | search_recipes 핸들러용 Prisma 조회 — ANN 후보 `recipeId` 목록에 hard constraint(`isPublished`, 기피 재료) 적용 후 상세 fetch |
-| server/consumer/src/consumers/chatbot-request/services/recipe-search-query-expansion.service.ts | search_recipes Query Expansion — 원질의 보존 + LLM 확장 질의 생성(`json_schema`, 실패 시 원질의 fallback) |
+| server/consumer/src/consumers/chatbot-request/services/recipe-search-query-expansion.service.ts | search_recipes Query Expansion — 원질의 보존 + LLM 확장 질의 생성(`OPENAI_QUERY_EXPANSION_MODEL`, `json_schema`, 실패 시 원질의 fallback) |
 | server/consumer/src/consumers/chatbot-request/services/ingredient-semantic-resolver.service.ts | search_recipes 재료명 → Ingredient ID 해상 — exact name → `IngredientEmbedding` ANN(`INGREDIENT_VECTOR_MATCH_THRESHOLD`) |
 | server/consumer/src/persistence/repositories/mongodb/chatbot-conversation.repository.ts | ChatbotConversation 메타 (`createWithTitle`, `touchUpdatedAt`, Responses 체이닝용 `getLastResponseId`/`saveLastResponseId`) |
 | server/consumer/src/consumers/chatbot-request/tools/chatbot-tools.definition.ts | Responses API 평탄 tools 배열 (`type`/`name`/`parameters`/`strict`) |
@@ -78,7 +78,7 @@
 | server/consumer/src/integrations/kafka/kafka-producer.service.ts | Consumer 내부 토픽 발행 (connect/disconnect, emit). 토픽 §2.2 |
 | **server/consumer/src/integrations/openai/** | |
 | server/consumer/src/integrations/openai/openai.module.ts | OpenAI 통합 모듈 |
-| server/consumer/src/integrations/openai/openai.service.ts | OpenAI Responses API 래퍼 (`createResponse`/`createResponseStream`, `text.format` json_schema, usage `input_tokens`→`promptTokens` 매핑) |
+| server/consumer/src/integrations/openai/openai.service.ts | OpenAI Responses API 래퍼 (`createResponse`/`createResponseStream`, `createResponse`의 `options.model` 오버라이드, `text.format` json_schema, usage `input_tokens`→`promptTokens` 매핑) |
 | server/consumer/src/integrations/openai/response-parser.ts | JSON 파싱·검증 |
 | server/consumer/src/integrations/openai/rate-limiter.ts | API 호출 제한 |
 | server/consumer/src/integrations/openai/openai-batch.service.ts | OpenAI Batch API 래퍼 (recipe ingestion submit/retrieve) |

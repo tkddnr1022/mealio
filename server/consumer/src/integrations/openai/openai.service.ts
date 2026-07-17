@@ -76,10 +76,12 @@ export class OpenAIService {
 
   /**
    * 비스트리밍 Responses 호출 (제목 생성·질의 확장 등 JSON/텍스트 응답용).
+   * `options.model`이 있으면 해당 모델을 쓰고, 없으면 `OPENAI_CHAT_MODEL`을 쓴다.
    */
   async createResponse(
     input: string | ResponseInput,
     options?: {
+      model?: string;
       instructions?: string;
       maxOutputTokens?: number;
       responseFormat?: ResponseTextFormat;
@@ -90,7 +92,7 @@ export class OpenAIService {
     await this.rateLimiter?.acquire();
 
     const response = await this.client.responses.create({
-      model: this.model,
+      model: options?.model ?? this.model,
       input,
       store: true,
       ...(options?.instructions != null && {

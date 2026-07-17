@@ -121,6 +121,7 @@ flowchart TD
 | --- | --- |
 | `OPENAI_API_KEY` | Embedding API 인증 |
 | `OPENAI_EMBEDDING_MODEL` | embed batch upsert·`search_recipes` 질의 임베딩 공통 모델 |
+| `OPENAI_QUERY_EXPANSION_MODEL` | `search_recipes` Query Expansion 모델 |
 
 상세는 [Consumer 환경 변수](./environment-variables)를 참고하세요.
 

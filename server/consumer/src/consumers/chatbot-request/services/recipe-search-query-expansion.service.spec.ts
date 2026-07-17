@@ -1,4 +1,14 @@
+import { ConfigService } from '@nestjs/config';
 import { RecipeSearchQueryExpansionService } from './recipe-search-query-expansion.service';
+
+function createConfig(): ConfigService {
+  return {
+    getOrThrow: (key: string) => {
+      if (key === 'OPENAI_QUERY_EXPANSION_MODEL') return 'gpt-expansion-test';
+      throw new Error(`missing ${key}`);
+    },
+  } as unknown as ConfigService;
+}
 
 describe('RecipeSearchQueryExpansionService', () => {
   it('LLM이 확장 질의를 반환하면 원질의와 함께 dedup된 목록을 반환한다', async () => {
@@ -11,6 +21,7 @@ describe('RecipeSearchQueryExpansionService', () => {
     };
     const service = new RecipeSearchQueryExpansionService(
       openaiService as never,
+      createConfig(),
     );
 
     const result = await service.expandQueries({
@@ -27,6 +38,7 @@ describe('RecipeSearchQueryExpansionService', () => {
     expect(openaiService.createResponse).toHaveBeenCalledWith(
       expect.any(Array),
       expect.objectContaining({
+        model: 'gpt-expansion-test',
         responseFormat: expect.objectContaining({
           type: 'json_schema',
           name: 'recipe_search_query_expansion',
@@ -42,6 +54,7 @@ describe('RecipeSearchQueryExpansionService', () => {
     };
     const service = new RecipeSearchQueryExpansionService(
       openaiService as never,
+      createConfig(),
     );
 
     const result = await service.expandQueries({
@@ -57,6 +70,7 @@ describe('RecipeSearchQueryExpansionService', () => {
     };
     const service = new RecipeSearchQueryExpansionService(
       openaiService as never,
+      createConfig(),
     );
 
     const result = await service.expandQueries({

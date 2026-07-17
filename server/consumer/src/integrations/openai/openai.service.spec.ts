@@ -57,6 +57,7 @@ describe('OpenAIService', () => {
       const result = await service.createResponse(
         [{ role: 'user', content: 'hello' }],
         {
+          model: 'gpt-override',
           instructions: 'sys',
           maxOutputTokens: 100,
           responseFormat: jsonSchemaFormat,
@@ -65,7 +66,7 @@ describe('OpenAIService', () => {
 
       expect(mockResponsesCreate).toHaveBeenCalledWith(
         expect.objectContaining({
-          model: 'gpt-test',
+          model: 'gpt-override',
           input: [{ role: 'user', content: 'hello' }],
           instructions: 'sys',
           max_output_tokens: 100,

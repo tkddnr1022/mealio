@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ChatbotEventType } from '@mealio/shared';
 import { OpenAIService } from 'src/integrations/openai/openai.service';
 import { ChatbotConversationRepository } from 'src/persistence/repositories/mongodb/chatbot-conversation.repository';
@@ -14,11 +15,15 @@ const USER_MESSAGE_MAX = 2000;
 @Injectable()
 export class SyncConversationMetaHandler {
   private readonly logger = new Logger(SyncConversationMetaHandler.name);
+  private readonly titleModel: string;
 
   constructor(
     private readonly openai: OpenAIService,
     private readonly conversations: ChatbotConversationRepository,
-  ) {}
+    config: ConfigService,
+  ) {
+    this.titleModel = config.getOrThrow<string>('OPENAI_TITLE_MODEL');
+  }
 
   async execute(params: {
     userId: number;
@@ -80,6 +85,7 @@ export class SyncConversationMetaHandler {
     const { content } = await this.openai.createResponse(
       [{ role: 'user', content: question }],
       {
+        model: this.titleModel,
         instructions:
           'You write titles for cooking and ingredient assistant conversations. The text below is the user question/request. ' +
           'Summarize the conversation topic as a single-line Korean title. Output the title only. ' +

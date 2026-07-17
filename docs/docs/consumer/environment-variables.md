@@ -101,6 +101,20 @@ cp server/consumer/.env.example server/consumer/.env.local
 | 설명 | 챗봇 Function Calling 모델 |
 | 사용처 | `ProcessChatHandler` |
 
+### `OPENAI_TITLE_MODEL`
+
+| 항목 | 내용 |
+| --- | --- |
+| 설명 | `chatbot.start` 시 대화 제목 생성 모델 |
+| 사용처 | `SyncConversationMetaHandler` |
+
+### `OPENAI_QUERY_EXPANSION_MODEL`
+
+| 항목 | 내용 |
+| --- | --- |
+| 설명 | `search_recipes` Query Expansion 모델 |
+| 사용처 | `RecipeSearchQueryExpansionService` |
+
 ### `OPENAI_EMBEDDING_MODEL`
 
 | 항목 | 내용 |
