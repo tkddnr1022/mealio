@@ -67,3 +67,4 @@ generated/
 
 .ssh/
 *.cron
+.obsidian/
