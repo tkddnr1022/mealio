@@ -1,0 +1,20 @@
+flowchart TB
+    UI[Client] --> POST["Producer<br/>POST /chatbot/messages"]
+    POST -->|Kafka chatbot-requests| PROC[ProcessChatHandler]
+    POST -->|Redis subscribe| SSE[SSE → Client]
+
+    PROC --> RESP["OpenAI Responses<br/>previous_response_id 체이닝"]
+    RESP -->|function_call| TOOLS["Tools<br/>inventory · search_recipes<br/>categories · finalize"]
+    TOOLS -->|function_call_output| RESP
+    TOOLS --> SEARCH["search_recipes<br/>해상 → expand → ANN → 재랭킹"]
+
+    RESP -->|chunk · tool_call · done| REDIS[(Redis stream)]
+    REDIS --> SSE
+    SSE --> UI
+
+    RESP --> POST_PROC["크레딧 차감 · ChatbotLog<br/>Conversation 메타"]
+
+    style POST fill:#e0234e,color:#fff
+    style PROC fill:#e0234e,color:#fff
+    style RESP fill:#10a37f,color:#fff
+    style REDIS fill:#dc382d,color:#fff

@@ -1,0 +1,43 @@
+flowchart LR
+ subgraph RDB["PostgreSQL"]
+    direction TB
+        User[("User")]
+        RecipeCategory[("RecipeCategory")]
+        Recipe[("Recipe")]
+        IngredientCategory[("IngredientCategory")]
+        Ingredient[("Ingredient")]
+        RecipeIngredient[("RecipeIngredient")]
+        UserRecipeRecommendation[("UserRecipeRecommendation")]
+        RecipeEmbedding[("RecipeEmbedding")]
+  end
+ subgraph DOC["MongoDB"]
+    direction TB
+        Inventory[("Inventory<br>owned · favorite IDs")]
+        ChatbotConversation[("ChatbotConversation")]
+        ChatbotLog[("ChatbotLog<br>TTL 30d")]
+        EventLog[("EventLog<br>TTL 90d")]
+  end
+    RecipeCategory -- FK --> Recipe
+    IngredientCategory -- FK --> Ingredient
+    Recipe -- FK --> RecipeIngredient & UserRecipeRecommendation
+    Ingredient -- FK --> RecipeIngredient
+    User -- FK --> UserRecipeRecommendation
+    Recipe -- FK 1:1 --> RecipeEmbedding
+    ChatbotConversation -. conversationId .-> ChatbotLog
+    User -. userId .-> Inventory & ChatbotConversation & ChatbotLog
+    User -. "actor.userId" .-> EventLog
+    Inventory -. ingredient IDs .-> Ingredient
+    Inventory -. recipe IDs .-> Recipe
+
+    style User fill:#527fff,color:#fff
+    style RecipeCategory fill:#527fff,color:#fff
+    style Recipe fill:#527fff,color:#fff
+    style IngredientCategory fill:#527fff,color:#fff
+    style Ingredient fill:#527fff,color:#fff
+    style RecipeIngredient fill:#527fff,color:#fff
+    style UserRecipeRecommendation fill:#527fff,color:#fff
+    style RecipeEmbedding fill:#527fff,color:#fff
+    style Inventory fill:#13aa52,color:#fff
+    style ChatbotConversation fill:#13aa52,color:#fff
+    style ChatbotLog fill:#13aa52,color:#fff
+    style EventLog fill:#13aa52,color:#fff

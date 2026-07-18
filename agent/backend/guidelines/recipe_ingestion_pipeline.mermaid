@@ -1,0 +1,29 @@
+flowchart TB
+    PDA["공공데이터 API"] --> FETCH["fetch job"]
+    FETCH -- Kafka / cron --> PARSE_SUB["parse-submit<br>Batch 제출 · prompt 규칙"]
+    PARSE_SUB --> OAI["OpenAI Batch API<br>Parse · Embedding"]
+    PARSE_SUB -- cron 폴링 --> PARSE_RET["parse-retrieve<br>비동기 결과 수집"]
+    PARSE_RET --> OAI
+    PARSE_RET -- Kafka / cron --> PERSIST["persist<br>재료 매칭"]
+    PERSIST -- confidence high → isPublished --> PG[("PostgreSQL<br>Recipe · Ingredient · Embedding")]
+    PERSIST -- medium · low → unpublished --> PG
+    PERSIST -- Kafka / cron --> EMBED_SUB["embed-submit<br>Embedding Batch"]
+    EMBED_SUB --> OAI
+    EMBED_SUB -- cron 폴링 --> EMBED_RET["embed-retrieve"]
+    EMBED_RET --> OAI & PG
+    FETCH -.-> JOBS[("Mongo status SSOT<br>Optimistic Lock")]
+    PARSE_SUB -.-> JOBS
+    PARSE_RET -.-> JOBS
+    PERSIST -.-> JOBS
+    EMBED_SUB -.-> JOBS
+    EMBED_RET -.-> JOBS
+
+    style FETCH fill:#e0234e,color:#fff
+    style PARSE_SUB fill:#e0234e,color:#fff
+    style OAI fill:#10a37f,color:#fff
+    style PARSE_RET fill:#e0234e,color:#fff
+    style PERSIST fill:#e0234e,color:#fff
+    style PG fill:#527fff,color:#fff
+    style EMBED_SUB fill:#e0234e,color:#fff
+    style EMBED_RET fill:#e0234e,color:#fff
+    style JOBS fill:#13aa52,color:#fff
