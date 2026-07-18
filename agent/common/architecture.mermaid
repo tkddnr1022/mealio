@@ -3,38 +3,29 @@ graph TB
         WEB[Web Browser]
     end
 
-    subgraph "CDN & Edge"
-        CF[CloudFlare CDN]
+    subgraph "Edge"
         VERCEL[Vercel<br/>Next.js Frontend]
     end
 
     subgraph "AWS Cloud"
-        subgraph "Route 53"
-            R53[DNS Routing]
-        end
-
-        subgraph "APP Instance — Public Subnet (Docker Compose)"
+        subgraph "APP Instance — Public Subnet"
             NGINX[Nginx<br/>Reverse Proxy]
             subgraph "Producer Runtime"
-                API[NestJS Producer<br/>:4000]
+                API[NestJS Producer<br/>]
             end
             subgraph "Consumer Runtime"
                 CONSUMER[NestJS Consumer<br/>Event Processor]
             end
         end
 
-        subgraph "INFRA Instance — Private Subnet (Docker Compose)"
-            PG[(PostgreSQL<br/>:5432)]
-            REDIS[(Redis<br/>:6379)]
-            KAFKA[Apache Kafka<br/>:9092]
+        subgraph "INFRA Instance — Private Subnet"
+            PG[(PostgreSQL<br/>)]
+            REDIS[(Redis<br/>)]
+            KAFKA[Apache Kafka<br/>]
             TOPICS["Topics:<br/>- activity-events<br/>- user-events<br/>- cache-invalidation<br/>- chatbot-requests"]
             PROM[Prometheus]
-            PGW[Pushgateway<br/>:9091]
+            PGW[Pushgateway<br/>]
             GRAFANA[Grafana]
-        end
-
-        subgraph "Storage"
-            S3[AWS S3<br/>Recipe Images]
         end
     end
 
@@ -55,10 +46,8 @@ graph TB
     end
 
     %% Client Connections
-    WEB --> CF
-    CF --> VERCEL
-    VERCEL --> R53
-    R53 --> NGINX
+    WEB --> VERCEL
+    VERCEL --> NGINX
     NGINX --> API
 
     %% API Connections
@@ -66,7 +55,6 @@ graph TB
     API --> PG
     API --> MONGO
     API --> KAFKA
-    API --> S3
     API --> OPENAI
     API --> SENTRY
     API --> GA
@@ -80,7 +68,6 @@ graph TB
     CONSUMER --> PG
     CONSUMER --> MONGO
     CONSUMER --> OPENAI
-    CONSUMER --> S3
     CONSUMER --> PGW
 
     %% Monitoring (Prometheus scrapes APP Instance metrics)
@@ -101,5 +88,4 @@ graph TB
     style PG fill:#527fff,color:#fff
     style MONGO fill:#13aa52,color:#fff
     style OPENAI fill:#10a37f,color:#fff
-    style CF fill:#f38020,color:#fff
     style NGINX fill:#009639,color:#fff
