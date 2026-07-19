@@ -16,7 +16,7 @@ AI 기반 맞춤형 레시피 추천 플랫폼
 
 ## 링크 (Links)
 
-- 레피시 데이터 소스: [식약처 공공데이터](https://www.foodsafetykorea.go.kr/apiMain.do)
+- 레피시 데이터 소스: [식약처 공공데이터](https://www.data.go.kr/data/15060073/openapi.do)
 - 디자인 시스템: [Figma](https://www.figma.com/design/r9bdZPeswvPR1ncezzt4ri/Mealio)
 - 데모: [mealio.site](https://mealio.site)
 - 문서: [docs.mealio.site](https://docs.mealio.site)
