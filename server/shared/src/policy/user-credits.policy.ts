@@ -4,7 +4,7 @@
  */
 export const DEFAULT_USER_CREDIT_BALANCE = 1000;
 export const DEFAULT_USER_CREDIT_MONTHLY_LIMIT = 1000;
-export const TOKENS_PER_CREDIT = 30;
+export const TOKENS_PER_CREDIT = 60;
 
 /**
  * 토큰 사용량으로 차감 크레딧을 계산한다.
