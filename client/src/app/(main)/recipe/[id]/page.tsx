@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import { RecipeDetailClientPage } from './RecipeDetailClientPage';
 import { getRecipeById, getRecipeStaticIds } from '@/lib/api/domains';
@@ -18,6 +19,10 @@ interface RecipeDetailPageProps {
 }
 
 const STATIC_PARAMS_SIZE = 50;
+
+const getRecipeDetail = cache((recipeId: number) =>
+  getRecipeById(recipeId, isrRecipeDetailFetch(recipeId)),
+);
 
 export async function generateStaticParams(): Promise<{ id: string }[]> {
   const result = await fetchForIsr({
@@ -48,10 +53,7 @@ export async function generateMetadata({
   }
 
   try {
-    const recipe = await getRecipeById(
-      recipeId,
-      isrRecipeDetailFetch(recipeId),
-    );
+    const recipe = await getRecipeDetail(recipeId);
     const rawDescription =
       recipe.description?.trim() ||
       `${recipe.title} 레시피 (${recipe.categoryName})의 재료·조리법 안내입니다.`;
@@ -92,7 +94,7 @@ export default async function RecipeDetailPage({
 
   let recipe: RecipeDetail;
   try {
-    recipe = await getRecipeById(recipeId, isrRecipeDetailFetch(recipeId));
+    recipe = await getRecipeDetail(recipeId);
   } catch (error) {
     if (isApiError(error) && error.status === 404) {
       notFound();

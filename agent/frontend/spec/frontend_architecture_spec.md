@@ -33,7 +33,7 @@
 | (main) · 레시피 탭 | `/recipe` | `(main)/recipe/page.tsx` | ISR + CSR 조합 | `ISR_RECIPE_LIST_FETCH`(300초, tags `recipes`·`recipe-list`). 레시피 메인(공개 섹션 ISR + 개인화 추천 섹션 CSR) |
 | (main) · 레시피 탭 | `/recipe/filter` | `(main)/recipe/filter/page.tsx` | ISR | `ISR_RECIPE_CATEGORIES_FETCH`(300초). 레시피 카테고리·필터 UI |
 | (main) · 레시피 탭 | `/recipe/search` | `(main)/recipe/search/page.tsx` | SSR | `searchParams` 기반 서버에서 `searchRecipes` 등 호출 후 클라이언트 위젯에 전달(동적 렌더링, ISR fetch 옵션 없음) |
-| (main) · 레시피 탭 | `/recipe/[id]` | `(main)/recipe/[id]/page.tsx` | 온디맨드 ISR | `isrRecipeDetailFetch(id)`, `generateStaticParams`(size 10). 데이터 변경 시 `POST /api/revalidate`(본문 `{ secret, tags }`) → `revalidateTag` |
+| (main) · 레시피 탭 | `/recipe/[id]` | `(main)/recipe/[id]/page.tsx` | 온디맨드 ISR | page 내 `cache` + `isrRecipeDetailFetch(id)`, `generateStaticParams`(size 10). 데이터 변경 시 `POST /api/revalidate`(본문 `{ secret, tags }`) → `revalidateTag` |
 | (main) · 챗봇 탭 | `/chatbot/list` | `(main)/chatbot/list/page.tsx` | CSR | 대화 목록 |
 | (main) · 챗봇 탭 | `/chatbot/[id]` | `(main)/chatbot/[id]/page.tsx` | CSR | 대화 |
 | (main) · 재료 | `/ingredient/filter` | `(main)/ingredient/filter/page.tsx` | ISR | `ISR_INGREDIENT_CATEGORIES_FETCH`(300초). 재료 필터/선택(보관함 재료 추가 시 `?type=owned\|favorites` 등) |
@@ -119,7 +119,7 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 | `/recipe` | RecipeMainPage | ISR | `ISR_RECIPE_LIST_FETCH`(300초). 레시피 메인 |
 | `/recipe/search` | RecipeListPage | SSR | `searchParams`에 따라 서버에서 목록·카테고리 조회 후 하이드레이션 |
 | `/recipe/filter` | RecipeFilterPage | ISR | `ISR_RECIPE_CATEGORIES_FETCH`(300초). 카테고리 필터 UI(별도 `/recipe/category` 라우트는 없음) |
-| `/recipe/[id]` | RecipeDetailPage | 온디맨드 ISR | `isrRecipeDetailFetch`, `generateStaticParams`(size 10). `POST /api/revalidate`(본문 `{ secret, tags }`) 웹훅으로 `revalidateTag` |
+| `/recipe/[id]` | RecipeDetailPage | 온디맨드 ISR | page 내 `React.cache` + `isrRecipeDetailFetch`, `generateStaticParams`(size 10). `POST /api/revalidate`(본문 `{ secret, tags }`) 웹훅으로 `revalidateTag` |
 
 #### 챗봇 탭 (`/chatbot`)
 
@@ -198,6 +198,7 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 | client/src/lib/api/server/with-forwarded-headers.ts | `withForwardedHeaders<T extends RequestOptions>(options?, forward?)` — `RequestOptions`에 SSR 헤더를 병합한 옵션을 반환. 호출자 헤더 우선, 기본 forward는 `['cookie', 'correlationId']`, 옵트인으로 `'acceptLanguage'`. 사용 예: `await searchRecipes(query, await withForwardedHeaders())` |
 | client/src/lib/api/server/server-fetch-wrapper.ts | `serverFetchWrapper({ fetch, currentUrl })` — SSR API 호출 공통 래퍼. `ApiError` **401** 시 `buildSsrRefreshBridgeUrl(currentUrl)`로 `redirect`. 그 외 에러는 호출자에게 전달 |
 | client/src/lib/api/server/isr-fetch.server.ts | `fetchForIsr({ fetcher, fallback })` — ISR 페이지·`generateStaticParams`용 fetch 예외 래퍼. 재검증 주기·태그는 fetcher 내부 `ISR_*_FETCH`·`isrRecipeDetailFetch` 옵션으로 선언. `CI=true`일 때 fetch 실패 시 fallback, 그 외 throw(stale 유지·로컬 빌드 실패) |
+
 | client/src/app/api/auth/refresh-bridge/route.ts | SSR refresh 브리지(`GET`). 들어온 `Cookie`로 `POST /api/v1/auth/refresh`를 호출하고, 응답 `Set-Cookie`를 브라우저로 전달. 성공 시 `next`(상대 경로만)로 복귀, 실패 시 `buildLoginUrl(next, sessionExpired=true)` |
 | client/src/app/api/revalidate/route.ts | 온디맨드 ISR 웹훅(`POST`). 본문 `{ secret, tags }` 검증 후 각 태그에 `revalidateTag(tag)` 호출. 태그는 `cache-tags.constants`의 `CACHE_TAG_PATTERN`·길이·개수 제한을 따름. `secret`은 서버 환경 변수 `REVALIDATE_SECRET`과 일치해야 함. `401`(secret 불일치), `400`(tags 유효성 실패), `500`(secret 미설정) |
 

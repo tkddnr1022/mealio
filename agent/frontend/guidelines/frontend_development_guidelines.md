@@ -17,7 +17,7 @@
 - `HttpClient`는 SSR에서만 `fetch`의 `next`·`cache` 옵션을 전달한다(`client/src/lib/api/http-client.ts`).
 - SSR Correlation-Id는 요청당 1회(`getRequestCorrelationId` ← `defaultCorrelationIdGenerator` + `React.cache`)로 고정해 동일 렌더의 여러 fetch가 Data Cache 키를 공유하게 한다.
 - `ISR_RECIPE_LIST_FETCH` 등 tag 포함 preset — `/recipe`, `/recipe/filter`, `/ingredient/filter`, `generateStaticParams`·sitemap용 static-ids
-- `isrRecipeDetailFetch(id)` — `/recipe/[id]`의 `getRecipeById` (tags: `recipes`, `recipe-detail`, `recipe:{id}`)
+- `isrRecipeDetailFetch(id)` — `/recipe/[id]`의 Data Cache 옵션(tags: `recipes`, `recipe-detail`, `recipe:{id}`). page에서 `React.cache`로 감싸 `generateMetadata`·본문 이중 fetch를 합친다.
 - 태그 정의·권장 무효화 조합: `client/src/lib/constants/cache-tags.constants.ts` (`CACHE_TAGS`, `recipeMutationRevalidateTags`)
 - 공개 ISR 페이지는 쿠키 비의존 서버 API 래퍼로 구성한다.
 
@@ -70,15 +70,21 @@
 
 1. **빌드 타임**: `generateStaticParams` + `getRecipeStaticIds({ size: 10 })`로 상위 인기 레시피 id만 사전 생성.
 2. **최초 요청**: 사전 생성되지 않은 id는 첫 방문 시 on-demand로 HTML 생성·캐시.
-3. **캐시 유지**: `getRecipeById(..., isrRecipeDetailFetch(id))` — `next.revalidate: false`, 주기 재검증 없음, 캐시는 명시적 tag 무효화까지 유지.
+3. **캐시 유지**: page 모듈의 `cache(...)` + `isrRecipeDetailFetch` — `next.revalidate: false`, 주기 재검증 없음, 캐시는 명시적 tag 무효화까지 유지. `generateMetadata`와 page 본문이 동일 요청에서 origin fetch를 1회만 수행한다.
 4. **데이터 변경 시**: 백엔드·관리 도구가 `POST /api/revalidate`(본문 `{ secret, tags: recipeMutationRevalidateTags(id) }`, `REVALIDATE_SECRET`)를 호출 → `revalidateTag` per tag. 계약은 `agent/common/openapi_spec_frontend.yaml`.
 
 ```typescript
 // app/(main)/recipe/[id]/page.tsx
+import { cache } from 'react';
+import { fetchForIsr } from '@/lib/api/server';
 import {
   ISR_RECIPE_STATIC_IDS_FETCH,
   isrRecipeDetailFetch,
 } from '@/lib/policy/cache.policy';
+
+const getRecipeDetail = cache((recipeId: number) =>
+  getRecipeById(recipeId, isrRecipeDetailFetch(recipeId)),
+);
 
 export async function generateStaticParams() {
   const result = await fetchForIsr({
@@ -90,7 +96,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }): Promise<Metadata> {
   const recipeId = Number.parseInt((await params).id, 10);
-  const recipe = await getRecipeById(recipeId, isrRecipeDetailFetch(recipeId));
+  const recipe = await getRecipeDetail(recipeId);
   return { title: recipe.title, description: recipe.description, /* ... */ };
 }
 ```
@@ -155,7 +161,7 @@ export default async function RecipesPage() {
 ### 3.2 페이지별 캐싱 요약
 
 - `/recipe`: ISR `ISR_RECIPE_LIST_FETCH`(300초), Redis 쿼리 캐시. 재검증 fetch 실패 시 stale HTML 유지(§2.1 ISR fetch 예외처리).
-- `/recipe/[id]`: 온디맨드 ISR(`isrRecipeDetailFetch`, `generateStaticParams` size 10). 데이터 변경 시 `POST /api/revalidate`(본문 `{ secret, tags }`) → `revalidateTag`. 재생성 실패 시 기존 캐시 유지.
+- `/recipe/[id]`: 온디맨드 ISR(`React.cache` + `isrRecipeDetailFetch`, `generateStaticParams` size 10). 데이터 변경 시 `POST /api/revalidate`(본문 `{ secret, tags }`) → `revalidateTag`. 재생성 실패 시 기존 캐시 유지.
 - `/recipe/filter`, `/ingredient/filter`: ISR `ISR_RECIPE_CATEGORIES_FETCH`·`ISR_INGREDIENT_CATEGORIES_FETCH`(300초). 재검증 실패 시 stale 유지.
 - `/recipe` 개인화 추천 섹션: CSR(`GET /api/v1/recipes/recommended`) + Redis 결과 캐시 TTL 1시간
 
