@@ -28,7 +28,7 @@ client/src/lib/api/
 | 기능 | 설명 |
 | --- | --- |
 | `credentials: 'include'` | HttpOnly 쿠키 자동 전송 |
-| `X-Correlation-Id` | 요청 추적 헤더 주입 |
+| `X-Correlation-Id` | 요청 추적 헤더. SSR은 요청당 동일 id(`resolveCorrelationId`), CSR은 호출마다 생성 |
 | 401 처리 | refresh 1회(인스턴스 락) → 원 요청 재시도 |
 | SSR `next`/`cache` | `RequestOptions`로 Data Cache 전달 |
 

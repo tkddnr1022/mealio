@@ -15,6 +15,7 @@
 
 - ISR 페이지의 재검증 주기·태그는 **도메인 API 호출 시** `client/src/lib/policy/cache.policy.ts`의 `ISR_*_FETCH`·`isrRecipeDetailFetch`를 `RequestOptions` 두 번째 인자로 전달한다.
 - `HttpClient`는 SSR에서만 `fetch`의 `next`·`cache` 옵션을 전달한다(`client/src/lib/api/http-client.ts`).
+- SSR Correlation-Id는 요청당 1회(`getRequestCorrelationId` ← `defaultCorrelationIdGenerator` + `React.cache`)로 고정해 동일 렌더의 여러 fetch가 Data Cache 키를 공유하게 한다.
 - `ISR_RECIPE_LIST_FETCH` 등 tag 포함 preset — `/recipe`, `/recipe/filter`, `/ingredient/filter`, `generateStaticParams`·sitemap용 static-ids
 - `isrRecipeDetailFetch(id)` — `/recipe/[id]`의 `getRecipeById` (tags: `recipes`, `recipe-detail`, `recipe:{id}`)
 - 태그 정의·권장 무효화 조합: `client/src/lib/constants/cache-tags.constants.ts` (`CACHE_TAGS`, `recipeMutationRevalidateTags`)
