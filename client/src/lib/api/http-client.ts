@@ -9,7 +9,7 @@ import { notifyAuthSessionCleared } from '@/lib/auth/auth-session';
 
 import {
   CORRELATION_ID_HEADER,
-  resolveCorrelationId,
+  defaultCorrelationIdGenerator,
 } from './correlation-id';
 import { ApiError } from './error';
 import { parseErrorResponse } from './error.parser';
@@ -21,8 +21,7 @@ import { serverFetchRequestInterceptor } from './server/server-fetch.interceptor
  *
  * - `credentials: 'include'`로 JWT HttpOnly 쿠키를 자동 포함한다.
  * - 기본 `Content-Type: application/json`, JSON 본문 자동 직렬화/역직렬화.
- * - 분산 추적용 `X-Correlation-Id`를 부여한다. SSR은 요청당 동일 id
- *   (`resolveCorrelationId`), CSR·명시 `correlationId`·기존 헤더는 그대로 우선.
+ * - 모든 요청에 분산 추적용 `X-Correlation-Id` 헤더를 부여한다(외부에서 지정 가능).
  * - 비 2xx 응답·네트워크 오류는 {@link ApiError}로 정규화되어 throw된다.
  * - SSE·스트리밍처럼 원시 Response가 필요한 경우 {@link HttpClient.raw}를 사용한다.
  *
@@ -95,10 +94,7 @@ export interface RequestOptions {
 
 export interface HttpClientConfig {
   baseUrl?: string;
-  /**
-   * Correlation-Id 생성기.
-   * 기본: SSR은 요청 스코프 1회(`resolveCorrelationId`), CSR은 호출마다 생성.
-   */
+  /** 요청별 Correlation-Id 생성기. 기본값: crypto.randomUUID */
   generateCorrelationId?: () => string;
   /** 기본 타임아웃(ms). 요청별 `timeoutMs`로 덮어쓸 수 있다. */
   defaultTimeoutMs?: number;
@@ -126,7 +122,7 @@ export class HttpClient {
   constructor(config: HttpClientConfig = {}) {
     this.baseUrl = stripTrailingSlash(config.baseUrl ?? resolveApiBaseUrl());
     this.generateCorrelationId =
-      config.generateCorrelationId ?? resolveCorrelationId;
+      config.generateCorrelationId ?? defaultCorrelationIdGenerator;
     this.defaultTimeoutMs = config.defaultTimeoutMs ?? API_REQUEST_TIMEOUT_MS;
     this.defaultRetryPolicy = config.defaultRetryPolicy ?? API_RETRY_POLICY;
     this.requestInterceptors = [...(config.requestInterceptors ?? [])];
@@ -197,13 +193,10 @@ export class HttpClient {
     body: unknown,
     options: RequestOptions = {},
   ): Promise<T> {
+    const correlationId = options.correlationId ?? this.generateCorrelationId();
     const url = this.buildUrl(path, options.query);
 
     const headers = new Headers(options.headers);
-    const correlationId =
-      options.correlationId ??
-      headers.get(CORRELATION_ID_HEADER) ??
-      this.generateCorrelationId();
     headers.set(CORRELATION_ID_HEADER, correlationId);
     headers.set('Accept', headers.get('Accept') ?? 'application/json');
 

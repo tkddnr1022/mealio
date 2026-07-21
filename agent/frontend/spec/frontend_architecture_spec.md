@@ -177,12 +177,12 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 | 경로 | 역할 |
 |------|------|
 | **client/src/lib/api/** | 백엔드 REST API 호출 클라이언트 묶음 (저수준 인프라) |
-| client/src/lib/api/http-client.ts | fetch 래퍼. baseURL, `credentials: 'include'`(access/refresh 쿠키 자동 포함), Content-Type, 공통 에러 변환·Correlation-Id 헤더 주입(SSR은 요청당 동일 id·`resolveCorrelationId`, CSR은 호출마다 생성, 명시 `correlationId`·기존 헤더 우선), 인터셉터·타임아웃·재시도. SSR에서 `RequestOptions`의 `next`·`cache`를 Data Cache에 전달. SSR·빌드 시 `INTERNAL_API_SECRET`을 `X-Internal-Api-Secret` 헤더로 주입(`server/server-fetch.interceptor.ts`). **CSR**에서 API **401** 시 `POST /api/v1/auth/refresh` 1회(인스턴스 락)·원 요청 재시도. `RequestOptions`·`HttpClient`·`createHttpClient`·기본 `httpClient` export |
+| client/src/lib/api/http-client.ts | fetch 래퍼. baseURL, `credentials: 'include'`(access/refresh 쿠키 자동 포함), Content-Type, 공통 에러 변환·Correlation-Id 헤더 주입, 인터셉터·타임아웃·재시도. SSR에서 `RequestOptions`의 `next`·`cache`를 Data Cache에 전달. SSR·빌드 시 `INTERNAL_API_SECRET`을 `X-Internal-Api-Secret` 헤더로 주입(`server/server-fetch.interceptor.ts`). **CSR**에서 API **401** 시 `POST /api/v1/auth/refresh` 1회(인스턴스 락)·원 요청 재시도. `RequestOptions`·`HttpClient`·`createHttpClient`·기본 `httpClient` export |
 | client/src/lib/api/server/server-fetch.interceptor.ts | SSR·빌드 `HttpClient` 요청 인터셉터. `INTERNAL_API_SECRET` → `X-Internal-Api-Secret` (producer 내부 API 레이트 리밋 버킷) |
 | client/src/lib/api/endpoints.ts | 엔드포인트 상수·경로 빌더 (예: `/api/v1/recipes`, `/api/v1/recipes/:id`, `/api/v1/chatbot/messages`) |
 | client/src/lib/api/error.ts | `ApiError` 클래스, HTTP 상태 → 에러 타입 매핑, 사용자 노출 메시지 변환 |
 | client/src/lib/api/error.parser.ts | API 응답 에러 바디 파싱·정규화 유틸 |
-| client/src/lib/api/correlation-id.ts | Correlation-ID 헤더 상수·`defaultCorrelationIdGenerator`·SSR 요청 스코프 `getRequestCorrelationId`(`React.cache`)·`resolveCorrelationId` |
+| client/src/lib/api/correlation-id.ts | 클라이언트 Correlation-ID 생성·전파 유틸 |
 | client/src/lib/api/query.ts | URL 쿼리 파라미터 직렬화·정규화 유틸 |
 | **client/src/lib/api/domains/** | 도메인별 API 래퍼 묶음. 모든 함수는 `fetchOptions?: RequestOptions`를 옵셔널로 받음 |
 | client/src/lib/api/domains/index.ts | 도메인 API 배럴 export(`@/lib/api/domains` 단축 import 제공) |
