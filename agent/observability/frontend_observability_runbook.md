@@ -51,6 +51,14 @@ L4 Logger        sentry.client.ts (sink)     warn→message, error→exception (
 - **Vercel**: 프로젝트 → Analytics → Web Vitals (LCP/INP/CLS)
 - **Sentry**: 예산 초과 시 `[web-vitals] LCP budget exceeded` 등 warning 메시지
 
+### 5. Sentry Uptime (프론트 배포)
+
+1. Sentry → Uptime → 모니터 URL을 **`GET /api/health`** 로 설정한다 (`/`·`/recipe` 제외).
+2. 기대 응답: `200` + `{ "ok": true, "now": <epoch ms> }`.
+3. API 생존 모니터가 필요하면 Producer `GET /health`를 별도 모니터로 둔다.
+
+`/`는 `/recipe`로 리다이렉트되고 `/recipe`는 주기 ISR이라, 페이지 URL을 찍으면 Edge 요청·ISR 재검증이 계속 발생한다.
+
 ## 수집 누락 판별
 
 | 증상 | 원인 후보 |
@@ -79,6 +87,7 @@ GA4만으로는 도메인 CVR·추천 지연을 확정할 수 없다. staging에
 - Sentry 초기화 (L1): `client/src/instrumentation-client.ts`
 - Sentry 서버/엣지: `client/sentry.server.config.ts`, `client/sentry.edge.config.ts`
 - Sentry 레이어 헬퍼 (L3/L4): `client/src/lib/observability/sentry.client.ts`, `client/src/lib/observability/api-error-sentry.ts`
+- 프론트 liveness: `client/src/app/api/health/route.ts` (`GET /api/health`)
 - 부트스트랩: `client/src/components/observability/ObservabilityBootstrap.tsx`
 - 이벤트 상수: `client/src/lib/observability/analytics-events.ts`
 - 계측 체크리스트: [frontend_event_instrumentation.md](./frontend_event_instrumentation.md)

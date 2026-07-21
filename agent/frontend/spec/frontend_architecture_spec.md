@@ -47,7 +47,7 @@
 | **(루트)** | — | `error.tsx` | CSR | 루트 레이아웃 **자식** 트리의 런타임 에러 UI(Error Boundary). 별도 URL 없음 |
 | **(루트)** | — | `global-error.tsx` | CSR | 루트 `layout.tsx`까지 포함한 치명적 에러 시 대체 UI. `<html>`·`<body>`·`globals.css` 포함, `AppRootFrame`·Provider 비적용 |
 
-**참고(현재 `client/src/app`에 없는 경로·파일)**: `/signup`, `(marketing)` 그룹 및 `/about`, `/pricing`, `api/health/route.ts` — OpenAPI·기획과 별도로 도입 시 본 표를 갱신한다.
+**참고(현재 `client/src/app`에 없는 경로·파일)**: `/signup`, `(marketing)` 그룹 및 `/about`, `/pricing` — OpenAPI·기획과 별도로 도입 시 본 표를 갱신한다.
 
 **CSR 클라이언트 페이지 컴포넌트 컨벤션**: CSR 렌더링 페이지는 `page.tsx`(서버 진입점)와 `*ClientPage.tsx`(클라이언트 본체)로 분리한다. `page.tsx`는 메타데이터·Suspense·서버 데이터 전달만 담당하고, `'use client'` 로직은 동일 디렉터리의 `*ClientPage.tsx`에 둔다. 아래는 현재 존재하는 클라이언트 페이지 컴포넌트 목록이다.
 
@@ -199,6 +199,7 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 | client/src/lib/api/server/server-fetch-wrapper.ts | `serverFetchWrapper({ fetch, currentUrl })` — SSR API 호출 공통 래퍼. `ApiError` **401** 시 `buildSsrRefreshBridgeUrl(currentUrl)`로 `redirect`. 그 외 에러는 호출자에게 전달 |
 | client/src/lib/api/server/isr-fetch.server.ts | `fetchForIsr({ fetcher, fallback })` — ISR 페이지·`generateStaticParams`용 fetch 예외 래퍼. 재검증 주기·태그는 fetcher 내부 `ISR_*_FETCH`·`isrRecipeDetailFetch` 옵션으로 선언. `CI=true`일 때 fetch 실패 시 fallback, 그 외 throw(stale 유지·로컬 빌드 실패) |
 
+| client/src/app/api/health/route.ts | 프론트 배포 liveness(`GET`). `{ ok: true, now }` + `Cache-Control: no-store`. 백엔드·ISR 비의존. Sentry Uptime 등 외부 모니터 대상 |
 | client/src/app/api/auth/refresh-bridge/route.ts | SSR refresh 브리지(`GET`). 들어온 `Cookie`로 `POST /api/v1/auth/refresh`를 호출하고, 응답 `Set-Cookie`를 브라우저로 전달. 성공 시 `next`(상대 경로만)로 복귀, 실패 시 `buildLoginUrl(next, sessionExpired=true)` |
 | client/src/app/api/revalidate/route.ts | 온디맨드 ISR 웹훅(`POST`). 본문 `{ secret, tags }` 검증 후 각 태그에 `revalidateTag(tag)` 호출. 태그는 `cache-tags.constants`의 `CACHE_TAG_PATTERN`·길이·개수 제한을 따름. `secret`은 서버 환경 변수 `REVALIDATE_SECRET`과 일치해야 함. `401`(secret 불일치), `400`(tags 유효성 실패), `500`(secret 미설정) |
 

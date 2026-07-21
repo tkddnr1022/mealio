@@ -27,10 +27,43 @@ servers:
 tags:
   - name: Authentication
     description: SSR 세션 갱신 브리지
+  - name: Health
+    description: 프론트 배포 liveness
   - name: ISR
     description: 온디맨드 ISR 재검증 웹훅
 
 paths:
+  /api/health:
+    get:
+      tags:
+        - Health
+      summary: 프론트 배포 liveness
+      description: |
+        Next.js 배포 생존 확인용 경량 엔드포인트다.
+        백엔드·DB·ISR Data Cache에 의존하지 않으며, `ok: true`와 epoch ms만 반환한다.
+
+        Sentry Uptime 등 외부 모니터는 `/`·`/recipe` 대신 이 경로를 사용한다.
+        `/`는 `/recipe`로 리다이렉트되고 `/recipe`는 주기 ISR이므로, 페이지 URL을 모니터하면
+        Edge 요청과 ISR 재검증이 불필요하게 발생한다.
+      operationId: getClientHealth
+      security: []
+      responses:
+        '200':
+          description: 프로세스·배포 응답 가능
+          headers:
+            Cache-Control:
+              description: 모니터가 캐시 HIT로 오인하지 않도록 `no-store`
+              schema:
+                type: string
+                example: no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientHealthResponse'
+              example:
+                ok: true
+                now: 1710000000000
+
   /api/auth/refresh-bridge:
     get:
       tags:
@@ -177,6 +210,21 @@ paths:
 
 components:
   schemas:
+    ClientHealthResponse:
+      type: object
+      required: [ok, now]
+      properties:
+        ok:
+          type: boolean
+          enum: [true]
+        now:
+          type: integer
+          format: int64
+          description: 응답 시각 (Unix epoch ms)
+      example:
+        ok: true
+        now: 1710000000000
+
     RouteHandlerErrorResponse:
       type: object
       required: [ok, error]

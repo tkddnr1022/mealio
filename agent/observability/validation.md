@@ -34,10 +34,11 @@
 
 | # | 시나리오 | 기대 결과 |
 |---|----------|-----------|
-| 2.1 | `GET /health` 호출 | `200 OK` |
-| 2.2 | `GET /ready` 호출 | `200` — PostgreSQL, MongoDB 연결 정상 |
+| 2.1 | Producer `GET /health` 호출 | `200 OK` |
+| 2.2 | Producer `GET /ready` 호출 | `200` — PostgreSQL, MongoDB 연결 정상 |
 | 2.3 | PostgreSQL 또는 MongoDB 중단 후 `/ready` | `503` 또는 의존 서비스 실패 표시 |
 | 2.4 | Compose 서비스별 healthcheck | 모든 서비스 `healthy` |
+| 2.5 | Client `GET /api/health` 호출 | `200` + `{ ok: true, now }` · `Cache-Control: no-store` |
 
 ---
 

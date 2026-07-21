@@ -53,6 +53,7 @@ BFF Route Handler는 Next.js `client/src/.../api/`에 두며, 인프라·인증 
 
 | Path | Method | 역할 |
 | --- | --- | --- |
+| `/api/health` | GET | 프론트 배포 liveness (`{ ok, now }`). Sentry Uptime 등 모니터용 |
 | `/api/auth/refresh-bridge` | GET | SSR refresh: Cookie → Producer refresh → Set-Cookie → `next` 복귀 |
 | `/api/revalidate` | POST | 온디맨드 ISR: `{ secret, tags }` → `revalidateTag` |
 
