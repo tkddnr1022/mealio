@@ -43,6 +43,9 @@
 | (main) · 마이페이지 탭 | `/mypage` | `(main)/mypage/page.tsx` | CSR | `'use client'`, `useAuth`로 로딩·비로그인·로그인 상태 분기 |
 | (main) · 마이페이지 탭 | `/mypage/profile` | `(main)/mypage/profile/page.tsx` | CSR | 프로필(닉네임) 수정 |
 | (main) · 마이페이지 탭 | `/mypage/activity` | `(main)/mypage/activity/page.tsx` | CSR | 내 활동 내역 조회 |
+| (main) · 법적 고지 | `/terms` | `(main)/terms/page.tsx` | CSR | 이용약관 |
+| (main) · 법적 고지 | `/privacy` | `(main)/privacy/page.tsx` | CSR | 개인정보 처리방침 |
+| (main) · 안내 | `/help` | `(main)/help/page.tsx` | CSR | 도움말 |
 | **(루트)** | — | `not-found.tsx` | — | 앱 전역 404 UI (`notFound()` 호출·존재하지 않는 경로). 별도 URL 없음 |
 | **(루트)** | — | `error.tsx` | CSR | 루트 레이아웃 **자식** 트리의 런타임 에러 UI(Error Boundary). 별도 URL 없음 |
 | **(루트)** | — | `global-error.tsx` | CSR | 루트 `layout.tsx`까지 포함한 치명적 에러 시 대체 UI. `<html>`·`<body>`·`globals.css` 포함, `AppRootFrame`·Provider 비적용 |
@@ -69,6 +72,9 @@
 | `(main)/mypage/` | `MypageClientPage.tsx` |
 | `(main)/mypage/profile/` | `ProfileClientPage.tsx` |
 | `(main)/mypage/activity/` | `ActivityClientPage.tsx` |
+| `(main)/terms/` | `TermsClientPage.tsx` |
+| `(main)/privacy/` | `PrivacyClientPage.tsx` |
+| `(main)/help/` | `HelpClientPage.tsx` |
 
 **보조 파일**:
 
@@ -84,6 +90,7 @@
 | (루트) | 진입 리다이렉트 | `/` → `/recipe` |
 | (auth) | 인증 (로그인·OAuth 성공/실패 안내) | `/login`, `/oauth/callback`, `/oauth/error` |
 | (main) | 앱 본체 (하단 탭 네비게이션) | `/recipe`·하위, `/ingredient`·하위, `/chatbot`·하위, `/inventory`·하위, `/mypage` |
+| (main) | 법적 고지·안내 (탭바 없음) | `/terms`, `/privacy`, `/help` |
 | (루트) | 앱 전역 에러·404 | `not-found.tsx`, `error.tsx`, `global-error.tsx` (`client/src/app/` 직속, URL 없음) |
 
 ---
@@ -149,6 +156,14 @@ OAuth는 **백엔드 주도** 흐름을 사용한다. 진입·콜백·보안 요
 | `/mypage` | MypageMainPage | CSR | `'use client'`, `useAuth` 기반 마이페이지 |
 | `/mypage/profile` | ProfilePage | CSR | 닉네임 수정 |
 | `/mypage/activity` | ActivityPage | CSR | 활동 내역 |
+
+#### 법적 고지·안내
+
+| 경로 | 컴포넌트 | 렌더링 | 설명 |
+|------|----------|--------|------|
+| `/terms` | TermsPage | CSR | 이용약관. `Navbar`(`displayTitle={false}`, `displayBackButton`) + 텍스트 본문 |
+| `/privacy` | PrivacyPage | CSR | 개인정보 처리방침. 동일 셸(`LegalDocumentView`) |
+| `/help` | HelpPage | CSR | 도움말(기능 안내·FAQ). 동일 셸(`LegalDocumentView`) |
 
 ---
 

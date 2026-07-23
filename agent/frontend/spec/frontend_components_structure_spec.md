@@ -85,6 +85,7 @@
 | client/src/components/layout/Tabbar/ | 하단 탭바 세트(`activeIndex`) |
 | client/src/components/layout/SearchBarHeader/ | 검색 화면 상단 헤더 세트(`state`) |
 | client/src/components/layout/InfoScreen/ | 빈 상태/오류/안내 공통 화면 |
+| client/src/components/layout/LegalDocumentView/ | 이용약관·개인정보 처리방침·도움말 등 텍스트 페이지 셸(`title`, 선택 `effectiveDate`) |
 
 ### 2.3 레시피 도메인 (`client/src/components/recipe/`)
 
@@ -188,3 +189,4 @@
 | `(main) · 챗봇` | `client/src/components/chatbot/` |
 | `(main) · 보관함` | `client/src/components/inventory/` |
 | `(main) · 마이페이지` | `client/src/components/mypage/` |
+| `(main) · 법적 고지·안내` | `client/src/components/layout/LegalDocumentView/` |

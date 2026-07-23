@@ -39,6 +39,12 @@ flowchart TB
         subgraph mypage_tab["마이페이지 탭"]
             MYPAGE["/mypage 마이페이지 메인<br/>[SSR]"]
         end
+
+        subgraph legal["법적 고지·안내"]
+            TERMS["/terms 이용약관<br/>[CSR]"]
+            PRIVACY["/privacy 개인정보 처리방침<br/>[CSR]"]
+            HELP["/help 도움말<br/>[CSR]"]
+        end
     end
 
     subgraph err_root["루트 에러·404 (URL 없음)"]
@@ -91,6 +97,14 @@ flowchart TB
     %% 마이페이지에서 로그아웃 등 → 랜딩/로그인
     MYPAGE -.-> LOGIN
     MYPAGE -.-> LANDING
+    MYPAGE --> TERMS
+    MYPAGE --> PRIVACY
+    MYPAGE --> HELP
+    LOGIN --> TERMS
+    LOGIN --> PRIVACY
+    TERMS -.-> MYPAGE
+    PRIVACY -.-> MYPAGE
+    HELP -.-> MYPAGE
 
     %% 잘못된 경로 → 404
     LANDING -.-> NOT_FOUND

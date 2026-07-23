@@ -16,3 +16,8 @@ export const CHATBOT_PATH_PREFIX = '/chatbot' as const;
 export const INVENTORY_PATH_PREFIX = '/inventory' as const;
 export const MYPAGE_PATH_PREFIX = '/mypage' as const;
 export const OAUTH_PATH_PREFIX = '/oauth' as const;
+
+/** 법적 고지·안내 */
+export const TERMS_PATH = '/terms' as const;
+export const PRIVACY_PATH = '/privacy' as const;
+export const HELP_PATH = '/help' as const;

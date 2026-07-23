@@ -18,6 +18,11 @@ import { MenuSection, MypageHeader } from '@/components/mypage';
 import { AuthStatus, useAuth } from '@/lib/auth/auth-context';
 import { toProfileIconShellProvider } from '@/lib/auth/providers';
 import { buildLoginUrl } from '@/lib/auth/routes';
+import {
+  HELP_PATH,
+  PRIVACY_PATH,
+  TERMS_PATH,
+} from '@/lib/constants/routes.constants';
 import { useLogoutMutation } from '@/lib/queries/auth.queries';
 
 export function MypageClientPage() {
@@ -78,7 +83,7 @@ export function MypageClientPage() {
             <MenuSection
               items={[
                 {
-                  href: '#help',
+                  href: HELP_PATH,
                   label: '도움말',
                   leadingIcon: (
                     <CircleHelp
@@ -93,14 +98,14 @@ export function MypageClientPage() {
             <MenuSection
               items={[
                 {
-                  href: '/terms',
+                  href: TERMS_PATH,
                   label: '이용약관',
                   leadingIcon: (
                     <FileText className="size-5" strokeWidth={2} aria-hidden />
                   ),
                 },
                 {
-                  href: '/privacy',
+                  href: PRIVACY_PATH,
                   label: '개인정보 처리방침',
                   leadingIcon: (
                     <Shield className="size-5" strokeWidth={2} aria-hidden />
@@ -147,14 +152,29 @@ export function MypageClientPage() {
             <MenuSection
               items={[
                 {
-                  href: '/terms',
+                  href: HELP_PATH,
+                  label: '도움말',
+                  leadingIcon: (
+                    <CircleHelp
+                      className="size-5"
+                      strokeWidth={2}
+                      aria-hidden
+                    />
+                  ),
+                },
+              ]}
+            />
+            <MenuSection
+              items={[
+                {
+                  href: TERMS_PATH,
                   label: '이용약관',
                   leadingIcon: (
                     <FileText className="size-5" strokeWidth={2} aria-hidden />
                   ),
                 },
                 {
-                  href: '/privacy',
+                  href: PRIVACY_PATH,
                   label: '개인정보 처리방침',
                   leadingIcon: (
                     <Shield className="size-5" strokeWidth={2} aria-hidden />

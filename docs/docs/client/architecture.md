@@ -15,6 +15,7 @@
 | (루트) | 진입 리다이렉트, 전역 에러 | `/` → `/recipe` |
 | (auth) | 로그인·OAuth | `/login`, `/oauth/callback` |
 | (main) | 앱 본체 (하단 탭) | `/recipe`, `/chatbot`, `/inventory`, `/mypage` |
+| (main) | 법적 고지·안내 | `/terms`, `/privacy`, `/help` |
 
 `(main)` 전용 `layout.tsx`는 없으며, 탭과 Navbar는 페이지·컴포넌트에서 조합합니다.
 
@@ -26,7 +27,7 @@
 | **ISR + CSR** | `/recipe` (공개 섹션 ISR + 개인화 추천 CSR) |
 | **온디맨드 ISR** | `/recipe/[id]` |
 | **SSR** | `/`, `/recipe/search` |
-| **CSR** | 로그인·OAuth, 챗봇, 보관함, 마이페이지 |
+| **CSR** | 로그인·OAuth, 챗봇, 보관함, 마이페이지, 이용약관·개인정보 처리방침·도움말 |
 
 렌더링·캐시 정책은 `client/src/.../cache.policy.ts`에 정의되어 있습니다.
 

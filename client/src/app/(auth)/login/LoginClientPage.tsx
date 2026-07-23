@@ -13,7 +13,11 @@ import {
 import { notifyApiError } from '@/lib/toast';
 import { ApiError } from '@/lib/api/error';
 import { notifyAuthSessionCleared } from '@/lib/auth/auth-session';
-import { HOME_PATH } from '@/lib/constants/routes.constants';
+import {
+  HOME_PATH,
+  PRIVACY_PATH,
+  TERMS_PATH,
+} from '@/lib/constants/routes.constants';
 
 function LoginPageContent() {
   const searchParams = useSearchParams();
@@ -58,8 +62,8 @@ function LoginPageContent() {
 
           <LoginFooter
             className="w-full"
-            leftLink={{ label: '이용약관', href: '/terms' }}
-            rightLink={{ label: '개인정보 처리방침', href: '/privacy' }}
+            leftLink={{ label: '이용약관', href: TERMS_PATH }}
+            rightLink={{ label: '개인정보 처리방침', href: PRIVACY_PATH }}
           />
         </div>
       </main>

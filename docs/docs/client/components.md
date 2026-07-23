@@ -11,7 +11,7 @@
 ```text
 client/src/components/
 ├── ui/          # 도메인 중립 프리미티브 (디자인 시스템)
-├── layout/      # 앱 셸 (Navbar, Tabbar 등)
+├── layout/      # 앱 셸 (Navbar, Tabbar, LegalDocumentView 등)
 ├── recipe/      # 레시피 탭
 ├── chatbot/     # 챗봇 탭
 ├── inventory/   # 보관함 탭
