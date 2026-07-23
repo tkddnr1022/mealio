@@ -10,10 +10,7 @@ const EFFECTIVE_DATE = '2026년 7월 23일';
 
 export function PrivacyClientPage() {
   return (
-    <LegalDocumentView
-      title="개인정보 처리방침"
-      effectiveDate={EFFECTIVE_DATE}
-    >
+    <LegalDocumentView title="개인정보 처리방침" effectiveDate={EFFECTIVE_DATE}>
       <LegalSection title="1. 안내">
         <p className="m-0">
           {APP_BRAND_NAME}(이하 &quot;서비스&quot;)는 오픈소스 프로젝트의{' '}
@@ -53,11 +50,11 @@ export function PrivacyClientPage() {
 
       <LegalSection title="4. 보유·파기">
         <p className="m-0">
-          데모 목적 달성·계정 정리·인프라 재배포 시 데이터를 삭제할 수
-          있습니다. 챗봇 기록·활동 로그 등은 정책상 단기 보관(예: 대화 약
-          30일, 활동 로그 약 90일) 후 만료될 수 있으며,{' '}
-          <span className="typo-body-medium">예고 없이 전체 초기화</span>될
-          수도 있습니다. 장기간 보관이 필요한 정보는 입력하지 마세요.
+          데모 목적 달성·계정 정리·인프라 재배포 시 데이터를 삭제할 수 있습니다.
+          챗봇 기록·활동 로그 등은 정책상 단기 보관(예: 대화 약 30일, 활동 로그
+          약 90일) 후 만료될 수 있으며,{' '}
+          <span className="typo-body-medium">예고 없이 전체 초기화</span>될 수도
+          있습니다. 장기간 보관이 필요한 정보는 입력하지 마세요.
         </p>
       </LegalSection>
 
@@ -79,8 +76,8 @@ export function PrivacyClientPage() {
 
       <LegalSection title="6. 쿠키">
         <p className="m-0">
-          로그인 유지·보안을 위해 인증 쿠키 등을 사용합니다. 브라우저에서
-          쿠키를 차단하면 로그인 기능이 동작하지 않을 수 있습니다.
+          로그인 유지·보안을 위해 인증 쿠키 등을 사용합니다. 브라우저에서 쿠키를
+          차단하면 로그인 기능이 동작하지 않을 수 있습니다.
         </p>
       </LegalSection>
 
@@ -88,8 +85,8 @@ export function PrivacyClientPage() {
         <p className="m-0">
           닉네임 등 일부 정보는 마이페이지에서 수정할 수 있습니다. 계정·데이터
           삭제 등 기타 요청은 공개 저장소(GitHub Issues 등)로 문의해 주세요.
-          데모 환경 특성상 즉시 처리가 어려울 수 있으며, 전체 초기화로 대체될
-          수 있습니다.
+          데모 환경 특성상 즉시 처리가 어려울 수 있으며, 전체 초기화로 대체될 수
+          있습니다.
         </p>
       </LegalSection>
 
@@ -103,8 +100,8 @@ export function PrivacyClientPage() {
 
       <LegalSection title="9. 변경">
         <p className="m-0">
-          본 안내문은 데모 운영에 맞춰 수시로 수정될 수 있으며, 본 페이지
-          게시 시점부터 적용됩니다.
+          본 안내문은 데모 운영에 맞춰 수시로 수정될 수 있으며, 본 페이지 게시
+          시점부터 적용됩니다.
         </p>
       </LegalSection>
 

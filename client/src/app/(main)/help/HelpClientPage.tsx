@@ -29,9 +29,7 @@ export function HelpClientPage() {
             Google·Kakao·Naver 소셜 로그인만 지원하며, 별도 이메일 가입은
             없습니다.
           </li>
-          <li>
-            레시피 목록·검색·상세는 로그인 없이도 둘러볼 수 있습니다.
-          </li>
+          <li>레시피 목록·검색·상세는 로그인 없이도 둘러볼 수 있습니다.</li>
         </ul>
       </LegalSection>
 
@@ -70,24 +68,20 @@ export function HelpClientPage() {
             <span className="typo-body-medium">관심 레시피</span>: 저장한
             레시피를 다시 엽니다.
           </li>
-          <li>
-            재료 추가는 재료 필터/검색 화면에서 고른 뒤 저장합니다.
-          </li>
+          <li>재료 추가는 재료 필터/검색 화면에서 고른 뒤 저장합니다.</li>
         </ul>
       </LegalSection>
 
       <LegalSection title="챗봇">
         <ul className="m-0 list-disc space-y-1 pl-5">
-          <li>
-            대화 목록에서 새 대화를 시작하거나 이전 대화를 이어갑니다.
-          </li>
+          <li>대화 목록에서 새 대화를 시작하거나 이전 대화를 이어갑니다.</li>
           <li>
             재료·레시피·보관함 정보를 바탕으로 추천·요리 안내를 받을 수
             있습니다. 응답은 참고용입니다.
           </li>
           <li>
-            데모에서는 <span className="typo-body-medium">크레딧</span>이
-            차감될 수 있으며, 한도·잔액은 마이페이지에서 확인합니다. 크레딧은
+            데모에서는 <span className="typo-body-medium">크레딧</span>이 차감될
+            수 있으며, 한도·잔액은 마이페이지에서 확인합니다. 크레딧은
             체험용이며 환불되지 않습니다.
           </li>
         </ul>
@@ -118,8 +112,8 @@ export function HelpClientPage() {
         </p>
         <p className="m-0 typo-body-medium">문의는 어디로 하나요?</p>
         <p className="m-0">
-          상용 고객센터는 없습니다. 버그·질문·제안은 GitHub 저장소 Issues로
-          남겨 주세요. 문서는 docs.mealio.site에서도 확인할 수 있습니다.
+          상용 고객센터는 없습니다. 버그·질문·제안은 GitHub 저장소 Issues로 남겨
+          주세요. 문서는 docs.mealio.site에서도 확인할 수 있습니다.
         </p>
       </LegalSection>
 
